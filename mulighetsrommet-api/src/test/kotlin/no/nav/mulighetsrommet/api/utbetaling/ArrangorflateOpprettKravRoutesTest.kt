@@ -48,6 +48,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
     val deltaker = ArrangorflateTestUtils.createTestDeltaker()
     val tilsagn = ArrangorflateTestUtils.createTestTilsagn()
     val aftGjennomforing = GjennomforingFixtures.AFT1
+    // TODO: gjør det tydligere i testene hvilke prismodeller som gjelder per gjennomføring
     val oppfolgingGjennomforing = GjennomforingFixtures.Oppfolging1
     val arrGjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
 
@@ -196,7 +197,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
         }
     }
 
-    test("Timespris får liste av tilgjengelige perioder") {
+    test("Avtalt pris per time oppfølging får liste av tilgjengelige perioder") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val response =
                 client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${oppfolgingGjennomforing.id}/opprett-krav/innsendingsinformasjon") {

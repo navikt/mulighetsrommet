@@ -1,6 +1,6 @@
 import { BeregnTilsagnRequest, TilsagnService } from "@tiltaksadministrasjon/api-client";
 import { useApiQuery, useDebounce } from "@mr/frontend-common";
-import { QueryKeys } from "../QueryKeys";
+import { QueryKeys } from "@/api/QueryKeys";
 
 export function useBeregnTilsagn(request: BeregnTilsagnRequest) {
   const debouncedSerialized = useDebounce(JSON.stringify(request), 300);

@@ -18,7 +18,8 @@ import io.ktor.http.isSuccess
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.securelog.SecureLog
+import no.nav.mulighetsrommet.teamLogsError
+import no.nav.mulighetsrommet.teamLogsWarn
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
@@ -58,26 +59,25 @@ class KontoregisterOrganisasjonClient(
             response.body<KontonummerResponse>().right()
         } else if (response.status === HttpStatusCode.NotFound) {
             val error = response.body<Feilmelding>()
-            SecureLog.logger.warn(
+            log.teamLogsWarn(
                 "Fant ikke orgnummer: ${organisasjonsnummer.value} i kontoregisteret. Feilmelding: ${error.feilmelding}",
                 response.bodyAsText(),
             )
-            log.error("Fant ikke orgnummer for arrangør i kontoregisteret. Se detaljer i secureLog.")
+            log.error("Fant ikke orgnummer for arrangør i kontoregisteret. Se detaljer i Team Logs.")
             KontonummerRegisterOrganisasjonError.FantIkkeKontonummer.left()
         } else if (response.status === HttpStatusCode.MethodNotAllowed) {
             val error = response.body<Feilmelding>()
-            SecureLog.logger.error(
-                "Ugyldig input ved henting av kontonummer fra kontoregisteret. Feilmelding: ${error.feilmelding}",
-                response.bodyAsText(),
+            log.teamLogsError(
+                "Ugyldig input ved henting av kontonummer fra kontoregisteret. Feilmelding: ${error.feilmelding} ${response.bodyAsText()}",
             )
-            log.error("Ugyldig input ved henting av kontonummer fra kontoregisteret. Se detaljer i secureLog.")
+            log.error("Ugyldig input ved henting av kontonummer fra kontoregisteret. Se detaljer i Team Logs.")
             KontonummerRegisterOrganisasjonError.UgyldigInput.left()
         } else {
-            SecureLog.logger.warn(
+            log.teamLogsWarn(
                 "Klarte ikke hente kontonummer for arrangør: ${organisasjonsnummer.value}. Error: {}",
                 response.bodyAsText(),
             )
-            log.warn("Klarte ikke hente kontonummer for arrangør. Se detaljer i secureLog.")
+            log.warn("Klarte ikke hente kontonummer for arrangør. Se detaljer i Team Logs.")
             KontonummerRegisterOrganisasjonError.Error.left()
         }
     }

@@ -11,13 +11,9 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
@@ -27,7 +23,6 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import java.time.LocalDate
 import java.util.UUID
 
 class AvtaleRoutesTest : FunSpec({
@@ -116,26 +111,6 @@ class AvtaleRoutesTest : FunSpec({
                 }
                 response.status shouldBe HttpStatusCode.BadRequest
             }
-        }
-    }
-
-    context("hent avtalte satser") {
-        beforeEach {
-            MulighetsrommetTestDomain(
-                avtaler = listOf(
-                    AvtaleFixtures.AFT,
-                    AvtaleFixtures.oppfolging.copy(
-                        prismodellDbo = listOf(
-                            PrismodellDbo(
-                                id = UUID.randomUUID(),
-                                type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                                prisbetingelser = null,
-                                satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
-                            ),
-                        ),
-                    ),
-                ),
-            ).initialize(database.db)
         }
     }
 })

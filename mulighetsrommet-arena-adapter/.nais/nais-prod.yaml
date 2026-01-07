@@ -36,8 +36,6 @@ spec:
       destinations:
         - id: elastic
         - id: loki
-  secureLogs:
-    enabled: true
   prometheus:
     enabled: true
     path: /internal/prometheus
@@ -75,6 +73,8 @@ spec:
       rules:
         - application: mulighetsrommet-api
         - application: tiltakshistorikk
+        - application: logging
+          namespace: nais-system
       external:
         - host: amt-arena-ords-proxy.prod-fss-pub.nais.io
         - host: slack.com

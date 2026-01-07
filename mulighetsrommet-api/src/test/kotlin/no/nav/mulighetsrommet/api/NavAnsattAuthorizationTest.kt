@@ -30,7 +30,6 @@ class NavAnsattAuthorizationTest : FunSpec({
         ansatte = listOf(NavAnsattFixture.DonaldDuck),
         navEnheter = listOf(NavEnhetFixtures.Innlandet),
         arrangorer = listOf(),
-        avtaler = listOf(),
     )
 
     beforeSpec {

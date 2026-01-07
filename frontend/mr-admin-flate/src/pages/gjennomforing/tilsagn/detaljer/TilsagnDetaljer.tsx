@@ -1,15 +1,9 @@
-import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
-import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
-import { useTilsagnTilAnnullering } from "@/api/tilsagn/useTilsagnTilAnnullering";
-import { useTilsagnTilOppgjor } from "@/api/tilsagn/useTilsagnTilOppgjor";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
-  Besluttelse,
-  BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
   FieldError,
   TilsagnHandling,
   TilsagnStatus,
@@ -50,6 +44,13 @@ import {
   Separator,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { DataDetails } from "@mr/frontend-common";
+import {
+  useGodkjennTilsagn,
+  useReturnerTilsagn,
+  useSlettTilsagn,
+  useTilsagnTilAnnullering,
+  useTilsagnTilOppgjor,
+} from "@/api/tilsagn/mutations";
 
 function useTilsagnDetaljer(tilsagnId: string) {
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
@@ -73,7 +74,8 @@ export function TilsagnDetaljer() {
   const { tilsagn, beregning, opprettelse, annullering, tilOppgjor, historikk, handlinger } =
     useTilsagnDetaljer(tilsagnId);
 
-  const besluttMutation = useBesluttTilsagn();
+  const godkjennTilsagnMutation = useGodkjennTilsagn();
+  const returnerTilsagnMutation = useReturnerTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
   const tilOppgjorMutation = useTilsagnTilOppgjor();
   const slettMutation = useSlettTilsagn();
@@ -91,14 +93,19 @@ export function TilsagnDetaljer() {
     navigate(-1);
   }
 
-  function besluttTilsagn(request: BesluttTotrinnskontrollRequestTilsagnStatusAarsak) {
-    besluttMutation.mutate(
+  function godkjennTilsagn() {
+    godkjennTilsagnMutation.mutate(
+      { id: tilsagn.id },
       {
-        id: tilsagn.id,
-        body: {
-          ...request,
-        },
+        onSuccess: navigerTilbake,
+        onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
+    );
+  }
+
+  function returnerTilsagn(request: AarsakerOgForklaringRequestTilsagnStatusAarsak) {
+    returnerTilsagnMutation.mutate(
+      { id: tilsagn.id, request },
       {
         onSuccess: navigerTilbake,
         onValidationError: (error: ValidationError) => setErrors(error.errors),
@@ -108,11 +115,7 @@ export function TilsagnDetaljer() {
 
   function tilAnnullering(request: AarsakerOgForklaringRequestTilsagnStatusAarsak) {
     tilAnnulleringMutation.mutate(
-      {
-        id: tilsagn.id,
-        aarsaker: request.aarsaker,
-        forklaring: request.forklaring || null,
-      },
+      { id: tilsagn.id, request },
       {
         onSuccess: navigerTilbake,
         onValidationError: (error: ValidationError) => setErrors(error.errors),
@@ -122,11 +125,7 @@ export function TilsagnDetaljer() {
 
   function upsertTilOppgjor(request: AarsakerOgForklaringRequestTilsagnStatusAarsak) {
     tilOppgjorMutation.mutate(
-      {
-        id: tilsagn.id,
-        aarsaker: request.aarsaker,
-        forklaring: request.forklaring || null,
-      },
+      { id: tilsagn.id, request },
       {
         onSuccess: navigerTilbake,
         onValidationError: (error: ValidationError) => setErrors(error.errors),
@@ -363,17 +362,7 @@ export function TilsagnDetaljer() {
             </Button>
           )}
           {handlinger.includes(TilsagnHandling.GODKJENN) && (
-            <Button
-              size="small"
-              type="button"
-              onClick={() =>
-                besluttTilsagn({
-                  besluttelse: Besluttelse.GODKJENT,
-                  aarsaker: [],
-                  forklaring: null,
-                })
-              }
-            >
+            <Button size="small" type="button" onClick={godkjennTilsagn}>
               Godkjenn tilsagn
             </Button>
           )}
@@ -388,18 +377,7 @@ export function TilsagnDetaljer() {
             </Button>
           )}
           {handlinger.includes(TilsagnHandling.GODKJENN_ANNULLERING) && (
-            <Button
-              size="small"
-              variant="danger"
-              type="button"
-              onClick={() =>
-                besluttTilsagn({
-                  besluttelse: Besluttelse.GODKJENT,
-                  aarsaker: [],
-                  forklaring: null,
-                })
-              }
-            >
+            <Button size="small" variant="danger" type="button" onClick={godkjennTilsagn}>
               Bekreft annullering
             </Button>
           )}
@@ -414,18 +392,7 @@ export function TilsagnDetaljer() {
             </Button>
           )}
           {handlinger.includes(TilsagnHandling.GODKJENN_OPPGJOR) && (
-            <Button
-              size="small"
-              variant="danger"
-              type="button"
-              onClick={() =>
-                besluttTilsagn({
-                  besluttelse: Besluttelse.GODKJENT,
-                  aarsaker: [],
-                  forklaring: null,
-                })
-              }
-            >
+            <Button size="small" variant="danger" type="button" onClick={godkjennTilsagn}>
               Bekreft oppgjør
             </Button>
           )}
@@ -437,7 +404,7 @@ export function TilsagnDetaljer() {
           errors={errors}
           open={tilAnnulleringModalOpen}
           onClose={() => setTilAnnulleringModalOpen(false)}
-          onConfirm={({ aarsaker, forklaring }) => tilAnnullering({ aarsaker, forklaring })}
+          onConfirm={tilAnnullering}
         />
         <AarsakerOgForklaringModal<TilsagnStatusAarsak>
           aarsaker={[
@@ -454,7 +421,7 @@ export function TilsagnDetaljer() {
           buttonLabel="Send til godkjenning"
           open={tilOppgjorModalOpen}
           onClose={() => setTilOppgjorModalOpen(false)}
-          onConfirm={({ aarsaker, forklaring }) => upsertTilOppgjor({ aarsaker, forklaring })}
+          onConfirm={upsertTilOppgjor}
         />
         <AarsakerOgForklaringModal<TilsagnStatusAarsak>
           aarsaker={[
@@ -475,14 +442,7 @@ export function TilsagnDetaljer() {
           open={avvisModalOpen}
           onClose={() => setAvvisModalOpen(false)}
           errors={errors}
-          onConfirm={({ aarsaker, forklaring }) => {
-            besluttTilsagn({
-              besluttelse: Besluttelse.AVVIST,
-              aarsaker,
-              forklaring,
-            });
-            setAvvisModalOpen(false);
-          }}
+          onConfirm={returnerTilsagn}
         />
         <AarsakerOgForklaringModal<TilsagnStatusAarsak>
           aarsaker={[{ value: TilsagnStatusAarsak.ANNET, label: "Annet" }]}
@@ -491,13 +451,7 @@ export function TilsagnDetaljer() {
           open={avvisAnnulleringModalOpen}
           onClose={() => setAvvisAnnulleringModalOpen(false)}
           errors={errors}
-          onConfirm={({ aarsaker, forklaring }) => {
-            besluttTilsagn({
-              besluttelse: Besluttelse.AVVIST,
-              aarsaker,
-              forklaring,
-            });
-          }}
+          onConfirm={returnerTilsagn}
         />
         <AarsakerOgForklaringModal<TilsagnStatusAarsak>
           aarsaker={[{ value: TilsagnStatusAarsak.ANNET, label: "Annet" }]}
@@ -506,13 +460,7 @@ export function TilsagnDetaljer() {
           open={avvisOppgjorModalOpen}
           onClose={() => setAvvisOppgjorModalOpen(false)}
           errors={errors}
-          onConfirm={({ aarsaker, forklaring }) => {
-            besluttTilsagn({
-              besluttelse: Besluttelse.AVVIST,
-              aarsaker,
-              forklaring,
-            });
-          }}
+          onConfirm={returnerTilsagn}
         />
         <VarselModal
           headingIconType="warning"

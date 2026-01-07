@@ -172,8 +172,7 @@ export function defaultAvtaleData(
       id: prismodell?.id,
       type: prismodell?.type as PrismodellType | undefined,
       satser: prismodell?.satser ?? [],
-      prisbetingelser:
-        prismodell && "prisbetingelser" in prismodell ? (prismodell.prisbetingelser ?? null) : null,
+      prisbetingelser: prismodell?.prisbetingelser ?? null,
     })) ?? [
       {
         id: undefined,

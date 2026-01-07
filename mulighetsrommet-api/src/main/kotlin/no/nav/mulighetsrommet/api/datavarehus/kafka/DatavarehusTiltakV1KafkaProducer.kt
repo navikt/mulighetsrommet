@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.apache.kafka.clients.producer.ProducerRecord
-import java.util.UUID
 
 class DatavarehusTiltakV1KafkaProducer(
     private val config: Config,
@@ -31,19 +30,7 @@ class DatavarehusTiltakV1KafkaProducer(
         val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV2Dto?>(message)
             ?: throw UnsupportedOperationException("Støtter ikke tombstones av gjennomføringer")
 
-        when (gjennomforing) {
-            is TiltaksgjennomforingV2Dto.Gruppe -> publishGruppetiltak(gjennomforing.id)
-            is TiltaksgjennomforingV2Dto.Enkeltplass -> publishEnkeltplass(gjennomforing.id)
-        }
-    }
-
-    private fun publishGruppetiltak(id: UUID) = db.session {
-        val tiltak = queries.dvh.getGruppetiltak(id)
-        publish(tiltak)
-    }
-
-    private fun publishEnkeltplass(id: UUID) = db.session {
-        val tiltak = queries.dvh.getEnkeltplass(id)
+        val tiltak = db.session { queries.dvh.getDatavarehusTiltak(gjennomforing.id) }
         publish(tiltak)
     }
 

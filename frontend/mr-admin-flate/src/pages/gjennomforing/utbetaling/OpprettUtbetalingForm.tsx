@@ -18,11 +18,11 @@ import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { addDuration } from "@mr/frontend-common/utils/date";
-import { useOpprettUtbetaling } from "@/api/utbetaling/useOpprettUtbetaling";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { useOpprettUtbetaling } from "@/api/utbetaling/mutations";
 
 interface Props {
   gjennomforing: GjennomforingDto;

@@ -3,17 +3,17 @@ import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import {
   AvtaleDto,
-  AvtaleRequest,
   AvtaleService,
+  OpprettAvtaleRequest,
   ProblemDetail,
 } from "@tiltaksadministrasjon/api-client";
 
-export function useUpsertAvtale() {
+export function useOpprettAvtale() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<{ data: AvtaleDto }, ProblemDetail, AvtaleRequest>({
-    mutationFn: async (body: AvtaleRequest) => {
-      return AvtaleService.upsertAvtale({ body });
+  return useApiMutation<{ data: AvtaleDto }, ProblemDetail, OpprettAvtaleRequest>({
+    mutationFn: async (body: OpprettAvtaleRequest) => {
+      return AvtaleService.opprettAvtale({ body });
     },
 
     onSuccess(_, request) {

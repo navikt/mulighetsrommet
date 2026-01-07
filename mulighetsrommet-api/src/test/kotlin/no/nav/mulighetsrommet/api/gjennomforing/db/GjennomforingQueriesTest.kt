@@ -8,6 +8,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -17,9 +18,9 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.EnkeltplassFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -31,11 +32,12 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
@@ -47,11 +49,12 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDate
 import java.util.UUID
 
 class GjennomforingQueriesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     context("CRUD") {
         val domain = MulighetsrommetTestDomain(
@@ -62,12 +65,9 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = GjennomforingQueries(session)
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
 
-                queries.upsert(Oppfolging1)
-
-                queries.get(Oppfolging1.id) should {
-                    it.shouldNotBeNull()
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id) should {
                     it.id shouldBe Oppfolging1.id
                     it.tiltakstype shouldBe Gjennomforing.Tiltakstype(
                         id = TiltakstypeFixtures.Oppfolging.id,
@@ -89,7 +89,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId
                     it.administratorer shouldBe listOf(
-                        Gjennomforing.Administrator(
+                        GjennomforingGruppetiltak.Administrator(
                             navIdent = NavIdent("DD1"),
                             navn = "Donald Duck",
                         ),
@@ -105,9 +105,9 @@ class GjennomforingQueriesTest : FunSpec({
                     it.arena?.ansvarligNavEnhet shouldBe null
                 }
 
-                queries.delete(Oppfolging1.id)
+                queries.gjennomforing.delete(Oppfolging1.id)
 
-                queries.get(Oppfolging1.id) shouldBe null
+                queries.gjennomforing.getGruppetiltak(Oppfolging1.id) shouldBe null
             }
         }
 
@@ -115,15 +115,13 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = GjennomforingQueries(session)
-
                 val gjennomforing = Oppfolging1.copy(
                     administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
                 )
-                queries.upsert(gjennomforing)
+                queries.gjennomforing.upsertGruppetiltak(gjennomforing)
 
-                queries.get(gjennomforing.id)?.administratorer.shouldContainExactlyInAnyOrder(
-                    Gjennomforing.Administrator(
+                queries.gjennomforing.getGruppetiltak(gjennomforing.id)?.administratorer.shouldContainExactlyInAnyOrder(
+                    GjennomforingGruppetiltak.Administrator(
                         navIdent = NavAnsattFixture.DonaldDuck.navIdent,
                         navn = "Donald Duck",
                     ),
@@ -139,39 +137,43 @@ class GjennomforingQueriesTest : FunSpec({
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.upsert(
+                queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sel.enhetsnummer)),
                 )
-                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
-                    it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
-                    it.kontorer.should { (first, second) ->
-                        first.enhetsnummer shouldBe Gjovik.enhetsnummer
-                        second.enhetsnummer shouldBe Sel.enhetsnummer
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).kontorstruktur.shouldHaveSize(1)
+                    .first()
+                    .should {
+                        it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
+                        it.kontorer.should { (first, second) ->
+                            first.enhetsnummer shouldBe Gjovik.enhetsnummer
+                            second.enhetsnummer shouldBe Sel.enhetsnummer
+                        }
                     }
-                }
 
-                queries.upsert(
+                queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(
                         navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer),
                     ),
                 )
-                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
-                    it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
-                    it.kontorer.shouldHaveSize(1).first().enhetsnummer shouldBe Lillehammer.enhetsnummer
-                }
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).kontorstruktur.shouldHaveSize(1)
+                    .first()
+                    .should {
+                        it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
+                        it.kontorer.shouldHaveSize(1).first().enhetsnummer shouldBe Lillehammer.enhetsnummer
+                    }
 
-                queries.upsert(
+                queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(navEnheter = setOf(Oslo.enhetsnummer)),
                 )
-                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
-                    it.region.enhetsnummer shouldBe Oslo.enhetsnummer
-                    it.kontorer.shouldBeEmpty()
-                }
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).kontorstruktur.shouldHaveSize(1)
+                    .first()
+                    .should {
+                        it.region.enhetsnummer shouldBe Oslo.enhetsnummer
+                        it.kontorer.shouldBeEmpty()
+                    }
 
-                queries.upsert(Oppfolging1.copy(navEnheter = setOf()))
-                queries.get(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldBeEmpty()
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1.copy(navEnheter = setOf()))
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).kontorstruktur.shouldBeEmpty()
             }
         }
 
@@ -182,11 +184,9 @@ class GjennomforingQueriesTest : FunSpec({
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.upsert(Oppfolging1)
-                queries.setTilgjengeligForArrangorDato(Oppfolging1.id, LocalDate.now())
-                queries.get(Oppfolging1.id).shouldNotBeNull().shouldNotBeNull().should {
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
+                queries.gjennomforing.setTilgjengeligForArrangorDato(Oppfolging1.id, LocalDate.now())
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).should {
                     it.tilgjengeligForArrangorDato shouldBe LocalDate.now()
                 }
             }
@@ -196,9 +196,7 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.upsert(
+                queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(
                         kontaktpersoner = listOf(
                             GjennomforingKontaktpersonDbo(
@@ -213,7 +211,7 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.get(Oppfolging1.id)?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
+                queries.gjennomforing.getGruppetiltak(Oppfolging1.id)?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
                     GjennomforingKontaktperson(
                         navIdent = NavIdent("DD1"),
                         navn = "Donald Duck",
@@ -232,7 +230,7 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.upsert(
+                queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(
                         kontaktpersoner = listOf(
                             GjennomforingKontaktpersonDbo(
@@ -243,7 +241,7 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.get(Oppfolging1.id)?.kontaktpersoner shouldBe listOf(
+                queries.gjennomforing.getGruppetiltak(Oppfolging1.id)?.kontaktpersoner shouldBe listOf(
                     GjennomforingKontaktperson(
                         navIdent = NavIdent("DD1"),
                         navn = "Donald Duck",
@@ -282,24 +280,22 @@ class GjennomforingQueriesTest : FunSpec({
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.upsert(Oppfolging1.copy(arrangorKontaktpersoner = listOf(thomas.id)))
-                queries.get(Oppfolging1.id).shouldNotBeNull().should {
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1.copy(arrangorKontaktpersoner = listOf(thomas.id)))
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).should {
                     it.arrangor.kontaktpersoner shouldContainExactly listOf(toGjennomforingArrangorKontaktperson(thomas))
                 }
 
-                queries.upsert(Oppfolging1.copy(arrangorKontaktpersoner = emptyList()))
-                queries.get(Oppfolging1.id).shouldNotBeNull().should {
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1.copy(arrangorKontaktpersoner = emptyList()))
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).should {
                     it.arrangor.kontaktpersoner shouldHaveSize 0
                 }
 
-                queries.upsert(
+                queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(
                         arrangorKontaktpersoner = listOf(thomas.id, jens.id),
                     ),
                 )
-                queries.get(Oppfolging1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).should {
                     it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
                         toGjennomforingArrangorKontaktperson(thomas),
                         toGjennomforingArrangorKontaktperson(jens),
@@ -312,14 +308,12 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = GjennomforingQueries(session)
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
 
-                queries.upsert(Oppfolging1)
+                queries.gjennomforing.getGruppetiltak(Oppfolging1.id)?.publisert shouldBe false
 
-                queries.get(Oppfolging1.id)?.publisert shouldBe false
-
-                queries.setPublisert(Oppfolging1.id, true)
-                queries.get(Oppfolging1.id)?.publisert shouldBe true
+                queries.gjennomforing.setPublisert(Oppfolging1.id, true)
+                queries.gjennomforing.getGruppetiltak(Oppfolging1.id)?.publisert shouldBe true
             }
         }
 
@@ -327,13 +321,11 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = GjennomforingQueries(session)
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).apentForPamelding shouldBe true
 
-                queries.upsert(Oppfolging1)
-                queries.get(Oppfolging1.id).shouldNotBeNull().apentForPamelding shouldBe true
-
-                queries.setApentForPamelding(Oppfolging1.id, false)
-                queries.get(Oppfolging1.id).shouldNotBeNull().apentForPamelding shouldBe false
+                queries.gjennomforing.setApentForPamelding(Oppfolging1.id, false)
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).apentForPamelding shouldBe false
             }
         }
 
@@ -341,46 +333,44 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = GjennomforingQueries(session)
-
                 val id = Oppfolging1.id
-                queries.upsert(Oppfolging1)
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
-                queries.setStatus(
+                queries.gjennomforing.setStatus(
                     id,
                     GjennomforingStatusType.AVBRUTT,
                     tidspunkt,
                     listOf(AvbrytGjennomforingAarsak.ANNET),
                     ":)",
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatus.Avbrutt(
+                queries.gjennomforing.getGruppetiltakOrError(id).status shouldBe GjennomforingStatus.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
                     forklaring = ":)",
                 )
 
-                queries.setStatus(
+                queries.gjennomforing.setStatus(
                     id = id,
                     status = GjennomforingStatusType.AVLYST,
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatus.Avlyst(
+                queries.gjennomforing.getGruppetiltakOrError(id).status shouldBe GjennomforingStatus.Avlyst(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
 
-                queries.setStatus(
+                queries.gjennomforing.setStatus(
                     id = id,
                     status = GjennomforingStatusType.GJENNOMFORES,
                     tidspunkt = tidspunkt,
                     aarsaker = null,
                     forklaring = null,
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatus.Gjennomfores
+                queries.gjennomforing.getGruppetiltakOrError(id).status shouldBe GjennomforingStatus.Gjennomfores
             }
         }
 
@@ -408,11 +398,9 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = GjennomforingQueries(session)
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1.copy(faneinnhold = faneinnhold))
 
-                queries.upsert(Oppfolging1.copy(faneinnhold = faneinnhold))
-
-                queries.get(Oppfolging1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).should {
                     it.faneinnhold.shouldNotBeNull().forHvem shouldBe faneinnhold.forHvem
                 }
             }
@@ -430,15 +418,13 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.upsert(Oppfolging1.copy(amoKategorisering = amo))
-                queries.get(Oppfolging1.id).shouldNotBeNull().should {
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1.copy(amoKategorisering = amo))
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).should {
                     it.amoKategorisering shouldBe amo
                 }
 
-                queries.upsert(Oppfolging1.copy(amoKategorisering = null))
-                queries.get(Oppfolging1.id).shouldNotBeNull().should {
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1.copy(amoKategorisering = null))
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).should {
                     it.amoKategorisering shouldBe null
                 }
             }
@@ -448,39 +434,37 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.upsert(Oppfolging1)
-                queries.setStengtHosArrangor(
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
+                queries.gjennomforing.setStengtHosArrangor(
                     Oppfolging1.id,
                     Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                     "Januarferie",
                 )
-                queries.setStengtHosArrangor(
+                queries.gjennomforing.setStengtHosArrangor(
                     Oppfolging1.id,
                     Periode.forMonthOf(LocalDate.of(2025, 7, 1)),
                     "Sommerferie",
                 )
-                queries.setStengtHosArrangor(
+                queries.gjennomforing.setStengtHosArrangor(
                     Oppfolging1.id,
                     Periode.forMonthOf(LocalDate.of(2024, 12, 1)),
                     "Forrige juleferie",
                 )
 
-                queries.get(Oppfolging1.id).shouldNotBeNull().stengt shouldContainExactly listOf(
-                    Gjennomforing.StengtPeriode(
+                queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).stengt shouldContainExactly listOf(
+                    GjennomforingGruppetiltak.StengtPeriode(
                         3,
                         LocalDate.of(2024, 12, 1),
                         LocalDate.of(2024, 12, 31),
                         "Forrige juleferie",
                     ),
-                    Gjennomforing.StengtPeriode(
+                    GjennomforingGruppetiltak.StengtPeriode(
                         1,
                         LocalDate.of(2025, 1, 1),
                         LocalDate.of(2025, 1, 31),
                         "Januarferie",
                     ),
-                    Gjennomforing.StengtPeriode(
+                    GjennomforingGruppetiltak.StengtPeriode(
                         2,
                         LocalDate.of(2025, 7, 1),
                         LocalDate.of(2025, 7, 31),
@@ -494,18 +478,16 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = GjennomforingQueries(session)
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
 
-                queries.upsert(Oppfolging1)
-
-                queries.setStengtHosArrangor(
+                queries.gjennomforing.setStengtHosArrangor(
                     Oppfolging1.id,
                     Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                     "Januarferie",
                 )
 
                 query {
-                    queries.setStengtHosArrangor(
+                    queries.gjennomforing.setStengtHosArrangor(
                         Oppfolging1.id,
                         Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                         "Sommerferie",
@@ -515,10 +497,119 @@ class GjennomforingQueriesTest : FunSpec({
         }
     }
 
+    context("enkeltplasser") {
+        val domain = MulighetsrommetTestDomain()
+
+        val enkelAmo1 = EnkeltplassFixtures.EnkelAmo1.copy(
+            navn = "Arena-navn",
+            startDato = LocalDate.of(2025, 1, 1),
+            sluttDato = null,
+            status = GjennomforingStatusType.GJENNOMFORES,
+        )
+        val enkelAmo2 = EnkeltplassFixtures.EnkelAmo2
+
+        test("lagre enkeltplass") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                queries.gjennomforing.upsertEnkeltplass(enkelAmo1)
+
+                queries.gjennomforing.getEnkeltplassOrError(enkelAmo1.id).should {
+                    it.id shouldBe enkelAmo1.id
+                    it.tiltakstype shouldBe Gjennomforing.Tiltakstype(
+                        id = TiltakstypeFixtures.EnkelAmo.id,
+                        navn = TiltakstypeFixtures.EnkelAmo.navn,
+                        tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+                    )
+                    it.arrangor shouldBe Gjennomforing.ArrangorUnderenhet(
+                        id = ArrangorFixtures.underenhet1.id,
+                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                        navn = ArrangorFixtures.underenhet1.navn,
+                        slettet = false,
+                        kontaktpersoner = listOf(),
+                    )
+                    it.arena?.tiltaksnummer.shouldBeNull()
+                    it.arena?.ansvarligNavEnhet.shouldBeNull()
+                    it.navn shouldBe "Arena-navn"
+                    it.startDato shouldBe LocalDate.of(2025, 1, 1)
+                    it.sluttDato.shouldBeNull()
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                }
+
+                queries.gjennomforing.setArenaData(
+                    GjennomforingArenaDataDbo(
+                        id = enkelAmo1.id,
+                        tiltaksnummer = Tiltaksnummer("2025#1"),
+                        arenaAnsvarligEnhet = "0400",
+                    ),
+                )
+
+                queries.gjennomforing.getEnkeltplassOrError(enkelAmo1.id).should {
+                    it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2025#1")
+                    it.arena?.ansvarligNavEnhet?.enhetsnummer shouldBe "0400"
+                }
+
+                queries.gjennomforing.delete(enkelAmo1.id)
+
+                queries.gjennomforing.getEnkeltplass(enkelAmo1.id) shouldBe null
+            }
+        }
+
+        test("hent alle enkeltplasser") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                queries.gjennomforing.upsertEnkeltplass(enkelAmo1)
+                queries.gjennomforing.upsertEnkeltplass(enkelAmo2)
+
+                queries.gjennomforing.getAllEnkeltplass().totalCount shouldBe 2
+                queries.gjennomforing.getAllEnkeltplass(tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo.id)).totalCount shouldBe 2
+                queries.gjennomforing.getAllEnkeltplass(tiltakstyper = listOf(TiltakstypeFixtures.AFT.id)).totalCount shouldBe 0
+            }
+        }
+    }
+
+    context("free text search") {
+        test("løpenummer og tiltaksnummer blir automatisk med i fritekstsøket") {
+            database.runAndRollback { session ->
+                MulighetsrommetTestDomain(
+                    arrangorer = listOf(
+                        ArrangorFixtures.hovedenhet,
+                        ArrangorFixtures.underenhet1,
+                    ),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
+                    gjennomforinger = listOf(
+                        Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
+                    ),
+                ).setup(session)
+
+                val lopenummer = queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).lopenummer
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.value).items.shouldHaveSize(0)
+
+                queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("foo"))
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.value)
+                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.aar.toString())
+                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.lopenummer.toString())
+                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = "foo")
+                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = "bar").items.shouldHaveSize(0)
+            }
+        }
+    }
+
     context("filtrering av tiltaksgjennomføringer") {
         test("filtrering på arrangør") {
             database.runAndRollback { session ->
-                MulighetsrommetTestDomain(
+                val domain = MulighetsrommetTestDomain(
                     arrangorer = listOf(
                         ArrangorFixtures.hovedenhet,
                         ArrangorFixtures.underenhet1,
@@ -527,75 +618,22 @@ class GjennomforingQueriesTest : FunSpec({
                     avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
-                        Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
+                        Oppfolging1.copy(id = UUID.randomUUID(), arrangorId = ArrangorFixtures.underenhet2.id),
                     ),
                 ).setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.getAll(
+                queries.gjennomforing.getAllGruppetiltakKompakt(
                     arrangorOrgnr = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 ).should {
                     it.items.size shouldBe 1
-                    it.items[0].id shouldBe Oppfolging1.id
+                    it.items[0].id shouldBe domain.gjennomforinger[0].id
                 }
 
-                queries.getAll(
+                queries.gjennomforing.getAllGruppetiltakKompakt(
                     arrangorOrgnr = listOf(ArrangorFixtures.underenhet2.organisasjonsnummer),
                 ).should {
                     it.items.size shouldBe 1
-                    it.items[0].id shouldBe Oppfolging2.id
-                }
-            }
-        }
-
-        test("søk på tiltaksarrangørs navn") {
-            database.runAndRollback { session ->
-                MulighetsrommetTestDomain(
-                    arrangorer = listOf(
-                        ArrangorFixtures.hovedenhet,
-                        ArrangorFixtures.underenhet1.copy(navn = "Underenhet Bergen"),
-                        ArrangorFixtures.underenhet2.copy(navn = "Underenhet Ålesund"),
-                    ),
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
-                    gjennomforinger = listOf(
-                        Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
-                        Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
-                    ),
-                ).setup(session)
-
-                val queries = GjennomforingQueries(session)
-
-                queries.getAll(search = "bergen").should {
-                    it.items.size shouldBe 1
-                    it.items[0].arrangor.navn shouldBe "Underenhet Bergen"
-                }
-
-                queries.getAll(search = "under").should {
-                    it.items.size shouldBe 2
-                }
-            }
-        }
-
-        test("søk på lopenummer") {
-            database.runAndRollback { session ->
-                MulighetsrommetTestDomain(
-                    arrangorer = listOf(
-                        ArrangorFixtures.hovedenhet,
-                        ArrangorFixtures.underenhet1,
-                    ),
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
-                    gjennomforinger = listOf(
-                        Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
-                    ),
-                ).setup(session)
-
-                val queries = GjennomforingQueries(session)
-                val lopenummer = queries.getOrError(Oppfolging1.id).lopenummer.value
-
-                queries.getAll(search = lopenummer).should {
-                    it.items.size shouldBe 1
-                    it.items[0].id shouldBe Oppfolging1.id
+                    it.items[0].id shouldBe domain.gjennomforinger[1].id
                 }
             }
         }
@@ -607,16 +645,14 @@ class GjennomforingQueriesTest : FunSpec({
                     gjennomforinger = listOf(Oppfolging1, AFT1),
                 ).setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.getAll(avtaleId = AvtaleFixtures.oppfolging.id).items
+                queries.gjennomforing.getAllGruppetiltakKompakt(avtaleId = AvtaleFixtures.oppfolging.id).items
                     .shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
-                queries.getByAvtale(AvtaleFixtures.oppfolging.id)
+                queries.gjennomforing.getByAvtale(AvtaleFixtures.oppfolging.id)
                     .shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
 
-                queries.getAll(avtaleId = AvtaleFixtures.AFT.id).items
+                queries.gjennomforing.getAllGruppetiltakKompakt(avtaleId = AvtaleFixtures.AFT.id).items
                     .shouldHaveSize(1).first().id.shouldBe(AFT1.id)
-                queries.getByAvtale(AvtaleFixtures.AFT.id)
+                queries.gjennomforing.getByAvtale(AvtaleFixtures.AFT.id)
                     .shouldHaveSize(1).first().id.shouldBe(AFT1.id)
             }
         }
@@ -633,9 +669,7 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.getAll(sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate)
+                queries.gjennomforing.getAllGruppetiltakKompakt(sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate)
                     .should { (totalCount, gjennomforinger) ->
                         totalCount shouldBe 3
                         gjennomforinger.map { it.sluttDato } shouldContainExactlyInAnyOrder listOf(
@@ -666,15 +700,13 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.getAll(
+                queries.gjennomforing.getAllGruppetiltakKompakt(
                     administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
                     koordinatorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
                 )
                     .totalCount shouldBe 2
 
-                queries.getAll(
+                queries.gjennomforing.getAllGruppetiltakKompakt(
                     administratorNavIdent = NavAnsattFixture.MikkeMus.navIdent,
                     koordinatorNavIdent = NavAnsattFixture.MikkeMus.navIdent,
                 )
@@ -692,15 +724,13 @@ class GjennomforingQueriesTest : FunSpec({
                     gjennomforinger = listOf(Oppfolging1, VTA1, AFT1),
                 ).setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.getAll(tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id))
+                queries.gjennomforing.getAllGruppetiltakKompakt(tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id))
                     .should { (totalCount, gjennomforinger) ->
                         totalCount shouldBe 1
                         gjennomforinger shouldContainExactlyIds listOf(Oppfolging1.id)
                     }
 
-                queries.getAll(
+                queries.gjennomforing.getAllGruppetiltakKompakt(
                     tiltakstypeIder = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.VTA.id),
                 ).should { (totalCount, gjennomforinger) ->
                     totalCount shouldBe 2
@@ -721,21 +751,24 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.getAll(navEnheter = listOf(Gjovik.enhetsnummer))
+                queries.gjennomforing.getAllGruppetiltakKompakt(navEnheter = listOf(Gjovik.enhetsnummer))
                     .should { (totalCount, gjennomforinger) ->
                         totalCount shouldBe 2
                         gjennomforinger shouldContainExactlyIds listOf(Oppfolging1.id, AFT1.id)
                     }
 
-                queries.getAll(navEnheter = listOf(Lillehammer.enhetsnummer, Sel.enhetsnummer))
+                queries.gjennomforing.getAllGruppetiltakKompakt(
+                    navEnheter = listOf(
+                        Lillehammer.enhetsnummer,
+                        Sel.enhetsnummer,
+                    ),
+                )
                     .should { (totalCount, gjennomforinger) ->
                         totalCount shouldBe 2
                         gjennomforinger shouldContainExactlyIds listOf(VTA1.id, AFT1.id)
                     }
 
-                queries.getAll(navEnheter = listOf(Innlandet.enhetsnummer))
+                queries.gjennomforing.getAllGruppetiltakKompakt(navEnheter = listOf(Innlandet.enhetsnummer))
                     .should { (totalCount) ->
                         totalCount shouldBe 3
                     }
@@ -749,10 +782,8 @@ class GjennomforingQueriesTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.oppfolging),
             ).setup(session)
 
-            val queries = GjennomforingQueries(session)
-
             (1..10).forEach {
-                queries.upsert(
+                queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(id = UUID.randomUUID(), navn = "$it".padStart(2, '0')),
                 )
             }
@@ -765,7 +796,7 @@ class GjennomforingQueriesTest : FunSpec({
                 row(Pagination.of(page = 3, size = 4), 2, "09", "10", 10),
                 row(Pagination.of(page = 2, size = 20), 0, null, null, 0),
             ) { pagination, expectedSize, expectedFirst, expectedLast, expectedTotalCount ->
-                val (totalCount, items) = queries.getAll(pagination)
+                val (totalCount, items) = queries.gjennomforing.getAllGruppetiltakKompakt(pagination)
 
                 items.size shouldBe expectedSize
                 items.firstOrNull()?.navn shouldBe expectedFirst
@@ -797,35 +828,33 @@ class GjennomforingQueriesTest : FunSpec({
             ansvarligFor = listOf(),
         )
 
-        val testDomain = MulighetsrommetTestDomain(
+        val domain = MulighetsrommetTestDomain(
             arrangorKontaktpersoner = listOf(kontaktperson1, kontaktperson2),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(
                 Oppfolging1.copy(arrangorKontaktpersoner = listOf(kontaktperson1.id)),
-                Oppfolging2.copy(arrangorKontaktpersoner = listOf(kontaktperson2.id)),
+                Oppfolging1.copy(id = UUID.randomUUID(), arrangorKontaktpersoner = listOf(kontaktperson2.id)),
             ),
         )
 
         test("Skal fjerne kontaktperson fra koblingstabell") {
             database.runAndRollback { session ->
-                testDomain.setup(session)
+                domain.setup(session)
 
-                val queries = GjennomforingQueries(session)
-
-                queries.get(testDomain.gjennomforinger[0].id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(domain.gjennomforinger[0].id).should {
                     it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson1.id)
                 }
-                queries.get(testDomain.gjennomforinger[1].id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(domain.gjennomforinger[1].id).should {
                     it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson2.id)
                 }
 
-                queries.frikobleKontaktpersonFraGjennomforing(kontaktperson1.id, Oppfolging1.id)
+                queries.gjennomforing.frikobleKontaktpersonFraGjennomforing(kontaktperson1.id, Oppfolging1.id)
 
-                queries.get(testDomain.gjennomforinger[0].id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(domain.gjennomforinger[0].id).should {
                     it.arrangor.kontaktpersoner.shouldBeEmpty()
                 }
-                queries.get(testDomain.gjennomforinger[1].id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(domain.gjennomforinger[1].id).should {
                     it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson2.id)
                 }
             }
@@ -833,7 +862,7 @@ class GjennomforingQueriesTest : FunSpec({
     }
 })
 
-private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = Gjennomforing.ArrangorKontaktperson(
+private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = GjennomforingGruppetiltak.ArrangorKontaktperson(
     id = kontaktperson.id,
     navn = kontaktperson.navn,
     beskrivelse = kontaktperson.beskrivelse,
@@ -841,6 +870,6 @@ private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktp
     epost = kontaktperson.epost,
 )
 
-private infix fun Collection<GjennomforingKompakt>.shouldContainExactlyIds(listOf: Collection<UUID>) {
+private infix fun Collection<GjennomforingGruppetiltakKompakt>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }

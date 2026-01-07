@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api
 
+import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.ContentType.Application.Json
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.testing.ApplicationTestBuilder
@@ -29,10 +32,27 @@ fun <R> withTestApplication(
             install(ContentNegotiation) {
                 json()
             }
+            install(DefaultRequest) {
+                contentType(Json)
+            }
         }
 
         test()
     }
+}
+
+fun kafkaTestConfig(kafkaConfig: KafkaConfig): KafkaConfig {
+    val testification = { str: String -> "$str-test" }
+    return kafkaConfig.copy(
+        topics = KafkaTopics(
+            okonomiBestillingTopic = testification(kafkaConfig.topics.okonomiBestillingTopic),
+            sisteTiltaksgjennomforingerV1Topic = testification(kafkaConfig.topics.sisteTiltaksgjennomforingerV1Topic),
+            sisteTiltaksgjennomforingerV2Topic = testification(kafkaConfig.topics.sisteTiltaksgjennomforingerV2Topic),
+            sisteTiltakstyperTopic = testification(kafkaConfig.topics.sisteTiltakstyperTopic),
+            arenaMigreringGjennomforingTopic = testification(kafkaConfig.topics.arenaMigreringGjennomforingTopic),
+            datavarehusTiltakTopic = testification(kafkaConfig.topics.datavarehusTiltakTopic),
+        ),
+    )
 }
 
 fun createTestApplicationConfig() = ApplicationConfigLocal.copy(
@@ -40,6 +60,7 @@ fun createTestApplicationConfig() = ApplicationConfigLocal.copy(
     database = databaseConfig,
     flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth = null, roles = setOf()),
+    kafka = kafkaTestConfig(ApplicationConfigLocal.kafka),
 )
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.

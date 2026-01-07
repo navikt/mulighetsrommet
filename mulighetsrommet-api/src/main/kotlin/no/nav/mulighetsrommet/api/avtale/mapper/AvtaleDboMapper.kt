@@ -62,26 +62,21 @@ object AvtaleDboMapper {
                 it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer
             }.toSet(),
         ),
-        prismodellDbo = avtale.prismodeller.map { prismodell ->
-            PrismodellDbo(
-                id = prismodell.id,
-                type = prismodell.type,
-                prisbetingelser = prismodell.prisbetingelser(),
-                satser = prismodell.satser(),
-            )
+        prismodeller = avtale.prismodeller.map {
+            PrismodellDbo(it.id, it.type, it.prisbetingelser(), it.satser())
         },
     )
 
     fun fromValidatedAvtaleRequest(
         avtaleId: UUID,
         detaljerDbo: DetaljerDbo,
-        prismodellDbo: List<PrismodellDbo>,
+        prismodeller: List<PrismodellDbo>,
         personvernDbo: PersonvernDbo,
         veilederinformasjonDbo: VeilederinformasjonDbo,
     ): AvtaleDbo = AvtaleDbo(
         id = avtaleId,
         detaljerDbo = detaljerDbo,
-        prismodellDbo = prismodellDbo,
+        prismodeller = prismodeller,
         personvernDbo = personvernDbo,
         veilederinformasjonDbo = veilederinformasjonDbo,
     )

@@ -6,28 +6,17 @@ import {
 } from "@/schemas/avtale";
 import { AvtaleDetaljerValues, getUtdanningslop } from "@/schemas/avtaledetaljer";
 import {
-  AvtaleRequest,
   DetaljerRequest,
+  OpprettAvtaleRequest,
   PersonvernRequest,
   PrismodellRequest,
   VeilederinfoRequest,
 } from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
-export interface RequestValues {
-  data: AvtaleFormValues;
-  id?: string;
-}
-
-export function toAvtaleRequest({
-  data,
-  id,
-}: {
-  data: AvtaleFormValues;
-  id?: string;
-}): AvtaleRequest {
+export function toOpprettAvtaleRequest(data: AvtaleFormValues): OpprettAvtaleRequest {
   return {
-    id: id ?? v4(),
+    id: v4(),
     detaljer: toDetaljerRequest({ data: data }),
     veilederinformasjon: toVeilederinfoRequest({ data: data }),
     personvern: toPersonvernRequest({ data: data }),

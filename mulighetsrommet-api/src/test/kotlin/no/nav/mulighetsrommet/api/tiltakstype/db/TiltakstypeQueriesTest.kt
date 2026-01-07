@@ -11,7 +11,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
@@ -19,17 +19,15 @@ import java.time.LocalDate
 import java.util.UUID
 
 class TiltakstypeQueriesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     context("CRUD") {
         test("upsert and get") {
-            database.runAndRollback { session ->
-                val queries = TiltakstypeQueries(session)
+            database.runAndRollback {
+                queries.tiltakstype.upsert(TiltakstypeFixtures.Arbeidstrening)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
 
-                queries.upsert(TiltakstypeFixtures.Arbeidstrening)
-                queries.upsert(TiltakstypeFixtures.Oppfolging)
-
-                queries.getAll().size shouldBe 2
+                queries.tiltakstype.getAll().size shouldBe 2
             }
         }
     }
@@ -53,15 +51,13 @@ class TiltakstypeQueriesTest : FunSpec({
         )
 
         test("filtrering på tiltakskode") {
-            database.runAndRollback { session ->
-                val queries = TiltakstypeQueries(session)
+            database.runAndRollback {
+                queries.tiltakstype.upsert(tiltakstypeStarterIFremtiden)
+                queries.tiltakstype.upsert(tiltakstypeHarStartet)
+                queries.tiltakstype.upsert(tiltakstypeErAvsluttet)
+                queries.tiltakstype.upsert(tiltakstypeEnkelAmo)
 
-                queries.upsert(tiltakstypeStarterIFremtiden)
-                queries.upsert(tiltakstypeHarStartet)
-                queries.upsert(tiltakstypeErAvsluttet)
-                queries.upsert(tiltakstypeEnkelAmo)
-
-                queries.getAll(
+                queries.tiltakstype.getAll(
                     tiltakskoder = setOf(
                         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                         Tiltakskode.JOBBKLUBB,
@@ -76,13 +72,11 @@ class TiltakstypeQueriesTest : FunSpec({
         }
 
         test("filtrering på status") {
-            database.runAndRollback { session ->
-                val queries = TiltakstypeQueries(session)
-
-                queries.upsert(tiltakstypeStarterIFremtiden)
-                queries.upsert(tiltakstypeHarStartet)
-                queries.upsert(tiltakstypeErAvsluttet)
-                queries.upsert(tiltakstypeEnkelAmo)
+            database.runAndRollback {
+                queries.tiltakstype.upsert(tiltakstypeStarterIFremtiden)
+                queries.tiltakstype.upsert(tiltakstypeHarStartet)
+                queries.tiltakstype.upsert(tiltakstypeErAvsluttet)
+                queries.tiltakstype.upsert(tiltakstypeEnkelAmo)
 
                 forAll(
                     row(
@@ -94,7 +88,7 @@ class TiltakstypeQueriesTest : FunSpec({
                         listOf(tiltakstypeErAvsluttet.id),
                     ),
                 ) { statuser, expectedIds ->
-                    queries.getAll(statuser = statuser) shouldContainExactlyIds expectedIds
+                    queries.tiltakstype.getAll(statuser = statuser) shouldContainExactlyIds expectedIds
                 }
             }
         }
@@ -103,11 +97,9 @@ class TiltakstypeQueriesTest : FunSpec({
     context("Strukturert innhold for deltakerregistrering") {
         test("Skal hente ut korrekt strukturert innhold for tiltakstype som har strukturert innhold") {
             database.runAndRollback { session ->
-                val queries = TiltakstypeQueries(session)
-
-                queries.upsert(TiltakstypeFixtures.Oppfolging)
-                queries.upsert(TiltakstypeFixtures.VTA)
-                queries.upsert(TiltakstypeFixtures.AFT)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.VTA)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.AFT)
 
                 @Language("PostgreSQL")
                 val query = """
@@ -131,7 +123,7 @@ class TiltakstypeQueriesTest : FunSpec({
                 """.trimIndent()
                 session.execute(queryOf(query))
 
-                queries.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).shouldNotBeNull().should {
+                queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).shouldNotBeNull().should {
                     it.navn shouldBe "Oppfølging"
                     it.deltakerRegistreringInnhold?.ledetekst shouldBe "Oppfølging er et bra tiltak"
                     it.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 2
@@ -141,9 +133,7 @@ class TiltakstypeQueriesTest : FunSpec({
 
         test("Skal støtte å hente tiltaktype som bare har ledetekst, men ingen innholdselementer") {
             database.runAndRollback { session ->
-                val queries = TiltakstypeQueries(session)
-
-                queries.upsert(TiltakstypeFixtures.VTA)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.VTA)
 
                 @Language("PostgreSQL")
                 val query = """
@@ -153,7 +143,7 @@ class TiltakstypeQueriesTest : FunSpec({
                 """.trimIndent()
                 session.execute(queryOf(query))
 
-                queries.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).shouldNotBeNull().should {
+                queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).shouldNotBeNull().should {
                     it.navn shouldBe "Varig tilrettelagt arbeid i skjermet virksomhet"
                     it.deltakerRegistreringInnhold?.ledetekst shouldBe "VTA er kjempebra"
                     it.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 0
@@ -162,12 +152,10 @@ class TiltakstypeQueriesTest : FunSpec({
         }
 
         test("Skal kunne hente tiltakstype uten strukturert innhold for deltakerregistrering") {
-            database.runAndRollback { session ->
-                val queries = TiltakstypeQueries(session)
+            database.runAndRollback {
+                queries.tiltakstype.upsert(TiltakstypeFixtures.AFT)
 
-                queries.upsert(TiltakstypeFixtures.AFT)
-
-                queries.getEksternTiltakstype(TiltakstypeFixtures.AFT.id).shouldNotBeNull().should {
+                queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.AFT.id).shouldNotBeNull().should {
                     it.deltakerRegistreringInnhold shouldBe null
                 }
             }
@@ -176,9 +164,7 @@ class TiltakstypeQueriesTest : FunSpec({
 
     test("getBySanityId krasjer ikke") {
         database.runAndRollback { session ->
-            val queries = TiltakstypeQueries(session)
-
-            queries.upsert(TiltakstypeFixtures.Oppfolging)
+            queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
 
             val sanityId = UUID.randomUUID()
 
@@ -190,7 +176,7 @@ class TiltakstypeQueriesTest : FunSpec({
             """.trimIndent()
             session.execute(queryOf(query))
 
-            queries.getBySanityId(sanityId).id shouldBe TiltakstypeFixtures.Oppfolging.id
+            queries.tiltakstype.getBySanityId(sanityId).id shouldBe TiltakstypeFixtures.Oppfolging.id
         }
     }
 })

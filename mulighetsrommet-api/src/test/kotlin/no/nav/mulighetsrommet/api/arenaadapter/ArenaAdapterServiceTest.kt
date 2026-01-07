@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.arenaadapter
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
@@ -16,8 +15,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TOPIC
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
@@ -34,7 +31,6 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class ArenaAdapterServiceTest : FunSpec({
@@ -71,7 +67,6 @@ class ArenaAdapterServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.IPS),
-                avtaler = listOf(),
             ).initialize(database.db)
         }
 
@@ -127,19 +122,17 @@ class ArenaAdapterServiceTest : FunSpec({
     }
 
     context("gruppetiltak") {
-        beforeEach {
-            MulighetsrommetTestDomain(
-                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
-                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(AvtaleFixtures.oppfolging),
-            ).initialize(database.db)
-        }
-
         afterEach {
             database.truncateAll()
         }
 
         test("tillater ikke opprettelse av gjennomføringer fra Arena") {
+            MulighetsrommetTestDomain(
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+            ).initialize(database.db)
+
             val service = createArenaAdapterService()
 
             val arenaGjennomforing = ArenaGjennomforingDbo(
@@ -178,7 +171,11 @@ class ArenaAdapterServiceTest : FunSpec({
                     NavEnhetFixtures.Oslo,
                     NavEnhetFixtures.TiltakOslo,
                 ),
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                arrangorer = listOf(
+                    ArrangorFixtures.hovedenhet,
+                    ArrangorFixtures.underenhet1,
+                    ArrangorFixtures.underenhet2,
+                ),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(gjennomforing1),
@@ -206,7 +203,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaDbo)
 
             database.run {
-                queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2024#2024")
                     it.arena?.ansvarligNavEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
                     it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
@@ -220,66 +217,6 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.oppstart shouldBe gjennomforing1.oppstart
                     it.deltidsprosent shouldBe gjennomforing1.deltidsprosent
                 }
-            }
-        }
-
-        test("skal ikke overskrive avsluttet_tidspunkt") {
-            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
-                startDato = LocalDate.of(2023, 1, 1),
-                sluttDato = LocalDate.of(2023, 4, 1),
-                status = GjennomforingStatusType.GJENNOMFORES,
-            )
-
-            MulighetsrommetTestDomain(
-                navEnheter = listOf(
-                    NavEnhetFixtures.Innlandet,
-                    NavEnhetFixtures.Gjovik,
-                    NavEnhetFixtures.Oslo,
-                    NavEnhetFixtures.TiltakOslo,
-                ),
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(gjennomforing),
-            ) {
-                queries.gjennomforing.setStatus(
-                    id = gjennomforing.id,
-                    status = GjennomforingStatusType.AVBRUTT,
-                    tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                    aarsaker = listOf(AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR),
-                    forklaring = null,
-                )
-            }.initialize(database.db)
-
-            val arenaDbo = ArenaGjennomforingDbo(
-                id = gjennomforing.id,
-                sanityId = null,
-                navn = "Endet navn",
-                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
-                tiltaksnummer = "2024#2024",
-                arrangorOrganisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer.value,
-                startDato = LocalDate.of(2024, 1, 1),
-                sluttDato = LocalDate.of(2024, 1, 1),
-                arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer.value,
-                avslutningsstatus = Avslutningsstatus.AVLYST,
-                apentForPamelding = false,
-                antallPlasser = 100,
-                avtaleId = null,
-                deltidsprosent = 1.0,
-            )
-
-            val service = createArenaAdapterService()
-
-            service.upsertTiltaksgjennomforing(arenaDbo)
-
-            database.run {
-                queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().status.shouldBe(
-                    GjennomforingStatus.Avbrutt(
-                        tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                        aarsaker = listOf(AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR),
-                        forklaring = null,
-                    ),
-                )
             }
         }
 
@@ -342,7 +279,6 @@ class ArenaAdapterServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-                avtaler = listOf(),
             ).initialize(database.db)
         }
 
@@ -373,11 +309,11 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
 
             database.run {
-                queries.enkeltplass.get(arenaGjennomforing.id).shouldNotBeNull().should {
+                queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id).should {
                     it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
-                    it.arena.shouldNotBeNull().navn shouldBe "En enkeltplass"
-                    it.arena.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.navn shouldBe "En enkeltplass"
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 }
             }
 
@@ -389,9 +325,9 @@ class ArenaAdapterServiceTest : FunSpec({
             )
 
             database.run {
-                queries.enkeltplass.get(arenaGjennomforing.id).shouldNotBeNull().arena.shouldNotBeNull().should {
+                queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id).should {
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
-                    it.ansvarligNavEnhet shouldBe "1000"
+                    it.arena?.ansvarligNavEnhet?.enhetsnummer shouldBe "1000"
                 }
             }
         }

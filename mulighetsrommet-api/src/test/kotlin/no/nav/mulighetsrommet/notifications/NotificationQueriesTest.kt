@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.Instant
 import java.time.LocalDateTime
@@ -17,13 +17,11 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class NotificationQueriesTest : FunSpec({
-
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
         arrangorer = listOf(),
         tiltakstyper = listOf(),
-        avtaler = listOf(),
     )
 
     val user1 = NavAnsattFixture.DonaldDuck.navIdent
@@ -59,20 +57,18 @@ class NotificationQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = NotificationQueries(session)
+            queries.notifications.insert(notification1)
+            queries.notifications.insert(notification2)
 
-            queries.insert(notification1)
-            queries.insert(notification2)
-
-            queries.getAll() shouldContainExactlyInAnyOrder listOf(
+            queries.notifications.getAll() shouldContainExactlyInAnyOrder listOf(
                 notification1.asUserNotification(user1),
                 notification1.asUserNotification(user2),
                 notification2.asUserNotification(user1),
             )
 
-            queries.delete(notification2.id)
+            queries.notifications.delete(notification2.id)
 
-            queries.getAll() shouldContainExactlyInAnyOrder listOf(
+            queries.notifications.getAll() shouldContainExactlyInAnyOrder listOf(
                 notification1.asUserNotification(user1),
                 notification1.asUserNotification(user2),
             )
@@ -83,17 +79,15 @@ class NotificationQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = NotificationQueries(session)
+            queries.notifications.insert(notification1)
+            queries.notifications.insert(notification2)
 
-            queries.insert(notification1)
-            queries.insert(notification2)
-
-            queries.getUserNotifications(user1) shouldContainExactlyInAnyOrder listOf(
+            queries.notifications.getUserNotifications(user1) shouldContainExactlyInAnyOrder listOf(
                 notification1.asUserNotification(user1),
                 notification2.asUserNotification(user1),
             )
 
-            queries.getUserNotifications(user2) shouldContainExactlyInAnyOrder listOf(
+            queries.notifications.getUserNotifications(user2) shouldContainExactlyInAnyOrder listOf(
                 notification1.asUserNotification(user2),
             )
         }
@@ -105,14 +99,12 @@ class NotificationQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = NotificationQueries(session)
+            queries.notifications.insert(notification1)
+            queries.notifications.insert(notification2)
 
-            queries.insert(notification1)
-            queries.insert(notification2)
+            queries.notifications.setNotificationReadAt(notification1.id, user1, readAtTime)
 
-            queries.setNotificationReadAt(notification1.id, user1, readAtTime)
-
-            queries.getUserNotifications() shouldContainExactlyInAnyOrder listOf(
+            queries.notifications.getUserNotifications() shouldContainExactlyInAnyOrder listOf(
                 notification1.asUserNotification(user2),
                 notification2.asUserNotification(user1),
                 notification1.asUserNotification(user1, readAtTime),
@@ -155,16 +147,14 @@ class NotificationQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = NotificationQueries(session)
+            queries.notifications.insert(notification2)
 
-            queries.insert(notification2)
+            queries.notifications.setNotificationReadAt(notification2.id, user2, readAtTime) shouldBe 0
 
-            queries.setNotificationReadAt(notification2.id, user2, readAtTime) shouldBe 0
-
-            queries.getUserNotifications(user1) shouldContainExactlyInAnyOrder listOf(
+            queries.notifications.getUserNotifications(user1) shouldContainExactlyInAnyOrder listOf(
                 notification2.asUserNotification(user1, null),
             )
-            queries.getUserNotifications(user2).shouldBeEmpty()
+            queries.notifications.getUserNotifications(user2).shouldBeEmpty()
         }
     }
 
@@ -172,27 +162,25 @@ class NotificationQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = NotificationQueries(session)
+            queries.notifications.insert(notification1)
+            queries.notifications.insert(notification2)
 
-            queries.insert(notification1)
-            queries.insert(notification2)
-
-            queries.getUserNotificationSummary(user1) shouldBe UserNotificationSummary(
+            queries.notifications.getUserNotificationSummary(user1) shouldBe UserNotificationSummary(
                 readCount = 0,
                 unreadCount = 2,
             )
-            queries.getUserNotificationSummary(user2) shouldBe UserNotificationSummary(
+            queries.notifications.getUserNotificationSummary(user2) shouldBe UserNotificationSummary(
                 readCount = 0,
                 unreadCount = 1,
             )
 
-            queries.setNotificationReadAt(notification1.id, user1, LocalDateTime.now())
+            queries.notifications.setNotificationReadAt(notification1.id, user1, LocalDateTime.now())
 
-            queries.getUserNotificationSummary(user1) shouldBe UserNotificationSummary(
+            queries.notifications.getUserNotificationSummary(user1) shouldBe UserNotificationSummary(
                 readCount = 1,
                 unreadCount = 1,
             )
-            queries.getUserNotificationSummary(user2) shouldBe UserNotificationSummary(
+            queries.notifications.getUserNotificationSummary(user2) shouldBe UserNotificationSummary(
                 readCount = 0,
                 unreadCount = 1,
             )

@@ -21,9 +21,7 @@ class EndringshistorikkServiceTest : FunSpec({
         database.runAndRollback {
             val id = UUID.randomUUID()
 
-            val queries = EndringshistorikkQueries(it)
-
-            queries.logEndring(
+            queries.endringshistorikk.logEndring(
                 DocumentClass.AVTALE,
                 operation = "OPPRETTET",
                 agent = Arena,
@@ -31,7 +29,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
 
-            queries.logEndring(
+            queries.endringshistorikk.logEndring(
                 DocumentClass.AVTALE,
                 operation = "ENDRET",
                 agent = Tiltaksadministrasjon,
@@ -39,7 +37,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 timestamp = LocalDateTime.of(2023, 1, 2, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Endret avtale" }""") }
 
-            queries.logEndring(
+            queries.endringshistorikk.logEndring(
                 DocumentClass.AVTALE,
                 operation = "SLETTET",
                 agent = Tiltaksadministrasjon,
@@ -47,7 +45,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 timestamp = LocalDateTime.of(2023, 1, 3, 9, 0, 0),
             ) { JsonNull }
 
-            queries.getEndringshistorikk(DocumentClass.AVTALE, id) shouldBe EndringshistorikkDto(
+            queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id) shouldBe EndringshistorikkDto(
                 entries = listOf(
                     EndringshistorikkDto.Entry(
                         id = id,
@@ -80,11 +78,9 @@ class EndringshistorikkServiceTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = EndringshistorikkQueries(session)
-
             val id = UUID.randomUUID()
 
-            queries.logEndring(
+            queries.endringshistorikk.logEndring(
                 DocumentClass.AVTALE,
                 operation = "OPPRETTET",
                 agent = ansatt1.navIdent,
@@ -92,7 +88,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
 
-            queries.logEndring(
+            queries.endringshistorikk.logEndring(
                 DocumentClass.AVTALE,
                 operation = "ENDRET",
                 agent = ansatt2.navIdent,
@@ -100,7 +96,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 timestamp = LocalDateTime.of(2023, 1, 2, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Endret avtale" }""") }
 
-            queries.getEndringshistorikk(DocumentClass.AVTALE, id) shouldBe EndringshistorikkDto(
+            queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id) shouldBe EndringshistorikkDto(
                 entries = listOf(
                     EndringshistorikkDto.Entry(
                         id = id,
@@ -126,9 +122,7 @@ class EndringshistorikkServiceTest : FunSpec({
             val gjennomforingId = UUID.randomUUID()
             val utbetalingId = UUID.randomUUID()
 
-            val queries = EndringshistorikkQueries(it)
-
-            queries.logEndring(
+            queries.endringshistorikk.logEndring(
                 DocumentClass.AVTALE,
                 operation = "OPPRETTET",
                 agent = Arena,
@@ -136,7 +130,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
 
-            queries.logEndring(
+            queries.endringshistorikk.logEndring(
                 DocumentClass.TILSAGN,
                 operation = "OPPRETTET",
                 agent = Arena,
@@ -144,7 +138,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Nytt tilsagn" }""") }
 
-            queries.logEndring(
+            queries.endringshistorikk.logEndring(
                 DocumentClass.GJENNOMFORING,
                 operation = "OPPRETTET",
                 agent = Arena,
@@ -152,7 +146,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny gjennomforing" }""") }
 
-            queries.logEndring(
+            queries.endringshistorikk.logEndring(
                 DocumentClass.UTBETALING,
                 operation = "OPPRETTET",
                 agent = Arena,
@@ -160,10 +154,16 @@ class EndringshistorikkServiceTest : FunSpec({
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny utbetaling" }""") }
 
-            queries.getEndringshistorikk(DocumentClass.AVTALE, avtaleId).entries shouldHaveSize 1
-            queries.getEndringshistorikk(DocumentClass.TILSAGN, tilsagnId).entries shouldHaveSize 1
-            queries.getEndringshistorikk(DocumentClass.GJENNOMFORING, gjennomforingId).entries shouldHaveSize 1
-            queries.getEndringshistorikk(DocumentClass.UTBETALING, utbetalingId).entries shouldHaveSize 1
+            queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, avtaleId).entries shouldHaveSize 1
+            queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILSAGN, tilsagnId).entries shouldHaveSize 1
+            queries.endringshistorikk.getEndringshistorikk(
+                DocumentClass.GJENNOMFORING,
+                gjennomforingId,
+            ).entries shouldHaveSize 1
+            queries.endringshistorikk.getEndringshistorikk(
+                DocumentClass.UTBETALING,
+                utbetalingId,
+            ).entries shouldHaveSize 1
         }
     }
 
@@ -171,8 +171,7 @@ class EndringshistorikkServiceTest : FunSpec({
         database.runAndRollback {
             val avtaleId = UUID.randomUUID()
 
-            val queries = EndringshistorikkQueries(it)
-            queries.logEndring(
+            queries.endringshistorikk.logEndring(
                 DocumentClass.AVTALE,
                 operation = "OPPRETTET",
                 agent = Arena,
@@ -180,7 +179,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
 
-            queries.logEndring(
+            queries.endringshistorikk.logEndring(
                 DocumentClass.AVTALE,
                 operation = "ENDRET",
                 agent = Arena,
@@ -188,8 +187,7 @@ class EndringshistorikkServiceTest : FunSpec({
                 timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
             ) { Json.parseToJsonElement("""{ "navn": "Endret avtale" }""") }
 
-            val entries = queries.getEndringshistorikk(DocumentClass.AVTALE, avtaleId).entries
-            entries shouldHaveSize 2
+            queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, avtaleId).entries shouldHaveSize 2
         }
     }
 })

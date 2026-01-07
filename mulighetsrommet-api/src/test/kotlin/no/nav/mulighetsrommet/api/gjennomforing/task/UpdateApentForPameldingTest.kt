@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.task
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
@@ -25,10 +24,10 @@ class UpdateApentForPameldingTest : FunSpec({
         val sluttDato = LocalDate.now().plusMonths(1)
 
         val domain = MulighetsrommetTestDomain(
-            tiltakstyper = listOf(TiltakstypeFixtures.Jobbklubb, TiltakstypeFixtures.GruppeAmo),
-            avtaler = listOf(AvtaleFixtures.jobbklubb, AvtaleFixtures.gruppeAmo),
+            tiltakstyper = listOf(TiltakstypeFixtures.GruppeFagOgYrkesopplaering, TiltakstypeFixtures.GruppeAmo),
+            avtaler = listOf(AvtaleFixtures.gruppeFagYrke, AvtaleFixtures.gruppeAmo),
             gjennomforinger = listOf(
-                GjennomforingFixtures.Jobbklubb1.copy(
+                GjennomforingFixtures.GruppeFagYrke1.copy(
                     startDato = startDato,
                     sluttDato = sluttDato,
                     oppstart = GjennomforingOppstartstype.LOPENDE,
@@ -40,7 +39,7 @@ class UpdateApentForPameldingTest : FunSpec({
                 ),
             ),
         ) {
-            queries.gjennomforing.setApentForPamelding(GjennomforingFixtures.Jobbklubb1.id, true)
+            queries.gjennomforing.setApentForPamelding(GjennomforingFixtures.GruppeFagYrke1.id, true)
             queries.gjennomforing.setApentForPamelding(GjennomforingFixtures.GruppeAmo1.id, true)
         }
 
@@ -60,14 +59,18 @@ class UpdateApentForPameldingTest : FunSpec({
             domain.initialize(database.db)
         }
 
+        afterEach {
+            database.truncateAll()
+        }
+
         test("beholder påmelding når dato er før startDato på tiltaket") {
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = startDato.minusDays(1))
 
             database.run {
-                queries.gjennomforing.get(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.get(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe true
                 }
             }
@@ -77,10 +80,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now())
 
             database.run {
-                queries.gjennomforing.get(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.get(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe false
                 }
             }
@@ -90,10 +93,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now().plusDays(1))
 
             database.run {
-                queries.gjennomforing.get(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.get(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe true
                 }
             }

@@ -77,19 +77,17 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = VeilederflateTiltakQueries(session)
-
                 session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE}'::innsatsgruppe] where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
                 session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.GODE_MULIGHETER}'::innsatsgruppe, '${Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE}'::innsatsgruppe] where id = '${TiltakstypeFixtures.AFT.id}'"))
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.GODE_MULIGHETER,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ) shouldHaveSize 2
@@ -99,39 +97,38 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         test("skal filtrere på brukers enheter") {
             database.runAndRollback { session ->
                 domain.setup(session)
-                queries.gjennomforing.upsert(
+
+                queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(
                         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
                     ),
                 )
-                queries.gjennomforing.upsert(
+                queries.gjennomforing.upsertGruppetiltak(
                     AFT1.copy(
                         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300")),
                     ),
                 )
 
-                val queries = VeilederflateTiltakQueries(session)
-
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
                 }
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0300")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502"), NavEnhetNummer("0300")),
                 ) shouldHaveSize 2
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0400")),
                 ) shouldHaveSize 2
@@ -142,15 +139,13 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = VeilederflateTiltakQueries(session)
-
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     sanityTiltakstypeIds = null,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 2
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     sanityTiltakstypeIds = listOf(oppfolgingSanityId),
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -158,7 +153,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
                 }
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     sanityTiltakstypeIds = listOf(arbeidstreningSanityId),
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -168,56 +163,49 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             }
         }
 
-        test("skal filtrere basert fritekst i navn") {
+        test("skal filtrere basert på fritekst som er satt på gjennomføring") {
             database.runAndRollback { session ->
                 domain.setup(session)
-                queries.gjennomforing.upsert(Oppfolging1.copy(sluttDato = null, navn = "Oppfølging hos Erik"))
-                queries.gjennomforing.upsert(AFT1.copy(navn = "AFT hos Frank"))
 
-                val queries = VeilederflateTiltakQueries(session)
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
+                queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("Oppfølging hos Erik"))
 
-                queries.getAll(
+                queries.gjennomforing.upsertGruppetiltak(AFT1)
+                queries.gjennomforing.setFreeTextSearch(AFT1.id, listOf("AFT hos Frank"))
+
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "erik",
-                ).should {
-                    it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
-                }
+                ).shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "frank aft",
-                ).should {
-                    it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
-                }
+                ).shouldHaveSize(1).first().id.shouldBe(AFT1.id)
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "aft erik",
-                ).should {
-                    it shouldHaveSize 0
-                }
+                ).shouldHaveSize(0)
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "af",
-                ).should {
-                    it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
-                }
+                ).shouldHaveSize(1).first().id.shouldBe(AFT1.id)
             }
         }
 
         test("skal filtrere basert på apent_for_pamelding") {
             database.runAndRollback { session ->
                 domain.setup(session)
+
                 queries.gjennomforing.setApentForPamelding(AFT1.id, false)
 
-                val queries = VeilederflateTiltakQueries(session)
-
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = true,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -225,7 +213,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
                 }
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = false,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -233,7 +221,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
 
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = null,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -259,22 +247,20 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = VeilederflateTiltakQueries(session)
-
                 // Riktig innsatsgruppe
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).size shouldBe 1
 
                 // Feil innsatsgruppe
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).size shouldBe 0
 
                 // Feil innsatsgruppe men sykmeldt
-                queries.getAll(
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     erSykmeldtMedArbeidsgiver = true,
@@ -292,7 +278,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             gjennomforinger = listOf(Oppfolging1),
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
-            queries.gjennomforing.upsert(
+            queries.gjennomforing.upsertGruppetiltak(
                 Oppfolging1.copy(
                     navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
                     kontaktpersoner = listOf(
@@ -309,9 +295,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = VeilederflateTiltakQueries(session)
-
-                queries.get(Oppfolging1.id).shouldNotBeNull().should {
+                queries.veilderTiltak.get(Oppfolging1.id).shouldNotBeNull().should {
                     it.kontaktinfo.tiltaksansvarlige shouldBe listOf(
                         VeilederflateKontaktinfoTiltaksansvarlig(
                             navn = "Donald Duck",
@@ -347,9 +331,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = VeilederflateTiltakQueries(session)
-
-                val res = queries.getAll(
+                val res = queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 )

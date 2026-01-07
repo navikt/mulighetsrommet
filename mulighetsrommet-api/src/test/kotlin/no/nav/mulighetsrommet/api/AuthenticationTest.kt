@@ -79,7 +79,6 @@ class AuthenticationTest : FunSpec({
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             navEnheter = listOf(NavEnhetFixtures.Innlandet),
             arrangorer = listOf(),
-            avtaler = listOf(),
         ).initialize(database.db)
 
         val rolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET)

@@ -39,7 +39,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Build
         run: npx turbo run lint typecheck build --filter=arena-adapter-manager
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: dist
           path: frontend/arena-adapter-manager/dist
@@ -52,7 +52,7 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: dist
           path: dist
@@ -74,7 +74,7 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: dist
           path: dist

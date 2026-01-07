@@ -1,7 +1,6 @@
-import { useAvtalteSatser } from "@/api/avtaler/useAvtalteSatser";
+import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
 
-export function useFindAvtaltSats(avtaleId: string, periodeStart?: string | null) {
-  const { data: satser } = useAvtalteSatser(avtaleId);
-
-  return satser?.findLast((sats) => periodeStart && periodeStart >= sats.gjelderFra);
+export function useFindAvtaltSats(gjennomforing: GjennomforingDto, periodeStart?: string | null) {
+  const satser = gjennomforing.prismodell?.satser ?? [];
+  return satser.findLast((sats) => periodeStart && periodeStart >= sats.gjelderFra);
 }

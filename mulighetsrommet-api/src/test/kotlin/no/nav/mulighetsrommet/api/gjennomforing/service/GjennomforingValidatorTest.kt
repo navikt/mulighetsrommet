@@ -39,7 +39,7 @@ import java.util.UUID
 
 class GjennomforingValidatorTest : FunSpec({
     val avtale = Avtale(
-        id = UUID.randomUUID(),
+        id = AvtaleFixtures.oppfolging.id,
         navn = "Avtalenavn",
         avtalenummer = "2023#1",
         sakarkivNummer = SakarkivNummer("24/1234"),
@@ -92,14 +92,12 @@ class GjennomforingValidatorTest : FunSpec({
         opsjonerRegistrert = emptyList(),
     )
 
-    val request = GjennomforingFixtures.Oppfolging1Request.copy(
-        avtaleId = avtale.id,
+    val request = GjennomforingFixtures.createGjennomforingRequest(
+        AvtaleFixtures.oppfolging,
         startDato = avtale.startDato,
         sluttDato = avtale.sluttDato,
-        veilederinformasjon = GjennomforingFixtures.Oppfolging1Request.veilederinformasjon.copy(
-            navRegioner = listOf(NavEnhetNummer("0400")),
-            navKontorer = listOf(NavEnhetNummer("0502")),
-        ),
+        navRegioner = listOf(NavEnhetNummer("0400")),
+        navKontorer = listOf(NavEnhetNummer("0502")),
         arrangorId = ArrangorFixtures.underenhet1.id,
         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
     )
@@ -125,7 +123,11 @@ class GjennomforingValidatorTest : FunSpec({
             ctx,
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
             FieldError.of("Du må velge en enhet", GjennomforingRequest::estimertVentetid, EstimertVentetid::enhet),
-            FieldError.of("Du må velge en verdi større enn 0", GjennomforingRequest::estimertVentetid, EstimertVentetid::verdi),
+            FieldError.of(
+                "Du må velge en verdi større enn 0",
+                GjennomforingRequest::estimertVentetid,
+                EstimertVentetid::verdi,
+            ),
         )
     }
 
@@ -189,13 +191,13 @@ class GjennomforingValidatorTest : FunSpec({
         GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.GJENNOMFORES))
             .shouldBeRight()
         GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.AVSLUTTET)).shouldBeLeft(
-            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avsluttet")),
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avsluttet")),
         )
         GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.AVBRUTT)).shouldBeLeft(
-            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avbrutt")),
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avbrutt")),
         )
         GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.AVLYST)).shouldBeLeft(
-            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avlyst")),
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avlyst")),
         )
     }
 
@@ -440,7 +442,7 @@ class GjennomforingValidatorTest : FunSpec({
                 request,
                 ctx.copy(previous = gjennomforing.copy(status = GjennomforingStatusType.AVBRUTT)),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/navn", "Du kan ikke gjøre endringer på en gjennomføring som er avbrutt"),
+                FieldError("/navn", "Du kan ikke gjøre endringer på en gjennomføring med status Avbrutt"),
             )
         }
 
@@ -449,7 +451,7 @@ class GjennomforingValidatorTest : FunSpec({
                 request,
                 ctx.copy(previous = gjennomforing.copy(status = GjennomforingStatusType.AVSLUTTET)),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/navn", "Du kan ikke gjøre endringer på en gjennomføring som er avsluttet"),
+                FieldError("/navn", "Du kan ikke gjøre endringer på en gjennomføring med status Avsluttet"),
             )
         }
     }

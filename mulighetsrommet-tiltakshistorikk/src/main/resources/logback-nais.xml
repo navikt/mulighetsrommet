@@ -14,26 +14,10 @@
         </encoder>
     </appender>
 
-    <appender name="secureLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/secure-logs/secure.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>/secure-logs/secure.log.%i</fileNamePattern>
-            <minIndex>1</minIndex>
-            <maxIndex>1</maxIndex>
-        </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>50MB</maxFileSize>
-        </triggeringPolicy>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-    </appender>
-
     <root level="INFO">
         <appender-ref ref="stdout_json"/>
     </root>
 
-    <logger name="secureLogger" level="INFO" additivity="false">
-        <appender-ref ref="secureLog"/>
-    </logger>
     <logger name="io.netty" level="INFO"/>
     <logger name="no.nav.mulighetsrommet" level="INFO"/>
 </included>

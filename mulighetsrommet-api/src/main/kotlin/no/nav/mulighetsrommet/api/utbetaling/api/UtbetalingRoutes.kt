@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import arrow.core.flatMap
-import arrow.core.right
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -17,7 +16,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -34,7 +33,6 @@ import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
@@ -247,11 +245,9 @@ fun Route.utbetalingRoutes() {
                     val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys)
 
                     val regioner = NavEnhetHelpers.buildNavRegioner(
-                        personalia
-                            .map { personalia ->
-                                listOfNotNull(personalia.oppfolgingEnhet, personalia.region)
-                            }
-                            .flatten(),
+                        personalia.flatMap { personalia ->
+                            listOfNotNull(personalia.oppfolgingEnhet, personalia.region)
+                        },
                     )
 
                     val deltakelsePersoner = personalia
@@ -445,12 +441,38 @@ fun Route.utbetalingRoutes() {
         }
 
         authorize(Rolle.ATTESTANT_UTBETALING) {
-            post("/{id}/beslutt", {
+            post("/{id}/attester", {
                 tags = setOf("Utbetaling")
-                operationId = "besluttDelutbetaling"
+                operationId = "attesterDelutbetaling"
                 request {
                     pathParameterUuid("id")
-                    body<BesluttTotrinnskontrollRequest<DelutbetalingReturnertAarsak>>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Delutbetaling ble attestert"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val navIdent = getNavIdent()
+
+                val result = utbetalingService.godkjennDelutbetaling(id, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            post("/{id}/returner", {
+                tags = setOf("Utbetaling")
+                operationId = "returnerDelutbetaling"
+                request {
+                    pathParameterUuid("id")
+                    body<AarsakerOgForklaringRequest<DelutbetalingReturnertAarsak>>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -463,14 +485,11 @@ fun Route.utbetalingRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
-                val request = call.receive<BesluttTotrinnskontrollRequest<DelutbetalingReturnertAarsak>>()
+                val request = call.receive<AarsakerOgForklaringRequest<DelutbetalingReturnertAarsak>>()
                 val navIdent = getNavIdent()
 
-                val result = when (request.besluttelse) {
-                    Besluttelse.GODKJENT -> Unit.right()
-                    Besluttelse.AVVIST -> validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
-                }
-                    .flatMap { utbetalingService.besluttDelutbetaling(id, request, navIdent) }
+                val result = request.validate()
+                    .flatMap { utbetalingService.returnerDelutbetaling(id, it.aarsaker, it.forklaring, navIdent) }
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -522,13 +541,6 @@ fun RoutingContext.getAdminInnsendingerFilter(): AdminInnsendingerFilter {
         sortering = sortering,
     )
 }
-
-@Serializable
-data class BesluttTotrinnskontrollRequest<T>(
-    val besluttelse: Besluttelse,
-    val aarsaker: List<T>,
-    val forklaring: String?,
-)
 
 @Serializable
 data class DelutbetalingRequest(

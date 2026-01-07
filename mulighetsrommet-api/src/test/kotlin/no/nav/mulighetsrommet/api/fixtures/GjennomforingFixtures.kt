@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
+import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 object GjennomforingFixtures {
-    val Oppfolging1 = GjennomforingDbo(
+    val Oppfolging1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging 1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -27,6 +27,7 @@ object GjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         oppstart = GjennomforingOppstartstype.LOPENDE,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         kontaktpersoner = emptyList(),
         oppmoteSted = "Munch museet",
         faneinnhold = null,
@@ -37,71 +38,10 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.oppfolging.prismodellDbo[0].id,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+        prismodellId = AvtaleFixtures.Prismodell.AvtaltPrisPerTimeOppfolging.id,
     )
 
-    val Oppfolging1Request = GjennomforingRequest(
-        id = Oppfolging1.id,
-        tiltakstypeId = Oppfolging1.tiltakstypeId,
-        avtaleId = Oppfolging1.avtaleId,
-        navn = Oppfolging1.navn,
-        startDato = Oppfolging1.startDato,
-        sluttDato = Oppfolging1.sluttDato,
-        antallPlasser = Oppfolging1.antallPlasser,
-        arrangorId = ArrangorFixtures.underenhet1.id,
-        arrangorKontaktpersoner = emptyList(),
-        veilederinformasjon = GjennomforingVeilederinfoRequest(
-            navRegioner = listOf(NavEnhetFixtures.Innlandet.enhetsnummer),
-            navKontorer = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
-            navAndreEnheter = emptyList(),
-            faneinnhold = Oppfolging1.faneinnhold,
-            beskrivelse = Oppfolging1.beskrivelse,
-        ),
-        kontaktpersoner = emptyList(),
-        administratorer = listOf(NavIdent("DD1")),
-        oppstart = Oppfolging1.oppstart,
-        oppmoteSted = null,
-        deltidsprosent = 100.0,
-        estimertVentetid = EstimertVentetid(
-            verdi = 3,
-            enhet = "dag",
-        ),
-        tilgjengeligForArrangorDato = null,
-        amoKategorisering = null,
-        prismodellId = Oppfolging1.prismodellId,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-    )
-
-    val Oppfolging2 = GjennomforingDbo(
-        id = UUID.randomUUID(),
-        navn = "Oppfølging 2",
-        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        arrangorId = ArrangorFixtures.underenhet2.id,
-        arrangorKontaktpersoner = emptyList(),
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = LocalDate.of(2023, 2, 1),
-        status = GjennomforingStatusType.GJENNOMFORES,
-        antallPlasser = 12,
-        avtaleId = AvtaleFixtures.oppfolging.id,
-        administratorer = emptyList(),
-        navEnheter = emptySet(),
-        oppstart = GjennomforingOppstartstype.FELLES,
-        kontaktpersoner = emptyList(),
-        oppmoteSted = "Oslo",
-        faneinnhold = null,
-        beskrivelse = null,
-        deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
-        amoKategorisering = null,
-        utdanningslop = null,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        prismodellId = AvtaleFixtures.oppfolging.prismodellDbo[0].id,
-    )
-
-    val VTA1 = GjennomforingDbo(
+    val VTA1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "VTA 1",
         tiltakstypeId = TiltakstypeFixtures.VTA.id,
@@ -115,6 +55,7 @@ object GjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         oppstart = GjennomforingOppstartstype.LOPENDE,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         kontaktpersoner = emptyList(),
         oppmoteSted = "Oslo",
         faneinnhold = null,
@@ -125,11 +66,10 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.VTA.prismodellDbo[0].id,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+        prismodellId = AvtaleFixtures.Prismodell.Forhandsgodkjent.id,
     )
 
-    val AFT1 = GjennomforingDbo(
+    val AFT1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "AFT 1",
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
@@ -143,6 +83,7 @@ object GjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         oppstart = GjennomforingOppstartstype.LOPENDE,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         kontaktpersoner = emptyList(),
         oppmoteSted = "Oslo",
         faneinnhold = null,
@@ -153,39 +94,10 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        prismodellId = AvtaleFixtures.AFT.prismodellDbo[0].id,
+        prismodellId = AvtaleFixtures.Prismodell.Forhandsgodkjent.id,
     )
 
-    val Jobbklubb1 = GjennomforingDbo(
-        id = UUID.randomUUID(),
-        navn = "Jobbklubb 1",
-        tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-        arrangorId = ArrangorFixtures.underenhet1.id,
-        arrangorKontaktpersoner = emptyList(),
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = LocalDate.of(2023, 2, 1),
-        status = GjennomforingStatusType.GJENNOMFORES,
-        antallPlasser = 12,
-        avtaleId = AvtaleFixtures.jobbklubb.id,
-        administratorer = listOf(NavIdent("DD1")),
-        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
-        oppstart = GjennomforingOppstartstype.FELLES,
-        kontaktpersoner = emptyList(),
-        oppmoteSted = "Oslo",
-        faneinnhold = null,
-        beskrivelse = null,
-        deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
-        amoKategorisering = null,
-        utdanningslop = null,
-        prismodellId = AvtaleFixtures.jobbklubb.prismodellDbo[0].id,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-    )
-
-    val GruppeAmo1 = GjennomforingDbo(
+    val GruppeAmo1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Amo 1",
         tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
@@ -199,6 +111,7 @@ object GjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         oppstart = GjennomforingOppstartstype.FELLES,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         kontaktpersoner = emptyList(),
         oppmoteSted = "Oslo",
         faneinnhold = null,
@@ -209,11 +122,10 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        prismodellId = AvtaleFixtures.gruppeAmo.prismodellDbo[0].id,
+        prismodellId = AvtaleFixtures.Prismodell.AnnenAvtaltPris.id,
     )
 
-    val GruppeFagYrke1 = GjennomforingDbo(
+    val GruppeFagYrke1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Fag- og yrkesopplæring 1",
         tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
@@ -227,6 +139,7 @@ object GjennomforingFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         oppstart = GjennomforingOppstartstype.FELLES,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         kontaktpersoner = emptyList(),
         oppmoteSted = "Oslo",
         faneinnhold = null,
@@ -237,24 +150,24 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.gruppeFagYrke.prismodellDbo[0].id,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+        prismodellId = AvtaleFixtures.Prismodell.AnnenAvtaltPris.id,
     )
 
-    val ArbeidsrettetRehabilitering = GjennomforingDbo(
+    val ArbeidsrettetRehabilitering = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidsretter Rehabilitering 1",
         tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
         arrangorId = ArrangorFixtures.underenhet1.id,
         arrangorKontaktpersoner = emptyList(),
         startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = LocalDate.of(2023, 2, 1),
+        sluttDato = LocalDate.of(2026, 1, 1),
         status = GjennomforingStatusType.AVSLUTTET,
         antallPlasser = 12,
         avtaleId = AvtaleFixtures.ARR.id,
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         oppstart = GjennomforingOppstartstype.FELLES,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         kontaktpersoner = emptyList(),
         oppmoteSted = "Oslo",
         faneinnhold = null,
@@ -265,7 +178,49 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.ARR.prismodellDbo[0].id,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+        prismodellId = AvtaleFixtures.Prismodell.AnnenAvtaltPris.id,
     )
+
+    fun createGjennomforingRequest(
+        avtale: AvtaleDbo,
+        id: UUID = UUID.randomUUID(),
+        prismodellId: UUID = avtale.prismodeller.single().id,
+        arrangorId: UUID = ArrangorFixtures.underenhet1.id,
+        startDato: LocalDate = avtale.detaljerDbo.startDato,
+        sluttDato: LocalDate? = avtale.detaljerDbo.sluttDato,
+        oppstart: GjennomforingOppstartstype = GjennomforingOppstartstype.LOPENDE,
+        pamelding: GjennomforingPameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+        navRegioner: List<NavEnhetNummer> = listOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+        navKontorer: List<NavEnhetNummer> = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+        administratorer: List<NavIdent> = listOf(NavIdent("DD1")),
+    ): GjennomforingRequest {
+        return GjennomforingRequest(
+            id = id,
+            tiltakstypeId = avtale.detaljerDbo.tiltakstypeId,
+            avtaleId = avtale.id,
+            navn = "Gjennomføring for ${avtale.detaljerDbo.navn}",
+            startDato = startDato,
+            sluttDato = sluttDato,
+            oppstart = oppstart,
+            pameldingType = pamelding,
+            prismodellId = prismodellId,
+            arrangorId = arrangorId,
+            arrangorKontaktpersoner = emptyList(),
+            veilederinformasjon = GjennomforingVeilederinfoRequest(
+                navRegioner = navRegioner,
+                navKontorer = navKontorer,
+                navAndreEnheter = emptyList(),
+                faneinnhold = null,
+                beskrivelse = null,
+            ),
+            kontaktpersoner = emptyList(),
+            administratorer = administratorer,
+            antallPlasser = 1,
+            deltidsprosent = 100.0,
+            oppmoteSted = null,
+            estimertVentetid = null,
+            tilgjengeligForArrangorDato = null,
+            amoKategorisering = null,
+        )
+    }
 }

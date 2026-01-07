@@ -5,5 +5,6 @@ enum class AutomatiskUtbetalingResult {
     FEIL_ANTALL_TILSAGN,
     IKKE_NOK_PENGER,
     DELUTBETALINGER_ALLEREDE_OPPRETTET,
+    VALIDERINGSFEIL,
     GODKJENT,
 }

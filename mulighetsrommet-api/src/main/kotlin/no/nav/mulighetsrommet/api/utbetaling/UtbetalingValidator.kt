@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.kanAvbrytesAvArrangor
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
@@ -174,7 +174,7 @@ object UtbetalingValidator {
     }
 
     fun maksUtbetalingsPeriodeSluttDato(
-        gjennomforing: Gjennomforing,
+        gjennomforing: GjennomforingGruppetiltak,
         okonomiConfig: OkonomiConfig,
         relativeDate: LocalDate = LocalDate.now(),
     ): LocalDate {
@@ -183,30 +183,29 @@ object UtbetalingValidator {
                 ?: invalidGjennomforingOpprettKrav(gjennomforing)
 
         return when (gjennomforing.prismodell?.type) {
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
-                minOf(relativeDate, opprettKravPeriodeSluttDato)
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> minOf(relativeDate, opprettKravPeriodeSluttDato)
 
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
-                minOf(relativeDate.withDayOfMonth(1), opprettKravPeriodeSluttDato)
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> minOf(
+                relativeDate.withDayOfMonth(1),
+                opprettKravPeriodeSluttDato,
+            )
 
-            PrismodellType.ANNEN_AVTALT_PRIS ->
-                opprettKravPeriodeSluttDato
+            PrismodellType.ANNEN_AVTALT_PRIS -> opprettKravPeriodeSluttDato
 
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
             null,
-            ->
-                invalidGjennomforingOpprettKrav(gjennomforing)
+            -> invalidGjennomforingOpprettKrav(gjennomforing)
         }
     }
 
     @Throws(IllegalArgumentException::class)
-    private fun invalidGjennomforingOpprettKrav(gjennomforing: Gjennomforing): Nothing = throw IllegalArgumentException("Kan ikke opprette utbetalingskrav for ${gjennomforing.tiltakstype.navn} med prismodell ${gjennomforing.prismodell?.type?.navn}")
+    private fun invalidGjennomforingOpprettKrav(gjennomforing: GjennomforingGruppetiltak): Nothing = throw IllegalArgumentException("Kan ikke opprette utbetalingskrav for ${gjennomforing.tiltakstype.navn} med prismodell ${gjennomforing.prismodell?.type?.navn}")
 
     fun validateOpprettKravArrangorflate(
         request: OpprettKravUtbetalingRequest,
-        gjennomforing: Gjennomforing,
+        gjennomforing: GjennomforingGruppetiltak,
         okonomiConfig: OkonomiConfig,
         kontonummer: Kontonummer,
     ): Either<List<FieldError>, ValidertUtbetalingKrav> = validation {

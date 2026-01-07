@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -66,13 +67,10 @@ fun Route.tilsagnRoutesBeregning() {
         val tilsagn = db.session { queries.tilsagn.get(id) }
             ?: return@get call.respond(HttpStatusCode.NotFound)
 
-        val gjennomforing = gjennomforinger.get(tilsagn.gjennomforing.id)
-            ?: return@get call.respond(HttpStatusCode.NotFound)
-
-        val prismodell = gjennomforing.prismodell
+        val prismodell = db.session { queries.gjennomforing.getPrismodell(tilsagn.gjennomforing.id) }
             ?: throw StatusException(
                 HttpStatusCode.BadRequest,
-                "Tilsagn kan ikke opprettes uten at gjennomføringen har en prismodell",
+                "Tilsagn kan ikke opprettes fordi gjennomføring mangler prismodell",
             )
 
         val defaults = resolveTilsagnRequest(tilsagn, prismodell)
@@ -103,25 +101,17 @@ fun Route.tilsagnRoutesBeregning() {
         val gjennomforing = gjennomforinger.get(request.gjennomforingId)
             ?: return@post call.respond(HttpStatusCode.NotFound)
 
-        val prismodell = gjennomforing.prismodell
-            ?: throw StatusException(
-                HttpStatusCode.BadRequest,
-                "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
-            )
-
         val defaults = when (request.type) {
             TilsagnType.TILSAGN -> db.session {
                 val sisteTilsagn = queries.tilsagn
                     .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
                     .firstOrNull()
 
-                resolveTilsagnDefaults(config.okonomi, prismodell, gjennomforing, sisteTilsagn)
+                resolveTilsagnDefaults(config.okonomi, gjennomforing, sisteTilsagn)
             }
 
-            TilsagnType.INVESTERING,
-            TilsagnType.EKSTRATILSAGN,
-            -> db.session {
-                resolveEkstraTilsagnInvesteringDefaults(request, gjennomforing, prismodell)
+            TilsagnType.INVESTERING, TilsagnType.EKSTRATILSAGN -> db.session {
+                resolveEkstraTilsagnInvesteringDefaults(request, gjennomforing)
             }
         }
 
@@ -206,20 +196,30 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
 
 fun resolveTilsagnDefaults(
     config: OkonomiConfig,
-    prismodell: Prismodell,
-    gjennomforing: Gjennomforing,
+    gjennomforing: GjennomforingGruppetiltak,
     tilsagn: Tilsagn?,
 ): TilsagnRequest {
-    val periode = when (prismodell) {
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk ->
-            getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
-
-        is Prismodell.AnnenAvtaltPris -> null
-
-        else -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
+    if (gjennomforing.prismodell == null) {
+        throw StatusException(
+            HttpStatusCode.BadRequest,
+            "Tilsagn kan ikke opprettes fordi gjennomføringen mangler prismodell",
+        )
     }
 
-    val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(prismodell)
+    val periode = when (gjennomforing.prismodell) {
+        is Prismodell.AnnenAvtaltPris -> null
+
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+        -> getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
+
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
+        is Prismodell.AvtaltPrisPerUkesverk,
+        is Prismodell.AvtaltPrisPerHeleUkesverk,
+        is Prismodell.AvtaltPrisPerManedsverk,
+        -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
+    }
+
+    val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
 
     val beregning = TilsagnBeregningRequest(
         type = beregningType,
@@ -288,10 +288,16 @@ private fun getAnskaffetTiltakPeriode(
 
 private fun resolveEkstraTilsagnInvesteringDefaults(
     request: TilsagnRequest,
-    gjennomforing: Gjennomforing,
-    prismodell: Prismodell,
+    gjennomforing: GjennomforingGruppetiltak,
 ): TilsagnRequest {
-    val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(prismodell)
+    if (gjennomforing.prismodell == null) {
+        throw StatusException(
+            HttpStatusCode.BadRequest,
+            "Tilsagn kan ikke opprettes fordi gjennomføringen mangler prismodell",
+        )
+    }
+
+    val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
 
     return TilsagnRequest(
         id = UUID.randomUUID(),

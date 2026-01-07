@@ -46,7 +46,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
@@ -193,9 +192,8 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.besluttDelutbetaling(
+            service.godkjennDelutbetaling(
                 id = delutbetaling1.id,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 navIdent = domain.ansatte[1].navIdent,
             ) shouldBeLeft listOf(
                 FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (Nav Innlandet)"),
@@ -233,9 +231,8 @@ class UtbetalingServiceTest : FunSpec({
                 request = opprettRequest,
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
-            service.besluttDelutbetaling(
+            service.godkjennDelutbetaling(
                 id = delutbetaling.id,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ) shouldBeLeft listOf(
                 FieldError.of("Kan ikke attestere en utbetaling du selv har opprettet"),
@@ -273,9 +270,8 @@ class UtbetalingServiceTest : FunSpec({
                 request = opprettRequest,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight()
-            service.besluttDelutbetaling(
+            service.godkjennDelutbetaling(
                 id = delutbetaling.id,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
         }
@@ -311,13 +307,10 @@ class UtbetalingServiceTest : FunSpec({
                 request = opprettRequest,
                 navIdent = domain.ansatte[1].navIdent,
             ).shouldBeRight()
-            service.besluttDelutbetaling(
+            service.returnerDelutbetaling(
                 id = delutbetaling.id,
-                BesluttTotrinnskontrollRequest(
-                    Besluttelse.AVVIST,
-                    listOf(DelutbetalingReturnertAarsak.ANNET),
-                    "Maksbeløp er 5",
-                ),
+                aarsaker = listOf(DelutbetalingReturnertAarsak.ANNET),
+                forklaring = "Maksbeløp er 5",
                 navIdent = domain.ansatte[0].navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
         }
@@ -354,13 +347,10 @@ class UtbetalingServiceTest : FunSpec({
                 navIdent = domain.ansatte[0].navIdent,
             ).shouldBeRight()
 
-            service.besluttDelutbetaling(
+            service.returnerDelutbetaling(
                 id = delutbetaling.id,
-                BesluttTotrinnskontrollRequest(
-                    Besluttelse.AVVIST,
-                    listOf(DelutbetalingReturnertAarsak.ANNET),
-                    "Maksbeløp er 5",
-                ),
+                aarsaker = listOf(DelutbetalingReturnertAarsak.ANNET),
+                forklaring = "Maksbeløp er 5",
                 navIdent = domain.ansatte[1].navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
@@ -372,7 +362,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             database.run {
-                queries.delutbetaling.get(delutbetaling.id).shouldNotBeNull()
+                queries.delutbetaling.getOrError(delutbetaling.id)
             }
         }
 
@@ -391,12 +381,12 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.besluttDelutbetaling(
+            service.godkjennDelutbetaling(
                 id = delutbetaling1.id,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ) shouldBeLeft listOf(
                 FieldError.of("Utbetaling er ikke satt til attestering"),
+                FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (Nav Innlandet)"),
             )
         }
 
@@ -426,9 +416,9 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeRight()
 
             database.run {
-                queries.delutbetaling.get(delutbetaling1.id).shouldNotBeNull()
+                queries.delutbetaling.getOrError(delutbetaling1.id)
                     .status shouldBe DelutbetalingStatus.TIL_ATTESTERING
-                queries.utbetaling.get(delutbetaling1.utbetalingId).shouldNotBeNull()
+                queries.utbetaling.getOrError(delutbetaling1.utbetalingId)
                     .status shouldBe UtbetalingStatusType.TIL_ATTESTERING
             }
         }
@@ -506,14 +496,11 @@ class UtbetalingServiceTest : FunSpec({
                 domain.ansatte[0].navIdent,
             ).shouldBeRight()
 
-            service.besluttDelutbetaling(
-                delutbetaling1.id,
-                BesluttTotrinnskontrollRequest(
-                    Besluttelse.AVVIST,
-                    listOf(DelutbetalingReturnertAarsak.FEIL_BELOP),
-                    null,
-                ),
-                domain.ansatte[1].navIdent,
+            service.returnerDelutbetaling(
+                id = delutbetaling1.id,
+                aarsaker = listOf(DelutbetalingReturnertAarsak.FEIL_BELOP),
+                forklaring = null,
+                navIdent = domain.ansatte[1].navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
             service.opprettDelutbetalinger(
@@ -565,20 +552,16 @@ class UtbetalingServiceTest : FunSpec({
                 domain.ansatte[1].navIdent,
             ).shouldBeRight()
 
-            service.besluttDelutbetaling(
+            service.godkjennDelutbetaling(
                 delutbetaling1.id,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.GODKJENT
 
-            service.besluttDelutbetaling(
-                delutbetaling2.id,
-                BesluttTotrinnskontrollRequest(
-                    Besluttelse.AVVIST,
-                    listOf(DelutbetalingReturnertAarsak.ANNET),
-                    "Maksbeløp er 5",
-                ),
-                domain.ansatte[0].navIdent,
+            service.returnerDelutbetaling(
+                id = delutbetaling2.id,
+                aarsaker = listOf(DelutbetalingReturnertAarsak.ANNET),
+                forklaring = "Maksbeløp er 5",
+                navIdent = domain.ansatte[0].navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
             database.run {
@@ -706,14 +689,11 @@ class UtbetalingServiceTest : FunSpec({
                 }
             }
 
-            service.besluttDelutbetaling(
-                delutbetaling1.id,
-                BesluttTotrinnskontrollRequest(
-                    Besluttelse.AVVIST,
-                    listOf(DelutbetalingReturnertAarsak.ANNET),
-                    "Maksbeløp er 5",
-                ),
-                NavAnsattFixture.MikkeMus.navIdent,
+            service.returnerDelutbetaling(
+                id = delutbetaling1.id,
+                aarsaker = listOf(DelutbetalingReturnertAarsak.ANNET),
+                forklaring = "Maksbeløp er 5",
+                navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
             service.opprettDelutbetalinger(
@@ -729,14 +709,11 @@ class UtbetalingServiceTest : FunSpec({
                 }
             }
 
-            service.besluttDelutbetaling(
-                delutbetaling1.id,
-                BesluttTotrinnskontrollRequest(
-                    Besluttelse.AVVIST,
-                    listOf(DelutbetalingReturnertAarsak.ANNET),
-                    "Maksbeløp er 5",
-                ),
-                NavAnsattFixture.MikkeMus.navIdent,
+            service.returnerDelutbetaling(
+                id = delutbetaling1.id,
+                aarsaker = listOf(DelutbetalingReturnertAarsak.ANNET),
+                forklaring = "Maksbeløp er 5",
+                navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
             val delutbetaling2 = DelutbetalingRequest(UUID.randomUUID(), Tilsagn1.id, gjorOppTilsagn = false, belop = 5)
@@ -785,9 +762,8 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.besluttDelutbetaling(
+            service.godkjennDelutbetaling(
                 id = delutbetaling1.id,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
@@ -853,9 +829,8 @@ class UtbetalingServiceTest : FunSpec({
                 NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
-            service.besluttDelutbetaling(
+            service.godkjennDelutbetaling(
                 id = delutbetaling.id,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
 
@@ -904,15 +879,13 @@ class UtbetalingServiceTest : FunSpec({
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
-            service.besluttDelutbetaling(
+            service.godkjennDelutbetaling(
                 id = delutbetaling1.id,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.GODKJENT
 
-            service.besluttDelutbetaling(
+            service.godkjennDelutbetaling(
                 id = delutbetaling2.id,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
 
@@ -969,9 +942,8 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService(tidligstTidspunktForUtbetaling = februarNorskTid)
 
-            service.besluttDelutbetaling(
+            service.godkjennDelutbetaling(
                 id = delutbetaling1.id,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
 
@@ -1014,9 +986,8 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.besluttDelutbetaling(
+            service.godkjennDelutbetaling(
                 id = delutbetaling1.id,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
 
@@ -1078,7 +1049,7 @@ class UtbetalingServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1.copy()),
+                tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(utbetaling),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
@@ -1150,7 +1121,7 @@ class UtbetalingServiceTest : FunSpec({
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                 }
 
-                queries.tilsagn.get(Tilsagn1.id).shouldNotBeNull().should {
+                queries.tilsagn.getOrError(Tilsagn1.id).should {
                     it.belopBrukt shouldBe 1000
                 }
 

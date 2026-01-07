@@ -13,7 +13,7 @@ object AvtalteSatser {
             .lastOrNull { dato >= it.gjelderFra }?.sats
     }
 
-    fun getAvtalteSatser(prismodell: Prismodell, tiltakskode: Tiltakskode): List<AvtaltSats> = when (prismodell) {
+    fun getAvtalteSatser(tiltakskode: Tiltakskode, prismodell: Prismodell): List<AvtaltSats> = when (prismodell) {
         is Prismodell.ForhandsgodkjentPrisPerManedsverk -> getForhandsgodkjenteSatser(tiltakskode)
         else -> prismodell.satser()
     }

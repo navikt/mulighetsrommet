@@ -9,13 +9,14 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import no.nav.mulighetsrommet.securelog.SecureLog
+import no.nav.mulighetsrommet.teamLogsInfo
+import org.slf4j.LoggerFactory
 
 class ClamAvClient(
     private val baseUrl: String,
     clientEngine: HttpClientEngine,
 ) {
-    private val log = SecureLog.logger
+    private val logger = LoggerFactory.getLogger(ClamAvClient::class.java)
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
@@ -24,7 +25,7 @@ class ClamAvClient(
         if (vedleggList.isEmpty()) {
             return emptyList()
         }
-        log.info("Scanner ${vedleggList.size} vedlegg for virus")
+        logger.teamLogsInfo("Scanner ${vedleggList.size} vedlegg for virus")
         val httpResponse =
             client.submitFormWithBinaryData(
                 url = "$baseUrl/scan",

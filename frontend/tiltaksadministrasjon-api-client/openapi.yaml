@@ -212,17 +212,17 @@ paths:
     put:
       tags:
       - Avtale
-      operationId: upsertAvtale
+      operationId: opprettAvtale
       parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AvtaleRequest"
+              $ref: "#/components/schemas/OpprettAvtaleRequest"
         required: false
       responses:
         "200":
-          description: Avtalen ble upsertet
+          description: Avtalen ble opprettet
           headers: {}
           content:
             application/json:
@@ -1742,11 +1742,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tilsagn/{id}/beslutt:
+  /api/tiltaksadministrasjon/tilsagn/{id}/godkjenn:
     post:
       tags:
       - Tilsagn
-      operationId: besluttTilsagn
+      operationId: godkjennTilsagn
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Tilsagn ble godkjent
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilsagn/{id}/returner:
+    post:
+      tags:
+      - Tilsagn
+      operationId: returnerTilsagn
       parameters:
       - name: id
         in: path
@@ -1760,11 +1786,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BesluttTotrinnskontrollRequest_TilsagnStatusAarsak"
+              $ref: "#/components/schemas/AarsakerOgForklaringRequest_TilsagnStatusAarsak"
         required: false
       responses:
         "200":
-          description: Tilsagn ble besluttet
+          description: Tilsagn ble returnert
           headers: {}
         default:
           description: Problem details
@@ -2199,11 +2225,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/delutbetalinger/{id}/beslutt:
+  /api/tiltaksadministrasjon/delutbetalinger/{id}/attester:
     post:
       tags:
       - Utbetaling
-      operationId: besluttDelutbetaling
+      operationId: attesterDelutbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Delutbetaling ble attestert
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/delutbetalinger/{id}/returner:
+    post:
+      tags:
+      - Utbetaling
+      operationId: returnerDelutbetaling
       parameters:
       - name: id
         in: path
@@ -2217,7 +2269,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BesluttTotrinnskontrollRequest_DelutbetalingReturnertAarsak"
+              $ref: "#/components/schemas/AarsakerOgForklaringRequest_DelutbetalingReturnertAarsak"
         required: false
       responses:
         "200":
@@ -3678,20 +3730,9 @@ components:
           - "null"
           - integer
           format: int32
-        valuta:
-          type:
-          - "null"
-          - string
-        gjelderTil:
-          type:
-          - "null"
-          - string
-          format: date
       required:
       - gjelderFra
-      - gjelderTil
       - pris
-      - valuta
     PersonvernRequest:
       type: object
       properties:
@@ -3750,7 +3791,7 @@ components:
       - beskrivelse
       - faneinnhold
       - navEnheter
-    AvtaleRequest:
+    OpprettAvtaleRequest:
       type: object
       properties:
         id:
@@ -4647,7 +4688,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/Gjennomforing.ArrangorKontaktperson"
+            $ref: "#/components/schemas/GjennomforingGruppetiltak.ArrangorKontaktperson"
         slettet:
           type: boolean
       required:
@@ -4656,7 +4697,7 @@ components:
       - navn
       - organisasjonsnummer
       - slettet
-    Gjennomforing.ArrangorKontaktperson:
+    GjennomforingGruppetiltak.ArrangorKontaktperson:
       type: object
       properties:
         id:
@@ -4697,7 +4738,7 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
-    Gjennomforing.Administrator:
+    GjennomforingGruppetiltak.Administrator:
       type: object
       properties:
         navIdent:
@@ -4733,7 +4774,7 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    Gjennomforing.EstimertVentetid:
+    GjennomforingGruppetiltak.EstimertVentetid:
       type: object
       properties:
         verdi:
@@ -4744,7 +4785,7 @@ components:
       required:
       - enhet
       - verdi
-    Gjennomforing.StengtPeriode:
+    GjennomforingGruppetiltak.StengtPeriode:
       type: object
       properties:
         id:
@@ -4805,16 +4846,22 @@ components:
           - "null"
           - string
           format: uuid
+        prismodell:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/PrismodellDto"
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/Gjennomforing.Administrator"
+            $ref: "#/components/schemas/GjennomforingGruppetiltak.Administrator"
         kontorstruktur:
           type: array
           items:
             $ref: "#/components/schemas/Kontorstruktur"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
         opphav:
           $ref: "#/components/schemas/ArenaMigrering.Opphav"
         kontaktpersoner:
@@ -4841,7 +4888,7 @@ components:
         estimertVentetid:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/Gjennomforing.EstimertVentetid"
+          - $ref: "#/components/schemas/GjennomforingGruppetiltak.EstimertVentetid"
         tilgjengeligForArrangorDato:
           type:
           - "null"
@@ -4858,13 +4905,7 @@ components:
         stengt:
           type: array
           items:
-            $ref: "#/components/schemas/Gjennomforing.StengtPeriode"
-        prismodell:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/PrismodellDto"
-        pameldingType:
-          $ref: "#/components/schemas/GjennomforingPameldingType"
+            $ref: "#/components/schemas/GjennomforingGruppetiltak.StengtPeriode"
       required:
       - administratorer
       - amoKategorisering
@@ -4991,9 +5032,9 @@ components:
           items:
             $ref: "#/components/schemas/Kontorstruktur"
         arrangor:
-          $ref: "#/components/schemas/GjennomforingKompakt.ArrangorUnderenhet"
+          $ref: "#/components/schemas/GjennomforingGruppetiltakKompakt.ArrangorUnderenhet"
         tiltakstype:
-          $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
+          $ref: "#/components/schemas/GjennomforingGruppetiltakKompakt.Tiltakstype"
       required:
       - arrangor
       - id
@@ -5005,7 +5046,7 @@ components:
       - startDato
       - status
       - tiltakstype
-    GjennomforingKompakt.ArrangorUnderenhet:
+    GjennomforingGruppetiltakKompakt.ArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -5019,6 +5060,20 @@ components:
       - id
       - navn
       - organisasjonsnummer
+    GjennomforingGruppetiltakKompakt.Tiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - id
+      - navn
+      - tiltakskode
     PaginatedResponse_GjennomforingKompaktDto:
       type: object
       properties:
@@ -5728,23 +5783,6 @@ components:
       required:
       - aarsaker
       - forklaring
-    BesluttTotrinnskontrollRequest_TilsagnStatusAarsak:
-      type: object
-      properties:
-        besluttelse:
-          $ref: "#/components/schemas/Besluttelse"
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnStatusAarsak"
-        forklaring:
-          type:
-          - "null"
-          - string
-      required:
-      - aarsaker
-      - besluttelse
-      - forklaring
     BeregnTilsagnRequest:
       type: object
       properties:
@@ -6185,11 +6223,9 @@ components:
       - ANNET
       - TILSAGN_FEIL_STATUS
       - PROPAGERT_RETUR
-    BesluttTotrinnskontrollRequest_DelutbetalingReturnertAarsak:
+    AarsakerOgForklaringRequest_DelutbetalingReturnertAarsak:
       type: object
       properties:
-        besluttelse:
-          $ref: "#/components/schemas/Besluttelse"
         aarsaker:
           type: array
           items:
@@ -6200,7 +6236,6 @@ components:
           - string
       required:
       - aarsaker
-      - besluttelse
       - forklaring
     OppgaveType:
       type: string

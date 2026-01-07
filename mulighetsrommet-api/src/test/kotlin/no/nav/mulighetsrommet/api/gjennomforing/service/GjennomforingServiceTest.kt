@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.service
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -18,6 +19,8 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -25,10 +28,12 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
+import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
@@ -50,6 +55,12 @@ class GjennomforingServiceTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         navEnheter = listOf(Innlandet, Oslo, Sagene, Gjovik),
+        arrangorer = listOf(
+            ArrangorFixtures.hovedenhet,
+            ArrangorFixtures.underenhet1,
+            ArrangorFixtures.underenhet2,
+        ),
+        avtaler = listOf(AvtaleFixtures.oppfolging),
     )
 
     beforeEach {
@@ -64,7 +75,8 @@ class GjennomforingServiceTest : FunSpec({
 
     context("valideringsfeil ved opprettelse av gjennomføring") {
         test("får ikke opprettet gjennomføring som allerede er avsluttet") {
-            val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
+            val gjennomforing = GjennomforingFixtures.createGjennomforingRequest(
+                AvtaleFixtures.oppfolging,
                 startDato = LocalDate.of(2023, 1, 1),
                 sluttDato = LocalDate.of(2023, 1, 1),
             )
@@ -73,7 +85,7 @@ class GjennomforingServiceTest : FunSpec({
 
             service.upsert(gjennomforing, bertilNavIdent, today = LocalDate.of(2023, 1, 2))
                 .shouldBeLeft().shouldContainAll(
-                    listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avsluttet")),
+                    listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avsluttet")),
                 )
         }
     }
@@ -81,41 +93,61 @@ class GjennomforingServiceTest : FunSpec({
     context("opprettelse av gjennomføring") {
         val service = createService()
 
-        test("oppretting av gjennomføring blir lagret som et utgående kafka-record") {
-            val gjennomforing = GjennomforingFixtures.Oppfolging1Request
+        val request = GjennomforingFixtures.createGjennomforingRequest(AvtaleFixtures.oppfolging)
 
-            service.upsert(gjennomforing, bertilNavIdent).shouldBeRight()
+        test("oppretting av gjennomføring blir lagret som et utgående kafka-record") {
+            service.upsert(request, bertilNavIdent).shouldBeRight()
 
             database.run {
                 shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V1_TOPIC, 1).should { (record) ->
-                    record.key shouldBe gjennomforing.id.toString().toByteArray()
-                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString()).id shouldBe gjennomforing.id
+                    record.key shouldBe request.id.toString().toByteArray()
+                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString()).id shouldBe request.id
                 }
 
                 shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
-                    record.key shouldBe gjennomforing.id.toString().toByteArray()
+                    record.key shouldBe request.id.toString().toByteArray()
                     val deserialized = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
                     deserialized should beInstanceOf<TiltaksgjennomforingV2Dto.Gruppe>()
-                    deserialized.id shouldBe gjennomforing.id
+                    deserialized.id shouldBe request.id
                 }
             }
         }
 
-        test("navEnheter uten fylke blir filtrert vekk") {
-            val gjennomforing = GjennomforingFixtures.Oppfolging1Request
+        test("navn på tiltak og arrangør blir tilgjengelig via fritekstsøk") {
+            val gjennomforing = request.copy(navn = "Veldig rart navn")
 
-            createService().upsert(
-                gjennomforing.copy(
-                    veilederinformasjon = gjennomforing.veilederinformasjon.copy(
-                        navRegioner = listOf(Innlandet.enhetsnummer),
-                        navKontorer = listOf(
-                            Gjovik.enhetsnummer,
-                            Sagene.enhetsnummer,
-                        ),
+            service.upsert(gjennomforing, bertilNavIdent).shouldBeRight()
+
+            service.getAll(
+                Pagination.all(),
+                AdminTiltaksgjennomforingFilter(search = "merkelig"),
+            ).data.shouldBeEmpty()
+            service.getAll(
+                Pagination.all(),
+                AdminTiltaksgjennomforingFilter(search = "rart"),
+            ).data.shouldHaveSize(1)
+
+            service.getAll(
+                Pagination.all(),
+                AdminTiltaksgjennomforingFilter(search = ArrangorFixtures.hovedenhet.navn),
+            ).data.shouldBeEmpty()
+            service.getAll(
+                Pagination.all(),
+                AdminTiltaksgjennomforingFilter(search = ArrangorFixtures.underenhet1.navn),
+            ).data.shouldHaveSize(1)
+        }
+
+        test("navEnheter uten fylke blir filtrert vekk") {
+            var gjennomforing = request.copy(
+                veilederinformasjon = request.veilederinformasjon.copy(
+                    navRegioner = listOf(Innlandet.enhetsnummer),
+                    navKontorer = listOf(
+                        Gjovik.enhetsnummer,
+                        Sagene.enhetsnummer,
                     ),
                 ),
-                bertilNavIdent,
-            ).shouldBeRight().should {
+            )
+            createService().upsert(gjennomforing, bertilNavIdent).shouldBeRight().should {
                 it.kontorstruktur.shouldHaveSize(1)
                 it.kontorstruktur[0].kontorer.shouldHaveSize(1)
                 it.kontorstruktur[0].kontorer[0].enhetsnummer shouldBe Gjovik.enhetsnummer
@@ -124,10 +156,8 @@ class GjennomforingServiceTest : FunSpec({
         }
 
         test("lagrer ikke duplikater som utgående kafka-records") {
-            val gjennomforing = GjennomforingFixtures.Oppfolging1Request
-
-            service.upsert(gjennomforing, bertilNavIdent)
-            service.upsert(gjennomforing, bertilNavIdent)
+            service.upsert(request, bertilNavIdent)
+            service.upsert(request, bertilNavIdent)
 
             database.run {
                 shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V1_TOPIC, 1)
@@ -138,7 +168,7 @@ class GjennomforingServiceTest : FunSpec({
         test("Ingen administrator-notification hvis administratorer er samme som opprettet") {
             val navIdent = NavAnsattFixture.DonaldDuck.navIdent
 
-            val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
+            val gjennomforing = request.copy(
                 administratorer = listOf(navIdent),
             )
             service.upsert(gjennomforing, navIdent).shouldBeRight()
@@ -150,7 +180,7 @@ class GjennomforingServiceTest : FunSpec({
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
-            val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
+            val gjennomforing = request.copy(
                 administratorer = listOf(identAnsatt2, identAnsatt1),
             )
             service.upsert(gjennomforing, identAnsatt1).shouldBeRight()
@@ -166,7 +196,7 @@ class GjennomforingServiceTest : FunSpec({
         val service = createService()
 
         test("blir valideringsfeil hvis gjennomføringen ikke er aktiv") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 status = GjennomforingStatusType.AVSLUTTET,
             )
 
@@ -188,7 +218,7 @@ class GjennomforingServiceTest : FunSpec({
         }
 
         test("blir valideringsfeil hvis gjennomføringen forsøkes avbrytes etter at sluttdato er passert") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = LocalDate.of(2023, 7, 1),
                 status = GjennomforingStatusType.AVSLUTTET,
@@ -212,7 +242,7 @@ class GjennomforingServiceTest : FunSpec({
         }
 
         test("stenger gjennomføring, publiserer til kafka og skriver til endringshistorikken når gjennomføring avbrytes") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = null,
             )
@@ -256,7 +286,7 @@ class GjennomforingServiceTest : FunSpec({
         }
 
         test("stenger gjennomføring og får status avlyst når gjennomføring avbrytes før start") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = null,
             )
@@ -287,7 +317,7 @@ class GjennomforingServiceTest : FunSpec({
         val service = createService()
 
         test("stenger gjennomføring, publiserer til kafka og skriver til endringshistorikken når gjennomføring avsluttes") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = LocalDate.of(2023, 7, 1),
             )
@@ -333,7 +363,7 @@ class GjennomforingServiceTest : FunSpec({
             val tilgjengeligForArrangorDato = LocalDate.now().plusDays(1)
             val startDato = LocalDate.now().plusWeeks(1)
 
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(startDato = startDato)
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(startDato = startDato)
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),

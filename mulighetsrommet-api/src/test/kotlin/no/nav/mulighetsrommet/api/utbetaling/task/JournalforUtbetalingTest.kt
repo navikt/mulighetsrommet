@@ -5,7 +5,6 @@ import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -138,7 +137,7 @@ class JournalforUtbetalingTest : FunSpec({
         }
 
         database.run {
-            queries.utbetaling.get(utbetaling.id).shouldNotBeNull().journalpostId shouldBe "123"
+            queries.utbetaling.getOrError(utbetaling.id).journalpostId shouldBe "123"
         }
     }
 

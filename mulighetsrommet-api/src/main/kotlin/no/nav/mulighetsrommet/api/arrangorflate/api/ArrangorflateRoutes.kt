@@ -251,7 +251,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     ?: emptyList()
                 val gjennomforinger = db.session {
                     queries.gjennomforing
-                        .getAll(
+                        .getAllGruppetiltakKompakt(
                             arrangorOrgnr = listOf(orgnr),
                             prismodeller = prismodeller,
                         )
@@ -285,12 +285,12 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
                 val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
 
-                val gjennomforing = db.session { queries.gjennomforing.getOrError(gjennomforingId) }
+                val gjennomforing = db.session { queries.gjennomforing.getGruppetiltakOrError(gjennomforingId) }
                 if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
                     throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
                 }
 
-                call.respond(ArrangorflateGjennomforing.fromGjennomforing(gjennomforing))
+                call.respond(ArrangorflateGjennomforing.fromGjennomforingGruppetiltak(gjennomforing))
             }
         }
 

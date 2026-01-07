@@ -61,6 +61,7 @@ class AvtaleServiceTest : FunSpec({
         gjennomforingPublisher: InitialLoadGjennomforinger = mockk(relaxed = true),
         arrangorService: ArrangorService = ArrangorService(database.db, brregClient),
     ) = AvtaleService(
+        config = AvtaleService.Config(mapOf()),
         database.db,
         arrangorService,
         gjennomforingPublisher,
@@ -71,9 +72,9 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = createAvtaleService(gjennomforingPublisher)
 
         test("skedulerer publisering av gjennomføringer tilhørende avtalen") {
-            val request = AvtaleFixtures.avtaleRequest
+            val request = AvtaleFixtures.opprettAvtaleRequest
 
-            avtaleService.upsert(request, bertilNavIdent).shouldBeRight()
+            avtaleService.create(request, bertilNavIdent).shouldBeRight()
 
             verify {
                 gjennomforingPublisher.schedule(
@@ -94,9 +95,9 @@ class AvtaleServiceTest : FunSpec({
             )
 
             val avtaleService = createAvtaleService(arrangorService = arrangorService)
-            avtaleService.upsert(
-                AvtaleFixtures.avtaleRequest.copy(
-                    detaljer = AvtaleFixtures.avtaleRequest.detaljer.copy(
+            avtaleService.create(
+                AvtaleFixtures.opprettAvtaleRequest.copy(
+                    detaljer = AvtaleFixtures.opprettAvtaleRequest.detaljer.copy(
                         arrangor = DetaljerRequest.Arrangor(
                             hovedenhet = Organisasjonsnummer("223442332"),
                             underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
@@ -131,8 +132,6 @@ class AvtaleServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(avbruttAvtale, avsluttetAvtale),
             ) {
-                queries.avtale.upsertPrismodell(avbruttAvtale.id, listOf(AvtaleFixtures.prismodellDbo()))
-                queries.avtale.upsertPrismodell(avsluttetAvtale.id, listOf(AvtaleFixtures.prismodellDbo()))
                 queries.avtale.setStatus(
                     avbruttAvtale.id,
                     AvtaleStatusType.AVBRUTT,
@@ -172,7 +171,8 @@ class AvtaleServiceTest : FunSpec({
                 avtaleId = avtale.id,
                 status = GjennomforingStatusType.GJENNOMFORES,
             )
-            val gjennomforing2 = GjennomforingFixtures.Oppfolging2.copy(
+            val gjennomforing2 = GjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
                 avtaleId = avtale.id,
                 status = GjennomforingStatusType.GJENNOMFORES,
             )
@@ -232,8 +232,8 @@ class AvtaleServiceTest : FunSpec({
         test("Ingen administrator-notification hvis administrator er samme som opprettet") {
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
 
-            val avtale = AvtaleFixtures.avtaleRequest
-            avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
+            val avtale = AvtaleFixtures.opprettAvtaleRequest
+            avtaleService.create(avtale, identAnsatt1).shouldBeRight()
 
             database.run {
                 queries.notifications.getAll().shouldBeEmpty()
@@ -249,7 +249,7 @@ class AvtaleServiceTest : FunSpec({
                 avtaler = listOf(avtale),
             ).initialize(database.db)
 
-            val detaljerReq = AvtaleFixtures.avtaleRequest.detaljer.copy(
+            val detaljerReq = AvtaleFixtures.opprettAvtaleRequest.detaljer.copy(
                 administratorer = listOf(identAnsatt2),
             )
             avtaleService.upsertDetaljer(avtale.id, detaljerReq, identAnsatt1).shouldBeRight()

@@ -19,8 +19,8 @@ import io.ktor.http.isSuccess
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import no.nav.mulighetsrommet.teamLogsError
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
@@ -61,7 +61,7 @@ class VeilarbvedtaksstotteClient(
         }
 
         if (!response.status.isSuccess()) {
-            SecureLog.logger.error("Klarte ikke hente siste 14A-vedtak. Response: $response")
+            log.teamLogsError("Klarte ikke hente siste 14A-vedtak. Response: $response")
             log.error("Klarte ikke hente siste 14A-vedtak. Status: ${response.status}")
             return VedtakError.Error.left()
         }

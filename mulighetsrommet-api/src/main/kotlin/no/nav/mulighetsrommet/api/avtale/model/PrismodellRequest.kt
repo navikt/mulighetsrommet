@@ -20,7 +20,4 @@ data class AvtaltSatsRequest(
     @Serializable(with = LocalDateSerializer::class)
     val gjelderFra: LocalDate?,
     val pris: Int?,
-    val valuta: String?,
-    @Serializable(with = LocalDateSerializer::class)
-    val gjelderTil: LocalDate? = null,
 )

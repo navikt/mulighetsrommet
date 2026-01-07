@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
@@ -13,7 +13,7 @@ import java.time.LocalDate
 
 object UtbetalingInputHelper {
     fun QueryContext.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(
-        gjennomforing: Gjennomforing,
+        gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): AvtaltPrisPerTimeOppfolgingPerDeltaker {
         val satser = resolveAvtalteSatser(gjennomforing, periode)
@@ -35,21 +35,16 @@ object UtbetalingInputHelper {
         val deltakelsePerioder: Set<DeltakelsePeriode>,
     )
 
-    private fun QueryContext.resolveAvtalteSatser(gjennomforing: Gjennomforing, periode: Periode): Set<SatsPeriode> {
-        return resolveAvtalteSatser(gjennomforing, periode)
-    }
-
-    fun resolveAvtalteSatser(gjennomforing: Gjennomforing, periode: Periode): Set<SatsPeriode> {
+    fun resolveAvtalteSatser(gjennomforing: GjennomforingGruppetiltak, periode: Periode): Set<SatsPeriode> {
         val periodeStart = if (gjennomforing.startDato.isBefore(periode.slutt)) {
             maxOf(gjennomforing.startDato, periode.start)
         } else {
             periode.start
         }
         val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
-        requireNotNull(gjennomforing.prismodell) {
-            "Gjennomføringen mangler prismodell"
-        }
-        return AvtalteSatser.getAvtalteSatser(gjennomforing.prismodell, gjennomforing.tiltakstype.tiltakskode)
+
+        val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
+        return AvtalteSatser.getAvtalteSatser(gjennomforing.tiltakstype.tiltakskode, prismodell)
             .sortedBy { it.gjelderFra }
             .windowed(size = 2, partialWindows = true)
             .mapNotNull { satser ->
@@ -118,7 +113,7 @@ object UtbetalingInputHelper {
 
     fun resolveStengtHosArrangor(
         periode: Periode,
-        stengtPerioder: List<Gjennomforing.StengtPeriode>,
+        stengtPerioder: List<GjennomforingGruppetiltak.StengtPeriode>,
     ): Set<StengtPeriode> {
         return stengtPerioder
             .mapNotNull { stengt ->

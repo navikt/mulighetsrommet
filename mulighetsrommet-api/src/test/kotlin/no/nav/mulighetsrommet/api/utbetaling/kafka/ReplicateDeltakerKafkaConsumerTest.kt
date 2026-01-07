@@ -13,6 +13,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.EnkeltplassFixtures.EnkelAmo1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
@@ -23,7 +24,6 @@ import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -70,9 +70,10 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
         val domain = MulighetsrommetTestDomain(
             avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT, AvtaleFixtures.VTA),
             gjennomforinger = listOf(Oppfolging1, AFT1, VTA1),
+            enkeltplasser = listOf(EnkelAmo1),
         )
 
-        beforeTest {
+        beforeEach {
             domain.initialize(database.db)
         }
 
@@ -87,11 +88,25 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
 
             database.run {
-                queries.deltaker.getAll()
-                    .shouldContainExactlyInAnyOrder(
-                        deltaker1Dbo.toDeltaker(NorskIdent(amtDeltaker1.personIdent)),
-                        deltaker2Dbo.toDeltaker(NorskIdent(amtDeltaker2.personIdent)),
-                    )
+                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
+                    deltaker1Dbo.toDeltaker(),
+                    deltaker2Dbo.toDeltaker(),
+                )
+            }
+        }
+
+        test("lagrer deltakere for enkeltplass-tiltak") {
+            val deltakerConsumer = createConsumer()
+
+            deltakerConsumer.consume(
+                amtDeltaker1.id,
+                Json.encodeToJsonElement(amtDeltaker1.copy(gjennomforingId = EnkelAmo1.id)),
+            )
+
+            database.run {
+                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
+                    deltaker1Dbo.copy(gjennomforingId = EnkelAmo1.id).toDeltaker(),
+                )
             }
         }
 
@@ -129,13 +144,6 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
         }
 
         test("tolker deltakelsesprosent som 100 hvis den mangler for tiltak med forhåndsgodkjent prismodell") {
-            MulighetsrommetTestDomain(
-                avtaler = listOf(
-                    AvtaleFixtures.AFT,
-                    AvtaleFixtures.oppfolging,
-                ),
-            ).initialize(database.db)
-
             val deltakerConsumer = createConsumer()
             deltakerConsumer.consume(
                 amtDeltaker1.id,
@@ -150,10 +158,10 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
                 queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
                     deltaker1Dbo
                         .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
-                        .toDeltaker(NorskIdent(amtDeltaker1.personIdent)),
+                        .toDeltaker(),
                     deltaker2Dbo
                         .copy(gjennomforingId = Oppfolging1.id, deltakelsesprosent = null)
-                        .toDeltaker(NorskIdent(amtDeltaker2.personIdent)),
+                        .toDeltaker(),
                 )
             }
         }
@@ -260,7 +268,7 @@ private fun createAmtDeltakerV1Dto(
     deltakelsesmengder = listOf(),
 )
 
-fun DeltakerDbo.toDeltaker(norskIdent: NorskIdent) = Deltaker(
+fun DeltakerDbo.toDeltaker() = Deltaker(
     id = id,
     gjennomforingId = gjennomforingId,
     startDato = null,

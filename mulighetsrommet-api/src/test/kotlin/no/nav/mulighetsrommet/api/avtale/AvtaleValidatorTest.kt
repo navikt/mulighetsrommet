@@ -13,12 +13,10 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx.Tiltakstype
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
-import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
@@ -35,6 +33,7 @@ import no.nav.mulighetsrommet.api.fixtures.toNavAnsatt
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
@@ -42,8 +41,7 @@ import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.SakarkivNummer
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
@@ -51,58 +49,29 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class AvtaleValidatorTest : FunSpec({
-    val avtaleRequest = AvtaleRequest(
-        id = UUID.randomUUID(),
-        detaljer = DetaljerRequest(
-            navn = "Avtale",
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
-            arrangor = DetaljerRequest.Arrangor(
-                hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
-                underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                kontaktpersoner = emptyList(),
-            ),
-            sakarkivNummer = SakarkivNummer("24/1234"),
-            startDato = LocalDate.now().minusDays(1),
-            sluttDato = LocalDate.now().plusMonths(1),
-            administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-            avtaletype = Avtaletype.RAMMEAVTALE,
-            amoKategorisering = null,
-            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
-            utdanningslop = null,
-        ),
-        veilederinformasjon = VeilederinfoRequest(
-            navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
-            beskrivelse = null,
-            faneinnhold = null,
-        ),
-        personvern = PersonvernRequest(
-            personopplysninger = emptyList(),
-            personvernBekreftet = false,
-        ),
-        prismodeller = listOf(
-            PrismodellRequest(
-                id = UUID.randomUUID(),
-                type = PrismodellType.ANNEN_AVTALT_PRIS,
-                prisbetingelser = null,
-                satser = listOf(),
-            ),
-        ),
+    val avtaleRequest = AvtaleFixtures.createAvtaleRequest(
+        Tiltakskode.OPPFOLGING,
+        avtaletype = Avtaletype.RAMMEAVTALE,
+        prismodell = AvtaleFixtures.Prismodell.AvtaltPrisPerTimeOppfolging,
     )
-    val gruppeAmo = AvtaleFixtures.gruppeAmo.toAvtaleRequest(
-        avtaleRequest.detaljer.arrangor,
+    val gruppeAmo = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
+        amo = AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING),
     )
-    val forhaandsgodkjent = AvtaleFixtures.AFT.toAvtaleRequest(
-        avtaleRequest.detaljer.arrangor,
+    val forhaandsgodkjent = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        avtaletype = Avtaletype.FORHANDSGODKJENT,
+        opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
+        prismodell = AvtaleFixtures.Prismodell.Forhandsgodkjent,
     )
-    val avtaleTypeAvtale = AvtaleFixtures.oppfolgingMedAvtale.toAvtaleRequest(
-        avtaleRequest.detaljer.arrangor,
+    val avtaleTypeAvtale = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.OPPFOLGING,
+        avtaletype = Avtaletype.AVTALE,
     )
-    val oppfolgingMedRammeAvtale = AvtaleFixtures.oppfolging.toAvtaleRequest(
-        avtaleRequest.detaljer.arrangor,
+    val oppfolgingMedRammeAvtale = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.OPPFOLGING,
+        avtaletype = Avtaletype.RAMMEAVTALE,
     )
     val ctx = Ctx(
         previous = null,
@@ -115,6 +84,7 @@ class AvtaleValidatorTest : FunSpec({
             id = TiltakstypeFixtures.Oppfolging.id,
         ),
         navEnheter = listOf(NavEnhetFixtures.Innlandet.toDto(), NavEnhetFixtures.Gjovik.toDto()),
+        gyldigTilsagnPeriode = mapOf(),
     )
 
     val previous = Ctx.Avtale(
@@ -123,12 +93,12 @@ class AvtaleValidatorTest : FunSpec({
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
         opsjonerRegistrert = emptyList(),
         avtaletype = Avtaletype.AVTALE,
-        tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
+        tiltakskode = Tiltakskode.OPPFOLGING,
         gjennomforinger = emptyList(),
         prismodeller = listOf(Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), prisbetingelser = "")),
     )
 
-    test("should accumulate errors when request has multiple issues") {
+    test("skal akkumulere feil når forespørselen har flere problemer") {
         val request = avtaleRequest.copy(
             detaljer = avtaleRequest.detaljer.copy(
                 startDato = LocalDate.of(2023, 1, 1),
@@ -472,40 +442,40 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     context("prismodell") {
-        test("prismodell må stemme overens med tiltakstypen") {
-            AvtaleValidator.validateCreateAvtale(
-                avtaleRequest.copy(
-                    detaljer = avtaleRequest.detaljer.copy(
-                        tiltakskode = Tiltakskode.OPPFOLGING,
-                    ),
-                    prismodeller = listOf(
-                        PrismodellRequest(
-                            id = UUID.randomUUID(),
-                            type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                            prisbetingelser = null,
-                            satser = emptyList(),
-                        ),
-                    ),
+        fun getContext(
+            tiltakstype: TiltakstypeDbo = TiltakstypeFixtures.Oppfolging,
+            gyldigTilsagnPeriode: Map<Tiltakskode, Periode> = mapOf(),
+            avtaleStartDato: LocalDate = LocalDate.of(2025, 1, 1),
+        ) = AvtaleValidator.ValidatePrismodellContext(
+            tiltakskode = tiltakstype.tiltakskode!!,
+            tiltakstypeNavn = tiltakstype.navn,
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
+            avtaleStartDato = avtaleStartDato,
+        )
+
+        test("må stemme overens med tiltakstypen") {
+            AvtaleValidator.validatePrismodell(
+                PrismodellRequest(
+                    id = UUID.randomUUID(),
+                    type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                    prisbetingelser = null,
+                    satser = emptyList(),
                 ),
-                ctx,
+                getContext(TiltakstypeFixtures.Oppfolging),
             ).shouldBeLeft().shouldContain(
                 FieldError(
                     "/prismodeller",
                     "Fast sats per tiltaksplass per måned er ikke tillatt for tiltakstype Oppfølging",
                 ),
             )
-            AvtaleValidator.validateCreateAvtale(
-                forhaandsgodkjent.copy(
-                    prismodeller = listOf(
-                        PrismodellRequest(
-                            id = UUID.randomUUID(),
-                            type = PrismodellType.ANNEN_AVTALT_PRIS,
-                            prisbetingelser = null,
-                            satser = emptyList(),
-                        ),
-                    ),
+            AvtaleValidator.validatePrismodell(
+                PrismodellRequest(
+                    id = UUID.randomUUID(),
+                    type = PrismodellType.ANNEN_AVTALT_PRIS,
+                    prisbetingelser = null,
+                    satser = emptyList(),
                 ),
-                ctx.copy(tiltakstype = ctx.tiltakstype.copy(navn = TiltakstypeFixtures.AFT.navn)),
+                getContext(TiltakstypeFixtures.AFT),
             ).shouldBeLeft().shouldContain(
                 FieldError(
                     "/prismodeller",
@@ -513,17 +483,136 @@ class AvtaleValidatorTest : FunSpec({
                 ),
             )
 
-            val fri = avtaleRequest.copy(
-                prismodeller = listOf(
-                    PrismodellRequest(
-                        id = UUID.randomUUID(),
-                        type = PrismodellType.ANNEN_AVTALT_PRIS,
-                        prisbetingelser = null,
-                        satser = emptyList(),
+            AvtaleValidator.validatePrismodell(
+                PrismodellRequest(
+                    id = UUID.randomUUID(),
+                    type = PrismodellType.ANNEN_AVTALT_PRIS,
+                    prisbetingelser = null,
+                    satser = emptyList(),
+                ),
+                getContext(TiltakstypeFixtures.Oppfolging),
+            ).shouldBeRight()
+        }
+
+        test("validerer at satsene må dekke hele tilsagnsperioden som overlapper med avtalens datoer") {
+            val request = PrismodellRequest(
+                id = UUID.randomUUID(),
+                type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                prisbetingelser = null,
+                satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 1)),
+            )
+
+            AvtaleValidator.validatePrismodell(
+                request,
+                getContext(
+                    TiltakstypeFixtures.Oppfolging,
+                    gyldigTilsagnPeriode = mapOf(Tiltakskode.OPPFOLGING to Periode.forYear(2025)),
+                    avtaleStartDato = LocalDate.of(2025, 2, 1),
+                ),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/prismodell/satser/0/gjelderFra", "Første sats må gjelde fra 01.02.2025"),
+            )
+
+            AvtaleValidator.validatePrismodell(
+                request,
+                getContext(
+                    TiltakstypeFixtures.Oppfolging,
+                    gyldigTilsagnPeriode = mapOf(Tiltakskode.OPPFOLGING to Periode.forYear(2025)),
+                    avtaleStartDato = LocalDate.of(2024, 12, 1),
+                ),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/prismodell/satser/0/gjelderFra", "Første sats må gjelde fra 01.01.2025"),
+            )
+
+            AvtaleValidator.validatePrismodell(
+                request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2024, 12, 1), pris = 1))),
+                getContext(
+                    TiltakstypeFixtures.Oppfolging,
+                    gyldigTilsagnPeriode = mapOf(Tiltakskode.OPPFOLGING to Periode.forYear(2025)),
+                    avtaleStartDato = LocalDate.of(2025, 1, 1),
+                ),
+            ).shouldBeRight()
+        }
+
+        test("validerer at satsene er gyldige") {
+            val request = PrismodellRequest(
+                id = UUID.randomUUID(),
+                type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                prisbetingelser = null,
+                satser = listOf(),
+            )
+
+            AvtaleValidator.validatePrismodell(
+                request,
+                getContext(),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/prismodeller", "Minst én pris er påkrevd"),
+            )
+
+            AvtaleValidator.validatePrismodell(
+                request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1))),
+                getContext(),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/prismodell/satser/0/gjelderFra", "Gjelder fra må være satt"),
+            )
+
+            AvtaleValidator.validatePrismodell(
+                request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = null))),
+                getContext(),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/prismodell/satser/0/pris", "Pris må være positiv"),
+            )
+
+            AvtaleValidator.validatePrismodell(
+                request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 0))),
+                getContext(),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/prismodell/satser/0/pris", "Pris må være positiv"),
+            )
+
+            AvtaleValidator.validatePrismodell(
+                request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1))),
+                getContext(),
+            ).shouldBeRight().satser shouldBe listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1))
+        }
+
+        test("tillater ikke flere satser som starter på samme dato") {
+            AvtaleValidator.validatePrismodell(
+                PrismodellRequest(
+                    id = UUID.randomUUID(),
+                    type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                    prisbetingelser = null,
+                    satser = listOf(
+                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                     ),
                 ),
+                getContext(),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/prismodell/satser/0/gjelderFra", "Gjelder fra må være unik per rad"),
+                FieldError("/prismodell/satser/1/gjelderFra", "Gjelder fra må være unik per rad"),
             )
-            AvtaleValidator.validateCreateAvtale(fri, ctx).shouldBeRight()
+        }
+
+        test("sorterer satsene etter gjelderFra-dato") {
+            AvtaleValidator.validatePrismodell(
+                PrismodellRequest(
+                    id = UUID.randomUUID(),
+                    type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                    prisbetingelser = null,
+                    satser = listOf(
+                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3),
+                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
+                    ),
+                ),
+                getContext(),
+            ).shouldBeRight().satser shouldBe listOf(
+                AvtaltSats(LocalDate.of(2025, 1, 1), 1),
+                AvtaltSats(LocalDate.of(2025, 2, 1), 2),
+                AvtaltSats(LocalDate.of(2025, 3, 1), 3),
+            )
         }
     }
 
@@ -844,73 +933,3 @@ class AvtaleValidatorTest : FunSpec({
         }
     }
 })
-
-fun AvtaleDbo.toAvtaleRequest(arrangor: DetaljerRequest.Arrangor?, tiltakskode: Tiltakskode) = AvtaleRequest(
-    id = this.id,
-    detaljer = DetaljerRequest(
-        navn = this.detaljerDbo.navn,
-        sakarkivNummer = this.detaljerDbo.sakarkivNummer,
-        tiltakskode = tiltakskode,
-        arrangor = arrangor,
-        startDato = this.detaljerDbo.startDato,
-        sluttDato = this.detaljerDbo.sluttDato,
-        avtaletype = this.detaljerDbo.avtaletype,
-        administratorer = this.detaljerDbo.administratorer,
-        amoKategorisering = this.detaljerDbo.amoKategorisering?.toRequest(),
-        opsjonsmodell = this.detaljerDbo.opsjonsmodell,
-        utdanningslop = this.detaljerDbo.utdanningslop,
-    ),
-
-    veilederinformasjon = VeilederinfoRequest(
-        navEnheter = this.veilederinformasjonDbo.navEnheter.toList(),
-        beskrivelse = this.veilederinformasjonDbo.redaksjoneltInnhold?.beskrivelse,
-        faneinnhold = this.veilederinformasjonDbo.redaksjoneltInnhold?.faneinnhold,
-    ),
-    personvern = PersonvernRequest(
-        personopplysninger = this.personvernDbo.personopplysninger,
-        personvernBekreftet = this.personvernDbo.personvernBekreftet,
-    ),
-    prismodeller = this.prismodellDbo.map {
-        PrismodellRequest(
-            id = it.id,
-            type = it.type,
-            prisbetingelser = it.prisbetingelser,
-            satser = (it.satser ?: listOf()).map { sats ->
-                AvtaltSatsRequest(
-                    pris = sats.sats,
-                    valuta = "NOK",
-                    gjelderFra = sats.gjelderFra,
-                )
-            },
-        )
-    },
-)
-
-fun AmoKategorisering.toRequest() = when (this) {
-    is AmoKategorisering.BransjeOgYrkesrettet -> AmoKategoriseringRequest(
-        kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
-        bransje = this.bransje,
-        sertifiseringer = this.sertifiseringer,
-        forerkort = this.forerkort,
-        innholdElementer = this.innholdElementer,
-    )
-
-    AmoKategorisering.ForberedendeOpplaeringForVoksne -> AmoKategoriseringRequest(
-        kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-    )
-
-    is AmoKategorisering.GrunnleggendeFerdigheter -> AmoKategoriseringRequest(
-        kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
-        innholdElementer = this.innholdElementer,
-    )
-
-    is AmoKategorisering.Norskopplaering -> AmoKategoriseringRequest(
-        kurstype = AmoKurstype.NORSKOPPLAERING,
-        innholdElementer = this.innholdElementer,
-        norskprove = this.norskprove,
-    )
-
-    AmoKategorisering.Studiespesialisering -> AmoKategoriseringRequest(
-        kurstype = AmoKurstype.STUDIESPESIALISERING,
-    )
-}

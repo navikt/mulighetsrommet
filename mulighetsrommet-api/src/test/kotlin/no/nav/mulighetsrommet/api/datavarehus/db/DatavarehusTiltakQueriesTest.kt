@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeAmo1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeFagYrke1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassArenaDataDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -31,15 +31,12 @@ import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
-import java.time.LocalDate
 import java.util.UUID
-import kotlin.reflect.full.memberProperties
 
 class DatavarehusTiltakQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     context("gruppetiltak") {
-
         test("henter relevante data om tiltakstype, avtale, og gjennomføring") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
@@ -50,9 +47,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = DatavarehusTiltakQueries(session)
-
-                queries.getGruppetiltak(AFT1.id)
+                queries.dvh.getDatavarehusTiltak(AFT1.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
@@ -86,11 +81,12 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
-                queries.gjennomforing.updateArenaData(AFT1.id, tiltaksnummer = "2020#1234", arenaAnsvarligEnhet = null)
 
-                val queries = DatavarehusTiltakQueries(session)
+                queries.gjennomforing.setArenaData(
+                    GjennomforingArenaDataDbo(AFT1.id, tiltaksnummer = Tiltaksnummer("2020#1234")),
+                )
 
-                queries.getGruppetiltak(AFT1.id)
+                queries.dvh.getDatavarehusTiltak(AFT1.id)
             }
 
             tiltak.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(aar = 2020, lopenummer = 1234)
@@ -143,10 +139,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = DatavarehusTiltakQueries(session)
-
                 table.forAll { id, expectedAmoKategorisering ->
-                    val tiltak = queries.getGruppetiltak(id)
+                    val tiltak = queries.dvh.getDatavarehusTiltak(id)
 
                     tiltak.shouldBeTypeOf<DatavarehusTiltakV1AmoDto>().amoKategorisering.shouldNotBeNull().shouldBe(
                         expectedAmoKategorisering,
@@ -203,7 +197,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.gjennomforing.upsert(GruppeFagYrke1.copy(utdanningslop = utdanningslop))
+                queries.gjennomforing.upsertGruppetiltak(GruppeFagYrke1.copy(utdanningslop = utdanningslop))
             }
 
             database.runAndRollback { session ->
@@ -212,9 +206,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 val idForSveisefag = queries.utdanning.getIdForUtdanning("u_sveisefag")
                 val idForSveisefagUnderVann = queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann")
 
-                val queries = DatavarehusTiltakQueries(session)
-
-                val gjennomforing = queries.getGruppetiltak(GruppeFagYrke1.id)
+                val gjennomforing = queries.dvh.getDatavarehusTiltak(GruppeFagYrke1.id)
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldNotBeNull().should {
                     it.utdanningsprogram shouldBe idForUtdanningsprogram
@@ -233,9 +225,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = DatavarehusTiltakQueries(session)
-
-                val gjennomforing = queries.getGruppetiltak(GruppeFagYrke1.id)
+                val gjennomforing = queries.dvh.getDatavarehusTiltak(GruppeFagYrke1.id)
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldBeNull()
             }
@@ -246,19 +236,18 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         test("henter relevant data om tiltakstype og gjennomføring") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-                avtaler = listOf(),
-                enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo),
+                enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo1),
             )
 
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
 
-                DatavarehusTiltakQueries(session).getEnkeltplass(EnkeltplassFixtures.EnkelAmo.id)
+                DatavarehusTiltakQueries(session).getDatavarehusTiltak(EnkeltplassFixtures.EnkelAmo1.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
                 it.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-                it.gjennomforing.id shouldBe EnkeltplassFixtures.EnkelAmo.id
+                it.gjennomforing.id shouldBe EnkeltplassFixtures.EnkelAmo1.id
                 it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
                 it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
                 it.gjennomforing.arrangor shouldBe DatavarehusTiltakV1.Arrangor(
@@ -276,29 +265,24 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         test("henter bare tiltaksnummer fra Arena-data") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-                avtaler = listOf(),
-                enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo),
+                enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo1),
             )
 
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
-                queries.enkeltplass.setArenaData(
-                    EnkeltplassArenaDataDbo(
-                        id = EnkeltplassFixtures.EnkelAmo.id,
+                queries.gjennomforing.setArenaData(
+                    GjennomforingArenaDataDbo(
+                        id = EnkeltplassFixtures.EnkelAmo1.id,
                         tiltaksnummer = Tiltaksnummer("2024#456"),
-                        navn = "Arenanavn",
-                        startDato = LocalDate.of(2025, 1, 1),
-                        sluttDato = LocalDate.of(2025, 1, 1),
-                        status = GjennomforingStatusType.AVSLUTTET,
                         arenaAnsvarligEnhet = "0400",
                     ),
                 )
 
-                DatavarehusTiltakQueries(session).getEnkeltplass(EnkeltplassFixtures.EnkelAmo.id)
+                DatavarehusTiltakQueries(session).getDatavarehusTiltak(EnkeltplassFixtures.EnkelAmo1.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
-                it.gjennomforing.id shouldBe EnkeltplassFixtures.EnkelAmo.id
+                it.gjennomforing.id shouldBe EnkeltplassFixtures.EnkelAmo1.id
                 it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
                 it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
                 it.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(
@@ -313,21 +297,3 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
     }
 })
-
-// Extension function to compare data classes excluding specific properties
-inline fun <reified T : Any> T.equalsIgnoring(
-    other: T?,
-    vararg propertiesToExclude: String,
-): Boolean {
-    if (this === other) return true
-    if (other == null) return false
-
-    val properties = T::class.memberProperties
-        .filter { it.name !in propertiesToExclude }
-
-    return properties.all { prop ->
-        val thisValue = prop.get(this)
-        val otherValue = prop.get(other)
-        thisValue == otherValue
-    }
-}

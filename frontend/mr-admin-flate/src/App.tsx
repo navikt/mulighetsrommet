@@ -29,7 +29,7 @@ import { Suspense } from "react";
 import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
 import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
-import { NewAvtaleFormPage } from "./pages/avtaler/NewAvtaleFormPage";
+import { OpprettAvtaleFormPage } from "./pages/avtaler/OpprettAvtaleFormPage";
 import { NewGjennomforingFormPage } from "./pages/gjennomforing/NewGjennomforingFormPage";
 import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
 import { GjennomforingDetaljer } from "./pages/gjennomforing/GjennomforingDetaljer";
@@ -169,7 +169,7 @@ const routes: RouteObject[] = [
       },
       {
         path: "avtaler/opprett-avtale",
-        element: <NewAvtaleFormPage />,
+        element: <OpprettAvtaleFormPage />,
         errorElement: <ErrorPage />,
       },
       {

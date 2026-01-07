@@ -19,13 +19,13 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFil
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
@@ -67,7 +67,7 @@ class GjennomforingService(
         request: GjennomforingRequest,
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
-    ): Either<List<FieldError>, Gjennomforing> = either {
+    ): Either<List<FieldError>, GjennomforingGruppetiltak> = either {
         val previous = get(request.id)
         val ctx = getValidatorCtx(request, previous, today)
 
@@ -90,12 +90,12 @@ class GjennomforingService(
             }
             .bind()
 
-        if (previous != null && GjennomforingDboMapper.fromGjennomforing(previous, previous.prismodell?.id ?: dbo.prismodellId) == dbo) {
+        if (previous != null && isEqual(previous, dbo)) {
             return@either previous
         }
 
         db.transaction {
-            queries.gjennomforing.upsert(dbo)
+            queries.gjennomforing.upsertGruppetiltak(dbo)
 
             dispatchNotificationToNewAdministrators(dbo, navIdent)
 
@@ -105,6 +105,9 @@ class GjennomforingService(
                 "Redigerte gjennomføring"
             }
             val dto = logEndring(operation, dbo.id, navIdent)
+
+            queries.gjennomforing.setFreeTextSearch(dbo.id, listOf(dbo.navn, dto.arrangor.navn))
+
             publishToKafka(dto)
             dto
         }
@@ -112,7 +115,7 @@ class GjennomforingService(
 
     fun getValidatorCtx(
         request: GjennomforingRequest,
-        previous: Gjennomforing?,
+        previous: GjennomforingGruppetiltak?,
         today: LocalDate,
     ): GjennomforingValidator.Ctx = db.session {
         val avtale = queries.avtale.getOrError(request.avtaleId)
@@ -144,15 +147,15 @@ class GjennomforingService(
         )
     }
 
-    fun get(id: UUID): Gjennomforing? = db.session {
-        queries.gjennomforing.get(id)
+    fun get(id: UUID): GjennomforingGruppetiltak? = db.session {
+        queries.gjennomforing.getGruppetiltak(id)
     }
 
     fun getAll(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
-        queries.gjennomforing.getAll(
+        queries.gjennomforing.getAllGruppetiltakKompakt(
             pagination,
             search = filter.search,
             navEnheter = filter.navEnheter,
@@ -218,7 +221,7 @@ class GjennomforingService(
         id: UUID,
         avsluttetTidspunkt: LocalDateTime,
         endretAv: Agent,
-    ): Gjennomforing = db.transaction {
+    ): GjennomforingGruppetiltak = db.transaction {
         val gjennomforing = getOrError(id)
 
         check(gjennomforing.status is GjennomforingStatus.Gjennomfores) {
@@ -250,22 +253,17 @@ class GjennomforingService(
         avbruttAv: Agent,
         tidspunkt: LocalDateTime,
         aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>,
-    ): Either<List<FieldError>, Gjennomforing> = db.transaction {
+    ): Either<List<FieldError>, GjennomforingGruppetiltak> = db.transaction {
         val gjennomforing = getOrError(id)
 
-        val errors = buildList {
-            when (gjennomforing.status) {
-                is GjennomforingStatus.Gjennomfores -> Unit
+        when (gjennomforing.status) {
+            is GjennomforingStatus.Gjennomfores -> Unit
 
-                is GjennomforingStatus.Avlyst, is GjennomforingStatus.Avbrutt ->
-                    add(FieldError.root("Gjennomføringen er allerede avbrutt"))
+            is GjennomforingStatus.Avlyst, is GjennomforingStatus.Avbrutt ->
+                return FieldError.root("Gjennomføringen er allerede avbrutt").nel().left()
 
-                is GjennomforingStatus.Avsluttet ->
-                    add(FieldError.root("Gjennomføringen er allerede avsluttet"))
-            }
-        }
-        if (errors.isNotEmpty()) {
-            return errors.left()
+            is GjennomforingStatus.Avsluttet ->
+                return FieldError.root("Gjennomføringen er allerede avsluttet").nel().left()
         }
 
         val tidspunktForStart = gjennomforing.startDato.atStartOfDay()
@@ -310,7 +308,7 @@ class GjennomforingService(
         periode: Periode,
         beskrivelse: String,
         navIdent: NavIdent,
-    ): Either<NonEmptyList<FieldError>, Gjennomforing> = db.transaction {
+    ): Either<NonEmptyList<FieldError>, GjennomforingGruppetiltak> = db.transaction {
         return query {
             queries.gjennomforing.setStengtHosArrangor(id, periode, beskrivelse)
         }.mapLeft {
@@ -375,12 +373,12 @@ class GjennomforingService(
         }
     }
 
-    private fun QueryContext.getOrError(id: UUID): Gjennomforing {
-        return queries.gjennomforing.getOrError(id)
+    private fun QueryContext.getOrError(id: UUID): GjennomforingGruppetiltak {
+        return queries.gjennomforing.getGruppetiltakOrError(id)
     }
 
     private fun QueryContext.dispatchNotificationToNewAdministrators(
-        dbo: GjennomforingDbo,
+        dbo: GjennomforingGruppetiltakDbo,
         navIdent: NavIdent,
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet()
@@ -401,7 +399,7 @@ class GjennomforingService(
         operation: String,
         gjennomforingId: UUID,
         endretAv: Agent,
-    ): Gjennomforing {
+    ): GjennomforingGruppetiltak {
         val gjennomforing = getOrError(gjennomforingId)
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
@@ -415,7 +413,7 @@ class GjennomforingService(
         return gjennomforing
     }
 
-    private fun QueryContext.publishToKafka(gjennomforing: Gjennomforing) {
+    private fun QueryContext.publishToKafka(gjennomforing: GjennomforingGruppetiltak) {
         val gjennomforingV1 = TiltaksgjennomforingV1Mapper.fromGjennomforing(gjennomforing)
         val recordV1 = StoredProducerRecord(
             config.gjennomforingV1Topic,
@@ -425,7 +423,7 @@ class GjennomforingService(
         )
         queries.kafkaProducerRecord.storeRecord(recordV1)
 
-        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGruppe(gjennomforing)
+        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGjennomforing(gjennomforing)
         val recordV2 = StoredProducerRecord(
             config.gjennomforingV2Topic,
             gjennomforingV2.id.toString().toByteArray(),
@@ -446,7 +444,7 @@ class GjennomforingService(
             .flatMap { it.enheter.map { it.enhetsnummer } }
     }
 
-    fun handlinger(gjennomforing: Gjennomforing, ansatt: NavAnsatt): Set<GjennomforingHandling> {
+    fun handlinger(gjennomforing: GjennomforingGruppetiltak, ansatt: NavAnsatt): Set<GjennomforingHandling> {
         val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
 
         return setOfNotNull(
@@ -493,3 +491,43 @@ class GjennomforingService(
         }
     }
 }
+
+private fun isEqual(
+    previous: GjennomforingGruppetiltak,
+    dbo: GjennomforingGruppetiltakDbo,
+): Boolean = dbo == GjennomforingGruppetiltakDbo(
+    id = previous.id,
+    navn = previous.navn,
+    tiltakstypeId = previous.tiltakstype.id,
+    arrangorId = previous.arrangor.id,
+    arrangorKontaktpersoner = previous.arrangor.kontaktpersoner.map { it.id },
+    startDato = previous.startDato,
+    sluttDato = previous.sluttDato,
+    status = previous.status.type,
+    antallPlasser = previous.antallPlasser,
+    avtaleId = checkNotNull(previous.avtaleId) { "Forventet at avtale var definert!" },
+    administratorer = previous.administratorer.map { it.navIdent },
+    navEnheter = previous.kontorstruktur
+        .flatMap { (region, kontorer) ->
+            kontorer.map { kontor -> kontor.enhetsnummer } + region.enhetsnummer
+        }
+        .toSet(),
+    oppstart = previous.oppstart,
+    kontaktpersoner = previous.kontaktpersoner.map {
+        GjennomforingKontaktpersonDbo(
+            navIdent = it.navIdent,
+            beskrivelse = it.beskrivelse,
+        )
+    },
+    oppmoteSted = previous.oppmoteSted,
+    faneinnhold = previous.faneinnhold,
+    beskrivelse = previous.beskrivelse,
+    deltidsprosent = previous.deltidsprosent,
+    estimertVentetidVerdi = previous.estimertVentetid?.verdi,
+    estimertVentetidEnhet = previous.estimertVentetid?.enhet,
+    tilgjengeligForArrangorDato = previous.tilgjengeligForArrangorDato,
+    amoKategorisering = previous.amoKategorisering,
+    utdanningslop = previous.utdanningslop?.toDbo(),
+    pameldingType = previous.pameldingType,
+    prismodellId = checkNotNull(previous.prismodell?.id) { "Forventet at prismodell var definert!" },
+)

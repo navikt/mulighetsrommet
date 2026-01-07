@@ -40,7 +40,7 @@ class UpdateApentForPamelding(
         @Language("PostgreSQL")
         val query = """
                 select id
-                from gjennomforing
+                from view_gjennomforing_gruppetiltak
                 where apent_for_pamelding = true
                   and oppstart = 'FELLES'
                   and start_dato = ?
