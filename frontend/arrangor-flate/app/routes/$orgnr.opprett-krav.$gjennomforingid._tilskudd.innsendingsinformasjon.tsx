@@ -16,10 +16,10 @@ import {
 import {
   ArrangorflateService,
   ArrangorflateTilsagnDto,
+  DatoVelger,
   FieldError,
+  GuidePanelType,
   OpprettKravInnsendingsInformasjon,
-  OpprettKravInnsendingsInformasjonDatoVelger,
-  OpprettKravInnsendingsInformasjonGuidePanelType,
   OpprettKravVeiviserSteg,
   Periode,
 } from "api-client";
@@ -292,7 +292,7 @@ export default function OpprettKravInnsendingsinformasjon() {
 
 interface PeriodeVelgerVarianterProps {
   onPeriodeSelected: (periode?: Periode) => void;
-  type: OpprettKravInnsendingsInformasjonDatoVelger;
+  type: DatoVelger;
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
   errors?: FieldError[];
@@ -476,12 +476,12 @@ function PeriodeVelger({
 }
 
 interface GuidePanelInformationProps {
-  type: OpprettKravInnsendingsInformasjonGuidePanelType | null;
+  type: GuidePanelType | null;
 }
 
 function GuidePanelInformation({ type }: GuidePanelInformationProps) {
   switch (type) {
-    case OpprettKravInnsendingsInformasjonGuidePanelType.INVESTERING_VTA_AFT:
+    case GuidePanelType.INVESTERING_VTA_AFT:
       return (
         <GuidePanel>
           I dette skjemaet kan du sende inn krav som gjelder tilsagn for investeringer. Andre krav
@@ -491,13 +491,13 @@ function GuidePanelInformation({ type }: GuidePanelInformationProps) {
           </Link>
         </GuidePanel>
       );
-    case OpprettKravInnsendingsInformasjonGuidePanelType.TIMESPRIS:
+    case GuidePanelType.TIMESPRIS:
       return (
         <GuidePanel>
           I dette skjemaet kan du sende inn fakturakrav for tiltak med avtalt timespris
         </GuidePanel>
       );
-    case OpprettKravInnsendingsInformasjonGuidePanelType.AVTALT_PRIS:
+    case GuidePanelType.AVTALT_PRIS:
       return (
         <GuidePanel>
           I dette skjemaet kan du sende inn fakturakrav i henhold til avtalt pris med Nav

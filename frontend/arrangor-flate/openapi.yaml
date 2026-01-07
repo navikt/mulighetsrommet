@@ -1298,7 +1298,7 @@ components:
             $ref: "#/components/schemas/OpprettKravVeiviserStegDto"
       required:
       - steg
-    OpprettKravInnsendingsInformasjon.GuidePanelType:
+    GuidePanelType:
       type: string
       enum:
       - INVESTERING_VTA_AFT
@@ -1469,7 +1469,7 @@ components:
       required:
       - entries
       - header
-    OpprettKravInnsendingsInformasjon.DatoVelger:
+    DatoVelger:
       anyOf:
       - $ref: "#/components/schemas/DatoVelgerRange"
       - $ref: "#/components/schemas/DatoVelgerSelect"
@@ -1515,7 +1515,7 @@ components:
         guidePanel:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/OpprettKravInnsendingsInformasjon.GuidePanelType"
+          - $ref: "#/components/schemas/GuidePanelType"
         definisjonsListe:
           type: array
           items:
@@ -1525,7 +1525,7 @@ components:
           items:
             $ref: "#/components/schemas/ArrangorflateTilsagnDto"
         datoVelger:
-          $ref: "#/components/schemas/OpprettKravInnsendingsInformasjon.DatoVelger"
+          $ref: "#/components/schemas/DatoVelger"
         navigering:
           $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
       required:
@@ -2008,6 +2008,10 @@ components:
           $ref: "#/components/schemas/Periode"
         type:
           $ref: "#/components/schemas/UtbetalingTypeDto"
+        innsendingsDetaljer:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabeledDataElement"
         linjer:
           type: array
           items:
@@ -2033,6 +2037,7 @@ components:
       - createdAt
       - gjennomforing
       - id
+      - innsendingsDetaljer
       - innsendtAvArrangorDato
       - kanAvbrytes
       - kanRegenereres

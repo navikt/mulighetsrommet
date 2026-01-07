@@ -2,7 +2,7 @@ import {
   DataElementTextFormat,
   LabeledDataElementType,
   OpprettKravInnsendingsInformasjon,
-  OpprettKravInnsendingsInformasjonGuidePanelType,
+  GuidePanelType,
   OpprettKravVeiviserSteg,
   Periode,
   TilsagnStatus,
@@ -22,7 +22,7 @@ import {
 const today: Date = new Date();
 
 export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
-  guidePanel: OpprettKravInnsendingsInformasjonGuidePanelType.INVESTERING_VTA_AFT,
+  guidePanel: GuidePanelType.INVESTERING_VTA_AFT,
   definisjonsListe: [
     {
       label: "Arrangør",
@@ -126,7 +126,7 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
 };
 
 const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
-  guidePanel: OpprettKravInnsendingsInformasjonGuidePanelType.AVTALT_PRIS,
+  guidePanel: GuidePanelType.AVTALT_PRIS,
   definisjonsListe: [
     {
       label: "Arrangør",
@@ -215,7 +215,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
 };
 
 const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
-  guidePanel: OpprettKravInnsendingsInformasjonGuidePanelType.TIMESPRIS,
+  guidePanel: GuidePanelType.TIMESPRIS,
   definisjonsListe: [
     {
       label: "Arrangør",

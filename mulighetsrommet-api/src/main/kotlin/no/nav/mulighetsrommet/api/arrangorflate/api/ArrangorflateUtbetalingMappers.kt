@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -108,9 +109,14 @@ private fun getInnsendingsDetaljer(
         },
         LabeledDataElement.text("Tiltaksnavn", utbetaling.gjennomforing.navn),
         LabeledDataElement.text("Tiltakstype", utbetaling.tiltakstype.navn),
-        LabeledDataElement.text("Tiltaksperiode", Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt)),
+        if (utbetaling.beregning.input == UtbetalingBeregningFri && utbetaling.tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD) { // annen avtalt pris
+            LabeledDataElement.text(
+                "Tiltaksperiode",
+                Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt)
+            )
+        } else null,
         LabeledDataElement.text("Løpenummer", utbetaling.gjennomforing.lopenummer.toString()),
-    )
+    ).filterNotNull()
 }
 
 @Serializable
@@ -280,7 +286,7 @@ fun beregningDisplayName(beregning: UtbetalingBeregning) = when (beregning) {
 
     is UtbetalingBeregningPrisPerUkesverk,
     is UtbetalingBeregningPrisPerHeleUkesverk,
-    ->
+        ->
         "Avtalt ukespris per tiltaksplass"
 }
 
@@ -309,7 +315,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
         is UtbetalingBeregningFri -> emptyList()
 
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-        -> {
+            -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             beregningSatsPeriodeDetaljerMedFaktor(
                 satser,

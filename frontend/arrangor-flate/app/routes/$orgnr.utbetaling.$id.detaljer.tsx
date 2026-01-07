@@ -40,11 +40,11 @@ import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
 import { deltakerOversiktLenke, pathTo } from "~/utils/navigation";
-import { getUtbetalingsdato } from "~/utils/utbetaling";
 import { isValidationError, problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 import { FeilmeldingMedVarselTrekant } from "../../../mr-admin-flate/src/components/skjema/FeilmeldingMedVarseltrekant";
+import { DataDetails } from "@mr/frontend-common";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrangorflateUtbetalingDto;
@@ -167,14 +167,7 @@ export default function UtbetalingDetaljerSide() {
           )}
         </HStack>
         <UtbetalingHeader utbetalingType={utbetaling.type} />
-        <Definisjonsliste
-          definitions={[
-            getUtbetalingsdato(utbetaling),
-            { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
-            { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
-            { key: "Løpenummer", value: utbetaling.gjennomforing.lopenummer },
-          ]}
-        />
+        <DataDetails entries={utbetaling.innsendingsDetaljer} />
         <Definisjonsliste
           title={"Utbetaling"}
           definitions={[

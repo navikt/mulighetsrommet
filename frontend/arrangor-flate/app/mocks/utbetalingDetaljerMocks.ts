@@ -131,6 +131,7 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
       belop: 10149,
     },
   ],
+  innsendingsDetaljer: [],
 };
 
 const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
@@ -163,6 +164,7 @@ const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   type: { displayName: "Innsending", displayNameLong: null, tagName: null },
   linjer: [],
   advarsler: [],
+  innsendingsDetaljer: [],
 };
 
 const aftKreverEndring: ArrangorflateUtbetalingDto = {
@@ -198,6 +200,7 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.INNSENDING,
   linjer: [],
+  innsendingsDetaljer: [],
 };
 
 const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
@@ -233,6 +236,7 @@ const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   periode: { start: "2025-05-01", slutt: "2025-08-02" },
   type: utbetalingType.INVESTERING,
   linjer: [],
+  innsendingsDetaljer: [],
 };
 
 const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
@@ -279,6 +283,7 @@ const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
     },
   ],
   advarsler: [],
+  innsendingsDetaljer: [],
 };
 
 const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
@@ -314,6 +319,7 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   type: utbetalingType.INNSENDING,
   linjer: [],
   advarsler: [],
+  innsendingsDetaljer: [],
 };
 
 const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
@@ -349,6 +355,7 @@ const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   type: { displayName: "Innsending", displayNameLong: null, tagName: null },
   linjer: [],
   advarsler: [],
+  innsendingsDetaljer: [],
 };
 
 export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
