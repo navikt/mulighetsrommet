@@ -370,7 +370,7 @@ fun Route.avtaleRoutes() {
                 operationId = "upsertPrismodell"
                 request {
                     pathParameterUuid("id")
-                    body<PrismodellRequest>()
+                    body<List<PrismodellRequest>>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -389,9 +389,9 @@ fun Route.avtaleRoutes() {
             }) {
                 val navIdent = getNavIdent()
                 val id: UUID by call.parameters
-                val request = call.receive<PrismodellRequest>()
+                val request = call.receive<List<PrismodellRequest>>()
 
-                val result = avtaleService.upsertPrismodell(id, listOf(request), navIdent)
+                val result = avtaleService.upsertPrismodell(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(result)

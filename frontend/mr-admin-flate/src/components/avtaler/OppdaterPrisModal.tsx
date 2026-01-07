@@ -19,7 +19,7 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
   const mutation = useUpsertPrismodell(avtale.id);
   const form = useForm<PrismodellValues>({
     resolver: zodResolver(PrismodellSchema),
-    defaultValues: defaultValues(avtale.prismodeller[0]),
+    defaultValues: defaultValues(avtale.prismodeller),
   });
 
   const postData: SubmitHandler<PrismodellValues> = async (data): Promise<void> => {
@@ -77,13 +77,13 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
   );
 }
 
-function defaultValues(prismodell: PrismodellDto): PrismodellValues {
+function defaultValues(prismodeller: PrismodellDto[]): PrismodellValues {
   return {
-    prismodell: {
-      id: prismodell.id,
+    prismodeller: prismodeller.map((prismodell) => ({
+      id: prismodell.id || undefined,
       type: prismodell.type,
       prisbetingelser: prismodell.prisbetingelser,
       satser: prismodell.satser ?? [],
-    },
+    })),
   };
 }

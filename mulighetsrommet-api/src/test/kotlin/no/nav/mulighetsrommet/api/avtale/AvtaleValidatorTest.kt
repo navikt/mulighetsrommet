@@ -455,51 +455,59 @@ class AvtaleValidatorTest : FunSpec({
 
         test("må stemme overens med tiltakstypen") {
             AvtaleValidator.validatePrismodell(
-                PrismodellRequest(
-                    id = UUID.randomUUID(),
-                    type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                    prisbetingelser = null,
-                    satser = emptyList(),
+                listOf(
+                    PrismodellRequest(
+                        id = UUID.randomUUID(),
+                        type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                        prisbetingelser = null,
+                        satser = emptyList(),
+                    ),
                 ),
                 getContext(TiltakstypeFixtures.Oppfolging),
             ).shouldBeLeft().shouldContain(
                 FieldError(
-                    "/prismodeller",
+                    "/prismodeller/0/type",
                     "Fast sats per tiltaksplass per måned er ikke tillatt for tiltakstype Oppfølging",
                 ),
             )
             AvtaleValidator.validatePrismodell(
-                PrismodellRequest(
-                    id = UUID.randomUUID(),
-                    type = PrismodellType.ANNEN_AVTALT_PRIS,
-                    prisbetingelser = null,
-                    satser = emptyList(),
+                listOf(
+                    PrismodellRequest(
+                        id = UUID.randomUUID(),
+                        type = PrismodellType.ANNEN_AVTALT_PRIS,
+                        prisbetingelser = null,
+                        satser = emptyList(),
+                    ),
                 ),
                 getContext(TiltakstypeFixtures.AFT),
             ).shouldBeLeft().shouldContain(
                 FieldError(
-                    "/prismodeller",
+                    "/prismodeller/0/type",
                     "Annen avtalt pris er ikke tillatt for tiltakstype Arbeidsforberedende trening",
                 ),
             )
 
             AvtaleValidator.validatePrismodell(
-                PrismodellRequest(
-                    id = UUID.randomUUID(),
-                    type = PrismodellType.ANNEN_AVTALT_PRIS,
-                    prisbetingelser = null,
-                    satser = emptyList(),
+                listOf(
+                    PrismodellRequest(
+                        id = UUID.randomUUID(),
+                        type = PrismodellType.ANNEN_AVTALT_PRIS,
+                        prisbetingelser = null,
+                        satser = emptyList(),
+                    ),
                 ),
                 getContext(TiltakstypeFixtures.Oppfolging),
             ).shouldBeRight()
         }
 
         test("validerer at satsene må dekke hele tilsagnsperioden som overlapper med avtalens datoer") {
-            val request = PrismodellRequest(
-                id = UUID.randomUUID(),
-                type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                prisbetingelser = null,
-                satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 1)),
+            val request = listOf(
+                PrismodellRequest(
+                    id = UUID.randomUUID(),
+                    type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                    prisbetingelser = null,
+                    satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 1)),
+                ),
             )
 
             AvtaleValidator.validatePrismodell(
@@ -510,7 +518,7 @@ class AvtaleValidatorTest : FunSpec({
                     avtaleStartDato = LocalDate.of(2025, 2, 1),
                 ),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell/satser/0/gjelderFra", "Første sats må gjelde fra 01.02.2025"),
+                FieldError("/prismodeller/0/satser/0/gjelderFra", "Første sats må gjelde fra 01.02.2025"),
             )
 
             AvtaleValidator.validatePrismodell(
@@ -521,11 +529,18 @@ class AvtaleValidatorTest : FunSpec({
                     avtaleStartDato = LocalDate.of(2024, 12, 1),
                 ),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell/satser/0/gjelderFra", "Første sats må gjelde fra 01.01.2025"),
+                FieldError("/prismodeller/0/satser/0/gjelderFra", "Første sats må gjelde fra 01.01.2025"),
             )
 
             AvtaleValidator.validatePrismodell(
-                request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2024, 12, 1), pris = 1))),
+                listOf(
+                    PrismodellRequest(
+                        id = UUID.randomUUID(),
+                        type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                        prisbetingelser = null,
+                        satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2024, 12, 1), pris = 1)),
+                    ),
+                ),
                 getContext(
                     TiltakstypeFixtures.Oppfolging,
                     gyldigTilsagnPeriode = mapOf(Tiltakskode.OPPFOLGING to Periode.forYear(2025)),
@@ -543,72 +558,103 @@ class AvtaleValidatorTest : FunSpec({
             )
 
             AvtaleValidator.validatePrismodell(
-                request,
+                listOf(request),
                 getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodeller", "Minst én pris er påkrevd"),
+                FieldError("/prismodeller/0/type", "Minst én pris er påkrevd"),
             )
 
             AvtaleValidator.validatePrismodell(
-                request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1))),
+                listOf(request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1)))),
                 getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell/satser/0/gjelderFra", "Gjelder fra må være satt"),
+                FieldError("/prismodeller/0/satser/0/gjelderFra", "Gjelder fra må være satt"),
             )
 
             AvtaleValidator.validatePrismodell(
-                request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = null))),
-                getContext(),
-            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell/satser/0/pris", "Pris må være positiv"),
-            )
-
-            AvtaleValidator.validatePrismodell(
-                request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 0))),
-                getContext(),
-            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell/satser/0/pris", "Pris må være positiv"),
-            )
-
-            AvtaleValidator.validatePrismodell(
-                request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1))),
-                getContext(),
-            ).shouldBeRight().satser shouldBe listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1))
-        }
-
-        test("tillater ikke flere satser som starter på samme dato") {
-            AvtaleValidator.validatePrismodell(
-                PrismodellRequest(
-                    id = UUID.randomUUID(),
-                    type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                    prisbetingelser = null,
-                    satser = listOf(
-                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
-                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
-                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
+                listOf(
+                    request.copy(
+                        satser = listOf(
+                            AvtaltSatsRequest(
+                                gjelderFra = LocalDate.of(2025, 1, 1),
+                                pris = null,
+                            ),
+                        ),
                     ),
                 ),
                 getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/prismodell/satser/0/gjelderFra", "Gjelder fra må være unik per rad"),
-                FieldError("/prismodell/satser/1/gjelderFra", "Gjelder fra må være unik per rad"),
+                FieldError("/prismodeller/0/satser/0/pris", "Pris må være positiv"),
+            )
+
+            AvtaleValidator.validatePrismodell(
+                listOf(
+                    request.copy(
+                        satser = listOf(
+                            AvtaltSatsRequest(
+                                gjelderFra = LocalDate.of(2025, 1, 1),
+                                pris = 0,
+                            ),
+                        ),
+                    ),
+                ),
+                getContext(),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/prismodeller/0/satser/0/pris", "Pris må være positiv"),
+            )
+
+            AvtaleValidator.validatePrismodell(
+                listOf(
+                    request.copy(
+                        satser = listOf(
+                            AvtaltSatsRequest(
+                                gjelderFra = LocalDate.of(2025, 1, 1),
+                                pris = 1,
+                            ),
+                        ),
+                    ),
+                ),
+                getContext(),
+            ).shouldBeRight()[0].satser shouldBe listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1))
+        }
+
+        test("tillater ikke flere satser som starter på samme dato") {
+            AvtaleValidator.validatePrismodell(
+                listOf(
+                    PrismodellRequest(
+                        id = UUID.randomUUID(),
+                        type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                        prisbetingelser = null,
+                        satser = listOf(
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
+                        ),
+                    ),
+                ),
+                getContext(),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/prismodeller/0/satser/0/gjelderFra", "Gjelder fra må være unik per rad"),
+                FieldError("/prismodeller/0/satser/1/gjelderFra", "Gjelder fra må være unik per rad"),
             )
         }
 
         test("sorterer satsene etter gjelderFra-dato") {
             AvtaleValidator.validatePrismodell(
-                PrismodellRequest(
-                    id = UUID.randomUUID(),
-                    type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                    prisbetingelser = null,
-                    satser = listOf(
-                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3),
-                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
-                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
+                listOf(
+                    PrismodellRequest(
+                        id = UUID.randomUUID(),
+                        type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                        prisbetingelser = null,
+                        satser = listOf(
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
+                        ),
                     ),
                 ),
                 getContext(),
-            ).shouldBeRight().satser shouldBe listOf(
+            ).shouldBeRight()[0].satser shouldBe listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 1),
                 AvtaltSats(LocalDate.of(2025, 2, 1), 2),
                 AvtaltSats(LocalDate.of(2025, 3, 1), 3),

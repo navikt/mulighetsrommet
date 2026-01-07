@@ -215,10 +215,10 @@ class AvtaleService(
             avtaleStartDato = avtale.startDato,
             gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
         )
-        val prismodeller = request.map {
-            AvtaleValidator.validatePrismodell(it, context)
+        val prismodeller =
+            AvtaleValidator.validatePrismodell(request, context)
                 .bind()
-        }
+
         db.transaction {
             queries.avtale.upsertPrismodell(id, prismodeller)
 

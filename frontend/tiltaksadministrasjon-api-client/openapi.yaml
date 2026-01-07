@@ -509,7 +509,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PrismodellRequest"
+              type: array
+              items:
+                $ref: "#/components/schemas/PrismodellRequest"
         required: false
       responses:
         "200":

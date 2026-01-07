@@ -15,8 +15,8 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 
 export const PrismodellSchema = z.object({
-  prismodeller: z
-    .object({
+  prismodeller: z.array(
+    z.object({
       id: z.uuid().optional(),
       prisbetingelser: z.string().nullable(),
       type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
@@ -28,8 +28,8 @@ export const PrismodellSchema = z.object({
           valuta: z.string(),
         }),
       ),
-    })
-    .array(),
+    }),
+  ),
 });
 
 export type PrismodellValues = z.infer<typeof PrismodellSchema>;

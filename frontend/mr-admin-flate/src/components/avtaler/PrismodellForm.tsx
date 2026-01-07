@@ -79,7 +79,7 @@ function AvtalteSatser({
                 errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.pris?.message
               }
               {...register(`${field}.satser.${index}.pris` as const, {
-                valueAsNumber: true,
+                setValueAs: (v) => (v === "" ? null : Number(v)),
               })}
             />
             <ControlledDateInput
