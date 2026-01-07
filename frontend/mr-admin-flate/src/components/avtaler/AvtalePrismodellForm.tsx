@@ -1,10 +1,9 @@
-import { BodyShort, Box, Button, Select, VStack, HStack } from "@navikt/ds-react";
+import { BodyShort, Box, Button, Select, VStack, HStack, Textarea } from "@navikt/ds-react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
-import PrismodellForm from "./PrismodellForm";
-import { yyyyMMddSafeFormatting } from "@mr/frontend-common/utils/date";
+import { AvtalteSatserForm } from "./AvtalteSatserForm";
 import { PrismodellType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 
@@ -19,6 +18,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     control,
     setValue,
     watch,
+    register,
   } = useFormContext<PrismodellValues>();
   const { data: prismodellTyper = [] } = usePrismodeller(tiltakskode);
 
@@ -27,11 +27,41 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     control,
   });
 
+  if (
+    [
+      Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+      Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+    ].includes(tiltakskode)
+  ) {
+    return (
+      <Box
+        borderWidth="1"
+        borderColor="border-subtle"
+        borderRadius="large"
+        padding="4"
+        background="surface-subtle"
+      >
+        <Select
+          label={avtaletekster.prismodell.label}
+          readOnly
+          value={PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK}
+        >
+          <option>
+            {
+              prismodellTyper.find(
+                (prismodell) =>
+                  prismodell.type === PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+              )?.navn
+            }
+          </option>
+        </Select>
+      </Box>
+    );
+  }
   return (
     <VStack gap="4">
       {fields.map((field, index) => {
         const type = watch(`prismodeller.${index}.type`);
-        const satser = watch(`prismodeller.${index}.satser`);
         const beskrivelse = prismodellTyper.find((p) => p.type === type)?.beskrivelse;
         return (
           <Box
@@ -45,28 +75,12 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
             <HStack justify="space-between" align="start">
               <VStack gap="4" style={{ flex: 1 }}>
                 <Select
-                  readOnly={type === PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK}
                   label={avtaletekster.prismodell.label}
                   size="small"
                   error={errors.prismodeller?.[index]?.type?.message}
                   value={type}
                   onChange={(e) => {
-                    const nyType = e.target.value as PrismodellType;
-                    setValue(`prismodeller.${index}.type`, nyType);
-                    if (erPrismodellMedAvtalteSatser(nyType)) {
-                      if (satser.length === 0) {
-                        setValue(`prismodeller.${index}.satser`, [
-                          {
-                            gjelderFra: yyyyMMddSafeFormatting(avtaleStartDato),
-                            gjelderTil: null,
-                            pris: 0,
-                            valuta: "NOK",
-                          },
-                        ]);
-                      }
-                    } else {
-                      setValue(`prismodeller.${index}.satser`, []);
-                    }
+                    setValue(`prismodeller.${index}.type`, e.target.value as PrismodellType);
                   }}
                 >
                   <option key={undefined} value={undefined}>
@@ -80,10 +94,17 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                 </Select>
                 {beskrivelse &&
                   beskrivelse.map((tekst, i) => <BodyShort key={i}>{tekst}</BodyShort>)}
-                <PrismodellForm
-                  prismodell={type}
-                  avtaleStartDato={avtaleStartDato}
-                  field={`prismodeller.${index}`}
+                {type === PrismodellType.ANNEN_AVTALT_PRIS && (
+                  <AvtalteSatserForm
+                    avtaleStartDato={avtaleStartDato}
+                    field={`prismodeller.${index}`}
+                  />
+                )}
+                <Textarea
+                  size="small"
+                  error={errors.prismodeller?.[index]?.prisbetingelser?.message}
+                  label={avtaletekster.prisOgBetalingLabel}
+                  {...register(`prismodeller.${index}.prisbetingelser` as const)}
                 />
                 <HStack>
                   <Button
@@ -121,17 +142,4 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
       </HStack>
     </VStack>
   );
-}
-
-function erPrismodellMedAvtalteSatser(prismodell: PrismodellType) {
-  switch (prismodell) {
-    case PrismodellType.ANNEN_AVTALT_PRIS:
-    case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
-      return false;
-    case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
-    case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
-    case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
-    case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
-      return true;
-  }
 }

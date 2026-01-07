@@ -1,35 +1,12 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { memo } from "react";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { Button, HStack, Select, Spacer, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { Button, HStack, Select, Spacer, TextField, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
-import { PrismodellType } from "@tiltaksadministrasjon/api-client";
 
-interface Props {
-  prismodell?: PrismodellType;
-  avtaleStartDato: Date;
-  field: `prismodeller.${number}`;
-}
-
-const PrismodellForm = memo(({ prismodell, avtaleStartDato, field }: Props) => {
-  switch (prismodell) {
-    case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
-    case undefined:
-      return null;
-    case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
-    case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
-    case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
-    case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
-      return <AvtalteSatser avtaleStartDato={avtaleStartDato} field={field} />;
-    case PrismodellType.ANNEN_AVTALT_PRIS:
-      return <PrisbetingelserTextArea field={field} />;
-  }
-});
-
-function AvtalteSatser({
+export function AvtalteSatserForm({
   avtaleStartDato,
   field,
 }: {
@@ -117,26 +94,6 @@ function AvtalteSatser({
       >
         Legg til ny prisperiode
       </Button>
-      <PrisbetingelserTextArea field={field} />
     </VStack>
   );
 }
-
-function PrisbetingelserTextArea({ field }: { field: `prismodeller.${number}` }) {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext<AvtaleFormValues>();
-
-  const index = parseInt(field.split(".")[1]);
-  return (
-    <Textarea
-      size="small"
-      error={errors.prismodeller?.[index]?.prisbetingelser?.message}
-      label={avtaletekster.prisOgBetalingLabel}
-      {...register(`${field}.prisbetingelser` as const)}
-    />
-  );
-}
-
-export default PrismodellForm;
