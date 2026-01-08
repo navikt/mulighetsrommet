@@ -249,14 +249,17 @@ export default function UtbetalingDetaljerSide() {
                 variant="primary"
                 loading={regenererFetcher.state !== "idle"}
               >
-                Regenerer
+                Opprett krav på nytt
               </Button>
             </HStack>
           </regenererFetcher.Form>
         )}
         {utbetaling.regenerertId && (
           <HStack gap="2" justify="start" align="center">
-            <BodyShort className="italic">Denne utbetalingen er regenerert</BodyShort>
+            <BodyShort className="italic">
+              Krav om utbetaling for denne perioden er opprettet på nytt. Du finner kravet på
+              oversikten over aktive utbetalingskrav
+            </BodyShort>
           </HStack>
         )}
         <AvbrytModal open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
@@ -367,8 +370,8 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
               kan være aktuelt hvis dere oppdager noe feil i innsendingen.
               <br />
               <br />
-              Dere kan starte en ny innsending på samme tiltak via knappen “Opprett krav om
-              utbetaling”. Vær oppmerksom på at et avbrutt krav fremdeles vil være arkivert hos Nav.
+              Dere kan selv starte en ny innsending med korrekte opplysninger etter at kravet er
+              avbrutt. Vær oppmerksom på at et avbrutt krav fremdeles vil være arkivert hos Nav.
             </Alert>
             <Textarea
               name="begrunnelse"
@@ -378,7 +381,7 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
               maxLength={100}
             />
             <HStack gap="4" justify="end">
-              <Button size="small" onClick={onClose}>
+              <Button type="button" variant="tertiary" size="small" onClick={onClose}>
                 Nei, takk
               </Button>
               <Button
