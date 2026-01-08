@@ -86,6 +86,7 @@ sealed class AmoKategorisering {
 
     enum class InnholdElement {
         GRUNNLEGGENDE_FERDIGHETER,
+        BRANSJERETTET_OPPLARING,
         TEORETISK_OPPLAERING,
         JOBBSOKER_KOMPETANSE,
         PRAKSIS,

@@ -30,7 +30,7 @@ export function AvtaleAmoKategoriseringForm({ tiltakskode }: Props) {
     case Tiltakskode.STUDIESPESIALISERING:
       return null;
     case Tiltakskode.ARBEIDSMARKEDSOPPLAERING:
-      return <AvtaleBransjeForm />;
+      return <AvtaleBransjeForm tiltakskode={Tiltakskode.ARBEIDSMARKEDSOPPLAERING} />;
     case Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV:
       return <NorskopplaeringGrunnleggendeGerdigheterFOVForm />;
     case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
@@ -76,10 +76,14 @@ function NorskopplaeringGrunnleggendeGerdigheterFOVForm() {
         <NorksopplaeringForm<AvtaleFormValues>
           norskprovePath="detaljer.amoKategorisering.norskprove"
           innholdElementerPath="detaljer.amoKategorisering.innholdElementer"
+          tiltakskode={Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV}
         />
       )}
       {amoKategorisering?.kurstype === AmoKurstype.GRUNNLEGGENDE_FERDIGHETER && (
-        <InnholdElementerForm<AvtaleFormValues> path="detaljer.amoKategorisering.innholdElementer" />
+        <InnholdElementerForm<AvtaleFormValues>
+          path="detaljer.amoKategorisering.innholdElementer"
+          tiltakskode={Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV}
+        />
       )}
     </HGrid>
   );
@@ -125,15 +129,21 @@ function GruppeAmoForm() {
           {kurstypeToString(AmoKurstype.STUDIESPESIALISERING)}
         </option>
       </Select>
-      {amoKategorisering?.kurstype === AmoKurstype.BRANSJE_OG_YRKESRETTET && <AvtaleBransjeForm />}
+      {amoKategorisering?.kurstype === AmoKurstype.BRANSJE_OG_YRKESRETTET && (
+        <AvtaleBransjeForm tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING} />
+      )}
       {amoKategorisering?.kurstype === AmoKurstype.NORSKOPPLAERING && (
         <NorksopplaeringForm<AvtaleFormValues>
           norskprovePath="detaljer.amoKategorisering.norskprove"
           innholdElementerPath="detaljer.amoKategorisering.innholdElementer"
+          tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING}
         />
       )}
       {amoKategorisering?.kurstype === AmoKurstype.GRUNNLEGGENDE_FERDIGHETER && (
-        <InnholdElementerForm<AvtaleFormValues> path="detaljer.amoKategorisering.innholdElementer" />
+        <InnholdElementerForm<AvtaleFormValues>
+          path="detaljer.amoKategorisering.innholdElementer"
+          tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING}
+        />
       )}
     </HGrid>
   );

@@ -1,13 +1,39 @@
 import { Checkbox, CheckboxGroup, HGrid } from "@navikt/ds-react";
 import { Controller, FieldValues, Path, useFormContext } from "react-hook-form";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
-import { AmoKategoriseringInnholdElement as InnholdElement } from "@tiltaksadministrasjon/api-client";
+import {
+  AmoKategoriseringInnholdElement as InnholdElement,
+  Tiltakskode,
+} from "@tiltaksadministrasjon/api-client";
 import { innholdElementToString } from "@/utils/Utils";
 
-export function InnholdElementerForm<T extends FieldValues>(props: { path: Path<T> }) {
-  const { path } = props;
+interface Props<T> {
+  path: Path<T>;
+  tiltakskode: Tiltakskode;
+}
+
+export function InnholdElementerForm<T extends FieldValues>({ path, tiltakskode }: Props<T>) {
   const { control } = useFormContext<T>();
 
+  function elementer() {
+    if (tiltakskode === Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV) {
+      return [
+        InnholdElement.BRANSJERETTET_OPPLARING,
+        InnholdElement.JOBBSOKER_KOMPETANSE,
+        InnholdElement.PRAKSIS,
+        InnholdElement.ARBEIDSMARKEDSKUNNSKAP,
+      ];
+    } else {
+      return [
+        InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
+        InnholdElement.JOBBSOKER_KOMPETANSE,
+        InnholdElement.TEORETISK_OPPLAERING,
+        InnholdElement.PRAKSIS,
+        InnholdElement.ARBEIDSMARKEDSKUNNSKAP,
+        InnholdElement.NORSKOPPLAERING,
+      ];
+    }
+  }
   return (
     <Controller
       name={path}
@@ -21,24 +47,9 @@ export function InnholdElementerForm<T extends FieldValues>(props: { path: Path<
           value={field.value ?? []}
         >
           <HGrid columns={2}>
-            <Checkbox value={InnholdElement.GRUNNLEGGENDE_FERDIGHETER}>
-              {innholdElementToString(InnholdElement.GRUNNLEGGENDE_FERDIGHETER)}
-            </Checkbox>
-            <Checkbox value={InnholdElement.JOBBSOKER_KOMPETANSE}>
-              {innholdElementToString(InnholdElement.JOBBSOKER_KOMPETANSE)}
-            </Checkbox>
-            <Checkbox value={InnholdElement.TEORETISK_OPPLAERING}>
-              {innholdElementToString(InnholdElement.TEORETISK_OPPLAERING)}
-            </Checkbox>
-            <Checkbox value={InnholdElement.PRAKSIS}>
-              {innholdElementToString(InnholdElement.PRAKSIS)}
-            </Checkbox>
-            <Checkbox value={InnholdElement.ARBEIDSMARKEDSKUNNSKAP}>
-              {innholdElementToString(InnholdElement.ARBEIDSMARKEDSKUNNSKAP)}
-            </Checkbox>
-            <Checkbox value={InnholdElement.NORSKOPPLAERING}>
-              {innholdElementToString(InnholdElement.NORSKOPPLAERING)}
-            </Checkbox>
+            {elementer().map((e: InnholdElement) => (
+              <Checkbox value={e}>{innholdElementToString(e)}</Checkbox>
+            ))}
           </HGrid>
         </CheckboxGroup>
       )}
