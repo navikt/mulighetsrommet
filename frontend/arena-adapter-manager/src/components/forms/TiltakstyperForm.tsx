@@ -19,6 +19,14 @@ const TILTAKSTYPER = [
   { value: "JOBBKLUBB", label: "Jobbklubb" },
   { value: "OPPFOLGING", label: "Oppfølging" },
   { value: "VARIG_TILRETTELAGT_ARBEID_SKJERMET", label: "Varig tilrettelagt arbeid skjermet" },
+  { value: "ARBEIDSMARKEDSOPPLAERING", label: "Arbeidsmarkedsopplæring (AMO)" },
+  {
+    value: "NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV",
+    label: "Norskopplæring, grunnleggende ferdigheter og FOV",
+  },
+  { value: "STUDIESPESIALISERING", label: "Studiespesialisering" },
+  { value: "FAG_OG_YRKESOPPLAERING", label: "Fag og yrkesopplæring" },
+  { value: "HOYERE_YRKESFAGLIG_UTDANNING", label: "Høyere yrkesfaglig opplæring" },
 ];
 
 export function TiltakstyperForm({ onSubmit, loading }: TiltakstyperFormProps) {
