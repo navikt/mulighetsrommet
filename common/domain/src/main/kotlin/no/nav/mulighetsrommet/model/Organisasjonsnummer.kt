@@ -25,5 +25,13 @@ value class Organisasjonsnummer(val value: String) {
         }
     }
 
+    /**
+     * Sjekker om organisasjonsnummeret er fiktivt (utenlandsk arrangør, utenfor breg)
+     * Starter da med 1, 9 siffer
+     */
+    fun erUtenlandsk(): Boolean {
+        return value.startsWith('1')
+    }
+
     override fun toString() = value
 }

@@ -52,6 +52,24 @@ class OkonomiService(
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
+    /**
+     * Midlertidig håndtering av kjent utenlandsk aktør, siden det er opprettet tilsagn allerede
+     * TODO: Send med informasjonen i kafka-meldingen istedet
+     */
+    private val utbildingNord = OebsBestillingMelding.Selger(
+        organisasjonsNummer = "100000056",
+        organisasjonsNavn = "Utbilding Nord",
+        adresse = listOf(
+            OebsBestillingMelding.Selger.Adresse(
+                gateNavn = "Postboks 42",
+                by = "SE-95721 &#214;vertorne&#229;, Sverige",
+                postNummer = "0000",
+                landsKode = "SE",
+            ),
+        ),
+        bedriftsNummer = "100000056",
+    )
+
     data class Config(
         val topics: KafkaTopics,
         val faktura: FakturaConfig,
@@ -75,17 +93,7 @@ class OkonomiService(
             )
             ?: return OpprettBestillingError("Kontering for bestilling $bestillingsnummer mangler").left()
 
-        return getHovedenhet(opprettBestilling.arrangor)
-            .flatMap { hovedenhet ->
-                getLeverandorAdresse(hovedenhet).map { adresse ->
-                    OebsBestillingMelding.Selger(
-                        organisasjonsNummer = hovedenhet.organisasjonsnummer.value,
-                        organisasjonsNavn = hovedenhet.navn,
-                        adresse = adresse,
-                        bedriftsNummer = opprettBestilling.arrangor.value,
-                    )
-                }
-            }
+        return getSelger(opprettBestilling.arrangor)
             .flatMap { selger ->
                 val bestilling = Bestilling.fromOpprettBestilling(
                     bestilling = opprettBestilling,
@@ -108,6 +116,30 @@ class OkonomiService(
                 log.warn("Opprett bestilling $bestillingsnummer feilet", it)
             }
     }
+
+    suspend fun getSelger(organisasjonsnummer: Organisasjonsnummer): Either<OpprettBestillingError, OebsBestillingMelding.Selger> {
+        return if (organisasjonsnummer.erUtenlandsk()) {
+            if (organisasjonsnummer.value == utbildingNord.bedriftsNummer) {
+                Either.Right(utbildingNord)
+            } else {
+                Either.Left(OpprettBestillingError("Utenlandske organisasjonsnummer er ikke støttet enda: $organisasjonsnummer"))
+            }
+        } else {
+            getSelgerFromBreg(organisasjonsnummer)
+        }
+    }
+
+    suspend fun getSelgerFromBreg(organisasjonsnummer: Organisasjonsnummer): Either<OpprettBestillingError, OebsBestillingMelding.Selger> = getHovedenhet(organisasjonsnummer)
+        .flatMap { hovedenhet ->
+            getLeverandorAdresse(hovedenhet).map { adresse ->
+                OebsBestillingMelding.Selger(
+                    organisasjonsNummer = hovedenhet.organisasjonsnummer.value,
+                    organisasjonsNavn = hovedenhet.navn,
+                    adresse = adresse,
+                    bedriftsNummer = organisasjonsnummer.value,
+                )
+            }
+        }
 
     suspend fun annullerBestilling(
         annullerBestilling: AnnullerBestilling,

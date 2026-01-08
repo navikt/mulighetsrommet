@@ -1,6 +1,7 @@
 package no.nav.tiltak.okonomi.db
 
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 import no.nav.tiltak.okonomi.db.queries.BestillingQueries
@@ -33,7 +34,7 @@ class OkonomiDatabase(
     }
 }
 
-class QueryContext(val session: Session) {
+open class QueryContext(open val session: Session) {
     val queries by lazy { Queries() }
 
     inner class Queries {
@@ -44,3 +45,5 @@ class QueryContext(val session: Session) {
         val kvittering = KvitteringQueries(session)
     }
 }
+
+class TransactionalQueryContext(override val session: TransactionalSession) : QueryContext(session)
