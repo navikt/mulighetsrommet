@@ -112,8 +112,8 @@ export function AvtaleDetaljerForm() {
                 onChange: (e) => {
                   setValue("detaljer.amoKategorisering", null);
                   setValue("detaljer.utdanningslop", null);
-                  setValue("prismodell.type", undefined as any, { shouldValidate: true });
-                  setValue("prismodell.satser", []);
+                  setValue("prismodeller.0.type", undefined as any, { shouldValidate: true });
+                  setValue("prismodeller.0.satser", []);
 
                   const avtaletype = isTiltakskode(e.target.value)
                     ? getAvtaletypeOptions(e.target.value as Tiltakskode)[0]?.value
