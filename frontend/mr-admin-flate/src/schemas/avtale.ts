@@ -171,22 +171,15 @@ export function defaultAvtaleData(
       personopplysninger: avtale?.personopplysninger ?? [],
     },
     prismodeller: avtale?.prismodeller?.map((prismodell) => ({
-      id: prismodell?.id,
-      type: prismodell?.type as PrismodellType | undefined,
-      satser: prismodell?.satser ?? [],
-      prisbetingelser: prismodell?.prisbetingelser ?? null,
+      id: prismodell.id,
+      type: prismodell.type as PrismodellType | undefined,
+      satser: prismodell.satser ?? [],
+      prisbetingelser: prismodell.prisbetingelser ?? null,
     })) ?? [
       {
         id: undefined,
         type: undefined,
-        satser: [
-          {
-            gjelderFra: "",
-            gjelderTil: null,
-            pris: 0,
-            valuta: "NOK",
-          },
-        ],
+        satser: [],
         prisbetingelser: null,
       },
     ],
