@@ -8,6 +8,7 @@ export interface ControlledDateInputProps {
   readOnly?: boolean;
   fromDate?: Date;
   toDate?: Date;
+  required?: boolean;
   onChange: (date: string) => void;
   defaultSelected?: string | null;
   error?: string;
@@ -24,6 +25,7 @@ export const ControlledDateInput = ({
   readOnly = false,
   onChange,
   defaultSelected,
+  required = false,
   error,
   fromDate,
   toDate,
@@ -47,6 +49,7 @@ export const ControlledDateInput = ({
         }
       }
     },
+    required: required,
     allowTwoDigitYear: true,
     inputFormat: "dd.MM.yyyy",
     defaultSelected: defaultSelected ? new Date(defaultSelected) : undefined,

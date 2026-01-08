@@ -94,7 +94,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                 </Select>
                 {beskrivelse &&
                   beskrivelse.map((tekst, i) => <BodyShort key={i}>{tekst}</BodyShort>)}
-                {type === PrismodellType.ANNEN_AVTALT_PRIS && (
+                {type !== PrismodellType.ANNEN_AVTALT_PRIS && (
                   <AvtalteSatserForm
                     avtaleStartDato={avtaleStartDato}
                     field={`prismodeller.${index}`}

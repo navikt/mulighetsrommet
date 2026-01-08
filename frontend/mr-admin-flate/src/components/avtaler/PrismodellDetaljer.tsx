@@ -1,4 +1,4 @@
-import { Box, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Box, HStack, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
@@ -11,7 +11,6 @@ import {
 export function PrismodellDetaljer({ prismodell }: { prismodell: PrismodellDto[] }) {
   return (
     <VStack gap="4">
-      <PrismodellHeading />
       {prismodell.map((prismodell) => {
         switch (prismodell.type) {
           case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
@@ -38,7 +37,6 @@ export function PrismodellDetaljer({ prismodell }: { prismodell: PrismodellDto[]
                 className="border-border-subtle border rounded-md"
               >
                 <PrismodellTypenavn type={prismodell.navn} />
-                {prismodell.navn && <PrismodellNavn navn={prismodell.navn} />}
                 <PrismodellSatser satser={prismodell.satser} />
                 {prismodell.prisbetingelser && (
                   <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
@@ -54,7 +52,6 @@ export function PrismodellDetaljer({ prismodell }: { prismodell: PrismodellDto[]
                 className="border-border-subtle border rounded-md"
               >
                 <PrismodellTypenavn type={prismodell.navn} />
-                {prismodell.navn && <PrismodellNavn navn={prismodell.navn} />}
                 <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
               </VStack>
             );
@@ -64,20 +61,8 @@ export function PrismodellDetaljer({ prismodell }: { prismodell: PrismodellDto[]
   );
 }
 
-function PrismodellHeading() {
-  return (
-    <Heading level="3" size="small" spacing>
-      {avtaletekster.prismodell.heading}
-    </Heading>
-  );
-}
-
 function PrismodellTypenavn({ type }: { type: string }) {
   return <MetadataVStack label={avtaletekster.prismodell.label} value={type} />;
-}
-
-function PrismodellNavn({ navn }: { navn: string }) {
-  return <MetadataVStack label={"Navn:"} value={navn} />;
 }
 
 function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {

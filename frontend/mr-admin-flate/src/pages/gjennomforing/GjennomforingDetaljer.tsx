@@ -29,6 +29,7 @@ import {
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -219,24 +220,25 @@ export function GjennomforingDetaljer() {
           {prismodell && (
             <>
               <Separator />
+              <Heading level="3" size="small" spacing>
+                {avtaletekster.prismodell.heading}
+              </Heading>
               <PrismodellDetaljer prismodell={[prismodell]} />
             </>
           )}
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         </VStack>
-        <VStack gap="space-16">
-          <div>
-            <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
-            <Separator />
-            <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-            {oppmoteSted && (
-              <>
-                <Separator />
-                <Definisjonsliste title="Sted" definitions={stedMeta} columns={1} />
-              </>
-            )}
-          </div>
+        <VStack justify={"space-between"}>
+          <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
+          <Separator />
+          <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
+          {oppmoteSted && (
+            <>
+              <Separator />
+              <Definisjonsliste title="Sted" definitions={stedMeta} columns={1} />
+            </>
+          )}
           {gjennomforing.stengt.length !== 0 && (
             <StengtHosArrangorTable gjennomforing={gjennomforing} readOnly />
           )}

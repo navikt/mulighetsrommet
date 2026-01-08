@@ -64,6 +64,7 @@ export function AvtalteSatserForm({
               fromDate={fromDate}
               toDate={toDate}
               onChange={(val) => setValue(`${field}.satser.${index}.gjelderFra` as const, val)}
+              required
               error={
                 errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.gjelderFra
                   ?.message
@@ -78,7 +79,6 @@ export function AvtalteSatserForm({
             type="button"
             icon={<TrashIcon aria-hidden />}
             onClick={() => remove(index)}
-            className="max-h-min"
           >
             Fjern
           </Button>
@@ -90,7 +90,7 @@ export function AvtalteSatserForm({
         size="small"
         type="button"
         icon={<PlusIcon aria-hidden />}
-        onClick={() => append({ gjelderFra: null, gjelderTil: null, pris: 0, valuta: "NOK" })}
+        onClick={() => append({ gjelderFra: "", gjelderTil: null, pris: 0, valuta: "NOK" })}
       >
         Legg til ny prisperiode
       </Button>
