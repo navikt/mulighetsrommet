@@ -110,10 +110,6 @@ export function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {
  * Så lenge det mangler validering av utdanningsløp i frontend så trenger vi litt ekstra sanitering av data
  */
 export function getUtdanningslop(data: AvtaleDetaljerValues): UtdanningslopDbo | null {
-  if (data.detaljer.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-    return null;
-  }
-
   if (!data.detaljer.utdanningslop?.utdanningsprogram) {
     return null;
   }
