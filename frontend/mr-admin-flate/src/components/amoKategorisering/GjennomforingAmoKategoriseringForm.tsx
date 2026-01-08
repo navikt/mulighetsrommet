@@ -58,13 +58,17 @@ export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
               options={avtaleAmo.sertifiseringer}
             />
           )}
-          <InnholdElementerForm path="amoKategorisering.innholdElementer" />
+          <InnholdElementerForm
+            path="amoKategorisering.innholdElementer"
+            tiltakskode={avtale.tiltakstype.tiltakskode}
+          />
         </>
       )}
       {avtaleAmo.kurstype === "NORSKOPPLAERING" && (
         <NorksopplaeringForm
           norskprovePath="amoKategorisering.norskprove"
           innholdElementerPath="amoKategorisering.innholdElementer"
+          tiltakskode={avtale.tiltakstype.tiltakskode}
         />
       )}
     </HGrid>

@@ -206,7 +206,7 @@ export function kurstypeToString(kurstype: AmoKategorisering["kurstype"]): strin
     case "STUDIESPESIALISERING":
       return "Studiespesialisering";
     case "FORBEREDENDE_OPPLAERING_FOR_VOKSNE":
-      return "FOV (forberedende opplæring for voksne)";
+      return "FOV (Forberedende opplæring for voksne)";
     case "GRUNNLEGGENDE_FERDIGHETER":
       return "Grunnleggende ferdigheter";
     case undefined:
@@ -241,6 +241,8 @@ export function bransjeToString(bransje: Bransje): string {
 
 export function innholdElementToString(innholdElement: InnholdElement): string {
   switch (innholdElement) {
+    case InnholdElement.BRANSJERETTET_OPPLARING:
+      return "Bransjerettet opplæring";
     case InnholdElement.GRUNNLEGGENDE_FERDIGHETER:
       return "Grunnleggende ferdigheter";
     case InnholdElement.JOBBSOKER_KOMPETANSE:

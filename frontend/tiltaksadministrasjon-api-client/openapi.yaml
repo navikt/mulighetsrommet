@@ -3636,6 +3636,7 @@ components:
       type: string
       enum:
       - GRUNNLEGGENDE_FERDIGHETER
+      - BRANSJERETTET_OPPLARING
       - TEORETISK_OPPLAERING
       - JOBBSOKER_KOMPETANSE
       - PRAKSIS

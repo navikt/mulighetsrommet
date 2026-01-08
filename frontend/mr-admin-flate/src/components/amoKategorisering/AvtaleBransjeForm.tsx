@@ -1,5 +1,8 @@
 import { List } from "@navikt/ds-react";
-import { AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje } from "@tiltaksadministrasjon/api-client";
+import {
+  AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje,
+  Tiltakskode,
+} from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
 import { bransjeToString } from "@/utils/Utils";
 import { ControlledSokeSelect } from "@mr/frontend-common";
@@ -8,7 +11,11 @@ import { ForerkortForm } from "./ForerkortForm";
 import { InnholdElementerForm } from "./InnholdElementerForm";
 import { AvtaleFormValues } from "@/schemas/avtale";
 
-export function AvtaleBransjeForm() {
+interface Props {
+  tiltakskode: Tiltakskode;
+}
+
+export function AvtaleBransjeForm({ tiltakskode }: Props) {
   const { register } = useFormContext<AvtaleFormValues>();
 
   return (
@@ -65,6 +72,7 @@ export function AvtaleBransjeForm() {
       <ForerkortForm<AvtaleFormValues> path="detaljer.amoKategorisering.forerkort" />
       <SertifiseringerSkjema<AvtaleFormValues> path="detaljer.amoKategorisering.sertifiseringer" />
       <InnholdElementerForm<AvtaleFormValues>
+        tiltakskode={tiltakskode}
         path={"detaljer.amoKategorisering.innholdElementer"}
       />
     </>
