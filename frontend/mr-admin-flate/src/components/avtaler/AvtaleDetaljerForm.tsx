@@ -18,6 +18,7 @@ import {
   Avtaletype,
   OpsjonLoggStatus,
   OpsjonsmodellType,
+  PrismodellType,
   Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
@@ -112,9 +113,28 @@ export function AvtaleDetaljerForm() {
                 onChange: (e) => {
                   setValue("detaljer.amoKategorisering", null);
                   setValue("detaljer.utdanningslop", null);
-                  setValue("prismodeller.0.type", undefined as any, { shouldValidate: true });
-                  setValue("prismodeller.0.satser", []);
-
+                  if (
+                    [
+                      Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                      Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+                    ].includes(e.target.value)
+                  ) {
+                    setValue("prismodeller", [
+                      {
+                        type: PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                        satser: [],
+                        prisbetingelser: null,
+                      },
+                    ]);
+                  } else {
+                    setValue("prismodeller", [
+                      {
+                        type: undefined as unknown as PrismodellType,
+                        satser: [],
+                        prisbetingelser: null,
+                      },
+                    ]);
+                  }
                   const avtaletype = isTiltakskode(e.target.value)
                     ? getAvtaletypeOptions(e.target.value as Tiltakskode)[0]?.value
                     : undefined;
