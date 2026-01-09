@@ -73,6 +73,7 @@ object AvtaleValidator {
             val startDato: LocalDate,
             val utdanningslop: UtdanningslopDto?,
             val status: GjennomforingStatusType,
+            val prismodellId: UUID,
         )
 
         data class Tiltakstype(
@@ -105,6 +106,7 @@ object AvtaleValidator {
                     tiltakstypeNavn = ctx.tiltakstype.navn,
                     avtaleStartDato = request.detaljer.startDato,
                     gyldigTilsagnPeriode = ctx.gyldigTilsagnPeriode,
+                    previous = null,
                 ),
             ).bind()
 
@@ -216,6 +218,7 @@ object AvtaleValidator {
         val tiltakstypeNavn: String,
         val avtaleStartDato: LocalDate,
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+        val previous: Ctx.Avtale?,
     )
 
     fun validatePrismodell(
@@ -225,6 +228,16 @@ object AvtaleValidator {
         requireValid(request.isNotEmpty()) {
             FieldError.of("Minst én prismodell er påkrevd", OpprettAvtaleRequest::prismodeller)
         }
+
+        context.previous?.gjennomforinger?.forEach { gjennomforing ->
+            validate(request.any { it.id == gjennomforing.prismodellId }) {
+                FieldError.of(
+                    "Prismodell kan ikke fjernes fordi en eller flere gjennomføringer er koblet til prismodellen",
+                    OpprettAvtaleRequest::prismodeller,
+                )
+            }
+        }
+
         request.mapIndexed { index, prismodell ->
 
             validate(prismodell.type in Prismodeller.getPrismodellerForTiltak(context.tiltakskode)) {
