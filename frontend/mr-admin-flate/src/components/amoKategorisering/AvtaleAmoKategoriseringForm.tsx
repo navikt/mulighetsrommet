@@ -79,7 +79,8 @@ function NorskopplaeringGrunnleggendeGerdigheterFOVForm() {
           tiltakskode={Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV}
         />
       )}
-      {amoKategorisering?.kurstype === AmoKurstype.GRUNNLEGGENDE_FERDIGHETER && (
+      {(amoKategorisering?.kurstype === AmoKurstype.GRUNNLEGGENDE_FERDIGHETER ||
+        amoKategorisering?.kurstype === AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE) && (
         <InnholdElementerForm<AvtaleFormValues>
           path="detaljer.amoKategorisering.innholdElementer"
           tiltakskode={Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV}
