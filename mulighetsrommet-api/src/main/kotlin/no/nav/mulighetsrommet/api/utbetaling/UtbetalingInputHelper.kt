@@ -18,7 +18,7 @@ object UtbetalingInputHelper {
     ): AvtaltPrisPerTimeOppfolgingPerDeltaker {
         val satser = resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforing.id)
+        val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
         val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, periode)
         return AvtaltPrisPerTimeOppfolgingPerDeltaker(
             satser,
