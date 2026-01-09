@@ -4,6 +4,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
@@ -66,7 +67,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975)),
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, ValutaType.NOK)),
             ).shouldBeRight()
         }
 
@@ -173,7 +174,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975)),
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, ValutaType.NOK)),
             ) shouldBeLeft listOf(
                 FieldError.of("Maksimum sluttdato for tilsagn til AFT er 31.12.2025", TilsagnRequest::periodeSlutt),
             )
@@ -187,7 +188,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975)),
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, ValutaType.NOK)),
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeStart",
@@ -204,7 +205,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = LocalDate.of(2025, 10, 1),
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975)),
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, ValutaType.NOK)),
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeSlutt",

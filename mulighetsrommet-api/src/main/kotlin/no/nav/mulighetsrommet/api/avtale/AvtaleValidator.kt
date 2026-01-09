@@ -214,6 +214,22 @@ object AvtaleValidator {
         val bruktePrismodeller: Set<UUID>,
     )
 
+    fun validateUpsertPrismodeller(
+        request: List<PrismodellRequest>,
+        context: ValidatePrismodellContext,
+    ): Either<List<FieldError>, List<PrismodellDbo>> = validation {
+        request.forEach { prismodell ->
+            validate(prismodell.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+                FieldError.of(
+                    "Prismodell kan ikke opprettes med typen ${prismodell.type.navn}",
+                    OpprettAvtaleRequest::prismodeller,
+                )
+            }
+        }
+
+        validatePrismodell(request, context).bind()
+    }
+
     fun validatePrismodell(
         request: List<PrismodellRequest>,
         context: ValidatePrismodellContext,
@@ -232,7 +248,6 @@ object AvtaleValidator {
         }
 
         request.mapIndexed { index, prismodell ->
-
             validate(prismodell.type in Prismodeller.getPrismodellerForTiltak(context.tiltakskode)) {
                 FieldError.ofPointer(
                     "/prismodeller/$index/type",
@@ -242,9 +257,9 @@ object AvtaleValidator {
 
             val satser = when (prismodell.type) {
                 PrismodellType.ANNEN_AVTALT_PRIS,
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 -> null
 
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK,
                 PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,

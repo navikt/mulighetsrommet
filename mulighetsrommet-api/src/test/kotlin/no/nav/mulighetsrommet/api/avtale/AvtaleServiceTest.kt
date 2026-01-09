@@ -6,6 +6,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -43,6 +44,7 @@ import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
+import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -64,8 +66,9 @@ class AvtaleServiceTest : FunSpec({
         ),
         tiltakstyper = listOf(
             TiltakstypeFixtures.Oppfolging,
+            TiltakstypeFixtures.AFT,
         ),
-        prismodeller = listOf(),
+        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft),
     )
 
     beforeEach {
@@ -87,6 +90,28 @@ class AvtaleServiceTest : FunSpec({
         arrangorService,
         gjennomforingPublisher,
     )
+
+    context("opprett forhåndsgodkjent avtale") {
+        val avtaleService = createAvtaleService()
+
+        test("oppretter avtale med forhåndsgodkjent prismodell") {
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.AFT),
+                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft),
+            ).initialize(database.db)
+
+            val request = AvtaleFixtures.createAvtaleRequest(
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                avtaletype = Avtaletype.FORHANDSGODKJENT,
+                opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
+                prismodell = PrismodellFixtures.ForhandsgodkjentAft,
+            )
+
+            avtaleService.create(request, bertilNavIdent).shouldBeRight().prismodeller.shouldHaveSize(1).should {
+                it.first().id shouldBe PrismodellFixtures.ForhandsgodkjentAft.id
+            }
+        }
+    }
 
     context("opprett avtale") {
         val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
@@ -159,36 +184,36 @@ class AvtaleServiceTest : FunSpec({
             }
         }
 
-        test("skedulerer publisering av gjennomføringer tilhørende avtalen ved endring av prismodell") {
-            val avtale = AvtaleFixtures.oppfolging
-            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
-                avtaleId = avtale.id,
-                status = GjennomforingStatusType.GJENNOMFORES,
-            )
-            MulighetsrommetTestDomain(
-                avtaler = listOf(avtale),
-                gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+        test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {
+            val brregClient = mockk<BrregClient>()
+            coEvery { brregClient.getBrregEnhet(Organisasjonsnummer("223442332")) } returns BrregError.NotFound.left()
 
-            val request = listOf(
-                PrismodellRequest(
-                    id = gjennomforing.prismodellId,
-                    type = PrismodellType.ANNEN_AVTALT_PRIS,
-                    satser = emptyList(),
-                    prisbetingelser = null,
+            val arrangorService = ArrangorService(db = database.db, brregClient = brregClient)
+
+            val avtaleService = createAvtaleService(arrangorService = arrangorService)
+
+            val request = AvtaleFixtures.createAvtaleRequest(
+                Tiltakskode.OPPFOLGING,
+                arrangor = DetaljerRequest.Arrangor(
+                    hovedenhet = Organisasjonsnummer("223442332"),
+                    underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                    kontaktpersoner = emptyList(),
                 ),
             )
-
-            avtaleService.upsertPrismodell(avtale.id, request, bertilNavIdent).shouldBeRight()
-
-            verify {
-                gjennomforingPublisher.schedule(
-                    InitialLoadGjennomforinger.Input(avtaleId = avtale.id),
-                    any(),
-                    any(),
-                )
-            }
+            avtaleService.create(request, bertilNavIdent).shouldBeLeft(
+                listOf(
+                    FieldError(
+                        "/arrangorHovedenhet",
+                        "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
+                    ),
+                ),
+            )
         }
+    }
+
+    context("rediger prismodeller") {
+        val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
+        val avtaleService = createAvtaleService(gjennomforingPublisher)
 
         test("endre prismodeller") {
             val avtale = AvtaleFixtures.oppfolging
@@ -227,30 +252,60 @@ class AvtaleServiceTest : FunSpec({
                 .shouldContainExactlyInAnyOrder(FieldError("/prismodeller", "Minst én prismodell er påkrevd"))
         }
 
-        test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {
-            val brregClient = mockk<BrregClient>()
-            coEvery { brregClient.getBrregEnhet(Organisasjonsnummer("223442332")) } returns BrregError.NotFound.left()
+        test("tillater ikke oppretting av forhåndsgodkjente prismodeller") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT),
+            ).initialize(database.db)
 
-            val arrangorService = ArrangorService(db = database.db, brregClient = brregClient)
+            val request = PrismodellRequest(
+                id = UUID.randomUUID(),
+                type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                prisbetingelser = null,
+                satser = listOf(),
+            )
+            val expectedError = FieldError(
+                "/prismodeller",
+                "Prismodell kan ikke opprettes med typen Fast sats per tiltaksplass per måned",
+            )
 
-            val avtaleService = createAvtaleService(arrangorService = arrangorService)
+            avtaleService.upsertPrismodell(AvtaleFixtures.oppfolging.id, listOf(request), bertilNavIdent)
+                .shouldBeLeft()
+                .shouldContain(expectedError)
 
-            val request = AvtaleFixtures.createAvtaleRequest(
-                Tiltakskode.OPPFOLGING,
-                arrangor = DetaljerRequest.Arrangor(
-                    hovedenhet = Organisasjonsnummer("223442332"),
-                    underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                    kontaktpersoner = emptyList(),
+            avtaleService.upsertPrismodell(AvtaleFixtures.AFT.id, listOf(request), bertilNavIdent)
+                .shouldBeLeft()
+                .shouldContain(expectedError)
+        }
+
+        test("skedulerer publisering av gjennomføringer tilhørende avtalen ved endring av prismodell") {
+            val avtale = AvtaleFixtures.oppfolging
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                avtaleId = avtale.id,
+                status = GjennomforingStatusType.GJENNOMFORES,
+            )
+            MulighetsrommetTestDomain(
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            val request = listOf(
+                PrismodellRequest(
+                    id = gjennomforing.prismodellId,
+                    type = PrismodellType.ANNEN_AVTALT_PRIS,
+                    satser = emptyList(),
+                    prisbetingelser = null,
                 ),
             )
-            avtaleService.create(request, bertilNavIdent).shouldBeLeft(
-                listOf(
-                    FieldError(
-                        "/arrangorHovedenhet",
-                        "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                    ),
-                ),
-            )
+
+            avtaleService.upsertPrismodell(avtale.id, request, bertilNavIdent).shouldBeRight()
+
+            verify {
+                gjennomforingPublisher.schedule(
+                    InitialLoadGjennomforinger.Input(avtaleId = avtale.id),
+                    any(),
+                    any(),
+                )
+            }
         }
     }
 

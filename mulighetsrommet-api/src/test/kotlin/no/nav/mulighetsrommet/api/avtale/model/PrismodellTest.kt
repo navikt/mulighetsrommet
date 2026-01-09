@@ -7,14 +7,8 @@ import java.time.LocalDate
 class PrismodellTest : FunSpec({
     context("findSats") {
         test("rekkefølge på satser har ikke noe å si") {
-            val sats2024 = AvtaltSats(
-                gjelderFra = LocalDate.of(2024, 1, 1),
-                sats = 1,
-            )
-            val sats2025 = AvtaltSats(
-                gjelderFra = LocalDate.of(2025, 1, 1),
-                sats = 2,
-            )
+            val sats2024 = AvtaltSats(LocalDate.of(2024, 1, 1), 1, ValutaType.NOK)
+            val sats2025 = AvtaltSats(LocalDate.of(2025, 1, 1), 2, ValutaType.NOK)
             listOf(sats2024, sats2025).findSats(
                 LocalDate.of(2025, 5, 5),
             ) shouldBe 2

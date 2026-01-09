@@ -25,14 +25,8 @@ object PrismodellFixtures {
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         prisbetingelser = null,
         satser = listOf(
-            AvtaltSats(
-                gjelderFra = LocalDate.of(2025, 1, 1),
-                sats = 20_975,
-            ),
-            AvtaltSats(
-                gjelderFra = LocalDate.of(2026, 1, 1),
-                sats = 21_730,
-            ),
+            AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, ValutaType.NOK),
+            AvtaltSats(LocalDate.of(2026, 1, 1), 21_730, ValutaType.NOK),
         ),
     )
 
@@ -41,20 +35,14 @@ object PrismodellFixtures {
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         prisbetingelser = null,
         satser = listOf(
-            AvtaltSats(
-                gjelderFra = LocalDate.of(2025, 1, 1),
-                sats = 16_848,
-            ),
-            AvtaltSats(
-                gjelderFra = LocalDate.of(2026, 1, 1),
-                sats = 17_455,
-            ),
+            AvtaltSats(LocalDate.of(2025, 1, 1), 16_848, ValutaType.NOK),
+            AvtaltSats(LocalDate.of(2026, 1, 1), 17_455, ValutaType.NOK),
         ),
     )
 
     val AvtaltPrisPerTimeOppfolging = createPrismodellDbo(
         type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-        satser = listOf(AvtaltSats(gjelderFra = LocalDate.of(2023, 1, 1), sats = 1234, ValutaType.NOK)),
+        satser = listOf(AvtaltSats(LocalDate.of(2023, 1, 1), 1234, ValutaType.NOK)),
     )
 
     val AnnenAvtaltPris = createPrismodellDbo()

@@ -87,17 +87,25 @@ class AvtaleService(
             )
             .bind()
 
-        val upsertPrismodellContext = ValidatePrismodellContext(
+        val createPrismodellContext = ValidatePrismodellContext(
             tiltakskode = request.detaljer.tiltakskode,
             tiltakstypeNavn = createAvtaleContext.tiltakstype.navn,
             avtaleStartDato = request.detaljer.startDato,
             gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
             bruktePrismodeller = setOf(),
         )
-        val prismodeller = AvtaleValidator.validatePrismodell(request.prismodeller, upsertPrismodellContext).bind()
+        val prismodeller = AvtaleValidator.validatePrismodell(request.prismodeller, createPrismodellContext).bind()
 
         db.transaction {
-            prismodeller.forEach { queries.prismodell.upsertPrismodell(it) }
+            prismodeller.forEach { prismodell ->
+                // TODO: fiks lagring av riktig forhåndsgodkjent prismodell
+                //  - Ikke inkluder prismodeller i request for forhåjndsgodkjente tiltak
+                //  - Utled "magisk" prismodell for forhåndsgodkjente tiltak i service
+                if (prismodell.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+                    queries.prismodell.upsertPrismodell(prismodell)
+                }
+            }
+
             queries.avtale.create(avtaleDbo)
 
             dispatchNotificationToNewAdministrators(
@@ -219,7 +227,7 @@ class AvtaleService(
             bruktePrismodeller = gjennomforinger.mapNotNull { it.prismodell?.id }.toSet(),
         )
 
-        AvtaleValidator.validatePrismodell(request, context).map { prismodeller ->
+        AvtaleValidator.validateUpsertPrismodeller(request, context).map { prismodeller ->
             prismodeller.forEach { prismodell ->
                 queries.prismodell.upsertPrismodell(prismodell)
                 queries.avtale.upsertPrismodell(id, prismodell.id)
