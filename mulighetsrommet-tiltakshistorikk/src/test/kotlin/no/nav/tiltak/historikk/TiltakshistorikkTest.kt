@@ -153,6 +153,7 @@ class TiltakshistorikkTest : FunSpec({
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = ARENA_ARBEIDSTRENING_ID,
+                        arenaId = 1,
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2023, 1, 31),
@@ -176,6 +177,7 @@ class TiltakshistorikkTest : FunSpec({
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = UUID.fromString("4bf76cc3-ade9-45ef-b22b-5c4d3ceee185"),
+                        arenaId = 2,
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
@@ -199,6 +201,7 @@ class TiltakshistorikkTest : FunSpec({
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = ARENA_ENKEL_AMO_ID,
+                        arenaId = 3,
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
@@ -382,6 +385,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     val arbeidstrening = TiltakshistorikkArenaDeltaker(
         id = ARENA_ARBEIDSTRENING_ID,
         arenaGjennomforingId = arenaArbeidstrening.id,
+        arenaDeltakerId = 1,
         norskIdent = NorskIdent("12345678910"),
         status = ArenaDeltakerStatus.GJENNOMFORES,
         startDato = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
@@ -401,6 +405,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     val mentor = TiltakshistorikkArenaDeltaker(
         id = ARENA_MENTOR_ID,
         arenaGjennomforingId = arenaMentor.id,
+        arenaDeltakerId = 2,
         norskIdent = NorskIdent("12345678910"),
         status = ArenaDeltakerStatus.GJENNOMFORES,
         startDato = LocalDateTime.of(2024, 2, 1, 0, 0, 0),
@@ -421,6 +426,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     val enkeltAMO = TiltakshistorikkArenaDeltaker(
         id = ARENA_ENKEL_AMO_ID,
         arenaGjennomforingId = arenaAmo.id,
+        arenaDeltakerId = 3,
         norskIdent = NorskIdent("12345678910"),
         status = ArenaDeltakerStatus.GJENNOMFORES,
         startDato = LocalDateTime.of(2024, 2, 1, 0, 0, 0),

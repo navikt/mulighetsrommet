@@ -21,6 +21,7 @@ class ArenaDeltakerQueries(private val session: Session) {
             insert into arena_deltaker (id,
                                         norsk_ident,
                                         arena_gjennomforing_id,
+                                        arena_deltaker_id,
                                         status,
                                         start_dato,
                                         slutt_dato,
@@ -31,6 +32,7 @@ class ArenaDeltakerQueries(private val session: Session) {
             values (:id::uuid,
                     :norsk_ident,
                     :arena_gjennomforing_id,
+                    :arena_deltaker_id,
                     :status::arena_deltaker_status,
                     :start_dato,
                     :slutt_dato,
@@ -40,6 +42,7 @@ class ArenaDeltakerQueries(private val session: Session) {
                     :deltidsprosent)
             on conflict (id) do update set norsk_ident                  = excluded.norsk_ident,
                                            arena_gjennomforing_id       = excluded.arena_gjennomforing_id,
+                                           arena_deltaker_id            = excluded.arena_deltaker_id,
                                            status                       = excluded.status,
                                            start_dato                   = excluded.start_dato,
                                            slutt_dato                   = excluded.slutt_dato,
@@ -53,6 +56,7 @@ class ArenaDeltakerQueries(private val session: Session) {
         val params = mapOf(
             "id" to deltaker.id,
             "arena_gjennomforing_id" to deltaker.arenaGjennomforingId,
+            "arena_deltaker_id" to deltaker.arenaDeltakerId,
             "norsk_ident" to deltaker.norskIdent.value,
             "status" to deltaker.status.name,
             "start_dato" to deltaker.startDato,
@@ -74,6 +78,7 @@ class ArenaDeltakerQueries(private val session: Session) {
         val query = """
                 select
                     deltaker.id,
+                    deltaker.arena_deltaker_id,
                     deltaker.norsk_ident,
                     deltaker.status,
                     deltaker.start_dato,
@@ -138,6 +143,7 @@ private fun Row.toArenaDeltakelse(): TiltakshistorikkV1Dto.ArenaDeltakelse {
     return TiltakshistorikkV1Dto.ArenaDeltakelse(
         norskIdent = NorskIdent(string("norsk_ident")),
         id = uuid("id"),
+        arenaId = intOrNull("arena_deltaker_id"),
         status = ArenaDeltakerStatus.valueOf(string("status")),
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
