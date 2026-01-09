@@ -78,10 +78,10 @@ class GenererUtbetalingServiceTest : FunSpec({
         config = GenererUtbetalingService.Config(gyldigTilsagnPeriode, tidligstTidspunktForUtbetaling),
         db = database.db,
         prismodeller = setOf(
-            FastSatsPerTiltaksplassPerManedBeregning(database.db),
-            PrisPerManedBeregning(database.db),
-            PrisPerUkeBeregning(database.db),
-            PrisPerHeleUkeBeregning(database.db),
+            FastSatsPerTiltaksplassPerManedBeregning,
+            PrisPerManedBeregning,
+            PrisPerUkeBeregning,
+            PrisPerHeleUkeBeregning,
         ),
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
     )

@@ -2,22 +2,17 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
-import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.UUID
 
 class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
-    // beregn() doesn't use the database, so we can use a mock
-    val beregning = PrisPerHeleUkeBeregning(mockk<ApiDatabase>())
-
     context("beregning for pris per hele ukesverk") {
         test("5 uker beregnes i januar 2025") {
             val periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
             val deltakerId1 = UUID.randomUUID()
 
-            beregning.beregn(
+            PrisPerHeleUkeBeregning.beregn(
                 UtbetalingBeregningPrisPerHeleUkesverk.Input(
                     satser = setOf(SatsPeriode(periode, 50)),
                     stengt = setOf(),
@@ -47,7 +42,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             val deltakelseId4 = UUID.randomUUID()
             val deltakelseId5 = UUID.randomUUID()
 
-            val result = beregning.beregn(
+            val result = PrisPerHeleUkeBeregning.beregn(
                 UtbetalingBeregningPrisPerHeleUkesverk.Input(
                     satser = setOf(SatsPeriode(Periode.forYear(2024), 10), SatsPeriode(Periode.forYear(2025), 50)),
                     stengt = setOf(),
@@ -139,7 +134,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
 
             val periode = Periode(mandag, lordag)
 
-            beregning.beregn(
+            PrisPerHeleUkeBeregning.beregn(
                 UtbetalingBeregningPrisPerHeleUkesverk.Input(
                     satser = setOf(SatsPeriode(periode, 10)),
                     stengt = setOf(StengtPeriode(Periode(mandag, fredag), "Stengt")),

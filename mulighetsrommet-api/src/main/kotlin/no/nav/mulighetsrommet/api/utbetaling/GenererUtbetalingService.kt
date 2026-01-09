@@ -185,7 +185,9 @@ class GenererUtbetalingService(
             return null
         }
 
-        return prismodell.calculate(gjennomforing, periode).takeIf { it.output.belop > 0 }?.let {
+        val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
+
+        return prismodell.calculate(gjennomforing, deltakere, periode).takeIf { it.output.belop > 0 }?.let {
             createUtbetaling(
                 utbetalingId = utbetalingId,
                 gjennomforing = gjennomforing,

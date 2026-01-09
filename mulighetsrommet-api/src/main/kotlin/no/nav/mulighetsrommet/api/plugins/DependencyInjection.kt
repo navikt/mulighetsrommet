@@ -408,10 +408,10 @@ private fun services(appConfig: AppConfig) = module {
             ),
             db = db,
             prismodeller = setOf(
-                FastSatsPerTiltaksplassPerManedBeregning(db),
-                PrisPerManedBeregning(db),
-                PrisPerUkeBeregning(db),
-                PrisPerHeleUkeBeregning(db),
+                FastSatsPerTiltaksplassPerManedBeregning,
+                PrisPerManedBeregning,
+                PrisPerUkeBeregning,
+                PrisPerHeleUkeBeregning,
             ),
             get(),
         )

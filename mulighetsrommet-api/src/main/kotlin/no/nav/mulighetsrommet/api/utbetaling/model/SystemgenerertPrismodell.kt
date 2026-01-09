@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
-import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper
@@ -9,7 +7,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.DayOfWeek
 import java.time.temporal.TemporalAdjusters
-import java.util.UUID
 
 data class UtbetalingGenereringContext(
     val prismodellType: PrismodellType,
@@ -24,19 +21,17 @@ interface SystemgenerertPrismodell<
 
     fun genereringContext(periode: Periode): UtbetalingGenereringContext
 
-    fun resolveInput(gjennomforing: GjennomforingGruppetiltak, periode: Periode): I
-
-    fun beregn(input: I): B
-
-    fun calculate(gjennomforing: GjennomforingGruppetiltak, periode: Periode): B {
-        val input = resolveInput(gjennomforing, periode)
+    fun calculate(gjennomforing: GjennomforingGruppetiltak, deltakere: List<Deltaker>, periode: Periode): B {
+        val input = resolveInput(gjennomforing, deltakere, periode)
         return beregn(input)
     }
+
+    fun resolveInput(gjennomforing: GjennomforingGruppetiltak, deltakere: List<Deltaker>, periode: Periode): I
+
+    fun beregn(input: I): B
 }
 
-class FastSatsPerTiltaksplassPerManedBeregning(
-    private val db: ApiDatabase,
-) : SystemgenerertPrismodell<
+object FastSatsPerTiltaksplassPerManedBeregning : SystemgenerertPrismodell<
     UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input,
     > {
@@ -48,11 +43,12 @@ class FastSatsPerTiltaksplassPerManedBeregning(
 
     override fun resolveInput(
         gjennomforing: GjennomforingGruppetiltak,
+        deltakere: List<Deltaker>,
         periode: Periode,
-    ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input = db.session {
+    ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(gjennomforing.id, periode)
+        val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(deltakere, periode)
         return UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
             satser = satser,
             stengt = stengtHosArrangor,
@@ -84,9 +80,7 @@ class FastSatsPerTiltaksplassPerManedBeregning(
     }
 }
 
-class PrisPerManedBeregning(
-    private val db: ApiDatabase,
-) : SystemgenerertPrismodell<
+object PrisPerManedBeregning : SystemgenerertPrismodell<
     UtbetalingBeregningPrisPerManedsverk,
     UtbetalingBeregningPrisPerManedsverk.Input,
     > {
@@ -98,11 +92,12 @@ class PrisPerManedBeregning(
 
     override fun resolveInput(
         gjennomforing: GjennomforingGruppetiltak,
+        deltakere: List<Deltaker>,
         periode: Periode,
-    ): UtbetalingBeregningPrisPerManedsverk.Input = db.session {
+    ): UtbetalingBeregningPrisPerManedsverk.Input {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
+        val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
         return UtbetalingBeregningPrisPerManedsverk.Input(
             satser = satser,
             stengt = stengtHosArrangor,
@@ -134,9 +129,7 @@ class PrisPerManedBeregning(
     }
 }
 
-class PrisPerHeleUkeBeregning(
-    private val db: ApiDatabase,
-) : SystemgenerertPrismodell<
+object PrisPerHeleUkeBeregning : SystemgenerertPrismodell<
     UtbetalingBeregningPrisPerHeleUkesverk,
     UtbetalingBeregningPrisPerHeleUkesverk.Input,
     > {
@@ -148,11 +141,12 @@ class PrisPerHeleUkeBeregning(
 
     override fun resolveInput(
         gjennomforing: GjennomforingGruppetiltak,
+        deltakere: List<Deltaker>,
         periode: Periode,
-    ): UtbetalingBeregningPrisPerHeleUkesverk.Input = db.session {
+    ): UtbetalingBeregningPrisPerHeleUkesverk.Input {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
+        val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
         return UtbetalingBeregningPrisPerHeleUkesverk.Input(
             satser = satser,
             stengt = stengtHosArrangor,
@@ -184,9 +178,7 @@ class PrisPerHeleUkeBeregning(
     }
 }
 
-class PrisPerUkeBeregning(
-    private val db: ApiDatabase,
-) : SystemgenerertPrismodell<
+object PrisPerUkeBeregning : SystemgenerertPrismodell<
     UtbetalingBeregningPrisPerUkesverk,
     UtbetalingBeregningPrisPerUkesverk.Input,
     > {
@@ -198,11 +190,12 @@ class PrisPerUkeBeregning(
 
     override fun resolveInput(
         gjennomforing: GjennomforingGruppetiltak,
+        deltakere: List<Deltaker>,
         periode: Periode,
-    ): UtbetalingBeregningPrisPerUkesverk.Input = db.session {
+    ): UtbetalingBeregningPrisPerUkesverk.Input {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
+        val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
         return UtbetalingBeregningPrisPerUkesverk.Input(
             satser = satser,
             stengt = stengtHosArrangor,
@@ -247,20 +240,18 @@ private fun resolveStengtHosArrangor(
         .toSet()
 }
 
-private fun QueryContext.resolveDeltakelserPerioderMedDeltakelsesmengder(
-    gjennomforingId: UUID,
+private fun resolveDeltakelserPerioderMedDeltakelsesmengder(
+    deltakere: List<Deltaker>,
     periode: Periode,
 ): Set<DeltakelseDeltakelsesprosentPerioder> {
-    return queries.deltaker.getByGjennomforingId(gjennomforingId)
-        .asSequence()
+    return deltakere
         .mapNotNull { deltaker ->
-            UtbetalingInputHelper.toDeltakelsePeriode(deltaker, periode)
-        }
-        .map { (deltakelseId, deltakelsePeriode) ->
-            val deltakelsesmengder = queries.deltaker.getDeltakelsesmengder(deltakelseId)
+            val (deltakelseId, deltakelsePeriode) = UtbetalingInputHelper.toDeltakelsePeriode(deltaker, periode)
+                ?: return@mapNotNull null
 
-            val perioder = deltakelsesmengder.mapIndexedNotNull { index, mengde ->
-                val gyldigTil = deltakelsesmengder.getOrNull(index + 1)?.gyldigFra ?: deltakelsePeriode.slutt
+            val perioder = deltaker.deltakelsesmengder.windowed(2, partialWindows = true).mapNotNull { window ->
+                val mengde = window[0]
+                val gyldigTil = window.getOrNull(1)?.gyldigFra ?: deltakelsePeriode.slutt
 
                 Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
                     DeltakelsesprosentPeriode(
@@ -269,7 +260,6 @@ private fun QueryContext.resolveDeltakelserPerioderMedDeltakelsesmengder(
                     )
                 }
             }
-
             check(perioder.isNotEmpty()) {
                 "Deltaker id=$deltakelseId er relevant for utbetaling, men mangler deltakelsesmengder innenfor perioden=$periode"
             }
@@ -279,11 +269,10 @@ private fun QueryContext.resolveDeltakelserPerioderMedDeltakelsesmengder(
         .toSet()
 }
 
-private fun QueryContext.resolveDeltakelsePerioder(
-    gjennomforingId: UUID,
+private fun resolveDeltakelsePerioder(
+    deltakere: List<Deltaker>,
     periode: Periode,
 ): Set<DeltakelsePeriode> {
-    val deltakere = queries.deltaker.getByGjennomforingId(gjennomforingId)
     return UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
 }
 

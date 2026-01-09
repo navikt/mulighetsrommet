@@ -4,15 +4,11 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
-import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.UUID
 
 class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
-    // beregn() doesn't use the database, so we can use a mock
-    val beregning = PrisPerUkeBeregning(mockk<ApiDatabase>())
 
     context("beregning for pris per ukesverk") {
         test("beløp beregnes fra ukesverk til deltakere og sats") {
@@ -99,7 +95,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                 val satser = setOf(SatsPeriode(Periode(periodeStart, periodeSlutt), 50))
                 val input = UtbetalingBeregningPrisPerUkesverk.Input(satser, setOf(), deltakelser)
 
-                val result = beregning.beregn(input)
+                val result = PrisPerUkeBeregning.beregn(input)
 
                 result.output shouldBe expectedBeregning
             }
@@ -188,7 +184,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                 val satser = setOf(SatsPeriode(Periode(periodeStart, periodeSlutt), 50))
                 val input = UtbetalingBeregningPrisPerUkesverk.Input(satser, stengt, deltakelser)
 
-                val result = beregning.beregn(input)
+                val result = PrisPerUkeBeregning.beregn(input)
 
                 result.output shouldBe expectedBeregning
             }
@@ -210,7 +206,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                 ),
             )
 
-            val result = beregning.beregn(input)
+            val result = PrisPerUkeBeregning.beregn(input)
             result.output shouldBe UtbetalingBeregningPrisPerUkesverk.Output(
                 belop = 60,
                 deltakelser = setOf(
