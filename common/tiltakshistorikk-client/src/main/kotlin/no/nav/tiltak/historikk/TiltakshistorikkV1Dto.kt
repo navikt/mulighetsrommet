@@ -20,7 +20,8 @@ sealed class TiltakshistorikkV1Dto {
     /**
      * Id på deltakelse fra kildesystemet.
      *
-     * MERK: Hvis kildesystemet er Arena så vil dette være en id som kun er kjent i `tiltakshistorikk`.
+     * MERK: Hvis kildesystemet er Arena så vil dette være en id som kun er kjent i `tiltakshistorikk`,
+     * id fra Arena er tilgjengelig i feltet [TiltakshistorikkV1Dto.ArenaDeltakelse.arenaId].
      */
     abstract val id: UUID
 
@@ -118,6 +119,7 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val tittel: String,
+        val arenaId: Int?,
         val status: ArenaDeltakerStatus,
         val tiltakstype: Tiltakstype,
         val gjennomforing: Gjennomforing,
@@ -238,6 +240,7 @@ data class TiltakshistorikkArenaDeltaker(
     val arenaModDato: LocalDateTime,
     @Serializable(with = UUIDSerializer::class)
     val arenaGjennomforingId: UUID,
+    val arenaDeltakerId: Int,
     val norskIdent: NorskIdent,
     val status: ArenaDeltakerStatus,
     @Serializable(with = LocalDateTimeSerializer::class)

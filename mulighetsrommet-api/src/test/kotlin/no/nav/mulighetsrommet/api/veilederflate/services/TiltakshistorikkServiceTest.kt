@@ -99,6 +99,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     val tiltakshistorikkIps = TiltakshistorikkV1Dto.ArenaDeltakelse(
         id = UUID.randomUUID(),
+        arenaId = 1,
         norskIdent = NorskIdent("12345678910"),
         status = ArenaDeltakerStatus.VENTELISTE,
         startDato = LocalDate.of(2018, 12, 3),
@@ -433,6 +434,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     context("enkeltplasser fra Komet") {
         val tiltakshistorikkEnkelAmo = TiltakshistorikkV1Dto.ArenaDeltakelse(
             id = UUID.randomUUID(),
+            arenaId = 1,
             norskIdent = NorskIdent("12345678910"),
             status = ArenaDeltakerStatus.VENTELISTE,
             startDato = LocalDate.of(2018, 12, 3),

@@ -85,6 +85,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         val arbeidstreningArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
             arenaGjennomforingId = arenaArbeidstrening.id,
+            arenaDeltakerId = 1,
             norskIdent = NorskIdent("12345678910"),
             status = ArenaDeltakerStatus.GJENNOMFORES,
             startDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
@@ -99,6 +100,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         val mentorArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
             arenaGjennomforingId = arenaMentor.id,
+            arenaDeltakerId = 2,
             norskIdent = NorskIdent("12345678910"),
             status = ArenaDeltakerStatus.GJENNOMFORES,
             startDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
@@ -138,6 +140,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                 ) shouldContainExactlyInAnyOrder listOf(
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         id = mentorArenaDeltakelse.id,
+                        arenaId = 2,
                         norskIdent = NorskIdent("12345678910"),
                         startDato = LocalDate.of(2002, 2, 1),
                         sluttDato = LocalDate.of(2002, 2, 1),
@@ -161,6 +164,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     ),
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         id = arbeidstreningArenaDeltakelse.id,
+                        arenaId = 1,
                         norskIdent = NorskIdent("12345678910"),
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 1, 1),
@@ -192,6 +196,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                 ) shouldBe listOf(
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         id = arbeidstreningArenaDeltakelse.id,
+                        arenaId = 1,
                         norskIdent = NorskIdent("12345678910"),
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 1, 1),
@@ -228,6 +233,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             val mentorArenaDeltakelseUtenSlutt = TiltakshistorikkArenaDeltaker(
                 id = UUID.randomUUID(),
                 arenaGjennomforingId = arenaMentor.id,
+                arenaDeltakerId = 3,
                 norskIdent = NorskIdent("12345678910"),
                 status = ArenaDeltakerStatus.GJENNOMFORES,
                 startDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
@@ -264,6 +270,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                 val deltaker1 = TiltakshistorikkArenaDeltaker(
                     id = UUID.randomUUID(),
                     arenaGjennomforingId = arenaArbeidstrening.id,
+                    arenaDeltakerId = 4,
                     norskIdent = NorskIdent("11111111111"),
                     status = ArenaDeltakerStatus.GJENNOMFORES,
                     startDato = LocalDateTime.of(2020, 1, 1, 0, 0, 0),
@@ -277,6 +284,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                 val deltaker2 = TiltakshistorikkArenaDeltaker(
                     id = UUID.randomUUID(),
                     arenaGjennomforingId = arenaMentor.id,
+                    arenaDeltakerId = 5,
                     norskIdent = NorskIdent("22222222222"),
                     status = ArenaDeltakerStatus.DELTAKELSE_AVBRUTT,
                     startDato = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
