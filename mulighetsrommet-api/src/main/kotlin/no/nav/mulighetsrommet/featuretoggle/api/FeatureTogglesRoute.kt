@@ -16,17 +16,7 @@ import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.koin.ktor.ext.inject
-import java.lang.Long
 import java.util.UUID
-import kotlin.Boolean
-import kotlin.String
-import kotlin.collections.List
-import kotlin.collections.emptyList
-import kotlin.collections.filter
-import kotlin.collections.map
-import kotlin.collections.setOf
-import kotlin.getValue
-import kotlin.text.isNotBlank
 
 fun Route.featureTogglesRoute() {
     val features: FeatureToggleService by inject()
@@ -78,7 +68,7 @@ fun Route.featureTogglesRoute() {
 fun ApplicationCall.generateUnleashSessionId(): String {
     val uuid = UUID.randomUUID()
     val sessionId =
-        Long.toHexString(uuid.mostSignificantBits) + Long.toHexString(uuid.leastSignificantBits)
+        java.lang.Long.toHexString(uuid.mostSignificantBits) + java.lang.Long.toHexString(uuid.leastSignificantBits)
     val cookie = Cookie(name = "UNLEASH_SESSION_ID", value = sessionId, path = "/", maxAge = -1)
     this.response.cookies.append(cookie)
     return sessionId
