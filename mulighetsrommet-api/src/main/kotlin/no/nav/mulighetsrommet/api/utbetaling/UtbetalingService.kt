@@ -378,7 +378,7 @@ class UtbetalingService(
         fakturanummer: String,
         nyStatus: FakturaStatusType,
         fakturaStatusSistOppdatert: LocalDateTime?,
-    ) = db.transaction {
+    ): Unit = db.transaction {
         val originalDelutbetaling = queries.delutbetaling.getOrError(fakturanummer)
         if (originalDelutbetaling.faktura.statusSistOppdatert != null &&
             fakturaStatusSistOppdatert != null &&
