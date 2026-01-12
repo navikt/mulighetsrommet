@@ -283,6 +283,17 @@ class ArrangorflateService(
         if (utbetaling.status != UtbetalingStatusType.AVBRUTT) {
             return false to null
         }
+        when (utbetaling.beregning) {
+            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+            is UtbetalingBeregningPrisPerHeleUkesverk,
+            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerUkesverk,
+            -> Unit
+
+            is UtbetalingBeregningPrisPerTimeOppfolging,
+            is UtbetalingBeregningFri,
+            -> false to null
+        }
 
         val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(utbetaling.gjennomforing.id)
             .filter { it.periode == utbetaling.periode }
