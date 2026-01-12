@@ -18,17 +18,17 @@
     "@navikt/aksel-icons": "7.36.0",
     "@navikt/ds-css": "7.36.0",
     "@navikt/ds-react": "7.36.0",
-    "@tanstack/react-query": "5.90.15",
+    "@tanstack/react-query": "5.90.16",
     "classnames": "2.5.1",
     "date-fns": "4.1.0",
     "date-fns-tz": "^3.2.0",
     "react": "19.0.3",
     "react-dom": "19.0.3",
-    "react-error-boundary": "6.0.1",
-    "react-hook-form": "7.69.0",
+    "react-error-boundary": "6.0.2",
+    "react-hook-form": "7.70.0",
     "react-router": "7.11.0",
     "react-select": "5.10.2",
-    "zod": "4.2.1"
+    "zod": "4.3.5"
   },
   "devDependencies": {
     "@mr/eslint-config-react-app": "workspace:*",
