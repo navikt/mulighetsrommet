@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit
 class GenererUtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
-    private val prismodeller: Set<SystemgenerertPrismodell<*, *>>,
+    private val prismodeller: Set<SystemgenerertPrismodell<*>>,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
@@ -180,7 +180,7 @@ class GenererUtbetalingService(
         val type = gjennomforing.prismodell?.type
             ?: throw IllegalStateException("Gjennomføring med id=${gjennomforing.id} mangler prismodell")
 
-        val prismodell = prismodeller.singleOrNull { it.genereringContext(periode).prismodellType == type } ?: run {
+        val prismodell = prismodeller.singleOrNull { it.prismodellType == type } ?: run {
             log.info("Genererer ikke utbetaling for gjennomføring=${gjennomforing.id} fordi prismodellen ikke er støttet type=$type")
             return null
         }

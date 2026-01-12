@@ -14,216 +14,152 @@ data class UtbetalingGenereringContext(
     val periode: Periode,
 )
 
-interface SystemgenerertPrismodell<
-    B : UtbetalingBeregning,
-    I : UtbetalingBeregningInput,
-    > {
+interface SystemgenerertPrismodell<B : UtbetalingBeregning> {
+    val prismodellType: PrismodellType
 
     fun genereringContext(periode: Periode): UtbetalingGenereringContext
 
-    fun calculate(gjennomforing: GjennomforingGruppetiltak, deltakere: List<Deltaker>, periode: Periode): B {
-        val input = resolveInput(gjennomforing, deltakere, periode)
-        return beregn(input)
-    }
-
-    fun resolveInput(gjennomforing: GjennomforingGruppetiltak, deltakere: List<Deltaker>, periode: Periode): I
-
-    fun beregn(input: I): B
+    fun calculate(gjennomforing: GjennomforingGruppetiltak, deltakere: List<Deltaker>, periode: Periode): B
 }
 
-object FastSatsPerTiltaksplassPerManedBeregning : SystemgenerertPrismodell<
-    UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-    UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input,
-    > {
+object FastSatsPerTiltaksplassPerManedBeregning :
+    SystemgenerertPrismodell<UtbetalingBeregningFastSatsPerTiltaksplassPerManed> {
+    override val prismodellType = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+
     override fun genereringContext(periode: Periode) = UtbetalingGenereringContext(
-        prismodellType = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        prismodellType = prismodellType,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         periode = periode,
     )
 
-    override fun resolveInput(
+    override fun calculate(
         gjennomforing: GjennomforingGruppetiltak,
         deltakere: List<Deltaker>,
         periode: Periode,
-    ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input {
+    ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(deltakere, periode)
-        return UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-            satser = satser,
-            stengt = stengtHosArrangor,
-            deltakelser = deltakelser,
-        )
-    }
-
-    override fun beregn(
-        input: UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input,
-    ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed {
-        val stengtHosArrangor = input.stengt.map { it.periode }
+        val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengtHosArrangor, deltakelser)
 
         val manedsverk = input.deltakelser
             .map { deltakelse ->
                 UtbetalingBeregningHelpers.calculateDeltakelseManedsverkForDeltakelsesprosent(
                     deltakelse,
                     input.satser,
-                    stengtHosArrangor,
+                    stengtHosArrangor.map { it.periode },
                 )
             }
             .toSet()
-
         val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(manedsverk)
+        val output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(belop, manedsverk)
 
-        return UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-            input,
-            UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(belop, manedsverk),
-        )
+        return UtbetalingBeregningFastSatsPerTiltaksplassPerManed(input, output)
     }
 }
 
-object PrisPerManedBeregning : SystemgenerertPrismodell<
-    UtbetalingBeregningPrisPerManedsverk,
-    UtbetalingBeregningPrisPerManedsverk.Input,
-    > {
+object PrisPerManedBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPerManedsverk> {
+    override val prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK
+
     override fun genereringContext(periode: Periode) = UtbetalingGenereringContext(
-        prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+        prismodellType = prismodellType,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         periode = periode,
     )
 
-    override fun resolveInput(
+    override fun calculate(
         gjennomforing: GjennomforingGruppetiltak,
         deltakere: List<Deltaker>,
         periode: Periode,
-    ): UtbetalingBeregningPrisPerManedsverk.Input {
+    ): UtbetalingBeregningPrisPerManedsverk {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
-        return UtbetalingBeregningPrisPerManedsverk.Input(
-            satser = satser,
-            stengt = stengtHosArrangor,
-            deltakelser = deltakelser,
-        )
-    }
-
-    override fun beregn(
-        input: UtbetalingBeregningPrisPerManedsverk.Input,
-    ): UtbetalingBeregningPrisPerManedsverk {
-        val stengtHosArrangor = input.stengt.map { it.periode }
+        val input = UtbetalingBeregningPrisPerManedsverk.Input(satser, stengtHosArrangor, deltakelser)
 
         val manedsverk = input.deltakelser
             .map { deltakelse ->
                 UtbetalingBeregningHelpers.calculateDeltakelseManedsverk(
                     deltakelse,
                     input.satser,
-                    stengtHosArrangor,
+                    stengtHosArrangor.map { it.periode },
                 )
             }
             .toSet()
-
         val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(manedsverk)
+        val output = UtbetalingBeregningPrisPerManedsverk.Output(belop, manedsverk)
 
-        return UtbetalingBeregningPrisPerManedsverk(
-            input,
-            UtbetalingBeregningPrisPerManedsverk.Output(belop, manedsverk),
-        )
+        return UtbetalingBeregningPrisPerManedsverk(input, output)
     }
 }
 
-object PrisPerHeleUkeBeregning : SystemgenerertPrismodell<
-    UtbetalingBeregningPrisPerHeleUkesverk,
-    UtbetalingBeregningPrisPerHeleUkesverk.Input,
-    > {
+object PrisPerHeleUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPerHeleUkesverk> {
+    override val prismodellType = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK
+
     override fun genereringContext(periode: Periode) = UtbetalingGenereringContext(
-        prismodellType = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+        prismodellType = prismodellType,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         periode = heleUkerPeriode(periode),
     )
 
-    override fun resolveInput(
+    override fun calculate(
         gjennomforing: GjennomforingGruppetiltak,
         deltakere: List<Deltaker>,
         periode: Periode,
-    ): UtbetalingBeregningPrisPerHeleUkesverk.Input {
+    ): UtbetalingBeregningPrisPerHeleUkesverk {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
-        return UtbetalingBeregningPrisPerHeleUkesverk.Input(
-            satser = satser,
-            stengt = stengtHosArrangor,
-            deltakelser = deltakelser,
-        )
-    }
-
-    override fun beregn(
-        input: UtbetalingBeregningPrisPerHeleUkesverk.Input,
-    ): UtbetalingBeregningPrisPerHeleUkesverk {
-        val stengtHosArrangor = input.stengt.map { it.periode }
+        val input = UtbetalingBeregningPrisPerHeleUkesverk.Input(satser, stengtHosArrangor, deltakelser)
 
         val ukesverk = input.deltakelser
             .map { deltakelse ->
                 UtbetalingBeregningHelpers.calculateDeltakelseHeleUkesverk(
                     deltakelse,
                     input.satser,
-                    stengtHosArrangor,
+                    stengtHosArrangor.map { it.periode },
                 )
             }
             .toSet()
-
         val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(ukesverk)
+        val output = UtbetalingBeregningPrisPerHeleUkesverk.Output(belop, ukesverk)
 
-        return UtbetalingBeregningPrisPerHeleUkesverk(
-            input,
-            UtbetalingBeregningPrisPerHeleUkesverk.Output(belop, ukesverk),
-        )
+        return UtbetalingBeregningPrisPerHeleUkesverk(input, output)
     }
 }
 
-object PrisPerUkeBeregning : SystemgenerertPrismodell<
-    UtbetalingBeregningPrisPerUkesverk,
-    UtbetalingBeregningPrisPerUkesverk.Input,
-    > {
+object PrisPerUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPerUkesverk> {
+    override val prismodellType = PrismodellType.AVTALT_PRIS_PER_UKESVERK
+
     override fun genereringContext(periode: Periode) = UtbetalingGenereringContext(
-        prismodellType = PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+        prismodellType = prismodellType,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         periode = periode,
     )
 
-    override fun resolveInput(
+    override fun calculate(
         gjennomforing: GjennomforingGruppetiltak,
         deltakere: List<Deltaker>,
         periode: Periode,
-    ): UtbetalingBeregningPrisPerUkesverk.Input {
+    ): UtbetalingBeregningPrisPerUkesverk {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
-        return UtbetalingBeregningPrisPerUkesverk.Input(
-            satser = satser,
-            stengt = stengtHosArrangor,
-            deltakelser = deltakelser,
-        )
-    }
-
-    override fun beregn(
-        input: UtbetalingBeregningPrisPerUkesverk.Input,
-    ): UtbetalingBeregningPrisPerUkesverk {
-        val stengtHosArrangor = input.stengt.map { it.periode }
+        val input = UtbetalingBeregningPrisPerUkesverk.Input(satser, stengtHosArrangor, deltakelser)
 
         val ukesverk = input.deltakelser
             .map { deltakelse ->
                 UtbetalingBeregningHelpers.calculateDeltakelseUkesverk(
                     deltakelse,
                     input.satser,
-                    stengtHosArrangor,
+                    stengtHosArrangor.map { it.periode },
                 )
             }
             .toSet()
-
         val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(ukesverk)
+        val output = UtbetalingBeregningPrisPerUkesverk.Output(belop, ukesverk)
 
-        return UtbetalingBeregningPrisPerUkesverk(
-            input,
-            UtbetalingBeregningPrisPerUkesverk.Output(belop, ukesverk),
-        )
+        return UtbetalingBeregningPrisPerUkesverk(input, output)
     }
 }
 

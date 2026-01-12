@@ -5,6 +5,9 @@ import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createDeltaker
+import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createGjennomforingForForhandsgodkjentPris
+import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toStengtPeriode
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
@@ -18,18 +21,17 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val periodeStart = LocalDate.of(2023, 6, 1)
             val periodeMidt = LocalDate.of(2023, 6, 16)
             val periodeSlutt = LocalDate.of(2023, 7, 1)
-
+            val periode = Periode(periodeStart, periodeSlutt)
             val deltakerId1 = UUID.randomUUID()
             val deltakerId2 = UUID.randomUUID()
 
             forAll(
                 row(
-                    setOf(
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId1,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 100.0),
-                            ),
+                    listOf(
+                        createDeltaker(
+                            id = deltakerId1,
+                            periode = periode,
+                            deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 100.0)),
                         ),
                     ),
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
@@ -37,24 +39,17 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                         deltakelser = setOf(
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakerId1,
-                                setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                        Periode(periodeStart, periodeSlutt),
-                                        1.0,
-                                        sats,
-                                    ),
-                                ),
+                                setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, sats)),
                             ),
                         ),
                     ),
                 ),
                 row(
-                    setOf(
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId1,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 50.0),
-                            ),
+                    listOf(
+                        createDeltaker(
+                            id = deltakerId1,
+                            periode = periode,
+                            deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 50.0)),
                         ),
                     ),
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
@@ -62,24 +57,17 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                         deltakelser = setOf(
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakerId1,
-                                setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                        Periode(periodeStart, periodeSlutt),
-                                        1.0,
-                                        sats,
-                                    ),
-                                ),
+                                setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, sats)),
                             ),
                         ),
                     ),
                 ),
                 row(
-                    setOf(
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId1,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 40.0),
-                            ),
+                    listOf(
+                        createDeltaker(
+                            id = deltakerId1,
+                            periode = Periode(periodeStart, periodeMidt),
+                            deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 40.0)),
                         ),
                     ),
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
@@ -99,12 +87,13 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     ),
                 ),
                 row(
-                    setOf(
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId1,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
-                                DeltakelsesprosentPeriode(Periode(periodeMidt, periodeSlutt), 50.0),
+                    listOf(
+                        createDeltaker(
+                            id = deltakerId1,
+                            periode = periode,
+                            deltakelsesmengder = listOf(
+                                Deltakelsesmengde(periodeStart, 49.0),
+                                Deltakelsesmengde(periodeMidt, 50.0),
                             ),
                         ),
                     ),
@@ -130,18 +119,16 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     ),
                 ),
                 row(
-                    setOf(
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId1,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 100.0),
-                            ),
+                    listOf(
+                        createDeltaker(
+                            id = deltakerId1,
+                            periode = periode,
+                            deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 100.0)),
                         ),
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId2,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 49.0),
-                            ),
+                        createDeltaker(
+                            id = deltakerId2,
+                            periode = periode,
+                            deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 49.0)),
                         ),
                     ),
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
@@ -151,7 +138,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                 deltakerId1,
                                 setOf(
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                        Periode(periodeStart, periodeSlutt),
+                                        periode,
                                         1.0,
                                         sats,
                                     ),
@@ -161,7 +148,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                 deltakerId2,
                                 setOf(
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                        Periode(periodeStart, periodeSlutt),
+                                        periode,
                                         0.5,
                                         sats,
                                     ),
@@ -171,19 +158,19 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     ),
                 ),
                 row(
-                    setOf(
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId1,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
-                                DeltakelsesprosentPeriode(Periode(periodeMidt, periodeSlutt), 50.0),
+                    listOf(
+                        createDeltaker(
+                            id = deltakerId1,
+                            periode = periode,
+                            deltakelsesmengder = listOf(
+                                Deltakelsesmengde(periodeStart, 49.0),
+                                Deltakelsesmengde(periodeMidt, 50.0),
                             ),
                         ),
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId2,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
-                            ),
+                        createDeltaker(
+                            id = deltakerId2,
+                            periode = Periode(periodeStart, periodeMidt),
+                            deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 49.0)),
                         ),
                     ),
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
@@ -217,13 +204,12 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                         ),
                     ),
                 ),
-            ) { deltakelser, expectedBeregning ->
-                val satser = setOf(SatsPeriode(Periode(periodeStart, periodeSlutt), sats))
-                val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, setOf(), deltakelser)
+            ) { deltakere, expectedOutput ->
+                val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = sats)
 
-                val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(input)
+                val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
-                result.output shouldBe expectedBeregning
+                result.output shouldBe expectedOutput
             }
         }
 
@@ -231,19 +217,18 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val periodeStart = LocalDate.of(2025, 2, 1)
             val periodeMidt = LocalDate.of(2025, 2, 15)
             val periodeSlutt = LocalDate.of(2025, 3, 1)
-
+            val periode = Periode(periodeStart, periodeSlutt)
             val deltakerId1 = UUID.randomUUID()
             val deltakerId2 = UUID.randomUUID()
 
             forAll(
                 row(
-                    setOf(StengtPeriode(Periode(periodeStart, periodeMidt), "Stengt")),
-                    setOf(
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId1,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 100.0),
-                            ),
+                    listOf(toStengtPeriode(Periode(periodeStart, periodeMidt))),
+                    listOf(
+                        createDeltaker(
+                            id = deltakerId1,
+                            periode = periode,
+                            deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 100.0)),
                         ),
                     ),
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
@@ -263,13 +248,12 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     ),
                 ),
                 row(
-                    setOf(StengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)), "Stengt")),
-                    setOf(
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId1,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeSlutt), 100.0),
-                            ),
+                    listOf(toStengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)))),
+                    listOf(
+                        createDeltaker(
+                            id = deltakerId1,
+                            periode = periode,
+                            deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 100.0)),
                         ),
                     ),
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
@@ -294,20 +278,20 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     ),
                 ),
                 row(
-                    setOf(StengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)), "Stengt")),
-                    setOf(
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId1,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
-                                DeltakelsesprosentPeriode(Periode(periodeMidt, periodeSlutt), 50.0),
+                    listOf(toStengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)))),
+                    listOf(
+                        createDeltaker(
+                            id = deltakerId1,
+                            periode = periode,
+                            deltakelsesmengder = listOf(
+                                Deltakelsesmengde(periodeStart, 49.0),
+                                Deltakelsesmengde(periodeMidt, 50.0),
                             ),
                         ),
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltakerId2,
-                            perioder = listOf(
-                                DeltakelsesprosentPeriode(Periode(periodeStart, periodeMidt), 49.0),
-                            ),
+                        createDeltaker(
+                            id = deltakerId2,
+                            periode = Periode(periodeStart, periodeMidt),
+                            deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 49.0)),
                         ),
                     ),
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
@@ -341,13 +325,16 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                         ),
                     ),
                 ),
-            ) { stengt, deltakelser, expectedBeregning ->
-                val satser = setOf(SatsPeriode(Periode(periodeStart, periodeSlutt), sats))
-                val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengt, deltakelser)
+            ) { stengt, deltakere, expectedOutput ->
+                val gjennomforing = createGjennomforingForForhandsgodkjentPris(
+                    periode = periode,
+                    sats = sats,
+                    stengt = stengt,
+                )
 
-                val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(input)
+                val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
-                result.output shouldBe expectedBeregning
+                result.output shouldBe expectedOutput
             }
         }
 
@@ -355,14 +342,36 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val periodeStart = LocalDate.of(2026, 1, 1)
             val periodeMidt = LocalDate.of(2026, 1, 16)
             val periodeSlutt = LocalDate.of(2026, 2, 1)
+            val periode = Periode(periodeStart, periodeSlutt)
             val stengtPeriodeStart = periodeStart.plusWeeks(1)
             val stengtPeriodeSlutt = periodeMidt.plusWeeks(1)
-
             val deltakerId1 = UUID.randomUUID()
             val deltakerId2 = UUID.randomUUID()
 
-            val periode = Periode(periodeStart, periodeSlutt)
-            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(
+                periode = periode,
+                sats = sats,
+                stengt = listOf(toStengtPeriode(Periode(stengtPeriodeStart, stengtPeriodeSlutt))),
+            )
+            val deltakere = listOf(
+                createDeltaker(
+                    id = deltakerId1,
+                    periode = periode,
+                    deltakelsesmengder = listOf(
+                        Deltakelsesmengde(periodeStart, 50.0),
+                        Deltakelsesmengde(periodeMidt, 51.0),
+                    ),
+                ),
+                createDeltaker(
+                    id = deltakerId2,
+                    periode = Periode(periodeStart, periodeMidt),
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 50.0)),
+                ),
+            )
+
+            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+
+            result.input shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                 satser = setOf(SatsPeriode(periode, sats)),
                 stengt = setOf(StengtPeriode(Periode(stengtPeriodeStart, stengtPeriodeSlutt), "Stengt")),
                 deltakelser = setOf(
@@ -381,9 +390,6 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     ),
                 ),
             )
-
-            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(input)
-
             result.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 50,
                 deltakelser = setOf(
@@ -417,39 +423,40 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
         }
 
         test("flere stengt hos arrangør perioder i én deltakelses periode") {
-            val deltakerId1 = UUID.randomUUID()
+            val periode = Periode(LocalDate.of(2025, 4, 1), LocalDate.of(2025, 5, 1))
+            val deltakerId = UUID.randomUUID()
 
-            // 1 pluss 14 = 15 dager stengt = 50 %
-            val stengt = setOf(
-                StengtPeriode(Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 4, 2)), "Stengt"),
-                StengtPeriode(Periode(LocalDate.of(2023, 4, 5), LocalDate.of(2023, 4, 19)), "Stengt"),
-            )
-            val deltakelser = setOf(
-                DeltakelseDeltakelsesprosentPerioder(
-                    deltakelseId = deltakerId1,
-                    perioder = listOf(
-                        DeltakelsesprosentPeriode(Periode.forMonthOf(LocalDate.of(2023, 4, 1)), 100.0),
-                    ),
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(
+                periode = periode,
+                sats = sats,
+                stengt = listOf(
+                    toStengtPeriode(Periode(LocalDate.of(2025, 4, 1), LocalDate.of(2025, 4, 2))),
+                    toStengtPeriode(Periode(LocalDate.of(2025, 4, 5), LocalDate.of(2025, 4, 19))),
                 ),
             )
-            val satser = setOf(SatsPeriode(Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1)), sats))
-            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengt, deltakelser)
+            val deltakere = listOf(
+                createDeltaker(
+                    id = deltakerId,
+                    periode = periode,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                ),
+            )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(input)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
             result.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 50,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakerId1,
+                        deltakerId,
                         setOf(
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                Periode(LocalDate.of(2023, 4, 2), LocalDate.of(2023, 4, 5)),
+                                Periode(LocalDate.of(2025, 4, 2), LocalDate.of(2025, 4, 5)),
                                 0.1,
                                 sats,
                             ),
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                Periode(LocalDate.of(2023, 4, 19), LocalDate.of(2023, 5, 1)),
+                                Periode(LocalDate.of(2025, 4, 19), LocalDate.of(2025, 5, 1)),
                                 0.4,
                                 sats,
                             ),
@@ -460,34 +467,27 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
         }
 
         test("beregnet beløp rundes av til nærmeste hele krone") {
-            val deltakelse1 = Periode.fromInclusiveDates(
-                LocalDate.of(2025, 12, 1), // Mandag 1. desember
-                LocalDate.of(2025, 12, 7), // Fredag 7. desember
-            )
-            val deltakelse2 = Periode.fromInclusiveDates(
-                LocalDate.of(2025, 12, 1), // Mandag 1. desember
-                LocalDate.of(2025, 12, 8), // Mandag 8. desember
-            )
+            val periode = Periode.forMonthOf(LocalDate.of(2025, 12, 1))
+            val deltakelse1 = Periode.fromInclusiveDates(LocalDate.of(2025, 12, 1), LocalDate.of(2025, 12, 7))
+            val deltakelse2 = Periode.fromInclusiveDates(LocalDate.of(2025, 12, 1), LocalDate.of(2025, 12, 8))
             val deltakelseId1 = UUID.randomUUID()
             val deltakelseId2 = UUID.randomUUID()
 
-            val periode = Periode.forMonthOf(LocalDate.of(2025, 12, 1))
-            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                satser = setOf(SatsPeriode(periode, 20205)),
-                stengt = emptySet(),
-                deltakelser = setOf(
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakelseId1,
-                        perioder = listOf(DeltakelsesprosentPeriode(deltakelse1, 100.0)),
-                    ),
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakelseId2,
-                        perioder = listOf(DeltakelsesprosentPeriode(deltakelse2, 100.0)),
-                    ),
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = 20205)
+            val deltakere = listOf(
+                createDeltaker(
+                    id = deltakelseId1,
+                    periode = deltakelse1,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                ),
+                createDeltaker(
+                    id = deltakelseId2,
+                    periode = deltakelse2,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
                 ),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(input)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
             result.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 // Rundet ned fra 9663.26086...
@@ -495,48 +495,36 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakelseId1,
-                        setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                deltakelse1,
-                                0.21739,
-                                20205,
-                            ),
-                        ),
+                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(deltakelse1, 0.21739, 20205)),
                     ),
                     UtbetalingBeregningOutputDeltakelse(
                         deltakelseId2,
-                        setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                deltakelse2,
-                                0.26087,
-                                20205,
-                            ),
-                        ),
+                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(deltakelse2, 0.26087, 20205)),
                     ),
                 ),
             )
         }
 
         test("utbetaling og tilsagn er likt for forskjellige perioder av en måned") {
-            (2..31).forEach {
-                val periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 3, it))
+            val periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1))
 
-                val utbetaling = FastSatsPerTiltaksplassPerManedBeregning.beregn(
-                    UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                        satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2023, 3, 1)), 20205)),
-                        stengt = emptySet(),
-                        deltakelser = setOf(
-                            DeltakelseDeltakelsesprosentPerioder(
-                                deltakelseId = UUID.randomUUID(),
-                                perioder = listOf(DeltakelsesprosentPeriode(periode, 100.0)),
-                            ),
-                        ),
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = 20205)
+
+            (2..31).forEach { dayOfMonth ->
+                val deltakelsePeriode = Periode(periode.start, periode.start.withDayOfMonth(dayOfMonth))
+
+                val deltakere = listOf(
+                    createDeltaker(
+                        periode = deltakelsePeriode,
+                        deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
                     ),
                 )
 
+                val utbetaling = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+
                 val tilsagn = TilsagnBeregningPrisPerManedsverk.beregn(
                     TilsagnBeregningPrisPerManedsverk.Input(
-                        periode = periode,
+                        periode = deltakelsePeriode,
                         sats = 20205,
                         valuta = Valuta.NOK,
                         antallPlasser = 1,
@@ -555,44 +543,24 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakerId1 = UUID.randomUUID()
             val deltakerId2 = UUID.randomUUID()
 
-            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                satser = setOf(SatsPeriode(periode, 10)),
-                stengt = setOf(),
-                deltakelser = setOf(
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakerId1,
-                        perioder = listOf(DeltakelsesprosentPeriode(periode, 100.0)),
-                    ),
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakerId2,
-                        perioder = listOf(DeltakelsesprosentPeriode(periode, 100.0)),
-                    ),
-                ),
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = 10)
+            val deltakere = listOf(
+                createDeltaker(deltakerId1, periode, listOf(Deltakelsesmengde(periode.start, 100.0))),
+                createDeltaker(deltakerId2, periode, listOf(Deltakelsesmengde(periode.start, 100.0))),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(input)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+
             result.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 40,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
-                        setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                periode,
-                                2.0,
-                                10,
-                            ),
-                        ),
+                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0, 10)),
                     ),
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId2,
-                        setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                periode,
-                                2.0,
-                                10,
-                            ),
-                        ),
+                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0, 10)),
                     ),
                 ),
             )
@@ -601,6 +569,8 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
     context("beregning av månedsverk før 1. august 2025") {
         test("helgedager før og etter en periode på fem hverdager påvirker beregnet beløp") {
+            val periode = Periode.forMonthOf(LocalDate.of(2025, 7, 1))
+
             val heleUke37 = Periode.fromInclusiveDates(
                 LocalDate.of(2025, 7, 7), // Mandag
                 LocalDate.of(2025, 7, 13), // Søndag
@@ -620,59 +590,31 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakerId2 = UUID.randomUUID()
             val deltakerId3 = UUID.randomUUID()
 
-            val periode = Periode.forMonthOf(LocalDate.of(2025, 7, 1))
-            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                satser = setOf(SatsPeriode(periode, sats)),
-                stengt = setOf(),
-                deltakelser = setOf(
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakerId1,
-                        perioder = listOf(DeltakelsesprosentPeriode(heleUke37, 100.0)),
-                    ),
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakerId2,
-                        perioder = listOf(DeltakelsesprosentPeriode(hverdagerUke37, 100.0)),
-                    ),
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakerId3,
-                        perioder = listOf(DeltakelsesprosentPeriode(helgFraUke36OgHeleUke37, 100.0)),
-                    ),
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = sats)
+            val deltakere = listOf(
+                createDeltaker(deltakerId1, heleUke37, listOf(Deltakelsesmengde(heleUke37.start, 100.0))),
+                createDeltaker(deltakerId2, hverdagerUke37, listOf(Deltakelsesmengde(hverdagerUke37.start, 100.0))),
+                createDeltaker(
+                    deltakerId3,
+                    helgFraUke36OgHeleUke37,
+                    listOf(Deltakelsesmengde(helgFraUke36OgHeleUke37.start, 100.0)),
                 ),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(input)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
-            // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
             result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId1,
-                    setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                            heleUke37,
-                            0.22581,
-                            sats,
-                        ),
-                    ),
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22581, sats)),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId2,
-                    setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                            hverdagerUke37,
-                            0.16129,
-                            sats,
-                        ),
-                    ),
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.16129, sats)),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId3,
-                    setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                            helgFraUke36OgHeleUke37,
-                            0.29032,
-                            sats,
-                        ),
-                    ),
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.29032, sats)),
                 ),
             )
         }
@@ -680,6 +622,8 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
     context("beregning av månedsverk etter 1. august 2025") {
         test("helgedager før og etter en periode på fem hverdager påvirker ikke beregnet beløp") {
+            val periode = Periode.forMonthOf(LocalDate.of(2025, 9, 1))
+
             val heleUke37 = Periode.fromInclusiveDates(
                 LocalDate.of(2025, 9, 8), // Mandag
                 LocalDate.of(2025, 9, 14), // Søndag
@@ -699,59 +643,31 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakerId2 = UUID.randomUUID()
             val deltakerId3 = UUID.randomUUID()
 
-            val periode = Periode.forMonthOf(LocalDate.of(2025, 9, 1))
-            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                satser = setOf(SatsPeriode(periode, sats)),
-                stengt = setOf(),
-                deltakelser = setOf(
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakerId1,
-                        perioder = listOf(DeltakelsesprosentPeriode(heleUke37, 100.0)),
-                    ),
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakerId2,
-                        perioder = listOf(DeltakelsesprosentPeriode(hverdagerUke37, 100.0)),
-                    ),
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakerId3,
-                        perioder = listOf(DeltakelsesprosentPeriode(helgFraUke36OgHeleUke37, 100.0)),
-                    ),
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = sats)
+            val deltakere = listOf(
+                createDeltaker(deltakerId1, heleUke37, listOf(Deltakelsesmengde(heleUke37.start, 100.0))),
+                createDeltaker(deltakerId2, hverdagerUke37, listOf(Deltakelsesmengde(hverdagerUke37.start, 100.0))),
+                createDeltaker(
+                    deltakerId3,
+                    helgFraUke36OgHeleUke37,
+                    listOf(Deltakelsesmengde(helgFraUke36OgHeleUke37.start, 100.0)),
                 ),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(input)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
-            // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
             result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId1,
-                    setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                            heleUke37,
-                            0.22727,
-                            sats,
-                        ),
-                    ),
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22727, sats)),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId2,
-                    setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                            hverdagerUke37,
-                            0.22727,
-                            sats,
-                        ),
-                    ),
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.22727, sats)),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId3,
-                    setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                            helgFraUke36OgHeleUke37,
-                            0.22727,
-                            sats,
-                        ),
-                    ),
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.22727, sats)),
                 ),
             )
         }
@@ -759,13 +675,23 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
     context("beregning av månedsverk etter 1. januar 2026") {
         test("50% deltakelse tilsvarer halvt månedsverk") {
+            val periode = Periode.forMonthOf(LocalDate.of(2026, 1, 1))
             val deltakerId1 = UUID.randomUUID()
             val deltakerId2 = UUID.randomUUID()
             val deltakerId3 = UUID.randomUUID()
             val deltakerId4 = UUID.randomUUID()
 
-            val periode = Periode.forMonthOf(LocalDate.of(2026, 1, 1))
-            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = 100)
+            val deltakere = listOf(
+                createDeltaker(deltakerId1, periode, listOf(Deltakelsesmengde(periode.start, 20.0))),
+                createDeltaker(deltakerId2, periode, listOf(Deltakelsesmengde(periode.start, 50.0))),
+                createDeltaker(deltakerId3, periode, listOf(Deltakelsesmengde(periode.start, 51.0))),
+                createDeltaker(deltakerId4, periode, listOf(Deltakelsesmengde(periode.start, 80.0))),
+            )
+
+            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+
+            result.input shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                 satser = setOf(SatsPeriode(periode, sats)),
                 stengt = setOf(),
                 deltakelser = setOf(
@@ -787,10 +713,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     ),
                 ),
             )
-
-            val beregning = FastSatsPerTiltaksplassPerManedBeregning.beregn(input)
-
-            beregning.output.deltakelser shouldBe setOf(
+            result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId1,
                     setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 0.5, sats)),
