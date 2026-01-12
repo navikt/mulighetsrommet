@@ -109,7 +109,7 @@ private fun getInnsendingsDetaljer(
         },
         LabeledDataElement.text("Tiltaksnavn", utbetaling.gjennomforing.navn),
         LabeledDataElement.text("Tiltakstype", utbetaling.tiltakstype.navn),
-        if (utbetaling.beregning.input == UtbetalingBeregningFri && utbetaling.tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD) { // annen avtalt pris
+        if (utbetaling.beregning is UtbetalingBeregningFri && utbetaling.tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD) { // annen avtalt pris
             LabeledDataElement.text(
                 "Tiltaksperiode",
                 Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt)
