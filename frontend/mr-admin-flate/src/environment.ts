@@ -4,18 +4,24 @@ export enum Environment {
   LOCAL = "LOCAL",
 }
 
-export const isProduction = window.location.origin.endsWith(".intern.nav.no");
+export function isProduction(): boolean {
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname;
+  return !host.includes(".dev.");
+}
 
-export const isDevelopment = window.location.origin.endsWith(".intern.dev.nav.no");
+export function isDevelopment(): boolean {
+  return !isProduction();
+}
 
 export const environment: Environment = getEnvironment();
 
 function getEnvironment() {
-  if (isProduction) {
+  if (isProduction()) {
     return Environment.PROD;
   }
 
-  if (isDevelopment) {
+  if (isDevelopment()) {
     return Environment.DEV;
   }
 
@@ -26,6 +32,5 @@ export function isAnsattDomene(): boolean {
   if (typeof window === "undefined") return false;
 
   const host = window.location.hostname;
-
-  return host.endsWith(".ansatt.dev.nav.no");
+  return host.split(".")[1] === "ansatt";
 }

@@ -14,19 +14,19 @@ export const MAKS_AAR_FOR_AVTALER = 6;
 export function previewArbeidsmarkedstiltakUrl(): string {
   const ansattDomene = isAnsattDomene();
 
-  return isProduction
+  return isProduction()
     ? `https://nav-arbeidsmarkedstiltak.${ansattDomene ? "ansatt" : "intern"}.nav.no/preview`
     : `https://nav-arbeidsmarkedstiltak.${ansattDomene ? "ansatt" : "intern"}.dev.nav.no/preview`;
 }
 
-export const ENDRINGSMELDINGER_URL = isProduction
+export const ENDRINGSMELDINGER_URL = isProduction()
   ? "https://arbeidsmarkedstiltak.intern.nav.no"
   : "https://arbeidsmarkedstiltak.intern.dev.nav.no";
 
 export function sanityStudioUrl(): string {
   const ansattDomene = isAnsattDomene();
 
-  return isProduction
+  return isProduction()
     ? `https://mulighetsrommet-sanity-studio.${ansattDomene ? "ansatt" : "intern"}.nav.no/prod`
     : `https://mulighetsrommet-sanity-studio.${ansattDomene ? "ansatt" : "intern"}.nav.no/test`;
 }
@@ -40,7 +40,7 @@ export const PORTEN_URL = "https://jira.adeo.no/plugins/servlet/desk/portal/541/
 export function selectAccountUrl(): string {
   const ansattDomene = isAnsattDomene();
 
-  return isProduction
+  return isProduction()
     ? `https://tiltaksadministrasjon.${ansattDomene ? "ansatt" : "intern"}.nav.no/oauth2/login?prompt=select_account`
     : `https://tiltaksadministrasjon.${ansattDomene ? "ansatt" : "intern"}.dev.nav.no/oauth2/login?prompt=select_account`;
 }
