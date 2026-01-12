@@ -119,7 +119,7 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val tittel: String,
-        val arenaId: Int?,
+        val arenaId: Int,
         val status: ArenaDeltakerStatus,
         val tiltakstype: Tiltakstype,
         val gjennomforing: Gjennomforing,

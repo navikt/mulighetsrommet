@@ -143,7 +143,7 @@ private fun Row.toArenaDeltakelse(): TiltakshistorikkV1Dto.ArenaDeltakelse {
     return TiltakshistorikkV1Dto.ArenaDeltakelse(
         norskIdent = NorskIdent(string("norsk_ident")),
         id = uuid("id"),
-        arenaId = intOrNull("arena_deltaker_id"),
+        arenaId = int("arena_deltaker_id"),
         status = ArenaDeltakerStatus.valueOf(string("status")),
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
