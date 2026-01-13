@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -255,7 +256,7 @@ object AvtaleFixtures {
                     type = prismodell.type,
                     prisbetingelser = prismodell.prisbetingelser,
                     satser = (prismodell.satser ?: listOf()).map {
-                        AvtaltSatsRequest(it.gjelderFra, it.sats)
+                        AvtaltSatsRequest(it.gjelderFra, it.sats, ValutaType.NOK)
                     },
                 ),
             ),
@@ -272,7 +273,7 @@ object AvtaleFixtures {
 
         val AvtaltPrisPerTimeOppfolging = createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            satser = listOf(AvtaltSats(gjelderFra = LocalDate.of(2023, 1, 1), sats = 1234)),
+            satser = listOf(AvtaltSats(gjelderFra = LocalDate.of(2023, 1, 1), sats = 1234, ValutaType.NOK)),
         )
 
         val AnnenAvtaltPris = createPrismodellDbo()

@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -47,7 +48,6 @@ import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import java.util.UUID.randomUUID
 
 class AvtaleValidatorTest : FunSpec({
     val avtaleRequest = AvtaleFixtures.createAvtaleRequest(
@@ -535,7 +535,7 @@ class AvtaleValidatorTest : FunSpec({
                     id = UUID.randomUUID(),
                     type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                     prisbetingelser = null,
-                    satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 1)),
+                    satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 1, ValutaType.NOK)),
                 ),
             )
 
@@ -567,7 +567,7 @@ class AvtaleValidatorTest : FunSpec({
                         id = UUID.randomUUID(),
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                         prisbetingelser = null,
-                        satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2024, 12, 1), pris = 1)),
+                        satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2024, 12, 1), pris = 1, ValutaType.NOK)),
                     ),
                 ),
                 getContext(
@@ -594,7 +594,7 @@ class AvtaleValidatorTest : FunSpec({
             )
 
             AvtaleValidator.validatePrismodell(
-                listOf(request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1)))),
+                listOf(request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1, ValutaType.NOK)))),
                 getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodeller/0/satser/0/gjelderFra", "Gjelder fra må være satt"),
@@ -607,6 +607,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
                                 pris = null,
+                                valuta = ValutaType.NOK,
                             ),
                         ),
                     ),
@@ -623,6 +624,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
                                 pris = 0,
+                                valuta = ValutaType.NOK,
                             ),
                         ),
                     ),
@@ -639,12 +641,13 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
                                 pris = 1,
+                                valuta = ValutaType.NOK,
                             ),
                         ),
                     ),
                 ),
                 getContext(),
-            ).shouldBeRight()[0].satser shouldBe listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1))
+            ).shouldBeRight()[0].satser shouldBe listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1, ValutaType.NOK))
         }
 
         test("tillater ikke flere satser som starter på samme dato") {
@@ -655,9 +658,9 @@ class AvtaleValidatorTest : FunSpec({
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, ValutaType.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, ValutaType.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, ValutaType.NOK),
                         ),
                     ),
                 ),
@@ -676,17 +679,17 @@ class AvtaleValidatorTest : FunSpec({
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3, ValutaType.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, ValutaType.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, ValutaType.NOK),
                         ),
                     ),
                 ),
                 getContext(),
             ).shouldBeRight()[0].satser shouldBe listOf(
-                AvtaltSats(LocalDate.of(2025, 1, 1), 1),
-                AvtaltSats(LocalDate.of(2025, 2, 1), 2),
-                AvtaltSats(LocalDate.of(2025, 3, 1), 3),
+                AvtaltSats(LocalDate.of(2025, 1, 1), 1, ValutaType.NOK),
+                AvtaltSats(LocalDate.of(2025, 2, 1), 2, ValutaType.NOK),
+                AvtaltSats(LocalDate.of(2025, 3, 1), 3, ValutaType.NOK),
             )
         }
     }
@@ -836,7 +839,7 @@ class AvtaleValidatorTest : FunSpec({
             test("kan ikke fjerne prismodell som er i bruk av en gjennomføring") {
                 val prismodellRequest = listOf(
                     PrismodellRequest(
-                        id = randomUUID(),
+                        id = UUID.randomUUID(),
                         type = PrismodellType.ANNEN_AVTALT_PRIS,
                         satser = emptyList(),
                         prisbetingelser = null,

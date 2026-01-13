@@ -455,7 +455,7 @@ object AvtaleValidator {
                     "Gjelder fra må være satt",
                 )
             }
-            AvtaltSats(request.gjelderFra, request.pris)
+            AvtaltSats(request.gjelderFra, request.pris, request.valuta)
         }
 
         val duplicateDates = satser.map { it.gjelderFra }.groupBy { it }.filter { it.value.size > 1 }.keys

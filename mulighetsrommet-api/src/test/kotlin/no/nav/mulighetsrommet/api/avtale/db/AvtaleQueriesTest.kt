@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -483,7 +484,7 @@ class AvtaleQueriesTest : FunSpec({
                 var prismodell = listOf(
                     AvtaleFixtures.createPrismodellDbo(
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                        satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 2000)),
+                        satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 2000, ValutaType.NOK)),
                     ),
                 )
                 queries.avtale.upsertPrismodell(avtale.id, prismodell)
@@ -496,7 +497,7 @@ class AvtaleQueriesTest : FunSpec({
                             AvtaltSatsDto(
                                 gjelderFra = LocalDate.of(2025, 7, 1),
                                 pris = 2000,
-                                valuta = "NOK",
+                                valuta = ValutaType.NOK,
                             ),
                         )
                 }

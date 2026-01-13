@@ -15,6 +15,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -770,7 +771,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val prismodell = AvtaleFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
-                AvtaltSats(LocalDate.of(2026, 2, 1), 100),
+                AvtaltSats(LocalDate.of(2026, 2, 1), 100, ValutaType.NOK),
             ),
         )
 
@@ -890,7 +891,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val prismodell = AvtaleFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
-                AvtaltSats(LocalDate.of(2025, 1, 1), 100),
+                AvtaltSats(LocalDate.of(2025, 1, 1), 100, ValutaType.NOK),
             ),
         )
 
@@ -996,7 +997,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("utbetalinger blir oppdatert med ny beregning når gjennomføringens prismodell endres") {
+        test("utbetalinger blir oppdatert med ny beregning når avtalens prismodell endres") {
             MulighetsrommetTestDomain(
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(
@@ -1079,11 +1080,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             database.run {
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    listOf(
-                        prismodell.copy(
-                            type = PrismodellType.ANNEN_AVTALT_PRIS,
-                        ),
-                    ),
+                    listOf(prismodell.copy(type = PrismodellType.ANNEN_AVTALT_PRIS)),
                 )
             }
 
@@ -1103,7 +1100,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val prismodell = AvtaleFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
             satser = listOf(
-                AvtaltSats(LocalDate.of(2024, 1, 1), 100),
+                AvtaltSats(LocalDate.of(2024, 1, 1), 100, ValutaType.NOK),
             ),
         )
 
@@ -1233,7 +1230,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val prismodell = AvtaleFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
-                AvtaltSats(LocalDate.of(2025, 1, 15), 100),
+                AvtaltSats(LocalDate.of(2025, 1, 15), 100, ValutaType.NOK),
             ),
         )
 
@@ -1288,10 +1285,10 @@ class GenererUtbetalingServiceTest : FunSpec({
                     listOf(
                         prismodell.copy(
                             satser = listOf(
-                                AvtaltSats(LocalDate.of(2024, 1, 1), 1),
-                                AvtaltSats(LocalDate.of(2025, 1, 2), 2),
-                                AvtaltSats(LocalDate.of(2025, 1, 3), 3),
-                                AvtaltSats(LocalDate.of(2025, 2, 1), 4),
+                                AvtaltSats(LocalDate.of(2024, 1, 1), 1, ValutaType.NOK),
+                                AvtaltSats(LocalDate.of(2025, 1, 2), 2, ValutaType.NOK),
+                                AvtaltSats(LocalDate.of(2025, 1, 3), 3, ValutaType.NOK),
+                                AvtaltSats(LocalDate.of(2025, 2, 1), 4, ValutaType.NOK),
                             ),
                         ),
                     ),
@@ -1316,7 +1313,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val prismodell = AvtaleFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
-                AvtaltSats(LocalDate.of(2025, 1, 1), 100),
+                AvtaltSats(LocalDate.of(2025, 1, 1), 100, ValutaType.NOK),
             ),
         )
 

@@ -3701,9 +3701,16 @@ components:
           - "null"
           - integer
           format: int32
+        valuta:
+          $ref: "#/components/schemas/ValutaType"
       required:
       - gjelderFra
       - pris
+      - valuta
+    ValutaType:
+      type: string
+      enum:
+      - NOK
     PersonvernRequest:
       type: object
       properties:
@@ -4172,7 +4179,7 @@ components:
           type: integer
           format: int32
         valuta:
-          type: string
+          $ref: "#/components/schemas/ValutaType"
         gjelderTil:
           type:
           - "null"
