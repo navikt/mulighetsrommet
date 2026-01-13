@@ -131,7 +131,41 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
       belop: 10149,
     },
   ],
-  innsendingsDetaljer: [],
+  innsendingsDetaljer: [
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Dato innsendt",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "2025-05-15",
+        format: DataElementTextFormat.DATE,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltaksnavn",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "AFT Foobar",
+        format: null,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltakstype",
+      value: { type: "DATA_ELEMENT_TEXT", value: "Oppfølging", format: null },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltaksperiode",
+      value: { type: "DATA_ELEMENT_TEXT", value: "01.01.2025 - 30.12.2026", format: null },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Løpenummer",
+      value: { type: "DATA_ELEMENT_TEXT", value: "2025/11181", format: null },
+    },
+  ],
 };
 
 const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
@@ -164,7 +198,27 @@ const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   type: { displayName: "Innsending", displayNameLong: null, tagName: null },
   linjer: [],
   advarsler: [],
-  innsendingsDetaljer: [],
+  innsendingsDetaljer: [
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltaksnavn",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "Avklaring - avtalt månedspris",
+        format: null,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltakstype",
+      value: { type: "DATA_ELEMENT_TEXT", value: "Avklaring", format: null },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Løpenummer",
+      value: { type: "DATA_ELEMENT_TEXT", value: "2025/10001", format: null },
+    },
+  ],
 };
 
 const aftKreverEndring: ArrangorflateUtbetalingDto = {
@@ -200,7 +254,27 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.INNSENDING,
   linjer: [],
-  innsendingsDetaljer: [],
+  innsendingsDetaljer: [
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltaksnavn",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "Solrikt AFT",
+        format: null,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltakstype",
+      value: { type: "DATA_ELEMENT_TEXT", value: "Arbeidsforberedende trening", format: null },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Løpenummer",
+      value: { type: "DATA_ELEMENT_TEXT", value: "2025/10002", format: null },
+    },
+  ],
 };
 
 const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
@@ -236,7 +310,36 @@ const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   periode: { start: "2025-05-01", slutt: "2025-08-02" },
   type: utbetalingType.INVESTERING,
   linjer: [],
-  innsendingsDetaljer: [],
+  innsendingsDetaljer: [
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Dato innsendt",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "2025-06-05",
+        format: DataElementTextFormat.DATE,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltaksnavn",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "AFT - Arbeidsforberedende trening - Team tiltakspenger",
+        format: null,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltakstype",
+      value: { type: "DATA_ELEMENT_TEXT", value: "Arbeidsforberedende trening", format: null },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Løpenummer",
+      value: { type: "DATA_ELEMENT_TEXT", value: "2025/10003", format: null },
+    },
+  ],
 };
 
 const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
@@ -283,7 +386,36 @@ const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
     },
   ],
   advarsler: [],
-  innsendingsDetaljer: [],
+  innsendingsDetaljer: [
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Dato opprettet hos Nav",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "2025-04-01",
+        format: DataElementTextFormat.DATE,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltaksnavn",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "AFT Foobar",
+        format: null,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltakstype",
+      value: { type: "DATA_ELEMENT_TEXT", value: "Avklaring", format: null },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Løpenummer",
+      value: { type: "DATA_ELEMENT_TEXT", value: "2025/10004", format: null },
+    },
+  ],
 };
 
 const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
@@ -319,7 +451,31 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   type: utbetalingType.INNSENDING,
   linjer: [],
   advarsler: [],
-  innsendingsDetaljer: [],
+  innsendingsDetaljer: [
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltaksnavn",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "May rain - VTA",
+        format: null,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltakstype",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "Varig tilrettelagt arbeid i skjermet virksomhet",
+        format: null,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Løpenummer",
+      value: { type: "DATA_ELEMENT_TEXT", value: "2025/10005", format: null },
+    },
+  ],
 };
 
 const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
@@ -355,7 +511,27 @@ const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   type: { displayName: "Innsending", displayNameLong: null, tagName: null },
   linjer: [],
   advarsler: [],
-  innsendingsDetaljer: [],
+  innsendingsDetaljer: [
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltaksnavn",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "Arbeidsrettet rehabilitering - avtalt ukespris",
+        format: null,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tiltakstype",
+      value: { type: "DATA_ELEMENT_TEXT", value: "Arbeidsrettet rehabilitering", format: null },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Løpenummer",
+      value: { type: "DATA_ELEMENT_TEXT", value: "2025/10006", format: null },
+    },
+  ],
 };
 
 export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
