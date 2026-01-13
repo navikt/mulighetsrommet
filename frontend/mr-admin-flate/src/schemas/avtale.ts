@@ -16,12 +16,12 @@ import {
 
 export const PrismodellSchema = z.object({
   prismodeller: z.array(
-    z.object({
-      id: z.uuid().optional(),
-      prisbetingelser: z.string().nullable(),
-      type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
-      satser: z
-        .array(
+    z
+      .object({
+        id: z.uuid().optional(),
+        prisbetingelser: z.string().nullable(),
+        type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
+        satser: z.array(
           z.object({
             gjelderFra: z.string().min(1, { message: "Gjelder fra må være satt" }),
             gjelderTil: z.string().nullable(),
@@ -30,9 +30,20 @@ export const PrismodellSchema = z.object({
               .min(1, { message: "Pris må være positiv" }),
             valuta: z.string(),
           }),
-        )
-        .min(1, { message: "Du må legge til minst én pris" }),
-    }),
+        ),
+      })
+      .superRefine((data, ctx) => {
+        if (
+          data.type !== PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK &&
+          data.satser.length === 0
+        ) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Du må legge til minst én sats",
+            path: ["satser"],
+          });
+        }
+      }),
   ),
 });
 

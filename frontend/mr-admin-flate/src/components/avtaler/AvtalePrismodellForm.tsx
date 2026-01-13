@@ -36,37 +36,6 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     control,
   });
 
-  if (
-    [
-      Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-      Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-    ].includes(tiltakskode)
-  ) {
-    return (
-      <Box
-        borderWidth="1"
-        borderColor="border-subtle"
-        borderRadius="large"
-        padding="4"
-        background="surface-subtle"
-      >
-        <Select
-          label={avtaletekster.prismodell.label}
-          readOnly
-          value={PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK}
-        >
-          <option>
-            {
-              prismodellTyper.find(
-                (prismodell) =>
-                  prismodell.type === PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-              )?.navn
-            }
-          </option>
-        </Select>
-      </Box>
-    );
-  }
   return (
     <VStack gap="4">
       {fields.map((field, index) => {
