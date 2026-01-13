@@ -710,6 +710,24 @@ class TilsagnService(
             "Gjennomføring ${gjennomforing.id} mangler avtale"
         }
 
+        val arrangor = if (gjennomforing.arrangor.organisasjonsnummer.erUtenlandsk()) {
+            val utenlandskArrangor = requireNotNull(queries.arrangor.getUtenlandskArrangor(gjennomforing.arrangor.id)) {
+                "Mangler data om utenlandsk arrangør"
+            }
+            OpprettBestilling.Arrangor.Utenlandsk(
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                navn = gjennomforing.arrangor.navn,
+                by = utenlandskArrangor.by,
+                postNummer = utenlandskArrangor.postNummer,
+                landKode = utenlandskArrangor.landKode,
+                gateNavn = utenlandskArrangor.gateNavn,
+            )
+        } else {
+            OpprettBestilling.Arrangor.Norsk(
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+            )
+        }
+
         val bestilling = OpprettBestilling(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             tilskuddstype = when (tilsagn.type) {
@@ -717,7 +735,7 @@ class TilsagnService(
                 else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
             },
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-            arrangor = gjennomforing.arrangor.organisasjonsnummer,
+            arrangor = arrangor,
             kostnadssted = tilsagn.kostnadssted.enhetsnummer,
             avtalenummer = avtale.sakarkivNummer?.value,
             belop = tilsagn.beregning.output.belop,

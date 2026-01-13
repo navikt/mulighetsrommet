@@ -8,6 +8,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKobling
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.arrangor.model.UtenlandskArrangor
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -17,6 +18,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.util.UUID
+import kotlin.String
 
 class ArrangorQueries(private val session: Session) {
 
@@ -299,6 +301,35 @@ class ArrangorQueries(private val session: Session) {
 
         return session.list(queryOf(query, arrangorId)) { it.toArrangorKontaktperson() }
     }
+
+    fun getUtenlandskArrangor(arrangorId: UUID): UtenlandskArrangor? {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                bic,
+                iban,
+                gate_navn,
+                by,
+                post_nummer,
+                land_kode,
+                bank_navn
+            from arrangor
+                inner join utenlandsk_arrangor on utenlandsk_arrangor.id = arrangor.utenlandsk_arrangor_id
+            where arrangor.id = ?::uuid
+        """.trimIndent()
+
+        return session.single(queryOf(query, arrangorId)) { it.toUtenlandskArrangor() }
+    }
+
+    private fun Row.toUtenlandskArrangor() = UtenlandskArrangor(
+        bic = string("bic"),
+        iban = string("iban"),
+        gateNavn = string("gate_navn"),
+        by = string("by"),
+        postNummer = string("post_nummer"),
+        landKode = string("land_kode"),
+        bankNavn = string("bank_navn"),
+    )
 
     private fun Row.toArrangorDtoUtenUnderenheter() = ArrangorDto(
         id = uuid("id"),

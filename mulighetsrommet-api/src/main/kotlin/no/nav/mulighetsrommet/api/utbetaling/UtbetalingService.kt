@@ -707,9 +707,7 @@ class UtbetalingService(
         }
 
         val utbetaling = queries.utbetaling.getOrError(delutbetaling.utbetalingId)
-        val kontonummer = checkNotNull(utbetaling.betalingsinformasjon.kontonummer) {
-            "Kontonummer mangler for utbetaling med id=${delutbetaling.utbetalingId}"
-        }
+        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(utbetaling.gjennomforing.id)
 
         val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
 
@@ -719,13 +717,29 @@ class UtbetalingService(
             Tilsagnsnummer: ${tilsagn.bestilling.bestillingsnummer}
         """.trimIndent()
 
+        val betalingsinformasjon = if (gjennomforing.arrangor.organisasjonsnummer.erUtenlandsk()) {
+            val utenlandskArrangor = requireNotNull(queries.arrangor.getUtenlandskArrangor(gjennomforing.arrangor.id)) {
+                "Mangler data om utenlandsk arrangør"
+            }
+            OpprettFaktura.Betalingsinformasjon.IBan(
+                iban = utenlandskArrangor.iban,
+                bic = utenlandskArrangor.bic,
+                bankLandKode = utenlandskArrangor.landKode,
+                bankNavn = utenlandskArrangor.bankNavn,
+            )
+        } else {
+            OpprettFaktura.Betalingsinformasjon.BBan(
+                kontonummer = checkNotNull(utbetaling.betalingsinformasjon.kontonummer) {
+                    "Kontonummer mangler for utbetaling med id=${delutbetaling.utbetalingId}"
+                },
+                kid = utbetaling.betalingsinformasjon.kid,
+            )
+        }
+
         val faktura = OpprettFaktura(
             fakturanummer = delutbetaling.faktura.fakturanummer,
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
-            betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
-                kontonummer = kontonummer,
-                kid = utbetaling.betalingsinformasjon.kid,
-            ),
+            betalingsinformasjon = betalingsinformasjon,
             belop = delutbetaling.belop,
             periode = delutbetaling.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
