@@ -1,7 +1,7 @@
 import { PrismodellSchema, PrismodellValues } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleDto, PrismodellDto, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { Button, Modal } from "@navikt/ds-react";
+import { Button, InfoCard, Modal, VStack } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import AvtalePrismodellForm from "./AvtalePrismodellForm";
 import { useUpsertPrismodell } from "@/api/avtaler/useUpsertPrismodell";
@@ -58,10 +58,21 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(postData)}>
           <Modal.Body>
-            <AvtalePrismodellForm
-              tiltakskode={avtale.tiltakstype.tiltakskode}
-              avtaleStartDato={safeParseDate(avtale.startDato)}
-            />
+            <VStack gap="4">
+              <InfoCard data-color="warning">
+                <InfoCard.Header>
+                  <InfoCard.Title>Endring av prismodeller</InfoCard.Title>
+                </InfoCard.Header>
+                <InfoCard.Content>
+                  Vær oppmerksom på at endringer i prismodeller som er i bruk kan føre til endringer
+                  i de fremtidige utbetalingene til arrangør.
+                </InfoCard.Content>
+              </InfoCard>
+              <AvtalePrismodellForm
+                tiltakskode={avtale.tiltakstype.tiltakskode}
+                avtaleStartDato={safeParseDate(avtale.startDato)}
+              />
+            </VStack>
           </Modal.Body>
           <Modal.Footer>
             <Button type="submit" disabled={mutation.isPending}>
