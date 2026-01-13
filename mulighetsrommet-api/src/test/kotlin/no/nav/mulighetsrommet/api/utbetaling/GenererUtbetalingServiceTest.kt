@@ -993,7 +993,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("utbetalinger blir oppdatert med ny beregning når avtalens prismodell endres") {
+        test("utbetalinger blir oppdatert med ny beregning når gjennomføringens prismodell endres") {
             MulighetsrommetTestDomain(
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(

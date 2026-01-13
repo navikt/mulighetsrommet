@@ -47,6 +47,7 @@ import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import java.util.UUID.randomUUID
 
 class AvtaleValidatorTest : FunSpec({
     val avtaleRequest = AvtaleFixtures.createAvtaleRequest(
@@ -73,6 +74,7 @@ class AvtaleValidatorTest : FunSpec({
         Tiltakskode.OPPFOLGING,
         avtaletype = Avtaletype.RAMMEAVTALE,
     )
+    val prismodell = Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), prisbetingelser = "")
     val ctx = Ctx(
         previous = null,
         arrangor = ArrangorFixtures.hovedenhet.copy(
@@ -94,8 +96,22 @@ class AvtaleValidatorTest : FunSpec({
         opsjonerRegistrert = emptyList(),
         avtaletype = Avtaletype.AVTALE,
         tiltakskode = Tiltakskode.OPPFOLGING,
-        gjennomforinger = emptyList(),
-        prismodeller = listOf(Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), prisbetingelser = "")),
+        gjennomforinger = listOf(
+            Ctx.Gjennomforing(
+                arrangor = Gjennomforing.ArrangorUnderenhet(
+                    id = ArrangorFixtures.underenhet1.id,
+                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    navn = ArrangorFixtures.underenhet1.navn,
+                    kontaktpersoner = emptyList(),
+                    slettet = false,
+                ),
+                startDato = LocalDate.now(),
+                utdanningslop = null,
+                status = GjennomforingStatusType.GJENNOMFORES,
+                prismodellId = prismodell.id,
+            ),
+        ),
+        prismodeller = listOf(prismodell),
     )
 
     test("skal akkumulere feil når forespørselen har flere problemer") {
@@ -451,7 +467,20 @@ class AvtaleValidatorTest : FunSpec({
             tiltakstypeNavn = tiltakstype.navn,
             gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             avtaleStartDato = avtaleStartDato,
+            gjennomforinger = emptyList(),
         )
+
+        test("må ha minst én prismodell") {
+            AvtaleValidator.validatePrismodell(
+                emptyList(),
+                getContext(),
+            ).shouldBeLeft().shouldContain(
+                FieldError(
+                    "/prismodeller",
+                    "Minst én prismodell er påkrevd",
+                ),
+            )
+        }
 
         test("må stemme overens med tiltakstypen") {
             AvtaleValidator.validatePrismodell(
@@ -686,6 +715,7 @@ class AvtaleValidatorTest : FunSpec({
                                 status = OpsjonLoggStatus.OPSJON_UTLOST,
                             ),
                         ),
+                        gjennomforinger = emptyList(),
                     ),
                 ),
             ) shouldBeLeft listOf(
@@ -728,6 +758,7 @@ class AvtaleValidatorTest : FunSpec({
                                     startDato = LocalDate.now(),
                                     utdanningslop = null,
                                     status = GjennomforingStatusType.GJENNOMFORES,
+                                    prismodellId = request.prismodeller.first().id,
                                 ),
                             ),
                         ),
@@ -782,6 +813,49 @@ class AvtaleValidatorTest : FunSpec({
                     FieldError(
                         "/tiltakskode",
                         "Tiltakstype kan ikke endres fordi prismodellen “Annen avtalt pris” er i bruk",
+                    )
+            }
+
+            test("kan ikke fjerne alle prismodeller på avtalen") {
+                AvtaleValidator.validatePrismodell(
+                    emptyList(),
+                    AvtaleValidator.ValidatePrismodellContext(
+                        tiltakskode = previous.tiltakskode,
+                        tiltakstypeNavn = ctx.tiltakstype.navn,
+                        gyldigTilsagnPeriode = emptyMap(),
+                        avtaleStartDato = LocalDate.now().minusDays(1),
+                        gjennomforinger = previous.gjennomforinger,
+                    ),
+                ).shouldBeLeft() shouldContain
+                    FieldError(
+                        "/prismodeller",
+                        "Minst én prismodell er påkrevd",
+                    )
+            }
+
+            test("kan ikke fjerne prismodell som er i bruk av en gjennomføring") {
+                val prismodellRequest = listOf(
+                    PrismodellRequest(
+                        id = randomUUID(),
+                        type = PrismodellType.ANNEN_AVTALT_PRIS,
+                        satser = emptyList(),
+                        prisbetingelser = null,
+                    ),
+                )
+
+                AvtaleValidator.validatePrismodell(
+                    prismodellRequest,
+                    AvtaleValidator.ValidatePrismodellContext(
+                        tiltakskode = previous.tiltakskode,
+                        tiltakstypeNavn = ctx.tiltakstype.navn,
+                        gyldigTilsagnPeriode = emptyMap(),
+                        avtaleStartDato = LocalDate.now().minusDays(1),
+                        gjennomforinger = previous.gjennomforinger,
+                    ),
+                ).shouldBeLeft() shouldContain
+                    FieldError(
+                        "/prismodeller",
+                        "Prismodell kan ikke fjernes fordi en eller flere gjennomføringer er koblet til prismodellen",
                     )
             }
         }

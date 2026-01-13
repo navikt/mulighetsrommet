@@ -64,8 +64,8 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
                   <InfoCard.Title>Endring av prismodeller</InfoCard.Title>
                 </InfoCard.Header>
                 <InfoCard.Content>
-                  Vær oppmerksom på at endringer i prismodeller som er i bruk kan føre til endringer
-                  i de fremtidige utbetalingene til arrangør.
+                  Endringer i prismodeller som er i bruk kan slå ut i beregningen av fremtidige
+                  utbetalinger til arrangør.
                 </InfoCard.Content>
               </InfoCard>
               <AvtalePrismodellForm
