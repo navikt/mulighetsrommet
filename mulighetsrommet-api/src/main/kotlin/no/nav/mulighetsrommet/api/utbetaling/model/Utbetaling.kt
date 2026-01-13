@@ -50,7 +50,8 @@ data class Utbetaling(
             is UtbetalingBeregningPrisPerHeleUkesverk,
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerTimeOppfolging,
-            is UtbetalingBeregningPrisPerUkesverk ->
+            is UtbetalingBeregningPrisPerUkesverk,
+            ->
                 false
 
             is UtbetalingBeregningFri -> tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD && innsender is no.nav.mulighetsrommet.model.Arrangor

@@ -111,9 +111,11 @@ private fun getInnsendingsDetaljer(
         if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
             LabeledDataElement.text(
                 "Tiltaksperiode",
-                Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt)
+                Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt),
             )
-        } else null,
+        } else {
+            null
+        },
         LabeledDataElement.text("Løpenummer", utbetaling.gjennomforing.lopenummer.toString()),
     ).filterNotNull()
 }
@@ -285,7 +287,7 @@ fun beregningDisplayName(beregning: UtbetalingBeregning) = when (beregning) {
 
     is UtbetalingBeregningPrisPerUkesverk,
     is UtbetalingBeregningPrisPerHeleUkesverk,
-        ->
+    ->
         "Avtalt ukespris per tiltaksplass"
 }
 
@@ -314,7 +316,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
         is UtbetalingBeregningFri -> emptyList()
 
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-            -> {
+        -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             beregningSatsPeriodeDetaljerMedFaktor(
                 satser,

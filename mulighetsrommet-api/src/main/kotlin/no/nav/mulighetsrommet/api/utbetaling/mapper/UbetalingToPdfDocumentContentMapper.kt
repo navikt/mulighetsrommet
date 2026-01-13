@@ -141,7 +141,7 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Utbetalin
             if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
                 entry(
                     "Tiltaksperiode",
-                    Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt)
+                    Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt),
                 )
             }
 
