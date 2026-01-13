@@ -627,21 +627,13 @@ fun getInnsendingsInformasjon(gjennomforing: GjennomforingGruppetiltak): List<La
         LabeledDataElement.text("Tiltakstype", gjennomforing.tiltakstype.navn),
     )
     if (gjennomforing.prismodell?.type == PrismodellType.ANNEN_AVTALT_PRIS) {
-        return standardList + getTiltaksperiode(gjennomforing)
+        return standardList +
+            LabeledDataElement.text(
+                "Tiltaksperiode",
+                Periode.formatPeriode(gjennomforing.startDato, gjennomforing.sluttDato!!),
+            )
     }
     return standardList
-}
-
-fun getTiltaksperiode(gjennomforing: Gjennomforing): LabeledDataElement = if (gjennomforing.sluttDato != null) {
-    LabeledDataElement.text(
-        "Tiltaksperiode",
-        Periode.formatPeriode(gjennomforing.startDato, gjennomforing.sluttDato!!),
-    )
-} else {
-    LabeledDataElement.text(
-        "Tiltaksperiode fra:",
-        Periode.formatDate(gjennomforing.startDato),
-    )
 }
 
 @Serializable

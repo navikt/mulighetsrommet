@@ -18,6 +18,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.mulighetsrommet.model.Arrangor as ArrangorInnsendt
 
 @Serializable
 data class Utbetaling(
@@ -54,7 +55,7 @@ data class Utbetaling(
             ->
                 false
 
-            is UtbetalingBeregningFri -> tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD && innsender is no.nav.mulighetsrommet.model.Arrangor
+            is UtbetalingBeregningFri -> tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD && innsender is ArrangorInnsendt
         }
     }
 
