@@ -336,6 +336,23 @@ class AvtaleQueries(private val session: Session) {
 
     fun upsertPrismodell(avtaleId: UUID, prismodeller: List<PrismodellDbo>) {
         @Language("PostgreSQL")
+        val deleteQuery = """
+            delete from avtale_prismodell
+            where avtale_id = ?::uuid
+            and not (id = any (?::uuid[]))
+        """.trimIndent()
+
+        val prismodellIds = prismodeller.map { it.id }
+        if (prismodellIds.isNotEmpty()) {
+            session.execute(
+                queryOf(
+                    deleteQuery,
+                    avtaleId,
+                    session.createUuidArray(prismodellIds),
+                ),
+            )
+        }
+        @Language("PostgreSQL")
         val query = """
             insert into avtale_prismodell(id,
                                           avtale_id,

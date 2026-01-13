@@ -1,4 +1,13 @@
-import { BodyShort, Box, Button, Select, VStack, HStack, Textarea } from "@navikt/ds-react";
+import {
+  BodyShort,
+  Box,
+  Button,
+  Select,
+  VStack,
+  HStack,
+  Textarea,
+  InlineMessage,
+} from "@navikt/ds-react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
@@ -115,7 +124,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                     onClick={() => remove(index)}
                     aria-label="Fjern prismodell"
                   >
-                    Fjern
+                    Fjern prismodell
                   </Button>
                 </HStack>
               </VStack>
@@ -140,6 +149,9 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
           Legg til prismodell
         </Button>
       </HStack>
+      {errors.prismodeller?.message && (
+        <InlineMessage status="error">{errors.prismodeller.message}</InlineMessage>
+      )}
     </VStack>
   );
 }

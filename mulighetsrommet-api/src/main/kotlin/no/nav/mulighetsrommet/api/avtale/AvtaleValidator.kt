@@ -106,7 +106,7 @@ object AvtaleValidator {
                     tiltakstypeNavn = ctx.tiltakstype.navn,
                     avtaleStartDato = request.detaljer.startDato,
                     gyldigTilsagnPeriode = ctx.gyldigTilsagnPeriode,
-                    previous = null,
+                    gjennomforinger = ctx.previous?.gjennomforinger ?: emptyList(),
                 ),
             ).bind()
 
@@ -218,7 +218,7 @@ object AvtaleValidator {
         val tiltakstypeNavn: String,
         val avtaleStartDato: LocalDate,
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
-        val previous: Ctx.Avtale?,
+        val gjennomforinger: List<Ctx.Gjennomforing>,
     )
 
     fun validatePrismodell(
@@ -229,7 +229,7 @@ object AvtaleValidator {
             FieldError.of("Minst én prismodell er påkrevd", OpprettAvtaleRequest::prismodeller)
         }
 
-        context.previous?.gjennomforinger?.forEach { gjennomforing ->
+        context.gjennomforinger.forEach { gjennomforing ->
             validate(request.any { it.id == gjennomforing.prismodellId }) {
                 FieldError.of(
                     "Prismodell kan ikke fjernes fordi en eller flere gjennomføringer er koblet til prismodellen",

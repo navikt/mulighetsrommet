@@ -129,6 +129,7 @@ class AvtaleService(
                         startDato = it.startDato,
                         utdanningslop = it.utdanningslop,
                         status = it.status.type,
+                        prismodellId = it.prismodell?.id ?: avtale.prismodeller.first().id,
                     )
                 },
                 prismodeller = avtale.prismodeller,
@@ -209,12 +210,24 @@ class AvtaleService(
     ): Either<List<FieldError>, Avtale> = either {
         val avtale = get(id)
             ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
-        val context = ValidatePrismodellContext(
-            tiltakskode = avtale.tiltakstype.tiltakskode,
-            tiltakstypeNavn = avtale.tiltakstype.navn,
-            avtaleStartDato = avtale.startDato,
-            gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
-        )
+        val context = db.session {
+            val gjennomforinger = queries.gjennomforing.getByAvtale(id)
+            ValidatePrismodellContext(
+                tiltakskode = avtale.tiltakstype.tiltakskode,
+                tiltakstypeNavn = avtale.tiltakstype.navn,
+                avtaleStartDato = avtale.startDato,
+                gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
+                gjennomforinger = gjennomforinger.map {
+                    AvtaleValidator.Ctx.Gjennomforing(
+                        arrangor = it.arrangor,
+                        startDato = it.startDato,
+                        utdanningslop = it.utdanningslop,
+                        status = it.status.type,
+                        prismodellId = it.prismodell?.id ?: avtale.prismodeller.first().id,
+                    )
+                },
+            )
+        }
         val prismodeller =
             AvtaleValidator.validatePrismodell(request, context)
                 .bind()
