@@ -47,6 +47,8 @@ object UtbetalingFixtures {
             id = AFT1.id,
             lopenummer = Tiltaksnummer("2025/10000"),
             navn = AFT1.navn,
+            start = AFT1.startDato,
+            slutt = AFT1.sluttDato,
         ),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         beregning = UtbetalingBeregningFri(
