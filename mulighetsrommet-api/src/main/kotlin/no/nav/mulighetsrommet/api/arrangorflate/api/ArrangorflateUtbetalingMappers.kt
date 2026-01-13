@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -109,7 +108,7 @@ private fun getInnsendingsDetaljer(
         },
         LabeledDataElement.text("Tiltaksnavn", utbetaling.gjennomforing.navn),
         LabeledDataElement.text("Tiltakstype", utbetaling.tiltakstype.navn),
-        if (utbetaling.beregning is UtbetalingBeregningFri && utbetaling.tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD) { // annen avtalt pris
+        if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
             LabeledDataElement.text(
                 "Tiltaksperiode",
                 Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt)

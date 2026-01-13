@@ -44,6 +44,19 @@ data class Utbetaling(
     val status: UtbetalingStatusType,
     val avbruttBegrunnelse: String?,
 ) {
+    fun arrangorInnsendtAnnenAvtaltPris(): Boolean {
+        return when (beregning) {
+            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+            is UtbetalingBeregningPrisPerHeleUkesverk,
+            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerTimeOppfolging,
+            is UtbetalingBeregningPrisPerUkesverk ->
+                false
+
+            is UtbetalingBeregningFri -> tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD && innsender is no.nav.mulighetsrommet.model.Arrangor
+        }
+    }
+
     @Serializable
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)
