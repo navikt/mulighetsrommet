@@ -50,7 +50,7 @@ class ApiDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecLi
     }
 
     inline fun <T> run(block: QueryContext.(TransactionalSession) -> T): T = db.transaction {
-        block(session as TransactionalSession)
+        block(session)
     }
 
     inline fun <T> runAndRollback(block: QueryContext.(TransactionalSession) -> T): T = db.db.session { s ->

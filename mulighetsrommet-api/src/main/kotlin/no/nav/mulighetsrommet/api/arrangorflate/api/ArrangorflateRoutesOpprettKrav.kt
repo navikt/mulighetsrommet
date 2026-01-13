@@ -69,6 +69,7 @@ import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import kotlin.collections.listOf
 
 fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     val db: ApiDatabase by inject()
@@ -594,7 +595,7 @@ data class OpprettKravInnsendingsInformasjon(
 
             return OpprettKravInnsendingsInformasjon(
                 guidePanel = panelGuide(gjennomforing.prismodell?.type),
-                definisjonsListe = definisjonsListe(gjennomforing),
+                definisjonsListe = getInnsendingsInformasjon(gjennomforing),
                 tilsagn = tilsagn,
                 datoVelger = datoVelger,
                 navigering = navigering,
@@ -613,78 +614,88 @@ data class OpprettKravInnsendingsInformasjon(
 
             else -> null
         }
+    }
+}
 
-        fun definisjonsListe(gjennomforing: GjennomforingGruppetiltak): List<LabeledDataElement> = listOf(
+fun getInnsendingsInformasjon(gjennomforing: GjennomforingGruppetiltak): List<LabeledDataElement> {
+    val standardList = listOf(
+        LabeledDataElement.text(
+            "Arrangør",
+            "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
+        ),
+        LabeledDataElement.text("Tiltaksnavn", gjennomforing.navn),
+        LabeledDataElement.text("Tiltakstype", gjennomforing.tiltakstype.navn),
+    )
+    if (gjennomforing.prismodell?.type == PrismodellType.ANNEN_AVTALT_PRIS) {
+        return standardList +
             LabeledDataElement.text(
-                "Arrangør",
-                "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
-            ),
-            LabeledDataElement.text("Tiltaksnavn", gjennomforing.navn),
-            LabeledDataElement.text("Tiltakstype", gjennomforing.tiltakstype.navn),
-        )
+                "Tiltaksperiode",
+                Periode.formatPeriode(gjennomforing.startDato, gjennomforing.sluttDato!!),
+            )
     }
+    return standardList
+}
+
+@Serializable
+enum class GuidePanelType {
+    INVESTERING_VTA_AFT,
+    TIMESPRIS,
+    AVTALT_PRIS,
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonClassDiscriminator("type")
+sealed class DatoVelger {
+    @Serializable
+    @SerialName("DatoVelgerSelect")
+    data class DatoSelect(val periodeForslag: List<Periode>) : DatoVelger()
 
     @Serializable
-    enum class GuidePanelType {
-        INVESTERING_VTA_AFT,
-        TIMESPRIS,
-        AVTALT_PRIS,
-    }
+    @SerialName("DatoVelgerRange")
+    data class DatoRange(
+        @Serializable(with = LocalDateSerializer::class)
+        val maksSluttdato: LocalDate,
+    ) : DatoVelger()
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Serializable
-    @JsonClassDiscriminator("type")
-    sealed class DatoVelger {
-        @Serializable
-        @SerialName("DatoVelgerSelect")
-        data class DatoSelect(val periodeForslag: List<Periode>) : DatoVelger()
+    companion object {
+        fun from(
+            okonomiConfig: OkonomiConfig,
+            gjennomforing: GjennomforingGruppetiltak,
+            tidligereUtbetalingsPerioder: Set<Periode> = emptySet(),
+        ): DatoVelger {
+            when (gjennomforing.prismodell?.type) {
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> {
+                    // Har de nådd innsendingssteget, kan vi garantere at tiltakskoden er konfigurert opp
+                    val tilsagnPeriode =
+                        okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
 
-        @Serializable
-        @SerialName("DatoVelgerRange")
-        data class DatoRange(
-            @Serializable(with = LocalDateSerializer::class)
-            val maksSluttdato: LocalDate,
-        ) : DatoVelger()
-
-        companion object {
-            fun from(
-                okonomiConfig: OkonomiConfig,
-                gjennomforing: GjennomforingGruppetiltak,
-                tidligereUtbetalingsPerioder: Set<Periode> = emptySet(),
-            ): DatoVelger {
-                when (gjennomforing.prismodell?.type) {
-                    PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> {
-                        // Har de nådd innsendingssteget, kan vi garantere at tiltakskoden er konfigurert opp
-                        val tilsagnPeriode =
-                            okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
-
-                        val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
-                        val perioder = Periode(
-                            start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
-                            slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
-                        ).splitByMonth()
-                        val filtrertePerioder =
-                            perioder.filter { it !in tidligereUtbetalingsPerioder }.sortedBy { it.start }
-                        return DatoSelect(filtrertePerioder)
-                    }
-
-                    PrismodellType.ANNEN_AVTALT_PRIS,
-                    PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                    -> {
-                        return DatoRange(
-                            maksUtbetalingsPeriodeSluttDato(
-                                gjennomforing,
-                                okonomiConfig,
-                            ),
-                        )
-                    }
-
-                    else ->
-                        throw StatusException(
-                            HttpStatusCode.Forbidden,
-                            "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen",
-                        )
+                    val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
+                    val perioder = Periode(
+                        start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
+                        slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
+                    ).splitByMonth()
+                    val filtrertePerioder =
+                        perioder.filter { it !in tidligereUtbetalingsPerioder }.sortedBy { it.start }
+                    return DatoSelect(filtrertePerioder)
                 }
+
+                PrismodellType.ANNEN_AVTALT_PRIS,
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                -> {
+                    return DatoRange(
+                        maksUtbetalingsPeriodeSluttDato(
+                            gjennomforing,
+                            okonomiConfig,
+                        ),
+                    )
+                }
+
+                else ->
+                    throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen",
+                    )
             }
         }
     }
@@ -855,20 +866,7 @@ data class OpprettKravOppsummering(
             }
 
             return OpprettKravOppsummering(
-                innsendingsInformasjon = listOf(
-                    LabeledDataElement.text(
-                        "Arrangør",
-                        "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
-                    ),
-                    LabeledDataElement.text(
-                        "Tiltaksnavn",
-                        gjennomforing.navn,
-                    ),
-                    LabeledDataElement.text(
-                        "Tiltakstype",
-                        gjennomforing.tiltakstype.navn,
-                    ),
-                ),
+                innsendingsInformasjon = getInnsendingsInformasjon(gjennomforing),
                 utbetalingInformasjon = listOf(
                     LabeledDataElement.text(
                         "Utbetalingsperiode",

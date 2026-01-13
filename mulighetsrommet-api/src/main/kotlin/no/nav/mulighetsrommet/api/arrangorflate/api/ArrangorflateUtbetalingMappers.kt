@@ -58,10 +58,11 @@ fun mapUtbetalingToArrangorflateUtbetaling(
 
     val kanViseBeregningMedDeltakelse = beregning.deltakelser?.let { kanViseBeregning } ?: false
 
+    val innsendtAvArrangorDato = utbetaling.godkjentAvArrangorTidspunkt?.toLocalDate()
     return ArrangorflateUtbetalingDto(
         id = utbetaling.id,
         status = status,
-        innsendtAvArrangorDato = utbetaling.godkjentAvArrangorTidspunkt?.toLocalDate(),
+        innsendtAvArrangorDato = innsendtAvArrangorDato,
         utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
         kanViseBeregning = kanViseBeregningMedDeltakelse,
         createdAt = utbetaling.createdAt,
@@ -87,11 +88,36 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         ),
         type = UtbetalingType.from(utbetaling).toDto(),
         linjer = linjer,
+        innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),
         advarsler = advarsler,
         kanAvbrytes = kanAvbrytes,
         kanRegenereres = kanRegenereres,
         regenerertId = regenerertId,
     )
+}
+
+private fun getInnsendingsDetaljer(
+    utbetaling: Utbetaling,
+    innsendtAvArrangorDato: LocalDate?,
+): List<LabeledDataElement> {
+    return listOf(
+        if (innsendtAvArrangorDato != null) {
+            LabeledDataElement.date("Dato innsendt", innsendtAvArrangorDato)
+        } else {
+            LabeledDataElement.date("Dato opprettet hos Nav", utbetaling.createdAt.toLocalDate())
+        },
+        LabeledDataElement.text("Tiltaksnavn", utbetaling.gjennomforing.navn),
+        LabeledDataElement.text("Tiltakstype", utbetaling.tiltakstype.navn),
+        if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
+            LabeledDataElement.text(
+                "Tiltaksperiode",
+                Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt),
+            )
+        } else {
+            null
+        },
+        LabeledDataElement.text("Løpenummer", utbetaling.gjennomforing.lopenummer.toString()),
+    ).filterNotNull()
 }
 
 @Serializable
