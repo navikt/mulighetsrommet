@@ -1,6 +1,5 @@
 import {
   ArrangorflateArrangor,
-  ArrangorflateGjennomforing,
   DataDrivenTableDto,
   DataDrivenTableDtoColumnAlign,
   DataElementTextFormat,
@@ -14,16 +13,13 @@ export const gjennomforingIdOppfolging = "54d0d2af-f329-480d-a427-30de446fea12";
 
 const today: Date = new Date();
 
-type Lopenummer = {
-  lopenummer: string;
-};
 export const arrangorMock: ArrangorflateArrangor = {
   id: "cc04c391-d733-4762-8208-b0dd4387a126",
   navn: "Arrangørens navn",
   organisasjonsnummer: "123456789",
 };
 
-export const gjennomforingAFT: ArrangorflateGjennomforing & Lopenummer = {
+export const gjennomforingAFT = {
   id: gjennomforingIdAFT,
   navn: "Et AFT-tiltak Investering",
   tiltakstype: {
@@ -35,7 +31,7 @@ export const gjennomforingAFT: ArrangorflateGjennomforing & Lopenummer = {
   lopenummer: "2024/12345",
 };
 
-export const gjennomforingAvklaring: ArrangorflateGjennomforing & Lopenummer = {
+export const gjennomforingAvklaring = {
   id: gjennomforingIdAvklaring,
   navn: "Et avklaringstiltak med annen avtalt pris",
   tiltakstype: {
@@ -47,7 +43,7 @@ export const gjennomforingAvklaring: ArrangorflateGjennomforing & Lopenummer = {
   lopenummer: "2025/54321",
 };
 
-export const gjennomforingOppfolging: ArrangorflateGjennomforing & Lopenummer = {
+export const gjennomforingOppfolging = {
   id: gjennomforingIdOppfolging,
   navn: "Et oppfølgingstiltak med avtalt timespris",
   tiltakstype: {

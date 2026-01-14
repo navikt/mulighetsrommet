@@ -7,31 +7,6 @@ externalDocs:
 servers: []
 tags: []
 paths:
-  /api/arrangorflate/tilgang-arrangor:
-    get:
-      tags:
-      - Arrangorflate
-      description: Henter liste over arrangører innlogget bruker har tilgang til
-      operationId: getArrangorerInnloggetBrukerHarTilgangTil
-      parameters: []
-      responses:
-        "200":
-          description: Arrangører
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/arrangorflate/arrangor/tiltaksoversikt:
     get:
       tags:
@@ -362,169 +337,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent gjennomføringene til arrangør
-      operationId: getArrangorflateGjennomforinger
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: prismodeller
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/PrismodellType"
-      responses:
-        "200":
-          description: Arrangør sine gjennomføringer
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorflateGjennomforing"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent gjennomføring til arrangør
-      operationId: getArrangorflateGjennomforing
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: gjennomforingId
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Arrangørens gjennomføring
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ArrangorflateGjennomforing"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/kontonummer:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent kontonummer fra kontonummer-organisasjon for gitt organisasjonsnummer
-      operationId: getKontonummer
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Kontonummer til arrangør
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/KontonummerResponse"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/utbetaling:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent utbetalingene til arrangør
-      operationId: getAllUtbetaling
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Arrangør sine utbetalinger
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ArrangorflateUtbetalinger"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/tilsagn:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent alle tilsagn til arrangør
-      operationId: getAllArrangorflateTilsagn
-      parameters: []
-      responses:
-        "200":
-          description: Alle tilsagn for arrangørs tilgang
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorflateTilsagnDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/arrangorflate/tilsagn:
     get:
       tags:
@@ -634,39 +446,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ArrangorflateUtbetalingDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/arrangorflate/utbetaling/{id}/advarsler:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent deltakerforslag som kan påvirke utbetalingen
-      operationId: getRelevanteForslag
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Deltakerforslag som er relevante for utbetalingen
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DeltakerAdvarsel"
         default:
           description: Problem details
           headers: {}
@@ -954,62 +733,6 @@ components:
       type: number
       enum:
         - 1
-    ArrangorDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        organisasjonsnummer:
-          type: string
-        organisasjonsform:
-          type:
-          - "null"
-          - string
-        navn:
-          type: string
-        overordnetEnhet:
-          type:
-          - "null"
-          - string
-        underenheter:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/ArrangorDto"
-        slettetDato:
-          type:
-          - "null"
-          - string
-          format: date
-      required:
-      - id
-      - navn
-      - organisasjonsform
-      - organisasjonsnummer
-      - overordnetEnhet
-      - slettetDato
-      - underenheter
-    ProblemDetail:
-      type: object
-      additionalProperties: {}
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        status:
-          type: integer
-        detail:
-          type: string
-        instance:
-          type: string
-      required:
-      - detail
-      - status
-      - title
-      - type
     TiltaksoversiktType:
       type: string
       enum:
@@ -1267,6 +990,25 @@ components:
           - $ref: "#/components/schemas/DataDrivenTableDto"
       required:
       - table
+    ProblemDetail:
+      type: object
+      additionalProperties: {}
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+      - detail
+      - status
+      - title
+      - type
     OpprettKravVeiviserStegDto:
       type: object
       properties:
@@ -1706,123 +1448,6 @@ components:
           format: uuid
       required:
       - id
-    PrismodellType:
-      type: string
-      enum:
-      - ANNEN_AVTALT_PRIS
-      - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-      - AVTALT_PRIS_PER_MANEDSVERK
-      - AVTALT_PRIS_PER_UKESVERK
-      - AVTALT_PRIS_PER_HELE_UKESVERK
-      - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
-    ArrangorflateGjennomforing:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        tiltakstype:
-          $ref: "#/components/schemas/ArrangorflateTiltakstype"
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-      required:
-      - id
-      - navn
-      - sluttDato
-      - startDato
-      - tiltakstype
-    KontonummerResponse:
-      type: object
-      properties:
-        kontonummer:
-          type: string
-      required:
-      - kontonummer
-    ArrangorflateUtbetalingKompaktDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tiltakstype:
-          $ref: "#/components/schemas/ArrangorflateTiltakstype"
-        gjennomforing:
-          $ref: "#/components/schemas/ArrangorflateGjennomforingInfo"
-        arrangor:
-          $ref: "#/components/schemas/ArrangorflateArrangor"
-        type:
-          $ref: "#/components/schemas/UtbetalingTypeDto"
-        periode:
-          $ref: "#/components/schemas/Periode"
-        status:
-          $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
-        belop:
-          type: integer
-          format: int32
-        godkjentBelop:
-          type:
-          - "null"
-          - integer
-          format: int32
-      required:
-      - arrangor
-      - belop
-      - gjennomforing
-      - godkjentBelop
-      - id
-      - periode
-      - status
-      - tiltakstype
-      - type
-    UtbetalingTypeDto:
-      type: object
-      properties:
-        displayName:
-          type: string
-        displayNameLong:
-          type:
-          - "null"
-          - string
-        tagName:
-          type:
-          - "null"
-          - string
-      required:
-      - displayName
-      - displayNameLong
-      - tagName
-    ArrangorflateUtbetalingStatus:
-      type: string
-      enum:
-      - KLAR_FOR_GODKJENNING
-      - BEHANDLES_AV_NAV
-      - UTBETALT
-      - KREVER_ENDRING
-      - OVERFORT_TIL_UTBETALING
-      - DELVIS_UTBETALT
-      - AVBRUTT
-    ArrangorflateUtbetalinger:
-      type: object
-      properties:
-        aktive:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrangorflateUtbetalingKompaktDto"
-        historiske:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrangorflateUtbetalingKompaktDto"
-      required:
-      - aktive
-      - historiske
     ArrangorflateTilsagnOversikt:
       type: object
       properties:
@@ -1846,6 +1471,16 @@ components:
           - $ref: "#/components/schemas/DataDrivenTableDto"
       required:
       - tabell
+    ArrangorflateUtbetalingStatus:
+      type: string
+      enum:
+      - KLAR_FOR_GODKJENNING
+      - BEHANDLES_AV_NAV
+      - UTBETALT
+      - KREVER_ENDRING
+      - OVERFORT_TIL_UTBETALING
+      - DELVIS_UTBETALT
+      - AVBRUTT
     ArrangorflateBetalingsinformasjon:
       type: object
       properties:
@@ -1889,6 +1524,23 @@ components:
       - displayName
       - satsDetaljer
       - stengt
+    UtbetalingTypeDto:
+      type: object
+      properties:
+        displayName:
+          type: string
+        displayNameLong:
+          type:
+          - "null"
+          - string
+        tagName:
+          type:
+          - "null"
+          - string
+      required:
+      - displayName
+      - displayNameLong
+      - tagName
     ArrangforflateUtbetalingLinje:
       type: object
       properties:
@@ -2115,6 +1767,13 @@ components:
           - string
       required:
       - begrunnelse
+    KontonummerResponse:
+      type: object
+      properties:
+        kontonummer:
+          type: string
+      required:
+      - kontonummer
     ScanVedleggRequest:
       type: object
       properties:

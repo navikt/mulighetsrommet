@@ -87,7 +87,7 @@ const satsDetaljerUkespris: DataDetails[] = [
   },
 ];
 
-const aftUtbetalt: ArrangorflateUtbetalingDto = {
+export const aftUtbetalt: ArrangorflateUtbetalingDto = {
   kanRegenereres: false,
   regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
@@ -168,7 +168,7 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
   ],
 };
 
-const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
+export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   kanRegenereres: false,
   regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
@@ -221,7 +221,7 @@ const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   ],
 };
 
-const aftKreverEndring: ArrangorflateUtbetalingDto = {
+export const aftKreverEndring: ArrangorflateUtbetalingDto = {
   kanRegenereres: false,
   regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
@@ -277,7 +277,7 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
   ],
 };
 
-const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
+export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   kanRegenereres: false,
   regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
@@ -342,7 +342,7 @@ const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   ],
 };
 
-const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
+export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
   kanRegenereres: false,
   regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
@@ -418,7 +418,7 @@ const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
   ],
 };
 
-const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
+export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   kanRegenereres: false,
   regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
@@ -478,7 +478,7 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   ],
 };
 
-const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
+export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
   kanRegenereres: false,
   regenerertId: null,

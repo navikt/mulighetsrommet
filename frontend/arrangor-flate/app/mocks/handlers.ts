@@ -1,48 +1,21 @@
 import { DefaultBodyType, http, HttpResponse, PathParams } from "msw";
 import {
-  ArrangorflateArrangor,
   ArrangorflateTilsagnOversikt,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingerOversikt,
-  ArrangorflateUtbetalingKompaktDto,
   ArrangorflateUtbetalingStatus,
 } from "api-client";
 import {
-  mockArrangorflateUtbetalingKompakt,
   utbetalingTabellOversiktAktive,
   utbetalingTabellOversiktHistoriske,
 } from "./utbetalingOversiktMocks";
 import { arrFlateUtbetaling, klarForGodkjenningIds } from "./utbetalingDetaljerMocks";
 import { arrangorflateTilsagn, tilsagnOversikt } from "./tilsagnMocks";
 import { handlers as opprettKravHandlers } from "./opprettKrav/handlers";
-import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
-
-function isAktiv(utbetaling: ArrangorflateUtbetalingKompaktDto): boolean {
-  switch (utbetaling.status) {
-    case ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING:
-    case ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV:
-    case ArrangorflateUtbetalingStatus.KREVER_ENDRING:
-      return true;
-    case ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
-    case ArrangorflateUtbetalingStatus.AVBRUTT:
-    case ArrangorflateUtbetalingStatus.UTBETALT:
-    case ArrangorflateUtbetalingStatus.DELVIS_UTBETALT:
-      return false;
-  }
-}
 
 export const handlers = [
   http.post<PathParams, DefaultBodyType>("*/api/arrangorflate/vedlegg/scan", () =>
     HttpResponse.json(true),
-  ),
-  http.get<PathParams, ArrangorflateUtbetalingDto[]>(
-    "*/api/arrangorflate/arrangor/:orgnr/utbetaling",
-    () =>
-      HttpResponse.json({
-        aktive: mockArrangorflateUtbetalingKompakt.filter((u) => isAktiv(u)),
-        historiske: mockArrangorflateUtbetalingKompakt.filter((u) => !isAktiv(u)),
-        kanOppretteManueltKrav: true,
-      }),
   ),
   http.get<PathParams, ArrangorflateUtbetalingerOversikt>(
     "*/api/arrangorflate/utbetaling",
@@ -53,14 +26,6 @@ export const handlers = [
       }
       return HttpResponse.json({ tabell: utbetalingTabellOversiktHistoriske });
     },
-  ),
-  http.get<PathParams, ArrangorflateUtbetalingDto[]>(
-    "*/api/arrangorflate/arrangor/:orgnr/kontonummer",
-    () => HttpResponse.text("10002427740"), // random kontonr
-  ),
-  http.post<PathParams, ArrangorflateUtbetalingDto[]>(
-    "*/api/arrangorflate/arrangor/:orgnr/utbetaling",
-    () => HttpResponse.text("585a2834-338a-4ac7-82e0-e1b08bfe1408"), // investerings utbetaling
   ),
   http.get<PathParams, ArrangorflateUtbetalingDto[]>(
     "*/api/arrangorflate/utbetaling/:id",
@@ -107,12 +72,6 @@ export const handlers = [
     },
   ),
   http.get<PathParams, ArrangorflateUtbetalingDto[]>(
-    "*/api/arrangorflate/utbetaling/:id/relevante-forslag",
-    () => {
-      return HttpResponse.json([]);
-    },
-  ),
-  http.get<PathParams, ArrangorflateUtbetalingDto[]>(
     "*/api/arrangorflate/utbetaling/:id/utbetalingsdetaljer",
     () =>
       HttpResponse.json(
@@ -120,33 +79,12 @@ export const handlers = [
         { status: 405 },
       ),
   ),
-  http.get<PathParams, ArrangorflateUtbetalingDto[]>(
-    "*/api/arrangorflate/arrangor/:orgnr/tilsagn",
-    () => HttpResponse.json(arrangorflateTilsagn),
-  ),
   http.get<PathParams, boolean>("*/api/arrangorflate/arrangor/:orgnr/features", ({ request }) => {
     const query = new URL(request.url).searchParams;
     const toggleEnabled = !query
       .getAll("feature")
       .includes("ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS");
     return HttpResponse.json(toggleEnabled);
-  }),
-  http.get<PathParams, boolean>("*/api/arrangorflate/arrangor/:orgnr/gjennomforing", () => {
-    const gjennomforinger = [
-      {
-        id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1",
-        navn: "AFT Foobar",
-        startDato: "2022-04-01",
-        sluttDato: "2026-11-26",
-      },
-      {
-        id: "90ae5baf-98b0-49d3-803f-1bd9d8e1a719",
-        navn: "AFT høstblad",
-        startDato: "2024-04-01",
-        sluttDato: "2027-04-01",
-      },
-    ];
-    return HttpResponse.json(gjennomforinger);
   }),
   http.get<PathParams, ArrangorflateTilsagnOversikt>("*/api/arrangorflate/tilsagn", () => {
     return HttpResponse.json({ tabell: tilsagnOversikt });
@@ -158,11 +96,5 @@ export const handlers = [
       return HttpResponse.json(arrangorflateTilsagn.find((k) => k.id === id));
     },
   ),
-  http.get<PathParams, ArrangorflateArrangor[]>("*/api/arrangorflate/tilgang-arrangor", () =>
-    HttpResponse.json([arrangorMock]),
-  ),
-  http.get("*/api/arrangorflate/:orgnr/features", () => {
-    return HttpResponse.json(true);
-  }),
   ...opprettKravHandlers,
 ];
