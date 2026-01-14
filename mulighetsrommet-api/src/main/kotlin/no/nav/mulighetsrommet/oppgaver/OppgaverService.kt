@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -408,5 +409,10 @@ private fun GjennomforingManglerAdministratorOppgaveData.toOppgave(ansatt: NavAn
 }
 
 private fun getOkonomiOppgaveTitle(tiltakstype: OppgaveTiltakstype, gjennomforing: OppgaveGjennomforing): String {
-    return "${tiltakstype.navn} (${gjennomforing.lopenummer.value})"
+    val navn: String = when (gjennomforing.type) {
+        GjennomforingType.GRUPPETILTAK -> gjennomforing.navn ?: tiltakstype.navn
+        GjennomforingType.ENKELTPLASS -> tiltakstype.navn
+    }
+    val lopenummer: String = gjennomforing.lopenummer.value
+    return "$navn ($lopenummer)"
 }

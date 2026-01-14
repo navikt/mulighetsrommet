@@ -6,6 +6,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.db.createArrayOfAvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.tilsagn.db.createArrayOfTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -96,6 +97,8 @@ class OppgaveQueries(private val session: Session) {
                 nav_enhet.enhetsnummer AS kostnadssted_enhetsnummer,
                 gjennomforing.id as gjennomforing_id,
                 gjennomforing.lopenummer as gjennomforing_lopenummer,
+                gjennomforing.navn as gjennomforing_navn,
+                gjennomforing.gjennomforing_type,
                 tiltakstype.tiltakskode,
                 tiltakstype.navn AS tiltakstype_navn,
                 tk.besluttet_tidspunkt,
@@ -145,6 +148,8 @@ class OppgaveQueries(private val session: Session) {
                 gjennomforing = OppgaveGjennomforing(
                     id = it.uuid("gjennomforing_id"),
                     lopenummer = Tiltaksnummer(it.string("gjennomforing_lopenummer")),
+                    type = GjennomforingType.valueOf(it.string("gjennomforing_type")),
+                    navn = it.stringOrNull("gjennomforing_navn"),
                 ),
             )
         }
@@ -163,6 +168,8 @@ class OppgaveQueries(private val session: Session) {
                 nav_enhet.navn                    as kostnadssted_navn,
                 gjennomforing.id                  as gjennomforing_id,
                 gjennomforing.lopenummer          as gjennomforing_lopenummer,
+                gjennomforing.navn                as gjennomforing_navn,
+                gjennomforing.gjennomforing_type,
                 tiltakstype.tiltakskode           as tiltakskode,
                 tiltakstype.navn                  as tiltakstype_navn
             from tilsagn
@@ -200,6 +207,8 @@ class OppgaveQueries(private val session: Session) {
                 gjennomforing = OppgaveGjennomforing(
                     id = it.uuid("gjennomforing_id"),
                     lopenummer = Tiltaksnummer(it.string("gjennomforing_lopenummer")),
+                    type = GjennomforingType.valueOf(it.string("gjennomforing_type")),
+                    navn = it.stringOrNull("gjennomforing_navn"),
                 ),
             )
         }
@@ -216,6 +225,8 @@ class OppgaveQueries(private val session: Session) {
                 utbetaling.status,
                 gjennomforing.id as gjennomforing_id,
                 gjennomforing.lopenummer as gjennomforing_lopenummer,
+                gjennomforing.navn as gjennomforing_navn,
+                gjennomforing.gjennomforing_type,
                 tiltakstype.navn as tiltakstype_navn,
                 tiltakstype.tiltakskode as tiltakstype_tiltakskode,
                 ks.kostnadssteder
@@ -251,6 +262,8 @@ class OppgaveQueries(private val session: Session) {
                 gjennomforing = OppgaveGjennomforing(
                     id = row.uuid("gjennomforing_id"),
                     lopenummer = Tiltaksnummer(row.string("gjennomforing_lopenummer")),
+                    type = GjennomforingType.valueOf(row.string("gjennomforing_type")),
+                    navn = row.stringOrNull("gjennomforing_navn"),
                 ),
             )
         }
@@ -365,4 +378,6 @@ data class AvtaleManglerAdministratorOppgaveData(
 data class OppgaveGjennomforing(
     val id: UUID,
     val lopenummer: Tiltaksnummer,
+    val type: GjennomforingType,
+    val navn: String?,
 )
