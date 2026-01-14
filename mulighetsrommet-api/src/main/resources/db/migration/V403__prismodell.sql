@@ -41,3 +41,6 @@ from prismodell;
 
 alter table prismodell
     drop avtale_id;
+
+alter table prismodell
+    add system_id text unique;

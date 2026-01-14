@@ -491,8 +491,8 @@ class AvtaleQueriesTest : FunSpec({
 
             database.runAndRollback { session ->
                 domain.setup(session)
-                queries.prismodell.upsertPrismodell(prismodell1Dbo)
-                queries.prismodell.upsertPrismodell(prismodell2Dbo)
+                queries.prismodell.upsert(prismodell1Dbo)
+                queries.prismodell.upsert(prismodell2Dbo)
 
                 val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell1Dbo.id))
                 queries.avtale.create(avtale)
@@ -512,7 +512,7 @@ class AvtaleQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.prismodell.upsertPrismodell(
+                queries.prismodell.upsert(
                     prismodell2Dbo.copy(type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK, prisbetingelser = "$"),
                 )
 

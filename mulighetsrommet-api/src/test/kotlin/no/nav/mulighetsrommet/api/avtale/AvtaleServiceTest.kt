@@ -22,10 +22,12 @@ import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -104,7 +106,7 @@ class AvtaleServiceTest : FunSpec({
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                 avtaletype = Avtaletype.FORHANDSGODKJENT,
                 opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
-                prismodell = PrismodellFixtures.ForhandsgodkjentAft,
+                prismodell = listOf(),
             )
 
             avtaleService.create(request, bertilNavIdent).shouldBeRight().prismodeller.shouldHaveSize(1).should {
@@ -120,7 +122,7 @@ class AvtaleServiceTest : FunSpec({
         test("oppretter avtale med prismodell") {
             val request = AvtaleFixtures.createAvtaleRequest(
                 Tiltakskode.OPPFOLGING,
-                prismodell = PrismodellFixtures.AvtaltPrisPerTimeOppfolging,
+                prismodell = listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging),
             )
 
             avtaleService.create(request, bertilNavIdent).shouldBeRight().prismodeller.shouldHaveSize(1).should {
@@ -261,20 +263,26 @@ class AvtaleServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 prisbetingelser = null,
-                satser = listOf(),
-            )
-            val expectedError = FieldError(
-                "/prismodeller",
-                "Prismodell kan ikke opprettes med typen Fast sats per tiltaksplass per måned",
+                satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100, ValutaType.NOK)),
             )
 
             avtaleService.upsertPrismodell(AvtaleFixtures.oppfolging.id, listOf(request), bertilNavIdent)
                 .shouldBeLeft()
-                .shouldContain(expectedError)
+                .shouldContain(
+                    FieldError(
+                        "/prismodeller",
+                        "Prismodell kan ikke opprettes med typen Fast sats per tiltaksplass per måned",
+                    ),
+                )
 
             avtaleService.upsertPrismodell(AvtaleFixtures.AFT.id, listOf(request), bertilNavIdent)
                 .shouldBeLeft()
-                .shouldContain(expectedError)
+                .shouldContain(
+                    FieldError(
+                        "/prismodeller",
+                        "Prismodell kan ikke opprettes for forhåndsgodkjente avtaler",
+                    ),
+                )
         }
 
         test("skedulerer publisering av gjennomføringer tilhørende avtalen ved endring av prismodell") {

@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -163,12 +162,7 @@ object AvtaleFixtures {
             kontaktpersoner = emptyList(),
         ),
         administratorer: List<NavIdent> = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-        prismodell: PrismodellDbo = PrismodellDbo(
-            id = UUID.randomUUID(),
-            type = PrismodellType.ANNEN_AVTALT_PRIS,
-            prisbetingelser = null,
-            satser = listOf(),
-        ),
+        prismodell: List<PrismodellDbo> = listOf(PrismodellFixtures.AnnenAvtaltPris),
         opsjonsmodell: Opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         amo: AmoKategoriseringRequest? = null,
     ): OpprettAvtaleRequest {
@@ -196,7 +190,7 @@ object AvtaleFixtures {
                 personopplysninger = emptyList(),
                 personvernBekreftet = false,
             ),
-            prismodeller = listOf(
+            prismodeller = prismodell.map { prismodell ->
                 PrismodellRequest(
                     id = prismodell.id,
                     type = prismodell.type,
@@ -204,8 +198,8 @@ object AvtaleFixtures {
                     satser = (prismodell.satser ?: listOf()).map {
                         AvtaltSatsRequest(it.gjelderFra, it.sats, ValutaType.NOK)
                     },
-                ),
-            ),
+                )
+            },
         )
     }
 }

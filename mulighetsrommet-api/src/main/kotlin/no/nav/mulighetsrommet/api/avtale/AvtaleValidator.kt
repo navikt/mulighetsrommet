@@ -55,6 +55,7 @@ object AvtaleValidator {
         val administratorer: List<NavAnsatt>,
         val tiltakstype: Tiltakstype,
         val navEnheter: List<NavEnhetDto>,
+        val systembestemtPrismodell: UUID?,
     ) {
         data class Avtale(
             val status: AvtaleStatusType,
@@ -98,7 +99,7 @@ object AvtaleValidator {
             amoKategorisering,
         )
 
-        val prismodeller = request.prismodeller.map { it.id }
+        val prismodeller = ctx.systembestemtPrismodell?.let { listOf(it) } ?: request.prismodeller.map { it.id }
         validate(prismodeller.isNotEmpty()) {
             FieldError.of("Minst én prismodell er påkrevd", OpprettAvtaleRequest::prismodeller)
         }
@@ -206,7 +207,8 @@ object AvtaleValidator {
         )
     }
 
-    data class ValidatePrismodellContext(
+    data class ValidatePrismodellerContext(
+        val avtaletype: Avtaletype,
         val tiltakskode: Tiltakskode,
         val tiltakstypeNavn: String,
         val avtaleStartDato: LocalDate,
@@ -214,26 +216,20 @@ object AvtaleValidator {
         val bruktePrismodeller: Set<UUID>,
     )
 
-    fun validateUpsertPrismodeller(
+    fun validatePrismodeller(
         request: List<PrismodellRequest>,
-        context: ValidatePrismodellContext,
+        context: ValidatePrismodellerContext,
     ): Either<List<FieldError>, List<PrismodellDbo>> = validation {
-        request.forEach { prismodell ->
-            validate(prismodell.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+        if (context.avtaletype == Avtaletype.FORHANDSGODKJENT) {
+            requireValid(request.isEmpty()) {
                 FieldError.of(
-                    "Prismodell kan ikke opprettes med typen ${prismodell.type.navn}",
+                    "Prismodell kan ikke opprettes for forhåndsgodkjente avtaler",
                     OpprettAvtaleRequest::prismodeller,
                 )
             }
+            return@validation listOf()
         }
 
-        validatePrismodell(request, context).bind()
-    }
-
-    fun validatePrismodell(
-        request: List<PrismodellRequest>,
-        context: ValidatePrismodellContext,
-    ): Either<List<FieldError>, List<PrismodellDbo>> = validation {
         requireValid(request.isNotEmpty()) {
             FieldError.of("Minst én prismodell er påkrevd", OpprettAvtaleRequest::prismodeller)
         }
@@ -242,6 +238,15 @@ object AvtaleValidator {
             validate(request.any { it.id == prismodellId }) {
                 FieldError.of(
                     "Prismodell kan ikke fjernes fordi en eller flere gjennomføringer er koblet til prismodellen",
+                    OpprettAvtaleRequest::prismodeller,
+                )
+            }
+        }
+
+        request.forEach { prismodell ->
+            validate(prismodell.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+                FieldError.of(
+                    "Prismodell kan ikke opprettes med typen ${prismodell.type.navn}",
                     OpprettAvtaleRequest::prismodeller,
                 )
             }
@@ -268,6 +273,7 @@ object AvtaleValidator {
             }
             PrismodellDbo(
                 id = prismodell.id,
+                systemId = null,
                 type = prismodell.type,
                 prisbetingelser = prismodell.prisbetingelser,
                 satser = satser,
@@ -442,7 +448,7 @@ object AvtaleValidator {
     }
 
     private fun FieldValidator.validateSatser(
-        context: ValidatePrismodellContext,
+        context: ValidatePrismodellerContext,
         prismodellIndex: Int,
         satserRequest: List<AvtaltSatsRequest>,
     ): List<AvtaltSats> {

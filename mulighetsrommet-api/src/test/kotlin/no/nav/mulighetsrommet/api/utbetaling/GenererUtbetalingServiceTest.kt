@@ -1013,7 +1013,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
 
             database.run {
-                queries.prismodell.upsertPrismodell(
+                queries.prismodell.upsert(
                     prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK),
                 )
             }
@@ -1047,7 +1047,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ) {
 
-                queries.prismodell.upsertPrismodell(
+                queries.prismodell.upsert(
                     prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
                 )
             }.initialize(database.db)
@@ -1076,7 +1076,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
 
             database.run {
-                queries.prismodell.upsertPrismodell(
+                queries.prismodell.upsert(
                     prismodell.copy(type = PrismodellType.ANNEN_AVTALT_PRIS),
                 )
             }

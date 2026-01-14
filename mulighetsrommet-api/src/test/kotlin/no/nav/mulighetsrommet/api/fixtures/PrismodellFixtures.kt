@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.ValutaType
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.util.UUID
 
@@ -15,6 +16,7 @@ object PrismodellFixtures {
         satser: List<AvtaltSats> = emptyList(),
     ): PrismodellDbo = PrismodellDbo(
         id = id,
+        systemId = null,
         type = type,
         prisbetingelser = prisbetingelser,
         satser = satser,
@@ -22,6 +24,7 @@ object PrismodellFixtures {
 
     val ForhandsgodkjentAft = PrismodellDbo(
         id = UUID.randomUUID(),
+        systemId = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING.name,
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         prisbetingelser = null,
         satser = listOf(
@@ -32,6 +35,7 @@ object PrismodellFixtures {
 
     val ForhandsgodkjentVta = PrismodellDbo(
         id = UUID.randomUUID(),
+        systemId = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name,
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         prisbetingelser = null,
         satser = listOf(

@@ -50,6 +50,7 @@ from avtale
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'id', id,
+                                                   'systemId', system_id,
                                                    'type', prismodell_type,
                                                    'prisbetingelser', prisbetingelser,
                                                    'satser', satser

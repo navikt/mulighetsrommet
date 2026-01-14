@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellContext
+import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
@@ -87,25 +87,18 @@ class AvtaleService(
             )
             .bind()
 
-        val createPrismodellContext = ValidatePrismodellContext(
+        val createPrismodellerContext = ValidatePrismodellerContext(
+            avtaletype = request.detaljer.avtaletype,
             tiltakskode = request.detaljer.tiltakskode,
             tiltakstypeNavn = createAvtaleContext.tiltakstype.navn,
             avtaleStartDato = request.detaljer.startDato,
             gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
             bruktePrismodeller = setOf(),
         )
-        val prismodeller = AvtaleValidator.validatePrismodell(request.prismodeller, createPrismodellContext).bind()
+        val prismodeller = AvtaleValidator.validatePrismodeller(request.prismodeller, createPrismodellerContext).bind()
 
         db.transaction {
-            prismodeller.forEach { prismodell ->
-                // TODO: fiks lagring av riktig forhåndsgodkjent prismodell
-                //  - Ikke inkluder prismodeller i request for forhåjndsgodkjente tiltak
-                //  - Utled "magisk" prismodell for forhåndsgodkjente tiltak i service
-                if (prismodell.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
-                    queries.prismodell.upsertPrismodell(prismodell)
-                }
-            }
-
+            prismodeller.forEach { queries.prismodell.upsert(it) }
             queries.avtale.create(avtaleDbo)
 
             dispatchNotificationToNewAdministrators(
@@ -219,17 +212,17 @@ class AvtaleService(
     ): Either<List<FieldError>, Avtale> = db.transaction {
         val avtale = getOrError(id)
         val gjennomforinger = queries.gjennomforing.getByAvtale(id)
-        val context = ValidatePrismodellContext(
+        val context = ValidatePrismodellerContext(
+            avtaletype = avtale.avtaletype,
             tiltakskode = avtale.tiltakstype.tiltakskode,
             tiltakstypeNavn = avtale.tiltakstype.navn,
             avtaleStartDato = avtale.startDato,
             gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
             bruktePrismodeller = gjennomforinger.mapNotNull { it.prismodell?.id }.toSet(),
         )
-
-        AvtaleValidator.validateUpsertPrismodeller(request, context).map { prismodeller ->
+        AvtaleValidator.validatePrismodeller(request, context).map { prismodeller ->
             prismodeller.forEach { prismodell ->
-                queries.prismodell.upsertPrismodell(prismodell)
+                queries.prismodell.upsert(prismodell)
                 queries.avtale.upsertPrismodell(id, prismodell.id)
             }
 
@@ -395,6 +388,8 @@ class AvtaleService(
             arrangor.copy(underenheter = underenheter)
         }
 
+        val systembestemtPrismodell = queries.prismodell.getBySystemId(request.tiltakskode.name)
+
         AvtaleValidator.Ctx(
             previous = previous,
             arrangor = arrangor,
@@ -404,6 +399,7 @@ class AvtaleService(
                 id = tiltakstype.id,
             ),
             navEnheter = navEnheter,
+            systembestemtPrismodell = systembestemtPrismodell?.id,
         )
     }
 
