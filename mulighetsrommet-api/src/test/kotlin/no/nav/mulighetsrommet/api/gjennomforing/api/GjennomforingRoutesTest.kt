@@ -17,9 +17,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig

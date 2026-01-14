@@ -48,7 +48,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
-import kotlin.collections.mapNotNull
 
 class AvtaleValidatorTest : FunSpec({
     val avtaleRequest = AvtaleFixtures.createAvtaleRequest(
