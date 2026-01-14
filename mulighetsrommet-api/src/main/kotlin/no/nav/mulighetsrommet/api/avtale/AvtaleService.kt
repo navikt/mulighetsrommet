@@ -4,11 +4,9 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.mapOrAccumulate
 import arrow.core.nel
-import arrow.core.raise.context.bind
 import arrow.core.raise.either
 import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
-import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -40,7 +38,6 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -112,9 +109,9 @@ class AvtaleService(
         request: DetaljerRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        val avtale = get(avtaleId) ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
+        db.transaction {
+            val avtale = getOrError(avtaleId)
 
-        val context = db.session {
             val gjennomforinger = queries.gjennomforing.getByAvtale(avtaleId)
             val previous = AvtaleValidator.Ctx.Avtale(
                 status = avtale.status.type,
@@ -134,22 +131,20 @@ class AvtaleService(
                 },
                 prismodeller = avtale.prismodeller,
             )
-            getValidatorCtx(
+            val context = getValidatorCtx(
                 request = request,
                 navEnheter = listOf(),
                 previous = previous,
             ).bind()
-        }
 
-        val dbo = AvtaleValidator
-            .validateUpdateDetaljer(request, context)
-            .bind()
+            val dbo = AvtaleValidator
+                .validateUpdateDetaljer(request, context)
+                .bind()
 
-        if (AvtaleDboMapper.fromAvtale(avtale) == dbo) {
-            return@either avtale
-        }
+            if (AvtaleDboMapper.fromAvtale(avtale) == dbo) {
+                return@either avtale
+            }
 
-        db.transaction {
             queries.avtale.updateDetaljer(avtaleId, dbo)
             dispatchNotificationToNewAdministrators(avtaleId, dbo.navn, dbo.administratorer, navIdent)
 
@@ -164,12 +159,10 @@ class AvtaleService(
         request: PersonvernRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        val previous = get(avtaleId)
-            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
-
-        val dbo = request.toDbo()
-
         db.transaction {
+            val previous = getOrError(avtaleId)
+            val dbo = request.toDbo()
+
             queries.avtale.updatePersonvern(previous.id, dbo)
 
             val dto = logEndring("Personvern oppdatert", previous.id, navIdent)
@@ -183,18 +176,17 @@ class AvtaleService(
         request: VeilederinfoRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        val previous = get(avtaleId)
-            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
-
-        val navEnheter = db.session {
-            request.navEnheter.mapNotNull {
-                queries.enhet.get(it)?.toDto()
-            }
-        }
-        AvtaleValidator.validateNavEnheter(navEnheter).bind()
-        val dbo = request.toDbo()
-
         db.transaction {
+            val previous = getOrError(avtaleId)
+
+            val navEnheter = db.session {
+                request.navEnheter.mapNotNull {
+                    queries.enhet.get(it)?.toDto()
+                }
+            }
+            AvtaleValidator.validateNavEnheter(navEnheter).bind()
+            val dbo = request.toDbo()
+
             queries.avtale.updateVeilederinfo(previous.id, dbo)
 
             val dto = logEndring("Veilederinformasjon oppdatert", previous.id, navIdent)
@@ -208,31 +200,23 @@ class AvtaleService(
         request: List<PrismodellRequest>,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        val avtale = get(id)
-            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
-        val context = db.session {
+        db.transaction {
+            val avtale = getOrError(id)
             val gjennomforinger = queries.gjennomforing.getByAvtale(id)
-            ValidatePrismodellContext(
+            val context = ValidatePrismodellContext(
                 tiltakskode = avtale.tiltakstype.tiltakskode,
                 tiltakstypeNavn = avtale.tiltakstype.navn,
                 avtaleStartDato = avtale.startDato,
                 gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
-                gjennomforinger = gjennomforinger.map {
-                    AvtaleValidator.Ctx.Gjennomforing(
-                        arrangor = it.arrangor,
-                        startDato = it.startDato,
-                        utdanningslop = it.utdanningslop,
-                        status = it.status.type,
-                        prismodellId = it.prismodell?.id ?: avtale.prismodeller.first().id,
-                    )
-                },
+                bruktePrismodeller = gjennomforinger
+                    .mapNotNull { it.prismodell?.id }
+                    .toSet(),
             )
-        }
-        val prismodeller =
-            AvtaleValidator.validatePrismodell(request, context)
-                .bind()
 
-        db.transaction {
+            val prismodeller =
+                AvtaleValidator.validatePrismodell(request, context)
+                    .bind()
+
             queries.avtale.upsertPrismodell(id, prismodeller)
 
             val dto = logEndring("Prismodell oppdatert", id, navIdent)

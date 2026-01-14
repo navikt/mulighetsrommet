@@ -341,29 +341,4 @@ class GjennomforingRoutesTest : FunSpec({
             }
         }
     }
-
-    context("prismodell") {
-        val prismodellId = UUID.randomUUID()
-        beforeEach {
-            MulighetsrommetTestDomain(
-                avtaler = listOf(
-                    AvtaleFixtures.AFT,
-                    AvtaleFixtures.oppfolging.copy(
-                        prismodeller = listOf(
-                            PrismodellDbo(
-                                id = prismodellId,
-                                type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                                prisbetingelser = null,
-                                satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
-                            ),
-                        ),
-                    ),
-                ),
-                gjennomforinger = listOf(
-                    GjennomforingFixtures.AFT1,
-                    GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodellId),
-                ),
-            ).initialize(database.db)
-        }
-    }
 })

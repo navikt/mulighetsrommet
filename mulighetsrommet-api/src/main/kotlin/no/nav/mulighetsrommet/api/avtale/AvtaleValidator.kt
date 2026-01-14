@@ -46,6 +46,8 @@ import java.time.LocalDate
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 import kotlin.reflect.KProperty1
+import kotlin.text.orEmpty
+import kotlin.text.toSet
 
 @OptIn(ExperimentalContracts::class)
 object AvtaleValidator {
@@ -106,7 +108,8 @@ object AvtaleValidator {
                     tiltakstypeNavn = ctx.tiltakstype.navn,
                     avtaleStartDato = request.detaljer.startDato,
                     gyldigTilsagnPeriode = ctx.gyldigTilsagnPeriode,
-                    gjennomforinger = ctx.previous?.gjennomforinger ?: emptyList(),
+                    bruktePrismodeller = ctx.previous?.gjennomforinger?.map { it.prismodellId }.orEmpty()
+                        .toSet(),
                 ),
             ).bind()
 
@@ -218,7 +221,7 @@ object AvtaleValidator {
         val tiltakstypeNavn: String,
         val avtaleStartDato: LocalDate,
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
-        val gjennomforinger: List<Ctx.Gjennomforing>,
+        val bruktePrismodeller: Set<UUID>,
     )
 
     fun validatePrismodell(
@@ -229,8 +232,8 @@ object AvtaleValidator {
             FieldError.of("Minst én prismodell er påkrevd", OpprettAvtaleRequest::prismodeller)
         }
 
-        context.gjennomforinger.forEach { gjennomforing ->
-            validate(request.any { it.id == gjennomforing.prismodellId }) {
+        context.bruktePrismodeller.forEach { prismodellId ->
+            validate(request.any { it.id == prismodellId }) {
                 FieldError.of(
                     "Prismodell kan ikke fjernes fordi en eller flere gjennomføringer er koblet til prismodellen",
                     OpprettAvtaleRequest::prismodeller,

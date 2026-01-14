@@ -48,6 +48,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.UUID.randomUUID
+import kotlin.collections.mapNotNull
 
 class AvtaleValidatorTest : FunSpec({
     val avtaleRequest = AvtaleFixtures.createAvtaleRequest(
@@ -467,7 +468,7 @@ class AvtaleValidatorTest : FunSpec({
             tiltakstypeNavn = tiltakstype.navn,
             gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             avtaleStartDato = avtaleStartDato,
-            gjennomforinger = emptyList(),
+            bruktePrismodeller = emptySet(),
         )
 
         test("må ha minst én prismodell") {
@@ -824,7 +825,7 @@ class AvtaleValidatorTest : FunSpec({
                         tiltakstypeNavn = ctx.tiltakstype.navn,
                         gyldigTilsagnPeriode = emptyMap(),
                         avtaleStartDato = LocalDate.now().minusDays(1),
-                        gjennomforinger = previous.gjennomforinger,
+                        bruktePrismodeller = previous.gjennomforinger.map { it.prismodellId }.toSet(),
                     ),
                 ).shouldBeLeft() shouldContain
                     FieldError(
@@ -850,7 +851,8 @@ class AvtaleValidatorTest : FunSpec({
                         tiltakstypeNavn = ctx.tiltakstype.navn,
                         gyldigTilsagnPeriode = emptyMap(),
                         avtaleStartDato = LocalDate.now().minusDays(1),
-                        gjennomforinger = previous.gjennomforinger,
+                        bruktePrismodeller = previous.gjennomforinger.map { it.prismodellId }
+                            .toSet(),
                     ),
                 ).shouldBeLeft() shouldContain
                     FieldError(
