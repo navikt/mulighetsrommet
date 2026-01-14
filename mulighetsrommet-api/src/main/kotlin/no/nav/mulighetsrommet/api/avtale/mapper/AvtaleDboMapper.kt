@@ -109,6 +109,7 @@ private fun toAvtalteSatser(satser: List<AvtaltSatsDto>): List<AvtaltSats> = sat
     AvtaltSats(
         gjelderFra = it.gjelderFra,
         sats = it.pris,
+        valuta = it.valuta,
     )
 }
 

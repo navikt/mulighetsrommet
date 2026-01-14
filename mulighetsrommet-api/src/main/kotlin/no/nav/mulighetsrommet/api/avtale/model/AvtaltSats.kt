@@ -9,4 +9,5 @@ data class AvtaltSats(
     @Serializable(with = LocalDateSerializer::class)
     val gjelderFra: LocalDate,
     val sats: Int,
+    val valuta: ValutaType,
 )
