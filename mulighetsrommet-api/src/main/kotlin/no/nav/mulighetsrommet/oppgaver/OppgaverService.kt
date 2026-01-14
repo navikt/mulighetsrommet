@@ -408,5 +408,8 @@ private fun GjennomforingManglerAdministratorOppgaveData.toOppgave(ansatt: NavAn
 }
 
 private fun getOkonomiOppgaveTitle(tiltakstype: OppgaveTiltakstype, gjennomforing: OppgaveGjennomforing): String {
-    return "${tiltakstype.navn} (${gjennomforing.lopenummer.value})"
+    return when (gjennomforing) {
+        is OppgaveGjennomforing.Gruppetiltak -> "${gjennomforing.navn} (${gjennomforing.lopenummer})"
+        is OppgaveGjennomforing.Enkeltplass -> "${tiltakstype.navn} (${gjennomforing.lopenummer})"
+    }
 }
