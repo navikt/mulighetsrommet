@@ -765,7 +765,10 @@ class TilsagnService(
             besluttetTidspunkt = oppgjor.besluttetTidspunkt,
         )
 
-        storeOkonomiMelding(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.GjorOppBestilling(faktura))
+        storeOkonomiMelding(
+            tilsagn.bestilling.bestillingsnummer,
+            OkonomiBestillingMelding.GjorOppBestilling(faktura),
+        )
     }
 
     private fun QueryContext.logEndring(

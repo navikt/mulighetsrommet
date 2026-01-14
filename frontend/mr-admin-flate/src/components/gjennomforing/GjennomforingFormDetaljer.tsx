@@ -38,6 +38,7 @@ import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWit
 import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { kanEndreOppstartOgPamelding, kreverDeltidsprosent } from "@/utils/Utils";
+import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
 
 interface Props {
   avtale: AvtaleDto;
@@ -82,7 +83,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
   }, [setValue, watchStartDato]);
 
   const watchSluttDato = watch("sluttDato");
-
+  const valgtPrismodell = avtale.prismodeller.find((p) => p.id === watch("prismodellId"));
   const antallDeltakere = deltakere?.antallDeltakere ?? 0;
 
   function visAdvarselForSluttDato() {
@@ -290,6 +291,8 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               />
             </VStack>
           </FormGroup>
+        </SkjemaKolonne>
+        <SkjemaKolonne>
           <FormGroup>
             <Controller
               control={control}
@@ -332,8 +335,6 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               )}
             />
           </FormGroup>
-        </SkjemaKolonne>
-        <SkjemaKolonne>
           {avtale.arrangor ? (
             <FormGroup>
               <GjennomforingArrangorForm readOnly={false} arrangor={avtale.arrangor} />
@@ -341,6 +342,22 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
           ) : (
             <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
           )}
+          <FormGroup>
+            <Select
+              size="small"
+              label="Prismodell"
+              error={errors.prismodellId?.message}
+              {...register("prismodellId")}
+            >
+              <option value={undefined}>-- Velg prismodell --</option>
+              {avtale.prismodeller.map((prismodell) => (
+                <option key={prismodell.id} value={prismodell.id}>
+                  {prismodell.navn}
+                </option>
+              ))}
+            </Select>
+            {valgtPrismodell && <PrismodellDetaljer prismodell={[valgtPrismodell]} />}
+          </FormGroup>
         </SkjemaKolonne>
       </TwoColumnGrid>
       {gjennomforing && (

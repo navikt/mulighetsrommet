@@ -198,11 +198,13 @@ object AvtaleFixtures {
             personopplysninger = emptyList(),
             personvernBekreftet = false,
         ),
-        prismodell = PrismodellRequest(
-            UUID.randomUUID(),
-            type = PrismodellType.ANNEN_AVTALT_PRIS,
-            prisbetingelser = null,
-            satser = listOf(),
+        prismodeller = listOf(
+            PrismodellRequest(
+                UUID.randomUUID(),
+                type = PrismodellType.ANNEN_AVTALT_PRIS,
+                prisbetingelser = null,
+                satser = listOf(),
+            ),
         ),
     )
 
@@ -247,13 +249,15 @@ object AvtaleFixtures {
                 personopplysninger = emptyList(),
                 personvernBekreftet = false,
             ),
-            prismodell = PrismodellRequest(
-                id = prismodell.id,
-                type = prismodell.type,
-                prisbetingelser = prismodell.prisbetingelser,
-                satser = (prismodell.satser ?: listOf()).map {
-                    AvtaltSatsRequest(it.gjelderFra, it.sats)
-                },
+            prismodeller = listOf(
+                PrismodellRequest(
+                    id = prismodell.id,
+                    type = prismodell.type,
+                    prisbetingelser = prismodell.prisbetingelser,
+                    satser = (prismodell.satser ?: listOf()).map {
+                        AvtaltSatsRequest(it.gjelderFra, it.sats)
+                    },
+                ),
             ),
         )
     }

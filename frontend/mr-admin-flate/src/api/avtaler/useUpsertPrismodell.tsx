@@ -11,8 +11,8 @@ import { useApiMutation } from "@/hooks/useApiMutation";
 export function useUpsertPrismodell(id: string) {
   const queryClient = useQueryClient();
 
-  return useApiMutation<{ data: AvtaleDto }, ProblemDetail, PrismodellRequest>({
-    mutationFn: (body: PrismodellRequest) =>
+  return useApiMutation<{ data: AvtaleDto }, ProblemDetail, PrismodellRequest[]>({
+    mutationFn: (body: PrismodellRequest[]) =>
       AvtaleService.upsertPrismodell({
         path: { id },
         body,

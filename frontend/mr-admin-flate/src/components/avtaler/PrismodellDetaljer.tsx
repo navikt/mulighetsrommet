@@ -1,4 +1,4 @@
-import { Box, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Box, HStack, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
@@ -8,55 +8,61 @@ import {
   MetadataFritekstfelt,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 
-export function PrismodellDetaljer({ prismodell }: { prismodell: PrismodellDto }) {
-  switch (prismodell.type) {
-    case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
-      return (
-        <Box>
-          <PrismodellHeading />
-          <VStack gap="4">
-            <PrismodellNavn navn={prismodell.navn} />
-            <PrismodellSatser satser={prismodell.satser} />
-          </VStack>
-        </Box>
-      );
-    case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
-    case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
-    case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
-    case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
-      return (
-        <Box>
-          <PrismodellHeading />
-          <VStack gap="4">
-            <PrismodellNavn navn={prismodell.navn} />
-            <PrismodellSatser satser={prismodell.satser} />
-            <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
-          </VStack>
-        </Box>
-      );
-    case PrismodellType.ANNEN_AVTALT_PRIS:
-      return (
-        <Box>
-          <PrismodellHeading />
-          <VStack gap="4">
-            <PrismodellNavn navn={prismodell.navn} />
-            <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
-          </VStack>
-        </Box>
-      );
-  }
-}
-
-function PrismodellHeading() {
+export function PrismodellDetaljer({ prismodell }: { prismodell: PrismodellDto[] }) {
   return (
-    <Heading level="3" size="small" spacing>
-      {avtaletekster.prismodell.heading}
-    </Heading>
+    <VStack gap="4">
+      {prismodell.map((prismodell) => {
+        switch (prismodell.type) {
+          case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+            return (
+              <VStack
+                key={prismodell.navn}
+                gap="4"
+                padding="2"
+                className="border-border-subtle border rounded-md"
+              >
+                <PrismodellTypenavn type={prismodell.navn} />
+                <PrismodellSatser satser={prismodell.satser} />
+              </VStack>
+            );
+          case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
+          case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
+          case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
+          case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
+            return (
+              <VStack
+                key={prismodell.navn}
+                gap="4"
+                padding="2"
+                className="border-border-subtle border rounded-md"
+              >
+                <PrismodellTypenavn type={prismodell.navn} />
+                <PrismodellSatser satser={prismodell.satser} />
+                {prismodell.prisbetingelser && (
+                  <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
+                )}
+              </VStack>
+            );
+          case PrismodellType.ANNEN_AVTALT_PRIS:
+            return (
+              <VStack
+                key={prismodell.navn}
+                gap="4"
+                padding="2"
+                className="border-border-subtle border rounded-md"
+              >
+                <PrismodellTypenavn type={prismodell.navn} />
+                <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
+              </VStack>
+            );
+        }
+      })}
+    </VStack>
   );
 }
 
-function PrismodellNavn({ navn }: { navn: string }) {
-  return <MetadataVStack label={avtaletekster.prismodell.label} value={navn} />;
+function PrismodellTypenavn({ type }: { type: string }) {
+  return <MetadataVStack label={avtaletekster.prismodell.label} value={type} />;
 }
 
 function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {

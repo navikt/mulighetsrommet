@@ -480,9 +480,11 @@ class AvtaleQueriesTest : FunSpec({
                 val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf())
                 queries.avtale.create(avtale)
 
-                var prismodell = AvtaleFixtures.createPrismodellDbo(
-                    type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                    satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 2000)),
+                var prismodell = listOf(
+                    AvtaleFixtures.createPrismodellDbo(
+                        type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                        satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 2000)),
+                    ),
                 )
                 queries.avtale.upsertPrismodell(avtale.id, prismodell)
 
@@ -501,7 +503,11 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK),
+                    prismodell.map {
+                        it.copy(
+                            type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                        )
+                    },
                 )
 
                 queries.avtale.getOrError(AvtaleFixtures.oppfolging.id).should {

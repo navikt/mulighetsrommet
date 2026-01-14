@@ -968,7 +968,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ) {
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK),
+                    listOf(prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK)),
                 )
                 queries.gjennomforing.setStengtHosArrangor(
                     oppfolging.id,
@@ -996,7 +996,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("utbetalinger blir oppdatert med ny beregning når avtalens prismodell endres") {
+        test("utbetalinger blir oppdatert med ny beregning når gjennomføringens prismodell endres") {
             MulighetsrommetTestDomain(
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(
@@ -1014,7 +1014,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             database.run {
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK),
+                    listOf(prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK)),
                 )
             }
 
@@ -1049,7 +1049,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
+                    listOf(prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK)),
                 )
             }.initialize(database.db)
 
@@ -1079,7 +1079,11 @@ class GenererUtbetalingServiceTest : FunSpec({
             database.run {
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    prismodell.copy(type = PrismodellType.ANNEN_AVTALT_PRIS),
+                    listOf(
+                        prismodell.copy(
+                            type = PrismodellType.ANNEN_AVTALT_PRIS,
+                        ),
+                    ),
                 )
             }
 
@@ -1281,12 +1285,14 @@ class GenererUtbetalingServiceTest : FunSpec({
             ) {
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    prismodell.copy(
-                        satser = listOf(
-                            AvtaltSats(LocalDate.of(2024, 1, 1), 1),
-                            AvtaltSats(LocalDate.of(2025, 1, 2), 2),
-                            AvtaltSats(LocalDate.of(2025, 1, 3), 3),
-                            AvtaltSats(LocalDate.of(2025, 2, 1), 4),
+                    listOf(
+                        prismodell.copy(
+                            satser = listOf(
+                                AvtaltSats(LocalDate.of(2024, 1, 1), 1),
+                                AvtaltSats(LocalDate.of(2025, 1, 2), 2),
+                                AvtaltSats(LocalDate.of(2025, 1, 3), 3),
+                                AvtaltSats(LocalDate.of(2025, 2, 1), 4),
+                            ),
                         ),
                     ),
                 )

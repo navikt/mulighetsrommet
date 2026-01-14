@@ -1,7 +1,7 @@
 import { PrismodellSchema, PrismodellValues } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleDto, PrismodellDto, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { Button, Modal } from "@navikt/ds-react";
+import { Button, InfoCard, Modal, VStack } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import AvtalePrismodellForm from "./AvtalePrismodellForm";
 import { useUpsertPrismodell } from "@/api/avtaler/useUpsertPrismodell";
@@ -19,7 +19,7 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
   const mutation = useUpsertPrismodell(avtale.id);
   const form = useForm<PrismodellValues>({
     resolver: zodResolver(PrismodellSchema),
-    defaultValues: defaultValues(avtale.prismodeller[0]),
+    defaultValues: defaultValues(avtale.prismodeller),
   });
 
   const postData: SubmitHandler<PrismodellValues> = async (data): Promise<void> => {
@@ -58,10 +58,21 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(postData)}>
           <Modal.Body>
-            <AvtalePrismodellForm
-              tiltakskode={avtale.tiltakstype.tiltakskode}
-              avtaleStartDato={safeParseDate(avtale.startDato)}
-            />
+            <VStack gap="4">
+              <InfoCard data-color="warning">
+                <InfoCard.Header>
+                  <InfoCard.Title>Endring av prismodeller</InfoCard.Title>
+                </InfoCard.Header>
+                <InfoCard.Content>
+                  Endringer i prismodeller som er i bruk kan slå ut i beregningen av fremtidige
+                  utbetalinger til arrangør.
+                </InfoCard.Content>
+              </InfoCard>
+              <AvtalePrismodellForm
+                tiltakskode={avtale.tiltakstype.tiltakskode}
+                avtaleStartDato={safeParseDate(avtale.startDato)}
+              />
+            </VStack>
           </Modal.Body>
           <Modal.Footer>
             <Button type="submit" disabled={mutation.isPending}>
@@ -77,13 +88,13 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
   );
 }
 
-function defaultValues(prismodell: PrismodellDto): PrismodellValues {
+function defaultValues(prismodeller: PrismodellDto[]): PrismodellValues {
   return {
-    prismodell: {
-      id: prismodell.id,
+    prismodeller: prismodeller.map((prismodell) => ({
+      id: prismodell.id || undefined,
       type: prismodell.type,
       prisbetingelser: prismodell.prisbetingelser,
       satser: prismodell.satser ?? [],
-    },
+    })),
   };
 }

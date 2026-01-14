@@ -509,7 +509,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PrismodellRequest"
+              type: array
+              items:
+                $ref: "#/components/schemas/PrismodellRequest"
         required: false
       responses:
         "200":
@@ -3768,8 +3770,10 @@ components:
           format: uuid
         detaljer:
           $ref: "#/components/schemas/DetaljerRequest"
-        prismodell:
-          $ref: "#/components/schemas/PrismodellRequest"
+        prismodeller:
+          type: array
+          items:
+            $ref: "#/components/schemas/PrismodellRequest"
         personvern:
           $ref: "#/components/schemas/PersonvernRequest"
         veilederinformasjon:
@@ -3778,7 +3782,7 @@ components:
       - detaljer
       - id
       - personvern
-      - prismodell
+      - prismodeller
       - veilederinformasjon
     Avtale.Tiltakstype:
       type: object

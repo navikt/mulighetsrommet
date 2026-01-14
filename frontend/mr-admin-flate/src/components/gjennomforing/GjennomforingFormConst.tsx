@@ -123,7 +123,7 @@ export function defaultGjennomforingData(
         : null,
     oppmoteSted: gjennomforing?.oppmoteSted ?? null,
     pameldingType: gjennomforing?.pameldingType || defaultPameldingType(oppstart),
-    prismodellId: gjennomforing?.prismodell?.id || avtale.prismodeller[0].id,
+    prismodellId: gjennomforing?.prismodell?.id ?? undefined,
   };
 }
 

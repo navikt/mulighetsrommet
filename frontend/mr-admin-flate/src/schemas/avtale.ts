@@ -15,19 +15,36 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 
 export const PrismodellSchema = z.object({
-  prismodell: z.object({
-    id: z.uuid().optional(),
-    prisbetingelser: z.string().nullable(),
-    type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
-    satser: z.array(
-      z.object({
-        gjelderFra: z.string().nullable(),
-        gjelderTil: z.string().nullable(),
-        pris: z.number().nullable(),
-        valuta: z.string(),
+  prismodeller: z.array(
+    z
+      .object({
+        id: z.uuid().optional(),
+        prisbetingelser: z.string().nullable(),
+        type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
+        satser: z.array(
+          z.object({
+            gjelderFra: z.string().min(1, { message: "Gjelder fra må være satt" }),
+            gjelderTil: z.string().nullable(),
+            pris: z
+              .number({ error: "Pris må være satt" })
+              .min(1, { message: "Pris må være positiv" }),
+            valuta: z.string(),
+          }),
+        ),
+      })
+      .superRefine((data, ctx) => {
+        if (
+          data.type !== PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK &&
+          data.satser.length === 0
+        ) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Du må legge til minst én sats",
+            path: ["satser"],
+          });
+        }
       }),
-    ),
-  }),
+  ),
 });
 
 export type PrismodellValues = z.infer<typeof PrismodellSchema>;
@@ -130,9 +147,6 @@ export function defaultAvtaleData(
   const navEnheter = avtale?.kontorstruktur?.flatMap((struktur) => struktur.kontorer);
   const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter || []);
 
-  // TODO: støtte flere prismodeller
-  const prismodell = avtale?.prismodeller?.[0];
-
   return {
     detaljer: {
       administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
@@ -169,11 +183,18 @@ export function defaultAvtaleData(
       personvernBekreftet: avtale?.personvernBekreftet,
       personopplysninger: avtale?.personopplysninger ?? [],
     },
-    prismodell: {
-      id: prismodell?.id,
-      type: prismodell?.type as PrismodellType | undefined,
-      satser: prismodell?.satser ?? [],
-      prisbetingelser: prismodell?.prisbetingelser ?? null,
-    },
+    prismodeller: avtale?.prismodeller?.map((prismodell) => ({
+      id: prismodell.id,
+      type: prismodell.type as PrismodellType | undefined,
+      satser: prismodell.satser ?? [],
+      prisbetingelser: prismodell.prisbetingelser ?? null,
+    })) ?? [
+      {
+        id: undefined,
+        type: undefined,
+        satser: [],
+        prisbetingelser: null,
+      },
+    ],
   };
 }

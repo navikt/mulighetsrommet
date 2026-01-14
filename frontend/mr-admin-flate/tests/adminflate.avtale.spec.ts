@@ -16,9 +16,7 @@ const fyllInnAvtale = async (page: Page) => {
 
   await page.getByRole("button", { name: "Neste" }).click();
 
-  await page
-    .getByLabel("Prismodell")
-    .selectOption({ value: "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK" });
+  await page.getByLabel("Prismodell");
 
   await page.getByRole("button", { name: "Neste" }).click();
 
