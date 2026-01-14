@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.oppgaver
 
 import kotlinx.serialization.json.Json
+import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.db.createArrayOfAvtaleStatus
@@ -56,21 +57,18 @@ class OppgaveQueries(private val session: Session) {
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { session.createArrayOfValue(it) { it.value } },
         )
 
-        return session.list(queryOf(query, params)) {
-            val navEnheter = it.stringOrNull("nav_enheter_json")
+        return session.list(queryOf(query, params)) { row ->
+            val navEnheter = row.stringOrNull("nav_enheter_json")
                 ?.let { json -> Json.decodeFromString<List<NavEnhetDto>>(json) }
                 ?: emptyList()
             val kontorstruktur = fromNavEnheter(navEnheter)
 
             GjennomforingManglerAdministratorOppgaveData(
-                id = it.uuid("id"),
-                navn = it.string("navn"),
-                oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
+                id = row.uuid("id"),
+                navn = row.string("navn"),
+                oppdatertTidspunkt = row.localDateTime("oppdatert_tidspunkt"),
                 kontorstruktur = kontorstruktur,
-                tiltakstype = OppgaveTiltakstype(
-                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakstype_tiltakskode")),
-                    navn = it.string("tiltakstype_navn"),
-                ),
+                tiltakstype = row.toOppgaveTiltakstype(),
             )
         }
     }
@@ -99,7 +97,7 @@ class OppgaveQueries(private val session: Session) {
                 gjennomforing.lopenummer as gjennomforing_lopenummer,
                 gjennomforing.navn as gjennomforing_navn,
                 gjennomforing.gjennomforing_type,
-                tiltakstype.tiltakskode,
+                tiltakstype.tiltakskode as tiltakstype_tiltakskode,
                 tiltakstype.navn AS tiltakstype_navn,
                 tk.besluttet_tidspunkt,
                 tk.behandlet_tidspunkt,
@@ -125,32 +123,24 @@ class OppgaveQueries(private val session: Session) {
             "kostnadssteder" to kostnadssteder?.let { session.createArrayOfValue(it) { it.value } },
         )
 
-        return session.list(queryOf(query, params)) {
+        return session.list(queryOf(query, params)) { row ->
             DelutbetalingOppgaveData(
-                tilsagnId = it.uuid("tilsagn_id"),
-                utbetalingId = it.uuid("utbetaling_id"),
-                id = it.uuid("id"),
-                periode = it.periode("periode"),
-                status = DelutbetalingStatus.valueOf(it.string("status")),
+                tilsagnId = row.uuid("tilsagn_id"),
+                utbetalingId = row.uuid("utbetaling_id"),
+                id = row.uuid("id"),
+                periode = row.periode("periode"),
+                status = DelutbetalingStatus.valueOf(row.string("status")),
                 kostnadssted = OppgaveEnhet(
-                    navn = it.string("kostnadssted_navn"),
-                    nummer = NavEnhetNummer(it.string("kostnadssted_enhetsnummer")),
+                    navn = row.string("kostnadssted_navn"),
+                    nummer = NavEnhetNummer(row.string("kostnadssted_enhetsnummer")),
                 ),
                 opprettelse = DelutbetalingOppgaveData.Opprettelse(
-                    behandletAv = it.string("behandlet_av").toAgent(),
-                    behandletTidspunkt = it.localDateTime("behandlet_tidspunkt"),
-                    besluttetTidspunkt = it.localDateTimeOrNull("besluttet_tidspunkt"),
+                    behandletAv = row.string("behandlet_av").toAgent(),
+                    behandletTidspunkt = row.localDateTime("behandlet_tidspunkt"),
+                    besluttetTidspunkt = row.localDateTimeOrNull("besluttet_tidspunkt"),
                 ),
-                tiltakstype = OppgaveTiltakstype(
-                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
-                    navn = it.string("tiltakstype_navn"),
-                ),
-                gjennomforing = OppgaveGjennomforing(
-                    id = it.uuid("gjennomforing_id"),
-                    lopenummer = Tiltaksnummer(it.string("gjennomforing_lopenummer")),
-                    type = GjennomforingType.valueOf(it.string("gjennomforing_type")),
-                    navn = it.stringOrNull("gjennomforing_navn"),
-                ),
+                tiltakstype = row.toOppgaveTiltakstype(),
+                gjennomforing = row.toOppgaveGjennomforing(),
             )
         }
     }
@@ -170,7 +160,7 @@ class OppgaveQueries(private val session: Session) {
                 gjennomforing.lopenummer          as gjennomforing_lopenummer,
                 gjennomforing.navn                as gjennomforing_navn,
                 gjennomforing.gjennomforing_type,
-                tiltakstype.tiltakskode           as tiltakskode,
+                tiltakstype.tiltakskode           as tiltakstype_tiltakskode,
                 tiltakstype.navn                  as tiltakstype_navn
             from tilsagn
                 inner join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
@@ -190,26 +180,18 @@ class OppgaveQueries(private val session: Session) {
             ).let { session.createArrayOfTilsagnStatus(it) },
         )
 
-        return session.list(queryOf(query, params)) {
+        return session.list(queryOf(query, params)) { row ->
             TilsagnOppgaveData(
-                id = it.uuid("id"),
-                status = TilsagnStatus.valueOf(it.string("status")),
-                belopBrukt = it.int("belop_brukt"),
+                id = row.uuid("id"),
+                status = TilsagnStatus.valueOf(row.string("status")),
+                belopBrukt = row.int("belop_brukt"),
                 kostnadssted = OppgaveEnhet(
-                    navn = it.string("kostnadssted_navn"),
-                    nummer = NavEnhetNummer(it.string("kostnadssted")),
+                    navn = row.string("kostnadssted_navn"),
+                    nummer = NavEnhetNummer(row.string("kostnadssted")),
                 ),
-                bestillingsnummer = it.string("bestillingsnummer"),
-                tiltakstype = OppgaveTiltakstype(
-                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
-                    navn = it.string("tiltakstype_navn"),
-                ),
-                gjennomforing = OppgaveGjennomforing(
-                    id = it.uuid("gjennomforing_id"),
-                    lopenummer = Tiltaksnummer(it.string("gjennomforing_lopenummer")),
-                    type = GjennomforingType.valueOf(it.string("gjennomforing_type")),
-                    navn = it.stringOrNull("gjennomforing_navn"),
-                ),
+                bestillingsnummer = row.string("bestillingsnummer"),
+                tiltakstype = row.toOppgaveTiltakstype(),
+                gjennomforing = row.toOppgaveGjennomforing(),
             )
         }
     }
@@ -255,16 +237,8 @@ class OppgaveQueries(private val session: Session) {
                 godkjentAvArrangorTidspunkt = row.localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
                 status = UtbetalingStatusType.valueOf(row.string("status")),
                 kostnadssteder = row.arrayOrNull<String>("kostnadssteder")?.map { NavEnhetNummer(it) } ?: emptyList(),
-                tiltakstype = OppgaveTiltakstype(
-                    navn = row.string("tiltakstype_navn"),
-                    tiltakskode = Tiltakskode.valueOf(row.string("tiltakstype_tiltakskode")),
-                ),
-                gjennomforing = OppgaveGjennomforing(
-                    id = row.uuid("gjennomforing_id"),
-                    lopenummer = Tiltaksnummer(row.string("gjennomforing_lopenummer")),
-                    type = GjennomforingType.valueOf(row.string("gjennomforing_type")),
-                    navn = row.stringOrNull("gjennomforing_navn"),
-                ),
+                tiltakstype = row.toOppgaveTiltakstype(),
+                gjennomforing = row.toOppgaveGjennomforing(),
             )
         }
     }
@@ -310,15 +284,17 @@ class OppgaveQueries(private val session: Session) {
                 id = it.uuid("id"),
                 navn = it.string("navn"),
                 kontorstruktur = fromNavEnheter(navEnheter),
-                tiltakstype = OppgaveTiltakstype(
-                    navn = it.string("tiltakstype_navn"),
-                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakstype_tiltakskode")),
-                ),
+                tiltakstype = it.toOppgaveTiltakstype(),
                 oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
             )
         }
     }
 }
+
+private fun Row.toOppgaveTiltakstype(): OppgaveTiltakstype = OppgaveTiltakstype(
+    navn = string("tiltakstype_navn"),
+    tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+)
 
 data class GjennomforingManglerAdministratorOppgaveData(
     val id: UUID,
@@ -375,9 +351,31 @@ data class AvtaleManglerAdministratorOppgaveData(
     val tiltakstype: OppgaveTiltakstype,
 )
 
-data class OppgaveGjennomforing(
-    val id: UUID,
-    val lopenummer: Tiltaksnummer,
-    val type: GjennomforingType,
-    val navn: String?,
-)
+private fun Row.toOppgaveGjennomforing(): OppgaveGjennomforing = when (GjennomforingType.valueOf(string("gjennomforing_type"))) {
+    GjennomforingType.GRUPPETILTAK -> OppgaveGjennomforing.Gruppetiltak(
+        id = uuid("gjennomforing_id"),
+        lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
+        navn = string("gjennomforing_navn"),
+    )
+
+    GjennomforingType.ENKELTPLASS -> OppgaveGjennomforing.Enkeltplass(
+        id = uuid("gjennomforing_id"),
+        lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
+    )
+}
+
+sealed class OppgaveGjennomforing {
+    abstract val id: UUID
+    abstract val lopenummer: Tiltaksnummer
+
+    data class Gruppetiltak(
+        override val id: UUID,
+        override val lopenummer: Tiltaksnummer,
+        val navn: String,
+    ) : OppgaveGjennomforing()
+
+    data class Enkeltplass(
+        override val id: UUID,
+        override val lopenummer: Tiltaksnummer,
+    ) : OppgaveGjennomforing()
+}
