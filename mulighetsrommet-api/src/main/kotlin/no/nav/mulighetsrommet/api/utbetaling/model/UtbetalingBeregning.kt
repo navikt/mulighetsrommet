@@ -105,9 +105,24 @@ object UtbetalingBeregningHelpers {
     const val OUTPUT_PRECISION = 5
 
     /**
-     * Beregningen av månedsverk ble endret fra og med denne datoen
+     * Fra og med denne datoen:
+     * - Helgedager telles ikke med i beregningen av månedsverk (antall dager deltatt innenfor en måned)
+     *
+     * Før denne datoen:
+     * - Helgedager telles med i beregningen av månedsverk (antall dager deltatt innenfor en måned)
      */
     private val DELTAKELSE_MONTHS_FRACTION_VERSION_2_DATE: LocalDate = LocalDate.of(2025, 8, 1)
+
+    /**
+     * Fra og med denne datoen:
+     * - Deltakelsesmengder på 50% eller mindre regnes som et halvt månedsverk.
+     * - Deltakelsesmengder på mer enn 50% regnes som et fullt månedsverk.
+     *
+     * Før denne datoen:
+     * - Deltakelsesmengder på 50% eller mer regnes som et fullt månedsverk.
+     * - Deltakelsesmengder på mindre enn 50% regnes som et halvt månedsverk.
+     */
+    private val DELTAKELSE_MONTHS_FRACTION_VERSION_3_DATE: LocalDate = LocalDate.of(2026, 1, 1)
 
     fun calculateDeltakelseManedsverkForDeltakelsesprosent(
         deltakelse: DeltakelseDeltakelsesprosentPerioder,
@@ -119,20 +134,10 @@ object UtbetalingBeregningHelpers {
                 .subtractPeriods(stengtHosArrangor)
                 .map { DeltakelsesprosentPeriode(it, deltakelsePeriode.deltakelsesprosent) }
         }
-        return calculateDeltakelseOutput(
-            deltakelse.deltakelseId,
-            perioder.map { it.periode },
-            satser,
-        ) { periode ->
-            val prosent = perioder.find { it.periode == periode }?.deltakelsesprosent ?: 100.0
-            getMonthsFraction(periode)
-                .let { fraction ->
-                    if (prosent < 50) {
-                        fraction.divide(BigDecimal(2), CALCULATION_PRECISION, RoundingMode.HALF_UP)
-                    } else {
-                        fraction
-                    }
-                }
+        return calculateDeltakelseOutput(deltakelse.deltakelseId, perioder.map { it.periode }, satser) { periode ->
+            val fraction = getMonthsFraction(periode)
+            val prosent = perioder.first { it.periode == periode }.deltakelsesprosent
+            applyDeltakelsesprosent(periode, fraction, prosent)
         }
     }
 
@@ -279,6 +284,26 @@ object UtbetalingBeregningHelpers {
             }
             .toSet()
         return UtbetalingBeregningOutputDeltakelse(deltakelseId, perioderOutput)
+    }
+
+    private fun applyDeltakelsesprosent(periode: Periode, fraction: BigDecimal, prosent: Double): BigDecimal {
+        return if (periode.getLastInclusiveDate().isBefore(DELTAKELSE_MONTHS_FRACTION_VERSION_3_DATE)) {
+            applyDeltakelsesprosentV1(fraction, prosent)
+        } else {
+            applyDeltakelsesprosentV2(fraction, prosent)
+        }
+    }
+
+    private fun applyDeltakelsesprosentV1(fraction: BigDecimal, prosent: Double): BigDecimal = if (prosent < 50) {
+        fraction.divide(BigDecimal(2), CALCULATION_PRECISION, RoundingMode.HALF_UP)
+    } else {
+        fraction
+    }
+
+    private fun applyDeltakelsesprosentV2(fraction: BigDecimal, prosent: Double): BigDecimal = if (prosent <= 50) {
+        fraction.divide(BigDecimal(2), CALCULATION_PRECISION, RoundingMode.HALF_UP)
+    } else {
+        fraction
     }
 
     private fun getMonthsFraction(periode: Periode): BigDecimal {
