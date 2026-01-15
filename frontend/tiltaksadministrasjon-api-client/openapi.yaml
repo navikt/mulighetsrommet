@@ -509,7 +509,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PrismodellRequest"
+              type: array
+              items:
+                $ref: "#/components/schemas/PrismodellRequest"
         required: false
       responses:
         "200":
@@ -3699,9 +3701,16 @@ components:
           - "null"
           - integer
           format: int32
+        valuta:
+          $ref: "#/components/schemas/ValutaType"
       required:
       - gjelderFra
       - pris
+      - valuta
+    ValutaType:
+      type: string
+      enum:
+      - NOK
     PersonvernRequest:
       type: object
       properties:
@@ -3768,8 +3777,10 @@ components:
           format: uuid
         detaljer:
           $ref: "#/components/schemas/DetaljerRequest"
-        prismodell:
-          $ref: "#/components/schemas/PrismodellRequest"
+        prismodeller:
+          type: array
+          items:
+            $ref: "#/components/schemas/PrismodellRequest"
         personvern:
           $ref: "#/components/schemas/PersonvernRequest"
         veilederinformasjon:
@@ -3778,7 +3789,7 @@ components:
       - detaljer
       - id
       - personvern
-      - prismodell
+      - prismodeller
       - veilederinformasjon
     Avtale.Tiltakstype:
       type: object
@@ -4168,7 +4179,7 @@ components:
           type: integer
           format: int32
         valuta:
-          type: string
+          $ref: "#/components/schemas/ValutaType"
         gjelderTil:
           type:
           - "null"

@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 
@@ -29,10 +30,12 @@ object AvtalteSatser {
             AvtaltSats(
                 gjelderFra = LocalDate.of(2025, 1, 1),
                 sats = 16_848,
+                valuta = ValutaType.NOK,
             ),
             AvtaltSats(
                 gjelderFra = LocalDate.of(2026, 1, 1),
                 sats = 17_455,
+                valuta = ValutaType.NOK,
             ),
         )
     }
@@ -42,10 +45,12 @@ object AvtalteSatser {
             AvtaltSats(
                 gjelderFra = LocalDate.of(2025, 1, 1),
                 sats = 20_975,
+                valuta = ValutaType.NOK,
             ),
             AvtaltSats(
                 gjelderFra = LocalDate.of(2026, 1, 1),
                 sats = 21_730,
+                valuta = ValutaType.NOK,
             ),
         )
     }

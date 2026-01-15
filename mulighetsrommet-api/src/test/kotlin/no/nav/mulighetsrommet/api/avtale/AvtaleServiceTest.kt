@@ -21,6 +21,8 @@ import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -71,6 +73,12 @@ class AvtaleServiceTest : FunSpec({
         val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
         val avtaleService = createAvtaleService(gjennomforingPublisher)
 
+        val avtale = AvtaleFixtures.oppfolging
+        val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
+            avtaleId = avtale.id,
+            status = GjennomforingStatusType.GJENNOMFORES,
+        )
+
         test("skedulerer publisering av gjennomføringer tilhørende avtalen") {
             val request = AvtaleFixtures.opprettAvtaleRequest
 
@@ -79,6 +87,25 @@ class AvtaleServiceTest : FunSpec({
             verify {
                 gjennomforingPublisher.schedule(
                     InitialLoadGjennomforinger.Input(avtaleId = request.id),
+                    any(),
+                    any(),
+                )
+            }
+        }
+
+        test("skedulerer publisering av gjennomføringer tilhørende avtalen ved endring av prismodell") {
+            val request = listOf(PrismodellRequest(id = gjennomforing1.prismodellId, type = PrismodellType.ANNEN_AVTALT_PRIS, satser = emptyList(), prisbetingelser = null))
+
+            MulighetsrommetTestDomain(
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(gjennomforing1),
+            ).initialize(database.db)
+
+            avtaleService.upsertPrismodell(avtale.id, request, bertilNavIdent).shouldBeRight()
+
+            verify {
+                gjennomforingPublisher.schedule(
+                    InitialLoadGjennomforinger.Input(avtaleId = avtale.id),
                     any(),
                     any(),
                 )

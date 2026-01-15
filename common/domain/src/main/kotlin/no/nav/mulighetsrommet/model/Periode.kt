@@ -75,6 +75,19 @@ data class Periode(
             val latestEnd = perioder.maxOf { it.slutt }
             return Periode(earliestStart, latestEnd)
         }
+
+        /**
+         * Formatter perioden, eksklusiv sluttdato
+         *
+         * Eksempel
+         *  * Sluttdato 2001-02-01: 01.01.2001 - 31.01.2001
+         *  * Sluttdato mangler: 01.01.2001 - -
+         */
+        fun formatPeriode(start: LocalDate, slutt: LocalDate?): String {
+            return "${formatDate(start)} - ${slutt?.let {formatDate(slutt.minusDays(1))} ?: "-"}"
+        }
+
+        fun formatDate(localDate: LocalDate): String = localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
     }
 
     override fun compareTo(other: Periode): Int {
@@ -190,7 +203,5 @@ data class Periode(
         return result
     }
 
-    fun formatPeriode(): String = "${formatDate(start)} - ${formatDate(getLastInclusiveDate())}"
-
-    private fun formatDate(localDate: LocalDate): String = localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+    fun formatPeriode(): String = formatPeriode(start, slutt)
 }

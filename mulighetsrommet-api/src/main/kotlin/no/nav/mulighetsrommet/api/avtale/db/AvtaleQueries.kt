@@ -101,7 +101,7 @@ class AvtaleQueries(private val session: Session) {
         upsertUtdanningslop(avtale.id, avtale.detaljerDbo.utdanningslop)
         updateVeilederinfo(avtale.id, avtale.veilederinformasjonDbo)
         updatePersonvern(avtale.id, avtale.personvernDbo)
-        avtale.prismodeller.forEach { upsertPrismodell(avtale.id, it) }
+        upsertPrismodell(avtale.id, avtale.prismodeller)
     }
 
     fun updateDetaljer(
@@ -334,7 +334,24 @@ class AvtaleQueries(private val session: Session) {
         execute(queryOf(deleteEnheter, avtaleId, createArrayOfValue(enheter) { it.value }))
     }
 
-    fun upsertPrismodell(avtaleId: UUID, dbo: PrismodellDbo) {
+    fun upsertPrismodell(avtaleId: UUID, prismodeller: List<PrismodellDbo>) {
+        @Language("PostgreSQL")
+        val deleteQuery = """
+            delete from avtale_prismodell
+            where avtale_id = ?::uuid
+            and not (id = any (?::uuid[]))
+        """.trimIndent()
+
+        val prismodellIds = prismodeller.map { it.id }
+        if (prismodellIds.isNotEmpty()) {
+            session.execute(
+                queryOf(
+                    deleteQuery,
+                    avtaleId,
+                    session.createUuidArray(prismodellIds),
+                ),
+            )
+        }
         @Language("PostgreSQL")
         val query = """
             insert into avtale_prismodell(id,
@@ -352,14 +369,17 @@ class AvtaleQueries(private val session: Session) {
                                            prismodell_type = excluded.prismodell_type,
                                            satser          = excluded.satser
         """.trimIndent()
-        val params = mapOf(
-            "avtale_id" to avtaleId,
-            "id" to dbo.id,
-            "prismodell" to dbo.type.name,
-            "prisbetingelser" to dbo.prisbetingelser,
-            "satser" to Json.encodeToString(dbo.satser),
-        )
-        session.execute(queryOf(query, params))
+
+        val params = prismodeller.map { dbo ->
+            mapOf(
+                "avtale_id" to avtaleId,
+                "id" to dbo.id,
+                "prismodell" to dbo.type.name,
+                "prisbetingelser" to dbo.prisbetingelser,
+                "satser" to Json.encodeToString(dbo.satser),
+            )
+        }
+        session.batchPreparedNamedStatement(query, params)
     }
 
     fun upsertAvtalenummer(id: UUID, avtalenummer: String) {
@@ -616,7 +636,6 @@ private fun Row.toAvtale(): Avtale {
             )
         }
     }
-
     return Avtale(
         id = uuid("id"),
         navn = string("navn"),

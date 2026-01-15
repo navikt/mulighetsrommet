@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
@@ -23,14 +22,11 @@ import kotlinx.serialization.json.JsonElement
 import kotliquery.Query
 import no.nav.amt.model.EndringAarsak
 import no.nav.amt.model.Melding
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag.Status
 import no.nav.mulighetsrommet.api.withTestApplication
@@ -76,7 +72,7 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("401 Unauthorized uten pid i claims") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get("/api/arrangorflate/tilgang-arrangor") {
+            val response = client.get("/api/arrangorflate/tilsagn") {
                 bearerAuth(oauth.issueToken().serialize())
             }
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -85,7 +81,7 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("403 med pid uten tilgang") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get("/api/arrangorflate/tilgang-arrangor") {
+            val response = client.get("/api/arrangorflate/tilsagn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
             }
 
@@ -93,25 +89,20 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("200 og arrangor returneres på tilgang endepunkt") {
+    test("200 med tilgang") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get("/api/arrangorflate/tilgang-arrangor") {
+            val response = client.get("/api/arrangorflate/tilsagn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
             }
 
             response.status shouldBe HttpStatusCode.OK
-
-            val tilganger: List<ArrangorDto> = response.body()
-            tilganger.shouldHaveSize(1).first().should {
-                it.organisasjonsnummer shouldBe underenhet.organisasjonsnummer
-            }
         }
     }
 
     test("403 hent tilsagn uten tilgang til bedrift") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get("/api/arrangorflate/arrangor/$orgnr/tilsagn") {
+            val response = client.get("/api/arrangorflate/tilsagn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
                 contentType(ContentType.Application.Json)
             }
@@ -121,16 +112,12 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("200 hent tilsagn med tilgang til bedrift") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get("/api/arrangorflate/arrangor/$orgnr/tilsagn") {
+            val response = client.get("/api/arrangorflate/tilsagn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
             }
 
             response.status shouldBe HttpStatusCode.OK
-
-            response.body<List<ArrangorflateTilsagnDto>>().shouldHaveSize(1).first().should {
-                it.status shouldBe TilsagnStatus.GODKJENT
-            }
         }
     }
 

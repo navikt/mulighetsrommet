@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -36,6 +37,7 @@ data class ArrangorflateUtbetalingDto(
     val beregning: ArrangorflateBeregning,
     val periode: Periode,
     val type: UtbetalingTypeDto,
+    val innsendingsDetaljer: List<LabeledDataElement>,
     val linjer: List<ArrangforflateUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarsel>,
     val kanAvbrytes: ArrangorAvbrytStatus,

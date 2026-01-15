@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.start
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -55,6 +56,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             id = UUID.randomUUID(),
             lopenummer = Tiltaksnummer("2025/10000"),
             navn = "Avklaring hos Nav",
+            start = LocalDate.of(2025, 1, 1),
+            slutt = null,
         ),
         arrangor = Utbetaling.Arrangor(
             id = UUID.randomUUID(),
@@ -165,6 +168,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             id = UUID.randomUUID(),
             lopenummer = Tiltaksnummer("2025/10000"),
             navn = "Oppfolging hos Nav",
+            start = LocalDate.of(2025, 1, 1),
+            slutt = null,
         ),
         arrangor = Utbetaling.Arrangor(
             id = UUID.randomUUID(),

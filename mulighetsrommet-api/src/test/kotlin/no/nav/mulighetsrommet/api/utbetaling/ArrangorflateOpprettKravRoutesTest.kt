@@ -18,8 +18,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.mulighetsrommet.api.ApplicationConfigLocal
+import no.nav.mulighetsrommet.api.arrangorflate.api.DatoVelger
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingsInformasjon
-import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingsInformasjon.DatoVelger
 import no.nav.mulighetsrommet.api.arrangorflate.api.TiltaksoversiktResponse
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures

@@ -14,7 +14,7 @@ import {
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
-import { Alert, HelpText, HStack, VStack } from "@navikt/ds-react";
+import { Alert, Heading, HelpText, HStack, VStack } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link } from "react-router";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
@@ -159,7 +159,10 @@ export function AvtaleDetaljer() {
         {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
         <Separator />
-        <PrismodellDetaljer prismodell={avtale.prismodeller[0]} />
+        <Heading level="3" size="small" spacing>
+          {avtaletekster.prismodell.heading}
+        </Heading>
+        <PrismodellDetaljer prismodell={avtale.prismodeller} />
       </VStack>
       <VStack>
         <Definisjonsliste title="Administratorer" definitions={administratorMeta} />

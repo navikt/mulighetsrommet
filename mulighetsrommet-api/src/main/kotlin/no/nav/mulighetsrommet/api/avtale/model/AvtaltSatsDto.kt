@@ -9,7 +9,7 @@ data class AvtaltSatsDto(
     @Serializable(with = LocalDateSerializer::class)
     val gjelderFra: LocalDate,
     val pris: Int,
-    val valuta: String,
+    val valuta: ValutaType,
     @Serializable(with = LocalDateSerializer::class)
     val gjelderTil: LocalDate? = null,
 ) {
@@ -18,7 +18,7 @@ data class AvtaltSatsDto(
             return AvtaltSatsDto(
                 gjelderFra = avtaltSats.gjelderFra,
                 pris = avtaltSats.sats,
-                valuta = "NOK",
+                valuta = avtaltSats.valuta,
                 gjelderTil = nesteSats?.gjelderFra?.minusDays(1),
             )
         }

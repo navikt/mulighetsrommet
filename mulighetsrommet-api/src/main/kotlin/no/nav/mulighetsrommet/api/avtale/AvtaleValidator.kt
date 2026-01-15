@@ -46,6 +46,8 @@ import java.time.LocalDate
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 import kotlin.reflect.KProperty1
+import kotlin.text.orEmpty
+import kotlin.text.toSet
 
 @OptIn(ExperimentalContracts::class)
 object AvtaleValidator {
@@ -73,6 +75,7 @@ object AvtaleValidator {
             val startDato: LocalDate,
             val utdanningslop: UtdanningslopDto?,
             val status: GjennomforingStatusType,
+            val prismodellId: UUID,
         )
 
         data class Tiltakstype(
@@ -97,18 +100,22 @@ object AvtaleValidator {
             ),
             amoKategorisering,
         )
-        val prismodeller = validatePrismodell(
-            request.prismodell,
-            ValidatePrismodellContext(
-                tiltakskode = request.detaljer.tiltakskode,
-                tiltakstypeNavn = ctx.tiltakstype.navn,
-                avtaleStartDato = request.detaljer.startDato,
-                gyldigTilsagnPeriode = ctx.gyldigTilsagnPeriode,
-            ),
-        ).bind()
+        val prismodeller =
+            validatePrismodell(
+                request.prismodeller,
+                ValidatePrismodellContext(
+                    tiltakskode = request.detaljer.tiltakskode,
+                    tiltakstypeNavn = ctx.tiltakstype.navn,
+                    avtaleStartDato = request.detaljer.startDato,
+                    gyldigTilsagnPeriode = ctx.gyldigTilsagnPeriode,
+                    bruktePrismodeller = ctx.previous?.gjennomforinger?.map { it.prismodellId }.orEmpty()
+                        .toSet(),
+                ),
+            ).bind()
+
         val personvernDbo = request.personvern.toDbo()
         val veilederinformasjonDbo = request.veilederinformasjon.toDbo()
-        fromValidatedAvtaleRequest(request.id, detaljerDbo, listOf(prismodeller), personvernDbo, veilederinformasjonDbo)
+        fromValidatedAvtaleRequest(request.id, detaljerDbo, prismodeller, personvernDbo, veilederinformasjonDbo)
     }
 
     fun validateUpdateDetaljer(
@@ -214,37 +221,53 @@ object AvtaleValidator {
         val tiltakstypeNavn: String,
         val avtaleStartDato: LocalDate,
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+        val bruktePrismodeller: Set<UUID>,
     )
 
     fun validatePrismodell(
-        request: PrismodellRequest,
+        request: List<PrismodellRequest>,
         context: ValidatePrismodellContext,
-    ): Either<List<FieldError>, PrismodellDbo> = validation {
-        validate(request.type in Prismodeller.getPrismodellerForTiltak(context.tiltakskode)) {
-            FieldError.of(
-                "${request.type.navn} er ikke tillatt for tiltakstype ${context.tiltakstypeNavn}",
-                OpprettAvtaleRequest::prismodell,
+    ): Either<List<FieldError>, List<PrismodellDbo>> = validation {
+        requireValid(request.isNotEmpty()) {
+            FieldError.of("Minst én prismodell er påkrevd", OpprettAvtaleRequest::prismodeller)
+        }
+
+        context.bruktePrismodeller.forEach { prismodellId ->
+            validate(request.any { it.id == prismodellId }) {
+                FieldError.of(
+                    "Prismodell kan ikke fjernes fordi en eller flere gjennomføringer er koblet til prismodellen",
+                    OpprettAvtaleRequest::prismodeller,
+                )
+            }
+        }
+
+        request.mapIndexed { index, prismodell ->
+
+            validate(prismodell.type in Prismodeller.getPrismodellerForTiltak(context.tiltakskode)) {
+                FieldError.ofPointer(
+                    "/prismodeller/$index/type",
+                    "${prismodell.type.navn} er ikke tillatt for tiltakstype ${context.tiltakstypeNavn}",
+                )
+            }
+
+            val satser = when (prismodell.type) {
+                PrismodellType.ANNEN_AVTALT_PRIS,
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                -> null
+
+                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                -> validateSatser(context, index, prismodell.satser)
+            }
+            PrismodellDbo(
+                id = prismodell.id,
+                type = prismodell.type,
+                prisbetingelser = prismodell.prisbetingelser,
+                satser = satser,
             )
         }
-
-        val satser = when (request.type) {
-            PrismodellType.ANNEN_AVTALT_PRIS,
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-            -> null
-
-            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-            PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            -> validateSatser(context, request.satser)
-        }
-
-        PrismodellDbo(
-            id = request.id,
-            type = request.type,
-            prisbetingelser = request.prisbetingelser,
-            satser = satser,
-        )
     }
 
     data class ValidateOpprettOpsjonContext(
@@ -415,26 +438,33 @@ object AvtaleValidator {
 
     private fun FieldValidator.validateSatser(
         context: ValidatePrismodellContext,
+        prismodellIndex: Int,
         satserRequest: List<AvtaltSatsRequest>,
     ): List<AvtaltSats> {
         requireValid(satserRequest.isNotEmpty()) {
-            FieldError.of("Minst én pris er påkrevd", OpprettAvtaleRequest::prismodell)
+            FieldError.ofPointer("/prismodeller/$prismodellIndex/type", "Minst én pris er påkrevd")
         }
 
         val satser = satserRequest.mapIndexed { index, request ->
             requireValid(request.pris != null && request.pris > 0) {
-                FieldError.ofPointer("/prismodell/satser/$index/pris", "Pris må være positiv")
+                FieldError.ofPointer("/prismodeller/$prismodellIndex/satser/$index/pris", "Pris må være positiv")
             }
             requireValid(request.gjelderFra != null) {
-                FieldError.ofPointer("/prismodell/satser/$index/gjelderFra", "Gjelder fra må være satt")
+                FieldError.ofPointer(
+                    "/prismodeller/$prismodellIndex/satser/$index/gjelderFra",
+                    "Gjelder fra må være satt",
+                )
             }
-            AvtaltSats(request.gjelderFra, request.pris)
+            AvtaltSats(request.gjelderFra, request.pris, request.valuta)
         }
 
         val duplicateDates = satser.map { it.gjelderFra }.groupBy { it }.filter { it.value.size > 1 }.keys
         satser.forEachIndexed { index, (gjelderFra) ->
             validate(gjelderFra !in duplicateDates) {
-                FieldError.ofPointer("/prismodell/satser/$index/gjelderFra", "Gjelder fra må være unik per rad")
+                FieldError.ofPointer(
+                    "/prismodeller/$prismodellIndex/satser/$index/gjelderFra",
+                    "Gjelder fra må være unik per rad",
+                )
             }
         }
 
@@ -446,7 +476,7 @@ object AvtaleValidator {
             )
             validate(minSatsDato <= requiredMinSatsDato) {
                 FieldError.ofPointer(
-                    "/prismodell/satser/0/gjelderFra",
+                    "/prismodeller/$prismodellIndex/satser/0/gjelderFra",
                     "Første sats må gjelde fra ${requiredMinSatsDato.formaterDatoTilEuropeiskDatoformat()}",
                 )
             }

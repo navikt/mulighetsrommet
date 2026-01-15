@@ -1,4 +1,4 @@
-import {RefObject, useEffect, useState} from "react";
+import { RefObject, useEffect, useState } from "react";
 
 export function useHeightObserver<T extends Element>(ref: RefObject<T | null>) {
   const [height, setHeight] = useState(0);

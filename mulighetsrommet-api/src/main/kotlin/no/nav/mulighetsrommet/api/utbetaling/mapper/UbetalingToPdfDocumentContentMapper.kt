@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.Periode
 import java.util.UUID
 
 object UbetalingToPdfDocumentContentMapper {
@@ -137,6 +138,13 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Utbetalin
                     utbetaling.createdAt.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
                 )
             entry("Tiltakstype", utbetaling.tiltakstype.navn)
+            if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
+                entry(
+                    "Tiltaksperiode",
+                    Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt),
+                )
+            }
+
             entry("Løpenummer", utbetaling.gjennomforing.lopenummer.value)
         }
     }

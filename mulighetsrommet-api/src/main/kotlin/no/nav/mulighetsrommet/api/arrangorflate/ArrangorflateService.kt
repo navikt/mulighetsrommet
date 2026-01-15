@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTiltakstype
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingKompaktDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalinger
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.mapUtbetalingToArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
@@ -68,31 +67,6 @@ class ArrangorflateService(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
-    fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
-        val (aktive, historiske) = queries.utbetaling.getByArrangorIds(orgnr)
-            .map { utbetaling ->
-                tilArrangorflateUtbetalingKompakt(utbetaling)
-            }
-            .partition { dto ->
-                when (dto.status) {
-                    ArrangorflateUtbetalingStatus.KREVER_ENDRING,
-                    ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
-                    ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-                    -> true
-
-                    ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
-                    ArrangorflateUtbetalingStatus.UTBETALT,
-                    ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-                    ArrangorflateUtbetalingStatus.AVBRUTT,
-                    -> false
-                }
-            }
-        return ArrangorflateUtbetalinger(
-            aktive = aktive,
-            historiske = historiske,
-        )
-    }
-
     private fun tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompaktDto {
         val harAdvarsler = when (utbetaling.status) {
             UtbetalingStatusType.GENERERT -> harAdvarsler(utbetaling)
