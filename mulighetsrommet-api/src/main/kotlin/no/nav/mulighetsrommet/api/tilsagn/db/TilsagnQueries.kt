@@ -120,6 +120,7 @@ class TilsagnQueries(private val session: Session) {
             "type" to dbo.type.name,
             "belop_brukt" to dbo.belopBrukt,
             "belop_beregnet" to dbo.beregning.output.belop,
+            "valuta" to dbo.valuta.name,
             "beregning_type" to when (dbo.beregning) {
                 is TilsagnBeregningFri -> TilsagnBeregningType.FRI
                 is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
@@ -210,7 +211,7 @@ class TilsagnQueries(private val session: Session) {
                 "id" to it.id,
                 "tilsagn_id" to tilsagnId,
                 "beskrivelse" to it.beskrivelse,
-                "valuta" to it.valuta,
+                "valuta" to it.valuta.name,
                 "belop" to it.belop,
                 "antall" to it.antall,
             )

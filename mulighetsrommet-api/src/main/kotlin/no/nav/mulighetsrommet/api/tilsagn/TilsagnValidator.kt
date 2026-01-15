@@ -33,6 +33,7 @@ object TilsagnValidator {
         val kostnadssted: NavEnhetNummer,
         val periode: Periode,
         val beregning: TilsagnBeregning,
+        val valuta: Currency,
     )
 
     fun validate(
@@ -118,6 +119,7 @@ object TilsagnValidator {
             beregning = beregning,
             periode = periode,
             kostnadssted = next.kostnadssted,
+            valuta = next.beregning.valuta,
         )
     }
 

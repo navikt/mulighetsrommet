@@ -117,7 +117,7 @@ class TilsagnService(
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
                     belopBrukt = 0,
-                    valuta = request.beregning.valuta!!,
+                    valuta = validated.valuta,
                     beregning = validated.beregning,
                     kommentar = request.kommentar?.trim(),
                     beskrivelse = request.beskrivelse?.trim(),
