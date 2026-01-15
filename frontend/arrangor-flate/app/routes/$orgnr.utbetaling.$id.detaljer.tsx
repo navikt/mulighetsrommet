@@ -4,12 +4,12 @@ import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import {
   Alert,
-  BodyShort,
   Box,
   Button,
   Heading,
   HelpText,
   HStack,
+  InlineMessage,
   Link,
   Modal,
   Spacer,
@@ -249,10 +249,10 @@ export default function UtbetalingDetaljerSide() {
         )}
         {utbetaling.regenerertId && (
           <HStack gap="2" justify="start" align="center">
-            <BodyShort className="italic">
+            <InlineMessage status="info">
               Krav om utbetaling for denne perioden er opprettet på nytt. Du finner kravet på
               oversikten over aktive utbetalingskrav
-            </BodyShort>
+            </InlineMessage>
           </HStack>
         )}
         <AvbrytModal open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
