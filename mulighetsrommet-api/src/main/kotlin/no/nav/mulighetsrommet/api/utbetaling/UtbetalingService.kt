@@ -726,6 +726,7 @@ class UtbetalingService(
                 bic = utenlandskArrangor.bic,
                 bankLandKode = utenlandskArrangor.landKode,
                 bankNavn = utenlandskArrangor.bankNavn,
+                valutaKode = "NOK", // TODO: Putt inn her når vi har valuta i prismodell,
             )
         } else {
             OpprettFaktura.Betalingsinformasjon.BBan(
