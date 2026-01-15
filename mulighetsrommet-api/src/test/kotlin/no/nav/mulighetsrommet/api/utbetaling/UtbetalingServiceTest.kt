@@ -59,6 +59,7 @@ import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -793,7 +794,7 @@ class UtbetalingServiceTest : FunSpec({
         test("tilsagn blir oppgjort når utbetaling benytter resten av tilsagnsbeløpet") {
             val tilsagn = Tilsagn1.copy(
                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 1)),
-                beregning = getTilsagnBeregning(belop = 10),
+                beregning = getTilsagnBeregning(belop = 10, valuta = Currency.NOK),
             )
 
             val utbetaling = utbetaling1.copy(
@@ -1097,7 +1098,10 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
                     Tilsagn1.copy(
-                        beregning = getTilsagnBeregning(belop = 1000),
+                        beregning = getTilsagnBeregning(
+                            belop = 1000,
+                            valuta = Currency.NOK,
+                        ),
                     ),
                 ),
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
@@ -1234,7 +1238,10 @@ class UtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(
                     Tilsagn1.copy(
-                        beregning = getTilsagnBeregning(belop = 1),
+                        beregning = getTilsagnBeregning(
+                            belop = 1,
+                            valuta = Currency.NOK,
+                        ),
                     ),
                 ),
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
@@ -1433,7 +1440,8 @@ class UtbetalingServiceTest : FunSpec({
                     queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, utbetaling1.id)
                 utbetaling.status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
                 endringshistorikk.entries.shouldBeEmpty()
-                val diff = Duration.between(delutbetaling.faktura.statusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
+                val diff =
+                    Duration.between(delutbetaling.faktura.statusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
                 diff shouldBeLessThanOrEqualTo Duration.ofMillis(1)
             }
         }
@@ -1587,14 +1595,20 @@ private fun getForhandsgodkjentBeregning(periode: Periode, belop: Int) = Utbetal
     ),
 )
 
-fun getTilsagnBeregning(belop: Int) = TilsagnBeregningFri(
+fun getTilsagnBeregning(belop: Int, valuta: Currency) = TilsagnBeregningFri(
     input = TilsagnBeregningFri.Input(
         linjer = listOf(
-            TilsagnBeregningFri.InputLinje(UUID.randomUUID(), "Beskrivelse", 1500, 1),
+            TilsagnBeregningFri.InputLinje(
+                id = UUID.randomUUID(),
+                beskrivelse = "Beskrivelse",
+                valuta = Currency.NOK,
+                belop = 1500,
+                antall = 1,
+            ),
         ),
         prisbetingelser = null,
     ),
-    output = TilsagnBeregningFri.Output(1500),
+    output = TilsagnBeregningFri.Output(1500, Currency.NOK),
 ).copy(
-    output = TilsagnBeregningFri.Output(belop),
+    output = TilsagnBeregningFri.Output(belop, valuta),
 )

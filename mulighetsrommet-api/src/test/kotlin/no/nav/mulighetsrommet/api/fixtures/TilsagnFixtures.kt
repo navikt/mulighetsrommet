@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
@@ -26,6 +27,7 @@ object TilsagnFixtures {
         bestillingsnummer = "A-2025/1-1",
         bestillingStatus = null,
         belopBrukt = 0,
+        valuta = Currency.NOK,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(
                 listOf(
@@ -33,12 +35,16 @@ object TilsagnFixtures {
                         id = UUID.randomUUID(),
                         beskrivelse = "1000",
                         belop = 1000,
+                        valuta = Currency.NOK,
                         antall = 1,
                     ),
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(1000),
+            output = TilsagnBeregningFri.Output(
+                belop = 1000,
+                valuta = Currency.NOK,
+            ),
         ),
         kommentar = null,
         beskrivelse = null,
@@ -54,6 +60,7 @@ object TilsagnFixtures {
         bestillingsnummer = "A-2025/1-2",
         bestillingStatus = null,
         belopBrukt = 0,
+        valuta = Currency.NOK,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(
                 listOf(
@@ -61,12 +68,16 @@ object TilsagnFixtures {
                         id = UUID.randomUUID(),
                         beskrivelse = "1500",
                         belop = 1500,
+                        valuta = Currency.NOK,
                         antall = 1,
                     ),
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(1500),
+            output = TilsagnBeregningFri.Output(
+                belop = 1500,
+                valuta = Currency.NOK,
+            ),
         ),
         kommentar = null,
         beskrivelse = null,
@@ -82,6 +93,7 @@ object TilsagnFixtures {
         bestillingsnummer = "A-2025/1-3",
         bestillingStatus = null,
         belopBrukt = 0,
+        valuta = Currency.NOK,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(
                 listOf(
@@ -89,12 +101,16 @@ object TilsagnFixtures {
                         id = UUID.randomUUID(),
                         beskrivelse = "1250",
                         belop = 1250,
+                        valuta = Currency.NOK,
                         antall = 2,
                     ),
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(2500),
+            output = TilsagnBeregningFri.Output(
+                belop = 2500,
+                valuta = Currency.NOK,
+            ),
         ),
         kommentar = null,
         beskrivelse = null,
@@ -109,6 +125,7 @@ object TilsagnFixtures {
         lopenummer = 4,
         bestillingsnummer = "A-2025/1-4",
         bestillingStatus = null,
+        valuta = Currency.NOK,
         belopBrukt = 0,
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(
@@ -117,12 +134,16 @@ object TilsagnFixtures {
                         id = UUID.randomUUID(),
                         beskrivelse = "Beskrivelse",
                         belop = 1250,
+                        valuta = Currency.NOK,
                         antall = 2,
                     ),
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(2500),
+            output = TilsagnBeregningFri.Output(
+                belop = 2500,
+                valuta = Currency.NOK,
+            ),
         ),
         kommentar = null,
         beskrivelse = null,

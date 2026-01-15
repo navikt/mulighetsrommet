@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Periode
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -18,6 +19,7 @@ data class TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
     data class Input(
         val periode: Periode,
         val sats: Int,
+        val valuta: Currency,
         val antallPlasser: Int,
         val antallTimerOppfolgingPerDeltaker: Int,
         val prisbetingelser: String?,
@@ -27,6 +29,7 @@ data class TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
     @SerialName("PRIS_PER_TIME_OPPFOLGING")
     data class Output(
         override val belop: Int,
+        override val valuta: Currency,
     ) : TilsagnBeregningOutput()
 
     companion object {
@@ -37,7 +40,7 @@ data class TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
                 .setScale(0, RoundingMode.HALF_UP)
                 .intValueExact()
 
-            return TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(input, Output(belop = belop))
+            return TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(input, Output(belop = belop, valuta = input.valuta))
         }
     }
 }

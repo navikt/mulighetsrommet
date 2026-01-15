@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.validation
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
@@ -97,8 +98,14 @@ object TilsagnValidator {
 
         val periode = Periode.fromInclusiveDates(next.periodeStart, next.periodeSlutt)
 
+        val valuta = next.beregning.valuta
+        requireValid(valuta != null) {
+            FieldError.of("Valuta må være satt og gyldig", TilsagnRequest::beregning)
+        }
+
         val beregning = validateBeregning(
             request = next.beregning,
+            valuta!!,
             periode = periode,
             avtalteSatser = avtalteSatser,
         )
@@ -155,6 +162,7 @@ object TilsagnValidator {
 
     fun FieldValidator.validateBeregning(
         request: TilsagnBeregningRequest,
+        valuta: Currency,
         periode: Periode,
         avtalteSatser: List<AvtaltSats>,
     ): TilsagnBeregning {
@@ -170,6 +178,7 @@ object TilsagnValidator {
                     TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                         periode = periode,
                         sats = sats,
+                        valuta = valuta,
                         antallPlasser = antallPlasser,
                     ),
                 )
@@ -179,6 +188,7 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerManedsverk.Input(
                         periode = periode,
                         sats = sats,
+                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -189,6 +199,7 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerHeleUkesverk.Input(
                         periode = periode,
                         sats = sats,
+                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -199,6 +210,7 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerUkesverk.Input(
                         periode = periode,
                         sats = sats,
+                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -209,6 +221,7 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                         periode = periode,
                         sats = sats,
+                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                         antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(
@@ -296,6 +309,12 @@ object TilsagnValidator {
                     detail = "Antall må være positivt",
                 )
             }
+            validate(linje.valuta != null) {
+                FieldError.ofPointer(
+                    pointer = "/beregning/linjer/$index/valuta",
+                    detail = "Valuta mangler",
+                )
+            }
         }
 
         TilsagnBeregningFri.beregn(
@@ -306,6 +325,7 @@ object TilsagnValidator {
                         beskrivelse = it.beskrivelse!!,
                         belop = it.belop!!,
                         antall = it.antall!!,
+                        valuta = it.valuta!!,
                     )
                 },
                 prisbetingelser = request.prisbetingelser,

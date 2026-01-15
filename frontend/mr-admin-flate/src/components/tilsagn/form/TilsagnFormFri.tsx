@@ -1,4 +1,5 @@
 import {
+  Currency,
   GjennomforingDto,
   TilsagnBeregningType,
   TilsagnRequest,
@@ -125,7 +126,13 @@ function BeregningInputSkjema() {
         onClick={(event) => {
           event.preventDefault();
           event.stopPropagation();
-          append({ id: window.crypto.randomUUID(), beskrivelse: "", belop: 0, antall: 1 });
+          append({
+            id: window.crypto.randomUUID(),
+            beskrivelse: "",
+            belop: 0,
+            antall: 1,
+            valuta: Currency.NOK, // TODO: Hent fra gjennomforing, eller tidligere linjers valuta
+          });
         }}
       >
         Legg til ny pris

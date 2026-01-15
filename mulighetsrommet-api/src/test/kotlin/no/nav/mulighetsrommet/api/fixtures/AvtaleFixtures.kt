@@ -15,10 +15,11 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.ValutaType
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Personopplysning
@@ -196,7 +197,7 @@ object AvtaleFixtures {
                     type = prismodell.type,
                     prisbetingelser = prismodell.prisbetingelser,
                     satser = (prismodell.satser ?: listOf()).map {
-                        AvtaltSatsRequest(it.gjelderFra, it.sats, ValutaType.NOK)
+                        AvtaltSatsRequest(it.gjelderFra, it.sats, Currency.NOK)
                     },
                 )
             },

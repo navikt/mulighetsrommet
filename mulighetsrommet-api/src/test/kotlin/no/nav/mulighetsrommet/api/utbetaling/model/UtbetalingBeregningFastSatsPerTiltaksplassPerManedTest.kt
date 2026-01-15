@@ -5,6 +5,7 @@ import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.UUID
@@ -537,6 +538,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     TilsagnBeregningPrisPerManedsverk.Input(
                         periode = periode,
                         sats = 20205,
+                        valuta = Currency.NOK,
                         antallPlasser = 1,
                         prisbetingelser = null,
                     ),

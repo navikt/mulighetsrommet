@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Periode
 
 @Serializable
@@ -17,6 +18,7 @@ data class TilsagnBeregningPrisPerManedsverk(
     data class Input(
         val periode: Periode,
         val sats: Int,
+        val valuta: Currency,
         val antallPlasser: Int,
         val prisbetingelser: String?,
     ) : TilsagnBeregningInput()
@@ -25,15 +27,16 @@ data class TilsagnBeregningPrisPerManedsverk(
     @SerialName("PRIS_PER_MANEDSVERK")
     data class Output(
         override val belop: Int,
+        override val valuta: Currency,
     ) : TilsagnBeregningOutput()
 
     companion object {
         fun beregn(input: Input): TilsagnBeregningPrisPerManedsverk {
-            val (periode, sats, antallPlasser) = input
+            val (periode, sats, valuta, antallPlasser) = input
 
             val belop = UtbetalingBeregningHelpers.calculateManedsverkBelop(periode, sats, antallPlasser)
 
-            return TilsagnBeregningPrisPerManedsverk(input, Output(belop = belop))
+            return TilsagnBeregningPrisPerManedsverk(input, Output(belop = belop, valuta = valuta))
         }
     }
 }

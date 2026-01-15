@@ -7,6 +7,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.DataElement.Text.Format
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import no.nav.mulighetsrommet.model.Currency as CommonCurrency
 
 @Serializable
 class DataDrivenTableDto(
@@ -66,6 +67,17 @@ data class LabeledDataElement(
             value = DataElement.nok(value),
         )
 
+        fun currency(
+            label: String,
+            value: Number,
+            currency: DataElement.CurrencyValue.Currency,
+            type: LabeledDataElementType = LabeledDataElementType.INLINE,
+        ) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.currency(value, currency),
+        )
+
         fun date(label: String, value: LocalDate?, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
             type = type,
             label = label,
@@ -110,6 +122,25 @@ sealed class DataElement {
 
             @SerialName("number")
             NUMBER,
+        }
+    }
+
+    @Serializable
+    @SerialName("DATA_ELEMENT_CURRENCY")
+    data class CurrencyValue(
+        val value: String?,
+        val currency: Currency,
+    ) : DataElement() {
+        enum class Currency {
+            @SerialName("nok")
+            NOK,
+            ;
+
+            companion object {
+                fun from(valuta: CommonCurrency): Currency = when (valuta) {
+                    CommonCurrency.NOK -> NOK
+                }
+            }
         }
     }
 
@@ -218,6 +249,8 @@ sealed class DataElement {
         fun text(value: String?) = Text(value, null)
 
         fun nok(value: Number?) = Text(value?.toString(), Format.NOK)
+
+        fun currency(value: Number?, currency: CurrencyValue.Currency) = CurrencyValue(value?.toString(), currency)
 
         fun date(value: LocalDate?) = Text(value?.toString(), Format.DATE)
 

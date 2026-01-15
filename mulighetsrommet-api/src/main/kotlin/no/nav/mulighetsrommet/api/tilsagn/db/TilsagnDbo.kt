@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.db
 
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.BestillingStatusType
@@ -16,6 +17,7 @@ data class TilsagnDbo(
     val lopenummer: Int,
     val bestillingsnummer: String,
     val bestillingStatus: BestillingStatusType?,
+    val valuta: Currency,
     val belopBrukt: Int,
     val beregning: TilsagnBeregning,
     val kommentar: String?,

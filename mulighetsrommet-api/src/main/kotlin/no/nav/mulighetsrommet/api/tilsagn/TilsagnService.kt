@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -116,6 +117,7 @@ class TilsagnService(
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
                     belopBrukt = 0,
+                    valuta = request.beregning.valuta!!,
                     beregning = validated.beregning,
                     kommentar = request.kommentar?.trim(),
                     beskrivelse = request.beskrivelse?.trim(),
@@ -184,6 +186,7 @@ class TilsagnService(
                                     id = it.id,
                                     beskrivelse = it.beskrivelse ?: "",
                                     belop = it.belop ?: 0,
+                                    valuta = it.valuta ?: Currency.NOK,
                                     antall = it.antall ?: 0,
                                 )
                             },
@@ -197,6 +200,7 @@ class TilsagnService(
                             TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
+                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                             ),
                         )
@@ -208,6 +212,7 @@ class TilsagnService(
                             TilsagnBeregningPrisPerManedsverk.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
+                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                             ),
@@ -220,6 +225,7 @@ class TilsagnService(
                             TilsagnBeregningPrisPerUkesverk.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
+                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                             ),
@@ -232,6 +238,7 @@ class TilsagnService(
                             TilsagnBeregningPrisPerHeleUkesverk.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
+                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                             ),
@@ -244,6 +251,7 @@ class TilsagnService(
                             TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
+                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                                 antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
@@ -258,6 +266,7 @@ class TilsagnService(
 
     private data class TilsagnBeregningFallbackResolver(
         val sats: Int,
+        val valuta: Currency,
         val periode: Periode,
         val antallPlasser: Int,
         val antallTimerOppfolgingPerDeltaker: Int,
@@ -279,6 +288,7 @@ class TilsagnService(
 
         return TilsagnBeregningFallbackResolver(
             sats = sats,
+            valuta = valuta,
             periode = periode,
             antallPlasser = antallPlasserFallback,
             antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltakerFallback,
