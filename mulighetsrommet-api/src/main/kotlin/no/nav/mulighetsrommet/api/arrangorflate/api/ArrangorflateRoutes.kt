@@ -19,7 +19,6 @@ import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.application
 import io.ktor.server.routing.route
-import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import io.ktor.utils.io.toByteArray
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -31,10 +30,7 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
-import no.nav.mulighetsrommet.api.arrangorflate.TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.AVBRUTT
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.DELVIS_UTBETALT
@@ -42,7 +38,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatu
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.KREVER_ENDRING
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.UTBETALT
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
@@ -55,7 +50,6 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
@@ -121,35 +115,12 @@ suspend fun RoutingContext.requireTilgangHosArrangor(
 
 fun Route.arrangorflateRoutes(config: AppConfig) {
     val db: ApiDatabase by inject()
-    val arrangorService: ArrangorService by inject()
     val utbetalingService: UtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
     val genererUtbetalingService: GenererUtbetalingService by inject()
-
-    suspend fun resolveArrangorer(organisasjonsnummer: List<Organisasjonsnummer>): List<ArrangorDto> {
-        return arrangorService.getArrangorerOrSyncFromBrreg(organisasjonsnummer)
-            .getOrElse {
-                when (it) {
-                    is BrregError.NotFound -> throw StatusException(
-                        HttpStatusCode.BadRequest,
-                        "Fant ikke arrangør $organisasjonsnummer i Brreg",
-                    )
-
-                    is BrregError.FjernetAvJuridiskeArsaker -> throw StatusException(
-                        HttpStatusCode.Forbidden,
-                        "Arrangør $organisasjonsnummer er fjernet av juridiske årsaker",
-                    )
-
-                    is BrregError.BadRequest, BrregError.Error -> throw StatusException(
-                        HttpStatusCode.InternalServerError,
-                        "Feil oppsto ved henting av arrangør $organisasjonsnummer fra Brreg",
-                    )
-                }
-            }
-    }
 
     fun RoutingContext.getTilsagnOrRespondNotFound(): ArrangorflateTilsagnDto {
         val id: UUID by call.parameters
@@ -161,200 +132,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         return arrangorFlateService.getUtbetaling(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
     }
 
-    get("/tilgang-arrangor", {
-        description = "Henter liste over arrangører innlogget bruker har tilgang til"
-        tags = setOf("Arrangorflate")
-        operationId = "getArrangorerInnloggetBrukerHarTilgangTil"
-        response {
-            code(HttpStatusCode.OK) {
-                description = "Arrangører"
-                body<List<ArrangorDto>>()
-            }
-            default {
-                description = "Problem details"
-                body<ProblemDetail>()
-            }
-        }
-    }) {
-        val tilganger = orgnrTilganger(altinnRettigheterService)
-        if (tilganger.isEmpty()) {
-            respondWithManglerTilgangHosArrangor()
-        } else {
-            val arrangorer = resolveArrangorer(tilganger)
-            call.respond(arrangorer)
-        }
-    }
-
     arrangorflateRoutesOpprettKrav(config.okonomi)
-    route("/arrangor/{orgnr}") {
-        get("/kontonummer", {
-            description = "Hent kontonummer fra kontonummer-organisasjon for gitt organisasjonsnummer"
-            tags = setOf("Arrangorflate")
-            operationId = "getKontonummer"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Kontonummer til arrangør"
-                    body<KontonummerResponse>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
-            requireTilgangHosArrangor(altinnRettigheterService, orgnr)
-
-            arrangorFlateService.getKontonummer(orgnr)
-                .onLeft {
-                    val error = when (it) {
-                        KontonummerRegisterOrganisasjonError.UgyldigInput -> BadRequest("Ugyldig input")
-                        KontonummerRegisterOrganisasjonError.FantIkkeKontonummer -> NotFound("Organisasjon mangler kontonummer")
-                        KontonummerRegisterOrganisasjonError.Error -> InternalServerError("Klarte ikke hente kontonummer for organisasjon")
-                    }
-                    call.respondWithProblemDetail(error)
-                }
-                .onRight { kontonummer ->
-                    call.respond(KontonummerResponse(kontonummer))
-                }
-        }
-
-        route("/gjennomforing") {
-            get({
-                description = "Hent gjennomføringene til arrangør"
-                tags = setOf("Arrangorflate")
-                operationId = "getArrangorflateGjennomforinger"
-                request {
-                    pathParameter<Organisasjonsnummer>("orgnr")
-                    queryParameter<List<PrismodellType>>("prismodeller") {
-                        explode = true
-                    }
-                }
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Arrangør sine gjennomføringer"
-                        body<List<ArrangorflateGjennomforing>>()
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-                requireTilgangHosArrangor(altinnRettigheterService, orgnr)
-
-                val prismodeller = call.parameters.getAll("prismodeller")
-                    ?.map { PrismodellType.valueOf(it) }
-                    ?: emptyList()
-                val gjennomforinger = db.session {
-                    queries.gjennomforing
-                        .getAllGruppetiltakKompakt(
-                            arrangorOrgnr = listOf(orgnr),
-                            prismodeller = prismodeller,
-                        )
-                        .items
-                        .map { ArrangorflateGjennomforing.fromGjennomforingKompakt(it) }
-                }
-                call.respond(gjennomforinger)
-            }
-
-            get("{gjennomforingId}", {
-                description = "Hent gjennomføring til arrangør"
-                tags = setOf("Arrangorflate")
-                operationId = "getArrangorflateGjennomforing"
-                request {
-                    pathParameter<Organisasjonsnummer>("orgnr")
-                    pathParameter<String>("gjennomforingId")
-                }
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Arrangørens gjennomføring"
-                        body<ArrangorflateGjennomforing>()
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-                requireTilgangHosArrangor(altinnRettigheterService, orgnr)
-
-                val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
-
-                val gjennomforing = db.session { queries.gjennomforing.getGruppetiltakOrError(gjennomforingId) }
-                if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
-                    throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
-                }
-
-                call.respond(ArrangorflateGjennomforing.fromGjennomforingGruppetiltak(gjennomforing))
-            }
-        }
-
-        get("/utbetaling", {
-            description = "Hent utbetalingene til arrangør"
-            tags = setOf("Arrangorflate")
-            operationId = "getAllUtbetaling"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Arrangør sine utbetalinger"
-                    body<ArrangorflateUtbetalinger>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
-            requireTilgangHosArrangor(altinnRettigheterService, orgnr)
-
-            val utbetalinger = arrangorFlateService.getUtbetalinger(orgnr)
-
-            call.respond(utbetalinger)
-        }
-
-        route("/tilsagn") {
-            get({
-                description = "Hent alle tilsagn til arrangør"
-                tags = setOf("Arrangorflate")
-                operationId = "getAllArrangorflateTilsagn"
-                request {}
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Alle tilsagn for arrangørs tilgang"
-                        body<List<ArrangorflateTilsagnDto>>()
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val arrangorer = orgnrTilganger(altinnRettigheterService).toSet()
-                if (arrangorer.isEmpty()) {
-                    respondWithManglerTilgangHosArrangor()
-                    return@get
-                }
-
-                val tilsagn = arrangorFlateService.getTilsagn(
-                    arrangorer,
-                    statuser = TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR,
-                )
-
-                call.respond(tilsagn)
-            }
-        }
-    }
 
     route("/tilsagn") {
         get(
@@ -477,31 +255,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
             val arrangorFlateUtbetaling = arrangorFlateService.toArrangorflateUtbetaling(utbetaling)
             call.respond(arrangorFlateUtbetaling)
-        }
-
-        get("/advarsler", {
-            description = "Hent deltakerforslag som kan påvirke utbetalingen"
-            tags = setOf("Arrangorflate")
-            operationId = "getRelevanteForslag"
-            request {
-                pathParameterUuid("id")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Deltakerforslag som er relevante for utbetalingen"
-                    body<List<DeltakerAdvarsel>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
-
-            call.respond(arrangorFlateService.getAdvarsler(utbetaling))
         }
 
         post("/godkjenn", {
