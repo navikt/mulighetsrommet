@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.toDto
-import no.nav.mulighetsrommet.database.requireSingle
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 

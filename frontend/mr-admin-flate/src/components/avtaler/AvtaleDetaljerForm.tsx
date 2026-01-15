@@ -60,6 +60,20 @@ export function AvtaleDetaljerForm() {
         customOpsjonsmodellNavn: null,
         opsjonMaksVarighet: null,
       });
+
+      setValue("prismodeller", []);
+    } else {
+      const prismodeller = watch("prismodeller");
+      if (prismodeller.length === 0) {
+        setValue("prismodeller", [
+          {
+            id: undefined,
+            type: undefined as unknown as PrismodellType,
+            satser: [],
+            prisbetingelser: null,
+          },
+        ]);
+      }
     }
   }
 
@@ -113,28 +127,6 @@ export function AvtaleDetaljerForm() {
                 onChange: (e) => {
                   setValue("detaljer.amoKategorisering", null);
                   setValue("detaljer.utdanningslop", null);
-                  if (
-                    [
-                      Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                      Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-                    ].includes(e.target.value)
-                  ) {
-                    setValue("prismodeller", [
-                      {
-                        type: PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                        satser: [],
-                        prisbetingelser: null,
-                      },
-                    ]);
-                  } else {
-                    setValue("prismodeller", [
-                      {
-                        type: undefined as unknown as PrismodellType,
-                        satser: [],
-                        prisbetingelser: null,
-                      },
-                    ]);
-                  }
                   const avtaletype = isTiltakskode(e.target.value)
                     ? getAvtaletypeOptions(e.target.value as Tiltakskode)[0]?.value
                     : undefined;
