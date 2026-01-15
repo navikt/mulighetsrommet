@@ -3,9 +3,10 @@ package no.nav.mulighetsrommet.api.tilsagn
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
@@ -46,7 +47,10 @@ class TilsagnValidatorTest : FunSpec({
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = emptyList(),
             ) shouldBeLeft listOf(
-                FieldError.of("Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris", TilsagnRequest::periodeStart),
+                FieldError.of(
+                    "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
+                    TilsagnRequest::periodeStart,
+                ),
             )
         }
 
@@ -63,7 +67,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = AvtalteSatser.AFT.satser,
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, ValutaType.NOK)),
             ).shouldBeRight()
         }
 
@@ -83,7 +87,10 @@ class TilsagnValidatorTest : FunSpec({
                 avtalteSatser = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart),
-                FieldError.ofPointer(pointer = "/beregning/antallPlasser", detail = "Antall plasser må være større enn 0"),
+                FieldError.ofPointer(
+                    pointer = "/beregning/antallPlasser",
+                    detail = "Antall plasser må være større enn 0",
+                ),
             )
         }
 
@@ -99,8 +106,14 @@ class TilsagnValidatorTest : FunSpec({
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = emptyList(),
             ) shouldBeLeft listOf(
-                FieldError.of("Minimum startdato for tilsagn til AFT er ${gyldigStart.formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeStart),
-                FieldError.of("Maksimum sluttdato for tilsagn til AFT er ${gyldigSlutt.formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeSlutt),
+                FieldError.of(
+                    "Minimum startdato for tilsagn til AFT er ${gyldigStart.formaterDatoTilEuropeiskDatoformat()}",
+                    TilsagnRequest::periodeStart,
+                ),
+                FieldError.of(
+                    "Maksimum sluttdato for tilsagn til AFT er ${gyldigSlutt.formaterDatoTilEuropeiskDatoformat()}",
+                    TilsagnRequest::periodeSlutt,
+                ),
             )
         }
 
@@ -138,7 +151,11 @@ class TilsagnValidatorTest : FunSpec({
                 avtalteSatser = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError.of("Du må velge et kostnadssted", TilsagnRequest::kostnadssted),
-                FieldError.of("Antall plasser må være større enn 0", TilsagnRequest::beregning, TilsagnBeregningRequest::antallPlasser),
+                FieldError.of(
+                    "Antall plasser må være større enn 0",
+                    TilsagnRequest::beregning,
+                    TilsagnBeregningRequest::antallPlasser,
+                ),
             )
         }
 
@@ -157,7 +174,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = AvtalteSatser.AFT.satser,
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, ValutaType.NOK)),
             ) shouldBeLeft listOf(
                 FieldError.of("Maksimum sluttdato for tilsagn til AFT er 31.12.2025", TilsagnRequest::periodeSlutt),
             )
@@ -171,7 +188,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = AvtalteSatser.AFT.satser,
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, ValutaType.NOK)),
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeStart",
@@ -188,7 +205,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = LocalDate.of(2025, 10, 1),
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = AvtalteSatser.AFT.satser,
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, ValutaType.NOK)),
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeSlutt",

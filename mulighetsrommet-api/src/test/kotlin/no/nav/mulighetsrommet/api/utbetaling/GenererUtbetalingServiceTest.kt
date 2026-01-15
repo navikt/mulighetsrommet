@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
@@ -768,14 +769,14 @@ class GenererUtbetalingServiceTest : FunSpec({
     context("rekalkulering av utbetalinger") {
         val service = createUtbetalingService()
 
-        val prismodell = AvtaleFixtures.createPrismodellDbo(
+        val prismodell = PrismodellFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2026, 2, 1), 100, ValutaType.NOK),
             ),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell))
+        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell.id))
 
         val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
 
@@ -812,6 +813,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         beforeEach {
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                prismodeller = listOf(prismodell),
                 avtaler = listOf(avtale),
                 gjennomforinger = listOf(gjennomforing),
             ).initialize(database.db)
@@ -888,20 +890,21 @@ class GenererUtbetalingServiceTest : FunSpec({
     context("utbetalinger for anskaffede tiltak") {
         val service = createUtbetalingService()
 
-        val prismodell = AvtaleFixtures.createPrismodellDbo(
+        val prismodell = PrismodellFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 100, ValutaType.NOK),
             ),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell))
+        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell.id))
 
         val oppfolging = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
 
         beforeEach {
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                prismodeller = listOf(prismodell),
                 avtaler = listOf(avtale),
                 gjennomforinger = listOf(oppfolging),
             ).initialize(database.db)
@@ -966,11 +969,8 @@ class GenererUtbetalingServiceTest : FunSpec({
                         statusType = DeltakerStatusType.DELTAR,
                     ),
                 ),
+                prismodeller = listOf(prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK)),
             ) {
-                queries.avtale.upsertPrismodell(
-                    avtale.id,
-                    listOf(prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK)),
-                )
                 queries.gjennomforing.setStengtHosArrangor(
                     oppfolging.id,
                     Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 20)),
@@ -1013,9 +1013,8 @@ class GenererUtbetalingServiceTest : FunSpec({
             generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
 
             database.run {
-                queries.avtale.upsertPrismodell(
-                    avtale.id,
-                    listOf(prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK)),
+                queries.prismodell.upsert(
+                    prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK),
                 )
             }
 
@@ -1048,9 +1047,8 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ) {
 
-                queries.avtale.upsertPrismodell(
-                    avtale.id,
-                    listOf(prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK)),
+                queries.prismodell.upsert(
+                    prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
                 )
             }.initialize(database.db)
 
@@ -1078,9 +1076,8 @@ class GenererUtbetalingServiceTest : FunSpec({
             generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
 
             database.run {
-                queries.avtale.upsertPrismodell(
-                    avtale.id,
-                    listOf(prismodell.copy(type = PrismodellType.ANNEN_AVTALT_PRIS)),
+                queries.prismodell.upsert(
+                    prismodell.copy(type = PrismodellType.ANNEN_AVTALT_PRIS),
                 )
             }
 
@@ -1097,14 +1094,14 @@ class GenererUtbetalingServiceTest : FunSpec({
         val gyldigTilsagnPeriode = Periode(LocalDate.of(2024, 12, 1), LocalDate.of(2027, 1, 1))
         val service = createUtbetalingService(mapOf(Tiltakskode.OPPFOLGING to gyldigTilsagnPeriode))
 
-        val prismodell = AvtaleFixtures.createPrismodellDbo(
+        val prismodell = PrismodellFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2024, 1, 1), 100, ValutaType.NOK),
             ),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell))
+        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell.id))
 
         val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
             startDato = LocalDate.of(2024, 1, 1),
@@ -1115,6 +1112,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         beforeEach {
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                prismodeller = listOf(prismodell),
                 avtaler = listOf(avtale),
                 gjennomforinger = listOf(gjennomforing),
             ).initialize(database.db)
@@ -1227,20 +1225,21 @@ class GenererUtbetalingServiceTest : FunSpec({
     context("utledning av avtalte satser") {
         val service = createUtbetalingService()
 
-        val prismodell = AvtaleFixtures.createPrismodellDbo(
+        val prismodell = PrismodellFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 15), 100, ValutaType.NOK),
             ),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell))
+        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell.id))
 
         val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
 
         beforeEach {
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                prismodeller = listOf(prismodell),
                 avtaler = listOf(avtale),
                 gjennomforinger = listOf(gjennomforing),
             ).initialize(database.db)
@@ -1279,21 +1278,17 @@ class GenererUtbetalingServiceTest : FunSpec({
                         statusType = DeltakerStatusType.DELTAR,
                     ),
                 ),
-            ) {
-                queries.avtale.upsertPrismodell(
-                    avtale.id,
-                    listOf(
-                        prismodell.copy(
-                            satser = listOf(
-                                AvtaltSats(LocalDate.of(2024, 1, 1), 1, ValutaType.NOK),
-                                AvtaltSats(LocalDate.of(2025, 1, 2), 2, ValutaType.NOK),
-                                AvtaltSats(LocalDate.of(2025, 1, 3), 3, ValutaType.NOK),
-                                AvtaltSats(LocalDate.of(2025, 2, 1), 4, ValutaType.NOK),
-                            ),
+                prismodeller = listOf(
+                    prismodell.copy(
+                        satser = listOf(
+                            AvtaltSats(LocalDate.of(2024, 1, 1), 1, ValutaType.NOK),
+                            AvtaltSats(LocalDate.of(2025, 1, 2), 2, ValutaType.NOK),
+                            AvtaltSats(LocalDate.of(2025, 1, 3), 3, ValutaType.NOK),
+                            AvtaltSats(LocalDate.of(2025, 2, 1), 4, ValutaType.NOK),
                         ),
                     ),
-                )
-            }.initialize(database.db)
+                ),
+            ).initialize(database.db)
 
             val utbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
 
@@ -1310,14 +1305,14 @@ class GenererUtbetalingServiceTest : FunSpec({
     context("regenerering") {
         val service = createUtbetalingService()
 
-        val prismodell = AvtaleFixtures.createPrismodellDbo(
+        val prismodell = PrismodellFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 100, ValutaType.NOK),
             ),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell))
+        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell.id))
 
         val oppfolging = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
 
@@ -1326,6 +1321,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(avtale),
                 gjennomforinger = listOf(oppfolging),
+                prismodeller = listOf(prismodell),
             ).initialize(database.db)
         }
 

@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.toNavAnsatt
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -53,7 +54,7 @@ class AvtaleValidatorTest : FunSpec({
     val avtaleRequest = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.OPPFOLGING,
         avtaletype = Avtaletype.RAMMEAVTALE,
-        prismodell = AvtaleFixtures.Prismodell.AvtaltPrisPerTimeOppfolging,
+        prismodell = listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging),
     )
     val gruppeAmo = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
@@ -64,7 +65,7 @@ class AvtaleValidatorTest : FunSpec({
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         avtaletype = Avtaletype.FORHANDSGODKJENT,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
-        prismodell = AvtaleFixtures.Prismodell.Forhandsgodkjent,
+        prismodell = listOf(),
     )
     val avtaleTypeAvtale = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.OPPFOLGING,
@@ -86,7 +87,21 @@ class AvtaleValidatorTest : FunSpec({
             id = TiltakstypeFixtures.Oppfolging.id,
         ),
         navEnheter = listOf(NavEnhetFixtures.Innlandet.toDto(), NavEnhetFixtures.Gjovik.toDto()),
-        gyldigTilsagnPeriode = mapOf(),
+        systembestemtPrismodell = null,
+    )
+
+    val createForhandsgodkjentAvtaleContext = Ctx(
+        previous = null,
+        arrangor = ArrangorFixtures.hovedenhet.copy(
+            underenheter = listOf(ArrangorFixtures.underenhet1),
+        ),
+        administratorer = emptyList(),
+        tiltakstype = Tiltakstype(
+            navn = TiltakstypeFixtures.AFT.navn,
+            id = TiltakstypeFixtures.AFT.id,
+        ),
+        navEnheter = listOf(NavEnhetFixtures.Innlandet.toDto(), NavEnhetFixtures.Gjovik.toDto()),
+        systembestemtPrismodell = UUID.randomUUID(),
     )
 
     val previous = Ctx.Avtale(
@@ -213,7 +228,7 @@ class AvtaleValidatorTest : FunSpec({
             ),
         )
 
-        AvtaleValidator.validateCreateAvtale(forhaandsgodkjent1, ctx).shouldBeRight()
+        AvtaleValidator.validateCreateAvtale(forhaandsgodkjent1, createForhandsgodkjentAvtaleContext).shouldBeRight()
         AvtaleValidator.validateCreateAvtale(
             oppfolgingMedRammeAvtale.copy(detaljer = avtaleTypeAvtale.detaljer.copy(sluttDato = null)),
             ctx,
@@ -245,7 +260,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
             ),
-            ctx,
+            createForhandsgodkjentAvtaleContext,
         ).shouldBeRight()
         AvtaleValidator.validateCreateAvtale(
             forhaandsgodkjent.copy(
@@ -256,7 +271,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
             ),
-            ctx,
+            createForhandsgodkjentAvtaleContext,
         ).shouldBeLeft(
             listOf(
                 FieldError(
@@ -311,7 +326,7 @@ class AvtaleValidatorTest : FunSpec({
     test("avtaletype må stemme overens med tiltakstypen") {
         AvtaleValidator.validateCreateAvtale(
             forhaandsgodkjent.copy(detaljer = forhaandsgodkjent.detaljer.copy(avtaletype = Avtaletype.RAMMEAVTALE)),
-            ctx.copy(tiltakstype = ctx.tiltakstype.copy(navn = TiltakstypeFixtures.AFT.navn)),
+            createForhandsgodkjentAvtaleContext,
         ).shouldBeLeft().shouldContain(
             FieldError("/avtaletype", "Rammeavtale er ikke tillatt for tiltakstype Arbeidsforberedende trening"),
         )
@@ -345,7 +360,7 @@ class AvtaleValidatorTest : FunSpec({
             ),
         )
 
-        AvtaleValidator.validateCreateAvtale(forhaandsgodkjent, ctx).shouldBeRight()
+        AvtaleValidator.validateCreateAvtale(forhaandsgodkjent, createForhandsgodkjentAvtaleContext).shouldBeRight()
         AvtaleValidator.validateCreateAvtale(oppfolgingMedRammeAvtale, ctx).shouldBeRight()
         AvtaleValidator.validateCreateAvtale(gruppeAmo, ctx).shouldBeRight()
     }
@@ -457,12 +472,32 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
+    test("minst én prismodell er påkrevd") {
+        AvtaleValidator.validateCreateAvtale(
+            avtaleRequest.copy(prismodeller = listOf()),
+            ctx,
+        ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            FieldError("/prismodeller", "Minst én prismodell er påkrevd"),
+        )
+
+        AvtaleValidator.validateCreateAvtale(
+            forhaandsgodkjent,
+            createForhandsgodkjentAvtaleContext.copy(
+                systembestemtPrismodell = null,
+            ),
+        ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            FieldError("/prismodeller", "Minst én prismodell er påkrevd"),
+        )
+    }
+
     context("prismodell") {
         fun getContext(
             tiltakstype: TiltakstypeDbo = TiltakstypeFixtures.Oppfolging,
+            avtaletype: Avtaletype = Avtaletype.AVTALE,
             gyldigTilsagnPeriode: Map<Tiltakskode, Periode> = mapOf(),
             avtaleStartDato: LocalDate = LocalDate.of(2025, 1, 1),
-        ) = AvtaleValidator.ValidatePrismodellContext(
+        ) = AvtaleValidator.ValidatePrismodellerContext(
+            avtaletype = avtaletype,
             tiltakskode = tiltakstype.tiltakskode!!,
             tiltakstypeNavn = tiltakstype.navn,
             gyldigTilsagnPeriode = gyldigTilsagnPeriode,
@@ -471,7 +506,7 @@ class AvtaleValidatorTest : FunSpec({
         )
 
         test("må ha minst én prismodell") {
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 emptyList(),
                 getContext(),
             ).shouldBeLeft().shouldContain(
@@ -483,7 +518,7 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         test("må stemme overens med tiltakstypen") {
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 listOf(
                     PrismodellRequest(
                         id = UUID.randomUUID(),
@@ -499,7 +534,7 @@ class AvtaleValidatorTest : FunSpec({
                     "Fast sats per tiltaksplass per måned er ikke tillatt for tiltakstype Oppfølging",
                 ),
             )
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 listOf(
                     PrismodellRequest(
                         id = UUID.randomUUID(),
@@ -508,15 +543,12 @@ class AvtaleValidatorTest : FunSpec({
                         satser = emptyList(),
                     ),
                 ),
-                getContext(TiltakstypeFixtures.AFT),
+                getContext(TiltakstypeFixtures.AFT, avtaletype = Avtaletype.FORHANDSGODKJENT),
             ).shouldBeLeft().shouldContain(
-                FieldError(
-                    "/prismodeller/0/type",
-                    "Annen avtalt pris er ikke tillatt for tiltakstype Arbeidsforberedende trening",
-                ),
+                FieldError("/prismodeller", "Prismodell kan ikke opprettes for forhåndsgodkjente avtaler"),
             )
 
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 listOf(
                     PrismodellRequest(
                         id = UUID.randomUUID(),
@@ -539,7 +571,7 @@ class AvtaleValidatorTest : FunSpec({
                 ),
             )
 
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 request,
                 getContext(
                     TiltakstypeFixtures.Oppfolging,
@@ -550,7 +582,7 @@ class AvtaleValidatorTest : FunSpec({
                 FieldError("/prismodeller/0/satser/0/gjelderFra", "Første sats må gjelde fra 01.02.2025"),
             )
 
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 request,
                 getContext(
                     TiltakstypeFixtures.Oppfolging,
@@ -561,13 +593,19 @@ class AvtaleValidatorTest : FunSpec({
                 FieldError("/prismodeller/0/satser/0/gjelderFra", "Første sats må gjelde fra 01.01.2025"),
             )
 
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 listOf(
                     PrismodellRequest(
                         id = UUID.randomUUID(),
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                         prisbetingelser = null,
-                        satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2024, 12, 1), pris = 1, ValutaType.NOK)),
+                        satser = listOf(
+                            AvtaltSatsRequest(
+                                gjelderFra = LocalDate.of(2024, 12, 1),
+                                pris = 1,
+                                ValutaType.NOK,
+                            ),
+                        ),
                     ),
                 ),
                 getContext(
@@ -586,21 +624,21 @@ class AvtaleValidatorTest : FunSpec({
                 satser = listOf(),
             )
 
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 listOf(request),
                 getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodeller/0/type", "Minst én pris er påkrevd"),
             )
 
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 listOf(request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1, ValutaType.NOK)))),
                 getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodeller/0/satser/0/gjelderFra", "Gjelder fra må være satt"),
             )
 
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 listOf(
                     request.copy(
                         satser = listOf(
@@ -617,7 +655,7 @@ class AvtaleValidatorTest : FunSpec({
                 FieldError("/prismodeller/0/satser/0/pris", "Pris må være positiv"),
             )
 
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 listOf(
                     request.copy(
                         satser = listOf(
@@ -634,7 +672,7 @@ class AvtaleValidatorTest : FunSpec({
                 FieldError("/prismodeller/0/satser/0/pris", "Pris må være positiv"),
             )
 
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 listOf(
                     request.copy(
                         satser = listOf(
@@ -651,7 +689,7 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         test("tillater ikke flere satser som starter på samme dato") {
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 listOf(
                     PrismodellRequest(
                         id = UUID.randomUUID(),
@@ -672,7 +710,7 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         test("sorterer satsene etter gjelderFra-dato") {
-            AvtaleValidator.validatePrismodell(
+            AvtaleValidator.validatePrismodeller(
                 listOf(
                     PrismodellRequest(
                         id = UUID.randomUUID(),
@@ -820,9 +858,10 @@ class AvtaleValidatorTest : FunSpec({
             }
 
             test("kan ikke fjerne alle prismodeller på avtalen") {
-                AvtaleValidator.validatePrismodell(
+                AvtaleValidator.validatePrismodeller(
                     emptyList(),
-                    AvtaleValidator.ValidatePrismodellContext(
+                    AvtaleValidator.ValidatePrismodellerContext(
+                        avtaletype = Avtaletype.AVTALE,
                         tiltakskode = previous.tiltakskode,
                         tiltakstypeNavn = ctx.tiltakstype.navn,
                         gyldigTilsagnPeriode = emptyMap(),
@@ -846,9 +885,10 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 )
 
-                AvtaleValidator.validatePrismodell(
+                AvtaleValidator.validatePrismodeller(
                     prismodellRequest,
-                    AvtaleValidator.ValidatePrismodellContext(
+                    AvtaleValidator.ValidatePrismodellerContext(
+                        avtaletype = Avtaletype.AVTALE,
                         tiltakskode = previous.tiltakskode,
                         tiltakstypeNavn = ctx.tiltakstype.navn,
                         gyldigTilsagnPeriode = emptyMap(),

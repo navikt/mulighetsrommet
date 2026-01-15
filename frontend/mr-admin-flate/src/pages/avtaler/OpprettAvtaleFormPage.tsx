@@ -21,7 +21,7 @@ import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { JSX, useCallback, useState } from "react";
 import { DeepPartial, FieldValues, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { ZodObject } from "zod";
@@ -30,7 +30,13 @@ import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleIn
 import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
-const steps = [
+interface Step {
+  key: string;
+  schema: ZodObject;
+  Component: JSX.Element;
+}
+
+const steps: Step[] = [
   {
     key: "Detaljer",
     schema: avtaleDetaljerFormSchema,
@@ -117,19 +123,20 @@ export function OpprettAvtaleFormPage() {
     const mergedData = { ...collectedData, ...data };
     setCollectedData(mergedData);
 
-    if (activeStep !== 4) {
+    if (!isLastStep(activeStep, steps)) {
       setActiveStep(activeStep + 1);
     } else {
       const result = avtaleFormSchema.safeParse(mergedData);
       if (result.success) {
         await onSubmit(result.data);
-      } else
+      } else {
         result.error.issues.forEach((err) => {
           methods.setError(err.path.join("."), {
             type: "manual",
             message: err.message,
           });
         });
+      }
     }
   };
 
@@ -177,7 +184,7 @@ export function OpprettAvtaleFormPage() {
                   type="button"
                   onClick={methods.handleSubmit(handleForwardStep)}
                 >
-                  {activeStep === 4 ? "Opprett avtale" : "Neste"}
+                  {isLastStep(activeStep, steps) ? "Opprett avtale" : "Neste"}
                 </Button>
               </HStack>
             </VStack>
@@ -186,4 +193,8 @@ export function OpprettAvtaleFormPage() {
       </Box>
     </>
   );
+}
+
+function isLastStep(activeStep: number, steps: Step[]) {
+  return activeStep === steps.length;
 }

@@ -27,7 +27,8 @@ export function toOpprettAvtaleRequest(data: AvtaleFormValues): OpprettAvtaleReq
 export function toPrismodellRequest({ data }: { data: PrismodellValues }): PrismodellRequest[] {
   return data.prismodeller.map((prismodell) => ({
     ...prismodell,
-    id: prismodell.id ? prismodell.id : v4(),
+    id: prismodell.id ?? v4(),
+    satser: prismodell.satser ?? [],
   }));
 }
 

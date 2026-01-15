@@ -46,8 +46,6 @@ import java.time.LocalDate
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 import kotlin.reflect.KProperty1
-import kotlin.text.orEmpty
-import kotlin.text.toSet
 
 @OptIn(ExperimentalContracts::class)
 object AvtaleValidator {
@@ -57,7 +55,7 @@ object AvtaleValidator {
         val administratorer: List<NavAnsatt>,
         val tiltakstype: Tiltakstype,
         val navEnheter: List<NavEnhetDto>,
-        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+        val systembestemtPrismodell: UUID?,
     ) {
         data class Avtale(
             val status: AvtaleStatusType,
@@ -100,18 +98,11 @@ object AvtaleValidator {
             ),
             amoKategorisering,
         )
-        val prismodeller =
-            validatePrismodell(
-                request.prismodeller,
-                ValidatePrismodellContext(
-                    tiltakskode = request.detaljer.tiltakskode,
-                    tiltakstypeNavn = ctx.tiltakstype.navn,
-                    avtaleStartDato = request.detaljer.startDato,
-                    gyldigTilsagnPeriode = ctx.gyldigTilsagnPeriode,
-                    bruktePrismodeller = ctx.previous?.gjennomforinger?.map { it.prismodellId }.orEmpty()
-                        .toSet(),
-                ),
-            ).bind()
+
+        val prismodeller = ctx.systembestemtPrismodell?.let { listOf(it) } ?: request.prismodeller.map { it.id }
+        validate(prismodeller.isNotEmpty()) {
+            FieldError.of("Minst én prismodell er påkrevd", OpprettAvtaleRequest::prismodeller)
+        }
 
         val personvernDbo = request.personvern.toDbo()
         val veilederinformasjonDbo = request.veilederinformasjon.toDbo()
@@ -216,7 +207,8 @@ object AvtaleValidator {
         )
     }
 
-    data class ValidatePrismodellContext(
+    data class ValidatePrismodellerContext(
+        val avtaletype: Avtaletype,
         val tiltakskode: Tiltakskode,
         val tiltakstypeNavn: String,
         val avtaleStartDato: LocalDate,
@@ -224,10 +216,20 @@ object AvtaleValidator {
         val bruktePrismodeller: Set<UUID>,
     )
 
-    fun validatePrismodell(
+    fun validatePrismodeller(
         request: List<PrismodellRequest>,
-        context: ValidatePrismodellContext,
+        context: ValidatePrismodellerContext,
     ): Either<List<FieldError>, List<PrismodellDbo>> = validation {
+        if (context.avtaletype == Avtaletype.FORHANDSGODKJENT) {
+            requireValid(request.isEmpty()) {
+                FieldError.of(
+                    "Prismodell kan ikke opprettes for forhåndsgodkjente avtaler",
+                    OpprettAvtaleRequest::prismodeller,
+                )
+            }
+            return@validation listOf()
+        }
+
         requireValid(request.isNotEmpty()) {
             FieldError.of("Minst én prismodell er påkrevd", OpprettAvtaleRequest::prismodeller)
         }
@@ -241,8 +243,16 @@ object AvtaleValidator {
             }
         }
 
-        request.mapIndexed { index, prismodell ->
+        request.forEach { prismodell ->
+            validate(prismodell.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+                FieldError.of(
+                    "Prismodell kan ikke opprettes med typen ${prismodell.type.navn}",
+                    OpprettAvtaleRequest::prismodeller,
+                )
+            }
+        }
 
+        request.mapIndexed { index, prismodell ->
             validate(prismodell.type in Prismodeller.getPrismodellerForTiltak(context.tiltakskode)) {
                 FieldError.ofPointer(
                     "/prismodeller/$index/type",
@@ -252,9 +262,9 @@ object AvtaleValidator {
 
             val satser = when (prismodell.type) {
                 PrismodellType.ANNEN_AVTALT_PRIS,
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 -> null
 
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK,
                 PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
@@ -263,6 +273,7 @@ object AvtaleValidator {
             }
             PrismodellDbo(
                 id = prismodell.id,
+                systemId = null,
                 type = prismodell.type,
                 prisbetingelser = prismodell.prisbetingelser,
                 satser = satser,
@@ -437,7 +448,7 @@ object AvtaleValidator {
     }
 
     private fun FieldValidator.validateSatser(
-        context: ValidatePrismodellContext,
+        context: ValidatePrismodellerContext,
         prismodellIndex: Int,
         satserRequest: List<AvtaltSatsRequest>,
     ): List<AvtaltSats> {

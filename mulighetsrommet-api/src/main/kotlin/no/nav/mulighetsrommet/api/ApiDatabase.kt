@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorQueries
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
+import no.nav.mulighetsrommet.api.avtale.db.PrismodellQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
@@ -60,6 +61,7 @@ open class QueryContext(open val session: Session) {
         val arrangor = ArrangorQueries(session)
         val tiltakstype = TiltakstypeQueries(session)
         val avtale = AvtaleQueries(session)
+        val prismodell = PrismodellQueries(session)
         val opsjoner = OpsjonLoggQueries(session)
         val gjennomforing = GjennomforingQueries(session)
         val deltaker = DeltakerQueries(session)
