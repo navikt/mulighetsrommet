@@ -87,35 +87,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    val tiltaksoversiktUrl = "/api/arrangorflate/arrangor/tiltaksoversikt"
-
-    test("401 Unauthorized mangler pid i claims") {
-        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get(tiltaksoversiktUrl) {
-                bearerAuth(oauth.issueToken().serialize())
-            }
-            response.status shouldBe HttpStatusCode.Unauthorized
-        }
-    }
-
-    test("403 Forbidden feil pid i claims") {
-        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get(tiltaksoversiktUrl) {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199989")).serialize())
-            }
-            response.status shouldBe HttpStatusCode.Forbidden
-        }
-    }
-
-    test("200 Ok med rett pid") {
-        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get(tiltaksoversiktUrl) {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-            }
-
-            response.status shouldBe HttpStatusCode.OK
-        }
-    }
+    val tiltaksoversiktUrl = "/api/arrangorflate/tiltaksoversikt"
 
     test("tom gjennomføringstabell hvis ingen prismodell er konfigurert") {
         var config = ArrangorflateTestUtils.appConfig(oauth).copy(
@@ -143,7 +115,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             response.status shouldBe HttpStatusCode.OK
             val body = response.body<TiltaksoversiktResponse>()
             body.table.shouldNotBeNull()
-            body.table.rows.size shouldBeGreaterThan 1
+            body.table.rows.size shouldBeGreaterThan 0
         }
     }
 

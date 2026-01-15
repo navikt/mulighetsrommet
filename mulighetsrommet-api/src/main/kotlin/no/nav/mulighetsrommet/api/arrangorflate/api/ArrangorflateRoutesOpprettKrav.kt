@@ -107,7 +107,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             ?: throw StatusException(HttpStatusCode.BadRequest, "Periode er ikke oppgitt")
     }
 
-    get("/arrangor/tiltaksoversikt", {
+    get("/tiltaksoversikt", {
         description = "Hent tiltakene for alle arrangører brukeren har tilgang til"
         tags = setOf("Arrangorflate")
         operationId = "getArrangorTiltaksoversikt"

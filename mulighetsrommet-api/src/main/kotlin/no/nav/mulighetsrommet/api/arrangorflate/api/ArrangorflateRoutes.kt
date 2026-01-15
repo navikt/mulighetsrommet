@@ -597,12 +597,6 @@ data class ScanVedleggRequest(
 )
 
 @Serializable
-data class ArrangorflateUtbetalinger(
-    val aktive: List<ArrangorflateUtbetalingKompaktDto>,
-    val historiske: List<ArrangorflateUtbetalingKompaktDto>,
-)
-
-@Serializable
 data class OpprettKravOmUtbetalingResponse(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,

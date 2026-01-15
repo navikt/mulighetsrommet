@@ -7,7 +7,7 @@ externalDocs:
 servers: []
 tags: []
 paths:
-  /api/arrangorflate/arrangor/tiltaksoversikt:
+  /api/arrangorflate/tiltaksoversikt:
     get:
       tags:
       - Arrangorflate
