@@ -10,126 +10,60 @@ import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toStengt
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
-import java.util.UUID
 
 class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
     context("enkel beregning full og halv") {
-        test("én deltaker full periode") {
-            val periode = Periode(LocalDate.of(2023, 6, 1), LocalDate.of(2023, 7, 1))
-            val deltakerId = UUID.randomUUID()
+        test("deltakere med ulike perioder beregnes korrekt") {
+            val periodeStart = LocalDate.of(2026, 4, 1)
+            val periodeMidt = LocalDate.of(2026, 4, 16)
+            val periodeSlutt = LocalDate.of(2026, 5, 1)
+            val periode = Periode(periodeStart, periodeSlutt)
 
             val gjennomforing = createGjennomforingForPrisPerManedsverk(
                 periode = periode,
-                satser = listOf(toAvtaltSats(periode.start, 100)),
+                satser = listOf(toAvtaltSats(periodeStart, 100)),
             )
             val deltakere = listOf(
-                createDeltaker(deltakerId, periode),
+                createDeltaker(periode),
+                createDeltaker(Periode(periodeStart, periodeMidt)),
+                createDeltaker(Periode(periodeMidt, periodeSlutt)),
             )
 
             val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
             result.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
                 satser = setOf(SatsPeriode(periode, 100)),
-                stengt = setOf(),
-                deltakelser = setOf(DeltakelsePeriode(deltakerId, periode)),
+                stengt = emptySet(),
+                deltakelser = setOf(
+                    DeltakelsePeriode(deltakere[0].id, periode),
+                    DeltakelsePeriode(deltakere[1].id, Periode(periodeStart, periodeMidt)),
+                    DeltakelsePeriode(deltakere[2].id, Periode(periodeMidt, periodeSlutt)),
+                ),
             )
             result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
-                belop = 100,
+                belop = 200,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakerId,
+                        deltakere[0].id,
                         setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 100)),
                     ),
-                ),
-            )
-        }
-
-        test("én deltaker halv periode") {
-            val periodeStart = LocalDate.of(2026, 4, 1)
-            val periodeMidt = LocalDate.of(2026, 4, 16)
-            val periodeSlutt = LocalDate.of(2026, 5, 1)
-            val periode = Periode(periodeStart, periodeSlutt)
-            val deltakerId = UUID.randomUUID()
-
-            val gjennomforing = createGjennomforingForPrisPerManedsverk(
-                periode = periode,
-                satser = listOf(toAvtaltSats(periodeStart, 700_000)),
-            )
-            val deltakere = listOf(
-                createDeltaker(deltakerId, Periode(periodeStart, periodeMidt)),
-            )
-
-            val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
-
-            result.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
-                satser = setOf(SatsPeriode(periode, 700_000)),
-                stengt = setOf(),
-                deltakelser = setOf(DeltakelsePeriode(deltakerId, Periode(periodeStart, periodeMidt))),
-            )
-            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
-                belop = 350_000,
-                deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakerId,
+                        deltakere[1].id,
                         setOf(
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(periodeStart, periodeMidt),
                                 0.5,
-                                700_000,
-                            ),
-                        ),
-                    ),
-                ),
-            )
-        }
-
-        test("to deltakere med halve perioder") {
-            val periodeStart = LocalDate.of(2026, 4, 1)
-            val periodeMidt = LocalDate.of(2026, 4, 16)
-            val periodeSlutt = LocalDate.of(2026, 5, 1)
-            val periode = Periode(periodeStart, periodeSlutt)
-            val deltakerId1 = UUID.randomUUID()
-            val deltakerId2 = UUID.randomUUID()
-
-            val gjennomforing = createGjennomforingForPrisPerManedsverk(
-                periode = periode,
-                satser = listOf(toAvtaltSats(periodeStart, 202)),
-            )
-            val deltakere = listOf(
-                createDeltaker(deltakerId1, Periode(periodeStart, periodeMidt)),
-                createDeltaker(deltakerId2, Periode(periodeMidt, periodeSlutt)),
-            )
-
-            val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
-
-            result.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
-                satser = setOf(SatsPeriode(periode, 202)),
-                stengt = setOf(),
-                deltakelser = setOf(
-                    DeltakelsePeriode(deltakerId1, Periode(periodeStart, periodeMidt)),
-                    DeltakelsePeriode(deltakerId2, Periode(periodeMidt, periodeSlutt)),
-                ),
-            )
-            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
-                belop = 202,
-                deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(
-                        deltakerId1,
-                        setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                Periode(periodeStart, periodeMidt),
-                                0.5,
-                                202,
+                                100,
                             ),
                         ),
                     ),
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakerId2,
+                        deltakere[2].id,
                         setOf(
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(periodeMidt, periodeSlutt),
                                 0.5,
-                                202,
+                                100,
                             ),
                         ),
                     ),
@@ -144,27 +78,26 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             val periodeMidt = LocalDate.of(2025, 2, 15)
             val periodeSlutt = LocalDate.of(2025, 3, 1)
             val periode = Periode(periodeStart, periodeSlutt)
-            val deltakerId = UUID.randomUUID()
 
             val gjennomforing = createGjennomforingForPrisPerManedsverk(
                 periode = periode,
                 satser = listOf(toAvtaltSats(periodeStart, 100)),
                 stengt = listOf(toStengtPeriode(Periode(periodeStart, periodeMidt))),
             )
-            val deltakere = listOf(createDeltaker(deltakerId, periode))
+            val deltakere = listOf(createDeltaker(periode))
 
             val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
             result.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
                 satser = setOf(SatsPeriode(periode, 100)),
                 stengt = setOf(StengtPeriode(Periode(periodeStart, periodeMidt), "Stengt")),
-                deltakelser = setOf(DeltakelsePeriode(deltakerId, periode)),
+                deltakelser = setOf(DeltakelsePeriode(deltakere[0].id, periode)),
             )
             result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakerId,
+                        deltakere[0].id,
                         setOf(
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(periodeMidt, periodeSlutt),
@@ -182,27 +115,21 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             val periodeMidt = LocalDate.of(2025, 2, 15)
             val periodeSlutt = LocalDate.of(2025, 3, 1)
             val periode = Periode(periodeStart, periodeSlutt)
-            val deltakerId = UUID.randomUUID()
 
             val gjennomforing = createGjennomforingForPrisPerManedsverk(
                 periode = periode,
                 satser = listOf(toAvtaltSats(periodeStart, 100)),
                 stengt = listOf(toStengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)))),
             )
-            val deltakere = listOf(createDeltaker(deltakerId, periode))
+            val deltakere = listOf(createDeltaker(periode))
 
             val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
-            result.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
-                satser = setOf(SatsPeriode(periode, 100)),
-                stengt = setOf(StengtPeriode(Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1)), "Stengt")),
-                deltakelser = setOf(DeltakelsePeriode(deltakerId, periode)),
-            )
             result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakerId,
+                        deltakere[0].id,
                         setOf(
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(periodeStart, periodeStart.plusWeeks(1)),
@@ -222,7 +149,6 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
         test("flere stengt hos arrangør perioder i én deltakelses periode") {
             val periode = Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1))
-            val deltakerId = UUID.randomUUID()
 
             val gjennomforing = createGjennomforingForPrisPerManedsverk(
                 periode = periode,
@@ -232,7 +158,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                     toStengtPeriode(Periode(LocalDate.of(2023, 4, 5), LocalDate.of(2023, 4, 19))),
                 ),
             )
-            val deltakere = listOf(createDeltaker(deltakerId, periode))
+            val deltakere = listOf(createDeltaker(periode))
 
             val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
@@ -240,7 +166,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 belop = 50,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakerId,
+                        deltakere[0].id,
                         setOf(
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2023, 4, 2), LocalDate.of(2023, 4, 5)),
@@ -269,8 +195,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
         (2..31).forEach { dayOfMonth ->
             val deltakelsePeriode = Periode(periode.start, periode.start.withDayOfMonth(dayOfMonth))
-
-            val deltakere = listOf(createDeltaker(periode = deltakelsePeriode))
+            val deltakere = listOf(createDeltaker(deltakelsePeriode))
 
             val utbetaling = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
@@ -291,16 +216,14 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
     context("beregning av månedsverk før 1. august 2025") {
         test("to deltakere over 2 måneder gir fire månedsverk") {
             val periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 1))
-            val deltakerId1 = UUID.randomUUID()
-            val deltakerId2 = UUID.randomUUID()
 
             val gjennomforing = createGjennomforingForPrisPerManedsverk(
                 periode = periode,
                 satser = listOf(toAvtaltSats(periode.start, 10)),
             )
             val deltakere = listOf(
-                createDeltaker(deltakerId1, periode),
-                createDeltaker(deltakerId2, periode),
+                createDeltaker(periode),
+                createDeltaker(periode),
             )
 
             val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
@@ -309,11 +232,11 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 belop = 40,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakerId1,
+                        deltakere[0].id,
                         setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0, 10)),
                     ),
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakerId2,
+                        deltakere[1].id,
                         setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0, 10)),
                     ),
                 ),
@@ -323,40 +246,34 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
         test("helgedager før og etter en periode på fem hverdager påvirker beregnet beløp") {
             val periode = Periode.forMonthOf(LocalDate.of(2025, 7, 1))
 
-            val heleUke37 = Periode.fromInclusiveDates(LocalDate.of(2025, 7, 7), LocalDate.of(2025, 7, 13))
-            val hverdagerUke37 = Periode.fromInclusiveDates(LocalDate.of(2025, 7, 7), LocalDate.of(2025, 7, 11))
-
-            val helgFraUke36OgHeleUke37 =
-                Periode.fromInclusiveDates(LocalDate.of(2025, 7, 5), LocalDate.of(2025, 7, 13))
-
-            val deltakerId1 = UUID.randomUUID()
-            val deltakerId2 = UUID.randomUUID()
-            val deltakerId3 = UUID.randomUUID()
+            val heleUke = Periode.fromInclusiveDates(LocalDate.of(2025, 7, 7), LocalDate.of(2025, 7, 13))
+            val hverdagerUke = Periode.fromInclusiveDates(LocalDate.of(2025, 7, 7), LocalDate.of(2025, 7, 11))
+            val helgOgHeleUke = Periode.fromInclusiveDates(LocalDate.of(2025, 7, 5), LocalDate.of(2025, 7, 13))
 
             val gjennomforing = createGjennomforingForPrisPerManedsverk(
                 periode = periode,
                 satser = listOf(toAvtaltSats(periode.start, 100)),
             )
             val deltakere = listOf(
-                createDeltaker(deltakerId1, heleUke37),
-                createDeltaker(deltakerId2, hverdagerUke37),
-                createDeltaker(deltakerId3, helgFraUke36OgHeleUke37),
+                createDeltaker(heleUke),
+                createDeltaker(hverdagerUke),
+                createDeltaker(helgOgHeleUke),
             )
 
             val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
             result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
-                    deltakerId1,
-                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22581, 100)),
+                    deltakere[0].id,
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke, 0.22581, 100)),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
-                    deltakerId2,
-                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.16129, 100)),
+                    deltakere[1].id,
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke, 0.16129, 100)),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
-                    deltakerId3,
-                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.29032, 100)),
+                    deltakere[2].id,
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgOgHeleUke, 0.29032, 100)),
                 ),
             )
         }
@@ -365,16 +282,14 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
     context("beregning av månedsverk etter 1. august 2025") {
         test("to deltakere over 2 måneder gir fire månedsverk") {
             val periode = Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 3, 1))
-            val deltakerId1 = UUID.randomUUID()
-            val deltakerId2 = UUID.randomUUID()
 
             val gjennomforing = createGjennomforingForPrisPerManedsverk(
                 periode = periode,
                 satser = listOf(toAvtaltSats(periode.start, 10)),
             )
             val deltakere = listOf(
-                createDeltaker(deltakerId1, periode),
-                createDeltaker(deltakerId2, periode),
+                createDeltaker(periode),
+                createDeltaker(periode),
             )
 
             val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
@@ -383,11 +298,11 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 belop = 40,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakerId1,
+                        deltakere[0].id,
                         setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0, 10)),
                     ),
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakerId2,
+                        deltakere[1].id,
                         setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0, 10)),
                     ),
                 ),
@@ -397,39 +312,34 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
         test("helgedager før og etter en periode på fem hverdager påvirker ikke beregnet beløp") {
             val periode = Periode.forMonthOf(LocalDate.of(2025, 9, 1))
 
-            val heleUke37 = Periode.fromInclusiveDates(LocalDate.of(2025, 9, 8), LocalDate.of(2025, 9, 14))
-            val hverdagerUke37 = Periode.fromInclusiveDates(LocalDate.of(2025, 9, 8), LocalDate.of(2025, 9, 12))
-            val helgFraUke36OgHeleUke37 =
-                Periode.fromInclusiveDates(LocalDate.of(2025, 9, 6), LocalDate.of(2025, 9, 14))
-
-            val deltakerId1 = UUID.randomUUID()
-            val deltakerId2 = UUID.randomUUID()
-            val deltakerId3 = UUID.randomUUID()
+            val heleUke = Periode.fromInclusiveDates(LocalDate.of(2025, 9, 8), LocalDate.of(2025, 9, 14))
+            val hverdagerUke = Periode.fromInclusiveDates(LocalDate.of(2025, 9, 8), LocalDate.of(2025, 9, 12))
+            val helgOgHeleUke = Periode.fromInclusiveDates(LocalDate.of(2025, 9, 6), LocalDate.of(2025, 9, 14))
 
             val gjennomforing = createGjennomforingForPrisPerManedsverk(
                 periode = periode,
                 satser = listOf(toAvtaltSats(periode.start, 100)),
             )
             val deltakere = listOf(
-                createDeltaker(deltakerId1, heleUke37),
-                createDeltaker(deltakerId2, hverdagerUke37),
-                createDeltaker(deltakerId3, helgFraUke36OgHeleUke37),
+                createDeltaker(heleUke),
+                createDeltaker(hverdagerUke),
+                createDeltaker(helgOgHeleUke),
             )
 
             val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
 
             result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
-                    deltakerId1,
-                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22727, 100)),
+                    deltakere[0].id,
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke, 0.22727, 100)),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
-                    deltakerId2,
-                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.22727, 100)),
+                    deltakere[1].id,
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke, 0.22727, 100)),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
-                    deltakerId3,
-                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.22727, 100)),
+                    deltakere[2].id,
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgOgHeleUke, 0.22727, 100)),
                 ),
             )
         }

@@ -138,19 +138,18 @@ object BeregningTestHelpers {
     }
 
     fun createDeltaker(
-        id: UUID = UUID.randomUUID(),
         periode: Periode,
         deltakelsesmengder: List<Deltakelsesmengde> = emptyList(),
-        statusType: DeltakerStatusType = DeltakerStatusType.DELTAR,
+        status: DeltakerStatusType = DeltakerStatusType.DELTAR,
     ): Deltaker = Deltaker(
-        id = id,
+        id = UUID.randomUUID(),
         gjennomforingId = UUID.randomUUID(),
         startDato = periode.start,
         sluttDato = periode.getLastInclusiveDate(),
         registrertDato = periode.start,
         endretTidspunkt = periode.start.atStartOfDay(),
         status = DeltakerStatus(
-            type = statusType,
+            type = status,
             aarsak = null,
             opprettetDato = periode.start.atStartOfDay(),
         ),
