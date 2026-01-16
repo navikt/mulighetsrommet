@@ -211,13 +211,13 @@ fun resolveTilsagnDefaults(
         is Prismodell.AnnenAvtaltPris -> null
 
         is Prismodell.ForhandsgodkjentPrisPerManedsverk,
-            -> getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
+        -> getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
 
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
         is Prismodell.AvtaltPrisPerUkesverk,
         is Prismodell.AvtaltPrisPerHeleUkesverk,
         is Prismodell.AvtaltPrisPerManedsverk,
-            -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
+        -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
     }
 
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
@@ -234,8 +234,8 @@ fun resolveTilsagnDefaults(
                 beskrivelse = "",
                 belop = 0,
                 antall = 1,
-                valuta = valuta
-            )
+                valuta = valuta,
+            ),
         ),
         antallTimerOppfolgingPerDeltaker = when (tilsagn?.beregning) {
             is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
@@ -326,11 +326,11 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
                     beskrivelse = "",
                     belop = 0,
                     antall = 1,
-                    valuta = valuta
-                )
+                    valuta = valuta,
+                ),
             ),
             antallPlasser = 0,
-            valuta = valuta
+            valuta = valuta,
         ),
     )
 }
