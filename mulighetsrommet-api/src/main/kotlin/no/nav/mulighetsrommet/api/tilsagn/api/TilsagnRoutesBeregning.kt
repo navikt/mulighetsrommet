@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
@@ -210,22 +211,32 @@ fun resolveTilsagnDefaults(
         is Prismodell.AnnenAvtaltPris -> null
 
         is Prismodell.ForhandsgodkjentPrisPerManedsverk,
-        -> getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
+            -> getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
 
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
         is Prismodell.AvtaltPrisPerUkesverk,
         is Prismodell.AvtaltPrisPerHeleUkesverk,
         is Prismodell.AvtaltPrisPerManedsverk,
-        -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
+            -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
     }
 
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
+    val valuta = tilsagn?.valuta ?: Currency.NOK // TODO: Oppdatere når vi introduserer annen valuta
 
     val beregning = TilsagnBeregningRequest(
         type = beregningType,
         antallPlasser = gjennomforing.antallPlasser,
         prisbetingelser = prisbetingelser,
-        linjer = listOf(TilsagnInputLinjeRequest(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1)),
+        valuta = valuta,
+        linjer = listOf(
+            TilsagnInputLinjeRequest(
+                id = UUID.randomUUID(),
+                beskrivelse = "",
+                belop = 0,
+                antall = 1,
+                valuta = valuta
+            )
+        ),
         antallTimerOppfolgingPerDeltaker = when (tilsagn?.beregning) {
             is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
             else -> null
@@ -298,7 +309,7 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
     }
 
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
-
+    val valuta = Currency.NOK // TODO: Oppdatere når vi introduserer annen valuta
     return TilsagnRequest(
         id = UUID.randomUUID(),
         gjennomforingId = gjennomforing.id,
@@ -309,8 +320,17 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
         beregning = TilsagnBeregningRequest(
             type = beregningType,
             prisbetingelser = prisbetingelser,
-            linjer = listOf(TilsagnInputLinjeRequest(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1)),
+            linjer = listOf(
+                TilsagnInputLinjeRequest(
+                    id = UUID.randomUUID(),
+                    beskrivelse = "",
+                    belop = 0,
+                    antall = 1,
+                    valuta = valuta
+                )
+            ),
             antallPlasser = 0,
+            valuta = valuta
         ),
     )
 }
