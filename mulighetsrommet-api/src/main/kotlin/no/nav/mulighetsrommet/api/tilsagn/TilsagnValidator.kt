@@ -19,9 +19,9 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import kotlin.contracts.ExperimentalContracts
 
@@ -33,7 +33,7 @@ object TilsagnValidator {
         val kostnadssted: NavEnhetNummer,
         val periode: Periode,
         val beregning: TilsagnBeregning,
-        val valuta: Currency,
+        val valuta: Valuta,
     )
 
     fun validate(
@@ -164,7 +164,7 @@ object TilsagnValidator {
 
     fun FieldValidator.validateBeregning(
         request: TilsagnBeregningRequest,
-        valuta: Currency,
+        valuta: Valuta,
         periode: Periode,
         avtalteSatser: List<AvtaltSats>,
     ): TilsagnBeregning {

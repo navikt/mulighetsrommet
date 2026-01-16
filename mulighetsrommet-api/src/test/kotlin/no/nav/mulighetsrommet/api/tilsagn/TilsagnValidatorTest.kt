@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -38,7 +38,7 @@ class TilsagnValidatorTest : FunSpec({
                     beregning = TilsagnBeregningRequest(
                         type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
                         antallPlasser = 3,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                     ),
                 ),
                 previous = null,
@@ -61,7 +61,7 @@ class TilsagnValidatorTest : FunSpec({
                     beregning = TilsagnBeregningRequest(
                         type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
                         antallPlasser = 3,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                     ),
                 ),
                 previous = null,
@@ -69,7 +69,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, Currency.NOK)),
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, Valuta.NOK)),
             ).shouldBeRight()
         }
 
@@ -79,7 +79,7 @@ class TilsagnValidatorTest : FunSpec({
                     periodeStart = null,
                     beregning = TilsagnBeregningRequest(
                         type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                     ),
                 ),
                 previous = null,
@@ -126,7 +126,7 @@ class TilsagnValidatorTest : FunSpec({
                     .copy(
                         beregning = TilsagnBeregningRequest(
                             type = TilsagnBeregningType.FRI,
-                            valuta = Currency.NOK,
+                            valuta = Valuta.NOK,
                         ),
                     ),
                 previous = null,
@@ -147,7 +147,7 @@ class TilsagnValidatorTest : FunSpec({
                         kostnadssted = null,
                         beregning = TilsagnBeregningRequest(
                             type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
-                            valuta = Currency.NOK,
+                            valuta = Valuta.NOK,
                         ),
                     ),
                 previous = null,
@@ -174,7 +174,7 @@ class TilsagnValidatorTest : FunSpec({
                     beregning = TilsagnBeregningRequest(
                         type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
                         antallPlasser = 3,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                     ),
                 ),
                 previous = null,
@@ -182,7 +182,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, Currency.NOK)),
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, Valuta.NOK)),
             ) shouldBeLeft listOf(
                 FieldError.of("Maksimum sluttdato for tilsagn til AFT er 31.12.2025", TilsagnRequest::periodeSlutt),
             )
@@ -196,7 +196,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, Currency.NOK)),
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, Valuta.NOK)),
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeStart",
@@ -213,7 +213,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = LocalDate.of(2025, 10, 1),
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, Currency.NOK)),
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, Valuta.NOK)),
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeSlutt",
@@ -233,7 +233,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, Currency.NOK)),
+                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, Valuta.NOK)),
             ).shouldBeLeft()
         }
 
@@ -243,7 +243,7 @@ class TilsagnValidatorTest : FunSpec({
                     type = TilsagnBeregningType.FRI,
                     linjer = emptyList(),
                     prisbetingelser = null,
-                    valuta = Currency.NOK,
+                    valuta = Valuta.NOK,
                 )
                 TilsagnValidator.validateBeregningFriInput(input).shouldBeLeft()
             }

@@ -125,12 +125,8 @@ export enum DataElementTextFormat {
 
 export type DataElementCurrencyValue = {
   value: null | string;
-  currency: DataElementCurrencyValueCurrency;
+  currency: string;
 };
-
-export enum DataElementCurrencyValueCurrency {
-  NOK = "nok",
-}
 
 export type DataElementDualText = {
   top: string;

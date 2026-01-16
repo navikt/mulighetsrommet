@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 
 @Serializable
 @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
@@ -18,7 +18,7 @@ data class TilsagnBeregningFastSatsPerTiltaksplassPerManed(
     data class Input(
         val periode: Periode,
         val sats: Int,
-        val valuta: Currency,
+        val valuta: Valuta,
         val antallPlasser: Int,
     ) : TilsagnBeregningInput()
 
@@ -26,7 +26,7 @@ data class TilsagnBeregningFastSatsPerTiltaksplassPerManed(
     @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
     data class Output(
         override val belop: Int,
-        override val valuta: Currency,
+        override val valuta: Valuta,
     ) : TilsagnBeregningOutput()
 
     companion object {

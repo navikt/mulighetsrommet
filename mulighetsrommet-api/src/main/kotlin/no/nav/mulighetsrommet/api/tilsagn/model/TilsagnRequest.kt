@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -32,14 +32,14 @@ data class TilsagnInputLinjeRequest(
     val id: UUID,
     val beskrivelse: String? = null,
     val belop: Int? = null,
-    val valuta: Currency? = null,
+    val valuta: Valuta? = null,
     val antall: Int? = null,
 )
 
 @Serializable
 data class TilsagnBeregningRequest(
     val type: TilsagnBeregningType,
-    val valuta: Currency? = null,
+    val valuta: Valuta? = null,
     val antallPlasser: Int? = null,
     val prisbetingelser: String? = null,
     val linjer: List<TilsagnInputLinjeRequest>? = null,

@@ -30,6 +30,16 @@ export function formaterTall(tall: number) {
   return Intl.NumberFormat("no-nb", { maximumFractionDigits: 5 }).format(tall);
 }
 
+export function formaterValuta(tall: number, valuta: string): string {
+  return Intl.NumberFormat("no-nb", {
+    style: "currency",
+    currency: valuta,
+    currencyDisplay: "code",
+    maximumFractionDigits: 5,
+    trailingZeroDisplay: "stripIfInteger",
+  }).format(tall);
+}
+
 export function formaterKontoNummer(kontoNummer?: string): string {
   return !kontoNummer
     ? ""

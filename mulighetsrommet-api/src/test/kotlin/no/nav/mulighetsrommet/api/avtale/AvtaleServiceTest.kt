@@ -46,11 +46,11 @@ import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -263,7 +263,7 @@ class AvtaleServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 prisbetingelser = null,
-                satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100, Currency.NOK)),
+                satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100, Valuta.NOK)),
             )
 
             avtaleService.upsertPrismodell(AvtaleFixtures.oppfolging.id, listOf(request), bertilNavIdent)

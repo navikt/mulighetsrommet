@@ -41,10 +41,10 @@ import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -567,7 +567,7 @@ class AvtaleValidatorTest : FunSpec({
                     id = UUID.randomUUID(),
                     type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                     prisbetingelser = null,
-                    satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 1, Currency.NOK)),
+                    satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 1, Valuta.NOK)),
                 ),
             )
 
@@ -603,7 +603,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2024, 12, 1),
                                 pris = 1,
-                                Currency.NOK,
+                                Valuta.NOK,
                             ),
                         ),
                     ),
@@ -632,7 +632,7 @@ class AvtaleValidatorTest : FunSpec({
             )
 
             AvtaleValidator.validatePrismodeller(
-                listOf(request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1, Currency.NOK)))),
+                listOf(request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1, Valuta.NOK)))),
                 getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodeller/0/satser/0/gjelderFra", "Gjelder fra må være satt"),
@@ -645,7 +645,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
                                 pris = null,
-                                valuta = Currency.NOK,
+                                valuta = Valuta.NOK,
                             ),
                         ),
                     ),
@@ -662,7 +662,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
                                 pris = 0,
-                                valuta = Currency.NOK,
+                                valuta = Valuta.NOK,
                             ),
                         ),
                     ),
@@ -679,13 +679,13 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
                                 pris = 1,
-                                valuta = Currency.NOK,
+                                valuta = Valuta.NOK,
                             ),
                         ),
                     ),
                 ),
                 getContext(),
-            ).shouldBeRight()[0].satser shouldBe listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1, Currency.NOK))
+            ).shouldBeRight()[0].satser shouldBe listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1, Valuta.NOK))
         }
 
         test("tillater ikke flere satser som starter på samme dato") {
@@ -696,9 +696,9 @@ class AvtaleValidatorTest : FunSpec({
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Currency.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Currency.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, Currency.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Valuta.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Valuta.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, Valuta.NOK),
                         ),
                     ),
                 ),
@@ -717,17 +717,17 @@ class AvtaleValidatorTest : FunSpec({
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3, Currency.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Currency.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, Currency.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3, Valuta.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Valuta.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, Valuta.NOK),
                         ),
                     ),
                 ),
                 getContext(),
             ).shouldBeRight()[0].satser shouldBe listOf(
-                AvtaltSats(LocalDate.of(2025, 1, 1), 1, Currency.NOK),
-                AvtaltSats(LocalDate.of(2025, 2, 1), 2, Currency.NOK),
-                AvtaltSats(LocalDate.of(2025, 3, 1), 3, Currency.NOK),
+                AvtaltSats(LocalDate.of(2025, 1, 1), 1, Valuta.NOK),
+                AvtaltSats(LocalDate.of(2025, 2, 1), 2, Valuta.NOK),
+                AvtaltSats(LocalDate.of(2025, 3, 1), 3, Valuta.NOK),
             )
         }
     }

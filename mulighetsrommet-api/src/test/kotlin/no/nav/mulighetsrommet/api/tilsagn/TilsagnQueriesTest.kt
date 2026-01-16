@@ -27,8 +27,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.LocalDate
 import java.util.UUID
@@ -49,7 +49,7 @@ class TilsagnQueriesTest : FunSpec({
                         id = UUID.randomUUID(),
                         beskrivelse = "Beskrivelse",
                         belop = 123,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                         antall = 1,
                     ),
                 ),
@@ -57,7 +57,7 @@ class TilsagnQueriesTest : FunSpec({
             ),
             TilsagnBeregningFri.Output(
                 belop = 123,
-                valuta = Currency.NOK,
+                valuta = Valuta.NOK,
             ),
         )
     }
@@ -72,7 +72,7 @@ class TilsagnQueriesTest : FunSpec({
         bestillingsnummer = "1",
         bestillingStatus = null,
         belopBrukt = 0,
-        valuta = Currency.NOK,
+        valuta = Valuta.NOK,
         beregning = beregningFri(),
         kommentar = "Kommentar",
         beskrivelse = "Beskrivelse til arrangør",
@@ -113,7 +113,7 @@ class TilsagnQueriesTest : FunSpec({
                         ),
                         TilsagnBeregningFri.Output(
                             belop = 123,
-                            valuta = Currency.NOK,
+                            valuta = Valuta.NOK,
                         ),
                     )
                     it.type shouldBe TilsagnType.TILSAGN
@@ -139,14 +139,14 @@ class TilsagnQueriesTest : FunSpec({
                             TilsagnBeregningFri.InputLinje(
                                 id = UUID.randomUUID(),
                                 beskrivelse = "To ting",
-                                valuta = Currency.NOK,
+                                valuta = Valuta.NOK,
                                 belop = 500,
                                 antall = 2,
                             ),
                             TilsagnBeregningFri.InputLinje(
                                 id = UUID.randomUUID(),
                                 beskrivelse = "En ting",
-                                valuta = Currency.NOK,
+                                valuta = Valuta.NOK,
                                 belop = 100,
                                 antall = 1,
                             ),
@@ -154,7 +154,7 @@ class TilsagnQueriesTest : FunSpec({
                     ),
                     output = TilsagnBeregningFri.Output(
                         belop = 1100,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
@@ -172,11 +172,11 @@ class TilsagnQueriesTest : FunSpec({
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                     ),
                     output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
                         belop = 1000,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
@@ -194,12 +194,12 @@ class TilsagnQueriesTest : FunSpec({
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                         prisbetingelser = "Per måned",
                     ),
                     output = TilsagnBeregningPrisPerManedsverk.Output(
                         belop = 1000,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
@@ -217,12 +217,12 @@ class TilsagnQueriesTest : FunSpec({
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                         prisbetingelser = "Per uke",
                     ),
                     output = TilsagnBeregningPrisPerUkesverk.Output(
                         belop = 1000,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
@@ -240,12 +240,12 @@ class TilsagnQueriesTest : FunSpec({
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                         prisbetingelser = "Per uke",
                     ),
                     output = TilsagnBeregningPrisPerHeleUkesverk.Output(
                         1000,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
@@ -262,14 +262,14 @@ class TilsagnQueriesTest : FunSpec({
                     input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                         periode = tilsagn.periode,
                         sats = 100,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                         antallPlasser = 10,
                         antallTimerOppfolgingPerDeltaker = 5,
                         prisbetingelser = "Betingelser",
                     ),
                     output = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Output(
                         belop = 5000,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))

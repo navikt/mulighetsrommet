@@ -1,5 +1,5 @@
 import {
-  Currency,
+  Valuta,
   GjennomforingDto,
   TilsagnBeregningType,
   TilsagnRequest,
@@ -131,7 +131,7 @@ function BeregningInputSkjema() {
             beskrivelse: "",
             belop: 0,
             antall: 1,
-            valuta: Currency.NOK, // TODO: Hent fra gjennomforing, eller tidligere linjers valuta
+            valuta: Valuta.NOK, // TODO: Hent fra gjennomforing, eller tidligere linjers valuta
           });
         }}
       >

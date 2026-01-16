@@ -31,9 +31,9 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.Valuta
 import org.koin.ktor.ext.inject
 import java.time.LocalDate.now
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
@@ -221,7 +221,7 @@ fun resolveTilsagnDefaults(
     }
 
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
-    val valuta = tilsagn?.valuta ?: Currency.NOK // TODO: Oppdatere når vi introduserer annen valuta
+    val valuta = tilsagn?.valuta ?: Valuta.NOK // TODO: Oppdatere når vi introduserer annen valuta
 
     val beregning = TilsagnBeregningRequest(
         type = beregningType,
@@ -309,7 +309,7 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
     }
 
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
-    val valuta = Currency.NOK // TODO: Oppdatere når vi introduserer annen valuta
+    val valuta = Valuta.NOK // TODO: Oppdatere når vi introduserer annen valuta
     return TilsagnRequest(
         id = UUID.randomUUID(),
         gjennomforingId = gjennomforing.id,

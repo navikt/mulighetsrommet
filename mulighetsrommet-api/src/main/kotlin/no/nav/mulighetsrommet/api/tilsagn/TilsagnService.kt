@@ -41,11 +41,11 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.AnnullerBestilling
@@ -186,7 +186,7 @@ class TilsagnService(
                                     id = it.id,
                                     beskrivelse = it.beskrivelse ?: "",
                                     belop = it.belop ?: 0,
-                                    valuta = it.valuta ?: Currency.NOK,
+                                    valuta = it.valuta ?: Valuta.NOK,
                                     antall = it.antall ?: 0,
                                 )
                             },
@@ -266,7 +266,7 @@ class TilsagnService(
 
     private data class TilsagnBeregningFallbackResolver(
         val sats: Int,
-        val valuta: Currency,
+        val valuta: Valuta,
         val periode: Periode,
         val antallPlasser: Int,
         val antallTimerOppfolgingPerDeltaker: Int,
@@ -282,7 +282,7 @@ class TilsagnService(
         val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
         val avtaltSats = prismodell.satser().findAvtaltSats(request.periodeStart)
         val sats = avtaltSats?.sats ?: 0
-        val valuta = avtaltSats?.valuta ?: Currency.NOK
+        val valuta = avtaltSats?.valuta ?: Valuta.NOK
 
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0

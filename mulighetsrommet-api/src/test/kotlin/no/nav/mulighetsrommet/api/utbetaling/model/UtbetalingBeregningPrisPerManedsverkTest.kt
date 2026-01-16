@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -250,7 +250,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 TilsagnBeregningPrisPerManedsverk.Input(
                     periode = periode,
                     sats = 20205,
-                    valuta = Currency.NOK,
+                    valuta = Valuta.NOK,
                     antallPlasser = 1,
                     prisbetingelser = null,
                 ),

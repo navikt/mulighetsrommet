@@ -25,12 +25,12 @@ import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
 import java.sql.Array
@@ -339,7 +339,7 @@ class TilsagnQueries(private val session: Session) {
 
     private fun Row.toTilsagn(): Tilsagn {
         val id = uuid("id")
-        val valuta = string("valuta").let { Currency.valueOf(it) }
+        val valuta = string("valuta").let { Valuta.valueOf(it) }
 
         val beregning = getBeregning(id, valuta, TilsagnBeregningType.valueOf(string("beregning_type")))
 
@@ -383,7 +383,7 @@ class TilsagnQueries(private val session: Session) {
         )
     }
 
-    private fun Row.getBeregning(id: UUID, valuta: Currency, beregning: TilsagnBeregningType): TilsagnBeregning {
+    private fun Row.getBeregning(id: UUID, valuta: Valuta, beregning: TilsagnBeregningType): TilsagnBeregning {
         return when (beregning) {
             TilsagnBeregningType.FRI -> {
                 TilsagnBeregningFri(
@@ -483,7 +483,7 @@ class TilsagnQueries(private val session: Session) {
                 beskrivelse = it.string("beskrivelse"),
                 belop = it.int("belop"),
                 antall = it.int("antall"),
-                valuta = it.string("valuta").let { currencyStr -> Currency.valueOf(currencyStr) },
+                valuta = it.string("valuta").let { currencyStr -> Valuta.valueOf(currencyStr) },
             )
         }
     }

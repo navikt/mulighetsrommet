@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 
 class TilsagnBeregningHeleUkesverkTest : FunSpec({
@@ -12,7 +12,7 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
         val input = TilsagnBeregningPrisPerHeleUkesverk.Input(
             periode = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 13)),
             sats = 100,
-            valuta = Currency.NOK,
+            valuta = Valuta.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
         )
@@ -24,7 +24,7 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
         val input = TilsagnBeregningPrisPerHeleUkesverk.Input(
             periode = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 11)),
             sats = 100,
-            valuta = Currency.NOK,
+            valuta = Valuta.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
         )
@@ -36,7 +36,7 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
         val input = TilsagnBeregningPrisPerHeleUkesverk.Input(
             periode = Periode(LocalDate.of(2025, 1, 8), LocalDate.of(2025, 1, 11)),
             sats = 100,
-            valuta = Currency.NOK,
+            valuta = Valuta.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
         )
@@ -49,7 +49,7 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
             TilsagnBeregningPrisPerHeleUkesverk.Input(
                 periode = Periode(LocalDate.of(2025, 1, 9), LocalDate.of(2025, 1, 11)),
                 sats = 100,
-                valuta = Currency.NOK,
+                valuta = Valuta.NOK,
                 antallPlasser = 1,
                 prisbetingelser = null,
             ),
@@ -59,7 +59,7 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
             TilsagnBeregningPrisPerHeleUkesverk.Input(
                 periode = Periode(LocalDate.of(2025, 8, 1), LocalDate.of(2025, 8, 3)),
                 sats = 100,
-                valuta = Currency.NOK,
+                valuta = Valuta.NOK,
                 antallPlasser = 1,
                 prisbetingelser = null,
             ),
@@ -71,7 +71,7 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
             TilsagnBeregningPrisPerHeleUkesverk.Input(
                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 2)),
                 sats = 100,
-                valuta = Currency.NOK,
+                valuta = Valuta.NOK,
                 antallPlasser = 1,
                 prisbetingelser = null,
             ),
@@ -82,7 +82,7 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
         val input = TilsagnBeregningPrisPerHeleUkesverk.Input(
             periode = Periode(LocalDate.of(2025, 1, 11), LocalDate.of(2025, 1, 13)),
             sats = 100,
-            valuta = Currency.NOK,
+            valuta = Valuta.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
         )
@@ -94,7 +94,7 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
         val input = TilsagnBeregningPrisPerHeleUkesverk.Input(
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             sats = 100,
-            valuta = Currency.NOK,
+            valuta = Valuta.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
         )
@@ -106,7 +106,7 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
         val input = TilsagnBeregningPrisPerHeleUkesverk.Input(
             periode = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 13)),
             sats = 100,
-            valuta = Currency.NOK,
+            valuta = Valuta.NOK,
             antallPlasser = 10,
             prisbetingelser = null,
         )
@@ -120,7 +120,7 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
             val input = TilsagnBeregningPrisPerHeleUkesverk.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205,
-                valuta = Currency.NOK,
+                valuta = Valuta.NOK,
                 antallPlasser = Int.MAX_VALUE,
                 prisbetingelser = null,
             )
@@ -133,7 +133,7 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
             val input = TilsagnBeregningPrisPerHeleUkesverk.Input(
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2025, 1, 1)),
                 sats = 20205,
-                valuta = Currency.NOK,
+                valuta = Valuta.NOK,
                 antallPlasser = 9500,
                 prisbetingelser = null,
             )

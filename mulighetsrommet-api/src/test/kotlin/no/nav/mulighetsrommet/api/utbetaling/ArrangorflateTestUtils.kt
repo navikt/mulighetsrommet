@@ -39,12 +39,12 @@ import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -87,7 +87,7 @@ object ArrangorflateTestUtils {
                         id = UUID.randomUUID(),
                         beskrivelse = "Beskrivelse",
                         belop = 1000,
-                        valuta = Currency.NOK,
+                        valuta = Valuta.NOK,
                         antall = 1,
                     ),
                 ),
@@ -95,12 +95,12 @@ object ArrangorflateTestUtils {
             ),
             output = TilsagnBeregningFri.Output(
                 belop = 1000,
-                valuta = Currency.NOK,
+                valuta = Valuta.NOK,
             ),
         ),
         type = TilsagnType.TILSAGN,
         belopBrukt = 0,
-        valuta = Currency.NOK,
+        valuta = Valuta.NOK,
         bestillingStatus = BestillingStatusType.AKTIV,
         kommentar = null,
         beskrivelse = null,

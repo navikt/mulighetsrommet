@@ -13,7 +13,7 @@ import {
   NavAnsattDto,
   Personopplysning,
   PrismodellType,
-  Currency,
+  Valuta,
 } from "@tiltaksadministrasjon/api-client";
 
 export const PrismodellSchema = z.object({
@@ -31,7 +31,7 @@ export const PrismodellSchema = z.object({
               pris: z
                 .number({ error: "Pris må være satt" })
                 .min(1, { message: "Pris må være positiv" }),
-              valuta: z.enum(Currency, { error: "Du må velge en valuta" }),
+              valuta: z.enum(Valuta, { error: "Du må velge en valuta" }),
             }),
           )
           .nullable(),

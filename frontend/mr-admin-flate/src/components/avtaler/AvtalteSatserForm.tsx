@@ -5,7 +5,7 @@ import { Button, HStack, Select, Spacer, TextField, VStack } from "@navikt/ds-re
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
-import { Currency } from "@tiltaksadministrasjon/api-client";
+import { Valuta } from "@tiltaksadministrasjon/api-client";
 
 export function AvtalteSatserForm({
   avtaleStartDato,
@@ -91,7 +91,7 @@ export function AvtalteSatserForm({
         size="small"
         type="button"
         icon={<PlusIcon aria-hidden />}
-        onClick={() => append({ gjelderFra: "", gjelderTil: null, pris: 0, valuta: Currency.NOK })}
+        onClick={() => append({ gjelderFra: "", gjelderTil: null, pris: 0, valuta: Valuta.NOK })}
       >
         Legg til ny prisperiode
       </Button>

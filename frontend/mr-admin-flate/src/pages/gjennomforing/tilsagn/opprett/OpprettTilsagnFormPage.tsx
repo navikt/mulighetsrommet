@@ -1,5 +1,5 @@
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
-import { Currency, TilsagnBeregningType, TilsagnType } from "@tiltaksadministrasjon/api-client";
+import { Valuta, TilsagnBeregningType, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { useSearchParams } from "react-router";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagnDefaults } from "./opprettTilsagnLoader";
@@ -22,7 +22,7 @@ function useHentData(gjennomforingId: string) {
     // Denne blir bestemt av backend men er påkrevd
     beregning: {
       type: TilsagnBeregningType.FRI,
-      valuta: Currency.NOK, // TODO: Hent fra gjennomforing prismodell
+      valuta: Valuta.NOK, // TODO: Hent fra gjennomforing prismodell
       antallPlasser: null,
       prisbetingelser: null,
       antallTimerOppfolgingPerDeltaker: null,

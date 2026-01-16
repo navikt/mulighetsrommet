@@ -3702,12 +3702,12 @@ components:
           - integer
           format: int32
         valuta:
-          $ref: "#/components/schemas/Currency"
+          $ref: "#/components/schemas/Valuta"
       required:
       - gjelderFra
       - pris
       - valuta
-    Currency:
+    Valuta:
       type: string
       enum:
       - NOK
@@ -4179,7 +4179,7 @@ components:
           type: integer
           format: int32
         valuta:
-          $ref: "#/components/schemas/Currency"
+          $ref: "#/components/schemas/Valuta"
         gjelderTil:
           type:
           - "null"
@@ -5214,14 +5214,10 @@ components:
           - "null"
           - string
         currency:
-          $ref: "#/components/schemas/DataElement.CurrencyValue.Currency"
+          type: string
       required:
       - currency
       - value
-    DataElement.CurrencyValue.Currency:
-      type: string
-      enum:
-      - nok
     DATA_ELEMENT_LINK:
       type: object
       properties:
@@ -5470,7 +5466,7 @@ components:
           type: integer
           format: int32
         valuta:
-          $ref: "#/components/schemas/Currency"
+          $ref: "#/components/schemas/Valuta"
         prismodell:
           $ref: "#/components/schemas/DataDetails"
         regnestykke:
@@ -5653,7 +5649,7 @@ components:
         valuta:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/Currency"
+          - $ref: "#/components/schemas/Valuta"
         antallPlasser:
           type:
           - "null"
@@ -5708,7 +5704,7 @@ components:
         valuta:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/Currency"
+          - $ref: "#/components/schemas/Valuta"
         antall:
           type:
           - "null"

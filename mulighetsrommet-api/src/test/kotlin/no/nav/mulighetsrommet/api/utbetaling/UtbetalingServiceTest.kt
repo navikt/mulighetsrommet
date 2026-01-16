@@ -59,10 +59,10 @@ import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -794,7 +794,7 @@ class UtbetalingServiceTest : FunSpec({
         test("tilsagn blir oppgjort når utbetaling benytter resten av tilsagnsbeløpet") {
             val tilsagn = Tilsagn1.copy(
                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 1)),
-                beregning = getTilsagnBeregning(belop = 10, valuta = Currency.NOK),
+                beregning = getTilsagnBeregning(belop = 10, valuta = Valuta.NOK),
             )
 
             val utbetaling = utbetaling1.copy(
@@ -1100,7 +1100,7 @@ class UtbetalingServiceTest : FunSpec({
                     Tilsagn1.copy(
                         beregning = getTilsagnBeregning(
                             belop = 1000,
-                            valuta = Currency.NOK,
+                            valuta = Valuta.NOK,
                         ),
                     ),
                 ),
@@ -1240,7 +1240,7 @@ class UtbetalingServiceTest : FunSpec({
                     Tilsagn1.copy(
                         beregning = getTilsagnBeregning(
                             belop = 1,
-                            valuta = Currency.NOK,
+                            valuta = Valuta.NOK,
                         ),
                     ),
                 ),
@@ -1595,20 +1595,20 @@ private fun getForhandsgodkjentBeregning(periode: Periode, belop: Int) = Utbetal
     ),
 )
 
-fun getTilsagnBeregning(belop: Int, valuta: Currency) = TilsagnBeregningFri(
+fun getTilsagnBeregning(belop: Int, valuta: Valuta) = TilsagnBeregningFri(
     input = TilsagnBeregningFri.Input(
         linjer = listOf(
             TilsagnBeregningFri.InputLinje(
                 id = UUID.randomUUID(),
                 beskrivelse = "Beskrivelse",
-                valuta = Currency.NOK,
+                valuta = Valuta.NOK,
                 belop = 1500,
                 antall = 1,
             ),
         ),
         prisbetingelser = null,
     ),
-    output = TilsagnBeregningFri.Output(1500, Currency.NOK),
+    output = TilsagnBeregningFri.Output(1500, Valuta.NOK),
 ).copy(
     output = TilsagnBeregningFri.Output(belop, valuta),
 )
