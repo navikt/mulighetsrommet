@@ -223,6 +223,21 @@ class TilsagnValidatorTest : FunSpec({
             )
         }
 
+        test("tilsagnet må ha en valuta") {
+            TilsagnValidator.validate(
+                next =
+                    TilsagnFixtures.TilsagnRequest1.copy(
+                        beregning = TilsagnFixtures.TilsagnRequest1.beregning.copy(valuta = null)
+                    ),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = AvtalteSatser.AFT.satser,
+            ).shouldBeLeft()
+        }
+
         context("TilsagnBeregningFri.Input") {
             test("should return field error if linjer is empty") {
                 val input = TilsagnBeregningRequest(
@@ -243,7 +258,7 @@ class TilsagnValidatorTest : FunSpec({
                             id = UUID.randomUUID(),
                             beskrivelse = "",
                             antall = 0,
-                            valuta = Currency.NOK,
+                            valuta = null,
                         ),
                     ),
                     prisbetingelser = null,
@@ -252,6 +267,7 @@ class TilsagnValidatorTest : FunSpec({
                     FieldError(pointer = "/beregning/linjer/0/belop", detail = "Beløp må være positivt"),
                     FieldError(pointer = "/beregning/linjer/0/beskrivelse", detail = "Beskrivelse mangler"),
                     FieldError(pointer = "/beregning/linjer/0/antall", detail = "Antall må være positivt"),
+                    FieldError(pointer="/beregning/linjer/0/valuta", detail="Valuta mangler")
                 )
 
                 TilsagnValidator.validateBeregningFriInput(input) shouldBeLeft leftFieldErrors

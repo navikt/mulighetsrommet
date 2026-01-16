@@ -311,7 +311,7 @@ object TilsagnValidator {
                     detail = "Antall må være positivt",
                 )
             }
-            validate(linje.valuta != null) {
+            requireValid(linje.valuta != null) {
                 FieldError.ofPointer(
                     pointer = "/beregning/linjer/$index/valuta",
                     detail = "Valuta mangler",
