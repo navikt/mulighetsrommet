@@ -6,34 +6,103 @@ import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createDe
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createGjennomforingForPrisPerHeleUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toAvtaltSats
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toStengtPeriode
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
 class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
-    test("skifter utbetalingsperiode til å gjelde for nærmeste hele uker") {
+
+    test("justerer utbetalingsperiode til å gjelde for nærmeste hele uker") {
         val januar = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
-        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(januar) shouldBe Periode(
-            LocalDate.of(2024, 12, 30),
-            LocalDate.of(2025, 2, 3),
-        )
+        val justertJanuar = Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 2, 3))
+        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(januar) shouldBe justertJanuar
 
         val februar = Periode.forMonthOf(LocalDate.of(2025, 2, 1))
-        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(februar) shouldBe Periode(
-            LocalDate.of(2025, 2, 3),
-            LocalDate.of(2025, 3, 3),
-        )
+        val justertFebruar = Periode(LocalDate.of(2025, 2, 3), LocalDate.of(2025, 3, 3))
+        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(februar) shouldBe justertFebruar
 
         val mars = Periode.forMonthOf(LocalDate.of(2025, 3, 1))
-        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(mars) shouldBe Periode(
-            LocalDate.of(2025, 3, 3),
-            LocalDate.of(2025, 3, 31),
-        )
+        val justertMars = Periode(LocalDate.of(2025, 3, 3), LocalDate.of(2025, 3, 31))
+        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(mars) shouldBe justertMars
 
         val september = Periode.forMonthOf(LocalDate.of(2025, 9, 1))
-        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(september) shouldBe Periode(
-            LocalDate.of(2025, 9, 1),
-            LocalDate.of(2025, 9, 29),
-        )
+        val justertSeptember = Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2025, 9, 29))
+        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(september) shouldBe justertSeptember
+
+        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(justertJanuar) shouldBe justertJanuar
+        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(justertFebruar) shouldBe justertFebruar
+        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(justertMars) shouldBe justertMars
+        PrisPerHeleUkeBeregning.justerPeriodeForBeregning(justertSeptember) shouldBe justertSeptember
+    }
+
+    context("filtrering av deltakere og satser") {
+        test("deltakere med irrelevant status inkluderes ikke i beregningen") {
+            val periode = Periode.forMonthOf(LocalDate.of(2026, 1, 1))
+
+            val gjennomforing = createGjennomforingForPrisPerHeleUkesverk(
+                periode = periode,
+                satser = listOf(toAvtaltSats(periode.start, 100)),
+            )
+            val deltakere = listOf(
+                createDeltaker(periode, status = DeltakerStatusType.DELTAR),
+                createDeltaker(periode, status = DeltakerStatusType.HAR_SLUTTET),
+                createDeltaker(periode, status = DeltakerStatusType.FULLFORT),
+                createDeltaker(periode, status = DeltakerStatusType.AVBRUTT),
+                createDeltaker(periode, status = DeltakerStatusType.IKKE_AKTUELL),
+                createDeltaker(periode, status = DeltakerStatusType.FEILREGISTRERT),
+                createDeltaker(periode, status = DeltakerStatusType.PABEGYNT_REGISTRERING),
+                createDeltaker(periode, status = DeltakerStatusType.SOKT_INN),
+                createDeltaker(periode, status = DeltakerStatusType.VENTER_PA_OPPSTART),
+            )
+
+            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
+
+            result.input.deltakelser.map { it.deltakelseId } shouldBe setOf(
+                deltakere[0].id,
+                deltakere[1].id,
+                deltakere[2].id,
+                deltakere[3].id,
+            )
+        }
+
+        test("satser utenfor utbetalingsperioden inkluderes ikke i beregningen") {
+            val periode = Periode.forMonthOf(LocalDate.of(2026, 2, 1))
+
+            val gjennomforing = createGjennomforingForPrisPerHeleUkesverk(
+                periode = periode,
+                satser = listOf(
+                    toAvtaltSats(LocalDate.of(2025, 1, 1), 50),
+                    toAvtaltSats(LocalDate.of(2026, 2, 15), 100),
+                    toAvtaltSats(LocalDate.of(2026, 3, 1), 150),
+                ),
+            )
+            val deltakere = listOf(createDeltaker(periode))
+
+            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
+
+            result.input.satser shouldBe setOf(
+                SatsPeriode(Periode(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 15)), 50),
+                SatsPeriode(Periode(LocalDate.of(2026, 2, 15), LocalDate.of(2026, 3, 1)), 100),
+            )
+        }
+
+        test("deltakere utenfor utbetalingsperioden inkluderes ikke") {
+            val periode = Periode.forMonthOf(LocalDate.of(2026, 2, 1))
+
+            val gjennomforing = createGjennomforingForPrisPerHeleUkesverk(
+                periode = periode,
+                satser = listOf(toAvtaltSats(periode.start, 100)),
+            )
+            val deltakere = listOf(
+                createDeltaker(Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 4, 1))),
+                createDeltaker(Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 2, 1))),
+                createDeltaker(Periode(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 4, 1))),
+            )
+
+            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
+
+            result.input.deltakelser shouldBe setOf(DeltakelsePeriode(deltakere[0].id, periode))
+        }
     }
 
     context("beregning for pris per hele ukesverk") {

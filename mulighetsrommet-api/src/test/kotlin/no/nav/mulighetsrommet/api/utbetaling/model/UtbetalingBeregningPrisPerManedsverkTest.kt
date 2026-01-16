@@ -7,11 +7,86 @@ import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createDe
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createGjennomforingForPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toAvtaltSats
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toStengtPeriode
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 
 class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
+
+    context("filtrering av deltakere og satser") {
+        test("deltakere med irrelevant status inkluderes ikke i beregningen") {
+            val periode = Periode.forMonthOf(LocalDate.of(2026, 1, 1))
+
+            val gjennomforing = createGjennomforingForPrisPerManedsverk(
+                periode = periode,
+                satser = listOf(toAvtaltSats(periode.start, 100)),
+            )
+            val deltakere = listOf(
+                createDeltaker(periode, status = DeltakerStatusType.DELTAR),
+                createDeltaker(periode, status = DeltakerStatusType.HAR_SLUTTET),
+                createDeltaker(periode, status = DeltakerStatusType.FULLFORT),
+                createDeltaker(periode, status = DeltakerStatusType.AVBRUTT),
+                createDeltaker(periode, status = DeltakerStatusType.IKKE_AKTUELL),
+                createDeltaker(periode, status = DeltakerStatusType.FEILREGISTRERT),
+                createDeltaker(periode, status = DeltakerStatusType.PABEGYNT_REGISTRERING),
+                createDeltaker(periode, status = DeltakerStatusType.SOKT_INN),
+                createDeltaker(periode, status = DeltakerStatusType.VENTER_PA_OPPSTART),
+                createDeltaker(periode, status = DeltakerStatusType.VENTELISTE),
+                createDeltaker(periode, status = DeltakerStatusType.UTKAST_TIL_PAMELDING),
+                createDeltaker(periode, status = DeltakerStatusType.AVBRUTT_UTKAST),
+            )
+
+            val result = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
+
+            result.input.deltakelser.map { it.deltakelseId } shouldBe setOf(
+                deltakere[0].id,
+                deltakere[1].id,
+                deltakere[2].id,
+                deltakere[3].id,
+            )
+        }
+
+        test("satser utenfor utbetalingsperioden inkluderes ikke i beregningen") {
+            val periode = Periode.forMonthOf(LocalDate.of(2026, 2, 1))
+
+            val gjennomforing = createGjennomforingForPrisPerManedsverk(
+                periode = periode,
+                satser = listOf(
+                    toAvtaltSats(LocalDate.of(2025, 1, 1), 50),
+                    toAvtaltSats(LocalDate.of(2026, 2, 15), 100),
+                    toAvtaltSats(LocalDate.of(2026, 3, 1), 150),
+                ),
+            )
+            val deltakere = listOf(createDeltaker(periode))
+
+            val result = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
+
+            result.input.satser shouldBe setOf(
+                SatsPeriode(Periode(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 15)), 50),
+                SatsPeriode(Periode(LocalDate.of(2026, 2, 15), LocalDate.of(2026, 3, 1)), 100),
+            )
+        }
+
+        test("deltakere utenfor utbetalingsperioden inkluderes ikke") {
+            val periode = Periode.forMonthOf(LocalDate.of(2026, 2, 1))
+
+            val gjennomforing = createGjennomforingForPrisPerManedsverk(
+                periode = periode,
+                satser = listOf(toAvtaltSats(periode.start, 100)),
+            )
+            val deltakere = listOf(
+                createDeltaker(Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 4, 1))),
+                createDeltaker(Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 2, 1))),
+                createDeltaker(Periode(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 4, 1))),
+            )
+
+            val result = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
+
+            result.input.deltakelser shouldBe setOf(DeltakelsePeriode(deltakere[0].id, periode))
+        }
+    }
+
     context("enkel beregning full og halv") {
         test("deltakere med ulike perioder beregnes korrekt") {
             val periodeStart = LocalDate.of(2026, 4, 1)

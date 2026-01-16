@@ -6,12 +6,106 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsver
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createGjennomforingForForhandsgodkjentPris
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toStengtPeriode
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 
 class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
     val sats = 100
+
+    context("filtrering av deltakere og satser") {
+        test("deltakere med irrelevant status inkluderes ikke i beregningen") {
+            val periode = Periode.forMonthOf(LocalDate.of(2026, 1, 1))
+
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = sats)
+            val deltakere = listOf(
+                createDeltaker(
+                    periode,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    status = DeltakerStatusType.DELTAR,
+                ),
+                createDeltaker(
+                    periode,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    status = DeltakerStatusType.HAR_SLUTTET,
+                ),
+                createDeltaker(
+                    periode,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    status = DeltakerStatusType.FULLFORT,
+                ),
+                createDeltaker(
+                    periode,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    status = DeltakerStatusType.AVBRUTT,
+                ),
+                createDeltaker(
+                    periode,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    status = DeltakerStatusType.IKKE_AKTUELL,
+                ),
+                createDeltaker(
+                    periode,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    status = DeltakerStatusType.FEILREGISTRERT,
+                ),
+                createDeltaker(
+                    periode,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    status = DeltakerStatusType.PABEGYNT_REGISTRERING,
+                ),
+                createDeltaker(
+                    periode,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    status = DeltakerStatusType.SOKT_INN,
+                ),
+                createDeltaker(
+                    periode,
+                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    status = DeltakerStatusType.VENTER_PA_OPPSTART,
+                ),
+            )
+
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
+
+            result.input.deltakelser.map { it.deltakelseId } shouldBe setOf(
+                deltakere[0].id,
+                deltakere[1].id,
+                deltakere[2].id,
+                deltakere[3].id,
+            )
+        }
+
+        test("deltakere utenfor utbetalingsperioden inkluderes ikke") {
+            val periode = Periode.forMonthOf(LocalDate.of(2026, 2, 1))
+
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = sats)
+            val deltakere = listOf(
+                createDeltaker(
+                    Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 4, 1)),
+                    deltakelsesmengder = listOf(Deltakelsesmengde(LocalDate.of(2026, 1, 1), 100.0)),
+                ),
+                createDeltaker(
+                    Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 2, 1)),
+                    deltakelsesmengder = listOf(Deltakelsesmengde(LocalDate.of(2026, 1, 1), 100.0)),
+                ),
+                createDeltaker(
+                    Periode(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 4, 1)),
+                    deltakelsesmengder = listOf(Deltakelsesmengde(LocalDate.of(2026, 3, 1), 100.0)),
+                ),
+            )
+
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
+
+            result.input.deltakelser shouldBe setOf(
+                DeltakelseDeltakelsesprosentPerioder(
+                    deltakere[0].id,
+                    listOf(DeltakelsesprosentPeriode(periode, 100.0)),
+                ),
+            )
+        }
+    }
 
     context("beregning for fast sats per tiltaksplass per måned") {
         test("beløp beregnes fra månedsverk til deltakere og sats") {
