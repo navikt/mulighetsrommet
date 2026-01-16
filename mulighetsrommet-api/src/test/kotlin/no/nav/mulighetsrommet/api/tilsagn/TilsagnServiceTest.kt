@@ -37,6 +37,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -55,11 +56,13 @@ class TilsagnServiceTest : FunSpec({
     val beregningFri = {
         TilsagnBeregningRequest(
             type = TilsagnBeregningType.FRI,
+            valuta = Currency.NOK,
             linjer = listOf(
                 TilsagnInputLinjeRequest(
                     id = UUID.randomUUID(),
                     beskrivelse = "Beskrivelse",
                     belop = 1500,
+                    valuta = Currency.NOK,
                     antall = 1,
                 ),
             ),
@@ -139,11 +142,13 @@ class TilsagnServiceTest : FunSpec({
             val nyePrisbetingelser = "Helt ferske prisbetingelser"
             val beregningInput = TilsagnBeregningRequest(
                 type = TilsagnBeregningType.FRI,
+                valuta = Currency.NOK,
                 linjer = listOf(
                     TilsagnInputLinjeRequest(
                         id = UUID.randomUUID(),
                         beskrivelse = "1500",
                         belop = 1500,
+                        valuta = Currency.NOK,
                         antall = 1,
                     ),
                 ),

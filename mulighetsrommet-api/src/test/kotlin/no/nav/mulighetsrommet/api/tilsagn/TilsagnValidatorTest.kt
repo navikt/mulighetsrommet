@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.model.Currency
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.UUID
@@ -38,6 +39,7 @@ class TilsagnValidatorTest : FunSpec({
                     beregning = TilsagnBeregningRequest(
                         type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
                         antallPlasser = 3,
+                        valuta = Currency.NOK,
                     ),
                 ),
                 previous = null,
@@ -60,6 +62,7 @@ class TilsagnValidatorTest : FunSpec({
                     beregning = TilsagnBeregningRequest(
                         type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
                         antallPlasser = 3,
+                        valuta = Currency.NOK,
                     ),
                 ),
                 previous = null,
@@ -77,6 +80,7 @@ class TilsagnValidatorTest : FunSpec({
                     periodeStart = null,
                     beregning = TilsagnBeregningRequest(
                         type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                        valuta = Currency.NOK,
                     ),
                 ),
                 previous = null,
@@ -121,7 +125,10 @@ class TilsagnValidatorTest : FunSpec({
             TilsagnValidator.validate(
                 TilsagnFixtures.TilsagnRequest1
                     .copy(
-                        beregning = TilsagnBeregningRequest(type = TilsagnBeregningType.FRI),
+                        beregning = TilsagnBeregningRequest(
+                            type = TilsagnBeregningType.FRI,
+                            valuta = Currency.NOK,
+                        ),
                     ),
                 previous = null,
                 gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
@@ -141,6 +148,7 @@ class TilsagnValidatorTest : FunSpec({
                         kostnadssted = null,
                         beregning = TilsagnBeregningRequest(
                             type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                            valuta = Currency.NOK,
                         ),
                     ),
                 previous = null,
@@ -167,6 +175,7 @@ class TilsagnValidatorTest : FunSpec({
                     beregning = TilsagnBeregningRequest(
                         type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
                         antallPlasser = 3,
+                        valuta = Currency.NOK,
                     ),
                 ),
                 previous = null,
@@ -220,6 +229,7 @@ class TilsagnValidatorTest : FunSpec({
                     type = TilsagnBeregningType.FRI,
                     linjer = emptyList(),
                     prisbetingelser = null,
+                    valuta = Currency.NOK,
                 )
                 TilsagnValidator.validateBeregningFriInput(input).shouldBeLeft()
             }
@@ -233,6 +243,7 @@ class TilsagnValidatorTest : FunSpec({
                             id = UUID.randomUUID(),
                             beskrivelse = "",
                             antall = 0,
+                            valuta = Currency.NOK,
                         ),
                     ),
                     prisbetingelser = null,

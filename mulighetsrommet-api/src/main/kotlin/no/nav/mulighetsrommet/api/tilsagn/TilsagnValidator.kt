@@ -106,7 +106,7 @@ object TilsagnValidator {
 
         val beregning = validateBeregning(
             request = next.beregning,
-            valuta!!,
+            valuta,
             periode = periode,
             avtalteSatser = avtalteSatser,
         )
@@ -119,7 +119,7 @@ object TilsagnValidator {
             beregning = beregning,
             periode = periode,
             kostnadssted = next.kostnadssted,
-            valuta = next.beregning.valuta,
+            valuta = valuta,
         )
     }
 
