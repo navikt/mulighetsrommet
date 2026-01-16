@@ -72,7 +72,7 @@ class TilsagnQueries(private val session: Session) {
                 :kostnadssted,
                 :status::tilsagn_status,
                 :type::tilsagn_type,
-                :valuta::currency_type,
+                :valuta::currency,
                 :belop_brukt,
                 :belop_beregnet,
                 :beregning_type::tilsagn_beregning_type,
@@ -201,7 +201,7 @@ class TilsagnQueries(private val session: Session) {
                     :id::uuid,
                     :tilsagn_id::uuid,
                     :beskrivelse,
-                    :valuta::currency_type,
+                    :valuta::currency,
                     :belop,
                     :antall
                 )

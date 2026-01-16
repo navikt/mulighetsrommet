@@ -5,9 +5,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.DataElement.Text.Format
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import no.nav.mulighetsrommet.model.Valuta
 
 @Serializable
 class DataDrivenTableDto(
@@ -55,19 +55,17 @@ data class LabeledDataElement(
     val value: DataElement?,
 ) {
     companion object {
-        fun text(label: String, value: String?, type: LabeledDataElementType = LabeledDataElementType.INLINE) =
-            LabeledDataElement(
-                type = type,
-                label = label,
-                value = DataElement.text(value),
-            )
+        fun text(label: String, value: String?, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.text(value),
+        )
 
-        fun nok(label: String, value: Number, type: LabeledDataElementType = LabeledDataElementType.INLINE) =
-            LabeledDataElement(
-                type = type,
-                label = label,
-                value = DataElement.nok(value),
-            )
+        fun nok(label: String, value: Number, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.nok(value),
+        )
 
         fun currency(
             label: String,
@@ -80,26 +78,23 @@ data class LabeledDataElement(
             value = DataElement.currency(value, valuta),
         )
 
-        fun date(label: String, value: LocalDate?, type: LabeledDataElementType = LabeledDataElementType.INLINE) =
-            LabeledDataElement(
-                type = type,
-                label = label,
-                value = DataElement.date(value),
-            )
+        fun date(label: String, value: LocalDate?, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.date(value),
+        )
 
-        fun number(label: String, value: Number, type: LabeledDataElementType = LabeledDataElementType.INLINE) =
-            LabeledDataElement(
-                type = type,
-                label = label,
-                value = DataElement.number(value),
-            )
+        fun number(label: String, value: Number, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.number(value),
+        )
 
-        fun periode(label: String, periode: Periode, type: LabeledDataElementType = LabeledDataElementType.INLINE) =
-            LabeledDataElement(
-                type = type,
-                label = label,
-                value = DataElement.periode(periode),
-            )
+        fun periode(label: String, periode: Periode, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.periode(periode),
+        )
     }
 }
 
@@ -236,8 +231,7 @@ sealed class DataElement {
         }
     }
 
-    fun label(label: String, type: LabeledDataElementType = LabeledDataElementType.INLINE) =
-        LabeledDataElement(type, label, this)
+    fun label(label: String, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(type, label, this)
 
     companion object {
         fun text(value: String?) = Text(value, null)
