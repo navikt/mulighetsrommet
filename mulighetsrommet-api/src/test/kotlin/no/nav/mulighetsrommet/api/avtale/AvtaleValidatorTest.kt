@@ -104,31 +104,6 @@ class AvtaleValidatorTest : FunSpec({
         systembestemtPrismodell = UUID.randomUUID(),
     )
 
-    val previous = Ctx.Avtale(
-        status = AvtaleStatusType.AKTIV,
-        opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
-        opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
-        opsjonerRegistrert = emptyList(),
-        avtaletype = Avtaletype.AVTALE,
-        tiltakskode = Tiltakskode.OPPFOLGING,
-        gjennomforinger = listOf(
-            Ctx.Gjennomforing(
-                arrangor = Gjennomforing.ArrangorUnderenhet(
-                    id = ArrangorFixtures.underenhet1.id,
-                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                    navn = ArrangorFixtures.underenhet1.navn,
-                    kontaktpersoner = emptyList(),
-                    slettet = false,
-                ),
-                startDato = LocalDate.now(),
-                utdanningslop = null,
-                status = GjennomforingStatusType.GJENNOMFORES,
-                prismodellId = prismodell.id,
-            ),
-        ),
-        prismodeller = listOf(prismodell),
-    )
-
     test("skal akkumulere feil når forespørselen har flere problemer") {
         val request = avtaleRequest.copy(
             detaljer = avtaleRequest.detaljer.copy(
@@ -733,6 +708,31 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     context("når avtalen allerede eksisterer") {
+        val previous = Ctx.Avtale(
+            status = AvtaleStatusType.AKTIV,
+            opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
+            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
+            opsjonerRegistrert = emptyList(),
+            avtaletype = Avtaletype.AVTALE,
+            tiltakskode = Tiltakskode.OPPFOLGING,
+            gjennomforinger = listOf(
+                Ctx.Gjennomforing(
+                    arrangor = Gjennomforing.ArrangorUnderenhet(
+                        id = ArrangorFixtures.underenhet1.id,
+                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                        navn = ArrangorFixtures.underenhet1.navn,
+                        kontaktpersoner = emptyList(),
+                        slettet = false,
+                    ),
+                    startDato = LocalDate.now(),
+                    utdanningslop = null,
+                    status = GjennomforingStatusType.GJENNOMFORES,
+                    prismodellId = prismodell.id,
+                ),
+            ),
+            prismodeller = listOf(prismodell),
+        )
+
         test("Skal ikke kunne endre tiltakstype") {
             AvtaleValidator.validateUpdateDetaljer(
                 gruppeAmo.detaljer,
@@ -913,23 +913,34 @@ class AvtaleValidatorTest : FunSpec({
                     )
             }
         }
-    }
 
-    test("Slettede administratorer valideres") {
-        AvtaleValidator.validateUpdateDetaljer(
-            avtaleRequest.detaljer.copy(tiltakskode = previous.tiltakskode),
-            ctx.copy(
-                previous = previous,
-                administratorer = listOf(
-                    NavAnsattFixture.DonaldDuck.copy(skalSlettesDato = LocalDate.now()).toNavAnsatt(emptySet()),
+        test("Slettede administratorer valideres") {
+            AvtaleValidator.validateUpdateDetaljer(
+                avtaleRequest.detaljer.copy(tiltakskode = previous.tiltakskode),
+                ctx.copy(
+                    previous = previous,
+                    administratorer = listOf(
+                        NavAnsattFixture.DonaldDuck.copy(skalSlettesDato = LocalDate.now()).toNavAnsatt(emptySet()),
+                    ),
                 ),
-            ),
-        ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            FieldError("/administratorer", "Nav identer DD1 er slettet og må fjernes"),
-        )
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/administratorer", "Nav identer DD1 er slettet og må fjernes"),
+            )
+        }
     }
 
-    context("status endringer") {
+    context("endring av status") {
+        val previous = Ctx.Avtale(
+            status = AvtaleStatusType.AKTIV,
+            opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
+            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
+            opsjonerRegistrert = emptyList(),
+            avtaletype = Avtaletype.AVTALE,
+            tiltakskode = Tiltakskode.OPPFOLGING,
+            gjennomforinger = listOf(),
+            prismodeller = listOf(prismodell),
+        )
+
         test("status blir UTKAST når avtalen lagres uten en arrangør") {
             AvtaleValidator.validateCreateAvtale(
                 avtaleRequest.copy(detaljer = avtaleRequest.detaljer.copy(arrangor = null)),
