@@ -314,7 +314,7 @@ class ArrangorQueries(private val session: Session) {
                 land_kode,
                 bank_navn
             from arrangor
-                inner join utenlandsk_arrangor on utenlandsk_arrangor.id = arrangor.utenlandsk_arrangor_id
+                inner join arrangor_utenlandsk on arrangor_utenlandsk.id = arrangor.arrangor_utenlandsk_id
             where arrangor.id = ?::uuid
         """.trimIndent()
 

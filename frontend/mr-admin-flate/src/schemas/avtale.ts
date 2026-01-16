@@ -9,6 +9,7 @@ import {
   AmoKurstype,
   AvtaleArrangorKontaktperson,
   AvtaleDto,
+  Avtaletype,
   NavAnsattDto,
   Personopplysning,
   PrismodellType,
@@ -22,21 +23,23 @@ export const PrismodellSchema = z.object({
         id: z.uuid().optional(),
         prisbetingelser: z.string().nullable(),
         type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
-        satser: z.array(
-          z.object({
-            gjelderFra: z.string().min(1, { message: "Gjelder fra må være satt" }),
-            gjelderTil: z.string().nullable(),
-            pris: z
-              .number({ error: "Pris må være satt" })
-              .min(1, { message: "Pris må være positiv" }),
-            valuta: z.enum(ValutaType, { error: "Du må velge en valuta" }),
-          }),
-        ),
+        satser: z
+          .array(
+            z.object({
+              gjelderFra: z.string().min(1, { message: "Gjelder fra må være satt" }),
+              gjelderTil: z.string().nullable(),
+              pris: z
+                .number({ error: "Pris må være satt" })
+                .min(1, { message: "Pris må være positiv" }),
+              valuta: z.enum(ValutaType, { error: "Du må velge en valuta" }),
+            }),
+          )
+          .nullable(),
       })
       .superRefine((data, ctx) => {
         if (
-          data.type !== PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK &&
-          data.satser.length === 0
+          data.type !== PrismodellType.ANNEN_AVTALT_PRIS &&
+          (!data.satser || data.satser.length === 0)
         ) {
           ctx.addIssue({
             code: "custom",
@@ -79,6 +82,17 @@ export const avtaleFormSchema = avtaleDetaljerSchema
   .extend(VeilederinformasjonStepSchema.shape)
   .superRefine((data, ctx) => {
     validateAvtaledetaljer(ctx, data);
+
+    if (
+      data.detaljer.avtaletype !== Avtaletype.FORHANDSGODKJENT &&
+      data.prismodeller.length === 0
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Du må legge til minst én prismodell",
+        path: ["prismodeller"],
+      });
+    }
   });
 
 export type AvtaleFormInput = z.input<typeof avtaleFormSchema>;
@@ -184,18 +198,12 @@ export function defaultAvtaleData(
       personvernBekreftet: avtale?.personvernBekreftet,
       personopplysninger: avtale?.personopplysninger ?? [],
     },
-    prismodeller: avtale?.prismodeller?.map((prismodell) => ({
-      id: prismodell.id,
-      type: prismodell.type as PrismodellType | undefined,
-      satser: prismodell.satser ?? [],
-      prisbetingelser: prismodell.prisbetingelser ?? null,
-    })) ?? [
-      {
-        id: undefined,
-        type: undefined,
-        satser: [],
-        prisbetingelser: null,
-      },
-    ],
+    prismodeller:
+      avtale?.prismodeller?.map((prismodell) => ({
+        id: prismodell.id,
+        type: prismodell.type,
+        satser: prismodell.satser,
+        prisbetingelser: prismodell.prisbetingelser || null,
+      })) ?? [],
   };
 }

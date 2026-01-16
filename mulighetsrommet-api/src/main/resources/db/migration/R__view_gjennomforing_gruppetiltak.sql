@@ -32,10 +32,10 @@ select gjennomforing.id,
        gjennomforing.publisert,
        gjennomforing.tilgjengelig_for_arrangor_dato,
        gjennomforing.avtale_id,
-       gjennomforing.prismodell_id               as prismodell_id,
-       avtale_prismodell.prismodell_type   as prismodell_type,
-       avtale_prismodell.prisbetingelser   as prismodell_prisbetingelser,
-       avtale_prismodell.satser            as prismodell_satser,
+       prismodell.id                       as prismodell_id,
+       prismodell.prismodell_type          as prismodell_type,
+       prismodell.prisbetingelser          as prismodell_prisbetingelser,
+       prismodell.satser                   as prismodell_satser,
        tiltakstype.id                      as tiltakstype_id,
        tiltakstype.navn                    as tiltakstype_navn,
        tiltakstype.tiltakskode             as tiltakstype_tiltakskode,
@@ -54,7 +54,7 @@ select gjennomforing.id,
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
-         left join avtale_prismodell on avtale_prismodell.id = gjennomforing.prismodell_id
+         left join prismodell on prismodell.id = gjennomforing.prismodell_id
          left join nav_enhet arena_nav_enhet on gjennomforing.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(

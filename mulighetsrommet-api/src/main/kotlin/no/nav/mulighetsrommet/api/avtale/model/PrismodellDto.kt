@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
@@ -18,33 +16,21 @@ data class PrismodellDto(
     val beskrivelse: List<String> = type.beskrivelse
 }
 
-fun fromPrismodell(prismodell: Prismodell, tiltakskode: Tiltakskode): PrismodellDto {
+fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
     val satser = when (prismodell) {
         is Prismodell.AnnenAvtaltPris -> null
-
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
-        -> AvtalteSatser.getForhandsgodkjenteSatser(tiltakskode).toDto()
-
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> prismodell.satser
         is Prismodell.AvtaltPrisPerManedsverk -> prismodell.satser
-
         is Prismodell.AvtaltPrisPerUkesverk -> prismodell.satser
-
         is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.satser
-
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.satser
     }
     val prisbetingelser = when (prismodell) {
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
-        -> null
-
         is Prismodell.AnnenAvtaltPris -> prismodell.prisbetingelser
-
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
         is Prismodell.AvtaltPrisPerManedsverk -> prismodell.prisbetingelser
-
         is Prismodell.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
-
         is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.prisbetingelser
-
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.prisbetingelser
     }
     return PrismodellDto(

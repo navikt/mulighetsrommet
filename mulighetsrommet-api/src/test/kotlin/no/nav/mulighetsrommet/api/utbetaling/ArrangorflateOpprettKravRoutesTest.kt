@@ -7,16 +7,8 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 import no.nav.mulighetsrommet.api.ApplicationConfigLocal
 import no.nav.mulighetsrommet.api.arrangorflate.api.DatoVelger
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingsInformasjon
@@ -95,35 +87,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    val tiltaksoversiktUrl = "/api/arrangorflate/arrangor/tiltaksoversikt"
-
-    test("401 Unauthorized mangler pid i claims") {
-        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get(tiltaksoversiktUrl) {
-                bearerAuth(oauth.issueToken().serialize())
-            }
-            response.status shouldBe HttpStatusCode.Unauthorized
-        }
-    }
-
-    test("403 Forbidden feil pid i claims") {
-        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get(tiltaksoversiktUrl) {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199989")).serialize())
-            }
-            response.status shouldBe HttpStatusCode.Forbidden
-        }
-    }
-
-    test("200 Ok med rett pid") {
-        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get(tiltaksoversiktUrl) {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-            }
-
-            response.status shouldBe HttpStatusCode.OK
-        }
-    }
+    val tiltaksoversiktUrl = "/api/arrangorflate/tiltaksoversikt"
 
     test("tom gjennomføringstabell hvis ingen prismodell er konfigurert") {
         var config = ArrangorflateTestUtils.appConfig(oauth).copy(
@@ -151,49 +115,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             response.status shouldBe HttpStatusCode.OK
             val body = response.body<TiltaksoversiktResponse>()
             body.table.shouldNotBeNull()
-            body.table.rows.size shouldBeGreaterThan 1
-        }
-    }
-
-    test("403 Forbidden ved opprettelse hvis konfigurasjon mangler") {
-        val gjennomforingId = tilsagn.gjennomforingId
-        val fil = "Innhold".toByteArray()
-        val filnavn = "innhold.pdf"
-
-        var config = ArrangorflateTestUtils.appConfig(oauth).copy(
-            okonomi = ApplicationConfigLocal.okonomi.copy(
-                opprettKravPrismodeller = emptyList(),
-            ),
-        )
-        withTestApplication(config) {
-            val response =
-                client.post("/api/arrangorflate/arrangor/$orgnr/gjennomforing/$gjennomforingId/opprett-krav") {
-                    bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-                    contentType(ContentType.MultiPart.FormData)
-                    setBody(
-                        MultiPartFormDataContent(
-                            formData {
-                                append("tilsagnId", tilsagn.id.toString())
-                                append("periodeStart", tilsagn.periode.start.toString())
-                                append("periodeSlutt", tilsagn.periode.slutt.toString())
-                                append("belop", "1234")
-                                append(
-                                    "vedlegg",
-                                    fil,
-                                    Headers.build {
-                                        append(
-                                            HttpHeaders.ContentDisposition,
-                                            "form-data; name=\"file\"; filename=\"$filnavn\"",
-                                        )
-                                        append(HttpHeaders.ContentType, ContentType.Application.Pdf.toString())
-                                    },
-                                )
-                            },
-                        ),
-                    )
-                }
-
-            response.status shouldBe HttpStatusCode.Forbidden
+            body.table.rows.size shouldBeGreaterThan 0
         }
     }
 

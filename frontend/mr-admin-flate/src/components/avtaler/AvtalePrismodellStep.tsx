@@ -4,20 +4,14 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import AvtalePrismodellForm from "./AvtalePrismodellForm";
 import { safeParseDate } from "@mr/frontend-common/utils/date";
 import { Box, Select } from "@navikt/ds-react";
-import { Tiltakskode, PrismodellType } from "@tiltaksadministrasjon/api-client";
+import { Avtaletype, PrismodellType } from "@tiltaksadministrasjon/api-client";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 export default function AvtalePrismodellStep() {
   const { watch } = useFormContext<AvtaleFormValues>();
-  const tiltakskode = watch("detaljer.tiltakskode");
-  const startDato = safeParseDate(watch("detaljer.startDato"));
 
-  if (
-    [
-      Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-      Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-    ].includes(tiltakskode)
-  ) {
+  const avtaletype = watch("detaljer.avtaletype");
+  if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
     return (
       <Box
         borderWidth="1"
@@ -36,6 +30,9 @@ export default function AvtalePrismodellStep() {
       </Box>
     );
   }
+
+  const tiltakskode = watch("detaljer.tiltakskode");
+  const startDato = safeParseDate(watch("detaljer.startDato"));
   return (
     <TwoColumnGrid>
       <AvtalePrismodellForm tiltakskode={tiltakskode} avtaleStartDato={startDato} />

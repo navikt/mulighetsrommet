@@ -11,12 +11,10 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -67,24 +65,12 @@ object AvtaleFixtures {
         redaksjoneltInnhold = null,
     )
 
-    fun createPrismodellDbo(
-        id: UUID = UUID.randomUUID(),
-        type: PrismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
-        prisbetingelser: String? = "Alt er dyrt",
-        satser: List<AvtaltSats> = emptyList(),
-    ): PrismodellDbo = PrismodellDbo(
-        id = id,
-        type = type,
-        prisbetingelser = prisbetingelser,
-        satser = satser,
-    )
-
     val oppfolging: AvtaleDbo = AvtaleDbo(
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-        prismodeller = listOf(Prismodell.AvtaltPrisPerTimeOppfolging),
+        prismodeller = listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id),
     )
 
     val gruppeAmo: AvtaleDbo = AvtaleDbo(
@@ -97,7 +83,7 @@ object AvtaleFixtures {
         ),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodeller = listOf(Prismodell.AnnenAvtaltPris),
+        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.id),
     )
 
     val gruppeFagYrke: AvtaleDbo = AvtaleDbo(
@@ -110,7 +96,7 @@ object AvtaleFixtures {
         ),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodeller = listOf(Prismodell.AnnenAvtaltPris),
+        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.id),
     )
 
     val VTA: AvtaleDbo = AvtaleDbo(
@@ -124,7 +110,7 @@ object AvtaleFixtures {
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-        prismodeller = listOf(Prismodell.Forhandsgodkjent),
+        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentVta.id),
     )
 
     val AFT: AvtaleDbo = AvtaleDbo(
@@ -138,7 +124,7 @@ object AvtaleFixtures {
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-        prismodeller = listOf(Prismodell.Forhandsgodkjent),
+        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft.id),
     )
 
     val EnkelAmo: AvtaleDbo = AvtaleDbo(
@@ -164,49 +150,7 @@ object AvtaleFixtures {
         ),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodeller = listOf(Prismodell.AnnenAvtaltPris),
-    )
-
-    val opprettAvtaleRequest: OpprettAvtaleRequest = OpprettAvtaleRequest(
-        id = UUID.randomUUID(),
-        detaljer = DetaljerRequest(
-            navn = "Avtalenavn",
-            sakarkivNummer = SakarkivNummer("24/1234"),
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
-            arrangor = DetaljerRequest.Arrangor(
-                hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
-                underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                kontaktpersoner = emptyList(),
-            ),
-            startDato = LocalDate.of(2023, 1, 11),
-            sluttDato = LocalDate.now().plusMonths(3),
-            avtaletype = Avtaletype.RAMMEAVTALE,
-            administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-            amoKategorisering = null,
-            opsjonsmodell = Opsjonsmodell(
-                opsjonMaksVarighet = LocalDate.now().plusYears(5),
-                type = OpsjonsmodellType.TO_PLUSS_EN,
-                customOpsjonsmodellNavn = null,
-            ),
-            utdanningslop = null,
-        ),
-        veilederinformasjon = VeilederinfoRequest(
-            navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
-            beskrivelse = null,
-            faneinnhold = null,
-        ),
-        personvern = PersonvernRequest(
-            personopplysninger = emptyList(),
-            personvernBekreftet = false,
-        ),
-        prismodeller = listOf(
-            PrismodellRequest(
-                UUID.randomUUID(),
-                type = PrismodellType.ANNEN_AVTALT_PRIS,
-                prisbetingelser = null,
-                satser = listOf(),
-            ),
-        ),
+        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.id),
     )
 
     fun createAvtaleRequest(
@@ -217,12 +161,8 @@ object AvtaleFixtures {
             underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
             kontaktpersoner = emptyList(),
         ),
-        prismodell: PrismodellDbo = PrismodellDbo(
-            id = UUID.randomUUID(),
-            type = PrismodellType.ANNEN_AVTALT_PRIS,
-            prisbetingelser = null,
-            satser = listOf(),
-        ),
+        administratorer: List<NavIdent> = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+        prismodell: List<PrismodellDbo> = listOf(PrismodellFixtures.AnnenAvtaltPris),
         opsjonsmodell: Opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         amo: AmoKategoriseringRequest? = null,
     ): OpprettAvtaleRequest {
@@ -235,7 +175,7 @@ object AvtaleFixtures {
                 sakarkivNummer = SakarkivNummer("24/1234"),
                 startDato = LocalDate.now().minusDays(1),
                 sluttDato = LocalDate.now().plusMonths(1),
-                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+                administratorer = administratorer,
                 avtaletype = avtaletype,
                 amoKategorisering = amo,
                 opsjonsmodell = opsjonsmodell,
@@ -250,7 +190,7 @@ object AvtaleFixtures {
                 personopplysninger = emptyList(),
                 personvernBekreftet = false,
             ),
-            prismodeller = listOf(
+            prismodeller = prismodell.map { prismodell ->
                 PrismodellRequest(
                     id = prismodell.id,
                     type = prismodell.type,
@@ -258,24 +198,8 @@ object AvtaleFixtures {
                     satser = (prismodell.satser ?: listOf()).map {
                         AvtaltSatsRequest(it.gjelderFra, it.sats, ValutaType.NOK)
                     },
-                ),
-            ),
+                )
+            },
         )
-    }
-
-    object Prismodell {
-        val Forhandsgodkjent = PrismodellDbo(
-            id = UUID.randomUUID(),
-            type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-            prisbetingelser = null,
-            satser = listOf(),
-        )
-
-        val AvtaltPrisPerTimeOppfolging = createPrismodellDbo(
-            type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            satser = listOf(AvtaltSats(gjelderFra = LocalDate.of(2023, 1, 1), sats = 1234, ValutaType.NOK)),
-        )
-
-        val AnnenAvtaltPris = createPrismodellDbo()
     }
 }

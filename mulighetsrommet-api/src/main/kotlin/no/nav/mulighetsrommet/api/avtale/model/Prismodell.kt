@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.avtale.model
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
@@ -24,6 +25,7 @@ sealed class Prismodell {
     data class ForhandsgodkjentPrisPerManedsverk(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
+        val satser: List<AvtaltSatsDto>,
     ) : Prismodell() {
         @Transient
         override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
@@ -72,4 +74,10 @@ sealed class Prismodell {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
     }
+}
+
+fun List<AvtaltSats>.findSats(dato: LocalDate): Int? {
+    return this
+        .sortedBy { it.gjelderFra }
+        .lastOrNull { dato >= it.gjelderFra }?.sats
 }

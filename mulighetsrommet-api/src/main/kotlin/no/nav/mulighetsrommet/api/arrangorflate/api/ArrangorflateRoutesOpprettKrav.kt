@@ -32,7 +32,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
@@ -43,6 +42,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
@@ -61,7 +61,6 @@ import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -109,7 +108,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             ?: throw StatusException(HttpStatusCode.BadRequest, "Periode er ikke oppgitt")
     }
 
-    get("/arrangor/tiltaksoversikt", {
+    get("/tiltaksoversikt", {
         description = "Hent tiltakene for alle arrangører brukeren har tilgang til"
         tags = setOf("Arrangorflate")
         operationId = "getArrangorTiltaksoversikt"
@@ -134,31 +133,27 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         }
         val type = TiltaksoversiktType.from(call.queryParameters["type"])
         val gjennomforinger = db.session {
-            val aktiveTiltakstyper = queries.tiltakstype.getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
-            val opprettKravPrismodeller = okonomiConfig.opprettKravPrismodeller
-            val opprettKravTiltakstyperMedTilsagn = hentTiltakstyperMedTilsagn(okonomiConfig, aktiveTiltakstyper)
+            val gyldigeTiltakstyper = queries.tiltakstype
+                .getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
+                .map { it.id }
 
-            if (opprettKravPrismodeller.isEmpty() || opprettKravTiltakstyperMedTilsagn.isEmpty()) {
+            val gyldigePrismodeller = okonomiConfig.opprettKravPrismodeller
+
+            if (gyldigePrismodeller.isEmpty() || gyldigeTiltakstyper.isEmpty()) {
                 return@session emptyList()
             } else {
                 queries.gjennomforing
                     .getAllGruppetiltakKompakt(
                         arrangorOrgnr = arrangorer,
-                        prismodeller = opprettKravPrismodeller,
-                        tiltakstypeIder = opprettKravTiltakstyperMedTilsagn,
+                        prismodeller = gyldigePrismodeller,
+                        tiltakstypeIder = gyldigeTiltakstyper,
+                        sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
                         statuser = type.toGjennomforingStatuses(),
                     )
                     .items
-                    .filter { kanOppretteKrav(okonomiConfig, it) }
             }
         }
-        if (gjennomforinger.isEmpty()) {
-            call.respond(TiltaksoversiktResponse())
-        } else {
-            call.respond(
-                TiltaksoversiktResponse(table = toGjennomforingDataTable(gjennomforinger)),
-            )
-        }
+        call.respond(TiltaksoversiktResponse(table = toGjennomforingDataTable(gjennomforinger)))
     }
 
     route("/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav") {
@@ -401,13 +396,6 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
             }
 
-            if (!kanOppretteKrav(okonomiConfig, gjennomforing.toGjennomforingKompakt())) {
-                throw StatusException(
-                    HttpStatusCode.Forbidden,
-                    "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen",
-                )
-            }
-
             arrangorFlateService.getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
                 .mapLeft { FieldError("/kontonummer", "Klarte ikke hente kontonummer").nel() }
                 .flatMap {
@@ -425,36 +413,6 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 .onRight { utbetaling -> call.respond(OpprettKravOmUtbetalingResponse(utbetaling.id)) }
         }
     }
-}
-
-private fun hentTiltakstyperMedTilsagn(
-    okonomiConfig: OkonomiConfig,
-    tiltakstyper: List<TiltakstypeDto>,
-    relativeDate: LocalDate = LocalDate.now(),
-): List<UUID> {
-    return okonomiConfig.gyldigTilsagnPeriode.entries.mapNotNull { (tiltakskode: Tiltakskode, periode: Periode) ->
-        if (!periode.contains(relativeDate.minusMonths(1))) {
-            null
-        } else {
-            tiltakstyper.find { it.tiltakskode == tiltakskode }?.id
-        }
-    }
-}
-
-/**
- * Skal kunne opprette krav en måned etter tilsagnsperioden er startet
- */
-fun kanOppretteKrav(
-    okonomiConfig: OkonomiConfig,
-    gjennomforing: GjennomforingGruppetiltakKompakt,
-    relativeDate: LocalDate = LocalDate.now(),
-): Boolean {
-    if (gjennomforing.prismodell !in okonomiConfig.opprettKravPrismodeller) {
-        return false
-    }
-    val gyldigTilsagnPeriode = okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode] ?: return false
-    // Kan sende inn krav en måned etter tilsagns start
-    return gyldigTilsagnPeriode.contains(relativeDate.minusMonths(1))
 }
 
 @Serializable
@@ -488,7 +446,10 @@ data class TiltaksoversiktResponse(
 
 private fun toGjennomforingDataTable(
     gjennomforinger: List<GjennomforingGruppetiltakKompakt>,
-): DataDrivenTableDto {
+): DataDrivenTableDto? {
+    if (gjennomforinger.isEmpty()) {
+        return null
+    }
     return DataDrivenTableDto(
         columns = listOf(
             DataDrivenTableDto.Column("tiltak", "Tiltak"),

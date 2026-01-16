@@ -13,4 +13,5 @@ data class PrismodellDbo(
     val type: PrismodellType,
     val prisbetingelser: String?,
     val satser: List<AvtaltSats>?,
+    val systemId: String?,
 )

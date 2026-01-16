@@ -1,4 +1,4 @@
-CREATE TABLE utenlandsk_arrangor (
+CREATE TABLE arrangor_utenlandsk (
     id uuid PRIMARY KEY not null,
     bic text not null,
     iban text not null,
@@ -11,4 +11,4 @@ CREATE TABLE utenlandsk_arrangor (
     updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-ALTER TABLE arrangor ADD COLUMN utenlandsk_arrangor_id uuid REFERENCES utenlandsk_arrangor(id);
+ALTER TABLE arrangor ADD COLUMN arrangor_utenlandsk_id uuid REFERENCES arrangor_utenlandsk(id);
