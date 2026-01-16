@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
-import no.nav.mulighetsrommet.api.avtale.model.findSats
+import no.nav.mulighetsrommet.api.avtale.model.findAvtaltSats
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
@@ -280,7 +280,9 @@ class TilsagnService(
 
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
         val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
-        val sats = prismodell.satser().findSats(request.periodeStart) ?: 0
+        val avtaltSats = prismodell.satser().findAvtaltSats(request.periodeStart)
+        val sats = avtaltSats?.sats ?: 0
+        val valuta = avtaltSats?.valuta ?: Currency.NOK
 
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
