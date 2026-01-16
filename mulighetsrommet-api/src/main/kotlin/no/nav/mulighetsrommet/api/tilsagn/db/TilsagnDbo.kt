@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.util.UUID
 
@@ -16,6 +17,7 @@ data class TilsagnDbo(
     val lopenummer: Int,
     val bestillingsnummer: String,
     val bestillingStatus: BestillingStatusType?,
+    val valuta: Valuta,
     val belopBrukt: Int,
     val beregning: TilsagnBeregning,
     val kommentar: String?,

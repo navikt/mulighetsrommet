@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import kotlin.contracts.ExperimentalContracts
 
@@ -32,6 +33,7 @@ object TilsagnValidator {
         val kostnadssted: NavEnhetNummer,
         val periode: Periode,
         val beregning: TilsagnBeregning,
+        val valuta: Valuta,
     )
 
     fun validate(
@@ -97,8 +99,14 @@ object TilsagnValidator {
 
         val periode = Periode.fromInclusiveDates(next.periodeStart, next.periodeSlutt)
 
+        val valuta = next.beregning.valuta
+        requireValid(valuta != null) {
+            FieldError.of("Valuta må være satt og gyldig", TilsagnRequest::beregning)
+        }
+
         val beregning = validateBeregning(
             request = next.beregning,
+            valuta,
             periode = periode,
             avtalteSatser = avtalteSatser,
         )
@@ -111,6 +119,7 @@ object TilsagnValidator {
             beregning = beregning,
             periode = periode,
             kostnadssted = next.kostnadssted,
+            valuta = valuta,
         )
     }
 
@@ -155,6 +164,7 @@ object TilsagnValidator {
 
     fun FieldValidator.validateBeregning(
         request: TilsagnBeregningRequest,
+        valuta: Valuta,
         periode: Periode,
         avtalteSatser: List<AvtaltSats>,
     ): TilsagnBeregning {
@@ -170,6 +180,7 @@ object TilsagnValidator {
                     TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                         periode = periode,
                         sats = sats,
+                        valuta = valuta,
                         antallPlasser = antallPlasser,
                     ),
                 )
@@ -179,6 +190,7 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerManedsverk.Input(
                         periode = periode,
                         sats = sats,
+                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -189,6 +201,7 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerHeleUkesverk.Input(
                         periode = periode,
                         sats = sats,
+                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -199,6 +212,7 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerUkesverk.Input(
                         periode = periode,
                         sats = sats,
+                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -209,6 +223,7 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                         periode = periode,
                         sats = sats,
+                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                         antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(
@@ -296,6 +311,12 @@ object TilsagnValidator {
                     detail = "Antall må være positivt",
                 )
             }
+            requireValid(linje.valuta != null) {
+                FieldError.ofPointer(
+                    pointer = "/beregning/linjer/$index/valuta",
+                    detail = "Valuta mangler",
+                )
+            }
         }
 
         TilsagnBeregningFri.beregn(
@@ -306,6 +327,7 @@ object TilsagnValidator {
                         beskrivelse = it.beskrivelse!!,
                         belop = it.belop!!,
                         antall = it.antall!!,
+                        valuta = it.valuta!!,
                     )
                 },
                 prisbetingelser = request.prisbetingelser,

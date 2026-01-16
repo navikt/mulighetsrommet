@@ -76,8 +76,8 @@ sealed class Prismodell {
     }
 }
 
-fun List<AvtaltSats>.findSats(dato: LocalDate): Int? {
-    return this
-        .sortedBy { it.gjelderFra }
-        .lastOrNull { dato >= it.gjelderFra }?.sats
-}
+fun List<AvtaltSats>.findAvtaltSats(dato: LocalDate): AvtaltSats? = this
+    .sortedBy { it.gjelderFra }
+    .lastOrNull { dato >= it.gjelderFra }
+
+fun List<AvtaltSats>.findSats(dato: LocalDate): Int? = this.findAvtaltSats(dato)?.sats

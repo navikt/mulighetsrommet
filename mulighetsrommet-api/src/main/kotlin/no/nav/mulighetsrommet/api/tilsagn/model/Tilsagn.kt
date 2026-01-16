@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.util.UUID
@@ -16,6 +17,7 @@ data class Tilsagn(
     val id: UUID,
     val type: TilsagnType,
     val periode: Periode,
+    val valuta: Valuta,
     val belopBrukt: Int,
     val kostnadssted: NavEnhetDbo,
     val beregning: TilsagnBeregning,

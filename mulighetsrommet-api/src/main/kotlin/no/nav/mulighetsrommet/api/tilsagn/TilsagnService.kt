@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
-import no.nav.mulighetsrommet.api.avtale.model.findSats
+import no.nav.mulighetsrommet.api.avtale.model.findAvtaltSats
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
@@ -45,6 +45,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.AnnullerBestilling
@@ -116,6 +117,7 @@ class TilsagnService(
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
                     belopBrukt = 0,
+                    valuta = validated.valuta,
                     beregning = validated.beregning,
                     kommentar = request.kommentar?.trim(),
                     beskrivelse = request.beskrivelse?.trim(),
@@ -184,6 +186,7 @@ class TilsagnService(
                                     id = it.id,
                                     beskrivelse = it.beskrivelse ?: "",
                                     belop = it.belop ?: 0,
+                                    valuta = it.valuta ?: Valuta.NOK,
                                     antall = it.antall ?: 0,
                                 )
                             },
@@ -197,6 +200,7 @@ class TilsagnService(
                             TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
+                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                             ),
                         )
@@ -208,6 +212,7 @@ class TilsagnService(
                             TilsagnBeregningPrisPerManedsverk.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
+                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                             ),
@@ -220,6 +225,7 @@ class TilsagnService(
                             TilsagnBeregningPrisPerUkesverk.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
+                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                             ),
@@ -232,6 +238,7 @@ class TilsagnService(
                             TilsagnBeregningPrisPerHeleUkesverk.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
+                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                             ),
@@ -244,6 +251,7 @@ class TilsagnService(
                             TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
+                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                                 antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
@@ -258,6 +266,7 @@ class TilsagnService(
 
     private data class TilsagnBeregningFallbackResolver(
         val sats: Int,
+        val valuta: Valuta,
         val periode: Periode,
         val antallPlasser: Int,
         val antallTimerOppfolgingPerDeltaker: Int,
@@ -271,7 +280,9 @@ class TilsagnService(
 
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
         val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
-        val sats = prismodell.satser().findSats(request.periodeStart) ?: 0
+        val avtaltSats = prismodell.satser().findAvtaltSats(request.periodeStart)
+        val sats = avtaltSats?.sats ?: 0
+        val valuta = avtaltSats?.valuta ?: Valuta.NOK
 
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
@@ -279,6 +290,7 @@ class TilsagnService(
 
         return TilsagnBeregningFallbackResolver(
             sats = sats,
+            valuta = valuta,
             periode = periode,
             antallPlasser = antallPlasserFallback,
             antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltakerFallback,

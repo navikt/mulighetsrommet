@@ -1,4 +1,5 @@
 import {
+  Valuta,
   DataDrivenTableDto,
   DataElementTextFormat,
   LabeledDataElementType,
@@ -29,6 +30,7 @@ export const tilsagnHandlers = [
         periodeSlutt: null,
         beregning: {
           type: TilsagnBeregningType.FRI,
+          valuta: Valuta.NOK,
           antallPlasser: null,
           prisbetingelser: null,
           antallTimerOppfolgingPerDeltaker: null,
@@ -84,6 +86,7 @@ const tilBeslutning: TotrinnskontrollDtoTilBeslutning = {
 
 const beregning: TilsagnBeregningDto = {
   belop: 12207450,
+  valuta: Valuta.NOK,
   prismodell: {
     header: null,
     entries: [

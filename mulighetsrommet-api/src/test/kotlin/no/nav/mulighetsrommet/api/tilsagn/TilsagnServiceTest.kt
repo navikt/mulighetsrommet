@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
 import java.time.LocalDate
@@ -55,11 +56,13 @@ class TilsagnServiceTest : FunSpec({
     val beregningFri = {
         TilsagnBeregningRequest(
             type = TilsagnBeregningType.FRI,
+            valuta = Valuta.NOK,
             linjer = listOf(
                 TilsagnInputLinjeRequest(
                     id = UUID.randomUUID(),
                     beskrivelse = "Beskrivelse",
                     belop = 1500,
+                    valuta = Valuta.NOK,
                     antall = 1,
                 ),
             ),
@@ -139,11 +142,13 @@ class TilsagnServiceTest : FunSpec({
             val nyePrisbetingelser = "Helt ferske prisbetingelser"
             val beregningInput = TilsagnBeregningRequest(
                 type = TilsagnBeregningType.FRI,
+                valuta = Valuta.NOK,
                 linjer = listOf(
                     TilsagnInputLinjeRequest(
                         id = UUID.randomUUID(),
                         beskrivelse = "1500",
                         belop = 1500,
+                        valuta = Valuta.NOK,
                         antall = 1,
                     ),
                 ),

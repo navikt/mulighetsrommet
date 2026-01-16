@@ -3702,12 +3702,12 @@ components:
           - integer
           format: int32
         valuta:
-          $ref: "#/components/schemas/ValutaType"
+          $ref: "#/components/schemas/Valuta"
       required:
       - gjelderFra
       - pris
       - valuta
-    ValutaType:
+    Valuta:
       type: string
       enum:
       - NOK
@@ -4179,7 +4179,7 @@ components:
           type: integer
           format: int32
         valuta:
-          $ref: "#/components/schemas/ValutaType"
+          $ref: "#/components/schemas/Valuta"
         gjelderTil:
           type:
           - "null"
@@ -5191,6 +5191,7 @@ components:
       anyOf:
       - $ref: "#/components/schemas/DATA_ELEMENT_LINK"
       - $ref: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
+      - $ref: "#/components/schemas/DATA_ELEMENT_MONEY_AMOUNT"
       - $ref: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
       - $ref: "#/components/schemas/DATA_ELEMENT_PERIODE"
       - $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
@@ -5200,6 +5201,7 @@ components:
         mapping:
           DATA_ELEMENT_LINK: "#/components/schemas/DATA_ELEMENT_LINK"
           DATA_ELEMENT_MATH_OPERATOR: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
+          DATA_ELEMENT_MONEY_AMOUNT: "#/components/schemas/DATA_ELEMENT_MONEY_AMOUNT"
           DATA_ELEMENT_MULTI_LINK_MODAL: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
           DATA_ELEMENT_PERIODE: "#/components/schemas/DATA_ELEMENT_PERIODE"
           DATA_ELEMENT_STATUS: "#/components/schemas/DATA_ELEMENT_STATUS"
@@ -5232,6 +5234,18 @@ components:
       - multiply
       - divide
       - equals
+    DATA_ELEMENT_MONEY_AMOUNT:
+      type: object
+      properties:
+        value:
+          type:
+          - "null"
+          - string
+        currency:
+          type: string
+      required:
+      - currency
+      - value
     DATA_ELEMENT_MULTI_LINK_MODAL:
       type: object
       properties:
@@ -5451,6 +5465,8 @@ components:
         belop:
           type: integer
           format: int32
+        valuta:
+          $ref: "#/components/schemas/Valuta"
         prismodell:
           $ref: "#/components/schemas/DataDetails"
         regnestykke:
@@ -5459,6 +5475,7 @@ components:
       - belop
       - prismodell
       - regnestykke
+      - valuta
     DataDetails:
       type: object
       properties:
@@ -5629,6 +5646,10 @@ components:
       properties:
         type:
           $ref: "#/components/schemas/TilsagnBeregningType"
+        valuta:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Valuta"
         antallPlasser:
           type:
           - "null"
@@ -5655,6 +5676,7 @@ components:
       - linjer
       - prisbetingelser
       - type
+      - valuta
     TilsagnBeregningType:
       type: string
       enum:
@@ -5679,6 +5701,10 @@ components:
           - "null"
           - integer
           format: int32
+        valuta:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Valuta"
         antall:
           type:
           - "null"
@@ -5689,6 +5715,7 @@ components:
       - belop
       - beskrivelse
       - id
+      - valuta
     TilsagnRequest:
       type: object
       properties:

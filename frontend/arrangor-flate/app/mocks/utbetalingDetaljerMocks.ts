@@ -118,6 +118,7 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
   advarsler: [],
   betalingsinformasjon: { kontonummer: "10002427740", kid: null },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
+
   type: utbetalingType.INNSENDING,
   linjer: [
     {

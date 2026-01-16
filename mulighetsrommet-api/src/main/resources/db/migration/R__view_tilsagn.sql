@@ -4,6 +4,7 @@ drop view if exists view_tilsagn;
 
 create view view_tilsagn as
 select tilsagn.id,
+       tilsagn.valuta,
        tilsagn.belop_brukt,
        tilsagn.belop_beregnet,
        tilsagn.periode,
