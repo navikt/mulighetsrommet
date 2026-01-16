@@ -104,31 +104,6 @@ class AvtaleValidatorTest : FunSpec({
         systembestemtPrismodell = UUID.randomUUID(),
     )
 
-    val previous = Ctx.Avtale(
-        status = AvtaleStatusType.AKTIV,
-        opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
-        opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
-        opsjonerRegistrert = emptyList(),
-        avtaletype = Avtaletype.AVTALE,
-        tiltakskode = Tiltakskode.OPPFOLGING,
-        gjennomforinger = listOf(
-            Ctx.Gjennomforing(
-                arrangor = Gjennomforing.ArrangorUnderenhet(
-                    id = ArrangorFixtures.underenhet1.id,
-                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                    navn = ArrangorFixtures.underenhet1.navn,
-                    kontaktpersoner = emptyList(),
-                    slettet = false,
-                ),
-                startDato = LocalDate.now(),
-                utdanningslop = null,
-                status = GjennomforingStatusType.GJENNOMFORES,
-                prismodellId = prismodell.id,
-            ),
-        ),
-        prismodeller = listOf(prismodell),
-    )
-
     test("skal akkumulere feil når forespørselen har flere problemer") {
         val request = avtaleRequest.copy(
             detaljer = avtaleRequest.detaljer.copy(
@@ -733,6 +708,40 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     context("når avtalen allerede eksisterer") {
+        val previous = Ctx.Avtale(
+            status = AvtaleStatusType.AKTIV,
+            opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
+            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
+            opsjonerRegistrert = emptyList(),
+            avtaletype = Avtaletype.AVTALE,
+            tiltakskode = Tiltakskode.OPPFOLGING,
+            gjennomforinger = listOf(
+                Ctx.Gjennomforing(
+                    arrangor = Gjennomforing.ArrangorUnderenhet(
+                        id = ArrangorFixtures.underenhet1.id,
+                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                        navn = ArrangorFixtures.underenhet1.navn,
+                        kontaktpersoner = emptyList(),
+                        slettet = false,
+                    ),
+                    startDato = LocalDate.now(),
+                    utdanningslop = null,
+                    status = GjennomforingStatusType.GJENNOMFORES,
+                    prismodellId = prismodell.id,
+                ),
+            ),
+            prismodeller = listOf(prismodell),
+        )
+
+        test("Skal ikke kunne endre tiltakstype") {
+            AvtaleValidator.validateUpdateDetaljer(
+                gruppeAmo.detaljer,
+                ctx.copy(previous = previous),
+            ) shouldBeLeft listOf(
+                FieldError("/tiltakskode", "Tiltakstype kan ikke endres etter at avtalen er opprettet"),
+            )
+        }
+
         test("Skal ikke kunne endre opsjonsmodell eller avtaletype når opsjon er registrert") {
             val startDato = LocalDate.of(2024, 5, 7)
             val avtale = gruppeAmo.copy(
@@ -746,6 +755,7 @@ class AvtaleValidatorTest : FunSpec({
                 avtale.detaljer,
                 ctx.copy(
                     previous = previous.copy(
+                        tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                         avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
                         opsjonerRegistrert = listOf(
                             Avtale.OpsjonLoggDto(
@@ -766,9 +776,9 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         context("når avtalen har gjennomføringer") {
-            val startDatoForGjennomforing = LocalDate.now()
-
             test("skal validere at data samsvarer med avtalens gjennomføringer") {
+                val startDatoForGjennomforing = LocalDate.now()
+
                 val request = oppfolgingMedRammeAvtale.copy(
                     detaljer = oppfolgingMedRammeAvtale.detaljer.copy(
                         tiltakskode = Tiltakskode.ARBEIDSRETTET_REHABILITERING,
@@ -807,7 +817,7 @@ class AvtaleValidatorTest : FunSpec({
                 ).shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
                     FieldError(
                         "/tiltakskode",
-                        "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                        "Tiltakstype kan ikke endres etter at avtalen er opprettet",
                     ),
                     FieldError(
                         "/arrangorUnderenheter",
@@ -833,28 +843,6 @@ class AvtaleValidatorTest : FunSpec({
                 )
 
                 AvtaleValidator.validateUpdateDetaljer(request.detaljer, ctx.copy(previous = previous)).shouldBeRight()
-            }
-
-            test("kan ikke endre tiltakstype hvis prismodell er inkompatibel") {
-                val request = avtaleRequest.copy(
-                    detaljer = avtaleRequest.detaljer.copy(
-                        avtaletype = Avtaletype.FORHANDSGODKJENT,
-                        opsjonsmodell = Opsjonsmodell(
-                            type = OpsjonsmodellType.VALGFRI_SLUTTDATO,
-                            opsjonMaksVarighet = null,
-                        ),
-                        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                    ),
-                )
-
-                AvtaleValidator.validateUpdateDetaljer(
-                    request.detaljer,
-                    ctx.copy(previous = previous),
-                ).shouldBeLeft() shouldContain
-                    FieldError(
-                        "/tiltakskode",
-                        "Tiltakstype kan ikke endres fordi prismodellen “Annen avtalt pris” er i bruk",
-                    )
             }
 
             test("kan ikke fjerne alle prismodeller på avtalen") {
@@ -903,23 +891,34 @@ class AvtaleValidatorTest : FunSpec({
                     )
             }
         }
-    }
 
-    test("Slettede administratorer valideres") {
-        AvtaleValidator.validateUpdateDetaljer(
-            avtaleRequest.detaljer.copy(tiltakskode = previous.tiltakskode),
-            ctx.copy(
-                previous = previous,
-                administratorer = listOf(
-                    NavAnsattFixture.DonaldDuck.copy(skalSlettesDato = LocalDate.now()).toNavAnsatt(emptySet()),
+        test("Slettede administratorer valideres") {
+            AvtaleValidator.validateUpdateDetaljer(
+                avtaleRequest.detaljer.copy(tiltakskode = previous.tiltakskode),
+                ctx.copy(
+                    previous = previous,
+                    administratorer = listOf(
+                        NavAnsattFixture.DonaldDuck.copy(skalSlettesDato = LocalDate.now()).toNavAnsatt(emptySet()),
+                    ),
                 ),
-            ),
-        ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            FieldError("/administratorer", "Nav identer DD1 er slettet og må fjernes"),
-        )
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/administratorer", "Nav identer DD1 er slettet og må fjernes"),
+            )
+        }
     }
 
-    context("status endringer") {
+    context("endring av status") {
+        val previous = Ctx.Avtale(
+            status = AvtaleStatusType.AKTIV,
+            opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
+            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
+            opsjonerRegistrert = emptyList(),
+            avtaletype = Avtaletype.AVTALE,
+            tiltakskode = Tiltakskode.OPPFOLGING,
+            gjennomforinger = listOf(),
+            prismodeller = listOf(prismodell),
+        )
+
         test("status blir UTKAST når avtalen lagres uten en arrangør") {
             AvtaleValidator.validateCreateAvtale(
                 avtaleRequest.copy(detaljer = avtaleRequest.detaljer.copy(arrangor = null)),
