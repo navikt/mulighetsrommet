@@ -6,48 +6,39 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.DayOfWeek
-import java.time.temporal.TemporalAdjusters
-
-data class UtbetalingGenereringContext(
-    val prismodellType: PrismodellType,
-    val tilskuddstype: Tilskuddstype,
-    val periode: Periode,
-)
+import java.time.temporal.TemporalAdjusters.nextOrSame
+import java.time.temporal.TemporalAdjusters.previousOrSame
 
 interface SystemgenerertPrismodell<B : UtbetalingBeregning> {
-    val prismodellType: PrismodellType
+    val type: PrismodellType
+    val tilskuddstype: Tilskuddstype
 
-    fun genereringContext(periode: Periode): UtbetalingGenereringContext
+    fun justerPeriodeForBeregning(periode: Periode): Periode = periode
 
-    fun calculate(gjennomforing: GjennomforingGruppetiltak, deltakere: List<Deltaker>, periode: Periode): B
+    fun beregn(gjennomforing: GjennomforingGruppetiltak, deltakere: List<Deltaker>, periode: Periode): B
 }
 
 object FastSatsPerTiltaksplassPerManedBeregning :
     SystemgenerertPrismodell<UtbetalingBeregningFastSatsPerTiltaksplassPerManed> {
-    override val prismodellType = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+    override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+    override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
-    override fun genereringContext(periode: Periode) = UtbetalingGenereringContext(
-        prismodellType = prismodellType,
-        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-        periode = periode,
-    )
-
-    override fun calculate(
+    override fun beregn(
         gjennomforing: GjennomforingGruppetiltak,
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
-        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
+        val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(deltakere, periode)
-        val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengtHosArrangor, deltakelser)
+        val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengt, deltakelser)
 
-        val manedsverk = input.deltakelser
+        val manedsverk = deltakelser
             .map { deltakelse ->
                 UtbetalingBeregningHelpers.calculateDeltakelseManedsverkForDeltakelsesprosent(
                     deltakelse,
-                    input.satser,
-                    stengtHosArrangor.map { it.periode },
+                    satser,
+                    stengt.map { it.periode },
                 )
             }
             .toSet()
@@ -59,30 +50,25 @@ object FastSatsPerTiltaksplassPerManedBeregning :
 }
 
 object PrisPerManedBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPerManedsverk> {
-    override val prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK
+    override val type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK
+    override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
-    override fun genereringContext(periode: Periode) = UtbetalingGenereringContext(
-        prismodellType = prismodellType,
-        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-        periode = periode,
-    )
-
-    override fun calculate(
+    override fun beregn(
         gjennomforing: GjennomforingGruppetiltak,
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningPrisPerManedsverk {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
-        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
+        val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
-        val input = UtbetalingBeregningPrisPerManedsverk.Input(satser, stengtHosArrangor, deltakelser)
+        val input = UtbetalingBeregningPrisPerManedsverk.Input(satser, stengt, deltakelser)
 
-        val manedsverk = input.deltakelser
+        val manedsverk = deltakelser
             .map { deltakelse ->
                 UtbetalingBeregningHelpers.calculateDeltakelseManedsverk(
                     deltakelse,
-                    input.satser,
-                    stengtHosArrangor.map { it.periode },
+                    satser,
+                    stengt.map { it.periode },
                 )
             }
             .toSet()
@@ -94,30 +80,39 @@ object PrisPerManedBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisP
 }
 
 object PrisPerHeleUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPerHeleUkesverk> {
-    override val prismodellType = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK
+    override val type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK
+    override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
-    override fun genereringContext(periode: Periode) = UtbetalingGenereringContext(
-        prismodellType = prismodellType,
-        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-        periode = heleUkerPeriode(periode),
-    )
+    override fun justerPeriodeForBeregning(periode: Periode): Periode {
+        val newStart = if (periode.start.dayOfWeek <= DayOfWeek.WEDNESDAY) {
+            periode.start.with(previousOrSame(DayOfWeek.MONDAY))
+        } else {
+            periode.start.with(nextOrSame(DayOfWeek.MONDAY))
+        }
+        val newSlutt = if (periode.slutt.dayOfWeek >= DayOfWeek.THURSDAY) {
+            periode.slutt.with(nextOrSame(DayOfWeek.MONDAY))
+        } else {
+            periode.slutt.with(previousOrSame(DayOfWeek.MONDAY))
+        }
+        return Periode(newStart, newSlutt)
+    }
 
-    override fun calculate(
+    override fun beregn(
         gjennomforing: GjennomforingGruppetiltak,
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningPrisPerHeleUkesverk {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
-        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
+        val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
-        val input = UtbetalingBeregningPrisPerHeleUkesverk.Input(satser, stengtHosArrangor, deltakelser)
+        val input = UtbetalingBeregningPrisPerHeleUkesverk.Input(satser, stengt, deltakelser)
 
-        val ukesverk = input.deltakelser
+        val ukesverk = deltakelser
             .map { deltakelse ->
                 UtbetalingBeregningHelpers.calculateDeltakelseHeleUkesverk(
                     deltakelse,
-                    input.satser,
-                    stengtHosArrangor.map { it.periode },
+                    satser,
+                    stengt.map { it.periode },
                 )
             }
             .toSet()
@@ -129,30 +124,25 @@ object PrisPerHeleUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPri
 }
 
 object PrisPerUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPerUkesverk> {
-    override val prismodellType = PrismodellType.AVTALT_PRIS_PER_UKESVERK
+    override val type = PrismodellType.AVTALT_PRIS_PER_UKESVERK
+    override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
-    override fun genereringContext(periode: Periode) = UtbetalingGenereringContext(
-        prismodellType = prismodellType,
-        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-        periode = periode,
-    )
-
-    override fun calculate(
+    override fun beregn(
         gjennomforing: GjennomforingGruppetiltak,
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningPrisPerUkesverk {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
-        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
+        val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
-        val input = UtbetalingBeregningPrisPerUkesverk.Input(satser, stengtHosArrangor, deltakelser)
+        val input = UtbetalingBeregningPrisPerUkesverk.Input(satser, stengt, deltakelser)
 
-        val ukesverk = input.deltakelser
+        val ukesverk = deltakelser
             .map { deltakelse ->
                 UtbetalingBeregningHelpers.calculateDeltakelseUkesverk(
                     deltakelse,
-                    input.satser,
-                    stengtHosArrangor.map { it.periode },
+                    satser,
+                    stengt.map { it.periode },
                 )
             }
             .toSet()
@@ -210,18 +200,4 @@ private fun resolveDeltakelsePerioder(
     periode: Periode,
 ): Set<DeltakelsePeriode> {
     return UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
-}
-
-internal fun heleUkerPeriode(periode: Periode): Periode {
-    val newStart = if (periode.start.dayOfWeek <= DayOfWeek.WEDNESDAY) {
-        periode.start.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    } else {
-        periode.start.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY))
-    }
-    val newSlutt = if (periode.slutt.dayOfWeek >= DayOfWeek.THURSDAY) {
-        periode.slutt.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY))
-    } else {
-        periode.slutt.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    }
-    return Periode(newStart, newSlutt)
 }

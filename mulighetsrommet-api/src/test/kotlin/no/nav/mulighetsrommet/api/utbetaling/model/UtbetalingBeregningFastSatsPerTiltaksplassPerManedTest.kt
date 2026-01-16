@@ -44,7 +44,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 ),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.input shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                 satser = setOf(SatsPeriode(periode, sats)),
@@ -141,7 +141,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 ),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             val stengtPeriode = Periode(periodeStart.plusWeeks(1), periodeMidt.plusWeeks(1))
             result.input shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
@@ -230,7 +230,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 ),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 50,
@@ -271,7 +271,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 ),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 9663,
@@ -301,7 +301,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     ),
                 )
 
-                val utbetaling = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+                val utbetaling = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
                 val tilsagn = TilsagnBeregningPrisPerManedsverk.beregn(
                     TilsagnBeregningPrisPerManedsverk.Input(
@@ -328,7 +328,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0))),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 40,
@@ -367,7 +367,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 ),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
@@ -407,7 +407,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 ),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
@@ -438,7 +438,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 80.0))),
             )
 
-            val result = FastSatsPerTiltaksplassPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(

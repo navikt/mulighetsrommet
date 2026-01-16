@@ -44,7 +44,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHel
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.model.heleUkerPeriode
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -102,7 +101,6 @@ class GenererUtbetalingServiceTest : FunSpec({
 
     val januar = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
     val februar = Periode.forMonthOf(LocalDate.of(2025, 2, 1))
-    val mars = Periode.forMonthOf(LocalDate.of(2025, 3, 1))
     val september = Periode.forMonthOf(LocalDate.of(2025, 9, 1))
 
     context("konfigurasjon for generering av utbetalinger") {
@@ -127,9 +125,9 @@ class GenererUtbetalingServiceTest : FunSpec({
                 gyldigTilsagnPeriode = mapOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to februar),
             )
 
-            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+            service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
 
-            service.genererUtbetalingForPeriode(februar).shouldHaveSize(1)
+            service.genererUtbetalingerForPeriode(februar).shouldHaveSize(1)
         }
 
         test("lagrer tidligste tidspunkt for utbetaling basert på konfigurert kalkulering") {
@@ -140,11 +138,11 @@ class GenererUtbetalingServiceTest : FunSpec({
                 tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
             )
 
-            service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).should { (utbetaling) ->
+            service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).should { (utbetaling) ->
                 utbetaling.utbetalesTidligstTidspunkt shouldBe Instant.parse("2025-02-01T00:00:00.00Z")
             }
 
-            service.genererUtbetalingForPeriode(februar).shouldHaveSize(1).should { (utbetaling) ->
+            service.genererUtbetalingerForPeriode(februar).shouldHaveSize(1).should { (utbetaling) ->
                 utbetaling.utbetalesTidligstTidspunkt.shouldBeNull()
             }
         }
@@ -164,7 +162,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         }
 
         test("genererer ikke utbetaling når deltakelser mangler") {
-            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+            service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
         }
 
         test("genererer ikke utbetaling når gjennomføring starter etter utbetalingsperioden") {
@@ -187,7 +185,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+            service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
         }
 
         test("genererer ikke utbetaling når alle deltakelser ble avsluttet før utbetalingsperioden") {
@@ -210,7 +208,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+            service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
         }
 
         test("genererer utbetaling med riktig periode, sats og deltakere som input") {
@@ -226,7 +224,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar)
+            val utbetaling = service.genererUtbetalingerForPeriode(januar)
                 .shouldHaveSize(1)
                 .first()
 
@@ -262,7 +260,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar).first()
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).first()
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.betalingsinformasjon.kid shouldBe null
@@ -274,7 +272,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }
 
-            val sisteKrav = service.genererUtbetalingForPeriode(februar).first()
+            val sisteKrav = service.genererUtbetalingerForPeriode(februar).first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
             sisteKrav.betalingsinformasjon.kid shouldBe Kid.parseOrThrow("006402710013")
         }
@@ -349,7 +347,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar).first()
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).first()
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input>()
                 .should {
@@ -443,7 +441,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar).first()
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).first()
 
             utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input>()
                 .should {
@@ -467,7 +465,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar).first()
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).first()
 
             utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                 .should {
@@ -510,7 +508,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar).first()
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).first()
 
             utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                 .should {
@@ -555,7 +553,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar).first()
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).first()
 
             utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                 .should {
@@ -594,14 +592,14 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            service.genererUtbetalingForPeriode(januar).shouldHaveSize(1)
+            service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(1) }
 
-            service.genererUtbetalingForPeriode(februar).shouldHaveSize(1)
+            service.genererUtbetalingerForPeriode(februar).shouldHaveSize(1)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
 
             // Februar finnes allerede så ingen nye
-            service.genererUtbetalingForPeriode(februar).shouldHaveSize(0)
+            service.genererUtbetalingerForPeriode(februar).shouldHaveSize(0)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
         }
 
@@ -621,7 +619,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            service.genererUtbetalingForPeriode(januar).shouldHaveSize(1)
+            service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
         }
 
@@ -645,7 +643,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar).first()
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).first()
 
             utbetaling.beregning.input
                 .shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input>()
@@ -688,7 +686,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+            service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
         }
 
         test("genererer ikke utbetaling når gjennomføringen ble avsluttet før utbetalingsperioden, selv om deltaker har sluttdato i utbetalingsperioden") {
@@ -713,7 +711,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+            service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
         }
 
         test("genererer ikke utbetaling når gjennomføringer ble avsluttet før den startet") {
@@ -743,7 +741,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+            service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
         }
 
         test("deltaker som har sluttet, men med åpen sluttdato, blir ikke med i utbetalingen") {
@@ -767,7 +765,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar).first()
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).first()
 
             utbetaling.beregning.input
                 .shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input>()
@@ -842,7 +840,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 deltakere = listOf(deltaker),
             ).initialize(database.db)
 
-            val utbetaling = service.oppdaterUtbetalingBeregningForGjennomforing(gjennomforing.id)
+            val utbetaling = service.oppdaterUtbetalingerForGjennomforing(gjennomforing.id)
                 .shouldHaveSize(1)
                 .first()
 
@@ -878,7 +876,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 queries.utbetaling.setGodkjentAvArrangor(utbetaling1.id, LocalDateTime.now())
             }.initialize(database.db)
 
-            service.oppdaterUtbetalingBeregningForGjennomforing(gjennomforing.id).shouldBeEmpty()
+            service.oppdaterUtbetalingerForGjennomforing(gjennomforing.id).shouldBeEmpty()
 
             database.run {
                 queries.utbetaling.getOrError(utbetaling1.id).beregning.output
@@ -945,7 +943,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar)
+            val utbetaling = service.genererUtbetalingerForPeriode(januar)
                 .shouldHaveSize(1)
                 .first()
 
@@ -989,7 +987,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar)
+            val utbetaling = service.genererUtbetalingerForPeriode(januar)
                 .shouldHaveSize(1)
                 .first()
 
@@ -1020,7 +1018,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val generertUtbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+            val generertUtbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
             generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
 
             database.run {
@@ -1029,7 +1027,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }
 
-            val oppdatertUtbetaling = service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id)
+            val oppdatertUtbetaling = service.oppdaterUtbetalingerForGjennomforing(oppfolging.id)
                 .shouldHaveSize(1).first()
             oppdatertUtbetaling.id shouldBe generertUtbetaling.id
             oppdatertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerUkesverk>()
@@ -1063,7 +1061,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id).shouldHaveSize(0)
+            service.oppdaterUtbetalingerForGjennomforing(oppfolging.id).shouldHaveSize(0)
 
             database.run {
                 val utbetaling = queries.utbetaling.getOrError(domain.utbetalinger[0].id)
@@ -1083,7 +1081,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val generertUtbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+            val generertUtbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
             generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
 
             database.run {
@@ -1092,7 +1090,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 )
             }
 
-            service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id).shouldBeEmpty()
+            service.oppdaterUtbetalingerForGjennomforing(oppfolging.id).shouldBeEmpty()
 
             // Sjekk at utbetalingen er fjernet fra databasen etter at avtalen er endret tilbake til ANNEN_AVTALT_PRIS
             database.run {
@@ -1129,16 +1127,6 @@ class GenererUtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
         }
 
-        test("heleukerPeriode endring") {
-            heleUkerPeriode(januar) shouldBe Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 2, 3))
-
-            heleUkerPeriode(februar) shouldBe Periode(LocalDate.of(2025, 2, 3), LocalDate.of(2025, 3, 3))
-
-            heleUkerPeriode(mars) shouldBe Periode(LocalDate.of(2025, 3, 3), LocalDate.of(2025, 3, 31))
-
-            heleUkerPeriode(september) shouldBe Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2025, 9, 29))
-        }
-
         test("tar med deltakelse fra 2024 siden uken skal med i januar") {
             val perioderMedHeleUker = Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 2, 3))
             val domain = MulighetsrommetTestDomain(
@@ -1154,7 +1142,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 queries.gjennomforing.upsertGruppetiltak(gjennomforing.copy(sluttDato = LocalDate.of(2024, 12, 31)))
             }.initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar)
+            val utbetaling = service.genererUtbetalingerForPeriode(januar)
                 .shouldHaveSize(1)
                 .first()
 
@@ -1199,7 +1187,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            service.genererUtbetalingForPeriode(september).shouldHaveSize(0)
+            service.genererUtbetalingerForPeriode(september).shouldHaveSize(0)
         }
 
         test("genererer utbetalinger for sammenhengende perioder splittet opp per hele uker") {
@@ -1214,19 +1202,19 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            service.genererUtbetalingForPeriode(Periode.forMonthOf(LocalDate.of(2025, 9, 1)))
+            service.genererUtbetalingerForPeriode(Periode.forMonthOf(LocalDate.of(2025, 9, 1)))
                 .shouldHaveSize(1).should { (utbetaling) ->
                     utbetaling.periode shouldBe Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2025, 9, 29))
                 }
-            service.genererUtbetalingForPeriode(Periode.forMonthOf(LocalDate.of(2025, 10, 1)))
+            service.genererUtbetalingerForPeriode(Periode.forMonthOf(LocalDate.of(2025, 10, 1)))
                 .shouldHaveSize(1).should { (utbetaling) ->
                     utbetaling.periode shouldBe Periode(LocalDate.of(2025, 9, 29), LocalDate.of(2025, 11, 3))
                 }
-            service.genererUtbetalingForPeriode(Periode.forMonthOf(LocalDate.of(2025, 11, 1)))
+            service.genererUtbetalingerForPeriode(Periode.forMonthOf(LocalDate.of(2025, 11, 1)))
                 .shouldHaveSize(1).should { (utbetaling) ->
                     utbetaling.periode shouldBe Periode(LocalDate.of(2025, 11, 3), LocalDate.of(2025, 12, 1))
                 }
-            service.genererUtbetalingForPeriode(Periode.forMonthOf(LocalDate.of(2025, 12, 1)))
+            service.genererUtbetalingerForPeriode(Periode.forMonthOf(LocalDate.of(2025, 12, 1)))
                 .shouldHaveSize(1).should { (utbetaling) ->
                     utbetaling.periode shouldBe Periode(LocalDate.of(2025, 12, 1), LocalDate.of(2026, 1, 5))
                 }
@@ -1270,7 +1258,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 queries.gjennomforing.upsertGruppetiltak(gjennomforing.copy(startDato = LocalDate.of(2025, 1, 15)))
             }.initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
 
             utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>().should {
                 it.input.satser shouldBe setOf(
@@ -1301,7 +1289,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val utbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
 
             utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>().should {
                 it.input.satser shouldBe setOf(
@@ -1348,7 +1336,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            var utbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+            var utbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
 
             utbetaling = database.run {
                 queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.AVBRUTT)
@@ -1372,7 +1360,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            var utbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+            var utbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
 
             utbetaling = database.run {
                 queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.AVBRUTT)

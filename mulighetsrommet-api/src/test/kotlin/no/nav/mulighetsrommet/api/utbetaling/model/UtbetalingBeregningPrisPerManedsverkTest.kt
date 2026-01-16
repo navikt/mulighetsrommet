@@ -29,7 +29,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 createDeltaker(Periode(periodeMidt, periodeSlutt)),
             )
 
-            val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
                 satser = setOf(SatsPeriode(periode, 100)),
@@ -86,7 +86,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             )
             val deltakere = listOf(createDeltaker(periode))
 
-            val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
                 satser = setOf(SatsPeriode(periode, 100)),
@@ -123,7 +123,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             )
             val deltakere = listOf(createDeltaker(periode))
 
-            val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
@@ -160,7 +160,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             )
             val deltakere = listOf(createDeltaker(periode))
 
-            val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
@@ -197,7 +197,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             val deltakelsePeriode = Periode(periode.start, periode.start.withDayOfMonth(dayOfMonth))
             val deltakere = listOf(createDeltaker(deltakelsePeriode))
 
-            val utbetaling = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val utbetaling = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             val tilsagn = TilsagnBeregningPrisPerManedsverk.beregn(
                 TilsagnBeregningPrisPerManedsverk.Input(
@@ -226,7 +226,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 createDeltaker(periode),
             )
 
-            val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 40,
@@ -260,7 +260,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 createDeltaker(helgOgHeleUke),
             )
 
-            val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
@@ -292,7 +292,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 createDeltaker(periode),
             )
 
-            val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 40,
@@ -326,7 +326,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 createDeltaker(helgOgHeleUke),
             )
 
-            val result = PrisPerManedBeregning.calculate(gjennomforing, deltakere, periode)
+            val result = PrisPerManedBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(

@@ -49,7 +49,6 @@ class GenererUtbetalingService(
 
     private data class UtbetalingContext(
         val gjennomforingId: UUID,
-        val prismodell: PrismodellType,
         val periode: Periode,
     )
 
@@ -59,11 +58,11 @@ class GenererUtbetalingService(
         .recordStats()
         .build()
 
-    suspend fun genererUtbetalingForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
+    suspend fun genererUtbetalingerForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
         getContextForGenereringAvUtbetalinger(periode)
             .mapNotNull { context ->
                 val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(context.gjennomforingId)
-                generateUtbetalingForPrismodell(
+                genererUtbetaling(
                     utbetalingId = UUID.randomUUID(),
                     gjennomforing = gjennomforing,
                     periode = context.periode,
@@ -81,7 +80,7 @@ class GenererUtbetalingService(
         getContextForBeregningAvUtbetalinger(periode)
             .mapNotNull { context ->
                 val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(context.gjennomforingId)
-                val utbetaling = generateUtbetalingForPrismodell(
+                val utbetaling = genererUtbetaling(
                     utbetalingId = UUID.randomUUID(),
                     gjennomforing = gjennomforing,
                     periode = context.periode,
@@ -90,7 +89,7 @@ class GenererUtbetalingService(
             }
     }
 
-    suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
+    suspend fun oppdaterUtbetalingerForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(id)
 
         if (gjennomforing.prismodell == null) {
@@ -115,7 +114,7 @@ class GenererUtbetalingService(
                 }
             }
             .mapNotNull { utbetaling ->
-                val oppdatertUtbetaling = generateUtbetalingForPrismodell(
+                val oppdatertUtbetaling = genererUtbetaling(
                     utbetalingId = utbetaling.id,
                     gjennomforing = gjennomforing,
                     periode = utbetaling.periode,
@@ -151,7 +150,7 @@ class GenererUtbetalingService(
             throw IllegalArgumentException("Allerede regenerert med id=${alleredeRegenerert.id}")
         }
 
-        val nyUtbetaling = generateUtbetalingForPrismodell(
+        val nyUtbetaling = genererUtbetaling(
             utbetalingId = UUID.randomUUID(),
             gjennomforing = gjennomforing,
             periode = utbetaling.periode,
@@ -167,7 +166,7 @@ class GenererUtbetalingService(
         dto
     }
 
-    private suspend fun QueryContext.generateUtbetalingForPrismodell(
+    private suspend fun QueryContext.genererUtbetaling(
         utbetalingId: UUID,
         gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
@@ -180,14 +179,14 @@ class GenererUtbetalingService(
         val type = gjennomforing.prismodell?.type
             ?: throw IllegalStateException("Gjennomføring med id=${gjennomforing.id} mangler prismodell")
 
-        val prismodell = prismodeller.singleOrNull { it.prismodellType == type } ?: run {
+        val prismodell = prismodeller.singleOrNull { it.type == type } ?: run {
             log.info("Genererer ikke utbetaling for gjennomføring=${gjennomforing.id} fordi prismodellen ikke er støttet type=$type")
             return null
         }
 
         val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
 
-        return prismodell.calculate(gjennomforing, deltakere, periode).takeIf { it.output.belop > 0 }?.let {
+        return prismodell.beregn(gjennomforing, deltakere, periode).takeIf { it.output.belop > 0 }?.let {
             createUtbetaling(
                 utbetalingId = utbetalingId,
                 gjennomforing = gjennomforing,
@@ -253,19 +252,17 @@ class GenererUtbetalingService(
         periode: Periode,
         includeNotExists: Boolean,
     ): List<UtbetalingContext> {
-        return prismodeller
-            .map { it.genereringContext(periode) }
-            .flatMap { context ->
-                getContextForPrismodellCommon(
-                    context.prismodellType,
-                    context.tilskuddstype,
-                    context.periode,
-                    includeNotExists,
-                )
-            }
+        return prismodeller.flatMap { prismodell ->
+            getContextForPrismodell(
+                prismodell.type,
+                prismodell.tilskuddstype,
+                prismodell.justerPeriodeForBeregning(periode),
+                includeNotExists,
+            )
+        }
     }
 
-    private fun QueryContext.getContextForPrismodellCommon(
+    private fun QueryContext.getContextForPrismodell(
         prismodell: PrismodellType,
         tilskuddstype: Tilskuddstype,
         periode: Periode,
@@ -299,7 +296,7 @@ class GenererUtbetalingService(
         )
 
         return session.list(queryOf(query, params)) {
-            UtbetalingContext(it.uuid("id"), prismodell, periode)
+            UtbetalingContext(it.uuid("id"), periode)
         }
     }
 
