@@ -136,14 +136,6 @@ object AvtaleValidator {
                 )
             }
         }
-        previous.prismodeller.forEach { prismodell ->
-            validate(prismodell.type in Prismodeller.getPrismodellerForTiltak(request.tiltakskode)) {
-                FieldError.of(
-                    "Tiltakstype kan ikke endres fordi prismodellen “${prismodell.type.navn}” er i bruk",
-                    DetaljerRequest::tiltakskode,
-                )
-            }
-        }
 
         if (previous.gjennomforinger.isNotEmpty()) {
             val earliestGjennomforingStartDato = previous.gjennomforinger.minBy { it.startDato }.startDato

@@ -776,9 +776,9 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         context("når avtalen har gjennomføringer") {
-            val startDatoForGjennomforing = LocalDate.now()
-
             test("skal validere at data samsvarer med avtalens gjennomføringer") {
+                val startDatoForGjennomforing = LocalDate.now()
+
                 val request = oppfolgingMedRammeAvtale.copy(
                     detaljer = oppfolgingMedRammeAvtale.detaljer.copy(
                         tiltakskode = Tiltakskode.ARBEIDSRETTET_REHABILITERING,
@@ -843,28 +843,6 @@ class AvtaleValidatorTest : FunSpec({
                 )
 
                 AvtaleValidator.validateUpdateDetaljer(request.detaljer, ctx.copy(previous = previous)).shouldBeRight()
-            }
-
-            test("kan ikke endre tiltakstype hvis prismodell er inkompatibel") {
-                val request = avtaleRequest.copy(
-                    detaljer = avtaleRequest.detaljer.copy(
-                        avtaletype = Avtaletype.FORHANDSGODKJENT,
-                        opsjonsmodell = Opsjonsmodell(
-                            type = OpsjonsmodellType.VALGFRI_SLUTTDATO,
-                            opsjonMaksVarighet = null,
-                        ),
-                        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                    ),
-                )
-
-                AvtaleValidator.validateUpdateDetaljer(
-                    request.detaljer,
-                    ctx.copy(previous = previous),
-                ).shouldBeLeft() shouldContain
-                    FieldError(
-                        "/tiltakskode",
-                        "Tiltakstype kan ikke endres fordi prismodellen “Annen avtalt pris” er i bruk",
-                    )
             }
 
             test("kan ikke fjerne alle prismodeller på avtalen") {
