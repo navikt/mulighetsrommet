@@ -733,6 +733,15 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     context("når avtalen allerede eksisterer") {
+        test("Skal ikke kunne endre tiltakstype") {
+            AvtaleValidator.validateUpdateDetaljer(
+                gruppeAmo.detaljer,
+                ctx.copy(previous = previous),
+            ) shouldBeLeft listOf(
+                FieldError("/tiltakskode", "Tiltakstype kan ikke endres etter at avtalen er opprettet"),
+            )
+        }
+
         test("Skal ikke kunne endre opsjonsmodell eller avtaletype når opsjon er registrert") {
             val startDato = LocalDate.of(2024, 5, 7)
             val avtale = gruppeAmo.copy(
@@ -746,6 +755,7 @@ class AvtaleValidatorTest : FunSpec({
                 avtale.detaljer,
                 ctx.copy(
                     previous = previous.copy(
+                        tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                         avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
                         opsjonerRegistrert = listOf(
                             Avtale.OpsjonLoggDto(
@@ -807,7 +817,7 @@ class AvtaleValidatorTest : FunSpec({
                 ).shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
                     FieldError(
                         "/tiltakskode",
-                        "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                        "Tiltakstype kan ikke endres etter at avtalen er opprettet",
                     ),
                     FieldError(
                         "/arrangorUnderenheter",
