@@ -46,7 +46,7 @@ data class Bestilling(
             return Bestilling(
                 tiltakskode = bestilling.tiltakskode,
                 arrangorHovedenhet = arrangorHovedenhet,
-                arrangorUnderenhet = bestilling.arrangor,
+                arrangorUnderenhet = bestilling.arrangor.organisasjonsnummer,
                 kostnadssted = bestilling.kostnadssted,
                 bestillingsnummer = bestilling.bestillingsnummer,
                 avtalenummer = bestilling.avtalenummer,

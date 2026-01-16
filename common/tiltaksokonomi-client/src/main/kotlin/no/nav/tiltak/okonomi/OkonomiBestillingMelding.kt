@@ -48,7 +48,7 @@ data class OpprettBestilling(
     val bestillingsnummer: String,
     val tilskuddstype: Tilskuddstype,
     val tiltakskode: Tiltakskode,
-    val arrangor: Organisasjonsnummer,
+    val arrangor: Arrangor,
     val kostnadssted: NavEnhetNummer,
     val avtalenummer: String?,
     val belop: Int,
@@ -59,7 +59,27 @@ data class OpprettBestilling(
     val besluttetAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
     val besluttetTidspunkt: LocalDateTime,
-)
+) {
+    @Serializable
+    sealed class Arrangor {
+        abstract val organisasjonsnummer: Organisasjonsnummer
+
+        @Serializable
+        data class Utenlandsk(
+            override val organisasjonsnummer: Organisasjonsnummer,
+            val navn: String,
+            val gateNavn: String,
+            val by: String,
+            val postNummer: String,
+            val landKode: String,
+        ) : Arrangor()
+
+        @Serializable
+        data class Norsk(
+            override val organisasjonsnummer: Organisasjonsnummer,
+        ) : Arrangor()
+    }
+}
 
 enum class Tilskuddstype {
     TILTAK_DRIFTSTILSKUDD,
@@ -105,10 +125,22 @@ data class OpprettFaktura(
     val beskrivelse: String?,
 ) {
     @Serializable
-    data class Betalingsinformasjon(
-        val kontonummer: Kontonummer,
-        val kid: Kid?,
-    )
+    sealed class Betalingsinformasjon {
+        @Serializable
+        data class BBan(
+            val kontonummer: Kontonummer,
+            val kid: Kid?,
+        ) : Betalingsinformasjon()
+
+        @Serializable
+        data class IBan(
+            val bic: String,
+            val iban: String,
+            val bankNavn: String,
+            val bankLandKode: String,
+            val valutaKode: String,
+        ) : Betalingsinformasjon()
+    }
 }
 
 @Serializable

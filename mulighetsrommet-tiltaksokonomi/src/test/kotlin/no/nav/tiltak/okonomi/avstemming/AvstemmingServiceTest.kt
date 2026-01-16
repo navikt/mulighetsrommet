@@ -41,7 +41,7 @@ class AvstemmingServiceTest : FunSpec({
             bestillingsnummer = "1",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            arrangor = Organisasjonsnummer("234567891"),
+            arrangor = OpprettBestilling.Arrangor.Norsk(Organisasjonsnummer("234567891")),
             avtalenummer = null,
             belop = 1000,
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -58,7 +58,7 @@ class AvstemmingServiceTest : FunSpec({
         OpprettFaktura(
             fakturanummer = "1-1",
             bestillingsnummer = "1",
-            betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
+            betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
                 kontonummer = Kontonummer("12345678901"),
                 kid = null,
             ),

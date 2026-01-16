@@ -8,14 +8,15 @@ import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.helpers.divideBelopByMonthsInPeriode
+import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
 import no.nav.tiltak.okonomi.service.gjorOppFakturanummer
 import java.time.LocalDateTime
+import kotlin.String
 
 data class Faktura(
     val bestillingsnummer: String,
     val fakturanummer: String,
-    val kontonummer: Kontonummer?,
-    val kid: Kid?,
+    val betalingsinformasjon: Betalingsinformasjon?,
     val belop: Int,
     val periode: Periode,
     val status: FakturaStatusType,
@@ -27,6 +28,45 @@ data class Faktura(
     val linjer: List<Linje>,
     val beskrivelse: String?,
 ) {
+    data class Betalingsinformasjon(
+        val betalingsKanal: OebsBetalingskanal,
+        val valutaKode: String,
+        val kontonummer: Kontonummer?,
+        val kid: Kid?,
+        val bankNavn: String?,
+        val bankLandKode: String?,
+        val bic: String?,
+        val iban: String?,
+    ) {
+        companion object {
+            fun from(betalingsinformasjon: OpprettFaktura.Betalingsinformasjon): Betalingsinformasjon {
+                return when (betalingsinformasjon) {
+                    is OpprettFaktura.Betalingsinformasjon.BBan -> Betalingsinformasjon(
+                        betalingsKanal = OebsBetalingskanal.BBAN,
+                        kontonummer = betalingsinformasjon.kontonummer,
+                        kid = betalingsinformasjon.kid,
+                        bankNavn = null,
+                        bankLandKode = null,
+                        bic = null,
+                        valutaKode = "NOK",
+                        iban = null,
+                    )
+
+                    is OpprettFaktura.Betalingsinformasjon.IBan -> Betalingsinformasjon(
+                        betalingsKanal = OebsBetalingskanal.IBAN,
+                        kontonummer = null,
+                        kid = null,
+                        bankNavn = betalingsinformasjon.bankNavn,
+                        bankLandKode = betalingsinformasjon.bankLandKode,
+                        bic = betalingsinformasjon.bic,
+                        valutaKode = betalingsinformasjon.valutaKode,
+                        iban = betalingsinformasjon.iban,
+                    )
+                }
+            }
+        }
+    }
+
     fun erGjorOppFaktura(): Boolean {
         return fakturanummer == gjorOppFakturanummer(bestillingsnummer)
     }
@@ -47,8 +87,7 @@ data class Faktura(
             return Faktura(
                 bestillingsnummer = faktura.bestillingsnummer,
                 fakturanummer = faktura.fakturanummer,
-                kontonummer = faktura.betalingsinformasjon.kontonummer,
-                kid = faktura.betalingsinformasjon.kid,
+                betalingsinformasjon = Betalingsinformasjon.from(faktura.betalingsinformasjon),
                 belop = faktura.belop,
                 periode = faktura.periode,
                 status = FakturaStatusType.SENDT,
@@ -77,8 +116,7 @@ data class Faktura(
             return Faktura(
                 bestillingsnummer = bestilling.bestillingsnummer,
                 fakturanummer = gjorOppFakturanummer(bestilling.bestillingsnummer),
-                kontonummer = null,
-                kid = null,
+                betalingsinformasjon = null,
                 belop = 0,
                 periode = sisteBestillingLinje.periode,
                 status = FakturaStatusType.SENDT,

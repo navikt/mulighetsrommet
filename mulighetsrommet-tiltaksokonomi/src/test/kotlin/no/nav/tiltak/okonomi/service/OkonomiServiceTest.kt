@@ -190,24 +190,6 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
-        test("feiler for ukjent utenlandsk leverandør") {
-            val service = createOkonomiService(oebsClient(oebsRespondOk()))
-
-            val opprettBestilling = createOpprettBestilling("3", organisasjonsnummer = Organisasjonsnummer("100000000"))
-
-            service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
-                it.message shouldBe "Utenlandske organisasjonsnummer er ikke støttet enda: 100000000"
-            }
-        }
-
-        test("midlertidig: kjenner til hardkodet leverandør") {
-            val service = createOkonomiService(oebsClient(oebsRespondOk()))
-
-            val opprettBestilling = createOpprettBestilling("56", organisasjonsnummer = Organisasjonsnummer("100000056"))
-
-            service.opprettBestilling(opprettBestilling).shouldBeRight()
-        }
-
         test("oppretter bestilling med hovedenhet hentet fra brreg") {
             coEvery { brreg.getBrregEnhet(Organisasjonsnummer("123456789")) } returns arrangorHovedenhet.right()
             coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns arrangorUnderenhet.right()
@@ -788,7 +770,7 @@ private fun createOpprettBestilling(bestillingsnummer: String, organisasjonsnumm
     bestillingsnummer = bestillingsnummer,
     tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-    arrangor = organisasjonsnummer ?: Organisasjonsnummer("234567891"),
+    arrangor = OpprettBestilling.Arrangor.Norsk(organisasjonsnummer ?: Organisasjonsnummer("234567891")),
     avtalenummer = null,
     belop = 1000,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -841,7 +823,7 @@ private fun createAnnullerBestilling(bestillingsnummer: String) = AnnullerBestil
 private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: String) = OpprettFaktura(
     fakturanummer = fakturanummer,
     bestillingsnummer = bestillingsnummer,
-    betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
+    betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
         kontonummer = Kontonummer("12345678901"),
         kid = null,
     ),

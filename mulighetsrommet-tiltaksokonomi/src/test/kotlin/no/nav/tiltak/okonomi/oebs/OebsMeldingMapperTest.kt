@@ -125,7 +125,7 @@ class OebsMeldingMapperTest : FunSpec({
 
             val meldingUtenKid = OebsMeldingMapper.toOebsFakturaMelding(
                 bestilling = bestilling,
-                faktura = faktura.copy(kid = null),
+                faktura = faktura.copy(betalingsinformasjon = faktura.betalingsinformasjon?.copy(kid = null)),
                 erSisteFaktura = false,
             )
 

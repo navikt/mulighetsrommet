@@ -13,6 +13,7 @@ import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -58,8 +59,16 @@ object Fixtures {
     val faktura = Faktura(
         fakturanummer = "4567",
         bestillingsnummer = "A-1",
-        kontonummer = Kontonummer("12345678901"),
-        kid = Kid.parseOrThrow("0004614992"),
+        betalingsinformasjon = Faktura.Betalingsinformasjon(
+            kontonummer = Kontonummer("12345678901"),
+            kid = Kid.parseOrThrow("0004614992"),
+            betalingsKanal = OebsBetalingskanal.BBAN,
+            valutaKode = "NOK",
+            bankNavn = null,
+            bankLandKode = null,
+            bic = null,
+            iban = null,
+        ),
         belop = 500,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         status = FakturaStatusType.SENDT,

@@ -13,6 +13,7 @@ import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.avstemming.FakturaCsvData
 import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 
@@ -26,6 +27,12 @@ class FakturaQueries(private val session: Session) {
                 bestillingsnummer,
                 kontonummer,
                 kid,
+                bic,
+                iban,
+                bank_land_kode,
+                bank_navn,
+                valuta_kode,
+                betalingskanal,
                 belop,
                 periode,
                 status,
@@ -40,6 +47,12 @@ class FakturaQueries(private val session: Session) {
                 :bestillingsnummer,
                 :kontonummer,
                 :kid,
+                :bic,
+                :iban,
+                :bank_land_kode,
+                :bank_navn,
+                :valuta_kode,
+                :betalingskanal,
                 :belop,
                 :periode::daterange,
                 :status,
@@ -55,8 +68,6 @@ class FakturaQueries(private val session: Session) {
         val params = mapOf(
             "fakturanummer" to faktura.fakturanummer,
             "bestillingsnummer" to faktura.bestillingsnummer,
-            "kontonummer" to faktura.kontonummer?.value,
-            "kid" to faktura.kid?.value,
             "belop" to faktura.belop,
             "periode" to faktura.periode.toDaterange(),
             "status" to faktura.status.name,
@@ -66,7 +77,17 @@ class FakturaQueries(private val session: Session) {
             "besluttet_av" to faktura.besluttetAv.part,
             "besluttet_tidspunkt" to faktura.besluttetTidspunkt,
             "beskrivelse" to faktura.beskrivelse,
+            "kontonummer" to faktura.betalingsinformasjon?.kontonummer?.value,
+            "kid" to faktura.betalingsinformasjon?.kid?.value,
+            "valutaKode" to "NOK",
+            "bic" to faktura.betalingsinformasjon?.bic,
+            "iban" to faktura.betalingsinformasjon?.iban,
+            "land_kode" to faktura.betalingsinformasjon?.bankLandKode,
+            "bank_navn" to faktura.betalingsinformasjon?.bankNavn,
+            "valuta_kode" to faktura.betalingsinformasjon?.valutaKode,
+            "betalingskanal" to faktura.betalingsinformasjon?.betalingsKanal?.name,
         )
+
         val fakturaId = single(queryOf(query, params)) { it.int("id") }
 
         @Language("PostgreSQL")
@@ -176,6 +197,12 @@ class FakturaQueries(private val session: Session) {
                 fakturanummer,
                 kontonummer,
                 kid,
+                bic,
+                iban,
+                bank_land_kode,
+                bank_navn,
+                valuta_kode,
+                betalingskanal,
                 belop,
                 periode,
                 status,
@@ -197,12 +224,23 @@ class FakturaQueries(private val session: Session) {
                     belop = linje.int("belop"),
                 )
             }
+            val betalingskanal = faktura.stringOrNull("betalingskanal")?.let { OebsBetalingskanal.valueOf(it) }
 
             Faktura(
                 bestillingsnummer = faktura.string("bestillingsnummer"),
                 fakturanummer = faktura.string("fakturanummer"),
-                kontonummer = faktura.stringOrNull("kontonummer")?.let { Kontonummer(it) },
-                kid = faktura.stringOrNull("kid")?.let { kid -> Kid.parseOrThrow(kid) },
+                betalingsinformasjon = betalingskanal?.let {
+                    Faktura.Betalingsinformasjon(
+                        kontonummer = faktura.stringOrNull("kontonummer")?.let { Kontonummer(it) },
+                        kid = faktura.stringOrNull("kid")?.let { kid -> Kid.parseOrThrow(kid) },
+                        iban = faktura.stringOrNull("iban"),
+                        bic = faktura.stringOrNull("bic"),
+                        bankLandKode = faktura.stringOrNull("bank_land_kode"),
+                        bankNavn = faktura.stringOrNull("bank_navn"),
+                        valutaKode = faktura.string("valuta_kode"),
+                        betalingsKanal = betalingskanal,
+                    )
+                },
                 belop = faktura.int("belop"),
                 periode = faktura.periode("periode"),
                 status = FakturaStatusType.valueOf(faktura.string("status")),
