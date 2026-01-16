@@ -472,9 +472,11 @@ class AvtaleService(
     ): Either<List<FieldError>, ArrangorDto> = arrangorService
         .getArrangorOrSyncFromBrreg(orgnr)
         .mapLeft {
-            FieldError.ofPointer(
-                "/arrangorHovedenhet",
+            FieldError.of(
                 "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
+                OpprettAvtaleRequest::detaljer,
+                DetaljerRequest::arrangor,
+                DetaljerRequest.Arrangor::hovedenhet,
             ).nel()
         }
 

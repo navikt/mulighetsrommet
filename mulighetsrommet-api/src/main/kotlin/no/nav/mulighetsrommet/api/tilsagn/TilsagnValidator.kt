@@ -279,32 +279,32 @@ object TilsagnValidator {
         }
         request.linjer.forEachIndexed { index, linje ->
             validate(linje.pris != null && linje.pris.belop > 0) {
-                FieldError.ofPointer(
+                FieldError(
                     pointer = "/beregning/linjer/$index/pris/belop",
                     detail = "Beløp må være positivt",
                 )
             }
             validate(!linje.beskrivelse.isNullOrBlank()) {
-                FieldError.ofPointer(
+                FieldError(
                     pointer = "/beregning/linjer/$index/beskrivelse",
                     detail = "Beskrivelse mangler",
                 )
             }
             validate(linje.beskrivelse.isNullOrBlank() || linje.beskrivelse.length <= TILSAGN_BESKRIVELSE_MAX_LENDE) {
-                FieldError.ofPointer(
+                FieldError(
                     pointer = "/beregning/linjer/$index/beskrivelse",
                     detail = "Beskrivelsen kan ikke inneholde mer enn $TILSAGN_BESKRIVELSE_MAX_LENDE tegn",
                 )
             }
             validate(linje.antall != null && linje.antall > 0) {
-                FieldError.ofPointer(
+                FieldError(
                     pointer = "/beregning/linjer/$index/antall",
                     detail = "Antall må være positivt",
                 )
             }
 
             validate(linje.pris?.valuta == prismodellValuta) {
-                FieldError.ofPointer(
+                FieldError(
                     pointer = "/beregning/linjer/$index/pris/belop",
                     detail = "Må ha samme valuta som prismodellen: $prismodellValuta",
                 )

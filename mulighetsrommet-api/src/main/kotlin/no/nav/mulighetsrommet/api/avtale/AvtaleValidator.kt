@@ -482,7 +482,7 @@ object AvtaleValidator {
                 FieldError("/prismodeller/$prismodellIndex/satser/$index/pris", "Pris må være positiv")
             }
             requireValid(request.pris.valuta == prismodellValuta) {
-                FieldError.ofPointer(
+                FieldError(
                     "/prismodeller/$prismodellIndex/satser/$index/pris/valuta",
                     "Satsene må ha lik valuta som prismodellen",
                 )
