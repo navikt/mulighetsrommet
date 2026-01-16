@@ -458,48 +458,48 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetail
     val entries = when (tilsagn.beregning) {
         is TilsagnBeregningFri -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
-            LabeledDataElement.currency("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
-            LabeledDataElement.currency("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
         )
 
         is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            LabeledDataElement.currency("Sats per tiltaksplass per måned", tilsagn.beregning.input.sats, tilsagn.beregning.output.valuta),
-            LabeledDataElement.currency("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
-            LabeledDataElement.currency("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Sats per tiltaksplass per måned", tilsagn.beregning.input.sats, tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
         )
 
         is TilsagnBeregningPrisPerManedsverk -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            LabeledDataElement.currency("Avtalt månedspris per tiltaksplass", tilsagn.beregning.input.sats, tilsagn.beregning.input.valuta),
-            LabeledDataElement.currency("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
-            LabeledDataElement.currency("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Avtalt månedspris per tiltaksplass", tilsagn.beregning.input.sats, tilsagn.beregning.input.valuta),
+            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
         )
 
         is TilsagnBeregningPrisPerUkesverk -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            LabeledDataElement.currency("Avtalt ukespris per tiltaksplass", tilsagn.beregning.input.sats, tilsagn.beregning.input.valuta),
-            LabeledDataElement.currency("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
-            LabeledDataElement.currency("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Avtalt ukespris per tiltaksplass", tilsagn.beregning.input.sats, tilsagn.beregning.input.valuta),
+            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
         )
 
         is TilsagnBeregningPrisPerHeleUkesverk -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            LabeledDataElement.currency("Avtalt ukespris per tiltaksplass", tilsagn.beregning.input.sats, tilsagn.beregning.input.valuta),
-            LabeledDataElement.currency("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
-            LabeledDataElement.currency("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Avtalt ukespris per tiltaksplass", tilsagn.beregning.input.sats, tilsagn.beregning.input.valuta),
+            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
         )
 
         is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            LabeledDataElement.currency("Pris per time oppfølging", tilsagn.beregning.input.sats, tilsagn.beregning.input.valuta),
-            LabeledDataElement.currency("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
-            LabeledDataElement.currency("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Pris per time oppfølging", tilsagn.beregning.input.sats, tilsagn.beregning.input.valuta),
+            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.belop, tilsagn.beregning.output.valuta),
+            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop(), tilsagn.beregning.output.valuta),
         )
     }
     return DataDetails(entries = entries)

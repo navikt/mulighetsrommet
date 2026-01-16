@@ -5,7 +5,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.DataElement.Text.Format
-import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -67,7 +66,7 @@ data class LabeledDataElement(
             value = DataElement.nok(value),
         )
 
-        fun currency(
+        fun money(
             label: String,
             value: Number?,
             valuta: Valuta,
@@ -75,7 +74,7 @@ data class LabeledDataElement(
         ) = LabeledDataElement(
             type = type,
             label = label,
-            value = DataElement.currency(value, valuta),
+            value = DataElement.money(value, valuta),
         )
 
         fun date(label: String, value: LocalDate?, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
@@ -126,8 +125,8 @@ sealed class DataElement {
     }
 
     @Serializable
-    @SerialName("DATA_ELEMENT_CURRENCY")
-    data class CurrencyValue(
+    @SerialName("DATA_ELEMENT_MONEY_AMOUNT")
+    data class MoneyAmount(
         val value: String?,
         val currency: String,
     ) : DataElement()
@@ -238,7 +237,7 @@ sealed class DataElement {
 
         fun nok(value: Number?) = Text(value?.toString(), Format.NOK)
 
-        fun currency(value: Number?, valuta: Valuta) = CurrencyValue(value?.toString(), valuta.name)
+        fun money(value: Number?, valuta: Valuta) = MoneyAmount(value?.toString(), valuta.name)
 
         fun date(value: LocalDate?) = Text(value?.toString(), Format.DATE)
 

@@ -1,6 +1,6 @@
 import { formaterDato } from "../../utils/date";
 import { Lenke } from "../lenke/Lenke";
-import { DataElementCurrencyValue } from "./DataElementCurrencyValue";
+import { DataElementMoneyAmount } from "./DataElementMoneyAmount";
 import { DataElementMathOperator } from "./DataElementMathOperator";
 import { DataElementMultiLinkModal } from "./DataElementMultiLinkModal";
 import { DataElementStatusTag } from "./DataElementStatusTag";
@@ -25,8 +25,8 @@ export function getDataElement(element: DataElement) {
       return <DataElementMathOperator operator={element.operator} />;
     case "DATA_ELEMENT_MULTI_LINK_MODAL":
       return <DataElementMultiLinkModal data={element} />;
-    case "DATA_ELEMENT_CURRENCY":
-      return <DataElementCurrencyValue data={element} />;
+    case "DATA_ELEMENT_MONEY_AMOUNT":
+      return <DataElementMoneyAmount data={element} />;
     case undefined:
       throw new Error(`Unrecognized data element: ${element}`);
   }

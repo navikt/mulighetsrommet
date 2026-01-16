@@ -36,7 +36,7 @@ export function getComparableValue(element: DataElement) {
       return element.operator;
     case "DATA_ELEMENT_MULTI_LINK_MODAL":
       return element.modalContent.links[0].digest;
-    case "DATA_ELEMENT_CURRENCY":
+    case "DATA_ELEMENT_MONEY_AMOUNT":
       return element.value;
 
     case undefined:

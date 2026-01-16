@@ -54,8 +54,8 @@ export type DataElement =
       type?: "DATA_ELEMENT_TEXT";
     } & DataElementText)
   | ({
-      type?: "DATA_ELEMENT_CURRENCY";
-    } & DataElementCurrencyValue);
+      type?: "DATA_ELEMENT_MONEY_AMOUNT";
+    } & DataElementMoneyAmount);
 
 export type DataElementLink = {
   text: string;
@@ -123,7 +123,7 @@ export enum DataElementTextFormat {
   NUMBER = "number",
 }
 
-export type DataElementCurrencyValue = {
+export type DataElementMoneyAmount = {
   value: null | string;
   currency: string;
 };
