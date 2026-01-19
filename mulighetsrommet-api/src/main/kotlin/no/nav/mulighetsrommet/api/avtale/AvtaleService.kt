@@ -78,10 +78,10 @@ class AvtaleService(
         val avtaleDbo = AvtaleValidator.validateCreateAvtale(request, createAvtaleContext).bind()
 
         val createPrismodellerContext = ValidatePrismodellerContext(
-            avtaletype = request.detaljer.avtaletype,
+            avtaletype = avtaleDbo.detaljerDbo.avtaletype,
             tiltakskode = request.detaljer.tiltakskode,
             tiltakstypeNavn = createAvtaleContext.tiltakstype.navn,
-            avtaleStartDato = request.detaljer.startDato,
+            avtaleStartDato = avtaleDbo.detaljerDbo.startDato,
             gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
             bruktePrismodeller = setOf(),
         )

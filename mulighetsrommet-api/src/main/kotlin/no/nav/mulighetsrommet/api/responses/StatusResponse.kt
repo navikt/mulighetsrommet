@@ -40,12 +40,24 @@ data class FieldError(
         }
 
         fun of(detail: String, vararg property: KProperty1<*, *>): FieldError {
-            return FieldError(pointer = property.joinToString(prefix = "/", separator = "/") { it.name }, detail = detail)
+            return FieldError(
+                pointer = property.joinToString(prefix = "/", separator = "/") { it.name },
+                detail = detail,
+            )
         }
 
         fun root(detail: String): FieldError {
             return FieldError(pointer = "/", detail = detail)
         }
+    }
+
+    fun withParent(vararg property: KProperty1<*, *>): FieldError {
+        val parentPointer = if (property.isNotEmpty()) {
+            property.joinToString(prefix = "/", separator = "/") { it.name } + pointer
+        } else {
+            pointer
+        }
+        return FieldError(parentPointer, detail)
     }
 }
 

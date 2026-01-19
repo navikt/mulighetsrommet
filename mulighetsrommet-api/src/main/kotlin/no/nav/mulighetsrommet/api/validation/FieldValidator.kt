@@ -7,7 +7,9 @@ import arrow.core.raise.either
 import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
 import no.nav.mulighetsrommet.api.responses.FieldError
+import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
+import kotlin.reflect.KProperty1
 
 @DslMarker
 annotation class FieldValidatorDsl
@@ -17,6 +19,21 @@ class FieldValidator(
     private val raise: Raise<List<FieldError>>,
 ) {
     val errors = mutableListOf<FieldError>()
+
+    fun <V> path(
+        vararg path: KProperty1<*, *>,
+        block: FieldValidator.() -> V,
+    ): V {
+        val result = validation { block() }
+        return when (result) {
+            is Either.Left -> {
+                result.value.forEach { error { it.withParent(*path) } }
+                raise.raise(errors)
+            }
+
+            is Either.Right -> result.value
+        }
+    }
 
     fun error(error: () -> FieldError) {
         errors.add(error())
@@ -30,7 +47,7 @@ class FieldValidator(
         if (value == null) errors += error()
     }
 
-    @kotlin.contracts.ExperimentalContracts
+    @ExperimentalContracts
     fun requireValid(condition: Boolean, error: (() -> FieldError)? = null) {
         contract { returns() implies (condition) }
         if (!condition) {
@@ -49,8 +66,8 @@ class FieldValidator(
     }
 }
 
-fun <V> validation(block: FieldValidator.() -> V): Either<List<FieldError>, V> = either {
+fun <V> validation(vararg path: KProperty1<*, *>, block: FieldValidator.() -> V): Either<List<FieldError>, V> = either {
     val dsl = FieldValidator(this)
-    val result = dsl.block()
+    val result = if (path.isNotEmpty()) dsl.path(*path) { block() } else dsl.block()
     return dsl.errors.toNonEmptyListOrNull()?.left() ?: result.right()
 }
