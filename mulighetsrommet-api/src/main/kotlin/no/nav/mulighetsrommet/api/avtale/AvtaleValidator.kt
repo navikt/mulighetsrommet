@@ -412,6 +412,9 @@ object AvtaleValidator {
     private fun FieldValidator.validateArrangor(
         arrangor: ArrangorDto,
     ) {
+        if (arrangor.erUtenlandsk) {
+            return
+        }
         validate(arrangor.slettetDato == null) {
             FieldError.ofPointer(
                 "/arrangor/hovedenhet",
