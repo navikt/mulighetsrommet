@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -45,6 +44,7 @@ import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -102,31 +102,6 @@ class AvtaleValidatorTest : FunSpec({
         ),
         navEnheter = listOf(NavEnhetFixtures.Innlandet.toDto(), NavEnhetFixtures.Gjovik.toDto()),
         systembestemtPrismodell = UUID.randomUUID(),
-    )
-
-    val previous = Ctx.Avtale(
-        status = AvtaleStatusType.AKTIV,
-        opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
-        opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
-        opsjonerRegistrert = emptyList(),
-        avtaletype = Avtaletype.AVTALE,
-        tiltakskode = Tiltakskode.OPPFOLGING,
-        gjennomforinger = listOf(
-            Ctx.Gjennomforing(
-                arrangor = Gjennomforing.ArrangorUnderenhet(
-                    id = ArrangorFixtures.underenhet1.id,
-                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                    navn = ArrangorFixtures.underenhet1.navn,
-                    kontaktpersoner = emptyList(),
-                    slettet = false,
-                ),
-                startDato = LocalDate.now(),
-                utdanningslop = null,
-                status = GjennomforingStatusType.GJENNOMFORES,
-                prismodellId = prismodell.id,
-            ),
-        ),
-        prismodeller = listOf(prismodell),
     )
 
     test("skal akkumulere feil når forespørselen har flere problemer") {
@@ -567,7 +542,7 @@ class AvtaleValidatorTest : FunSpec({
                     id = UUID.randomUUID(),
                     type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                     prisbetingelser = null,
-                    satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 1, ValutaType.NOK)),
+                    satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 1, Valuta.NOK)),
                 ),
             )
 
@@ -603,7 +578,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2024, 12, 1),
                                 pris = 1,
-                                ValutaType.NOK,
+                                Valuta.NOK,
                             ),
                         ),
                     ),
@@ -632,7 +607,7 @@ class AvtaleValidatorTest : FunSpec({
             )
 
             AvtaleValidator.validatePrismodeller(
-                listOf(request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1, ValutaType.NOK)))),
+                listOf(request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1, Valuta.NOK)))),
                 getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodeller/0/satser/0/gjelderFra", "Gjelder fra må være satt"),
@@ -645,7 +620,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
                                 pris = null,
-                                valuta = ValutaType.NOK,
+                                valuta = Valuta.NOK,
                             ),
                         ),
                     ),
@@ -662,7 +637,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
                                 pris = 0,
-                                valuta = ValutaType.NOK,
+                                valuta = Valuta.NOK,
                             ),
                         ),
                     ),
@@ -679,13 +654,13 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
                                 pris = 1,
-                                valuta = ValutaType.NOK,
+                                valuta = Valuta.NOK,
                             ),
                         ),
                     ),
                 ),
                 getContext(),
-            ).shouldBeRight()[0].satser shouldBe listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1, ValutaType.NOK))
+            ).shouldBeRight()[0].satser shouldBe listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1, Valuta.NOK))
         }
 
         test("tillater ikke flere satser som starter på samme dato") {
@@ -696,9 +671,9 @@ class AvtaleValidatorTest : FunSpec({
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, ValutaType.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, ValutaType.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, ValutaType.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Valuta.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Valuta.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, Valuta.NOK),
                         ),
                     ),
                 ),
@@ -717,22 +692,56 @@ class AvtaleValidatorTest : FunSpec({
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3, ValutaType.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, ValutaType.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, ValutaType.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3, Valuta.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Valuta.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, Valuta.NOK),
                         ),
                     ),
                 ),
                 getContext(),
             ).shouldBeRight()[0].satser shouldBe listOf(
-                AvtaltSats(LocalDate.of(2025, 1, 1), 1, ValutaType.NOK),
-                AvtaltSats(LocalDate.of(2025, 2, 1), 2, ValutaType.NOK),
-                AvtaltSats(LocalDate.of(2025, 3, 1), 3, ValutaType.NOK),
+                AvtaltSats(LocalDate.of(2025, 1, 1), 1, Valuta.NOK),
+                AvtaltSats(LocalDate.of(2025, 2, 1), 2, Valuta.NOK),
+                AvtaltSats(LocalDate.of(2025, 3, 1), 3, Valuta.NOK),
             )
         }
     }
 
     context("når avtalen allerede eksisterer") {
+        val previous = Ctx.Avtale(
+            status = AvtaleStatusType.AKTIV,
+            opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
+            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
+            opsjonerRegistrert = emptyList(),
+            avtaletype = Avtaletype.AVTALE,
+            tiltakskode = Tiltakskode.OPPFOLGING,
+            gjennomforinger = listOf(
+                Ctx.Gjennomforing(
+                    arrangor = Gjennomforing.ArrangorUnderenhet(
+                        id = ArrangorFixtures.underenhet1.id,
+                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                        navn = ArrangorFixtures.underenhet1.navn,
+                        kontaktpersoner = emptyList(),
+                        slettet = false,
+                    ),
+                    startDato = LocalDate.now(),
+                    utdanningslop = null,
+                    status = GjennomforingStatusType.GJENNOMFORES,
+                    prismodellId = prismodell.id,
+                ),
+            ),
+            prismodeller = listOf(prismodell),
+        )
+
+        test("Skal ikke kunne endre tiltakstype") {
+            AvtaleValidator.validateUpdateDetaljer(
+                gruppeAmo.detaljer,
+                ctx.copy(previous = previous),
+            ) shouldBeLeft listOf(
+                FieldError("/tiltakskode", "Tiltakstype kan ikke endres etter at avtalen er opprettet"),
+            )
+        }
+
         test("Skal ikke kunne endre opsjonsmodell eller avtaletype når opsjon er registrert") {
             val startDato = LocalDate.of(2024, 5, 7)
             val avtale = gruppeAmo.copy(
@@ -746,6 +755,7 @@ class AvtaleValidatorTest : FunSpec({
                 avtale.detaljer,
                 ctx.copy(
                     previous = previous.copy(
+                        tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                         avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
                         opsjonerRegistrert = listOf(
                             Avtale.OpsjonLoggDto(
@@ -766,9 +776,9 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         context("når avtalen har gjennomføringer") {
-            val startDatoForGjennomforing = LocalDate.now()
-
             test("skal validere at data samsvarer med avtalens gjennomføringer") {
+                val startDatoForGjennomforing = LocalDate.now()
+
                 val request = oppfolgingMedRammeAvtale.copy(
                     detaljer = oppfolgingMedRammeAvtale.detaljer.copy(
                         tiltakskode = Tiltakskode.ARBEIDSRETTET_REHABILITERING,
@@ -807,7 +817,7 @@ class AvtaleValidatorTest : FunSpec({
                 ).shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
                     FieldError(
                         "/tiltakskode",
-                        "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                        "Tiltakstype kan ikke endres etter at avtalen er opprettet",
                     ),
                     FieldError(
                         "/arrangorUnderenheter",
@@ -833,28 +843,6 @@ class AvtaleValidatorTest : FunSpec({
                 )
 
                 AvtaleValidator.validateUpdateDetaljer(request.detaljer, ctx.copy(previous = previous)).shouldBeRight()
-            }
-
-            test("kan ikke endre tiltakstype hvis prismodell er inkompatibel") {
-                val request = avtaleRequest.copy(
-                    detaljer = avtaleRequest.detaljer.copy(
-                        avtaletype = Avtaletype.FORHANDSGODKJENT,
-                        opsjonsmodell = Opsjonsmodell(
-                            type = OpsjonsmodellType.VALGFRI_SLUTTDATO,
-                            opsjonMaksVarighet = null,
-                        ),
-                        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                    ),
-                )
-
-                AvtaleValidator.validateUpdateDetaljer(
-                    request.detaljer,
-                    ctx.copy(previous = previous),
-                ).shouldBeLeft() shouldContain
-                    FieldError(
-                        "/tiltakskode",
-                        "Tiltakstype kan ikke endres fordi prismodellen “Annen avtalt pris” er i bruk",
-                    )
             }
 
             test("kan ikke fjerne alle prismodeller på avtalen") {
@@ -903,23 +891,34 @@ class AvtaleValidatorTest : FunSpec({
                     )
             }
         }
-    }
 
-    test("Slettede administratorer valideres") {
-        AvtaleValidator.validateUpdateDetaljer(
-            avtaleRequest.detaljer.copy(tiltakskode = previous.tiltakskode),
-            ctx.copy(
-                previous = previous,
-                administratorer = listOf(
-                    NavAnsattFixture.DonaldDuck.copy(skalSlettesDato = LocalDate.now()).toNavAnsatt(emptySet()),
+        test("Slettede administratorer valideres") {
+            AvtaleValidator.validateUpdateDetaljer(
+                avtaleRequest.detaljer.copy(tiltakskode = previous.tiltakskode),
+                ctx.copy(
+                    previous = previous,
+                    administratorer = listOf(
+                        NavAnsattFixture.DonaldDuck.copy(skalSlettesDato = LocalDate.now()).toNavAnsatt(emptySet()),
+                    ),
                 ),
-            ),
-        ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            FieldError("/administratorer", "Nav identer DD1 er slettet og må fjernes"),
-        )
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/administratorer", "Nav identer DD1 er slettet og må fjernes"),
+            )
+        }
     }
 
-    context("status endringer") {
+    context("endring av status") {
+        val previous = Ctx.Avtale(
+            status = AvtaleStatusType.AKTIV,
+            opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
+            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
+            opsjonerRegistrert = emptyList(),
+            avtaletype = Avtaletype.AVTALE,
+            tiltakskode = Tiltakskode.OPPFOLGING,
+            gjennomforinger = listOf(),
+            prismodeller = listOf(prismodell),
+        )
+
         test("status blir UTKAST når avtalen lagres uten en arrangør") {
             AvtaleValidator.validateCreateAvtale(
                 avtaleRequest.copy(detaljer = avtaleRequest.detaljer.copy(arrangor = null)),

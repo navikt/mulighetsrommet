@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
 
@@ -9,5 +10,5 @@ data class AvtaltSats(
     @Serializable(with = LocalDateSerializer::class)
     val gjelderFra: LocalDate,
     val sats: Int,
-    val valuta: ValutaType,
+    val valuta: Valuta,
 )

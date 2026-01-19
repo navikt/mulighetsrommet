@@ -376,4 +376,5 @@ private fun DataElement.toPdfDocumentValue(): String? = when (this) {
     is DataElement.Periode -> "${this.start} - ${this.slutt}"
     is DataElement.Status -> this.value
     is DataElement.Text -> this.value
+    is DataElement.MoneyAmount -> this.value // TODO: Bruk valuta i formattering
 }

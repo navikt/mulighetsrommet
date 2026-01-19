@@ -66,6 +66,17 @@ data class LabeledDataElement(
             value = DataElement.nok(value),
         )
 
+        fun money(
+            label: String,
+            value: Number?,
+            valuta: Valuta,
+            type: LabeledDataElementType = LabeledDataElementType.INLINE,
+        ) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.money(value, valuta),
+        )
+
         fun date(label: String, value: LocalDate?, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
             type = type,
             label = label,
@@ -112,6 +123,13 @@ sealed class DataElement {
             NUMBER,
         }
     }
+
+    @Serializable
+    @SerialName("DATA_ELEMENT_MONEY_AMOUNT")
+    data class MoneyAmount(
+        val value: String?,
+        val currency: String,
+    ) : DataElement()
 
     @SerialName("DATA_ELEMENT_STATUS")
     @Serializable
@@ -218,6 +236,8 @@ sealed class DataElement {
         fun text(value: String?) = Text(value, null)
 
         fun nok(value: Number?) = Text(value?.toString(), Format.NOK)
+
+        fun money(value: Number?, valuta: Valuta) = MoneyAmount(value?.toString(), valuta.name)
 
         fun date(value: LocalDate?) = Text(value?.toString(), Format.DATE)
 

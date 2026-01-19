@@ -122,10 +122,7 @@ class GjennomforingService(
         val kontaktpersoner = request.kontaktpersoner.mapNotNull { queries.ansatt.getByNavIdent(it.navIdent) }
         val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
         val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
-        val antallDeltakere = queries.deltaker
-            .getAll(pagination = Pagination.of(1, 1), gjennomforingId = request.id)
-            .size
-
+        val antallDeltakere = queries.deltaker.getByGjennomforingId(request.id).size
         val status = resolveStatus(previous?.status?.type, request, today)
         return GjennomforingValidator.Ctx(
             previous = previous?.let {

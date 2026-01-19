@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -87,17 +88,8 @@ class DeltakerQueries(private val session: Session) {
     fun get(id: UUID): Deltaker? {
         @Language("PostgreSQL")
         val query = """
-            select id,
-                   gjennomforing_id,
-                   start_dato,
-                   slutt_dato,
-                   registrert_dato,
-                   endret_tidspunkt,
-                   deltakelsesprosent,
-                   status_type,
-                   status_aarsak,
-                   status_opprettet_tidspunkt
-            from deltaker
+            select *
+            from view_deltaker
             where id = ?::uuid
         """.trimIndent()
 
@@ -121,31 +113,27 @@ class DeltakerQueries(private val session: Session) {
         }
     }
 
-    fun getAll(
-        pagination: Pagination = Pagination.all(),
-        gjennomforingId: UUID? = null,
-    ): List<Deltaker> {
+    fun getByGjennomforingId(gjennomforingId: UUID): List<Deltaker> {
         @Language("PostgreSQL")
         val query = """
-            select id,
-                   gjennomforing_id,
-                   start_dato,
-                   slutt_dato,
-                   registrert_dato,
-                   endret_tidspunkt,
-                   deltakelsesprosent,
-                   status_type,
-                   status_aarsak,
-                   status_opprettet_tidspunkt
-            from deltaker
-            where :gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid
+            select *
+            from view_deltaker
+            where gjennomforing_id = ?::uuid
+        """.trimIndent()
+
+        return session.list(queryOf(query, gjennomforingId)) { it.toDeltaker() }
+    }
+
+    fun getAll(pagination: Pagination = Pagination.all()): List<Deltaker> {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_deltaker
             limit :limit
             offset :offset
         """.trimIndent()
 
-        val params = mapOf("gjennomforing_id" to gjennomforingId)
-
-        return session.list(queryOf(query, params + pagination.parameters)) { it.toDeltaker() }
+        return session.list(queryOf(query, pagination.parameters)) { it.toDeltaker() }
     }
 
     fun delete(id: UUID) {
@@ -167,10 +155,10 @@ private fun Row.toDeltaker() = Deltaker(
     sluttDato = localDateOrNull("slutt_dato"),
     registrertDato = localDate("registrert_dato"),
     endretTidspunkt = localDateTime("endret_tidspunkt"),
-    deltakelsesprosent = doubleOrNull("deltakelsesprosent"),
     status = DeltakerStatus(
         type = DeltakerStatusType.valueOf(string("status_type")),
         aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatusAarsak.valueOf(it) },
         opprettetDato = localDateTime("status_opprettet_tidspunkt"),
     ),
+    deltakelsesmengder = stringOrNull("deltakelsesmengder_json")?.let { Json.decodeFromString(it) } ?: listOf(),
 )

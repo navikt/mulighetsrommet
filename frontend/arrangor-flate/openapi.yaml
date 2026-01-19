@@ -794,6 +794,7 @@ components:
       anyOf:
       - $ref: "#/components/schemas/DATA_ELEMENT_LINK"
       - $ref: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
+      - $ref: "#/components/schemas/DATA_ELEMENT_MONEY_AMOUNT"
       - $ref: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
       - $ref: "#/components/schemas/DATA_ELEMENT_PERIODE"
       - $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
@@ -803,6 +804,7 @@ components:
         mapping:
           DATA_ELEMENT_LINK: "#/components/schemas/DATA_ELEMENT_LINK"
           DATA_ELEMENT_MATH_OPERATOR: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
+          DATA_ELEMENT_MONEY_AMOUNT: "#/components/schemas/DATA_ELEMENT_MONEY_AMOUNT"
           DATA_ELEMENT_MULTI_LINK_MODAL: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
           DATA_ELEMENT_PERIODE: "#/components/schemas/DATA_ELEMENT_PERIODE"
           DATA_ELEMENT_STATUS: "#/components/schemas/DATA_ELEMENT_STATUS"
@@ -835,6 +837,18 @@ components:
       - multiply
       - divide
       - equals
+    DATA_ELEMENT_MONEY_AMOUNT:
+      type: object
+      properties:
+        value:
+          type:
+          - "null"
+          - string
+        currency:
+          type: string
+      required:
+      - currency
+      - value
     DATA_ELEMENT_MULTI_LINK_MODAL:
       type: object
       properties:

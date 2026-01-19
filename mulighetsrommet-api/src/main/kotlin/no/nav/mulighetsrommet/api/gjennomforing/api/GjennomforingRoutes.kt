@@ -515,7 +515,7 @@ fun Route.gjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = db.session {
-                queries.deltaker.getAll(gjennomforingId = id)
+                queries.deltaker.getByGjennomforingId(id)
             }
 
             val deltakereByStatus = deltakereForGjennomforing

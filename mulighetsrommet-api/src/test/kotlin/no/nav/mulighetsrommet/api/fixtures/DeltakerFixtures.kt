@@ -73,11 +73,11 @@ object DeltakerFixtures {
         gjennomforingId = gjennomforingId,
         registrertDato = LocalDate.now(),
         endretTidspunkt = LocalDateTime.now(),
-        deltakelsesprosent = null,
         status = DeltakerStatus(
             type = statusType,
             aarsak = null,
             opprettetDato = LocalDateTime.now(),
         ),
+        deltakelsesmengder = listOf(),
     )
 }
