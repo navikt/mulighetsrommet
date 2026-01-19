@@ -1,5 +1,5 @@
 import { Alert, BodyLong, BodyShort, ExpansionCard, Link, VStack } from "@navikt/ds-react";
-import { ArrangorflateService } from "api-client";
+import { ArrangorflateService, BBan } from "api-client";
 import {
   Link as ReactRouterLink,
   LoaderFunction,
@@ -56,7 +56,7 @@ export const loader: LoaderFunction = async ({
   return {
     mottattDato,
     utbetalesTidligstDato: utbetaling.utbetalesTidligstDato,
-    kontonummer: utbetaling.betalingsinformasjon.kontonummer,
+    kontonummer: (utbetaling.bankKonto as BBan).kontonummer,
   };
 };
 

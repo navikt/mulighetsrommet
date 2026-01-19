@@ -42,17 +42,13 @@ export const handlers = [
       return HttpResponse.json(utbetaling);
     },
   ),
-  http.get<PathParams, string>(
-    "*/api/arrangorflate/utbetaling/:id/sync-kontonummer",
-    ({ params }) => {
-      const { id } = params;
-      const kontoNr = arrFlateUtbetaling.find((k) => k.id === id)?.betalingsinformasjon.kontonummer;
-      const expires = new Date(new Date().getTime() + 5 * 60000).toISOString(); // 5 min, NS_BINDING_ABORTED fix
-      return HttpResponse.text(kontoNr, {
-        headers: { Expires: expires },
-      });
-    },
-  ),
+  http.get<PathParams, string>("*/api/arrangorflate/utbetaling/:id/sync-kontonummer", () => {
+    const kontoNr = "12345678901";
+    const expires = new Date(new Date().getTime() + 5 * 60000).toISOString(); // 5 min, NS_BINDING_ABORTED fix
+    return HttpResponse.text(kontoNr, {
+      headers: { Expires: expires },
+    });
+  }),
   http.post<PathParams, ArrangorflateUtbetalingDto[]>(
     "*/api/arrangorflate/utbetaling/:id/godkjenn",
     () => HttpResponse.json({}),
