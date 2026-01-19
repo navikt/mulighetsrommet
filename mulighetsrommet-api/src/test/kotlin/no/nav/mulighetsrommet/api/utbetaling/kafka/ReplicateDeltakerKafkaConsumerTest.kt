@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -271,10 +272,10 @@ private fun createAmtDeltakerV1Dto(
 fun DeltakerDbo.toDeltaker() = Deltaker(
     id = id,
     gjennomforingId = gjennomforingId,
-    startDato = null,
-    sluttDato = null,
+    startDato = startDato,
+    sluttDato = startDato,
     registrertDato = registrertDato,
     endretTidspunkt = endretTidspunkt,
-    deltakelsesprosent = deltakelsesprosent,
     status = status,
+    deltakelsesmengder = deltakelsesmengder.map { Deltakelsesmengde(it.gyldigFra, it.deltakelsesprosent) },
 )

@@ -56,7 +56,7 @@ class DeltakerQueriesTest : FunSpec({
             queries.deltaker.upsert(deltaker1)
             queries.deltaker.upsert(deltaker2)
 
-            queries.deltaker.getAll().shouldContainExactly(deltaker1.toDto(), deltaker2.toDto())
+            queries.deltaker.getAll().shouldContainExactly(deltaker1.toDeltaker(), deltaker2.toDeltaker())
 
             val avsluttetDeltaker2 = deltaker2.copy(
                 status = DeltakerStatus(
@@ -67,11 +67,11 @@ class DeltakerQueriesTest : FunSpec({
             )
             queries.deltaker.upsert(avsluttetDeltaker2)
 
-            queries.deltaker.getAll().shouldContainExactly(deltaker1.toDto(), avsluttetDeltaker2.toDto())
+            queries.deltaker.getAll().shouldContainExactly(deltaker1.toDeltaker(), avsluttetDeltaker2.toDeltaker())
 
             queries.deltaker.delete(deltaker1.id)
 
-            queries.deltaker.getAll().shouldContainExactly(avsluttetDeltaker2.toDto())
+            queries.deltaker.getAll().shouldContainExactly(avsluttetDeltaker2.toDeltaker())
         }
     }
 
@@ -128,23 +128,23 @@ class DeltakerQueriesTest : FunSpec({
             queries.deltaker.upsert(deltaker2)
 
             queries
-                .deltaker.getAll(gjennomforingId = domain.gjennomforinger[0].id)
-                .shouldContainExactly(deltaker1.toDto())
+                .deltaker.getByGjennomforingId(domain.gjennomforinger[0].id)
+                .shouldContainExactly(deltaker1.toDeltaker())
 
             queries
-                .deltaker.getAll(gjennomforingId = domain.gjennomforinger[1].id)
-                .shouldContainExactly(deltaker2.toDto())
+                .deltaker.getByGjennomforingId(domain.gjennomforinger[1].id)
+                .shouldContainExactly(deltaker2.toDeltaker())
         }
     }
 })
 
-fun DeltakerDbo.toDto() = Deltaker(
+fun DeltakerDbo.toDeltaker() = Deltaker(
     id = id,
     gjennomforingId = gjennomforingId,
     startDato = startDato,
     sluttDato = startDato,
     registrertDato = registrertDato,
     endretTidspunkt = endretTidspunkt,
-    deltakelsesprosent = deltakelsesprosent,
     status = status,
+    deltakelsesmengder = deltakelsesmengder.map { Deltakelsesmengde(it.gyldigFra, it.deltakelsesprosent) },
 )

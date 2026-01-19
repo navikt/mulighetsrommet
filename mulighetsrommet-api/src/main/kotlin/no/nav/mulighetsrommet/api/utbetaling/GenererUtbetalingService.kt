@@ -415,7 +415,7 @@ class GenererUtbetalingService(
         gjennomforingId: UUID,
         periode: Periode,
     ): Set<DeltakelseDeltakelsesprosentPerioder> {
-        return queries.deltaker.getAll(gjennomforingId = gjennomforingId)
+        return queries.deltaker.getByGjennomforingId(gjennomforingId)
             .asSequence()
             .mapNotNull { deltaker ->
                 UtbetalingInputHelper.toDeltakelsePeriode(deltaker, periode)
@@ -447,7 +447,7 @@ class GenererUtbetalingService(
         gjennomforingId: UUID,
         periode: Periode,
     ): Set<DeltakelsePeriode> {
-        val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforingId)
+        val deltakere = queries.deltaker.getByGjennomforingId(gjennomforingId)
         return UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
     }
 

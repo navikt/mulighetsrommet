@@ -139,7 +139,7 @@ class ArrangorflateService(
 
     fun harAdvarsler(utbetaling: Utbetaling): Boolean = db.session {
         val deltakere = queries.deltaker
-            .getAll(gjennomforingId = utbetaling.gjennomforing.id)
+            .getByGjennomforingId(utbetaling.gjennomforing.id)
             .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
 
         return (deltakereMedRelevanteForslag(utbetaling) + deltakereMedFeilSluttDato(deltakere, LocalDate.now())).isNotEmpty()
@@ -149,7 +149,7 @@ class ArrangorflateService(
         val deltakelseIds = utbetaling.beregning.deltakelsePerioder().map { it.deltakelseId }.toSet()
         val personalia = getPersonalia(deltakelseIds)
         val deltakere = queries.deltaker
-            .getAll(gjennomforingId = utbetaling.gjennomforing.id)
+            .getByGjennomforingId(utbetaling.gjennomforing.id)
             .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
 
         return getRelevanteForslag(utbetaling, personalia) + getFeilSluttDato(deltakere, personalia, LocalDate.now())
@@ -207,7 +207,7 @@ class ArrangorflateService(
         } else {
             val deltakelser = utbetaling.beregning.input.deltakelser().map { it.deltakelseId }
             queries.deltaker
-                .getAll(gjennomforingId = utbetaling.gjennomforing.id)
+                .getByGjennomforingId(utbetaling.gjennomforing.id)
                 .filter { it.id in deltakelser }
         }
 
