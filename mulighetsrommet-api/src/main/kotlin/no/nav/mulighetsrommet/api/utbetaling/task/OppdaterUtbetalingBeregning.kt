@@ -24,7 +24,7 @@ class OppdaterUtbetalingBeregning(
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
         .executeSuspend { instance, _ ->
-            utbetalinger.oppdaterUtbetalingBeregningForGjennomforing(instance.data.gjennomforingId)
+            utbetalinger.oppdaterUtbetalingerForGjennomforing(instance.data.gjennomforingId)
         }
 
     fun schedule(gjennomforingId: UUID, startTime: Instant, session: Session) {

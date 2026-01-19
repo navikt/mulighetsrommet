@@ -40,6 +40,6 @@ class GenerateUtbetaling(
             return listOf()
         }
 
-        return utbetalinger.genererUtbetalingForPeriode(periode)
+        return utbetalinger.genererUtbetalingerForPeriode(periode)
     }
 }

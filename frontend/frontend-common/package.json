@@ -24,8 +24,8 @@
     "date-fns-tz": "^3.2.0",
     "react": "19.0.3",
     "react-dom": "19.0.3",
-    "react-error-boundary": "6.0.2",
-    "react-hook-form": "7.70.0",
+    "react-error-boundary": "6.0.3",
+    "react-hook-form": "7.71.0",
     "react-router": "7.12.0",
     "react-select": "5.10.2",
     "zod": "4.3.5"
@@ -37,7 +37,7 @@
     "@vitejs/plugin-react": "5.1.2",
     "eslint": "9.39.2",
     "postcss": "8.5.6",
-    "vite-tsconfig-paths": "6.0.3",
+    "vite-tsconfig-paths": "6.0.4",
     "vitest": "4.0.16"
   },
   "repository": {

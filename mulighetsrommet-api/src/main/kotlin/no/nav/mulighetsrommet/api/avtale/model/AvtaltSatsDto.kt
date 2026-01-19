@@ -25,12 +25,3 @@ data class AvtaltSatsDto(
         }
     }
 }
-
-fun List<AvtaltSats>.toDto(): List<AvtaltSatsDto> {
-    val mappedList = mutableListOf<AvtaltSatsDto>()
-    this.windowed(size = 2, partialWindows = true).map { sats ->
-        val nextSats = sats.getOrNull(1)
-        mappedList.add(AvtaltSatsDto.fromAvtaltSats(sats[0], nextSats))
-    }
-    return mappedList
-}

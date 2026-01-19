@@ -6,7 +6,7 @@ enum class PrismodellType(val navn: String, val beskrivelse: List<String>) {
     ANNEN_AVTALT_PRIS(
         "Annen avtalt pris",
         listOf(
-            "Prismodellen skal brukes når ingen av de andre valgene passer. Eksempelvis ved avtalt pris per deltaker per gjennomføring, fastpris eller avtaler med kombinasjon av for eksempel avtalt månedspris og fastpris.",
+            "Prismodellen skal brukes når ingen av de andre valgene passer, eksempelvis ved avtalt pris per deltaker eller fastpris.",
             "Arrangør benytter digital innsending og kan laste opp vedlegg som en del av innsendingen. Nav gjør ingen forhåndsberegning av beløp.",
         ),
     ),

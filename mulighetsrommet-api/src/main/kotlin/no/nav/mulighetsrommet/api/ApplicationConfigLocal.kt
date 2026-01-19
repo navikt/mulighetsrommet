@@ -139,8 +139,6 @@ val ApplicationConfigLocal = AppConfig(
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
             Tiltakskode.STUDIESPESIALISERING,
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-            Tiltakskode.HOYERE_UTDANNING,
         ),
     ),
     navAnsattSync = NavAnsattSyncService.Config(setOf()),

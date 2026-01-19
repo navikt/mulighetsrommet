@@ -61,11 +61,11 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
             <VStack gap="4">
               <InfoCard data-color="warning">
                 <InfoCard.Header>
-                  <InfoCard.Title>Endring av prismodeller</InfoCard.Title>
+                  <InfoCard.Title>Endring av prismodell</InfoCard.Title>
                 </InfoCard.Header>
                 <InfoCard.Content>
-                  Endringer i prismodeller som er i bruk kan slå ut i beregningen av fremtidige
-                  utbetalinger til arrangør.
+                  Vær oppmerksom på at hvis du gjør endringer i en prismodell som er i bruk, kan det
+                  påvirke beregningen i krav arrangøren ikke har sendt inn ennå.
                 </InfoCard.Content>
               </InfoCard>
               <AvtalePrismodellForm
