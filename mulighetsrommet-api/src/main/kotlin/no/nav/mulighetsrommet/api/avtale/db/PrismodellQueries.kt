@@ -7,7 +7,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.avtale.model.toDto
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
@@ -77,45 +76,9 @@ class PrismodellQueries(private val session: Session) {
 }
 
 fun Row.toPrismodell(): Prismodell {
-    val prismodellId = uuid("prismodell_id")
-    val prismodellType = PrismodellType.valueOf(string("prismodell_type"))
+    val id = uuid("prismodell_id")
+    val type = PrismodellType.valueOf(string("prismodell_type"))
     val prisbetingelser = stringOrNull("prismodell_prisbetingelser")
-    val satser = stringOrNull("prismodell_satser")
-        ?.let { Json.decodeFromString<List<AvtaltSats>?>(it) }
-        ?: emptyList()
-    return when (prismodellType) {
-        PrismodellType.ANNEN_AVTALT_PRIS -> Prismodell.AnnenAvtaltPris(
-            id = prismodellId,
-            prisbetingelser = prisbetingelser,
-        )
-
-        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk(
-            id = prismodellId,
-            satser = satser.toDto(),
-        )
-
-        PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> Prismodell.AvtaltPrisPerManedsverk(
-            id = prismodellId,
-            prisbetingelser = prisbetingelser,
-            satser = satser.toDto(),
-        )
-
-        PrismodellType.AVTALT_PRIS_PER_UKESVERK -> Prismodell.AvtaltPrisPerUkesverk(
-            id = prismodellId,
-            prisbetingelser = prisbetingelser,
-            satser = satser.toDto(),
-        )
-
-        PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> Prismodell.AvtaltPrisPerHeleUkesverk(
-            id = prismodellId,
-            prisbetingelser = prisbetingelser,
-            satser = satser.toDto(),
-        )
-
-        PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
-            id = prismodellId,
-            prisbetingelser = prisbetingelser,
-            satser = satser.toDto(),
-        )
-    }
+    val satser = stringOrNull("prismodell_satser")?.let { Json.decodeFromString<List<AvtaltSats>?>(it) }
+    return Prismodell.from(type, id, prisbetingelser, satser)
 }

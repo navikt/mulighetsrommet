@@ -14,9 +14,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavE
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
-import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -557,42 +555,7 @@ private fun Row.toAvtale(): Avtale {
     }
 
     val prismodeller = Json.decodeFromString<List<PrismodellDbo>>(string("prismodeller_json")).map { prismodell ->
-        val satser = prismodell.satser?.toDto() ?: listOf()
-        when (prismodell.type) {
-            PrismodellType.ANNEN_AVTALT_PRIS -> Prismodell.AnnenAvtaltPris(
-                id = prismodell.id,
-                prisbetingelser = prismodell.prisbetingelser,
-            )
-
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk(
-                id = prismodell.id,
-                satser = satser,
-            )
-
-            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> Prismodell.AvtaltPrisPerManedsverk(
-                id = prismodell.id,
-                prisbetingelser = prismodell.prisbetingelser,
-                satser = satser,
-            )
-
-            PrismodellType.AVTALT_PRIS_PER_UKESVERK -> Prismodell.AvtaltPrisPerUkesverk(
-                id = prismodell.id,
-                prisbetingelser = prismodell.prisbetingelser,
-                satser = satser,
-            )
-
-            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> Prismodell.AvtaltPrisPerHeleUkesverk(
-                id = prismodell.id,
-                prisbetingelser = prismodell.prisbetingelser,
-                satser = satser,
-            )
-
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
-                id = prismodell.id,
-                prisbetingelser = prismodell.prisbetingelser,
-                satser = satser,
-            )
-        }
+        Prismodell.from(prismodell.type, prismodell.id, prismodell.prisbetingelser, prismodell.satser)
     }
 
     val status = when (AvtaleStatusType.valueOf(string("status"))) {
