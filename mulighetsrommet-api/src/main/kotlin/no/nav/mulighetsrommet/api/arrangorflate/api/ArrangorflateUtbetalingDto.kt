@@ -34,7 +34,7 @@ data class ArrangorflateUtbetalingDto(
     val tiltakstype: ArrangorflateTiltakstype,
     val gjennomforing: ArrangorflateGjennomforingInfo,
     val arrangor: ArrangorflateArrangor,
-    val bankKonto: BankKonto?,
+    val bankKonto: BankKonto.BBan?,
     val kid: Kid?,
     val beregning: ArrangorflateBeregning,
     val periode: Periode,

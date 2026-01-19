@@ -13,7 +13,6 @@ import {
   ArrangorflateService,
   ArrangorflateTilsagnDto,
   ArrangorflateUtbetalingDto,
-  BBan,
   FieldError,
 } from "api-client";
 import { useEffect, useRef } from "react";
@@ -220,7 +219,7 @@ export default function BekreftUtbetaling() {
                     Betalingsinformasjon
                   </Heading>
                   <KontonummerInput
-                    kontonummer={(utbetaling.bankKonto as null | BBan)?.kontonummer ?? undefined}
+                    kontonummer={utbetaling.bankKonto?.kontonummer ?? undefined}
                     error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
                     onClick={() => handleHentKontonummer()}
                   />

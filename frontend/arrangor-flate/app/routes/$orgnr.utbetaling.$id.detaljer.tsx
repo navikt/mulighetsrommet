@@ -21,7 +21,6 @@ import {
   ArrangorflateService,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
-  BBan,
   FieldError,
   UtbetalingTypeDto,
 } from "api-client";
@@ -198,8 +197,8 @@ export default function UtbetalingDetaljerSide() {
           definitions={[
             {
               key: "Kontonummer",
-              value: (utbetaling.bankKonto as null | BBan)?.kontonummer
-                ? formaterKontoNummer((utbetaling.bankKonto as null | BBan)?.kontonummer)
+              value: utbetaling.bankKonto?.kontonummer
+                ? formaterKontoNummer(utbetaling.bankKonto.kontonummer)
                 : "-",
             },
             {
