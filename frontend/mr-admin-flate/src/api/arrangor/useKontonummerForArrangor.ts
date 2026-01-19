@@ -2,9 +2,9 @@ import { QueryKeys } from "../QueryKeys";
 import { ArrangorService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
-export function useKontonummerForArrangor(id: string) {
+export function useArrangorBetalingsinfo(id: string) {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.kontonummerArrangor(id),
+    queryKey: QueryKeys.arrangorBetalingsinfo(id),
     queryFn: () => ArrangorService.getKontonummer({ path: { id } }),
   });
 }

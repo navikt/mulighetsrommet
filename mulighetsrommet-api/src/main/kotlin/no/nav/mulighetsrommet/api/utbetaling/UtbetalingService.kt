@@ -12,6 +12,8 @@ import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -72,6 +74,7 @@ class UtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
     private val tilsagnService: TilsagnService,
+    private val arrangorService: ArrangorService,
     private val journalforUtbetaling: JournalforUtbetaling,
 ) {
     data class Config(
@@ -102,7 +105,7 @@ class UtbetalingService(
             .right()
     }
 
-    fun opprettUtbetaling(
+    suspend fun opprettUtbetaling(
         utbetalingKrav: UtbetalingValidator.ValidertUtbetalingKrav,
         gjennomforing: GjennomforingGruppetiltak,
         agent: Agent,
@@ -159,7 +162,7 @@ class UtbetalingService(
             id = UUID.randomUUID(),
             gjennomforingId = gjennomforing.id,
             status = UtbetalingStatusType.INNSENDT,
-            kontonummer = utbetalingKrav.kontonummer,
+            bankKonto = BankKonto.BBan(utbetalingKrav.kontonummer),
             kid = utbetalingKrav.kidNummer,
             beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
                 input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
@@ -183,7 +186,7 @@ class UtbetalingService(
         return opprettUtbetalingTransaction(dbo, utbetalingKrav.vedlegg, agent)
     }
 
-    fun opprettAnnenAvtaltPrisUtbetaling(
+    suspend fun opprettAnnenAvtaltPrisUtbetaling(
         request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = opprettAnnenAvtaltPrisUtbetaling(
@@ -195,16 +198,19 @@ class UtbetalingService(
         ),
     )
 
-    fun opprettAnnenAvtaltPrisUtbetaling(
+    suspend fun opprettAnnenAvtaltPrisUtbetaling(
         request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
         agent: Agent,
         periode: Periode,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        val arrangor = requireNotNull(queries.arrangor.getByGjennomforingId(request.gjennomforingId))
+        val bankKonto = arrangorService.getBankKonto(arrangor.id)
+
         val dbo = UtbetalingDbo(
             id = request.id,
             gjennomforingId = request.gjennomforingId,
             status = UtbetalingStatusType.INNSENDT,
-            kontonummer = request.kontonummer,
+            bankKonto = bankKonto,
             kid = request.kidNummer,
             beregning = UtbetalingBeregningFri.beregn(
                 input = UtbetalingBeregningFri.Input(request.belop),
@@ -707,8 +713,6 @@ class UtbetalingService(
         }
 
         val utbetaling = queries.utbetaling.getOrError(delutbetaling.utbetalingId)
-        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(utbetaling.gjennomforing.id)
-
         val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
 
         val beskrivelse = """
@@ -717,24 +721,27 @@ class UtbetalingService(
             Tilsagnsnummer: ${tilsagn.bestilling.bestillingsnummer}
         """.trimIndent()
 
-        val betalingsinformasjon = if (gjennomforing.arrangor.organisasjonsnummer.erUtenlandsk()) {
-            val utenlandskArrangor = requireNotNull(queries.arrangor.getUtenlandskArrangor(gjennomforing.arrangor.id)) {
-                "Mangler data om utenlandsk arrangør"
+        val betalingsinformasjon = when (utbetaling.bankKonto) {
+            is BankKonto.BBan ->
+                OpprettFaktura.Betalingsinformasjon.BBan(
+                    kontonummer = utbetaling.bankKonto.kontonummer,
+                    kid = utbetaling.kid,
+                )
+
+            is BankKonto.IBan ->
+                OpprettFaktura.Betalingsinformasjon.IBan(
+                    iban = utbetaling.bankKonto.iban,
+                    bic = utbetaling.bankKonto.bic,
+                    bankLandKode = utbetaling.bankKonto.bankLandKode,
+                    bankNavn = utbetaling.bankKonto.bankNavn,
+                    valutaKode = "NOK", // TODO: Putt inn her når vi har valuta i prismodell,
+                )
+
+            null -> {
+                throw IllegalStateException(
+                    "Bankkonto informasjon mangler for utbetaling med id=${delutbetaling.utbetalingId}",
+                )
             }
-            OpprettFaktura.Betalingsinformasjon.IBan(
-                iban = utenlandskArrangor.iban,
-                bic = utenlandskArrangor.bic,
-                bankLandKode = utenlandskArrangor.landKode,
-                bankNavn = utenlandskArrangor.bankNavn,
-                valutaKode = "NOK", // TODO: Putt inn her når vi har valuta i prismodell,
-            )
-        } else {
-            OpprettFaktura.Betalingsinformasjon.BBan(
-                kontonummer = checkNotNull(utbetaling.betalingsinformasjon.kontonummer) {
-                    "Kontonummer mangler for utbetaling med id=${delutbetaling.utbetalingId}"
-                },
-                kid = utbetaling.betalingsinformasjon.kid,
-            )
         }
 
         val faktura = OpprettFaktura(

@@ -43,7 +43,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -569,7 +568,6 @@ data class OpprettUtbetalingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate?,
     val beskrivelse: String,
-    val kontonummer: Kontonummer,
     val kidNummer: String? = null,
     val belop: Int,
 )

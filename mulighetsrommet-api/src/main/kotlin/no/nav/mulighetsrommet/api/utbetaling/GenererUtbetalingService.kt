@@ -7,6 +7,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -302,8 +303,12 @@ class GenererUtbetalingService(
             gjennomforingId = gjennomforing.id,
             status = UtbetalingStatusType.GENERERT,
             beregning = beregning,
-            kontonummer = kontonummer,
-            kid = forrigeKrav?.betalingsinformasjon?.kid,
+            bankKonto = kontonummer?.let {
+                BankKonto.BBan(
+                    kontonummer = it,
+                )
+            },
+            kid = forrigeKrav?.kid,
             periode = periode,
             innsender = null,
             beskrivelse = null,

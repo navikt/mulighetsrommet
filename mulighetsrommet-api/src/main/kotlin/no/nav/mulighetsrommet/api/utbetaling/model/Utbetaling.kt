@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -30,7 +30,8 @@ data class Utbetaling(
     val gjennomforing: Gjennomforing,
     val arrangor: Arrangor,
     val beregning: UtbetalingBeregning,
-    val betalingsinformasjon: Betalingsinformasjon,
+    val bankKonto: BankKonto?,
+    val kid: Kid?,
     val journalpostId: String?,
     val periode: Periode,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -84,11 +85,5 @@ data class Utbetaling(
     data class Tiltakstype(
         val navn: String,
         val tiltakskode: Tiltakskode,
-    )
-
-    @Serializable
-    data class Betalingsinformasjon(
-        val kontonummer: Kontonummer?,
-        val kid: Kid?,
     )
 }

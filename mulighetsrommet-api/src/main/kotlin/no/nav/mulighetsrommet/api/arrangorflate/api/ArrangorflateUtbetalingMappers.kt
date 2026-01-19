@@ -82,10 +82,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         ),
         periode = utbetaling.periode,
         beregning = beregning,
-        betalingsinformasjon = ArrangorflateBetalingsinformasjon(
-            kontonummer = utbetaling.betalingsinformasjon.kontonummer,
-            kid = utbetaling.betalingsinformasjon.kid,
-        ),
+        bankKonto = utbetaling.bankKonto,
+        kid = utbetaling.kid,
         type = UtbetalingType.from(utbetaling).toDto(),
         linjer = linjer,
         innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),
@@ -100,7 +98,7 @@ private fun getInnsendingsDetaljer(
     utbetaling: Utbetaling,
     innsendtAvArrangorDato: LocalDate?,
 ): List<LabeledDataElement> {
-    return listOf(
+    return listOfNotNull(
         if (innsendtAvArrangorDato != null) {
             LabeledDataElement.date("Dato innsendt", innsendtAvArrangorDato)
         } else {
@@ -117,7 +115,7 @@ private fun getInnsendingsDetaljer(
             null
         },
         LabeledDataElement.text("Løpenummer", utbetaling.gjennomforing.lopenummer.toString()),
-    ).filterNotNull()
+    )
 }
 
 @Serializable

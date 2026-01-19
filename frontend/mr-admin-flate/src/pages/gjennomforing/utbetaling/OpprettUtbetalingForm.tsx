@@ -1,4 +1,5 @@
 import {
+  ArrangorBetalingsinfo,
   GjennomforingDto,
   OpprettUtbetalingRequest,
   ValidationError,
@@ -26,16 +27,15 @@ import { useOpprettUtbetaling } from "@/api/utbetaling/mutations";
 
 interface Props {
   gjennomforing: GjennomforingDto;
-  kontonummer?: string;
+  betalingsinfo: ArrangorBetalingsinfo;
 }
 
 const MIN_BEGRUNNELSE_LENGDE = 10;
 const MAKS_BEGRUNNELSE_LENGDE = 300;
 
-export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
+export function OpprettUtbetalingForm({ gjennomforing, betalingsinfo }: Props) {
   const form = useForm<OpprettUtbetalingRequest>({
     resolver: async (values) => ({ values, errors: {} }),
-    defaultValues: { kontonummer },
   });
   const navigate = useNavigate();
   const utbetalingId = useRef(window.crypto.randomUUID());

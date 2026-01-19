@@ -13,6 +13,7 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.ValutaType
@@ -220,7 +221,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .first()
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
-            utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
+            utbetaling.bankKonto.shouldBeTypeOf<BankKonto.BBan>().kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.beregning.input shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                 satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 20975)),
                 stengt = setOf(),
@@ -253,8 +254,8 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForPeriode(januar).first()
             utbetaling.gjennomforing.id shouldBe AFT1.id
-            utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
-            utbetaling.betalingsinformasjon.kid shouldBe null
+            utbetaling.bankKonto.shouldBeTypeOf<BankKonto.BBan>().kontonummer shouldBe Kontonummer("12345678901")
+            utbetaling.kid shouldBe null
 
             database.run {
                 queries.utbetaling.setKid(
@@ -265,7 +266,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val sisteKrav = service.genererUtbetalingForPeriode(februar).first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
-            sisteKrav.betalingsinformasjon.kid shouldBe Kid.parseOrThrow("006402710013")
+            sisteKrav.kid shouldBe Kid.parseOrThrow("006402710013")
         }
 
         test("genererer utbetaling med relevante deltakelse-perioder som input") {

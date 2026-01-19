@@ -11,6 +11,7 @@ object ArrangorFixtures {
             organisasjonsnummer = Organisasjonsnummer("983982433"),
             organisasjonsform = "AS",
             navn = "FRETEX AS",
+            erUtenlandsk = false,
         )
 
         val underenhet1 = ArrangorDto(
@@ -19,6 +20,7 @@ object ArrangorFixtures {
             organisasjonsform = "BEDR",
             overordnetEnhet = Organisasjonsnummer("983982433"),
             navn = "FRETEX AS AVD OSLO",
+            erUtenlandsk = false,
         )
     }
 
@@ -27,6 +29,7 @@ object ArrangorFixtures {
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = "AS",
         navn = "Hovedenhet AS",
+        erUtenlandsk = false,
     )
 
     val underenhet1 = ArrangorDto(
@@ -35,6 +38,7 @@ object ArrangorFixtures {
         organisasjonsform = "BEDR",
         overordnetEnhet = Organisasjonsnummer("123456789"),
         navn = "Underenhet 1 AS",
+        erUtenlandsk = false,
     )
 
     val underenhet2 = ArrangorDto(
@@ -42,6 +46,7 @@ object ArrangorFixtures {
         organisasjonsnummer = Organisasjonsnummer("890765789"),
         organisasjonsform = "BEDR",
         overordnetEnhet = Organisasjonsnummer("123456789"),
+        erUtenlandsk = false,
         navn = "Underenhet 2 AS",
     )
 }

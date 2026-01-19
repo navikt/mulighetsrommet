@@ -21,6 +21,22 @@ import java.util.UUID
 import kotlin.String
 
 class ArrangorQueries(private val session: Session) {
+    private val underenheterLateralJoin = """
+        left join lateral (
+            select json_agg(
+                json_build_object(
+                    'id', id,
+                    'organisasjonsnummer', organisasjonsnummer,
+                    'overordnetEnhet', overordnet_enhet,
+                    'organisasjonsform', organisasjonsform,
+                    'navn', navn,
+                    'slettetDato', slettet_dato,
+                    'erUtenlandsk', er_utenlandsk_virksomhet
+                )
+            ) as underenheter_json
+            from arrangor arrangor_underenhet
+        where arrangor_underenhet.overordnet_enhet = arrangor.organisasjonsnummer) on true
+    """
 
     /** Upserter kun enheten og tar ikke hensyn til underenheter */
     fun upsert(arrangor: ArrangorDto) {
@@ -80,6 +96,7 @@ class ArrangorQueries(private val session: Session) {
                 arrangor.overordnet_enhet,
                 arrangor.navn,
                 arrangor.slettet_dato,
+                arrangor.er_utenlandsk_virksomhet,
                 count(*) over() as total_count
             from arrangor
             where $isRelatedToTiltak
@@ -112,27 +129,37 @@ class ArrangorQueries(private val session: Session) {
                 organisasjonsnummer,
                 organisasjonsform,
                 overordnet_enhet,
+                er_utenlandsk_virksomhet,
                 navn,
                 slettet_dato,
                 underenheter_json
             from arrangor
-                left join lateral (
-                    select json_agg(
-                        json_build_object(
-                            'id', id,
-                            'organisasjonsnummer', organisasjonsnummer,
-                            'overordnetEnhet', overordnet_enhet,
-                            'organisasjonsform', organisasjonsform,
-                            'navn', navn,
-                            'slettetDato', slettet_dato
-                        )
-                    ) as underenheter_json
-                    from arrangor arrangor_underenhet
-                where arrangor_underenhet.overordnet_enhet = arrangor.organisasjonsnummer) on true
+                $underenheterLateralJoin
             where arrangor.organisasjonsnummer = ?
         """.trimIndent()
 
         return session.single(queryOf(selectHovedenhet, orgnr.value)) { it.toArrangorDtoMedUnderenheter() }
+    }
+
+    fun getByGjennomforingId(gjennomforingId: UUID): ArrangorDto? {
+        @Language("PostgreSQL")
+        val selectHovedenhet = """
+            select
+                arrangor.id,
+                arrangor.organisasjonsnummer,
+                arrangor.organisasjonsform,
+                arrangor.overordnet_enhet,
+                arrangor.er_utenlandsk_virksomhet,
+                arrangor.navn,
+                arrangor.slettet_dato,
+                underenheter_json
+            from gjennomforing
+                inner join arrangor on arrangor.id = gjennomforing.arrangor_id
+                $underenheterLateralJoin
+            where gjennomforing.id = ?
+        """.trimIndent()
+
+        return session.single(queryOf(selectHovedenhet, gjennomforingId)) { it.toArrangorDtoMedUnderenheter() }
     }
 
     fun get(orgnr: List<Organisasjonsnummer>): List<ArrangorDto> {
@@ -143,23 +170,12 @@ class ArrangorQueries(private val session: Session) {
                 organisasjonsnummer,
                 organisasjonsform,
                 overordnet_enhet,
+                er_utenlandsk_virksomhet,
                 navn,
                 slettet_dato,
                 underenheter_json
             from arrangor
-                left join lateral (
-                    select json_agg(
-                        json_build_object(
-                            'id', id,
-                            'organisasjonsnummer', organisasjonsnummer,
-                            'overordnetEnhet', overordnet_enhet,
-                            'organisasjonsform', organisasjonsform,
-                            'navn', navn,
-                            'slettetDato', slettet_dato
-                        )
-                    ) as underenheter_json
-                    from arrangor arrangor_underenhet
-                where arrangor_underenhet.overordnet_enhet = arrangor.organisasjonsnummer) on true
+                $underenheterLateralJoin
             where arrangor.organisasjonsnummer = any(?)
         """.trimIndent()
 
@@ -177,7 +193,8 @@ class ArrangorQueries(private val session: Session) {
                 organisasjonsform,
                 overordnet_enhet,
                 navn,
-                slettet_dato
+                slettet_dato,
+                er_utenlandsk_virksomhet
             from arrangor
             where id = ?::uuid
         """.trimIndent()
@@ -200,7 +217,8 @@ class ArrangorQueries(private val session: Session) {
                 organisasjonsform,
                 overordnet_enhet,
                 navn,
-                slettet_dato
+                slettet_dato,
+                er_utenlandsk_virksomhet
             from arrangor
             where overordnet_enhet = ?
             order by navn
@@ -338,6 +356,7 @@ class ArrangorQueries(private val session: Session) {
         navn = string("navn"),
         overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) },
         slettetDato = localDateOrNull("slettet_dato"),
+        erUtenlandsk = boolean("er_utenlandsk_virksomhet"),
     )
 
     private fun Row.toArrangorDtoMedUnderenheter(): ArrangorDto {
@@ -352,6 +371,7 @@ class ArrangorQueries(private val session: Session) {
             overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) },
             slettetDato = localDateOrNull("slettet_dato"),
             underenheter = underenheter,
+            erUtenlandsk = boolean("er_utenlandsk_virksomhet"),
         )
     }
 

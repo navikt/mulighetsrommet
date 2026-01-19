@@ -15,6 +15,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,8 @@ import kotlinx.coroutines.async
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -80,6 +83,7 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     var umiddelbarUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, _ -> null }
+    val arrangorService: ArrangorService = mockk()
 
     fun createUtbetalingService(
         tilsagnService: TilsagnService = mockk(relaxed = true),
@@ -93,6 +97,7 @@ class UtbetalingServiceTest : FunSpec({
         db = database.db,
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
+        arrangorService = arrangorService,
     )
 
     context("opprett utbetaling - annen avtalt pris") {
@@ -102,7 +107,6 @@ class UtbetalingServiceTest : FunSpec({
             periodeStart = LocalDate.of(2025, 1, 1),
             periodeSlutt = LocalDate.of(2025, 1, 31),
             beskrivelse = "Arrangør trenger penger",
-            kontonummer = Kontonummer("12345678901"),
             kidNummer = null,
             belop = 10,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -115,6 +119,10 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
             ).initialize(database.db)
+
+            coEvery { arrangorService.getBankKonto(any()) } returns BankKonto.BBan(
+                kontonummer = Kontonummer("12345678901"),
+            )
         }
 
         test("utbetaling blir opprettet med fri-beregning") {

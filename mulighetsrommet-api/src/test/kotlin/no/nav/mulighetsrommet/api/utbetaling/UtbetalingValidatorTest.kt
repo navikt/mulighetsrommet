@@ -38,7 +38,6 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = LocalDate.now(),
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla bla bla beskrivelse",
-                kontonummer = Kontonummer(value = "12345678910"),
                 kidNummer = null,
                 belop = 150,
             )
@@ -53,7 +52,6 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = LocalDate.now(),
                 periodeSlutt = null,
                 beskrivelse = "Bla bla bla beskrivelse",
-                kontonummer = Kontonummer(value = "12345678910"),
                 kidNummer = "asdf",
                 belop = -5,
             )
@@ -72,7 +70,6 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = LocalDate.now().plusDays(5),
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla bla bla beskrivelse",
-                kontonummer = Kontonummer(value = "12345678910"),
                 kidNummer = null,
                 belop = 150,
             )
@@ -94,7 +91,6 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = LocalDate.now(),
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla bla bla beskrivelse",
-                kontonummer = Kontonummer(value = "12345678910"),
                 kidNummer = null,
                 belop = 0,
             )
@@ -113,7 +109,6 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = LocalDate.now(),
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla",
-                kontonummer = Kontonummer(value = "12345678910"),
                 kidNummer = null,
                 belop = 150,
             )

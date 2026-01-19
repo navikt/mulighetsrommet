@@ -127,9 +127,6 @@ object UtbetalingValidator {
         validate(request.beskrivelse.length > 10) {
             FieldError.of("Du må fylle ut beskrivelse", OpprettUtbetalingRequest::beskrivelse)
         }
-        validate(request.kontonummer.value.length == 11) {
-            FieldError.of("Kontonummer må være 11 tegn", OpprettUtbetalingRequest::kontonummer)
-        }
         validate(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {
             FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer)
         }
@@ -147,7 +144,6 @@ object UtbetalingValidator {
             periodeStart = periode.start,
             periodeSlutt = periode.getLastInclusiveDate(),
             belop = request.belop,
-            kontonummer = request.kontonummer,
             kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             beskrivelse = request.beskrivelse,
             vedlegg = emptyList(),
@@ -161,7 +157,6 @@ object UtbetalingValidator {
         val periodeStart: LocalDate,
         val periodeSlutt: LocalDate,
         val beskrivelse: String,
-        val kontonummer: Kontonummer,
         val kidNummer: Kid? = null,
         val belop: Int,
         val tilskuddstype: Tilskuddstype,
@@ -298,7 +293,6 @@ object UtbetalingValidator {
             periodeStart = this.periodeStart,
             periodeSlutt = this.periodeSlutt,
             beskrivelse = "",
-            kontonummer = this.kontonummer,
             kidNummer = this.kidNummer,
             belop = this.belop,
             vedlegg = this.vedlegg,
@@ -326,7 +320,7 @@ object UtbetalingValidator {
         validate(request.digest == utbetaling.beregning.getDigest()) {
             FieldError.ofPointer("/info", "Informasjonen i kravet har endret seg. Vennligst se over på nytt.")
         }
-        validate(utbetaling.betalingsinformasjon.kontonummer != null) {
+        validate(utbetaling.bankKonto != null) {
             FieldError.ofPointer("/info", "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.")
         }
         requireValid(request.kid == null || Kid.parse(request.kid) != null) {

@@ -6,6 +6,8 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
+import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -74,7 +76,7 @@ class UtbetalingQueriesTest : FunSpec({
         gjennomforingId = AFT1.id,
         status = UtbetalingStatusType.GENERERT,
         beregning = friBeregning,
-        kontonummer = Kontonummer("11111111111"),
+        bankKonto = BankKonto.BBan(Kontonummer("11111111111")),
         kid = Kid.parseOrThrow("006402710013"),
         periode = periode,
         innsender = NavIdent("Z123456"),
@@ -105,10 +107,8 @@ class UtbetalingQueriesTest : FunSpec({
                     slettet = ArrangorFixtures.underenhet1.slettetDato != null,
                 )
                 it.beregning shouldBe friBeregning
-                it.betalingsinformasjon shouldBe Utbetaling.Betalingsinformasjon(
-                    kontonummer = Kontonummer("11111111111"),
-                    kid = Kid.parseOrThrow("006402710013"),
-                )
+                it.bankKonto.shouldBeTypeOf<BankKonto.BBan>().kontonummer shouldBe Kontonummer("11111111111")
+                it.kid shouldBe Kid.parseOrThrow("006402710013")
                 it.journalpostId shouldBe null
                 it.periode shouldBe periode
                 it.godkjentAvArrangorTidspunkt shouldBe null

@@ -85,7 +85,7 @@ class AvtaleServiceTest : FunSpec({
 
     fun createAvtaleService(
         gjennomforingPublisher: InitialLoadGjennomforinger = mockk(relaxed = true),
-        arrangorService: ArrangorService = ArrangorService(database.db, mockk()),
+        arrangorService: ArrangorService = ArrangorService(database.db, mockk(), mockk()),
     ) = AvtaleService(
         config = AvtaleService.Config(mapOf()),
         database.db,
@@ -149,7 +149,7 @@ class AvtaleServiceTest : FunSpec({
                 overordnetEnhet = orgnrHovedenhet,
             ).right()
 
-            val arrangorService = ArrangorService(database.db, brregClient)
+            val arrangorService = ArrangorService(database.db, brregClient, mockk())
 
             val avtaleService = createAvtaleService(arrangorService = arrangorService)
 
@@ -190,7 +190,7 @@ class AvtaleServiceTest : FunSpec({
             val brregClient = mockk<BrregClient>()
             coEvery { brregClient.getBrregEnhet(Organisasjonsnummer("223442332")) } returns BrregError.NotFound.left()
 
-            val arrangorService = ArrangorService(db = database.db, brregClient = brregClient)
+            val arrangorService = ArrangorService(db = database.db, brregClient = brregClient, mockk())
 
             val avtaleService = createAvtaleService(arrangorService = arrangorService)
 

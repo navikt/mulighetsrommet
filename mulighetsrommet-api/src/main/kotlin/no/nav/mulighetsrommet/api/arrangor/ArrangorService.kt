@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.arrangor
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.Serializable
@@ -9,6 +10,8 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregEnhet
@@ -21,7 +24,7 @@ import no.nav.mulighetsrommet.brreg.FjernetBrregEnhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.NotFound
+import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.slf4j.LoggerFactory
 import java.util.UUID
@@ -29,6 +32,7 @@ import java.util.UUID
 class ArrangorService(
     private val db: ApiDatabase,
     private val brregClient: BrregClient,
+    private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -51,20 +55,16 @@ class ArrangorService(
     }
 
     suspend fun brregUnderenheter(orgnr: Organisasjonsnummer): StatusResponse<List<BrregUnderenhet>> {
-        if (isUtenlandskOrgnr(orgnr)) {
-            val arrangor = db.session { queries.arrangor.get(orgnr) }
-            return if (arrangor != null) {
-                listOf(
-                    BrregUnderenhetDto(
-                        organisasjonsnummer = arrangor.organisasjonsnummer,
-                        organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
-                        navn = arrangor.navn,
-                        overordnetEnhet = arrangor.organisasjonsnummer,
-                    ),
-                ).right()
-            } else {
-                NotFound("Fant ikke enhet med orgnr: $orgnr").left()
-            }
+        val arrangor = db.session { queries.arrangor.get(orgnr) }
+        if (arrangor != null && arrangor.erUtenlandsk) {
+            return listOf(
+                BrregUnderenhetDto(
+                    organisasjonsnummer = arrangor.organisasjonsnummer,
+                    organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
+                    navn = arrangor.navn,
+                    overordnetEnhet = arrangor.organisasjonsnummer,
+                ),
+            ).right()
         }
 
         return brregClient.getUnderenheterForHovedenhet(orgnr)
@@ -82,23 +82,6 @@ class ArrangorService(
 
     fun getArrangor(orgnr: Organisasjonsnummer): ArrangorDto? = db.session {
         queries.arrangor.get(orgnr)
-    }
-
-    suspend fun getArrangorerOrSyncFromBrreg(
-        orgnr: List<Organisasjonsnummer>,
-    ): Either<BrregError, List<ArrangorDto>> {
-        val existing = db.session { queries.arrangor.get(orgnr) }
-            .associateBy { it.organisasjonsnummer }
-            .toMutableMap()
-
-        for (org in orgnr - existing.keys) {
-            when (val result = syncArrangorFromBrreg(org)) {
-                is Either.Left -> return result
-                is Either.Right -> existing[org] = result.value
-            }
-        }
-
-        return existing.values.toList().right()
     }
 
     suspend fun getArrangorOrSyncFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
@@ -122,6 +105,33 @@ class ArrangorService(
                     syncToDatabase(error.enhet)
                 }
             }
+    }
+
+    suspend fun getBankKonto(id: UUID): BankKonto {
+        val arrangor = db.session { queries.arrangor.getById(id) }
+
+        if (arrangor.organisasjonsnummer.erUtenlandsk()) {
+            val arrangorUtenlandsk = requireNotNull(db.session { queries.arrangor.getUtenlandskArrangor(arrangor.id) }) {
+                "Fant ikke betalingsinformasjon for utenlandsk bedrift: " +
+                    "orgnr=${arrangor.organisasjonsnummer.value}, navn=${arrangor.navn}. Ta kontakt " +
+                    "med team Valp for å legge inn."
+            }
+
+            return BankKonto.IBan(
+                bic = arrangorUtenlandsk.bic,
+                iban = arrangorUtenlandsk.iban,
+                bankNavn = arrangorUtenlandsk.bankNavn,
+                bankLandKode = arrangorUtenlandsk.landKode,
+            )
+        } else {
+            val kontonummer = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
+
+            return kontonummer
+                .map { BankKonto.BBan(Kontonummer(it.kontonr)) }
+                .getOrElse {
+                    throw IllegalArgumentException("Klarte ikke hente kontonummer for arrangør")
+                }
+        }
     }
 
     fun deleteArrangor(orgnr: Organisasjonsnummer): Unit = db.session {
@@ -175,6 +185,7 @@ private fun BrregEnhet.toArrangorDto(id: UUID): ArrangorDto {
             overordnetEnhet = null,
             underenheter = null,
             slettetDato = null,
+            erUtenlandsk = false,
         )
 
         is SlettetBrregHovedenhetDto -> ArrangorDto(
@@ -185,6 +196,7 @@ private fun BrregEnhet.toArrangorDto(id: UUID): ArrangorDto {
             slettetDato = slettetDato,
             overordnetEnhet = null,
             underenheter = null,
+            erUtenlandsk = false,
         )
 
         is BrregUnderenhetDto -> ArrangorDto(
@@ -195,6 +207,7 @@ private fun BrregEnhet.toArrangorDto(id: UUID): ArrangorDto {
             overordnetEnhet = overordnetEnhet,
             underenheter = null,
             slettetDato = null,
+            erUtenlandsk = false,
         )
 
         is SlettetBrregUnderenhetDto -> ArrangorDto(
@@ -205,12 +218,9 @@ private fun BrregEnhet.toArrangorDto(id: UUID): ArrangorDto {
             slettetDato = slettetDato,
             overordnetEnhet = null,
             underenheter = null,
+            erUtenlandsk = false,
         )
     }
-}
-
-fun isUtenlandskOrgnr(orgnr: Organisasjonsnummer): Boolean {
-    return orgnr.value.matches("^[1-7][0-9]{8}\$".toRegex())
 }
 
 private fun toBrregHovedenhet(arrangor: ArrangorDto): BrregHovedenhet = when {
