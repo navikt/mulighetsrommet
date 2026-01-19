@@ -1495,20 +1495,38 @@ components:
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
       - AVBRUTT
-    ArrangorflateBetalingsinformasjon:
+    BankKonto:
+      anyOf:
+      - $ref: "#/components/schemas/BBan"
+      - $ref: "#/components/schemas/IBan"
+      discriminator:
+        propertyName: type
+        mapping:
+          BBan: "#/components/schemas/BBan"
+          IBan: "#/components/schemas/IBan"
+    BBan:
       type: object
       properties:
         kontonummer:
-          type:
-          - "null"
-          - string
-        kid:
-          type:
-          - "null"
-          - string
+          type: string
       required:
-      - kid
       - kontonummer
+    IBan:
+      type: object
+      properties:
+        bic:
+          type: string
+        iban:
+          type: string
+        bankNavn:
+          type: string
+        bankLandKode:
+          type: string
+      required:
+      - bankLandKode
+      - bankNavn
+      - bic
+      - iban
     ArrangorflateBeregning:
       type: object
       properties:
@@ -1666,8 +1684,14 @@ components:
           $ref: "#/components/schemas/ArrangorflateGjennomforingInfo"
         arrangor:
           $ref: "#/components/schemas/ArrangorflateArrangor"
-        betalingsinformasjon:
-          $ref: "#/components/schemas/ArrangorflateBetalingsinformasjon"
+        bankKonto:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/BankKonto"
+        kid:
+          type:
+          - "null"
+          - string
         beregning:
           $ref: "#/components/schemas/ArrangorflateBeregning"
         periode:
@@ -1698,8 +1722,8 @@ components:
       required:
       - advarsler
       - arrangor
+      - bankKonto
       - beregning
-      - betalingsinformasjon
       - createdAt
       - gjennomforing
       - id
@@ -1708,6 +1732,7 @@ components:
       - kanAvbrytes
       - kanRegenereres
       - kanViseBeregning
+      - kid
       - linjer
       - periode
       - regenerertId

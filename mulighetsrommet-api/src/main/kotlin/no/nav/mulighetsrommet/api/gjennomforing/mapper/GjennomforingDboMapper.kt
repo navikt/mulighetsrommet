@@ -11,7 +11,6 @@ import java.time.LocalDate
 import java.util.UUID
 
 object GjennomforingDboMapper {
-
     fun fromGjennomforingRequest(
         request: GjennomforingRequest,
         startDato: LocalDate,

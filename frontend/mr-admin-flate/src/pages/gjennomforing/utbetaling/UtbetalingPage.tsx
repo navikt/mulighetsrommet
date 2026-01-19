@@ -6,6 +6,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import {
+  BankKonto,
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingStatusDtoType,
@@ -155,14 +156,9 @@ export function UtbetalingPage() {
                     Betalingsinformasjon
                   </Heading>
                   <VStack gap="2">
-                    <MetadataHGrid
-                      label="Kontonummer"
-                      value={utbetaling.betalingsinformasjon.kontonummer}
-                    />
-                    <MetadataHGrid
-                      label="KID (valgfritt)"
-                      value={utbetaling.betalingsinformasjon.kid}
-                    />
+                    {utbetaling.bankKonto && (
+                      <BankKontoDetaljer bankKonto={utbetaling.bankKonto} kid={utbetaling.kid} />
+                    )}
                   </VStack>
                   {utbetaling.journalpostId ? (
                     <>
@@ -245,5 +241,28 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
     case UtbetalingStatusDtoType.DELVIS_UTBETALT:
     case UtbetalingStatusDtoType.UTBETALT:
       return <BesluttUtbetalingLinjeView utbetaling={utbetaling} oppdaterLinjer={oppdaterLinjer} />;
+  }
+}
+
+function BankKontoDetaljer({ bankKonto, kid }: { bankKonto: BankKonto; kid: string | null }) {
+  switch (bankKonto.type) {
+    case "BBan":
+      return (
+        <VStack gap="2">
+          <MetadataHGrid label="Kontonummer" value={bankKonto.kontonummer} />
+          <MetadataHGrid label="KID (valgfritt)" value={kid} />
+        </VStack>
+      );
+    case "IBan":
+      return (
+        <VStack gap="2">
+          <MetadataHGrid label="IBan" value={bankKonto.iban} />
+          <MetadataHGrid label="BIC/SWIFT" value={bankKonto.bic} />
+          <MetadataHGrid label="Banknavn" value={bankKonto.bankNavn} />
+          <MetadataHGrid label="Bank landkode" value={bankKonto.bankLandKode} />
+        </VStack>
+      );
+    case undefined:
+      throw Error("unreachable");
   }
 }

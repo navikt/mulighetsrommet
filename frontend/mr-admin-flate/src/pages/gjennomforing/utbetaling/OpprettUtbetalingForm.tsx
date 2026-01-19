@@ -1,5 +1,5 @@
 import {
-  ArrangorBetalingsinfo,
+  BankKonto,
   GjennomforingDto,
   OpprettUtbetalingRequest,
   ValidationError,
@@ -27,13 +27,13 @@ import { useOpprettUtbetaling } from "@/api/utbetaling/mutations";
 
 interface Props {
   gjennomforing: GjennomforingDto;
-  betalingsinfo: ArrangorBetalingsinfo;
+  bankKonto?: BankKonto;
 }
 
 const MIN_BEGRUNNELSE_LENGDE = 10;
 const MAKS_BEGRUNNELSE_LENGDE = 300;
 
-export function OpprettUtbetalingForm({ gjennomforing, betalingsinfo }: Props) {
+export function OpprettUtbetalingForm({ gjennomforing, bankKonto }: Props) {
   const form = useForm<OpprettUtbetalingRequest>({
     resolver: async (values) => ({ values, errors: {} }),
   });
@@ -73,14 +73,14 @@ export function OpprettUtbetalingForm({ gjennomforing, betalingsinfo }: Props) {
   return (
     <>
       <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-      <div className="w-1/2">
+      <div className="w-3/4">
         <FormProvider {...form}>
           <form onSubmit={handleSubmit(postData)}>
             <FormGroup>
               <Heading size="medium" level="2">
                 Utbetalingsinformasjon
               </Heading>
-              <HStack gap="20">
+              <HStack gap="2">
                 <ControlledDateInput
                   label="Periodestart"
                   fromDate={new Date(gjennomforing.startDato)}
@@ -125,44 +125,21 @@ export function OpprettUtbetalingForm({ gjennomforing, betalingsinfo }: Props) {
               <Heading size="small" level="2">
                 Betalingsinformasjon
               </Heading>
-              <VStack align={"start"}>
-                <TextField
-                  size="small"
-                  label="Kontonummer til arrangør"
-                  {...register("kontonummer")}
-                  minLength={11}
-                  maxLength={11}
-                  error={errors.kontonummer?.message}
-                  readOnly
-                  description="Kontonummer hentes automatisk fra Altinn"
-                />
-                <small className="text-balance">
-                  Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Les mer her
-                  om <EndreKontonummerLink />.
-                </small>
-                {!kontonummer ? (
-                  <Alert variant="warning" className="my-5">
-                    <VStack align="start" gap="2">
-                      <Heading spacing size="xsmall" level="3">
-                        Kontonummer mangler for arrangør
-                      </Heading>
-                      <p className="text-balance">
-                        Arrangøren har ikke registrert et kontonummer for utbetaling i Altinn.
-                        Arrangør må legge inn kontonummer før du kan opprette utbetaling til
-                        arrangøren. Les mer om <EndreKontonummerLink /> her.
-                      </p>
-                    </VStack>
-                  </Alert>
-                ) : null}
-              </VStack>
-              <VStack>
-                <TextField
-                  size="small"
-                  label="Valgfritt KID-nummer"
-                  {...register("kidNummer")}
-                  error={errors.kidNummer?.message}
-                />
-              </VStack>
+              {bankKonto && <BankKontoView bankKonto={bankKonto} />}
+              {!bankKonto ? (
+                <Alert variant="warning" className="my-5">
+                  <VStack align="start" gap="2">
+                    <Heading spacing size="xsmall" level="3">
+                      Kontonummer mangler for arrangør
+                    </Heading>
+                    <p className="text-balance">
+                      Arrangøren har ikke registrert et kontonummer for utbetaling i Altinn.
+                      Arrangør må legge inn kontonummer før du kan opprette utbetaling til
+                      arrangøren. Les mer om <EndreKontonummerLink /> her.
+                    </p>
+                  </VStack>
+                </Alert>
+              ) : null}
               <HStack align={"start"} justify={"end"} gap="2">
                 <Button
                   size="small"
@@ -193,4 +170,51 @@ function EndreKontonummerLink() {
       endring av kontonummer for refusjoner fra Nav
     </Link>
   );
+}
+
+function BankKontoView({ bankKonto }: { bankKonto: BankKonto }) {
+  const form = useForm<OpprettUtbetalingRequest>({
+    resolver: async (values) => ({ values, errors: {} }),
+  });
+  const { register, formState } = form;
+
+  switch (bankKonto.type) {
+    case "BBan":
+      return (
+        <VStack gap="2">
+          <TextField
+            size="small"
+            label="Kontonummer til arrangør"
+            readOnly
+            value={bankKonto.kontonummer}
+            description="Kontonummer hentes automatisk fra Altinn"
+          />
+          <small className="text-balance">
+            Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Les mer her om{" "}
+            <EndreKontonummerLink />.
+          </small>
+          <TextField
+            size="small"
+            label="Valgfritt KID-nummer"
+            {...register("kidNummer")}
+            error={formState.errors.kidNummer?.message}
+          />
+        </VStack>
+      );
+    case "IBan":
+      return (
+        <VStack gap="2" align="start">
+          <Heading size="small">Bank</Heading>
+          <TextField size="small" label="IBan" readOnly value={bankKonto.iban} />
+          <TextField size="small" label="BIC/SWIFT" readOnly value={bankKonto.bic} />
+          <TextField size="small" label="Banknavn" readOnly value={bankKonto.bankNavn} />
+          <TextField size="small" label="Bank landkode" readOnly value={bankKonto.bankLandKode} />
+          <small className="text-balance">
+            Dersom informasjonen må oppdateres ta kontakt med team Valp.
+          </small>
+        </VStack>
+      );
+    case undefined:
+      throw Error("unreachable");
+  }
 }

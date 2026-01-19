@@ -2776,11 +2776,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/arrangorer/{id}/betalingsinfo:
+  /api/tiltaksadministrasjon/arrangorer/{id}/bankkonto:
     get:
       tags:
       - Arrangor
-      operationId: getBetalingsinfo
+      operationId: getBankKonto
       parameters:
       - name: id
         in: path
@@ -2792,12 +2792,12 @@ paths:
           format: uuid
       responses:
         "200":
-          description: Betalingsinformasjon til arrangør
+          description: Bank konto til arrangør
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrangorBetalingsinfo"
+                $ref: "#/components/schemas/BankKonto"
         default:
           description: Problem details
           headers: {}
@@ -5954,8 +5954,14 @@ components:
           - "null"
           - string
           format: date
-        betalingsinformasjon:
-          $ref: "#/components/schemas/Utbetaling.Betalingsinformasjon"
+        bankKonto:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/BankKonto"
+        kid:
+          type:
+          - "null"
+          - string
         beskrivelse:
           type:
           - "null"
@@ -5982,33 +5988,52 @@ components:
           $ref: "#/components/schemas/UtbetalingTypeDto"
       required:
       - avbruttBegrunnelse
+      - bankKonto
       - begrunnelseMindreBetalt
       - belop
       - beskrivelse
-      - betalingsinformasjon
       - id
       - innsendtAv
       - innsendtAvArrangorDato
       - journalpostId
+      - kid
       - periode
       - status
       - tilskuddstype
       - type
       - utbetalesTidligstDato
-    Utbetaling.Betalingsinformasjon:
+    BankKonto:
+      anyOf:
+      - $ref: "#/components/schemas/BBan"
+      - $ref: "#/components/schemas/IBan"
+      discriminator:
+        propertyName: type
+        mapping:
+          BBan: "#/components/schemas/BBan"
+          IBan: "#/components/schemas/IBan"
+    BBan:
       type: object
       properties:
         kontonummer:
-          type:
-          - "null"
-          - string
-        kid:
-          type:
-          - "null"
-          - string
+          type: string
       required:
-      - kid
       - kontonummer
+    IBan:
+      type: object
+      properties:
+        bic:
+          type: string
+        iban:
+          type: string
+        bankNavn:
+          type: string
+        bankLandKode:
+          type: string
+      required:
+      - bankLandKode
+      - bankNavn
+      - bic
+      - iban
     Tilskuddstype:
       type: string
       enum:
@@ -6165,8 +6190,6 @@ components:
           format: date
         beskrivelse:
           type: string
-        kontonummer:
-          type: string
         kidNummer:
           type:
           - "null"
@@ -6179,7 +6202,6 @@ components:
       - beskrivelse
       - gjennomforingId
       - kidNummer
-      - kontonummer
       - periodeSlutt
       - periodeStart
     DelutbetalingRequest:
@@ -6491,7 +6513,10 @@ components:
           - "null"
           - string
           format: date
+        erUtenlandsk:
+          type: boolean
       required:
+      - erUtenlandsk
       - id
       - navn
       - organisasjonsform
@@ -6516,36 +6541,6 @@ components:
       required:
       - data
       - pagination
-    ArrangorBetalingsinfo.BBan:
-      type: object
-      properties:
-        kontonummer:
-          type: string
-      required:
-      - kontonummer
-    ArrangorBetalingsinfo.IBan:
-      type: object
-      properties:
-        bic:
-          type: string
-        iban:
-          type: string
-        bankNavn:
-          type: string
-        bankLandKode:
-          type: string
-        valutaKode:
-          type: string
-      required:
-      - bankLandKode
-      - bankNavn
-      - bic
-      - iban
-      - valutaKode
-    ArrangorBetalingsinfo:
-      anyOf:
-      - $ref: "#/components/schemas/ArrangorBetalingsinfo.BBan"
-      - $ref: "#/components/schemas/ArrangorBetalingsinfo.IBan"
     ArrangorKontaktperson:
       type: object
       properties:
