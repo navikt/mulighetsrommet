@@ -4611,7 +4611,9 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/UtdanningslopDbo"
         prismodellId:
-          type: string
+          type:
+          - "null"
+          - string
           format: uuid
         pameldingType:
           oneOf:

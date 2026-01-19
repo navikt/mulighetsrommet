@@ -124,6 +124,12 @@ object GjennomforingValidator {
                 GjennomforingRequest::pameldingType,
             )
         }
+        validateNotNull(request.prismodellId) {
+            FieldError.of(
+                "Du må velge en prismodell fra avtalen",
+                GjennomforingRequest::prismodellId,
+            )
+        }
         if (Tiltakskoder.kanEndreOppstartOgPamelding(ctx.avtale.tiltakstype.tiltakskode)) {
             if (request.oppstart == GjennomforingOppstartstype.FELLES) {
                 validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
@@ -167,7 +173,7 @@ object GjennomforingValidator {
             validateUpdateGjennomforing(next, ctx.previous, ctx.avtale, ctx.antallDeltakere)
         }
 
-        requireValid(next.antallPlasser != null && next.startDato != null && request.oppstart != null && request.pameldingType != null)
+        requireValid(next.antallPlasser != null && next.startDato != null && request.oppstart != null && request.pameldingType != null && request.prismodellId != null)
         GjennomforingDboMapper.fromGjennomforingRequest(
             request = next,
             startDato = next.startDato,
@@ -177,6 +183,7 @@ object GjennomforingValidator {
             oppstartstype = request.oppstart,
             pameldingType = request.pameldingType,
             amoKategorisering = amoKategorisering,
+            prismodellId = request.prismodellId,
         )
     }
 
