@@ -349,7 +349,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               error={errors.prismodellId?.message}
               {...register("prismodellId")}
             >
-              <option value={undefined}>-- Velg prismodell --</option>
+              <option value={""}>-- Velg prismodell --</option>
               {avtale.prismodeller.map((prismodell) => (
                 <option key={prismodell.id} value={prismodell.id}>
                   {prismodell.navn}

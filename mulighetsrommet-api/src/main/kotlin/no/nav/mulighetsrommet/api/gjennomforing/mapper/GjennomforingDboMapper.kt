@@ -16,6 +16,7 @@ object GjennomforingDboMapper {
         request: GjennomforingRequest,
         startDato: LocalDate,
         antallPlasser: Int,
+        prismodellId: UUID,
         arrangorId: UUID,
         status: GjennomforingStatusType,
         oppstartstype: GjennomforingOppstartstype,
@@ -52,6 +53,6 @@ object GjennomforingDboMapper {
         amoKategorisering = amoKategorisering,
         utdanningslop = request.utdanningslop,
         pameldingType = pameldingType,
-        prismodellId = request.prismodellId,
+        prismodellId = prismodellId,
     )
 }
