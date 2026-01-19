@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -28,8 +28,8 @@ object PrismodellFixtures {
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         prisbetingelser = null,
         satser = listOf(
-            AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, ValutaType.NOK),
-            AvtaltSats(LocalDate.of(2026, 1, 1), 21_730, ValutaType.NOK),
+            AvtaltSats(LocalDate.of(2025, 1, 1), 20_975, Valuta.NOK),
+            AvtaltSats(LocalDate.of(2026, 1, 1), 21_730, Valuta.NOK),
         ),
     )
 
@@ -39,14 +39,14 @@ object PrismodellFixtures {
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         prisbetingelser = null,
         satser = listOf(
-            AvtaltSats(LocalDate.of(2025, 1, 1), 16_848, ValutaType.NOK),
-            AvtaltSats(LocalDate.of(2026, 1, 1), 17_455, ValutaType.NOK),
+            AvtaltSats(LocalDate.of(2025, 1, 1), 16_848, Valuta.NOK),
+            AvtaltSats(LocalDate.of(2026, 1, 1), 17_455, Valuta.NOK),
         ),
     )
 
     val AvtaltPrisPerTimeOppfolging = createPrismodellDbo(
         type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-        satser = listOf(AvtaltSats(LocalDate.of(2023, 1, 1), 1234, ValutaType.NOK)),
+        satser = listOf(AvtaltSats(LocalDate.of(2023, 1, 1), 1234, Valuta.NOK)),
     )
 
     val AnnenAvtaltPris = createPrismodellDbo()

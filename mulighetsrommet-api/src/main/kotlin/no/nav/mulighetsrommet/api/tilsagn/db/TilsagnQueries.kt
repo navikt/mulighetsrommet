@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
 import java.sql.Array
@@ -49,6 +50,7 @@ class TilsagnQueries(private val session: Session) {
                 kostnadssted,
                 status,
                 type,
+                valuta,
                 belop_brukt,
                 belop_beregnet,
                 beregning_type,
@@ -70,6 +72,7 @@ class TilsagnQueries(private val session: Session) {
                 :kostnadssted,
                 :status::tilsagn_status,
                 :type::tilsagn_type,
+                :valuta::currency,
                 :belop_brukt,
                 :belop_beregnet,
                 :beregning_type::tilsagn_beregning_type,
@@ -91,6 +94,7 @@ class TilsagnQueries(private val session: Session) {
                 kostnadssted                            = excluded.kostnadssted,
                 status                                  = excluded.status,
                 type                                    = excluded.type,
+                valuta                                  = excluded.valuta,
                 belop_brukt                             = excluded.belop_brukt,
                 belop_beregnet                          = excluded.belop_beregnet,
                 beregning_type                          = excluded.beregning_type,
@@ -116,6 +120,7 @@ class TilsagnQueries(private val session: Session) {
             "type" to dbo.type.name,
             "belop_brukt" to dbo.belopBrukt,
             "belop_beregnet" to dbo.beregning.output.belop,
+            "valuta" to dbo.valuta.name,
             "beregning_type" to when (dbo.beregning) {
                 is TilsagnBeregningFri -> TilsagnBeregningType.FRI
                 is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
@@ -189,12 +194,14 @@ class TilsagnQueries(private val session: Session) {
                     id,
                     tilsagn_id,
                     beskrivelse,
+                    valuta,
                     belop,
                     antall
                 ) values (
                     :id::uuid,
                     :tilsagn_id::uuid,
                     :beskrivelse,
+                    :valuta::currency,
                     :belop,
                     :antall
                 )
@@ -204,6 +211,7 @@ class TilsagnQueries(private val session: Session) {
                 "id" to it.id,
                 "tilsagn_id" to tilsagnId,
                 "beskrivelse" to it.beskrivelse,
+                "valuta" to it.valuta.name,
                 "belop" to it.belop,
                 "antall" to it.antall,
             )
@@ -331,8 +339,9 @@ class TilsagnQueries(private val session: Session) {
 
     private fun Row.toTilsagn(): Tilsagn {
         val id = uuid("id")
+        val valuta = string("valuta").let { Valuta.valueOf(it) }
 
-        val beregning = getBeregning(id, TilsagnBeregningType.valueOf(string("beregning_type")))
+        val beregning = getBeregning(id, valuta, TilsagnBeregningType.valueOf(string("beregning_type")))
 
         return Tilsagn(
             id = uuid("id"),
@@ -366,6 +375,7 @@ class TilsagnQueries(private val session: Session) {
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),
+            valuta = valuta,
             beregning = beregning,
             status = TilsagnStatus.valueOf(string("status")),
             kommentar = stringOrNull("kommentar"),
@@ -373,7 +383,7 @@ class TilsagnQueries(private val session: Session) {
         )
     }
 
-    private fun Row.getBeregning(id: UUID, beregning: TilsagnBeregningType): TilsagnBeregning {
+    private fun Row.getBeregning(id: UUID, valuta: Valuta, beregning: TilsagnBeregningType): TilsagnBeregning {
         return when (beregning) {
             TilsagnBeregningType.FRI -> {
                 TilsagnBeregningFri(
@@ -383,6 +393,7 @@ class TilsagnQueries(private val session: Session) {
                     ),
                     output = Output(
                         belop = int("belop_beregnet"),
+                        valuta = valuta,
                     ),
                 )
             }
@@ -391,10 +402,12 @@ class TilsagnQueries(private val session: Session) {
                 input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                     periode = periode("periode"),
                     sats = int("beregning_sats"),
+                    valuta = valuta,
                     antallPlasser = int("beregning_antall_plasser"),
                 ),
                 output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
                     belop = int("belop_beregnet"),
+                    valuta = valuta,
                 ),
             )
 
@@ -402,11 +415,13 @@ class TilsagnQueries(private val session: Session) {
                 input = TilsagnBeregningPrisPerManedsverk.Input(
                     periode = periode("periode"),
                     sats = int("beregning_sats"),
+                    valuta = valuta,
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                 ),
                 output = TilsagnBeregningPrisPerManedsverk.Output(
                     belop = int("belop_beregnet"),
+                    valuta = valuta,
                 ),
             )
 
@@ -414,11 +429,13 @@ class TilsagnQueries(private val session: Session) {
                 input = TilsagnBeregningPrisPerUkesverk.Input(
                     periode = periode("periode"),
                     sats = int("beregning_sats"),
+                    valuta = valuta,
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                 ),
                 output = TilsagnBeregningPrisPerUkesverk.Output(
                     belop = int("belop_beregnet"),
+                    valuta = valuta,
                 ),
             )
 
@@ -426,11 +443,13 @@ class TilsagnQueries(private val session: Session) {
                 input = TilsagnBeregningPrisPerHeleUkesverk.Input(
                     periode = periode("periode"),
                     sats = int("beregning_sats"),
+                    valuta = valuta,
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                 ),
                 output = TilsagnBeregningPrisPerHeleUkesverk.Output(
                     belop = int("belop_beregnet"),
+                    valuta = valuta,
                 ),
             )
 
@@ -438,12 +457,14 @@ class TilsagnQueries(private val session: Session) {
                 input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                     periode = periode("periode"),
                     sats = int("beregning_sats"),
+                    valuta = valuta,
                     antallPlasser = int("beregning_antall_plasser"),
                     antallTimerOppfolgingPerDeltaker = int("beregning_antall_timer_oppfolging_per_deltaker"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                 ),
                 output = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Output(
                     belop = int("belop_beregnet"),
+                    valuta = valuta,
                 ),
             )
         }
@@ -462,6 +483,7 @@ class TilsagnQueries(private val session: Session) {
                 beskrivelse = it.string("beskrivelse"),
                 belop = it.int("belop"),
                 antall = it.int("antall"),
+                valuta = it.string("valuta").let { currencyStr -> Valuta.valueOf(currencyStr) },
             )
         }
     }

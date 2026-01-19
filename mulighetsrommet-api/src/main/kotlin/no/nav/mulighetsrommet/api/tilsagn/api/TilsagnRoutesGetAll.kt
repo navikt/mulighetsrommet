@@ -91,7 +91,7 @@ private fun toTilsagnDataTable(tilsagn: List<Tilsagn>): DataDrivenTableDto {
                         is TilsagnBeregningPrisPerHeleUkesverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
                         is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> DataElement.number(tilsagn.beregning.input.antallPlasser)
                     },
-                    "belop" to DataElement.nok(tilsagn.beregning.output.belop),
+                    "belop" to DataElement.money(tilsagn.beregning.output.belop, tilsagn.valuta),
                     "status" to toTilsagnStatusTag(tilsagn.status),
                     "action" to toTilsagnAction(tilsagn),
                 ),

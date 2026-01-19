@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.avtale.model.ValutaType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -51,6 +50,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -263,7 +263,7 @@ class AvtaleServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 prisbetingelser = null,
-                satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100, ValutaType.NOK)),
+                satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100, Valuta.NOK)),
             )
 
             avtaleService.upsertPrismodell(AvtaleFixtures.oppfolging.id, listOf(request), bertilNavIdent)
