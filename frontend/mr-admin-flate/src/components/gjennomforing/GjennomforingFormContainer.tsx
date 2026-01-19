@@ -106,7 +106,7 @@ export function GjennomforingFormContainer(props: Props) {
           ? (data.utdanningslop ?? null)
           : null,
       pameldingType: data.pameldingType,
-      prismodellId: data.prismodellId,
+      prismodellId: data.prismodellId || null,
     };
 
     mutation.mutate(body, {
