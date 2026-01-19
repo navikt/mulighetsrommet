@@ -113,9 +113,13 @@ object AvtaleValidator {
         request: DetaljerRequest,
         ctx: Ctx,
     ): Either<List<FieldError>, DetaljerDbo> = validation {
-        val previous = ctx.previous
-        requireNotNull(previous) {
-            "Avtalen finnes ikke"
+        val previous = requireNotNull(ctx.previous) { "Avtalen finnes ikke" }
+
+        validate(request.tiltakskode == previous.tiltakskode) {
+            FieldError.of(
+                "Tiltakstype kan ikke endres etter at avtalen er opprettet",
+                DetaljerRequest::tiltakskode,
+            )
         }
 
         if (previous.opsjonerRegistrert.isNotEmpty()) {
@@ -132,23 +136,8 @@ object AvtaleValidator {
                 )
             }
         }
-        previous.prismodeller.forEach { prismodell ->
-            validate(prismodell.type in Prismodeller.getPrismodellerForTiltak(request.tiltakskode)) {
-                FieldError.of(
-                    "Tiltakstype kan ikke endres fordi prismodellen “${prismodell.type.navn}” er i bruk",
-                    DetaljerRequest::tiltakskode,
-                )
-            }
-        }
 
         if (previous.gjennomforinger.isNotEmpty()) {
-            validate(request.tiltakskode == previous.tiltakskode) {
-                FieldError.of(
-                    "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
-                    DetaljerRequest::tiltakskode,
-                )
-            }
-
             val earliestGjennomforingStartDato = previous.gjennomforinger.minBy { it.startDato }.startDato
             validate(!earliestGjennomforingStartDato.isBefore(request.startDato)) {
                 FieldError.of(
