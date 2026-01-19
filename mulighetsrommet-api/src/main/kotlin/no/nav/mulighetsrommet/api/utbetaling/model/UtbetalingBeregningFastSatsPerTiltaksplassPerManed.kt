@@ -24,24 +24,4 @@ data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
     ) : UtbetalingBeregningOutput() {
         override fun deltakelser() = deltakelser
     }
-
-    companion object {
-        fun beregn(input: Input): UtbetalingBeregningFastSatsPerTiltaksplassPerManed {
-            val stengtHosArrangor = input.stengt.map { it.periode }
-
-            val manedsverk = input.deltakelser
-                .map { deltakelse ->
-                    UtbetalingBeregningHelpers.calculateDeltakelseManedsverkForDeltakelsesprosent(
-                        deltakelse,
-                        input.satser,
-                        stengtHosArrangor,
-                    )
-                }
-                .toSet()
-
-            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(manedsverk)
-
-            return UtbetalingBeregningFastSatsPerTiltaksplassPerManed(input, Output(belop, manedsverk))
-        }
-    }
 }

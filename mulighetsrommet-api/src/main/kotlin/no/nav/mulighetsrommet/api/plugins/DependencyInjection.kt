@@ -67,6 +67,10 @@ import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaCons
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateDeltakerKafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateFakturaStatusConsumer
+import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
@@ -396,12 +400,19 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnhetService(get()) }
     single { ArrangorService(get(), get()) }
     single {
+        val db: ApiDatabase = get()
         GenererUtbetalingService(
             config = GenererUtbetalingService.Config(
                 gyldigTilsagnPeriode = appConfig.okonomi.gyldigTilsagnPeriode,
                 tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
-            get(),
+            db = db,
+            prismodeller = setOf(
+                FastSatsPerTiltaksplassPerManedBeregning,
+                PrisPerManedBeregning,
+                PrisPerUkeBeregning,
+                PrisPerHeleUkeBeregning,
+            ),
             get(),
         )
     }
