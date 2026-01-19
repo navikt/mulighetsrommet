@@ -77,7 +77,10 @@ sealed class Prismodell {
 
     companion object {
         fun from(type: PrismodellType, id: UUID, prisbetingelser: String?, satser: List<AvtaltSats>?): Prismodell {
-            val satser = satser?.toDto() ?: listOf()
+            val satser = (satser ?: listOf()).windowed(size = 2, partialWindows = true).map { sats ->
+                val nextSats = sats.getOrNull(1)
+                AvtaltSatsDto.fromAvtaltSats(sats[0], nextSats)
+            }
             return when (type) {
                 PrismodellType.ANNEN_AVTALT_PRIS -> AnnenAvtaltPris(
                     id = id,
