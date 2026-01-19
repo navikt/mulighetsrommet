@@ -74,6 +74,47 @@ sealed class Prismodell {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
     }
+
+    companion object {
+        fun from(type: PrismodellType, id: UUID, prisbetingelser: String?, satser: List<AvtaltSats>?): Prismodell {
+            val satser = satser?.toDto() ?: listOf()
+            return when (type) {
+                PrismodellType.ANNEN_AVTALT_PRIS -> AnnenAvtaltPris(
+                    id = id,
+                    prisbetingelser = prisbetingelser,
+                )
+
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> ForhandsgodkjentPrisPerManedsverk(
+                    id = id,
+                    satser = satser,
+                )
+
+                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> AvtaltPrisPerManedsverk(
+                    id = id,
+                    prisbetingelser = prisbetingelser,
+                    satser = satser,
+                )
+
+                PrismodellType.AVTALT_PRIS_PER_UKESVERK -> AvtaltPrisPerUkesverk(
+                    id = id,
+                    prisbetingelser = prisbetingelser,
+                    satser = satser,
+                )
+
+                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> AvtaltPrisPerHeleUkesverk(
+                    id = id,
+                    prisbetingelser = prisbetingelser,
+                    satser = satser,
+                )
+
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> AvtaltPrisPerTimeOppfolgingPerDeltaker(
+                    id = id,
+                    prisbetingelser = prisbetingelser,
+                    satser = satser,
+                )
+            }
+        }
+    }
 }
 
 fun List<AvtaltSats>.findAvtaltSats(dato: LocalDate): AvtaltSats? = this
