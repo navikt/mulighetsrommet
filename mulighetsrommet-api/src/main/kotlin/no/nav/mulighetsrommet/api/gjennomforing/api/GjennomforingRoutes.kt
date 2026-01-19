@@ -653,7 +653,7 @@ data class GjennomforingRequest(
     val amoKategorisering: AmoKategoriseringRequest?,
     val utdanningslop: UtdanningslopDbo? = null,
     @Serializable(with = UUIDSerializer::class)
-    val prismodellId: UUID?,
+    val prismodellId: UUID,
     val pameldingType: GjennomforingPameldingType?,
 )
 

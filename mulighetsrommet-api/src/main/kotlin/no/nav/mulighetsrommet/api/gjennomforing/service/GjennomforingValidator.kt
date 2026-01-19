@@ -78,9 +78,6 @@ object GjennomforingValidator {
                 GjennomforingRequest::sluttDato,
             )
         }
-        validate(request.prismodellId != null) {
-            FieldError.of("Du må velge en prismodell", GjennomforingRequest::prismodellId)
-        }
         validate(next.startDato != null) {
             FieldError.of("Du må sette en startdato", GjennomforingRequest::startDato)
         }
@@ -170,7 +167,7 @@ object GjennomforingValidator {
             validateUpdateGjennomforing(next, ctx.previous, ctx.avtale, ctx.antallDeltakere)
         }
 
-        requireValid(next.antallPlasser != null && next.startDato != null && request.oppstart != null && request.pameldingType != null && request.prismodellId != null)
+        requireValid(next.antallPlasser != null && next.startDato != null && request.oppstart != null && request.pameldingType != null)
         GjennomforingDboMapper.fromGjennomforingRequest(
             request = next,
             startDato = next.startDato,
@@ -180,7 +177,6 @@ object GjennomforingValidator {
             oppstartstype = request.oppstart,
             pameldingType = request.pameldingType,
             amoKategorisering = amoKategorisering,
-            prismodellId = request.prismodellId,
         )
     }
 

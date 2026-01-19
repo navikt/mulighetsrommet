@@ -20,7 +20,6 @@ object GjennomforingDboMapper {
         oppstartstype: GjennomforingOppstartstype,
         pameldingType: GjennomforingPameldingType,
         amoKategorisering: AmoKategorisering?,
-        prismodellId: UUID,
     ) = GjennomforingGruppetiltakDbo(
         id = request.id,
         navn = request.navn,
@@ -52,6 +51,6 @@ object GjennomforingDboMapper {
         amoKategorisering = amoKategorisering,
         utdanningslop = request.utdanningslop,
         pameldingType = pameldingType,
-        prismodellId = prismodellId,
+        prismodellId = request.prismodellId,
     )
 }
