@@ -8,6 +8,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toAvtalt
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toStengtPeriode
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 
 class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
@@ -18,7 +20,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
 
             val gjennomforing = createGjennomforingForPrisPerUkesverk(
                 periode = periode,
-                satser = listOf(toAvtaltSats(periode.start, 100)),
+                satser = listOf(toAvtaltSats(periode.start, 100.withValuta(Valuta.NOK))),
             )
             val deltakere = listOf(
                 createDeltaker(periode, status = DeltakerStatusType.DELTAR),
@@ -48,9 +50,9 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
             val gjennomforing = createGjennomforingForPrisPerUkesverk(
                 periode = periode,
                 satser = listOf(
-                    toAvtaltSats(LocalDate.of(2025, 1, 1), 50),
-                    toAvtaltSats(LocalDate.of(2026, 2, 15), 100),
-                    toAvtaltSats(LocalDate.of(2026, 3, 1), 150),
+                    toAvtaltSats(LocalDate.of(2025, 1, 1), 50.withValuta(Valuta.NOK)),
+                    toAvtaltSats(LocalDate.of(2026, 2, 15), 100.withValuta(Valuta.NOK)),
+                    toAvtaltSats(LocalDate.of(2026, 3, 1), 150.withValuta(Valuta.NOK)),
                 ),
             )
             val deltakere = listOf(createDeltaker(periode))
@@ -68,7 +70,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
 
             val gjennomforing = createGjennomforingForPrisPerUkesverk(
                 periode = periode,
-                satser = listOf(toAvtaltSats(periode.start, 100)),
+                satser = listOf(toAvtaltSats(periode.start, 100.withValuta(Valuta.NOK))),
             )
             val deltakere = listOf(
                 createDeltaker(Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 4, 1))),
@@ -91,7 +93,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
 
             val gjennomforing = createGjennomforingForPrisPerUkesverk(
                 periode = periode,
-                satser = listOf(toAvtaltSats(periodeStart, 50)),
+                satser = listOf(toAvtaltSats(periodeStart, 50.withValuta(Valuta.NOK))),
             )
 
             val deltakere = listOf(
@@ -150,7 +152,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
 
             val gjennomforing = createGjennomforingForPrisPerUkesverk(
                 periode = periode,
-                satser = listOf(toAvtaltSats(periodeStart, 50)),
+                satser = listOf(toAvtaltSats(periodeStart, 50.withValuta(Valuta.NOK))),
                 stengt = listOf(
                     toStengtPeriode(Periode(LocalDate.of(2025, 2, 3), LocalDate.of(2025, 2, 5)), "Stengt 1"),
                     toStengtPeriode(Periode(LocalDate.of(2025, 2, 10), LocalDate.of(2025, 2, 11)), "Stengt 2"),
@@ -216,7 +218,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
 
             val gjennomforing = createGjennomforingForPrisPerUkesverk(
                 periode = periodeGjennomforing,
-                satser = listOf(toAvtaltSats(periodeMidt, 50)),
+                satser = listOf(toAvtaltSats(periodeMidt, 50.withValuta(Valuta.NOK))),
                 stengt = listOf(),
             )
 
@@ -259,7 +261,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
 
             val gjennomforing = createGjennomforingForPrisPerUkesverk(
                 periode = periode,
-                satser = listOf(toAvtaltSats(periode.start, 10)),
+                satser = listOf(toAvtaltSats(periode.start, 10.withValuta(Valuta.NOK))),
             )
             val deltakere = listOf(createDeltaker(periode))
 

@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -196,7 +195,7 @@ object AvtaleFixtures {
                     type = prismodell.type,
                     prisbetingelser = prismodell.prisbetingelser,
                     satser = (prismodell.satser ?: listOf()).map {
-                        AvtaltSatsRequest(it.gjelderFra, it.sats, Valuta.NOK)
+                        AvtaltSatsRequest(it.gjelderFra, it.sats.belop, it.sats.valuta)
                     },
                 )
             },

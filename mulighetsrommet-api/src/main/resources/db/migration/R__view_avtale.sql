@@ -52,6 +52,7 @@ from avtale
                                                    'id', id,
                                                    'systemId', system_id,
                                                    'type', prismodell_type,
+                                                   'valuta', valuta,
                                                    'prisbetingelser', prisbetingelser,
                                                    'satser', satser
                                            )

@@ -555,7 +555,7 @@ private fun Row.toAvtale(): Avtale {
     }
 
     val prismodeller = Json.decodeFromString<List<PrismodellDbo>>(string("prismodeller_json")).map { prismodell ->
-        Prismodell.from(prismodell.type, prismodell.id, prismodell.prisbetingelser, prismodell.satser)
+        Prismodell.from(prismodell.type, prismodell.id, prismodell.valuta, prismodell.prisbetingelser, prismodell.satser)
     }
 
     val status = when (AvtaleStatusType.valueOf(string("status"))) {

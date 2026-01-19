@@ -63,6 +63,7 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -1126,7 +1127,7 @@ class UtbetalingServiceTest : FunSpec({
                 }
 
                 queries.tilsagn.getOrError(Tilsagn1.id).should {
-                    it.belopBrukt shouldBe 1000
+                    it.belopBrukt shouldBe 1000.withValuta(Valuta.NOK)
                 }
 
                 val records = queries.kafkaProducerRecord.getRecords(50)
@@ -1440,8 +1441,7 @@ class UtbetalingServiceTest : FunSpec({
                     queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, utbetaling1.id)
                 utbetaling.status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
                 endringshistorikk.entries.shouldBeEmpty()
-                val diff =
-                    Duration.between(delutbetaling.faktura.statusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
+                val diff = Duration.between(delutbetaling.faktura.statusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
                 diff shouldBeLessThanOrEqualTo Duration.ofMillis(1)
             }
         }
@@ -1601,14 +1601,13 @@ fun getTilsagnBeregning(belop: Int, valuta: Valuta) = TilsagnBeregningFri(
             TilsagnBeregningFri.InputLinje(
                 id = UUID.randomUUID(),
                 beskrivelse = "Beskrivelse",
-                valuta = Valuta.NOK,
-                belop = 1500,
+                pris = 1500.withValuta(Valuta.NOK),
                 antall = 1,
             ),
         ),
         prisbetingelser = null,
     ),
-    output = TilsagnBeregningFri.Output(1500, Valuta.NOK),
+    output = TilsagnBeregningFri.Output(1500.withValuta(Valuta.NOK)),
 ).copy(
-    output = TilsagnBeregningFri.Output(belop, valuta),
+    output = TilsagnBeregningFri.Output(belop.withValuta(valuta)),
 )

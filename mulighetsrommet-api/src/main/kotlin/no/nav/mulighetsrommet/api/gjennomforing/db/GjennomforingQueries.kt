@@ -361,6 +361,7 @@ class GjennomforingQueries(private val session: Session) {
         val query = """
             select prismodell.id as prismodell_id,
                    prismodell.prismodell_type,
+                   prismodell.valuta as prismodell_valuta,
                    prismodell.prisbetingelser as prismodell_prisbetingelser,
                    prismodell.satser as prismodell_satser
             from gjennomforing

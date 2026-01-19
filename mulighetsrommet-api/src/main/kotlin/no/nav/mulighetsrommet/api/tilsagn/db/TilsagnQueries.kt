@@ -31,6 +31,8 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
 import java.sql.Array
@@ -118,9 +120,9 @@ class TilsagnQueries(private val session: Session) {
             "bestilling_status" to dbo.bestillingStatus?.name,
             "kostnadssted" to dbo.kostnadssted.value,
             "type" to dbo.type.name,
-            "belop_brukt" to dbo.belopBrukt,
-            "belop_beregnet" to dbo.beregning.output.belop,
-            "valuta" to dbo.valuta.name,
+            "belop_brukt" to dbo.belopBrukt.belop,
+            "belop_beregnet" to dbo.beregning.output.pris.belop,
+            "valuta" to dbo.belopBrukt.valuta.name,
             "beregning_type" to when (dbo.beregning) {
                 is TilsagnBeregningFri -> TilsagnBeregningType.FRI
                 is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
@@ -140,30 +142,30 @@ class TilsagnQueries(private val session: Session) {
             )
 
             is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> mapOf(
-                "beregning_sats" to dbo.beregning.input.sats,
+                "beregning_sats" to dbo.beregning.input.sats.belop,
                 "beregning_antall_plasser" to dbo.beregning.input.antallPlasser,
             )
 
             is TilsagnBeregningPrisPerManedsverk -> mapOf(
-                "beregning_sats" to dbo.beregning.input.sats,
+                "beregning_sats" to dbo.beregning.input.sats.belop,
                 "beregning_antall_plasser" to dbo.beregning.input.antallPlasser,
                 "beregning_prisbetingelser" to dbo.beregning.input.prisbetingelser,
             )
 
             is TilsagnBeregningPrisPerUkesverk -> mapOf(
-                "beregning_sats" to dbo.beregning.input.sats,
+                "beregning_sats" to dbo.beregning.input.sats.belop,
                 "beregning_antall_plasser" to dbo.beregning.input.antallPlasser,
                 "beregning_prisbetingelser" to dbo.beregning.input.prisbetingelser,
             )
 
             is TilsagnBeregningPrisPerHeleUkesverk -> mapOf(
-                "beregning_sats" to dbo.beregning.input.sats,
+                "beregning_sats" to dbo.beregning.input.sats.belop,
                 "beregning_antall_plasser" to dbo.beregning.input.antallPlasser,
                 "beregning_prisbetingelser" to dbo.beregning.input.prisbetingelser,
             )
 
             is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> mapOf(
-                "beregning_sats" to dbo.beregning.input.sats,
+                "beregning_sats" to dbo.beregning.input.sats.belop,
                 "beregning_antall_plasser" to dbo.beregning.input.antallPlasser,
                 "beregning_antall_timer_oppfolging_per_deltaker" to dbo.beregning.input.antallTimerOppfolgingPerDeltaker,
                 "beregning_prisbetingelser" to dbo.beregning.input.prisbetingelser,
@@ -211,8 +213,8 @@ class TilsagnQueries(private val session: Session) {
                 "id" to it.id,
                 "tilsagn_id" to tilsagnId,
                 "beskrivelse" to it.beskrivelse,
-                "valuta" to it.valuta.name,
-                "belop" to it.belop,
+                "valuta" to it.pris.valuta.name,
+                "belop" to it.pris.belop,
                 "antall" to it.antall,
             )
         }
@@ -355,7 +357,7 @@ class TilsagnQueries(private val session: Session) {
                 lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
                 navn = string("gjennomforing_navn"),
             ),
-            belopBrukt = int("belop_brukt"),
+            belopBrukt = int("belop_brukt").withValuta(valuta),
             periode = periode("periode"),
             lopenummer = int("lopenummer"),
             bestilling = Tilsagn.Bestilling(
@@ -375,7 +377,6 @@ class TilsagnQueries(private val session: Session) {
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),
-            valuta = valuta,
             beregning = beregning,
             status = TilsagnStatus.valueOf(string("status")),
             kommentar = stringOrNull("kommentar"),
@@ -392,8 +393,7 @@ class TilsagnQueries(private val session: Session) {
                         prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                     ),
                     output = Output(
-                        belop = int("belop_beregnet"),
-                        valuta = valuta,
+                        pris = int("belop_beregnet").withValuta(valuta),
                     ),
                 )
             }
@@ -401,70 +401,60 @@ class TilsagnQueries(private val session: Session) {
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED -> TilsagnBeregningFastSatsPerTiltaksplassPerManed(
                 input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                     periode = periode("periode"),
-                    sats = int("beregning_sats"),
-                    valuta = valuta,
+                    sats = int("beregning_sats").withValuta(valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                 ),
                 output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
-                    belop = int("belop_beregnet"),
-                    valuta = valuta,
+                    pris = int("belop_beregnet").withValuta(valuta),
                 ),
             )
 
             TilsagnBeregningType.PRIS_PER_MANEDSVERK -> TilsagnBeregningPrisPerManedsverk(
                 input = TilsagnBeregningPrisPerManedsverk.Input(
                     periode = periode("periode"),
-                    sats = int("beregning_sats"),
-                    valuta = valuta,
+                    sats = int("beregning_sats").withValuta(valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                 ),
                 output = TilsagnBeregningPrisPerManedsverk.Output(
-                    belop = int("belop_beregnet"),
-                    valuta = valuta,
+                    pris = int("belop_beregnet").withValuta(valuta),
                 ),
             )
 
             TilsagnBeregningType.PRIS_PER_UKESVERK -> TilsagnBeregningPrisPerUkesverk(
                 input = TilsagnBeregningPrisPerUkesverk.Input(
                     periode = periode("periode"),
-                    sats = int("beregning_sats"),
-                    valuta = valuta,
+                    sats = ValutaBelop(int("beregning_sats"), valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                 ),
                 output = TilsagnBeregningPrisPerUkesverk.Output(
-                    belop = int("belop_beregnet"),
-                    valuta = valuta,
+                    pris = int("belop_beregnet").withValuta(valuta),
                 ),
             )
 
             TilsagnBeregningType.PRIS_PER_HELE_UKESVERK -> TilsagnBeregningPrisPerHeleUkesverk(
                 input = TilsagnBeregningPrisPerHeleUkesverk.Input(
                     periode = periode("periode"),
-                    sats = int("beregning_sats"),
-                    valuta = valuta,
+                    sats = int("beregning_sats").withValuta(valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                 ),
                 output = TilsagnBeregningPrisPerHeleUkesverk.Output(
-                    belop = int("belop_beregnet"),
-                    valuta = valuta,
+                    pris = int("belop_beregnet").withValuta(valuta),
                 ),
             )
 
             TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING -> TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
                 input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                     periode = periode("periode"),
-                    sats = int("beregning_sats"),
-                    valuta = valuta,
+                    sats = int("beregning_sats").withValuta(valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                     antallTimerOppfolgingPerDeltaker = int("beregning_antall_timer_oppfolging_per_deltaker"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                 ),
                 output = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Output(
-                    belop = int("belop_beregnet"),
-                    valuta = valuta,
+                    pris = int("belop_beregnet").withValuta(valuta),
                 ),
             )
         }
@@ -478,12 +468,12 @@ class TilsagnQueries(private val session: Session) {
             where tilsagn_id = ?::uuid
         """.trimIndent()
         return session.list(queryOf(query, tilsagnId)) {
+            val valuta = it.string("valuta").let { currencyStr -> Valuta.valueOf(currencyStr) }
             TilsagnBeregningFri.InputLinje(
                 id = it.uuid("id"),
                 beskrivelse = it.string("beskrivelse"),
-                belop = it.int("belop"),
+                pris = it.int("belop").withValuta(valuta),
                 antall = it.int("antall"),
-                valuta = it.string("valuta").let { currencyStr -> Valuta.valueOf(currencyStr) },
             )
         }
     }

@@ -41,6 +41,8 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.UUID
@@ -266,6 +268,7 @@ object AvtaleValidator {
                 type = prismodell.type,
                 prisbetingelser = prismodell.prisbetingelser,
                 satser = satser,
+                valuta = Valuta.NOK,
             )
         }
     }
@@ -455,7 +458,7 @@ object AvtaleValidator {
                     "Gjelder fra må være satt",
                 )
             }
-            AvtaltSats(request.gjelderFra, request.pris, request.valuta)
+            AvtaltSats(request.gjelderFra, sats = ValutaBelop(request.pris, request.valuta))
         }
 
         val duplicateDates = satser.map { it.gjelderFra }.groupBy { it }.filter { it.value.size > 1 }.keys

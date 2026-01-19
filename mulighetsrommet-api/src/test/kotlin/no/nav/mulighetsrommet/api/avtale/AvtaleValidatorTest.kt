@@ -45,6 +45,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -75,7 +76,7 @@ class AvtaleValidatorTest : FunSpec({
         Tiltakskode.OPPFOLGING,
         avtaletype = Avtaletype.RAMMEAVTALE,
     )
-    val prismodell = Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), prisbetingelser = "")
+    val prismodell = Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), valuta = Valuta.NOK, prisbetingelser = "")
     val ctx = Ctx(
         previous = null,
         arrangor = ArrangorFixtures.hovedenhet.copy(
@@ -660,7 +661,9 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 getContext(),
-            ).shouldBeRight()[0].satser shouldBe listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1, Valuta.NOK))
+            ).shouldBeRight()[0].satser shouldBe listOf(
+                AvtaltSats(LocalDate.of(2025, 1, 1), 1.withValuta(Valuta.NOK)),
+            )
         }
 
         test("tillater ikke flere satser som starter på samme dato") {
@@ -700,9 +703,9 @@ class AvtaleValidatorTest : FunSpec({
                 ),
                 getContext(),
             ).shouldBeRight()[0].satser shouldBe listOf(
-                AvtaltSats(LocalDate.of(2025, 1, 1), 1, Valuta.NOK),
-                AvtaltSats(LocalDate.of(2025, 2, 1), 2, Valuta.NOK),
-                AvtaltSats(LocalDate.of(2025, 3, 1), 3, Valuta.NOK),
+                AvtaltSats(LocalDate.of(2025, 1, 1), 1.withValuta(Valuta.NOK)),
+                AvtaltSats(LocalDate.of(2025, 2, 1), 2.withValuta(Valuta.NOK)),
+                AvtaltSats(LocalDate.of(2025, 3, 1), 3.withValuta(Valuta.NOK)),
             )
         }
     }

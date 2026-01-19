@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -26,24 +27,21 @@ object TilsagnFixtures {
         lopenummer = 1,
         bestillingsnummer = "A-2025/1-1",
         bestillingStatus = null,
-        belopBrukt = 0,
-        valuta = Valuta.NOK,
+        belopBrukt = 0.withValuta(Valuta.NOK),
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(
                 listOf(
                     TilsagnBeregningFri.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "1000",
-                        belop = 1000,
-                        valuta = Valuta.NOK,
+                        pris = 1000.withValuta(Valuta.NOK),
                         antall = 1,
                     ),
                 ),
                 prisbetingelser = null,
             ),
             output = TilsagnBeregningFri.Output(
-                belop = 1000,
-                valuta = Valuta.NOK,
+                pris = 1000.withValuta(Valuta.NOK),
             ),
         ),
         kommentar = null,
@@ -59,24 +57,21 @@ object TilsagnFixtures {
         lopenummer = 2,
         bestillingsnummer = "A-2025/1-2",
         bestillingStatus = null,
-        belopBrukt = 0,
-        valuta = Valuta.NOK,
+        belopBrukt = 0.withValuta(Valuta.NOK),
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(
                 listOf(
                     TilsagnBeregningFri.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "1500",
-                        belop = 1500,
-                        valuta = Valuta.NOK,
+                        pris = 1500.withValuta(Valuta.NOK),
                         antall = 1,
                     ),
                 ),
                 prisbetingelser = null,
             ),
             output = TilsagnBeregningFri.Output(
-                belop = 1500,
-                valuta = Valuta.NOK,
+                pris = 1500.withValuta(Valuta.NOK),
             ),
         ),
         kommentar = null,
@@ -92,24 +87,21 @@ object TilsagnFixtures {
         lopenummer = 3,
         bestillingsnummer = "A-2025/1-3",
         bestillingStatus = null,
-        belopBrukt = 0,
-        valuta = Valuta.NOK,
+        belopBrukt = 0.withValuta(Valuta.NOK),
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(
                 listOf(
                     TilsagnBeregningFri.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "1250",
-                        belop = 1250,
-                        valuta = Valuta.NOK,
+                        pris = 1250.withValuta(Valuta.NOK),
                         antall = 2,
                     ),
                 ),
                 prisbetingelser = null,
             ),
             output = TilsagnBeregningFri.Output(
-                belop = 2500,
-                valuta = Valuta.NOK,
+                pris = 2500.withValuta(Valuta.NOK),
             ),
         ),
         kommentar = null,
@@ -125,24 +117,21 @@ object TilsagnFixtures {
         lopenummer = 4,
         bestillingsnummer = "A-2025/1-4",
         bestillingStatus = null,
-        valuta = Valuta.NOK,
-        belopBrukt = 0,
+        belopBrukt = 0.withValuta(Valuta.NOK),
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(
                 listOf(
                     TilsagnBeregningFri.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "Beskrivelse",
-                        belop = 1250,
-                        valuta = Valuta.NOK,
+                        pris = 1250.withValuta(Valuta.NOK),
                         antall = 2,
                     ),
                 ),
                 prisbetingelser = null,
             ),
             output = TilsagnBeregningFri.Output(
-                belop = 2500,
-                valuta = Valuta.NOK,
+                pris = 2500.withValuta(Valuta.NOK),
             ),
         ),
         kommentar = null,
@@ -162,9 +151,8 @@ object TilsagnFixtures {
                 TilsagnInputLinjeRequest(
                     id = UUID.randomUUID(),
                     beskrivelse = "1000",
-                    belop = 1000,
+                    pris = 1000.withValuta(Valuta.NOK),
                     antall = 1,
-                    valuta = Valuta.NOK,
                 ),
             ),
             valuta = Valuta.NOK,

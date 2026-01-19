@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
@@ -25,16 +27,14 @@ data class TilsagnBeregningFri(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val beskrivelse: String,
-        val valuta: Valuta,
-        val belop: Int,
+        val pris: ValutaBelop,
         val antall: Int,
     )
 
     @Serializable
     @SerialName("FRI")
     data class Output(
-        override val belop: Int,
-        override val valuta: Valuta,
+        override val pris: ValutaBelop,
     ) : TilsagnBeregningOutput()
 
     companion object {
@@ -43,9 +43,8 @@ data class TilsagnBeregningFri(
                 input,
                 Output(
                     input.linjer.sumOf {
-                        it.belop.toBigInteger().multiply(it.antall.toBigInteger())
-                    }.intValueExact(),
-                    input.linjer.first().valuta,
+                        it.pris.belop.toBigInteger().multiply(it.antall.toBigInteger())
+                    }.intValueExact().withValuta(input.linjer.firstOrNull()?.pris?.valuta ?: Valuta.NOK),
                 ),
             )
         }

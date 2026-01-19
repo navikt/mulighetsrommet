@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
@@ -10,6 +11,7 @@ data class PrismodellDto(
     val id: UUID,
     val type: PrismodellType,
     val satser: List<AvtaltSatsDto>?,
+    val valuta: Valuta,
     val prisbetingelser: String?,
 ) {
     val navn: String = type.navn
@@ -33,10 +35,19 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.prisbetingelser
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.prisbetingelser
     }
+    val valuta = when (prismodell) {
+        is Prismodell.AnnenAvtaltPris -> prismodell.valuta
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> prismodell.satser.first().pris.valuta
+        is Prismodell.AvtaltPrisPerManedsverk -> prismodell.satser.first().pris.valuta
+        is Prismodell.AvtaltPrisPerUkesverk -> prismodell.satser.first().pris.valuta
+        is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.satser.first().pris.valuta
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.satser.first().pris.valuta
+    }
     return PrismodellDto(
         id = prismodell.id,
         type = prismodell.type,
         satser = satser,
         prisbetingelser = prisbetingelser,
+        valuta = valuta,
     )
 }

@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import java.util.UUID
 
 class TilsagnBeregningFriTest : FunSpec({
@@ -14,8 +15,7 @@ class TilsagnBeregningFriTest : FunSpec({
                     TilsagnBeregningFri.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "",
-                        belop = 999_999_999,
-                        valuta = Valuta.NOK,
+                        pris = 999_999_999.withValuta(Valuta.NOK),
                         antall = 999_999_999,
                     ),
                 ),
