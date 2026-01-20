@@ -24,10 +24,11 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
+import no.nav.mulighetsrommet.api.arrangorflate.dto.TabelloversiktRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.toDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -54,7 +55,6 @@ import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
-import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.LabeledDataElement
@@ -117,8 +117,8 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         }
         response {
             code(HttpStatusCode.OK) {
-                description = "Arrangører sine gjennomføringer (DataDrivenTable)"
-                body<TiltaksoversiktResponse>()
+                description = "Tiltak for arrangør"
+                body<List<TabelloversiktRadDto>>()
             }
             default {
                 description = "Problem details"
@@ -153,7 +153,10 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                     .items
             }
         }
-        call.respond(TiltaksoversiktResponse(table = toGjennomforingDataTable(gjennomforinger)))
+
+        call.respond(
+            gjennomforinger.map { it.toDto() },
+        )
     }
 
     route("/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav") {
@@ -437,52 +440,6 @@ enum class TiltaksoversiktType {
             else -> AKTIVE
         }
     }
-}
-
-@Serializable
-data class TiltaksoversiktResponse(
-    val table: DataDrivenTableDto? = null,
-)
-
-private fun toGjennomforingDataTable(
-    gjennomforinger: List<GjennomforingGruppetiltakKompakt>,
-): DataDrivenTableDto? {
-    if (gjennomforinger.isEmpty()) {
-        return null
-    }
-    return DataDrivenTableDto(
-        columns = listOf(
-            DataDrivenTableDto.Column("tiltak", "Tiltak"),
-            DataDrivenTableDto.Column("arrangor", "Arrangør"),
-            DataDrivenTableDto.Column("startDato", "Startdato"),
-            DataDrivenTableDto.Column("sluttDato", "Sluttdato"),
-            DataDrivenTableDto.Column("action", null, sortable = false, align = DataDrivenTableDto.Column.Align.CENTER),
-        ),
-        rows = gjennomforinger.map { gjennomforing ->
-            DataDrivenTableDto.Row(
-                cells = mapOf(
-                    "tiltak" to DataElement.text("${gjennomforing.tiltakstype.navn} (${gjennomforing.lopenummer})"),
-                    "arrangor" to DataElement.text(
-                        "${gjennomforing.arrangor.navn} (${gjennomforing.arrangor.organisasjonsnummer})",
-                    ),
-                    "startDato" to DataElement.date(gjennomforing.startDato),
-                    "sluttDato" to DataElement.date(gjennomforing.sluttDato),
-                    "action" to
-                        DataElement.Link(
-                            text = "Start innsending",
-                            href = hrefOpprettKravInnsendingsInformasjon(
-                                gjennomforing.arrangor.organisasjonsnummer,
-                                gjennomforing.id,
-                            ),
-                        ),
-                ),
-            )
-        },
-    )
-}
-
-private fun hrefOpprettKravInnsendingsInformasjon(orgnr: Organisasjonsnummer, gjennomforingId: UUID): String {
-    return "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
 }
 
 @Serializable

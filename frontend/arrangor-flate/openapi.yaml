@@ -23,12 +23,14 @@ paths:
           $ref: "#/components/schemas/TiltaksoversiktType"
       responses:
         "200":
-          description: Arrangører sine gjennomføringer (DataDrivenTable)
+          description: Arrangører sine gjennomføringer
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TiltaksoversiktResponse"
+                type: array
+                items:
+                  $ref: "#/components/schemas/TabelloversiktRadDto"
         default:
           description: Problem details
           headers: {}
@@ -738,58 +740,154 @@ components:
       enum:
       - AKTIVE
       - HISTORISKE
-    DataDrivenTableDto:
+    TabelloversiktRadDto:
       type: object
       properties:
-        columns:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataDrivenTableDto.Column"
-        rows:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataDrivenTableDto.Row"
-      required:
-      - columns
-      - rows
-    DataDrivenTableDto.Column:
-      type: object
-      properties:
-        key:
+        gjennomforingId:
           type: string
-        label:
+          format: uuid
+        arrangorNavn:
+          type: string
+        organisasjonsnummer:
+          type: string
+        tiltakstypeNavn:
+          type: string
+        tiltakNavn:
+          type: string
+        lopenummer:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        startDato:
+          type: string
+          format: date
+        sluttDato:
           type:
           - "null"
           - string
-        sortable:
-          type: boolean
-        align:
-          $ref: "#/components/schemas/DataDrivenTableDto.Column.Align"
+          format: date
+        belop:
+          type:
+          - "null"
+          - integer
+          format: int32
+        type:
+          type:
+          - "null"
+          - string
+        status:
+          type:
+          - "null"
+          - string
       required:
-      - align
-      - key
-      - label
-      - sortable
-    DataDrivenTableDto.Column.Align:
+      - arrangorNavn
+      - belop
+      - gjennomforingId
+      - lopenummer
+      - organisasjonsnummer
+      - sluttDato
+      - startDato
+      - status
+      - tiltakNavn
+      - tiltakskode
+      - tiltakstypeNavn
+      - type
+    Tiltakskode:
       type: string
       enum:
-      - left
-      - center
-      - right
-    DataDrivenTableDto.Row:
+      - ARBEIDSFORBEREDENDE_TRENING
+      - ARBEIDSRETTET_REHABILITERING
+      - AVKLARING
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - HOYERE_UTDANNING
+      - JOBBKLUBB
+      - OPPFOLGING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - ARBEIDSMARKEDSOPPLAERING
+      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+      - STUDIESPESIALISERING
+      - FAG_OG_YRKESOPPLAERING
+      - HOYERE_YRKESFAGLIG_UTDANNING
+    ProblemDetail:
+      type: object
+      additionalProperties: {}
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+      - detail
+      - status
+      - title
+      - type
+    OpprettKravVeiviserStegDto:
       type: object
       properties:
-        cells:
-          type: object
-          additionalProperties:
-            $ref: "#/components/schemas/DataElement"
-        content:
+        type:
+          $ref: "#/components/schemas/OpprettKravVeiviserSteg"
+        navn:
+          type: string
+        order:
+          type: integer
+          format: int32
+      required:
+      - navn
+      - order
+      - type
+    OpprettKravVeiviserSteg:
+      type: string
+      enum:
+      - INFORMASJON
+      - DELTAKERLISTE
+      - UTBETALING
+      - VEDLEGG
+      - OPPSUMMERING
+    OpprettKravVeiviserMeta:
+      type: object
+      properties:
+        steg:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpprettKravVeiviserStegDto"
+      required:
+      - steg
+    GuidePanelType:
+      type: string
+      enum:
+      - INVESTERING_VTA_AFT
+      - TIMESPRIS
+      - AVTALT_PRIS
+    LabeledDataElement:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/LabeledDataElementType"
+        label:
+          type: string
+        value:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/TimelineDto"
+          - $ref: "#/components/schemas/DataElement"
       required:
-      - cells
-      - content
+      - label
+      - type
+      - value
+    LabeledDataElementType:
+      type: string
+      enum:
+      - INLINE
+      - MULTILINE
     DataElement:
       anyOf:
       - $ref: "#/components/schemas/DATA_ELEMENT_LINK"
@@ -934,152 +1032,6 @@ components:
       - date
       - nok
       - number
-    TimelineDto:
-      type: object
-      properties:
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-        rows:
-          type: array
-          items:
-            $ref: "#/components/schemas/TimelineDto.Row"
-      required:
-      - endDate
-      - rows
-      - startDate
-    TimelineDto.Row:
-      type: object
-      properties:
-        periods:
-          type: array
-          items:
-            $ref: "#/components/schemas/TimelineDto.Row.Period"
-        label:
-          type: string
-      required:
-      - label
-      - periods
-    TimelineDto.Row.Period:
-      type: object
-      properties:
-        key:
-          type: string
-        start:
-          type: string
-          format: date
-        end:
-          type: string
-          format: date
-        status:
-          $ref: "#/components/schemas/TimelineDto.Row.Period.Variant"
-        content:
-          type: string
-        hover:
-          type: string
-      required:
-      - content
-      - end
-      - hover
-      - key
-      - start
-      - status
-    TimelineDto.Row.Period.Variant:
-      type: string
-      enum:
-      - info
-      - success
-      - warning
-      - danger
-      - neutral
-    TiltaksoversiktResponse:
-      type: object
-      properties:
-        table:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DataDrivenTableDto"
-      required:
-      - table
-    ProblemDetail:
-      type: object
-      additionalProperties: {}
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        status:
-          type: integer
-        detail:
-          type: string
-        instance:
-          type: string
-      required:
-      - detail
-      - status
-      - title
-      - type
-    OpprettKravVeiviserStegDto:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/OpprettKravVeiviserSteg"
-        navn:
-          type: string
-        order:
-          type: integer
-          format: int32
-      required:
-      - navn
-      - order
-      - type
-    OpprettKravVeiviserSteg:
-      type: string
-      enum:
-      - INFORMASJON
-      - DELTAKERLISTE
-      - UTBETALING
-      - VEDLEGG
-      - OPPSUMMERING
-    OpprettKravVeiviserMeta:
-      type: object
-      properties:
-        steg:
-          type: array
-          items:
-            $ref: "#/components/schemas/OpprettKravVeiviserStegDto"
-      required:
-      - steg
-    GuidePanelType:
-      type: string
-      enum:
-      - INVESTERING_VTA_AFT
-      - TIMESPRIS
-      - AVTALT_PRIS
-    LabeledDataElement:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/LabeledDataElementType"
-        label:
-          type: string
-        value:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DataElement"
-      required:
-      - label
-      - type
-      - value
-    LabeledDataElementType:
-      type: string
-      enum:
-      - INLINE
-      - MULTILINE
     ArrangorflateTilsagnDto:
       type: object
       properties:
@@ -1135,26 +1087,6 @@ components:
       required:
       - navn
       - tiltakskode
-    Tiltakskode:
-      type: string
-      enum:
-      - ARBEIDSFORBEREDENDE_TRENING
-      - ARBEIDSRETTET_REHABILITERING
-      - AVKLARING
-      - DIGITALT_OPPFOLGINGSTILTAK
-      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
-      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-      - GRUPPE_FAG_OG_YRKESOPPLAERING
-      - HOYERE_UTDANNING
-      - JOBBKLUBB
-      - OPPFOLGING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-      - ARBEIDSMARKEDSOPPLAERING
-      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
-      - STUDIESPESIALISERING
-      - FAG_OG_YRKESOPPLAERING
-      - HOYERE_YRKESFAGLIG_UTDANNING
     ArrangorflateGjennomforingInfo:
       type: object
       properties:
@@ -1305,6 +1237,119 @@ components:
       required:
       - beskrivelse
       - periode
+    DataDrivenTableDto:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDrivenTableDto.Column"
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDrivenTableDto.Row"
+      required:
+      - columns
+      - rows
+    DataDrivenTableDto.Column:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type:
+          - "null"
+          - string
+        sortable:
+          type: boolean
+        align:
+          $ref: "#/components/schemas/DataDrivenTableDto.Column.Align"
+      required:
+      - align
+      - key
+      - label
+      - sortable
+    DataDrivenTableDto.Column.Align:
+      type: string
+      enum:
+      - left
+      - center
+      - right
+    DataDrivenTableDto.Row:
+      type: object
+      properties:
+        cells:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/DataElement"
+        content:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TimelineDto"
+      required:
+      - cells
+      - content
+    TimelineDto:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimelineDto.Row"
+      required:
+      - endDate
+      - rows
+      - startDate
+    TimelineDto.Row:
+      type: object
+      properties:
+        periods:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimelineDto.Row.Period"
+        label:
+          type: string
+      required:
+      - label
+      - periods
+    TimelineDto.Row.Period:
+      type: object
+      properties:
+        key:
+          type: string
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/TimelineDto.Row.Period.Variant"
+        content:
+          type: string
+        hover:
+          type: string
+      required:
+      - content
+      - end
+      - hover
+      - key
+      - start
+      - status
+    TimelineDto.Row.Period.Variant:
+      type: string
+      enum:
+      - info
+      - success
+      - warning
+      - danger
+      - neutral
     OpprettKravDeltakere:
       type: object
       properties:
