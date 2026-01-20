@@ -22,11 +22,13 @@ export const mockArrangorer: PaginatedResponseArrangorDto = {
           overordnetEnhet: "123456789",
           underenheter: null,
           slettetDato: null,
+          erUtenlandsk: false,
         },
         {
           id: "d9d4db51-3564-4493-b897-4fc38dc48963",
           organisasjonsnummer: "984013922",
           organisasjonsform: "BEDR",
+          erUtenlandsk: false,
           navn: "FRETEX AS AVD SANDNES",
           overordnetEnhet: "123456789",
           underenheter: null,
@@ -35,6 +37,7 @@ export const mockArrangorer: PaginatedResponseArrangorDto = {
         {
           id: "d9d4db51-3564-4493-b897-4ec38dc48963",
           organisasjonsnummer: "916281676",
+          erUtenlandsk: false,
           organisasjonsform: "BEDR",
           navn: "FRETEX AS AVD TRONDHEIM",
           overordnetEnhet: "123456789",
@@ -43,6 +46,7 @@ export const mockArrangorer: PaginatedResponseArrangorDto = {
         },
       ],
       slettetDato: null,
+      erUtenlandsk: false,
     },
     {
       id: "2dd86798-7a93-4d51-80ce-3e63f8e2daf3",
@@ -52,10 +56,12 @@ export const mockArrangorer: PaginatedResponseArrangorDto = {
       overordnetEnhet: null,
       underenheter: null,
       slettetDato: null,
+      erUtenlandsk: false,
     },
     {
       id: "a1a5191f-1478-4ad8-9a82-47182a28a19d",
       organisasjonsnummer: "134256789",
+      erUtenlandsk: false,
       organisasjonsform: "AS",
       navn: "Røde Kors AS",
       overordnetEnhet: null,

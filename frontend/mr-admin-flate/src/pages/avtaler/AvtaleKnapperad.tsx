@@ -50,7 +50,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
   const path = `/avtaler/${avtale.id}/${skjemaPath(location.pathname)}`;
 
   function dupliserAvtale() {
-    navigate(`/avtaler/skjema`, {
+    navigate(`/avtaler/opprett-avtale`, {
       state: {
         dupliserAvtale: {
           opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,

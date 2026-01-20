@@ -1,4 +1,5 @@
 import {
+  Betalingsinformasjon,
   GjennomforingDto,
   OpprettUtbetalingRequest,
   ValidationError,
@@ -26,16 +27,15 @@ import { useOpprettUtbetaling } from "@/api/utbetaling/mutations";
 
 interface Props {
   gjennomforing: GjennomforingDto;
-  kontonummer?: string;
+  betalingsinformasjon?: Betalingsinformasjon;
 }
 
 const MIN_BEGRUNNELSE_LENGDE = 10;
 const MAKS_BEGRUNNELSE_LENGDE = 300;
 
-export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
+export function OpprettUtbetalingForm({ gjennomforing, betalingsinformasjon }: Props) {
   const form = useForm<OpprettUtbetalingRequest>({
     resolver: async (values) => ({ values, errors: {} }),
-    defaultValues: { kontonummer },
   });
   const navigate = useNavigate();
   const utbetalingId = useRef(window.crypto.randomUUID());
@@ -73,14 +73,14 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
   return (
     <>
       <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-      <div className="w-1/2">
+      <div className="w-3/4">
         <FormProvider {...form}>
           <form onSubmit={handleSubmit(postData)}>
             <FormGroup>
               <Heading size="medium" level="2">
                 Utbetalingsinformasjon
               </Heading>
-              <HStack gap="20">
+              <HStack gap="2">
                 <ControlledDateInput
                   label="Periodestart"
                   fromDate={new Date(gjennomforing.startDato)}
@@ -125,44 +125,23 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
               <Heading size="small" level="2">
                 Betalingsinformasjon
               </Heading>
-              <VStack align={"start"}>
-                <TextField
-                  size="small"
-                  label="Kontonummer til arrangør"
-                  {...register("kontonummer")}
-                  minLength={11}
-                  maxLength={11}
-                  error={errors.kontonummer?.message}
-                  readOnly
-                  description="Kontonummer hentes automatisk fra Altinn"
-                />
-                <small className="text-balance">
-                  Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Les mer her
-                  om <EndreKontonummerLink />.
-                </small>
-                {!kontonummer ? (
-                  <Alert variant="warning" className="my-5">
-                    <VStack align="start" gap="2">
-                      <Heading spacing size="xsmall" level="3">
-                        Kontonummer mangler for arrangør
-                      </Heading>
-                      <p className="text-balance">
-                        Arrangøren har ikke registrert et kontonummer for utbetaling i Altinn.
-                        Arrangør må legge inn kontonummer før du kan opprette utbetaling til
-                        arrangøren. Les mer om <EndreKontonummerLink /> her.
-                      </p>
-                    </VStack>
-                  </Alert>
-                ) : null}
-              </VStack>
-              <VStack>
-                <TextField
-                  size="small"
-                  label="Valgfritt KID-nummer"
-                  {...register("kidNummer")}
-                  error={errors.kidNummer?.message}
-                />
-              </VStack>
+              {betalingsinformasjon && (
+                <BetalingsinformasjonView betalingsinformasjon={betalingsinformasjon} />
+              )}
+              {!betalingsinformasjon ? (
+                <Alert variant="warning" className="my-5">
+                  <VStack align="start" gap="2">
+                    <Heading spacing size="xsmall" level="3">
+                      Kontonummer mangler for arrangør
+                    </Heading>
+                    <p className="text-balance">
+                      Arrangøren har ikke registrert et kontonummer for utbetaling i Altinn.
+                      Arrangør må legge inn kontonummer før du kan opprette utbetaling til
+                      arrangøren. Les mer om <EndreKontonummerLink /> her.
+                    </p>
+                  </VStack>
+                </Alert>
+              ) : null}
               <HStack align={"start"} justify={"end"} gap="2">
                 <Button
                   size="small"
@@ -193,4 +172,60 @@ function EndreKontonummerLink() {
       endring av kontonummer for refusjoner fra Nav
     </Link>
   );
+}
+
+function BetalingsinformasjonView({
+  betalingsinformasjon,
+}: {
+  betalingsinformasjon: Betalingsinformasjon;
+}) {
+  const form = useForm<OpprettUtbetalingRequest>({
+    resolver: async (values) => ({ values, errors: {} }),
+  });
+  const { register, formState } = form;
+
+  switch (betalingsinformasjon.type) {
+    case "BBan":
+      return (
+        <VStack gap="2">
+          <TextField
+            size="small"
+            label="Kontonummer til arrangør"
+            readOnly
+            value={betalingsinformasjon.kontonummer}
+            description="Kontonummer hentes automatisk fra Altinn"
+          />
+          <small className="text-balance">
+            Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Les mer her om{" "}
+            <EndreKontonummerLink />.
+          </small>
+          <TextField
+            size="small"
+            label="Valgfritt KID-nummer"
+            {...register("kidNummer")}
+            error={formState.errors.kidNummer?.message}
+          />
+        </VStack>
+      );
+    case "IBan":
+      return (
+        <VStack gap="2" align="start">
+          <Heading size="small">Bank</Heading>
+          <TextField size="small" label="IBan" readOnly value={betalingsinformasjon.iban} />
+          <TextField size="small" label="BIC/SWIFT" readOnly value={betalingsinformasjon.bic} />
+          <TextField size="small" label="Banknavn" readOnly value={betalingsinformasjon.bankNavn} />
+          <TextField
+            size="small"
+            label="Bank landkode"
+            readOnly
+            value={betalingsinformasjon.bankLandKode}
+          />
+          <small className="text-balance">
+            Dersom informasjonen må oppdateres ta kontakt med team Valp.
+          </small>
+        </VStack>
+      );
+    case undefined:
+      throw Error("unreachable");
+  }
 }

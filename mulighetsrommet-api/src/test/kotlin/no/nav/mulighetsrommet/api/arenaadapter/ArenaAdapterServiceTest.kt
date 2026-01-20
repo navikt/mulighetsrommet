@@ -42,7 +42,7 @@ class ArenaAdapterServiceTest : FunSpec({
         config = ArenaAdapterService.Config(TEST_GJENNOMFORING_V1_TOPIC, TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         sanityService = sanityService,
-        arrangorService = ArrangorService(database.db, mockk(relaxed = true)),
+        arrangorService = ArrangorService(database.db, mockk(relaxed = true), mockk(relaxed = true)),
     )
 
     context("tiltak i egen regi") {

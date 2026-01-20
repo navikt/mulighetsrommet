@@ -2776,11 +2776,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/arrangorer/{id}/kontonummer:
+  /api/tiltaksadministrasjon/arrangorer/{id}/betalingsinformasjon:
     get:
       tags:
       - Arrangor
-      operationId: getKontonummer
+      operationId: getBetalingsinformasjon
       parameters:
       - name: id
         in: path
@@ -2792,12 +2792,12 @@ paths:
           format: uuid
       responses:
         "200":
-          description: Kontonummer til arrangør
+          description: Betalingsinformasjon til arrangør
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrangorKontonummerResponse"
+                $ref: "#/components/schemas/Betalingsinformasjon"
         default:
           description: Problem details
           headers: {}
@@ -5953,7 +5953,9 @@ components:
           - string
           format: date
         betalingsinformasjon:
-          $ref: "#/components/schemas/Utbetaling.Betalingsinformasjon"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Betalingsinformasjon"
         beskrivelse:
           type:
           - "null"
@@ -5993,13 +5995,20 @@ components:
       - tilskuddstype
       - type
       - utbetalesTidligstDato
-    Utbetaling.Betalingsinformasjon:
+    Betalingsinformasjon:
+      anyOf:
+      - $ref: "#/components/schemas/BBan"
+      - $ref: "#/components/schemas/IBan"
+      discriminator:
+        propertyName: type
+        mapping:
+          BBan: "#/components/schemas/BBan"
+          IBan: "#/components/schemas/IBan"
+    BBan:
       type: object
       properties:
         kontonummer:
-          type:
-          - "null"
-          - string
+          type: string
         kid:
           type:
           - "null"
@@ -6007,6 +6016,22 @@ components:
       required:
       - kid
       - kontonummer
+    IBan:
+      type: object
+      properties:
+        bic:
+          type: string
+        iban:
+          type: string
+        bankNavn:
+          type: string
+        bankLandKode:
+          type: string
+      required:
+      - bankLandKode
+      - bankNavn
+      - bic
+      - iban
     Tilskuddstype:
       type: string
       enum:
@@ -6163,8 +6188,6 @@ components:
           format: date
         beskrivelse:
           type: string
-        kontonummer:
-          type: string
         kidNummer:
           type:
           - "null"
@@ -6177,7 +6200,6 @@ components:
       - beskrivelse
       - gjennomforingId
       - kidNummer
-      - kontonummer
       - periodeSlutt
       - periodeStart
     DelutbetalingRequest:
@@ -6489,7 +6511,10 @@ components:
           - "null"
           - string
           format: date
+        erUtenlandsk:
+          type: boolean
       required:
+      - erUtenlandsk
       - id
       - navn
       - organisasjonsform
@@ -6514,13 +6539,6 @@ components:
       required:
       - data
       - pagination
-    ArrangorKontonummerResponse:
-      type: object
-      properties:
-        kontonummer:
-          type: string
-      required:
-      - kontonummer
     ArrangorKontaktperson:
       type: object
       properties:

@@ -116,9 +116,8 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
     stengt: [],
   },
   advarsler: [],
-  betalingsinformasjon: { kontonummer: "10002427740", kid: null },
+  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
-
   type: utbetalingType.INNSENDING,
   linjer: [
     {
@@ -186,7 +185,7 @@ export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
     lopenummer: "2025/10001",
   },
   arrangor: arrangorMock,
-  betalingsinformasjon: { kontonummer: "78029049393", kid: null },
+  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   beregning: {
     belop: 20000,
     digest: "ca0a6c20",
@@ -251,7 +250,7 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
     deltakelser: toSatserUkesverkDeltakelse,
     stengt: [],
   },
-  betalingsinformasjon: { kontonummer: "10002427740", kid: null },
+  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.INNSENDING,
   linjer: [],
@@ -307,7 +306,7 @@ export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
     belop: 234,
     digest: "000001d4",
   },
-  betalingsinformasjon: { kontonummer: "10002427740", kid: null },
+  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   periode: { start: "2025-05-01", slutt: "2025-08-02" },
   type: utbetalingType.INVESTERING,
   linjer: [],
@@ -447,7 +446,7 @@ export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
     deltakelser: vtaManedDeltakelse,
     stengt: [],
   },
-  betalingsinformasjon: { kontonummer: "10002427740", kid: "123123123" },
+  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   periode: { start: "2025-06-01", slutt: "2025-07-01" },
   type: utbetalingType.INNSENDING,
   linjer: [],
@@ -499,7 +498,7 @@ export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
     lopenummer: "2025/10006",
   },
   arrangor: arrangorMock,
-  betalingsinformasjon: { kontonummer: "10002427740", kid: null },
+  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   beregning: {
     belop: 53100,
     digest: "28172363",

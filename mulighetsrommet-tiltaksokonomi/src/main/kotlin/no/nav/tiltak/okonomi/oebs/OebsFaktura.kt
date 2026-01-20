@@ -93,7 +93,7 @@ data class OebsFakturaMelding(
     val bicSwiftKode: String?,
 
     /**
-     * KID er antagelig kun releveant når [betalingsKanal] er [OebsBetalingskanal.BBAN], men vi sender det alltid
+     * KID er antagelig kun relevant når [betalingsKanal] er [OebsBetalingskanal.BBAN], men vi sender det alltid
      * med om det er definert.
      */
     val kidNummer: String?,

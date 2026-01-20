@@ -23,4 +23,5 @@ data class ArrangorDto(
     val underenheter: List<ArrangorDto>? = null,
     @Serializable(with = LocalDateSerializer::class)
     val slettetDato: LocalDate? = null,
+    val erUtenlandsk: Boolean,
 )

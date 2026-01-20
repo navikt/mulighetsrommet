@@ -12,6 +12,8 @@ import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -72,6 +74,7 @@ class UtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
     private val tilsagnService: TilsagnService,
+    private val arrangorService: ArrangorService,
     private val journalforUtbetaling: JournalforUtbetaling,
 ) {
     data class Config(
@@ -102,7 +105,7 @@ class UtbetalingService(
             .right()
     }
 
-    fun opprettUtbetaling(
+    suspend fun opprettUtbetaling(
         utbetalingKrav: UtbetalingValidator.ValidertUtbetalingKrav,
         gjennomforing: GjennomforingGruppetiltak,
         agent: Agent,
@@ -159,8 +162,7 @@ class UtbetalingService(
             id = UUID.randomUUID(),
             gjennomforingId = gjennomforing.id,
             status = UtbetalingStatusType.INNSENDT,
-            kontonummer = utbetalingKrav.kontonummer,
-            kid = utbetalingKrav.kidNummer,
+            betalingsinformasjon = Betalingsinformasjon.BBan(utbetalingKrav.kontonummer, utbetalingKrav.kidNummer),
             beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
                 input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
                     satser = utbetalingInfo.satser,
@@ -183,7 +185,7 @@ class UtbetalingService(
         return opprettUtbetalingTransaction(dbo, utbetalingKrav.vedlegg, agent)
     }
 
-    fun opprettAnnenAvtaltPrisUtbetaling(
+    suspend fun opprettAnnenAvtaltPrisUtbetaling(
         request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = opprettAnnenAvtaltPrisUtbetaling(
@@ -195,17 +197,27 @@ class UtbetalingService(
         ),
     )
 
-    fun opprettAnnenAvtaltPrisUtbetaling(
+    suspend fun opprettAnnenAvtaltPrisUtbetaling(
         request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
         agent: Agent,
         periode: Periode,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        val arrangor = requireNotNull(queries.arrangor.getByGjennomforingId(request.gjennomforingId))
+        val betalingsinformasjon = arrangorService.getBetalingsinformasjon(arrangor.id)
+
         val dbo = UtbetalingDbo(
             id = request.id,
             gjennomforingId = request.gjennomforingId,
             status = UtbetalingStatusType.INNSENDT,
-            kontonummer = request.kontonummer,
-            kid = request.kidNummer,
+            betalingsinformasjon = when (betalingsinformasjon) {
+                is Betalingsinformasjon.BBan ->
+                    Betalingsinformasjon.BBan(
+                        kontonummer = betalingsinformasjon.kontonummer,
+                        kid = request.kidNummer,
+                    )
+
+                is Betalingsinformasjon.IBan -> betalingsinformasjon
+            },
             beregning = UtbetalingBeregningFri.beregn(
                 input = UtbetalingBeregningFri.Input(request.belop),
             ),
@@ -707,10 +719,6 @@ class UtbetalingService(
         }
 
         val utbetaling = queries.utbetaling.getOrError(delutbetaling.utbetalingId)
-        val kontonummer = checkNotNull(utbetaling.betalingsinformasjon.kontonummer) {
-            "Kontonummer mangler for utbetaling med id=${delutbetaling.utbetalingId}"
-        }
-
         val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
 
         val beskrivelse = """
@@ -719,13 +727,33 @@ class UtbetalingService(
             Tilsagnsnummer: ${tilsagn.bestilling.bestillingsnummer}
         """.trimIndent()
 
+        val betalingsinformasjon = when (utbetaling.betalingsinformasjon) {
+            is Betalingsinformasjon.BBan ->
+                OpprettFaktura.Betalingsinformasjon.BBan(
+                    kontonummer = utbetaling.betalingsinformasjon.kontonummer,
+                    kid = utbetaling.betalingsinformasjon.kid,
+                )
+
+            is Betalingsinformasjon.IBan ->
+                OpprettFaktura.Betalingsinformasjon.IBan(
+                    iban = utbetaling.betalingsinformasjon.iban,
+                    bic = utbetaling.betalingsinformasjon.bic,
+                    bankLandKode = utbetaling.betalingsinformasjon.bankLandKode,
+                    bankNavn = utbetaling.betalingsinformasjon.bankNavn,
+                    valutaKode = "NOK", // TODO: Putt inn her når vi har valuta i prismodell,
+                )
+
+            null -> {
+                throw IllegalStateException(
+                    "Bankkonto informasjon mangler for utbetaling med id=${delutbetaling.utbetalingId}",
+                )
+            }
+        }
+
         val faktura = OpprettFaktura(
             fakturanummer = delutbetaling.faktura.fakturanummer,
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
-            betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
-                kontonummer = kontonummer,
-                kid = utbetaling.betalingsinformasjon.kid,
-            ),
+            betalingsinformasjon = betalingsinformasjon,
             belop = delutbetaling.belop,
             periode = delutbetaling.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
