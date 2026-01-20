@@ -5,6 +5,7 @@ import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "@mr/frontend-common";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 
 interface Props {
   filter: GjennomforingFilterType;
@@ -19,10 +20,11 @@ export function GjennomforingFilterTags({
   filterOpen,
   setTagsHeight,
 }: Props) {
+  const { data: enheter } = useNavEnheter();
+  const { data: tiltakstyper } = useTiltakstyper();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
   });
-  const { data: tiltakstyper } = useTiltakstyper();
 
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
@@ -39,7 +41,9 @@ export function GjennomforingFilterTags({
       )}
       {filter.navEnheter.length > 0 && (
         <NavEnhetFilterTag
-          navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
+          navEnheter={enheter
+            .filter((enhet) => filter.navEnheter.includes(enhet.enhetsnummer))
+            .map((enhet) => enhet.navn)}
           onClose={() => updateFilter({ navEnheter: [], page: 1 })}
         />
       )}

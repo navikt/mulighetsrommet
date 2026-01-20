@@ -91,12 +91,9 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content className="ml-[-2rem]">
             <NavEnhetFilter
-              value={filter.navEnheter}
+              value={enheter.filter((enhet) => filter.navEnheter.includes(enhet.enhetsnummer))}
               onChange={(navEnheter: string[]) => {
-                updateFilter({
-                  navEnheter: enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
-                  page: 1,
-                });
+                updateFilter({ navEnheter, page: 1 });
               }}
               regioner={regioner}
             />

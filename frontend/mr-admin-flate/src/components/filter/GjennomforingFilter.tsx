@@ -93,12 +93,9 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
           </Accordion.Header>
           <Accordion.Content className="ml-[-2rem]">
             <NavEnhetFilter
-              value={filter.navEnheter}
-              onChange={(navEnheter: string[]) => {
-                updateFilter({
-                  navEnheter: enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
-                  page: 1,
-                });
+              value={enheter.filter((enhet) => filter.navEnheter.includes(enhet.enhetsnummer))}
+              onChange={(navEnheter) => {
+                updateFilter({ navEnheter, page: 1 });
               }}
               regioner={regioner}
             />
