@@ -51,6 +51,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -226,12 +227,14 @@ class AvtaleServiceTest : FunSpec({
             val prismodell1Request = PrismodellRequest(
                 id = UUID.randomUUID(),
                 type = PrismodellType.ANNEN_AVTALT_PRIS,
+                valuta = Valuta.NOK,
                 satser = emptyList(),
                 prisbetingelser = null,
             )
             val prismodell2Request = PrismodellRequest(
                 id = UUID.randomUUID(),
                 type = PrismodellType.ANNEN_AVTALT_PRIS,
+                valuta = Valuta.NOK,
                 satser = emptyList(),
                 prisbetingelser = null,
             )
@@ -262,8 +265,9 @@ class AvtaleServiceTest : FunSpec({
             val request = PrismodellRequest(
                 id = UUID.randomUUID(),
                 type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                valuta = Valuta.NOK,
                 prisbetingelser = null,
-                satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100, Valuta.NOK)),
+                satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100.withValuta(Valuta.NOK))),
             )
 
             avtaleService.upsertPrismodell(AvtaleFixtures.oppfolging.id, listOf(request), bertilNavIdent)
@@ -300,6 +304,7 @@ class AvtaleServiceTest : FunSpec({
                 PrismodellRequest(
                     id = gjennomforing.prismodellId,
                     type = PrismodellType.ANNEN_AVTALT_PRIS,
+                    valuta = Valuta.NOK,
                     satser = emptyList(),
                     prisbetingelser = null,
                 ),

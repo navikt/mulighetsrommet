@@ -11,6 +11,7 @@ import {
   OpsjonsmodellType,
   PrismodellType,
   TiltakstypeDto,
+  Valuta,
 } from "@tiltaksadministrasjon/api-client";
 
 export const mockAvtaler: AvtaleDto[] = [
@@ -78,6 +79,7 @@ export const mockAvtaler: AvtaleDto[] = [
       {
         id: "d136d6a4-c812-4d28-81db-b688187e4e32",
         type: PrismodellType.ANNEN_AVTALT_PRIS,
+        valuta: Valuta.NOK,
         navn: "Annen avtalt pris",
         beskrivelse: [],
         satser: null,
@@ -151,6 +153,7 @@ export const mockAvtaler: AvtaleDto[] = [
       {
         id: "d136d6a4-c812-4d28-81db-b688187e4e32",
         type: PrismodellType.ANNEN_AVTALT_PRIS,
+        valuta: Valuta.NOK,
         navn: "Annen avtalt pris",
         beskrivelse: [],
         satser: null,
@@ -211,6 +214,7 @@ export const mockAvtaler: AvtaleDto[] = [
       {
         id: "d136d6a4-c812-4d28-81db-b688187e4e32",
         type: PrismodellType.ANNEN_AVTALT_PRIS,
+        valuta: Valuta.NOK,
         navn: "Annen avtalt pris",
         beskrivelse: [],
         satser: null,
@@ -271,6 +275,7 @@ export const mockAvtaler: AvtaleDto[] = [
       {
         id: "d136d6a4-c812-4d28-81db-b688187e4e32",
         type: PrismodellType.ANNEN_AVTALT_PRIS,
+        valuta: Valuta.NOK,
         navn: "Annen avtalt pris",
         beskrivelse: [],
         satser: null,

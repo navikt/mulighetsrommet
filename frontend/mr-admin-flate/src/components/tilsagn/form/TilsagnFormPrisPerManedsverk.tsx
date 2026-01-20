@@ -67,7 +67,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
           label={tilsagnTekster.sats.label(type)}
           style={{ width: "180px" }}
           readOnly
-          value={sats?.pris ?? 0}
+          value={sats?.pris.belop ?? 0}
         />
       </HGrid>
     </VStack>

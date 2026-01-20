@@ -1,7 +1,7 @@
 import { Box, HStack, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { formaterTall } from "@mr/frontend-common/utils/utils";
+import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { AvtaltSatsDto, PrismodellDto, PrismodellType } from "@tiltaksadministrasjon/api-client";
 import {
   MetadataVStack,
@@ -75,10 +75,10 @@ function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {
       borderRadius="medium"
     >
       <HStack gap="4" key={sats.gjelderFra}>
-        <MetadataVStack label={avtaletekster.prismodell.valuta.label} value={sats.valuta} />
+        <MetadataVStack label={avtaletekster.prismodell.valuta.label} value={sats.pris.valuta} />
         <MetadataVStack
           label={avtaletekster.prismodell.sats.label}
-          value={formaterTall(sats.pris)}
+          value={formaterValuta(sats.pris.belop, sats.pris.valuta)}
         />
         <MetadataVStack
           label={avtaletekster.prismodell.periodeStart.label}

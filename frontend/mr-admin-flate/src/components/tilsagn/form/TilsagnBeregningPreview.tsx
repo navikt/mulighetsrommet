@@ -1,4 +1,4 @@
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { HStack, Label, Loader, VStack } from "@navikt/ds-react";
 import { TilsagnRegnestykke } from "../beregning/TilsagnRegnestykke";
 import { useFormContext } from "react-hook-form";
@@ -28,7 +28,9 @@ export function TilsagnBeregningPreview() {
       <VStack gap="4">
         <HStack gap="2" justify="space-between">
           <Label size="medium">Totalbeløp</Label>
-          <Label size="medium">{formaterNOK(data.beregning.belop)}</Label>
+          <Label size="medium">
+            {formaterValuta(data.beregning.pris.belop, data.beregning.pris.valuta)}
+          </Label>
         </HStack>
         <TilsagnRegnestykke regnestykke={data.beregning.regnestykke} />
       </VStack>

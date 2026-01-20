@@ -93,6 +93,7 @@ function defaultValues(prismodeller: PrismodellDto[]): PrismodellValues {
     prismodeller: prismodeller.map((prismodell) => ({
       id: prismodell.id || undefined,
       type: prismodell.type,
+      valuta: prismodell.valuta,
       prisbetingelser: prismodell.prisbetingelser,
       satser: prismodell.satser ?? [],
     })),

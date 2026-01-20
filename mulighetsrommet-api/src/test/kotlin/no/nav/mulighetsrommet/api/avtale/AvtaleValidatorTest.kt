@@ -499,6 +499,7 @@ class AvtaleValidatorTest : FunSpec({
                     PrismodellRequest(
                         id = UUID.randomUUID(),
                         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                        valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = emptyList(),
                     ),
@@ -515,6 +516,7 @@ class AvtaleValidatorTest : FunSpec({
                     PrismodellRequest(
                         id = UUID.randomUUID(),
                         type = PrismodellType.ANNEN_AVTALT_PRIS,
+                        valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = emptyList(),
                     ),
@@ -529,6 +531,7 @@ class AvtaleValidatorTest : FunSpec({
                     PrismodellRequest(
                         id = UUID.randomUUID(),
                         type = PrismodellType.ANNEN_AVTALT_PRIS,
+                        valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = emptyList(),
                     ),
@@ -542,8 +545,14 @@ class AvtaleValidatorTest : FunSpec({
                 PrismodellRequest(
                     id = UUID.randomUUID(),
                     type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                    valuta = Valuta.NOK,
                     prisbetingelser = null,
-                    satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 1, Valuta.NOK)),
+                    satser = listOf(
+                        AvtaltSatsRequest(
+                            gjelderFra = LocalDate.of(2025, 3, 1),
+                            pris = 1.withValuta(Valuta.NOK),
+                        ),
+                    ),
                 ),
             )
 
@@ -574,12 +583,12 @@ class AvtaleValidatorTest : FunSpec({
                     PrismodellRequest(
                         id = UUID.randomUUID(),
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                        valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = listOf(
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2024, 12, 1),
-                                pris = 1,
-                                Valuta.NOK,
+                                pris = 1.withValuta(Valuta.NOK),
                             ),
                         ),
                     ),
@@ -596,6 +605,7 @@ class AvtaleValidatorTest : FunSpec({
             val request = PrismodellRequest(
                 id = UUID.randomUUID(),
                 type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                valuta = Valuta.NOK,
                 prisbetingelser = null,
                 satser = listOf(),
             )
@@ -608,7 +618,16 @@ class AvtaleValidatorTest : FunSpec({
             )
 
             AvtaleValidator.validatePrismodeller(
-                listOf(request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1, Valuta.NOK)))),
+                listOf(
+                    request.copy(
+                        satser = listOf(
+                            AvtaltSatsRequest(
+                                gjelderFra = null,
+                                pris = 1.withValuta(Valuta.NOK),
+                            ),
+                        ),
+                    ),
+                ),
                 getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodeller/0/satser/0/gjelderFra", "Gjelder fra må være satt"),
@@ -621,7 +640,6 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
                                 pris = null,
-                                valuta = Valuta.NOK,
                             ),
                         ),
                     ),
@@ -637,8 +655,7 @@ class AvtaleValidatorTest : FunSpec({
                         satser = listOf(
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
-                                pris = 0,
-                                valuta = Valuta.NOK,
+                                pris = 0.withValuta(Valuta.NOK),
                             ),
                         ),
                     ),
@@ -654,8 +671,7 @@ class AvtaleValidatorTest : FunSpec({
                         satser = listOf(
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
-                                pris = 1,
-                                valuta = Valuta.NOK,
+                                pris = 1.withValuta(Valuta.NOK),
                             ),
                         ),
                     ),
@@ -672,11 +688,12 @@ class AvtaleValidatorTest : FunSpec({
                     PrismodellRequest(
                         id = UUID.randomUUID(),
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                        valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Valuta.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Valuta.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, Valuta.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.NOK)),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.NOK)),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2.withValuta(Valuta.NOK)),
                         ),
                     ),
                 ),
@@ -693,11 +710,12 @@ class AvtaleValidatorTest : FunSpec({
                     PrismodellRequest(
                         id = UUID.randomUUID(),
                         type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                        valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3, Valuta.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1, Valuta.NOK),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2, Valuta.NOK),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3.withValuta(Valuta.NOK)),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.NOK)),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2.withValuta(Valuta.NOK)),
                         ),
                     ),
                 ),
@@ -871,6 +889,7 @@ class AvtaleValidatorTest : FunSpec({
                     PrismodellRequest(
                         id = UUID.randomUUID(),
                         type = PrismodellType.ANNEN_AVTALT_PRIS,
+                        valuta = Valuta.NOK,
                         satser = emptyList(),
                         prisbetingelser = null,
                     ),
