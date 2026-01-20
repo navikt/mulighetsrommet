@@ -1,5 +1,4 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import {
@@ -26,9 +25,9 @@ interface Props {
 
 export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
+
   const { data: tiltakstyper } = useTiltakstyper();
   const { data: regioner } = useNavRegioner();
-  const { data: enheter } = useNavEnheter();
   const { data: arrangorData } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,
   });
@@ -91,7 +90,7 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content className="ml-[-2rem]">
             <NavEnhetFilter
-              value={enheter.filter((enhet) => filter.navEnheter.includes(enhet.enhetsnummer))}
+              value={filter.navEnheter}
               onChange={(navEnheter: string[]) => {
                 updateFilter({ navEnheter, page: 1 });
               }}

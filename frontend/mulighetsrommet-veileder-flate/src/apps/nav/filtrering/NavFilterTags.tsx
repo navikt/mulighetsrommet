@@ -3,6 +3,8 @@ import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFi
 import { NavEnhetFilterTag } from "@mr/frontend-common/components/filter/filterTag/NavEnhetFilterTag";
 import { FilterTagsContainer } from "@mr/frontend-common/components/filter/filterTag/FilterTagsContainer";
 import { FilterTag } from "@mr/frontend-common/components/filter/filterTag/FilterTag";
+import { useRegioner } from "@/api/queries/useRegioner";
+import { getSelectedNavEnheter } from "@/utils/Utils";
 
 interface Props {
   filterOpen: boolean;
@@ -11,6 +13,8 @@ interface Props {
 
 export function NavFilterTags({ filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
+
+  const { data: regioner } = useRegioner();
 
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
@@ -37,7 +41,7 @@ export function NavFilterTags({ filterOpen, setTagsHeight }: Props) {
         />
       )}
       <NavEnhetFilterTag
-        navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
+        navEnheter={getSelectedNavEnheter(regioner, filter.navEnheter)}
         onClose={() => setFilter({ ...filter, navEnheter: [] })}
       />
       {filter.tiltakstyper.map((tiltakstype) => (

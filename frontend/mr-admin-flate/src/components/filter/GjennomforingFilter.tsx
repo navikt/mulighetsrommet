@@ -1,5 +1,4 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
@@ -29,8 +28,8 @@ interface Props {
 
 export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
+
   const { data: tiltakstyper } = useTiltakstyper();
-  const { data: enheter } = useNavEnheter();
   const { data: regioner } = useNavRegioner();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
@@ -93,7 +92,7 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
           </Accordion.Header>
           <Accordion.Content className="ml-[-2rem]">
             <NavEnhetFilter
-              value={enheter.filter((enhet) => filter.navEnheter.includes(enhet.enhetsnummer))}
+              value={filter.navEnheter}
               onChange={(navEnheter) => {
                 updateFilter({ navEnheter, page: 1 });
               }}
