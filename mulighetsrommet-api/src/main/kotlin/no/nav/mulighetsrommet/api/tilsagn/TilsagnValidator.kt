@@ -34,7 +34,6 @@ object TilsagnValidator {
         val kostnadssted: NavEnhetNummer,
         val periode: Periode,
         val beregning: TilsagnBeregning,
-        val valuta: Valuta,
     )
 
     fun validate(
@@ -45,6 +44,7 @@ object TilsagnValidator {
         gyldigTilsagnPeriode: Periode?,
         gjennomforingSluttDato: LocalDate?,
         avtalteSatser: List<AvtaltSats>,
+        prismodellValuta: Valuta,
     ): Either<List<FieldError>, Validated> = validation {
         validateNotNull(next.periodeStart) {
             FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart)
@@ -100,14 +100,9 @@ object TilsagnValidator {
 
         val periode = Periode.fromInclusiveDates(next.periodeStart, next.periodeSlutt)
 
-        val valuta = next.beregning.valuta
-        requireValid(valuta != null) {
-            FieldError.of("Valuta må være satt og gyldig", TilsagnRequest::beregning)
-        }
-
         val beregning = validateBeregning(
             request = next.beregning,
-            valuta,
+            prismodellValuta,
             periode = periode,
             avtalteSatser = avtalteSatser,
         )
@@ -120,7 +115,6 @@ object TilsagnValidator {
             beregning = beregning,
             periode = periode,
             kostnadssted = next.kostnadssted,
-            valuta = valuta,
         )
     }
 
@@ -175,7 +169,7 @@ object TilsagnValidator {
 
         return when (request.type) {
             TilsagnBeregningType.FRI ->
-                validateBeregningFriInput(request).bind()
+                validateBeregningFriInput(valuta, request).bind()
 
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
                 TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
@@ -275,7 +269,7 @@ object TilsagnValidator {
         }
     }
 
-    fun validateBeregningFriInput(request: TilsagnBeregningRequest): Either<List<FieldError>, TilsagnBeregning> = validation {
+    fun validateBeregningFriInput(prismodellValuta: Valuta, request: TilsagnBeregningRequest): Either<List<FieldError>, TilsagnBeregning> = validation {
         requireValid(!request.linjer.isNullOrEmpty()) {
             FieldError.of(
                 "Du må legge til en linje",
@@ -286,7 +280,7 @@ object TilsagnValidator {
         request.linjer.forEachIndexed { index, linje ->
             validate(linje.pris != null && linje.pris.belop > 0) {
                 FieldError.ofPointer(
-                    pointer = "/beregning/linjer/$index/belop",
+                    pointer = "/beregning/linjer/$index/pris/belop",
                     detail = "Beløp må være positivt",
                 )
             }
@@ -306,6 +300,13 @@ object TilsagnValidator {
                 FieldError.ofPointer(
                     pointer = "/beregning/linjer/$index/antall",
                     detail = "Antall må være positivt",
+                )
+            }
+
+            validate(linje.pris?.valuta == prismodellValuta) {
+                FieldError.ofPointer(
+                    pointer = "/beregning/linjer/$index/pris/belop",
+                    detail = "Må ha samme valuta som prismodellen: $prismodellValuta",
                 )
             }
         }

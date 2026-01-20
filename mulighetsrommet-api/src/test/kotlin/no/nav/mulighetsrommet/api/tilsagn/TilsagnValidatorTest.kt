@@ -28,6 +28,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = true,
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = emptyList(),
+                prismodellValuta = Valuta.NOK,
             ) shouldBeLeft listOf(
                 FieldError.of("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg", TilsagnRequest::id),
             )
@@ -48,6 +49,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = emptyList(),
+                prismodellValuta = Valuta.NOK,
             ) shouldBeLeft listOf(
                 FieldError.of(
                     "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
@@ -71,6 +73,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
+                prismodellValuta = Valuta.NOK,
             ).shouldBeRight()
         }
 
@@ -89,6 +92,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = emptyList(),
+                prismodellValuta = Valuta.NOK,
             ) shouldBeLeft listOf(
                 FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart),
                 FieldError.ofPointer(
@@ -109,6 +113,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = emptyList(),
+                prismodellValuta = Valuta.NOK,
             ) shouldBeLeft listOf(
                 FieldError.of(
                     "Minimum startdato for tilsagn til AFT er ${gyldigStart.formaterDatoTilEuropeiskDatoformat()}",
@@ -133,6 +138,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = emptyList(),
+                prismodellValuta = Valuta.NOK,
             ) shouldBeLeft listOf(
                 FieldError.of("Du må legge til en linje", TilsagnRequest::beregning, TilsagnBeregningRequest::linjer),
             )
@@ -153,6 +159,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = emptyList(),
+                prismodellValuta = Valuta.NOK,
             ) shouldBeLeft listOf(
                 FieldError.of("Du må velge et kostnadssted", TilsagnRequest::kostnadssted),
                 FieldError.of(
@@ -180,6 +187,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
+                prismodellValuta = Valuta.NOK,
             ) shouldBeLeft listOf(
                 FieldError.of("Maksimum sluttdato for tilsagn til AFT er 31.12.2025", TilsagnRequest::periodeSlutt),
             )
@@ -194,6 +202,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
+                prismodellValuta = Valuta.NOK,
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeStart",
@@ -211,27 +220,13 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
+                prismodellValuta = Valuta.NOK,
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeSlutt",
                     detail = "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
                 ),
             )
-        }
-
-        test("tilsagnet må ha en valuta") {
-            TilsagnValidator.validate(
-                next =
-                TilsagnFixtures.TilsagnRequest1.copy(
-                    beregning = TilsagnFixtures.TilsagnRequest1.beregning.copy(valuta = null),
-                ),
-                previous = null,
-                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
-                gjennomforingSluttDato = null,
-                arrangorSlettet = false,
-                tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
-            ).shouldBeLeft()
         }
 
         context("TilsagnBeregningFri.Input") {
@@ -241,7 +236,10 @@ class TilsagnValidatorTest : FunSpec({
                     linjer = emptyList(),
                     prisbetingelser = null,
                 )
-                TilsagnValidator.validateBeregningFriInput(input).shouldBeLeft()
+                TilsagnValidator.validateBeregningFriInput(
+                    prismodellValuta = Valuta.NOK,
+                    request = input,
+                ).shouldBeLeft()
             }
 
             test("should return list of field error for invalid input") {
@@ -258,12 +256,15 @@ class TilsagnValidatorTest : FunSpec({
                     prisbetingelser = null,
                 )
                 val leftFieldErrors = listOf(
-                    FieldError(pointer = "/beregning/linjer/0/belop", detail = "Beløp må være positivt"),
+                    FieldError(pointer = "/beregning/linjer/0/pris/belop", detail = "Beløp må være positivt"),
                     FieldError(pointer = "/beregning/linjer/0/beskrivelse", detail = "Beskrivelse mangler"),
                     FieldError(pointer = "/beregning/linjer/0/antall", detail = "Antall må være positivt"),
                 )
 
-                TilsagnValidator.validateBeregningFriInput(input) shouldBeLeft leftFieldErrors
+                TilsagnValidator.validateBeregningFriInput(
+                    prismodellValuta = Valuta.NOK,
+                    request = input,
+                ) shouldBeLeft leftFieldErrors
             }
         }
     }

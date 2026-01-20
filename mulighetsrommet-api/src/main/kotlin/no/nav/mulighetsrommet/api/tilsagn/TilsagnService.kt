@@ -101,6 +101,7 @@ class TilsagnService(
                 gyldigTilsagnPeriode = config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
                 gjennomforingSluttDato = gjennomforing.sluttDato,
                 avtalteSatser = avtalteSatser,
+                prismodellValuta = prismodell.valuta,
             )
             .map { validated ->
                 val lopenummer = previous?.lopenummer
@@ -118,7 +119,7 @@ class TilsagnService(
                     kostnadssted = validated.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
-                    belopBrukt = 0.withValuta(validated.valuta),
+                    belopBrukt = 0.withValuta(prismodell.valuta),
                     beregning = validated.beregning,
                     kommentar = request.kommentar?.trim(),
                     beskrivelse = request.beskrivelse?.trim(),

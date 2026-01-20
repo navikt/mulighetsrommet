@@ -54,9 +54,10 @@ export function AvtalteSatserForm({
               size="small"
               type="number"
               error={
-                errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.pris?.message
+                errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.pris?.belop
+                  ?.message
               }
-              {...register(`${field}.satser.${index}.pris` as const, {
+              {...register(`${field}.satser.${index}.pris.belop` as const, {
                 setValueAs: (v) => (v === "" ? null : Number(v)),
               })}
             />
