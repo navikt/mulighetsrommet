@@ -1,6 +1,10 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import arrow.core.Either
 import arrow.core.getOrElse
+import arrow.core.raise.context.bind
+import arrow.core.raise.either
+import arrow.core.right
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.ContentType
@@ -42,6 +46,7 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerR
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
@@ -495,34 +500,44 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val request = receiveScanVedleggRequest(call)
+            receiveScanVedleggRequest(call)
+                .onRight { request ->
+                    if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
+                        return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
+                    }
 
-            if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
-                return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
-            }
-
-            call.respond(HttpStatusCode.OK)
+                    call.respond(HttpStatusCode.OK)
+                }
+                .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
         }
     }
 }
 
-private suspend fun receiveScanVedleggRequest(call: RoutingCall): ScanVedleggRequest {
+const val VEDLEGG_MAX_SIZE_BYTES = 10 * 1024 * 1024
+
+suspend fun receiveVedleggPart(part: PartData.FileItem): Either<List<FieldError>, Vedlegg> = either {
+    val vedlegg = Vedlegg(
+        content = Content(
+            contentType = part.contentType.toString(),
+            content = part.provider().toByteArray(),
+        ),
+        filename = part.originalFileName ?: "ukjent.pdf",
+    )
+    if (vedlegg.content.content.size > VEDLEGG_MAX_SIZE_BYTES) {
+        raise(listOf(FieldError.ofPointer("/vedlegg", "Vedlegg er større enn 10MB")))
+    }
+    vedlegg
+}
+
+private suspend fun receiveScanVedleggRequest(call: RoutingCall): Either<List<FieldError>, ScanVedleggRequest> = either {
     val vedlegg: MutableList<Vedlegg> = mutableListOf()
-    val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
+    val multipart = call.receiveMultipart()
 
     multipart.forEachPart { part ->
         when (part) {
             is PartData.FileItem -> {
                 if (part.name == "vedlegg") {
-                    vedlegg.add(
-                        Vedlegg(
-                            content = Content(
-                                contentType = part.contentType.toString(),
-                                content = part.provider().toByteArray(),
-                            ),
-                            filename = part.originalFileName ?: "ukjent.pdf",
-                        ),
-                    )
+                    vedlegg.add(receiveVedleggPart(part).bind())
                 }
             }
 
@@ -533,8 +548,7 @@ private suspend fun receiveScanVedleggRequest(call: RoutingCall): ScanVedleggReq
     }
 
     val validatedVedlegg = vedlegg.validateVedlegg()
-
-    return ScanVedleggRequest(validatedVedlegg)
+    return ScanVedleggRequest(validatedVedlegg).right()
 }
 
 fun MutableList<Vedlegg>.validateVedlegg(): List<Vedlegg> {

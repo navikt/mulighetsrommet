@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.nel
+import arrow.core.raise.either
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.ContentType
@@ -15,7 +17,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
-import io.ktor.utils.io.toByteArray
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -44,7 +45,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.clamav.ClamAvClient
-import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
@@ -389,28 +389,30 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             }
         }) {
             val gjennomforing = requireGjennomforing()
-            val request = receiveOpprettKravUtbetalingRequest()
+            receiveOpprettKravUtbetalingRequest()
+                .onLeft { return@post call.respondWithProblemDetail(ValidationError(errors = it)) }
+                .flatMap { request ->
+                    // Scan vedlegg for virus
+                    if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
+                        return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
+                    }
 
-            // Scan vedlegg for virus
-            if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
-                return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
-            }
-
-            arrangorFlateService.getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
-                .mapLeft { FieldError("/kontonummer", "Klarte ikke hente kontonummer").nel() }
-                .flatMap {
-                    UtbetalingValidator.validateOpprettKravArrangorflate(
-                        request,
-                        gjennomforing,
-                        okonomiConfig,
-                        it,
-                    )
+                    arrangorFlateService.getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
+                        .mapLeft { FieldError("/kontonummer", "Klarte ikke hente kontonummer").nel() }
+                        .flatMap { kontonummer ->
+                            UtbetalingValidator.validateOpprettKravArrangorflate(
+                                request,
+                                gjennomforing,
+                                okonomiConfig,
+                                kontonummer,
+                            )
+                        }
+                        .flatMap { utbetalingService.opprettUtbetaling(it, gjennomforing, Arrangor) }
+                        .onLeft { errors ->
+                            call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
+                        }
+                        .onRight { utbetaling -> call.respond(OpprettKravOmUtbetalingResponse(utbetaling.id)) }
                 }
-                .flatMap { utbetalingService.opprettUtbetaling(it, gjennomforing, Arrangor) }
-                .onLeft { errors ->
-                    call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
-                }
-                .onRight { utbetaling -> call.respond(OpprettKravOmUtbetalingResponse(utbetaling.id)) }
         }
     }
 }
@@ -877,14 +879,14 @@ data class OpprettKravUtbetalingRequest(
     val vedlegg: List<Vedlegg>,
 )
 
-private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): OpprettKravUtbetalingRequest {
+private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either<List<FieldError>, OpprettKravUtbetalingRequest> = either {
     var tilsagnId: UUID? = null
     var periodeStart: String? = null
     var periodeSlutt: String? = null
     var kidNummer: String? = null
     var belop: Int? = null
     val vedlegg: MutableList<Vedlegg> = mutableListOf()
-    val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
+    val multipart = call.receiveMultipart()
 
     multipart.forEachPart { part ->
         when (part) {
@@ -900,15 +902,7 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Oppret
 
             is PartData.FileItem -> {
                 if (part.name == "vedlegg") {
-                    vedlegg.add(
-                        Vedlegg(
-                            content = Content(
-                                contentType = part.contentType.toString(),
-                                content = part.provider().toByteArray(),
-                            ),
-                            filename = part.originalFileName ?: "ukjent.pdf",
-                        ),
-                    )
+                    vedlegg.add(receiveVedleggPart(part).bind())
                 }
             }
 
@@ -920,7 +914,7 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Oppret
 
     val validatedVedlegg = vedlegg.validateVedlegg()
 
-    return OpprettKravUtbetalingRequest(
+    OpprettKravUtbetalingRequest(
         tilsagnId = requireNotNull(tilsagnId) { "Mangler tilsagnId" },
         periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
         periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
