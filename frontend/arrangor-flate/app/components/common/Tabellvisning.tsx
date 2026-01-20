@@ -7,7 +7,7 @@ interface TabellvisningProps extends React.PropsWithChildren {
 
 export function Tabellvisning({ kolonner, children, sort, onSortChange }: TabellvisningProps) {
   return (
-    <Table sort={sort} onSortChange={onSortChange}>
+    <Table sort={sort} onSortChange={onSortChange} zebraStripes>
       <Table.Header>
         <Table.Row>
           {kolonner.map((kolonne) => (

@@ -8,9 +8,9 @@ import { tekster } from "~/tekster";
 import { getTabStateOrDefault, useTabState } from "~/hooks/useTabState";
 import { useFileStorage } from "~/hooks/useFileStorage";
 import { useEffect } from "react";
-import { TiltakRad } from "~/components/TiltakRad";
 import { Tabellvisning } from "~/components/common/Tabellvisning";
 import { useSortableData } from "@mr/frontend-common";
+import { UtbetalingRow } from "~/components/common/UtbetalingRow";
 
 export const meta: MetaFunction = () => {
   return [
@@ -79,7 +79,7 @@ export default function OpprettKravTiltaksOversikt() {
           ) : (
             <Tabellvisning kolonner={kolonner} sort={sort} onSortChange={toggleSort}>
               {sortedData.map((row: TabelloversiktRadDto) => (
-                <TiltakRad key={row.gjennomforingId} row={row} />
+                <UtbetalingRow key={row.gjennomforingId} row={row} />
               ))}
             </Tabellvisning>
           )}
