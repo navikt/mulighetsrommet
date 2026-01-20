@@ -3,14 +3,14 @@ import { useFormContext } from "react-hook-form";
 import { useState } from "react";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { AvtaleListe } from "./AvtaleListe";
-import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { InformasjonForVeiledereForm } from "../redaksjoneltInnhold/InformasjonForVeiledereForm";
+import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
+import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import {
   getAndreUnderenheterAsSelectOptions,
   getLokaleUnderenheterAsSelectOptions,
 } from "@/api/enhet/helpers";
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { InformasjonForVeiledereForm } from "../redaksjoneltInnhold/InformasjonForVeiledereForm";
-import { AvtaleDto, NavEnhetType } from "@tiltaksadministrasjon/api-client";
 
 export function AvtaleInformasjonForVeiledereForm() {
   const [key, setKey] = useState(0);
@@ -18,7 +18,7 @@ export function AvtaleInformasjonForVeiledereForm() {
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
-  const { data: enheter } = useNavEnheter();
+  const { data: regioner } = useNavRegioner();
 
   const { setValue, watch } = useFormContext<AvtaleFormValues>();
   const tiltakskode = watch("detaljer.tiltakskode");
@@ -30,21 +30,14 @@ export function AvtaleInformasjonForVeiledereForm() {
     setValue("veilederinformasjon.faneinnhold", faneinnhold ?? null);
   }
 
-  const regionerOptions = enheter
-    .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
-    .map((enhet) => ({
-      value: enhet.enhetsnummer,
-      label: enhet.navn,
-    }));
+  const regionerOptions = regioner.map((region) => ({
+    value: region.enhetsnummer,
+    label: region.navn,
+  }));
 
-  const kontorEnheterOptions = getLokaleUnderenheterAsSelectOptions(
-    watch("veilederinformasjon.navRegioner"),
-    enheter,
-  );
-  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(
-    watch("veilederinformasjon.navRegioner"),
-    enheter,
-  );
+  const valgteRegioner = watch("veilederinformasjon.navRegioner");
+  const kontorEnheterOptions = getLokaleUnderenheterAsSelectOptions(valgteRegioner, regioner);
+  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(valgteRegioner, regioner);
 
   if (!tiltakId) {
     return (
