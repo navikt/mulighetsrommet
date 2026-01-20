@@ -69,14 +69,18 @@ export default function Oversikt() {
         <Tabs.List>
           <Tabs.Tab value="aktive" label={tekster.bokmal.utbetaling.oversiktFaner.aktive} />
           <Tabs.Tab value="historiske" label={tekster.bokmal.utbetaling.oversiktFaner.historiske} />
+          <Tabs.Tab
+            value="tilsagnsoversikt"
+            label={tekster.bokmal.utbetaling.oversiktFaner.tilsagnsoversikt}
+          />
         </Tabs.List>
         <Tabs.Panel value={currentTab}>
-          {currentTab === "tilsagn" ? (
+          {currentTab === "tilsagnsoversikt" ? (
             <TilsagnTabell tilsagnOversikt={tilsagn} />
           ) : (
             <Tabellvisning kolonner={utbetalingKolonner} sort={sort} onSortChange={toggleSort}>
-              {sortedData.map((rad) => (
-                <UtbetalingRow key={rad.gjennomforingId} row={rad} periode />
+              {sortedData.map((rad, i) => (
+                <UtbetalingRow key={rad.gjennomforingId + i} row={rad} periode />
               ))}
             </Tabellvisning>
           )}

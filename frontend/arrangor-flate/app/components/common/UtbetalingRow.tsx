@@ -4,6 +4,7 @@ import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { BodyShort, Table } from "@navikt/ds-react";
 import { UtbetalingStatusTag } from "../utbetaling/UtbetalingStatusTag";
 import { UtbetalingTextLink } from "../utbetaling/UtbetalingTextLink";
+import css from "../../root.module.css";
 
 export function UtbetalingRow({ row, periode }: { row: TabelloversiktRadDto; periode?: boolean }) {
   const formatertPeriode = periode ? (
@@ -32,17 +33,17 @@ export function UtbetalingRow({ row, periode }: { row: TabelloversiktRadDto; per
 
       {formatertPeriode}
 
-      {row.belop && <Table.DataCell>{row.belop}</Table.DataCell>}
-      {row.type && (
+      {row.belop ? <Table.DataCell align="right">{row.belop}</Table.DataCell> : null}
+      {row.type ? (
         <Table.DataCell>
           <UtbetalingTypeTag type={row.type} />
         </Table.DataCell>
-      )}
-      {row.status && (
-        <Table.DataCell>
+      ) : null}
+      {row.status ? (
+        <Table.DataCell className={css.tag}>
           <UtbetalingStatusTag status={row.status} />
         </Table.DataCell>
-      )}
+      ) : null}
 
       <Table.DataCell>
         <UtbetalingTextLink
