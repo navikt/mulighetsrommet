@@ -11,21 +11,18 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 
 function useGjennomforingFormData() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
   const { data: ansatt } = useHentAnsatt();
-  const { data: enheter } = useNavEnheter();
-
-  return { avtale, ansatt, enheter };
+  return { avtale, ansatt };
 }
 
 export function NewGjennomforingFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { avtale, ansatt, enheter } = useGjennomforingFormData();
+  const { avtale, ansatt } = useGjennomforingFormData();
   const queryClient = useQueryClient();
 
   const navigerTilbake = () => {
@@ -72,7 +69,6 @@ export function NewGjennomforingFormPage() {
               avtale,
               location.state?.dupliserGjennomforing,
             )}
-            enheter={enheter}
           />
         </Box>
       </ContentBox>
