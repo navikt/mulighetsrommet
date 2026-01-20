@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.api.beregningSatsDetaljer
 import no.nav.mulighetsrommet.api.arrangorflate.api.beregningStengt
@@ -179,12 +180,25 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Utbetalin
 }
 
 private fun PdfDocumentContentBuilder.addBetalingsinformasjonSection(
-    betalingsinformasjon: Utbetaling.Betalingsinformasjon,
+    betalingsinformasjon: Betalingsinformasjon?,
 ) {
     section("Betalingsinformasjon") {
         descriptionList {
-            entry("Kontonummer", betalingsinformasjon.kontonummer?.value)
-            entry("KID-nummer", betalingsinformasjon.kid?.value)
+            when (betalingsinformasjon) {
+                is Betalingsinformasjon.BBan -> {
+                    entry("Kontonummer", betalingsinformasjon.kontonummer.value)
+                    entry("KID-nummer", betalingsinformasjon.kid?.value)
+                }
+
+                is Betalingsinformasjon.IBan -> {
+                    entry("IBAN", betalingsinformasjon.iban)
+                    entry("BIC/SWIFT", betalingsinformasjon.bic)
+                    entry("Bank landkode", betalingsinformasjon.bankLandKode)
+                    entry("Banknavn", betalingsinformasjon.bankNavn)
+                }
+
+                null -> Unit
+            }
         }
     }
 }

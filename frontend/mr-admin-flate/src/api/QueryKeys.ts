@@ -74,5 +74,5 @@ export const QueryKeys = {
     filter.navEnheter.join(","),
   ],
   innsendinger: (filter?: object) => ["innsendinger", { ...filter }] as const,
-  kontonummerArrangor: (orgnr: string) => ["kontonummer", orgnr],
+  arrangorBetalingsinfo: (orgnr: string) => ["arrangorBetalingsinfo", orgnr],
 };

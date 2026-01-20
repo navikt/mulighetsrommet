@@ -197,13 +197,13 @@ export default function UtbetalingDetaljerSide() {
           definitions={[
             {
               key: "Kontonummer",
-              value: utbetaling.betalingsinformasjon.kontonummer
+              value: utbetaling.betalingsinformasjon?.kontonummer
                 ? formaterKontoNummer(utbetaling.betalingsinformasjon.kontonummer)
                 : "-",
             },
             {
               key: "KID-nummer",
-              value: utbetaling.betalingsinformasjon.kid || "-",
+              value: utbetaling.betalingsinformasjon?.kid || "-",
             },
           ]}
         />

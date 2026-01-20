@@ -5,6 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
@@ -55,6 +56,10 @@ class UtbetalingQueries(private val session: Session) {
                 gjennomforing_id,
                 kontonummer,
                 kid,
+                bic,
+                iban,
+                bank_land_kode,
+                bank_navn,
                 periode,
                 beregning_type,
                 belop_beregnet,
@@ -71,6 +76,10 @@ class UtbetalingQueries(private val session: Session) {
                 :gjennomforing_id::uuid,
                 :kontonummer,
                 :kid,
+                :bic,
+                :iban,
+                :bank_land_kode,
+                :bank_navn,
                 :periode::daterange,
                 :beregning_type::utbetaling_beregning_type,
                 :belop_beregnet,
@@ -86,6 +95,10 @@ class UtbetalingQueries(private val session: Session) {
                 gjennomforing_id = excluded.gjennomforing_id,
                 kontonummer = excluded.kontonummer,
                 kid = excluded.kid,
+                bic = excluded.bic,
+                iban = excluded.iban,
+                bank_land_kode = excluded.bank_land_kode,
+                bank_navn = excluded.bank_navn,
                 periode = excluded.periode,
                 beregning_type = excluded.beregning_type,
                 belop_beregnet = excluded.belop_beregnet,
@@ -102,8 +115,6 @@ class UtbetalingQueries(private val session: Session) {
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
-            "kontonummer" to dbo.kontonummer?.value,
-            "kid" to dbo.kid?.value,
             "periode" to dbo.periode.toDaterange(),
             "beregning_type" to when (dbo.beregning) {
                 is UtbetalingBeregningFri -> UtbetalingBeregningType.FRI
@@ -122,7 +133,7 @@ class UtbetalingQueries(private val session: Session) {
             "status" to dbo.status.name,
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
-        )
+        ) + bankKontoParams(dbo.betalingsinformasjon)
 
         execute(queryOf(utbetalingQuery, params))
 
@@ -166,6 +177,34 @@ class UtbetalingQueries(private val session: Session) {
                 upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, dbo.beregning.input.deltakelser)
             }
         }
+    }
+
+    private fun bankKontoParams(betalingsinformasjon: Betalingsinformasjon?) = when (betalingsinformasjon) {
+        is Betalingsinformasjon.BBan -> mapOf(
+            "kontonummer" to betalingsinformasjon.kontonummer.value,
+            "kid" to betalingsinformasjon.kid?.value,
+            "bic" to null,
+            "iban" to null,
+            "bank_land_kode" to null,
+            "bank_navn" to null,
+        )
+
+        is Betalingsinformasjon.IBan -> mapOf(
+            "kontonummer" to null,
+            "kid" to null,
+            "bic" to betalingsinformasjon.bic,
+            "iban" to betalingsinformasjon.iban,
+            "bank_land_kode" to betalingsinformasjon.bankLandKode,
+            "bank_navn" to betalingsinformasjon.bankNavn,
+        )
+
+        null -> mapOf(
+            "kontonummer" to null,
+            "bic" to null,
+            "iban" to null,
+            "bank_land_kode" to null,
+            "bank_navn" to null,
+        )
     }
 
     private fun TransactionalSession.upsertBeregning(
@@ -581,10 +620,7 @@ class UtbetalingQueries(private val session: Session) {
             ),
             status = UtbetalingStatusType.valueOf(string("status")),
             beregning = beregning,
-            betalingsinformasjon = Utbetaling.Betalingsinformasjon(
-                kontonummer = stringOrNull("kontonummer")?.let { Kontonummer(it) },
-                kid = stringOrNull("kid")?.let { Kid.parseOrThrow(it) },
-            ),
+            betalingsinformasjon = this.toBankKonto(),
             journalpostId = stringOrNull("journalpost_id"),
             periode = periode("periode"),
             innsender = innsender,
@@ -595,6 +631,22 @@ class UtbetalingQueries(private val session: Session) {
             godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
             utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
             avbruttBegrunnelse = stringOrNull("avbrutt_begrunnelse"),
+        )
+    }
+
+    private fun Row.toBankKonto(): Betalingsinformasjon? = when (val iban = stringOrNull("iban")) {
+        null -> stringOrNull("kontonummer")?.let {
+            Betalingsinformasjon.BBan(
+                kontonummer = Kontonummer(it),
+                kid = stringOrNull("kid")?.let { Kid.parseOrThrow(it) },
+            )
+        }
+
+        else -> Betalingsinformasjon.IBan(
+            iban = iban,
+            bic = string("bic"),
+            bankLandKode = string("bank_land_kode"),
+            bankNavn = string("bank_navn"),
         )
     }
 

@@ -398,7 +398,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get(), appConfig.arenaMigrering) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
-    single { ArrangorService(get(), get()) }
+    single { ArrangorService(get(), get(), get()) }
     single {
         val db: ApiDatabase = get()
         GenererUtbetalingService(
@@ -422,6 +422,7 @@ private fun services(appConfig: AppConfig) = module {
                 bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
                 tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
+            get(),
             get(),
             get(),
             get(),

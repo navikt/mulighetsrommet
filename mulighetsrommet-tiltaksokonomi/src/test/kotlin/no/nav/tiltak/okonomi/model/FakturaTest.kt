@@ -17,7 +17,7 @@ class FakturaTest : FunSpec({
         val opprettFaktura = OpprettFaktura(
             fakturanummer = "2025/1/1",
             bestillingsnummer = "2025/1",
-            betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
+            betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
                 kontonummer = Kontonummer("12345678901"),
                 kid = null,
             ),
@@ -47,8 +47,8 @@ class FakturaTest : FunSpec({
 
             faktura.bestillingsnummer shouldBe "2025/1"
             faktura.fakturanummer shouldBe "2025/1/1"
-            faktura.kontonummer shouldBe Kontonummer("12345678901")
-            faktura.kid shouldBe null
+            faktura.betalingsinformasjon?.kontonummer shouldBe Kontonummer("12345678901")
+            faktura.betalingsinformasjon?.kid shouldBe null
             faktura.belop shouldBe 1000
             faktura.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
             faktura.status shouldBe FakturaStatusType.SENDT

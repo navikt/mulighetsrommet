@@ -6,6 +6,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import {
+  Betalingsinformasjon,
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingStatusDtoType,
@@ -155,14 +156,11 @@ export function UtbetalingPage() {
                     Betalingsinformasjon
                   </Heading>
                   <VStack gap="2">
-                    <MetadataHGrid
-                      label="Kontonummer"
-                      value={utbetaling.betalingsinformasjon.kontonummer}
-                    />
-                    <MetadataHGrid
-                      label="KID (valgfritt)"
-                      value={utbetaling.betalingsinformasjon.kid}
-                    />
+                    {utbetaling.betalingsinformasjon && (
+                      <BetalingsinformasjonDetaljer
+                        betalingsinformasjon={utbetaling.betalingsinformasjon}
+                      />
+                    )}
                   </VStack>
                   {utbetaling.journalpostId ? (
                     <>
@@ -245,5 +243,32 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
     case UtbetalingStatusDtoType.DELVIS_UTBETALT:
     case UtbetalingStatusDtoType.UTBETALT:
       return <BesluttUtbetalingLinjeView utbetaling={utbetaling} oppdaterLinjer={oppdaterLinjer} />;
+  }
+}
+
+function BetalingsinformasjonDetaljer({
+  betalingsinformasjon,
+}: {
+  betalingsinformasjon: Betalingsinformasjon;
+}) {
+  switch (betalingsinformasjon.type) {
+    case "BBan":
+      return (
+        <VStack gap="2">
+          <MetadataHGrid label="Kontonummer" value={betalingsinformasjon.kontonummer} />
+          <MetadataHGrid label="KID (valgfritt)" value={betalingsinformasjon.kid} />
+        </VStack>
+      );
+    case "IBan":
+      return (
+        <VStack gap="2">
+          <MetadataHGrid label="IBan" value={betalingsinformasjon.iban} />
+          <MetadataHGrid label="BIC/SWIFT" value={betalingsinformasjon.bic} />
+          <MetadataHGrid label="Banknavn" value={betalingsinformasjon.bankNavn} />
+          <MetadataHGrid label="Bank landkode" value={betalingsinformasjon.bankLandKode} />
+        </VStack>
+      );
+    case undefined:
+      throw Error("unreachable");
   }
 }

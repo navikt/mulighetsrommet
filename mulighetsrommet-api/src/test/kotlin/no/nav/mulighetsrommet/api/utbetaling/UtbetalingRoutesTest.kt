@@ -11,6 +11,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -29,7 +30,9 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.ktor.MockEngineBuilder
+import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.util.UUID
@@ -58,6 +61,18 @@ class UtbetalingRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
+    fun mockKontoregisterOrganisasjon(builder: MockEngineBuilder) {
+        val path = Regex(""".*/kontoregister/api/v1/hent-kontonummer-for-organisasjon/.*""")
+        builder.get(path) {
+            respondJson(
+                KontonummerResponse(
+                    kontonr = "12345678901",
+                    mottaker = "asdf",
+                ),
+            )
+        }
+    }
+
     val generellRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
     val saksbehandlerOkonomiRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
     val attestantUtbetalingRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
@@ -67,6 +82,9 @@ class UtbetalingRoutesTest : FunSpec({
             oauth,
             roles = setOf(generellRolle, saksbehandlerOkonomiRolle, attestantUtbetalingRolle),
         ),
+        engine = createMockEngine {
+            mockKontoregisterOrganisasjon(this)
+        },
     )
 
     context("opprett utbetaling") {
@@ -84,7 +102,6 @@ class UtbetalingRoutesTest : FunSpec({
                             periodeStart = LocalDate.now(),
                             periodeSlutt = LocalDate.now().plusDays(1),
                             beskrivelse = "Kort besk..",
-                            kontonummer = Kontonummer(value = "12345678910"),
                             kidNummer = null,
                             belop = 0,
                         ),
@@ -111,7 +128,6 @@ class UtbetalingRoutesTest : FunSpec({
                             periodeStart = LocalDate.now(),
                             periodeSlutt = LocalDate.now().plusDays(1),
                             beskrivelse = "Bla bla bla bla bla",
-                            kontonummer = Kontonummer(value = "12345678910"),
                             kidNummer = null,
                             belop = 150,
                         ),
@@ -136,7 +152,6 @@ class UtbetalingRoutesTest : FunSpec({
                             periodeStart = LocalDate.now(),
                             periodeSlutt = LocalDate.now().plusDays(1),
                             beskrivelse = "Bla bla bla bla bla",
-                            kontonummer = Kontonummer(value = "12345678910"),
                             kidNummer = null,
                             belop = 150,
                         ),

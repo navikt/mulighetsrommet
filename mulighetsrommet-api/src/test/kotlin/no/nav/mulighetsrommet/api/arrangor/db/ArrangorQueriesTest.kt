@@ -33,6 +33,7 @@ class ArrangorQueriesTest : FunSpec({
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
                     organisasjonsform = "AS",
+                    erUtenlandsk = false,
                 )
                 queries.arrangor.upsert(overordnet)
 
@@ -42,6 +43,7 @@ class ArrangorQueriesTest : FunSpec({
                     organisasjonsform = "BEDR",
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
+                    erUtenlandsk = false,
                 )
                 queries.arrangor.upsert(underenhet1)
 
@@ -51,6 +53,7 @@ class ArrangorQueriesTest : FunSpec({
                     organisasjonsform = "BEDR",
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
+                    erUtenlandsk = false,
                 )
                 queries.arrangor.upsert(underenhet2)
 
@@ -59,6 +62,7 @@ class ArrangorQueriesTest : FunSpec({
                     organisasjonsnummer = Organisasjonsnummer("100000001"),
                     organisasjonsform = "IKS",
                     navn = "X - Utenlandsk arrangør",
+                    erUtenlandsk = true,
                 )
                 queries.arrangor.upsert(utenlandsk)
                 session.execute(queryOf("update arrangor set er_utenlandsk_virksomhet = true where organisasjonsnummer = '${utenlandsk.organisasjonsnummer.value}'"))
@@ -88,6 +92,7 @@ class ArrangorQueriesTest : FunSpec({
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
                     organisasjonsform = "BEDR",
                     overordnetEnhet = Organisasjonsnummer("982254604"),
+                    erUtenlandsk = false,
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
                 )
 
@@ -96,6 +101,7 @@ class ArrangorQueriesTest : FunSpec({
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
                     organisasjonsform = "AS",
+                    erUtenlandsk = false,
                 )
 
                 queries.arrangor.upsert(overordnet)
@@ -130,6 +136,7 @@ class ArrangorQueriesTest : FunSpec({
                     overordnetEnhet = Organisasjonsnummer("982254604"),
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
                     slettetDato = slettetDato,
+                    erUtenlandsk = false,
                 )
 
                 val overordnet = ArrangorDto(
@@ -137,6 +144,7 @@ class ArrangorQueriesTest : FunSpec({
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
                     organisasjonsform = "AS",
+                    erUtenlandsk = false,
                 )
 
                 queries.arrangor.upsert(overordnet)
