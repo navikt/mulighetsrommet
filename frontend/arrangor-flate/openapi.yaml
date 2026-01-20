@@ -1500,7 +1500,12 @@ components:
       properties:
         kontonummer:
           type: string
+        kid:
+          type:
+          - "null"
+          - string
       required:
+      - kid
       - kontonummer
     ArrangorflateBeregning:
       type: object
@@ -1659,14 +1664,10 @@ components:
           $ref: "#/components/schemas/ArrangorflateGjennomforingInfo"
         arrangor:
           $ref: "#/components/schemas/ArrangorflateArrangor"
-        bankKonto:
+        betalingsinformasjon:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/BBan"
-        kid:
-          type:
-          - "null"
-          - string
         beregning:
           $ref: "#/components/schemas/ArrangorflateBeregning"
         periode:
@@ -1697,8 +1698,8 @@ components:
       required:
       - advarsler
       - arrangor
-      - bankKonto
       - beregning
+      - betalingsinformasjon
       - createdAt
       - gjennomforing
       - id
@@ -1707,7 +1708,6 @@ components:
       - kanAvbrytes
       - kanRegenereres
       - kanViseBeregning
-      - kid
       - linjer
       - periode
       - regenerertId

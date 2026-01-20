@@ -131,15 +131,15 @@ fun Route.arrangorRoutes() {
             call.respond(arrangor)
         }
 
-        get("{id}/bankkonto", {
+        get("{id}/betalingsinformasjon", {
             tags = setOf("Arrangor")
-            operationId = "getBankKonto"
+            operationId = "getBetalingsinformasjon"
             request {
                 pathParameterUuid("id")
             }
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Bank konto til arrangør"
+                    description = "Betalingsinformasjon til arrangør"
                     body<Betalingsinformasjon>()
                 }
                 default {

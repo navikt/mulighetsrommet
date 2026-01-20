@@ -2776,11 +2776,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/arrangorer/{id}/bankkonto:
+  /api/tiltaksadministrasjon/arrangorer/{id}/betalingsinformasjon:
     get:
       tags:
       - Arrangor
-      operationId: getBankKonto
+      operationId: getBetalingsinformasjon
       parameters:
       - name: id
         in: path
@@ -2792,12 +2792,12 @@ paths:
           format: uuid
       responses:
         "200":
-          description: Bank konto til arrangør
+          description: Betalingsinformasjon til arrangør
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BankKonto"
+                $ref: "#/components/schemas/Betalingsinformasjon"
         default:
           description: Problem details
           headers: {}
@@ -5956,14 +5956,10 @@ components:
           - "null"
           - string
           format: date
-        bankKonto:
+        betalingsinformasjon:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/BankKonto"
-        kid:
-          type:
-          - "null"
-          - string
+          - $ref: "#/components/schemas/Betalingsinformasjon"
         beskrivelse:
           type:
           - "null"
@@ -5990,21 +5986,20 @@ components:
           $ref: "#/components/schemas/UtbetalingTypeDto"
       required:
       - avbruttBegrunnelse
-      - bankKonto
       - begrunnelseMindreBetalt
       - belop
       - beskrivelse
+      - betalingsinformasjon
       - id
       - innsendtAv
       - innsendtAvArrangorDato
       - journalpostId
-      - kid
       - periode
       - status
       - tilskuddstype
       - type
       - utbetalesTidligstDato
-    BankKonto:
+    Betalingsinformasjon:
       anyOf:
       - $ref: "#/components/schemas/BBan"
       - $ref: "#/components/schemas/IBan"
@@ -6018,7 +6013,12 @@ components:
       properties:
         kontonummer:
           type: string
+        kid:
+          type:
+          - "null"
+          - string
       required:
+      - kid
       - kontonummer
     IBan:
       type: object

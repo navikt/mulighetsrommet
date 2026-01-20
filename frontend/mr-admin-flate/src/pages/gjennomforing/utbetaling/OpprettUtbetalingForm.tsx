@@ -1,5 +1,5 @@
 import {
-  BankKonto,
+  Betalingsinformasjon,
   GjennomforingDto,
   OpprettUtbetalingRequest,
   ValidationError,
@@ -27,13 +27,13 @@ import { useOpprettUtbetaling } from "@/api/utbetaling/mutations";
 
 interface Props {
   gjennomforing: GjennomforingDto;
-  bankKonto?: BankKonto;
+  betalingsinformasjon?: Betalingsinformasjon;
 }
 
 const MIN_BEGRUNNELSE_LENGDE = 10;
 const MAKS_BEGRUNNELSE_LENGDE = 300;
 
-export function OpprettUtbetalingForm({ gjennomforing, bankKonto }: Props) {
+export function OpprettUtbetalingForm({ gjennomforing, betalingsinformasjon }: Props) {
   const form = useForm<OpprettUtbetalingRequest>({
     resolver: async (values) => ({ values, errors: {} }),
   });
@@ -125,8 +125,10 @@ export function OpprettUtbetalingForm({ gjennomforing, bankKonto }: Props) {
               <Heading size="small" level="2">
                 Betalingsinformasjon
               </Heading>
-              {bankKonto && <BankKontoView bankKonto={bankKonto} />}
-              {!bankKonto ? (
+              {betalingsinformasjon && (
+                <BetalingsinformasjonView betalingsinformasjon={betalingsinformasjon} />
+              )}
+              {!betalingsinformasjon ? (
                 <Alert variant="warning" className="my-5">
                   <VStack align="start" gap="2">
                     <Heading spacing size="xsmall" level="3">
@@ -172,13 +174,17 @@ function EndreKontonummerLink() {
   );
 }
 
-function BankKontoView({ bankKonto }: { bankKonto: BankKonto }) {
+function BetalingsinformasjonView({
+  betalingsinformasjon,
+}: {
+  betalingsinformasjon: Betalingsinformasjon;
+}) {
   const form = useForm<OpprettUtbetalingRequest>({
     resolver: async (values) => ({ values, errors: {} }),
   });
   const { register, formState } = form;
 
-  switch (bankKonto.type) {
+  switch (betalingsinformasjon.type) {
     case "BBan":
       return (
         <VStack gap="2">
@@ -186,7 +192,7 @@ function BankKontoView({ bankKonto }: { bankKonto: BankKonto }) {
             size="small"
             label="Kontonummer til arrangør"
             readOnly
-            value={bankKonto.kontonummer}
+            value={betalingsinformasjon.kontonummer}
             description="Kontonummer hentes automatisk fra Altinn"
           />
           <small className="text-balance">
@@ -205,10 +211,15 @@ function BankKontoView({ bankKonto }: { bankKonto: BankKonto }) {
       return (
         <VStack gap="2" align="start">
           <Heading size="small">Bank</Heading>
-          <TextField size="small" label="IBan" readOnly value={bankKonto.iban} />
-          <TextField size="small" label="BIC/SWIFT" readOnly value={bankKonto.bic} />
-          <TextField size="small" label="Banknavn" readOnly value={bankKonto.bankNavn} />
-          <TextField size="small" label="Bank landkode" readOnly value={bankKonto.bankLandKode} />
+          <TextField size="small" label="IBan" readOnly value={betalingsinformasjon.iban} />
+          <TextField size="small" label="BIC/SWIFT" readOnly value={betalingsinformasjon.bic} />
+          <TextField size="small" label="Banknavn" readOnly value={betalingsinformasjon.bankNavn} />
+          <TextField
+            size="small"
+            label="Bank landkode"
+            readOnly
+            value={betalingsinformasjon.bankLandKode}
+          />
           <small className="text-balance">
             Dersom informasjonen må oppdateres ta kontakt med team Valp.
           </small>

@@ -54,11 +54,11 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAvArrangorDato: null,
     utbetalesTidligstDato: "2024-08-07",
     belop: 15000,
-    bankKonto: {
+    betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",
+      kid: "12345678901",
     },
-    kid: "12345678901",
     beskrivelse: "Utbetaling for første halvår 2024",
     innsendtAv: "Z123456",
     journalpostId: "JP123456",
@@ -83,11 +83,11 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAvArrangorDato: "2024-07-02",
     utbetalesTidligstDato: "2024-08-07",
     belop: 18000,
-    bankKonto: {
+    betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",
+      kid: "98765432109",
     },
-    kid: "98765432109",
     beskrivelse: "Utbetaling for andre halvår 2024",
     innsendtAv: "Arrangør",
     journalpostId: "JP123457",
@@ -110,11 +110,11 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAvArrangorDato: null,
     utbetalesTidligstDato: "2025-05-07",
     belop: 9000,
-    bankKonto: {
+    betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1111.22.33333",
+      kid: "11122233344",
     },
-    kid: "11122233344",
     beskrivelse: "Utbetaling for første kvartal 2025",
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
@@ -140,11 +140,11 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAvArrangorDato: null,
     utbetalesTidligstDato: "2025-05-07",
     belop: 9000,
-    bankKonto: {
+    betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",
+      kid: "98765432109",
     },
-    kid: "98765432109",
     beskrivelse: "Utbetaling for første kvartal 2025",
     innsendtAv: "Z987654",
     journalpostId: "JP123458",

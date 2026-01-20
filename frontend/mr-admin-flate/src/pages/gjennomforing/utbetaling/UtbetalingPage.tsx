@@ -6,7 +6,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import {
-  BankKonto,
+  Betalingsinformasjon,
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingStatusDtoType,
@@ -156,8 +156,10 @@ export function UtbetalingPage() {
                     Betalingsinformasjon
                   </Heading>
                   <VStack gap="2">
-                    {utbetaling.bankKonto && (
-                      <BankKontoDetaljer bankKonto={utbetaling.bankKonto} kid={utbetaling.kid} />
+                    {utbetaling.betalingsinformasjon && (
+                      <BetalingsinformasjonDetaljer
+                        betalingsinformasjon={utbetaling.betalingsinformasjon}
+                      />
                     )}
                   </VStack>
                   {utbetaling.journalpostId ? (
@@ -244,22 +246,26 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
   }
 }
 
-function BankKontoDetaljer({ bankKonto, kid }: { bankKonto: BankKonto; kid: string | null }) {
-  switch (bankKonto.type) {
+function BetalingsinformasjonDetaljer({
+  betalingsinformasjon,
+}: {
+  betalingsinformasjon: Betalingsinformasjon;
+}) {
+  switch (betalingsinformasjon.type) {
     case "BBan":
       return (
         <VStack gap="2">
-          <MetadataHGrid label="Kontonummer" value={bankKonto.kontonummer} />
-          <MetadataHGrid label="KID (valgfritt)" value={kid} />
+          <MetadataHGrid label="Kontonummer" value={betalingsinformasjon.kontonummer} />
+          <MetadataHGrid label="KID (valgfritt)" value={betalingsinformasjon.kid} />
         </VStack>
       );
     case "IBan":
       return (
         <VStack gap="2">
-          <MetadataHGrid label="IBan" value={bankKonto.iban} />
-          <MetadataHGrid label="BIC/SWIFT" value={bankKonto.bic} />
-          <MetadataHGrid label="Banknavn" value={bankKonto.bankNavn} />
-          <MetadataHGrid label="Bank landkode" value={bankKonto.bankLandKode} />
+          <MetadataHGrid label="IBan" value={betalingsinformasjon.iban} />
+          <MetadataHGrid label="BIC/SWIFT" value={betalingsinformasjon.bic} />
+          <MetadataHGrid label="Banknavn" value={betalingsinformasjon.bankNavn} />
+          <MetadataHGrid label="Bank landkode" value={betalingsinformasjon.bankLandKode} />
         </VStack>
       );
     case undefined:
