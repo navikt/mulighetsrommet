@@ -1,19 +1,22 @@
-import { Box, Tabs as AkselTabs, Button, Alert } from "@navikt/ds-react";
+import { Box, Tabs, Button, HStack, Alert } from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrangorflateTilsagnOversikt,
+  TabelloversiktRadDto,
   UtbetalingOversiktType,
 } from "api-client";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { PageHeading } from "~/components/common/PageHeading";
-import { getTabStateOrDefault, useTabState, Tabs } from "~/hooks/useTabState";
+import { getTabStateOrDefault, useTabState } from "~/hooks/useTabState";
 import { tekster } from "~/tekster";
 import { problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
-import { DataDrivenTable } from "@mr/frontend-common";
+import { DataDrivenTable, useSortableData } from "@mr/frontend-common";
 import { pathTo } from "~/utils/navigation";
+import { Tabellvisning } from "~/components/common/Tabellvisning";
+import { UtbetalingRow } from "~/components/common/UtbetalingRow";
 
 export const meta: MetaFunction = () => {
   return [
@@ -23,87 +26,74 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const tabState = getTabStateOrDefault(new URL(request.url));
-
-  if (tabState === "tilsagnsoversikt") {
-    const { data: tilsagn, error: tilsagnError } =
-      await ArrangorflateService.getArrangorflateTilsagnOversikt({
-        headers: await apiHeaders(request),
-      });
-    if (tilsagnError) {
-      throw problemDetailResponse(tilsagnError);
-    }
-    return {
-      tilsagn,
-    };
+  const { data: tilsagn, error: tilsagnError } =
+    await ArrangorflateService.getArrangorflateTilsagnOversikt({
+      headers: await apiHeaders(request),
+    });
+  if (tilsagnError) {
+    throw problemDetailResponse(tilsagnError);
   }
 
+  const tabState = getTabStateOrDefault(request);
   const utbetalingType =
     tabState === "aktive" ? UtbetalingOversiktType.AKTIVE : UtbetalingOversiktType.HISTORISKE;
-  const [{ data: utbetalinger, error: utbetalingerError }] = await Promise.all([
+  const [{ data, error: utbetalingerError }] = await Promise.all([
     ArrangorflateService.getArrangorflateUtbetalinger({
       query: { type: utbetalingType },
       headers: await apiHeaders(request),
     }),
   ]);
-
   if (utbetalingerError) {
     throw problemDetailResponse(utbetalingerError);
   }
 
-  if (tabState === "aktive") {
-    return {
-      aktive: utbetalinger,
-    };
-  }
-  return {
-    historiske: utbetalinger,
-  };
+  return { data, tilsagn };
 }
 
 export default function Oversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
-  const { aktive, historiske, tilsagn } = useLoaderData<typeof loader>();
+  const { data, tilsagn } = useLoaderData<typeof loader>();
 
+  const { sortedData, sort, toggleSort } = useSortableData<TabelloversiktRadDto, undefined, string>(
+    data,
+  );
   return (
     <Box className={css.side}>
-      <div className="flex justify-between sm:flex-row sm:p-1">
+      <HStack justify="space-between" align="center">
         <PageHeading title={tekster.bokmal.utbetaling.headingTitle} />
-        <OpprettManueltUtbetalingskrav />
-      </div>
-      <AkselTabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
-        <AkselTabs.List>
-          <AkselTabs.Tab value="aktive" label={tekster.bokmal.utbetaling.oversiktFaner.aktive} />
-          <AkselTabs.Tab
-            value="historiske"
-            label={tekster.bokmal.utbetaling.oversiktFaner.historiske}
-          />
-          <AkselTabs.Tab
-            value="tilsagnsoversikt"
-            label={tekster.bokmal.utbetaling.oversiktFaner.tilsagnsoversikt}
-          />
-        </AkselTabs.List>
-        <AkselTabs.Panel value="aktive" className="w-full">
-          {aktive?.tabell && <DataDrivenTable data={aktive.tabell} zebraStripes />}
-        </AkselTabs.Panel>
-        <AkselTabs.Panel value="historiske" className="w-full">
-          {historiske?.tabell && <DataDrivenTable data={historiske.tabell} zebraStripes />}
-        </AkselTabs.Panel>
-        <AkselTabs.Panel value="tilsagnsoversikt" className="w-full">
-          {tilsagn && <TilsagnTabell tilsagnOversikt={tilsagn} />}
-        </AkselTabs.Panel>
-      </AkselTabs>
+        <Button variant="secondary" as={ReactRouterLink} to={pathTo.tiltaksoversikt}>
+          {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
+        </Button>
+      </HStack>
+      <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as "aktive" | "historiske")}>
+        <Tabs.List>
+          <Tabs.Tab value="aktive" label={tekster.bokmal.utbetaling.oversiktFaner.aktive} />
+          <Tabs.Tab value="historiske" label={tekster.bokmal.utbetaling.oversiktFaner.historiske} />
+        </Tabs.List>
+        <Tabs.Panel value={currentTab}>
+          {currentTab === "tilsagn" ? (
+            <TilsagnTabell tilsagnOversikt={tilsagn} />
+          ) : (
+            <Tabellvisning kolonner={utbetalingKolonner} sort={sort} onSortChange={toggleSort}>
+              {sortedData.map((rad) => (
+                <UtbetalingRow key={rad.gjennomforingId} row={rad} periode />
+              ))}
+            </Tabellvisning>
+          )}
+        </Tabs.Panel>
+      </Tabs>
     </Box>
   );
 }
 
-function OpprettManueltUtbetalingskrav() {
-  return (
-    <Button variant="secondary" as={ReactRouterLink} to={pathTo.tiltaksoversikt}>
-      {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
-    </Button>
-  );
-}
+const utbetalingKolonner: Array<{ key: string; label: string }> = [
+  { key: "tiltakNavn", label: "Tiltak" },
+  { key: "arrangorNavn", label: "Arrangør" },
+  { key: "periode", label: "Periode" },
+  { key: "belop", label: "Beløp" },
+  { key: "type", label: "Type" },
+  { key: "status", label: "Status" },
+];
 
 interface TilsagnTabellProps {
   tilsagnOversikt: ArrangorflateTilsagnOversikt;

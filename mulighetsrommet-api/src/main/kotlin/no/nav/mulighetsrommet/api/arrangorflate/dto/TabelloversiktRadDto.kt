@@ -1,14 +1,16 @@
 package no.nav.mulighetsrommet.api.arrangorflate.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingKompaktDto
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
 @Serializable
 data class TabelloversiktRadDto(
@@ -19,27 +21,39 @@ data class TabelloversiktRadDto(
     val tiltakstypeNavn: String,
     val tiltakNavn: String,
     val lopenummer: Tiltaksnummer,
-    val tiltakskode: Tiltakskode,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val belop: Int?,
-    val type: String?,
-    val status: String?,
+    val type: UtbetalingTypeDto?,
+    val status: ArrangorflateUtbetalingStatus?,
 )
 
-fun GjennomforingGruppetiltakKompakt.toDto(): TabelloversiktRadDto = TabelloversiktRadDto(
+fun GjennomforingGruppetiltakKompakt.toRadDto(): TabelloversiktRadDto = TabelloversiktRadDto(
     gjennomforingId = this.id,
     arrangorNavn = this.arrangor.navn,
     organisasjonsnummer = this.arrangor.organisasjonsnummer,
     tiltakstypeNavn = this.tiltakstype.navn,
     tiltakNavn = this.navn,
     lopenummer = this.lopenummer,
-    tiltakskode = this.tiltakstype.tiltakskode,
     startDato = this.startDato,
     sluttDato = this.sluttDato,
     belop = null,
     type = null,
     status = null,
+)
+
+fun ArrangorflateUtbetalingKompaktDto.toRadDto(): TabelloversiktRadDto = TabelloversiktRadDto(
+    gjennomforingId = this.gjennomforing.id,
+    arrangorNavn = this.arrangor.navn,
+    organisasjonsnummer = this.arrangor.organisasjonsnummer,
+    tiltakstypeNavn = this.tiltakstype.navn,
+    tiltakNavn = this.gjennomforing.navn,
+    lopenummer = this.gjennomforing.lopenummer,
+    startDato = this.periode.start,
+    sluttDato = this.periode.slutt,
+    belop = this.belop,
+    type = this.type,
+    status = this.status,
 )

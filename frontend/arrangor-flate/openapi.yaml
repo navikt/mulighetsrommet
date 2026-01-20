@@ -23,7 +23,7 @@ paths:
           $ref: "#/components/schemas/TiltaksoversiktType"
       responses:
         "200":
-          description: Arrangører sine gjennomføringer
+          description: Tiltak for arrangør
           headers: {}
           content:
             application/json:
@@ -416,7 +416,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrangorflateUtbetalingerOversikt"
+                type: array
+                items:
+                  $ref: "#/components/schemas/TabelloversiktRadDto"
         default:
           description: Problem details
           headers: {}
@@ -756,8 +758,6 @@ components:
           type: string
         lopenummer:
           type: string
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
         startDato:
           type: string
           format: date
@@ -772,13 +772,13 @@ components:
           - integer
           format: int32
         type:
-          type:
-          - "null"
-          - string
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtbetalingTypeDto"
         status:
-          type:
-          - "null"
-          - string
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
       required:
       - arrangorNavn
       - belop
@@ -789,29 +789,35 @@ components:
       - startDato
       - status
       - tiltakNavn
-      - tiltakskode
       - tiltakstypeNavn
       - type
-    Tiltakskode:
+    UtbetalingTypeDto:
+      type: object
+      properties:
+        displayName:
+          type: string
+        displayNameLong:
+          type:
+          - "null"
+          - string
+        tagName:
+          type:
+          - "null"
+          - string
+      required:
+      - displayName
+      - displayNameLong
+      - tagName
+    ArrangorflateUtbetalingStatus:
       type: string
       enum:
-      - ARBEIDSFORBEREDENDE_TRENING
-      - ARBEIDSRETTET_REHABILITERING
-      - AVKLARING
-      - DIGITALT_OPPFOLGINGSTILTAK
-      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
-      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-      - GRUPPE_FAG_OG_YRKESOPPLAERING
-      - HOYERE_UTDANNING
-      - JOBBKLUBB
-      - OPPFOLGING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-      - ARBEIDSMARKEDSOPPLAERING
-      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
-      - STUDIESPESIALISERING
-      - FAG_OG_YRKESOPPLAERING
-      - HOYERE_YRKESFAGLIG_UTDANNING
+      - KLAR_FOR_GODKJENNING
+      - BEHANDLES_AV_NAV
+      - UTBETALT
+      - KREVER_ENDRING
+      - OVERFORT_TIL_UTBETALING
+      - DELVIS_UTBETALT
+      - AVBRUTT
     ProblemDetail:
       type: object
       additionalProperties: {}
@@ -1087,6 +1093,26 @@ components:
       required:
       - navn
       - tiltakskode
+    Tiltakskode:
+      type: string
+      enum:
+      - ARBEIDSFORBEREDENDE_TRENING
+      - ARBEIDSRETTET_REHABILITERING
+      - AVKLARING
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - HOYERE_UTDANNING
+      - JOBBKLUBB
+      - OPPFOLGING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - ARBEIDSMARKEDSOPPLAERING
+      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+      - STUDIESPESIALISERING
+      - FAG_OG_YRKESOPPLAERING
+      - HOYERE_YRKESFAGLIG_UTDANNING
     ArrangorflateGjennomforingInfo:
       type: object
       properties:
@@ -1521,25 +1547,6 @@ components:
       enum:
       - AKTIVE
       - HISTORISKE
-    ArrangorflateUtbetalingerOversikt:
-      type: object
-      properties:
-        tabell:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DataDrivenTableDto"
-      required:
-      - tabell
-    ArrangorflateUtbetalingStatus:
-      type: string
-      enum:
-      - KLAR_FOR_GODKJENNING
-      - BEHANDLES_AV_NAV
-      - UTBETALT
-      - KREVER_ENDRING
-      - OVERFORT_TIL_UTBETALING
-      - DELVIS_UTBETALT
-      - AVBRUTT
     ArrangorflateBetalingsinformasjon:
       type: object
       properties:
@@ -1583,23 +1590,6 @@ components:
       - displayName
       - satsDetaljer
       - stengt
-    UtbetalingTypeDto:
-      type: object
-      properties:
-        displayName:
-          type: string
-        displayNameLong:
-          type:
-          - "null"
-          - string
-        tagName:
-          type:
-          - "null"
-          - string
-      required:
-      - displayName
-      - displayNameLong
-      - tagName
     ArrangforflateUtbetalingLinje:
       type: object
       properties:

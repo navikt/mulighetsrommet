@@ -25,7 +25,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.dto.TabelloversiktRadDto
-import no.nav.mulighetsrommet.api.arrangorflate.dto.toDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
@@ -155,7 +155,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         }
 
         call.respond(
-            gjennomforinger.map { it.toDto() },
+            gjennomforinger.map { it.toRadDto() },
         )
     }
 

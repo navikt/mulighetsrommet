@@ -38,6 +38,8 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatu
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.KREVER_ENDRING
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.UTBETALT
+import no.nav.mulighetsrommet.api.arrangorflate.dto.TabelloversiktRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
@@ -205,7 +207,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Utbetalinger i tabellformat"
-                    body<ArrangorflateUtbetalingerOversikt>()
+                    body<List<TabelloversiktRadDto>>()
                 }
                 default {
                     description = "Problem details"
@@ -222,12 +224,8 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         val type = UtbetalingOversiktType.from(call.queryParameters["type"])
         val utbetalinger =
             arrangorFlateService.getUtbetalingerByArrangorerAndStatus(tilganger.toSet(), type.utbetalingStatuser())
-        if (utbetalinger.isEmpty()) {
-            call.respond(ArrangorflateUtbetalingerOversikt())
-        } else {
-            val tabell = utbetalingKompaktDataDrivenTable(type, utbetalinger)
-            call.respond(ArrangorflateUtbetalingerOversikt(tabell))
-        }
+
+        call.respond(utbetalinger.map { it.toRadDto() })
     }
 
     route("/utbetaling/{id}") {
