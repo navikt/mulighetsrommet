@@ -35,19 +35,12 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.prisbetingelser
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.prisbetingelser
     }
-    val valuta = when (prismodell) {
-        is Prismodell.AnnenAvtaltPris -> prismodell.valuta
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> prismodell.satser.first().pris.valuta
-        is Prismodell.AvtaltPrisPerManedsverk -> prismodell.satser.first().pris.valuta
-        is Prismodell.AvtaltPrisPerUkesverk -> prismodell.satser.first().pris.valuta
-        is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.satser.first().pris.valuta
-        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.satser.first().pris.valuta
-    }
+
     return PrismodellDto(
         id = prismodell.id,
         type = prismodell.type,
+        valuta = prismodell.valuta,
         satser = satser,
         prisbetingelser = prisbetingelser,
-        valuta = valuta,
     )
 }
