@@ -320,7 +320,7 @@ object UtbetalingValidator {
         validate(request.digest == utbetaling.beregning.getDigest()) {
             FieldError.ofPointer("/info", "Informasjonen i kravet har endret seg. Vennligst se over på nytt.")
         }
-        validate(utbetaling.bankKonto != null) {
+        validate(utbetaling.betalingsinformasjon != null) {
             FieldError.ofPointer("/info", "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.")
         }
         requireValid(request.kid == null || Kid.parse(request.kid) != null) {

@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
@@ -32,8 +32,7 @@ object UtbetalingFixtures {
             input = UtbetalingBeregningFri.Input(1000),
             output = UtbetalingBeregningFri.Output(1000),
         ),
-        bankKonto = BankKonto.BBan(Kontonummer("11111111111")),
-        kid = null,
+        betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), null),
         innsender = null,
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -71,8 +70,7 @@ object UtbetalingFixtures {
             navn = ArrangorFixtures.underenhet1.navn,
             slettet = false,
         ),
-        bankKonto = BankKonto.BBan(Kontonummer("11111111111")),
-        kid = null,
+        betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), null),
         journalpostId = null,
         begrunnelseMindreBetalt = null,
         createdAt = LocalDateTime.now(),
@@ -88,8 +86,7 @@ object UtbetalingFixtures {
             input = UtbetalingBeregningFri.Input(500),
             output = UtbetalingBeregningFri.Output(500),
         ),
-        bankKonto = BankKonto.BBan(Kontonummer("11111111111")),
-        kid = null,
+        betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), null),
         innsender = null,
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -106,8 +103,7 @@ object UtbetalingFixtures {
             input = UtbetalingBeregningFri.Input(500),
             output = UtbetalingBeregningFri.Output(500),
         ),
-        bankKonto = BankKonto.BBan(Kontonummer("11111111111")),
-        kid = null,
+        betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), null),
         innsender = null,
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,

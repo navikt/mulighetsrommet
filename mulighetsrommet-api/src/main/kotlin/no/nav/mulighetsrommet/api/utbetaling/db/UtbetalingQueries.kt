@@ -5,7 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
@@ -115,7 +115,6 @@ class UtbetalingQueries(private val session: Session) {
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
-            "kid" to dbo.kid?.value,
             "periode" to dbo.periode.toDaterange(),
             "beregning_type" to when (dbo.beregning) {
                 is UtbetalingBeregningFri -> UtbetalingBeregningType.FRI
@@ -134,7 +133,7 @@ class UtbetalingQueries(private val session: Session) {
             "status" to dbo.status.name,
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
-        ) + bankKontoParams(dbo.bankKonto)
+        ) + bankKontoParams(dbo.betalingsinformasjon)
 
         execute(queryOf(utbetalingQuery, params))
 
@@ -180,21 +179,23 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    private fun bankKontoParams(bankKonto: BankKonto?) = when (bankKonto) {
-        is BankKonto.BBan -> mapOf(
-            "kontonummer" to bankKonto.kontonummer.value,
+    private fun bankKontoParams(betalingsinformasjon: Betalingsinformasjon?) = when (betalingsinformasjon) {
+        is Betalingsinformasjon.BBan -> mapOf(
+            "kontonummer" to betalingsinformasjon.kontonummer.value,
+            "kid" to betalingsinformasjon.kid?.value,
             "bic" to null,
             "iban" to null,
             "bank_land_kode" to null,
             "bank_navn" to null,
         )
 
-        is BankKonto.IBan -> mapOf(
+        is Betalingsinformasjon.IBan -> mapOf(
             "kontonummer" to null,
-            "bic" to bankKonto.bic,
-            "iban" to bankKonto.iban,
-            "bank_land_kode" to bankKonto.bankLandKode,
-            "bank_navn" to bankKonto.bankNavn,
+            "kid" to null,
+            "bic" to betalingsinformasjon.bic,
+            "iban" to betalingsinformasjon.iban,
+            "bank_land_kode" to betalingsinformasjon.bankLandKode,
+            "bank_navn" to betalingsinformasjon.bankNavn,
         )
 
         null -> mapOf(
@@ -619,8 +620,7 @@ class UtbetalingQueries(private val session: Session) {
             ),
             status = UtbetalingStatusType.valueOf(string("status")),
             beregning = beregning,
-            bankKonto = this.toBankKonto(),
-            kid = stringOrNull("kid")?.let { Kid.parseOrThrow(it) },
+            betalingsinformasjon = this.toBankKonto(),
             journalpostId = stringOrNull("journalpost_id"),
             periode = periode("periode"),
             innsender = innsender,
@@ -634,12 +634,15 @@ class UtbetalingQueries(private val session: Session) {
         )
     }
 
-    private fun Row.toBankKonto(): BankKonto? = when (val iban = stringOrNull("iban")) {
+    private fun Row.toBankKonto(): Betalingsinformasjon? = when (val iban = stringOrNull("iban")) {
         null -> stringOrNull("kontonummer")?.let {
-            BankKonto.BBan(kontonummer = Kontonummer(it))
+            Betalingsinformasjon.BBan(
+                kontonummer = Kontonummer(it),
+                kid = stringOrNull("kid")?.let { Kid.parseOrThrow(it) },
+            )
         }
 
-        else -> BankKonto.IBan(
+        else -> Betalingsinformasjon.IBan(
             iban = iban,
             bic = string("bic"),
             bankLandKode = string("bank_land_kode"),

@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
@@ -83,12 +83,11 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         ),
         periode = utbetaling.periode,
         beregning = beregning,
-        bankKonto = when (utbetaling.bankKonto) {
-            is BankKonto.BBan -> utbetaling.bankKonto
-            is BankKonto.IBan -> throw IllegalStateException("IBan funnet for norsk arrangor med id: ${utbetaling.arrangor.id}")
+        betalingsinformasjon = when (utbetaling.betalingsinformasjon) {
+            is Betalingsinformasjon.BBan -> utbetaling.betalingsinformasjon
+            is Betalingsinformasjon.IBan -> throw IllegalStateException("IBan funnet for norsk arrangor med id: ${utbetaling.arrangor.id}")
             null -> null
         },
-        kid = utbetaling.kid,
         type = UtbetalingType.from(utbetaling).toDto(),
         linjer = linjer,
         innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),

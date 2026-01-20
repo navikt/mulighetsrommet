@@ -79,7 +79,6 @@ class FakturaQueries(private val session: Session) {
             "beskrivelse" to faktura.beskrivelse,
             "kontonummer" to faktura.betalingsinformasjon?.kontonummer?.value,
             "kid" to faktura.betalingsinformasjon?.kid?.value,
-            "valutaKode" to "NOK",
             "bic" to faktura.betalingsinformasjon?.bic,
             "iban" to faktura.betalingsinformasjon?.iban,
             "land_kode" to faktura.betalingsinformasjon?.bankLandKode,

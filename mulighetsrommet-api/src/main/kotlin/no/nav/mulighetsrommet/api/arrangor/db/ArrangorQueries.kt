@@ -326,10 +326,10 @@ class ArrangorQueries(private val session: Session) {
             select
                 bic,
                 iban,
-                gate_navn,
-                by,
-                post_nummer,
-                land_kode,
+                adresse_gate_navn,
+                adresse_by,
+                adresse_post_nummer,
+                adresse_land_kode,
                 bank_navn
             from arrangor
                 inner join arrangor_utenlandsk on arrangor_utenlandsk.id = arrangor.arrangor_utenlandsk_id
@@ -342,10 +342,10 @@ class ArrangorQueries(private val session: Session) {
     private fun Row.toUtenlandskArrangor() = UtenlandskArrangor(
         bic = string("bic"),
         iban = string("iban"),
-        gateNavn = string("gate_navn"),
-        by = string("by"),
-        postNummer = string("post_nummer"),
-        landKode = string("land_kode"),
+        gateNavn = string("adresse_gate_navn"),
+        by = string("adresse_by"),
+        postNummer = string("adresse_post_nummer"),
+        landKode = string("adresse_land_kode"),
         bankNavn = string("bank_navn"),
     )
 

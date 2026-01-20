@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.api.beregningSatsDetaljer
 import no.nav.mulighetsrommet.api.arrangorflate.api.beregningStengt
@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import java.util.UUID
 
@@ -44,7 +43,7 @@ object UbetalingToPdfDocumentContentMapper {
 
         addInnsendingSection(utbetaling)
         addUtbetalingSection(utbetaling)
-        addBetalingsinformasjonSection(utbetaling.bankKonto, utbetaling.kid)
+        addBetalingsinformasjonSection(utbetaling.betalingsinformasjon)
 
         when (utbetaling.status) {
             UtbetalingStatusType.GENERERT,
@@ -74,7 +73,7 @@ object UbetalingToPdfDocumentContentMapper {
 
         addInnsendingSection(utbetaling)
         addUtbetalingSection(utbetaling)
-        addBetalingsinformasjonSection(utbetaling.bankKonto, utbetaling.kid)
+        addBetalingsinformasjonSection(utbetaling.betalingsinformasjon)
         addStengtHosArrangorSection(utbetaling.beregning)
 
         when (utbetaling.beregning) {
@@ -181,22 +180,21 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Utbetalin
 }
 
 private fun PdfDocumentContentBuilder.addBetalingsinformasjonSection(
-    bankKonto: BankKonto?,
-    kid: Kid?,
+    betalingsinformasjon: Betalingsinformasjon?,
 ) {
     section("Betalingsinformasjon") {
         descriptionList {
-            when (bankKonto) {
-                is BankKonto.BBan -> {
-                    entry("Kontonummer", bankKonto.kontonummer.value)
-                    entry("KID-nummer", kid?.value)
+            when (betalingsinformasjon) {
+                is Betalingsinformasjon.BBan -> {
+                    entry("Kontonummer", betalingsinformasjon.kontonummer.value)
+                    entry("KID-nummer", betalingsinformasjon.kid?.value)
                 }
 
-                is BankKonto.IBan -> {
-                    entry("IBAN", bankKonto.iban)
-                    entry("BIC/SWIFT", bankKonto.bic)
-                    entry("Bank landkode", bankKonto.bankLandKode)
-                    entry("Banknavn", bankKonto.bankNavn)
+                is Betalingsinformasjon.IBan -> {
+                    entry("IBAN", betalingsinformasjon.iban)
+                    entry("BIC/SWIFT", betalingsinformasjon.bic)
+                    entry("Bank landkode", betalingsinformasjon.bankLandKode)
+                    entry("Banknavn", betalingsinformasjon.bankNavn)
                 }
 
                 null -> Unit

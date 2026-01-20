@@ -2,11 +2,11 @@ CREATE TABLE arrangor_utenlandsk (
     id uuid PRIMARY KEY not null,
     bic text not null,
     iban text not null,
-    gate_navn text not null,
-    by text not null,
-    post_nummer text not null,
-    land_kode text not null,
     bank_navn text not null,
+    adresse_gate_navn text not null,
+    adresse_by text not null,
+    adresse_post_nummer text not null,
+    adresse_land_kode text not null,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now()
 );

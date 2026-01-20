@@ -9,7 +9,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
@@ -61,8 +61,7 @@ class JournalforUtbetalingTest : FunSpec({
                 deltakelser = emptySet(),
             ),
         ),
-        bankKonto = BankKonto.BBan(Kontonummer("12312312312")),
-        kid = null,
+        betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("12312312312"), null),
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
         innsender = Arrangor,
         beskrivelse = null,

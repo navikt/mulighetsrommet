@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
@@ -234,7 +234,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .first()
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
-            utbetaling.bankKonto.shouldBeTypeOf<BankKonto.BBan>().kontonummer shouldBe Kontonummer("12345678901")
+            utbetaling.betalingsinformasjon.shouldBeTypeOf<Betalingsinformasjon.BBan>().kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.beregning.output.belop shouldBe 20975
         }
 
@@ -253,8 +253,10 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingerForPeriode(januar).first()
             utbetaling.gjennomforing.id shouldBe AFT1.id
-            utbetaling.bankKonto.shouldBeTypeOf<BankKonto.BBan>().kontonummer shouldBe Kontonummer("12345678901")
-            utbetaling.kid shouldBe null
+            utbetaling.betalingsinformasjon.shouldBeTypeOf<Betalingsinformasjon.BBan>() should {
+                it.kontonummer shouldBe Kontonummer("12345678901")
+                it.kid shouldBe null
+            }
 
             database.run {
                 queries.utbetaling.setKid(
@@ -265,7 +267,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val sisteKrav = service.genererUtbetalingerForPeriode(februar).first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
-            sisteKrav.kid shouldBe Kid.parseOrThrow("006402710013")
+            sisteKrav.betalingsinformasjon.shouldBeTypeOf<Betalingsinformasjon.BBan>().kid shouldBe Kid.parseOrThrow("006402710013")
         }
 
         test("genererer ikke utbetaling hvis det allerede finnes en med overlappende periode") {

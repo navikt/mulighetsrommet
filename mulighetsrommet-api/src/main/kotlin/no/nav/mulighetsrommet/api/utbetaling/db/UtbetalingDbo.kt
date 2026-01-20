@@ -1,10 +1,9 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
@@ -17,8 +16,7 @@ data class UtbetalingDbo(
     val gjennomforingId: UUID,
     val status: UtbetalingStatusType,
     val beregning: UtbetalingBeregning,
-    val bankKonto: BankKonto?,
-    val kid: Kid?,
+    val betalingsinformasjon: Betalingsinformasjon?,
     val periode: Periode,
     val beskrivelse: String?,
     val tilskuddstype: Tilskuddstype,

@@ -6,7 +6,7 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedPartyType
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponseDokument
@@ -136,8 +136,7 @@ object ArrangorflateTestUtils {
                     ),
                 ),
             ),
-            bankKonto = BankKonto.BBan(Kontonummer("12312312312")),
-            kid = null,
+            betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("12312312312"), null),
             periode = periode,
             innsender = null,
             beskrivelse = null,
@@ -155,8 +154,7 @@ object ArrangorflateTestUtils {
             input = UtbetalingBeregningFri.Input(5000),
             output = UtbetalingBeregningFri.Output(5000),
         ),
-        bankKonto = BankKonto.BBan(Kontonummer("12312312312")),
-        kid = null,
+        betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("12312312312"), null),
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
         innsender = null,
         beskrivelse = "Test utbetaling",

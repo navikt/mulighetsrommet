@@ -1,11 +1,10 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.start
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
@@ -145,8 +144,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 ),
             ),
         ),
-        bankKonto = BankKonto.BBan(kontonummer = Kontonummer("12345678901")),
-        kid = null,
+        betalingsinformasjon = Betalingsinformasjon.BBan(kontonummer = Kontonummer("12345678901"), null),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         innsender = Arrangor,
         journalpostId = null,
@@ -205,8 +203,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 belop = 100,
             ),
         ),
-        bankKonto = BankKonto.BBan(kontonummer = Kontonummer("12345678901")),
-        kid = null,
+        betalingsinformasjon = Betalingsinformasjon.BBan(kontonummer = Kontonummer("12345678901"), null),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         innsender = Arrangor,
         journalpostId = null,

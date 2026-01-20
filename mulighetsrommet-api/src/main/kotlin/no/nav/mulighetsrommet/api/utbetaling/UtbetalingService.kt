@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -162,8 +162,7 @@ class UtbetalingService(
             id = UUID.randomUUID(),
             gjennomforingId = gjennomforing.id,
             status = UtbetalingStatusType.INNSENDT,
-            bankKonto = BankKonto.BBan(utbetalingKrav.kontonummer),
-            kid = utbetalingKrav.kidNummer,
+            betalingsinformasjon = Betalingsinformasjon.BBan(utbetalingKrav.kontonummer, utbetalingKrav.kidNummer),
             beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
                 input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
                     satser = utbetalingInfo.satser,
@@ -204,14 +203,21 @@ class UtbetalingService(
         periode: Periode,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val arrangor = requireNotNull(queries.arrangor.getByGjennomforingId(request.gjennomforingId))
-        val bankKonto = arrangorService.getBankKonto(arrangor.id)
+        val betalingsinformasjon = arrangorService.getBetalingsinformasjon(arrangor.id)
 
         val dbo = UtbetalingDbo(
             id = request.id,
             gjennomforingId = request.gjennomforingId,
             status = UtbetalingStatusType.INNSENDT,
-            bankKonto = bankKonto,
-            kid = request.kidNummer,
+            betalingsinformasjon = when (betalingsinformasjon) {
+                is Betalingsinformasjon.BBan ->
+                    Betalingsinformasjon.BBan(
+                        kontonummer = betalingsinformasjon.kontonummer,
+                        kid = request.kidNummer,
+                    )
+
+                is Betalingsinformasjon.IBan -> betalingsinformasjon
+            },
             beregning = UtbetalingBeregningFri.beregn(
                 input = UtbetalingBeregningFri.Input(request.belop),
             ),
@@ -721,19 +727,19 @@ class UtbetalingService(
             Tilsagnsnummer: ${tilsagn.bestilling.bestillingsnummer}
         """.trimIndent()
 
-        val betalingsinformasjon = when (utbetaling.bankKonto) {
-            is BankKonto.BBan ->
+        val betalingsinformasjon = when (utbetaling.betalingsinformasjon) {
+            is Betalingsinformasjon.BBan ->
                 OpprettFaktura.Betalingsinformasjon.BBan(
-                    kontonummer = utbetaling.bankKonto.kontonummer,
-                    kid = utbetaling.kid,
+                    kontonummer = utbetaling.betalingsinformasjon.kontonummer,
+                    kid = utbetaling.betalingsinformasjon.kid,
                 )
 
-            is BankKonto.IBan ->
+            is Betalingsinformasjon.IBan ->
                 OpprettFaktura.Betalingsinformasjon.IBan(
-                    iban = utbetaling.bankKonto.iban,
-                    bic = utbetaling.bankKonto.bic,
-                    bankLandKode = utbetaling.bankKonto.bankLandKode,
-                    bankNavn = utbetaling.bankKonto.bankNavn,
+                    iban = utbetaling.betalingsinformasjon.iban,
+                    bic = utbetaling.betalingsinformasjon.bic,
+                    bankLandKode = utbetaling.betalingsinformasjon.bankLandKode,
+                    bankNavn = utbetaling.betalingsinformasjon.bankNavn,
                     valutaKode = "NOK", // TODO: Putt inn her når vi har valuta i prismodell,
                 )
 

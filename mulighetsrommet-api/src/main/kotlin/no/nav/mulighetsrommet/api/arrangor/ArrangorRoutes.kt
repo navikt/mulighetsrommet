@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKobling
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -140,7 +140,7 @@ fun Route.arrangorRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Bank konto til arrangør"
-                    body<BankKonto>()
+                    body<Betalingsinformasjon>()
                 }
                 default {
                     description = "Problem details"
@@ -149,7 +149,7 @@ fun Route.arrangorRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-            call.respond(arrangorService.getBankKonto(id))
+            call.respond(arrangorService.getBetalingsinformasjon(id))
         }
 
         get("{id}/hovedenhet", {

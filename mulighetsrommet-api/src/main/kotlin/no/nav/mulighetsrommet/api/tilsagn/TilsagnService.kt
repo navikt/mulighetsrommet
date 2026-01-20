@@ -717,12 +717,13 @@ class TilsagnService(
         }
 
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(tilsagn.gjennomforing.id)
+        val arrangorErUtenlandsk = queries.arrangor.getById(gjennomforing.arrangor.id).erUtenlandsk
 
         val avtale = checkNotNull(gjennomforing.avtaleId?.let { queries.avtale.get(it) }) {
             "Gjennomføring ${gjennomforing.id} mangler avtale"
         }
 
-        val arrangor = if (gjennomforing.arrangor.organisasjonsnummer.erUtenlandsk()) {
+        val arrangor = if (arrangorErUtenlandsk) {
             val utenlandskArrangor = requireNotNull(queries.arrangor.getUtenlandskArrangor(gjennomforing.arrangor.id)) {
                 "Mangler data om utenlandsk arrangør"
             }

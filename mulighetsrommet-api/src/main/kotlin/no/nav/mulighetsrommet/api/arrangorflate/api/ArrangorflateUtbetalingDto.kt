@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
@@ -34,8 +34,7 @@ data class ArrangorflateUtbetalingDto(
     val tiltakstype: ArrangorflateTiltakstype,
     val gjennomforing: ArrangorflateGjennomforingInfo,
     val arrangor: ArrangorflateArrangor,
-    val bankKonto: BankKonto.BBan?,
-    val kid: Kid?,
+    val betalingsinformasjon: Betalingsinformasjon.BBan?,
     val beregning: ArrangorflateBeregning,
     val periode: Periode,
     val type: UtbetalingTypeDto,

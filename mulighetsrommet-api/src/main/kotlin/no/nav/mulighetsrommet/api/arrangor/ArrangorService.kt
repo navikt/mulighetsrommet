@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.arrangor.model.BankKonto
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.brreg.BrregClient
@@ -107,17 +107,17 @@ class ArrangorService(
             }
     }
 
-    suspend fun getBankKonto(id: UUID): BankKonto {
+    suspend fun getBetalingsinformasjon(id: UUID): Betalingsinformasjon {
         val arrangor = db.session { queries.arrangor.getById(id) }
 
-        if (arrangor.organisasjonsnummer.erUtenlandsk()) {
+        if (arrangor.erUtenlandsk) {
             val arrangorUtenlandsk = requireNotNull(db.session { queries.arrangor.getUtenlandskArrangor(arrangor.id) }) {
                 "Fant ikke betalingsinformasjon for utenlandsk bedrift: " +
                     "orgnr=${arrangor.organisasjonsnummer.value}, navn=${arrangor.navn}. Ta kontakt " +
                     "med team Valp for å legge inn."
             }
 
-            return BankKonto.IBan(
+            return Betalingsinformasjon.IBan(
                 bic = arrangorUtenlandsk.bic,
                 iban = arrangorUtenlandsk.iban,
                 bankNavn = arrangorUtenlandsk.bankNavn,
@@ -127,7 +127,7 @@ class ArrangorService(
             val kontonummer = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
 
             return kontonummer
-                .map { BankKonto.BBan(Kontonummer(it.kontonr)) }
+                .map { Betalingsinformasjon.BBan(Kontonummer(it.kontonr), null) }
                 .getOrElse {
                     throw IllegalArgumentException("Klarte ikke hente kontonummer for arrangør")
                 }
