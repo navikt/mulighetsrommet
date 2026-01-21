@@ -7,6 +7,7 @@ import {
   Periode,
   TilsagnStatus,
   TilsagnType,
+  Valuta,
 } from "@api-client";
 import { formaterPeriode, subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import {
@@ -65,8 +66,8 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
       type: TilsagnType.INVESTERING,
       periode: tilsagnsPeriode(),
       status: TilsagnStatus.GODKJENT,
-      bruktBelop: 7455,
-      gjenstaendeBelop: 276722,
+      bruktBelop: { belop: 7455, valuta: Valuta.NOK },
+      gjenstaendeBelop: { belop: 276722, valuta: Valuta.NOK },
       beregning: {
         header: null,
         entries: [
@@ -169,8 +170,8 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
       type: TilsagnType.TILSAGN,
       periode: tilsagnsPeriode(),
       status: TilsagnStatus.GODKJENT,
-      bruktBelop: 13000,
-      gjenstaendeBelop: 351058,
+      bruktBelop: { belop: 13000, valuta: Valuta.NOK },
+      gjenstaendeBelop: { belop: 351058, valuta: Valuta.NOK },
       beregning: {
         header: null,
         entries: [
@@ -258,8 +259,8 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
       type: TilsagnType.TILSAGN,
       periode: tilsagnsPeriode(),
       status: TilsagnStatus.GODKJENT,
-      bruktBelop: 0,
-      gjenstaendeBelop: 30720,
+      bruktBelop: { belop: 0, valuta: Valuta.NOK },
+      gjenstaendeBelop: { belop: 30720, valuta: Valuta.NOK },
       beregning: {
         header: null,
         entries: [

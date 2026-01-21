@@ -33,6 +33,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.SakarkivNummer
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -84,6 +85,7 @@ class GjennomforingValidatorTest : FunSpec({
         prismodeller = listOf(
             Prismodell.AnnenAvtaltPris(
                 id = UUID.randomUUID(),
+                valuta = Valuta.NOK,
                 prisbetingelser = null,
             ),
         ),

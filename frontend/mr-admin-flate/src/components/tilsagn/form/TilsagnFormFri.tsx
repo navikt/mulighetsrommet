@@ -30,10 +30,21 @@ interface Props {
 }
 
 export function TilsagnFormFri(props: Props) {
-  return <TilsagnForm {...props} beregningInput={<BeregningInputSkjema />} />;
+  return (
+    <TilsagnForm
+      {...props}
+      beregningInput={
+        <BeregningInputSkjema prismodellValuta={props.gjennomforing.prismodell?.valuta} />
+      }
+    />
+  );
 }
 
-function BeregningInputSkjema() {
+interface BeregningInputSkjemaProps {
+  prismodellValuta?: Valuta;
+}
+
+function BeregningInputSkjema({ prismodellValuta }: BeregningInputSkjemaProps) {
   const {
     register,
     watch,
@@ -79,11 +90,11 @@ function BeregningInputSkjema() {
             type="number"
             label="Beløp"
             className="w-26 flex-none"
-            error={errors.beregning?.linjer?.[index]?.belop?.message}
-            {...register(`beregning.linjer.${index}.belop`, {
+            error={errors.beregning?.linjer?.[index]?.pris?.belop?.message}
+            {...register(`beregning.linjer.${index}.pris.belop`, {
               setValueAs: (v) => (v === "" ? null : Number(v)),
             })}
-            defaultValue={item.belop ?? 0}
+            defaultValue={item.pris?.belop ?? 0}
           />
           <TextField
             size="small"
@@ -129,9 +140,8 @@ function BeregningInputSkjema() {
           append({
             id: window.crypto.randomUUID(),
             beskrivelse: "",
-            belop: 0,
+            pris: { belop: 0, valuta: prismodellValuta ?? Valuta.NOK },
             antall: 1,
-            valuta: Valuta.NOK, // TODO: Hent fra gjennomforing, eller tidligere linjers valuta
           });
         }}
       >

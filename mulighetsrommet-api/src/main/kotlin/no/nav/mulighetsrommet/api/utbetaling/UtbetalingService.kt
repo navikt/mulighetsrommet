@@ -277,7 +277,7 @@ class UtbetalingService(
                         gjorOppTilsagn = req.gjorOppTilsagn,
                         tilsagn = UtbetalingValidator.OpprettDelutbetaling.Tilsagn(
                             status = tilsagn.status,
-                            gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
+                            gjenstaendeBelop = tilsagn.gjenstaendeBelop().belop, // TODO: Ta med valuta
                         ),
                         belop = req.belop,
                     )
@@ -481,7 +481,7 @@ class UtbetalingService(
         }
 
         val tilsagn = relevanteTilsagn[0]
-        if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.belop) {
+        if (tilsagn.gjenstaendeBelop().belop < utbetaling.beregning.output.belop) {
             return AutomatiskUtbetalingResult.IKKE_NOK_PENGER
         }
 
@@ -620,10 +620,10 @@ class UtbetalingService(
 
         delutbetalinger.forEach { delutbetaling ->
             val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
-            val benyttetBelop = tilsagn.belopBrukt + delutbetaling.belop
+            val benyttetBelop = tilsagn.belopBrukt.belop + delutbetaling.belop
             val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
             queries.tilsagn.setBruktBelop(tilsagn.id, benyttetBelop)
-            if (delutbetaling.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.belop) {
+            if (delutbetaling.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.pris.belop) {
                 tilsagnService.gjorOppTilsagnVedUtbetaling(
                     delutbetaling.tilsagnId,
                     behandletAv = opprettelse.behandletAv,

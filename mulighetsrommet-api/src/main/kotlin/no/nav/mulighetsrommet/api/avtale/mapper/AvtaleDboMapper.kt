@@ -98,7 +98,7 @@ fun Prismodell.satser(): List<AvtaltSats> = when (this) {
 }
 
 private fun toAvtalteSatser(satser: List<AvtaltSatsDto>): List<AvtaltSats> = satser.map {
-    AvtaltSats(gjelderFra = it.gjelderFra, sats = it.pris, valuta = it.valuta)
+    AvtaltSats(gjelderFra = it.gjelderFra, sats = it.pris)
 }
 
 fun ArrangorDto.toDbo(kontaktpersoner: List<UUID>?): ArrangorDbo = ArrangorDbo(

@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -25,6 +26,7 @@ object BeregningTestHelpers {
         periode: Periode,
         satser: List<AvtaltSatsDto>,
         stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
+        valuta: Valuta = Valuta.NOK,
     ): GjennomforingGruppetiltak = createGjennomforing(
         id = id,
         periode = periode,
@@ -32,6 +34,7 @@ object BeregningTestHelpers {
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
+            valuta = valuta,
         ),
         stengt = stengt,
     )
@@ -41,6 +44,7 @@ object BeregningTestHelpers {
         periode: Periode,
         satser: List<AvtaltSatsDto>,
         stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
+        valuta: Valuta = Valuta.NOK,
     ): GjennomforingGruppetiltak = createGjennomforing(
         id = id,
         periode = periode,
@@ -48,6 +52,7 @@ object BeregningTestHelpers {
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
+            valuta = valuta,
         ),
         stengt = stengt,
     )
@@ -57,6 +62,7 @@ object BeregningTestHelpers {
         periode: Periode,
         satser: List<AvtaltSatsDto>,
         stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
+        valuta: Valuta = Valuta.NOK,
     ): GjennomforingGruppetiltak = createGjennomforing(
         id = id,
         periode = periode,
@@ -64,6 +70,7 @@ object BeregningTestHelpers {
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
+            valuta = valuta,
         ),
         stengt = stengt,
     )
@@ -71,14 +78,16 @@ object BeregningTestHelpers {
     fun createGjennomforingForForhandsgodkjentPris(
         id: UUID = UUID.randomUUID(),
         periode: Periode,
-        sats: Int,
+        sats: ValutaBelop,
         stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
+        valuta: Valuta = Valuta.NOK,
     ): GjennomforingGruppetiltak = createGjennomforing(
         id = id,
         periode = periode,
         prismodell = Prismodell.ForhandsgodkjentPrisPerManedsverk(
             id = UUID.randomUUID(),
-            satser = listOf(AvtaltSatsDto(periode.start, sats, Valuta.NOK)),
+            satser = listOf(AvtaltSatsDto(periode.start, sats)),
+            valuta = valuta,
         ),
         tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         stengt = stengt,
@@ -165,7 +174,7 @@ object BeregningTestHelpers {
         )
     }
 
-    fun toAvtaltSats(gjelderFra: LocalDate, pris: Int): AvtaltSatsDto {
-        return AvtaltSatsDto(gjelderFra = gjelderFra, pris = pris, valuta = Valuta.NOK)
+    fun toAvtaltSats(gjelderFra: LocalDate, pris: ValutaBelop): AvtaltSatsDto {
+        return AvtaltSatsDto(gjelderFra = gjelderFra, pris = pris)
     }
 }

@@ -46,6 +46,7 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -87,21 +88,18 @@ object ArrangorflateTestUtils {
                     TilsagnBeregningFri.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "Beskrivelse",
-                        belop = 1000,
-                        valuta = Valuta.NOK,
+                        pris = 1000.withValuta(Valuta.NOK),
                         antall = 1,
                     ),
                 ),
                 prisbetingelser = null,
             ),
             output = TilsagnBeregningFri.Output(
-                belop = 1000,
-                valuta = Valuta.NOK,
+                pris = 1000.withValuta(Valuta.NOK),
             ),
         ),
         type = TilsagnType.TILSAGN,
-        belopBrukt = 0,
-        valuta = Valuta.NOK,
+        belopBrukt = 0.withValuta(Valuta.NOK),
         bestillingStatus = BestillingStatusType.AKTIV,
         kommentar = null,
         beskrivelse = null,
@@ -131,7 +129,13 @@ object ArrangorflateTestUtils {
                     deltakelser = setOf(
                         UtbetalingBeregningOutputDeltakelse(
                             deltakerId,
-                            setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 20205)),
+                            setOf(
+                                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                    periode,
+                                    1.0,
+                                    20205,
+                                ),
+                            ),
                         ),
                     ),
                 ),

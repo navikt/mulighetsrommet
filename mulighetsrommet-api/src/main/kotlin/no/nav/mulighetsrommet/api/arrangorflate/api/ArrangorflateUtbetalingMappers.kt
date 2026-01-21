@@ -31,6 +31,8 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -388,7 +390,7 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
                     satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
                 }",
                 entries = listOf(
-                    LabeledDataElement.nok(satsLabel, satsPeriode.sats),
+                    LabeledDataElement.money(satsLabel, satsPeriode.sats.withValuta(Valuta.NOK)), // TODO: Fjern hardkodet valuta
                     LabeledDataElement.number(faktorLabel, faktor),
                 ),
             )
@@ -406,7 +408,7 @@ fun beregningSatsPeriodeDetaljerUtenFaktor(
                 satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
             }",
             entries = listOf(
-                LabeledDataElement.nok(satsLabel, satsPeriode.sats),
+                LabeledDataElement.money(satsLabel, satsPeriode.sats.withValuta(Valuta.NOK)), // TODO: Fjern hardkodet valuta
             ),
         )
     }

@@ -15,12 +15,11 @@ import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.LabeledDataElementType
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 
 @Serializable
 data class TilsagnBeregningDto(
-    val belop: Int,
-    val valuta: Valuta,
+    val pris: ValutaBelop,
     val prismodell: DataDetails,
     val regnestykke: CalculationDto,
 ) {
@@ -28,8 +27,7 @@ data class TilsagnBeregningDto(
         fun from(beregning: TilsagnBeregning): TilsagnBeregningDto {
             return when (beregning) {
                 is TilsagnBeregningFri -> TilsagnBeregningDto(
-                    belop = beregning.output.belop,
-                    valuta = beregning.output.valuta,
+                    pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
                             DataElement.text(PrismodellType.ANNEN_AVTALT_PRIS.navn).label("Prismodell"),
@@ -69,13 +67,14 @@ data class TilsagnBeregningDto(
                                     cells = mapOf(
                                         "beskrivelse" to DataElement.text(linje.beskrivelse.ifEmpty { "<Mangler beskrivelse>" }),
                                         "belop" to DataElement.money(
-                                            linje.belop,
-                                            linje.valuta,
+                                            linje.pris,
                                         ),
                                         "antall" to DataElement.number(linje.antall),
                                         "delsum" to DataElement.money(
-                                            linje.belop * linje.antall,
-                                            linje.valuta,
+                                            ValutaBelop(
+                                                linje.pris.belop * linje.antall,
+                                                linje.pris.valuta,
+                                            ),
                                         ),
                                     ),
                                 )
@@ -85,8 +84,7 @@ data class TilsagnBeregningDto(
                 )
 
                 is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningDto(
-                    belop = beregning.output.belop,
-                    valuta = beregning.output.valuta,
+                    pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
                             DataElement.text(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.navn)
@@ -94,29 +92,25 @@ data class TilsagnBeregningDto(
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.money(
                                 beregning.input.sats,
-                                beregning.input.valuta,
                             ).label("Sats"),
                         ),
                     ),
                     regnestykke = getRegnestykkeManedsverk(
                         antallPlasser = beregning.input.antallPlasser,
                         sats = beregning.input.sats,
-                        valuta = beregning.input.valuta,
                         periode = beregning.input.periode,
-                        belop = beregning.output.belop,
+                        sum = beregning.output.pris,
                     ),
                 )
 
                 is TilsagnBeregningPrisPerManedsverk -> TilsagnBeregningDto(
-                    belop = beregning.output.belop,
-                    valuta = beregning.output.valuta,
+                    pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
                             DataElement.text(PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.navn).label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.money(
                                 beregning.input.sats,
-                                beregning.input.valuta,
                             ).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
                                 .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
@@ -126,22 +120,19 @@ data class TilsagnBeregningDto(
                     regnestykke = getRegnestykkeManedsverk(
                         antallPlasser = beregning.input.antallPlasser,
                         sats = beregning.input.sats,
-                        valuta = beregning.input.valuta,
                         periode = beregning.input.periode,
-                        belop = beregning.output.belop,
+                        sum = beregning.output.pris,
                     ),
                 )
 
                 is TilsagnBeregningPrisPerUkesverk -> TilsagnBeregningDto(
-                    belop = beregning.output.belop,
-                    valuta = beregning.output.valuta,
+                    pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
                             DataElement.text(PrismodellType.AVTALT_PRIS_PER_UKESVERK.navn).label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.money(
                                 beregning.input.sats,
-                                beregning.input.valuta,
                             ).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
                                 .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
@@ -155,7 +146,6 @@ data class TilsagnBeregningDto(
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.money(
                                 beregning.input.sats,
-                                beregning.input.valuta,
                             ),
                             DataElement.text("per tiltaksplass per uke"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
@@ -165,21 +155,19 @@ data class TilsagnBeregningDto(
                             DataElement.text("uker"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
                             DataElement.money(
-                                beregning.output.belop,
-                                beregning.input.valuta,
+                                beregning.output.pris,
                             ),
                         ),
                     ),
                 )
 
                 is TilsagnBeregningPrisPerHeleUkesverk -> TilsagnBeregningDto(
-                    belop = beregning.output.belop,
-                    valuta = beregning.output.valuta,
+                    pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
                             DataElement.text(PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.navn).label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
-                            DataElement.money(beregning.input.sats, beregning.input.valuta).label("Avtalt pris"),
+                            DataElement.money(beregning.input.sats).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
                                 .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
                         ),
@@ -192,7 +180,6 @@ data class TilsagnBeregningDto(
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.money(
                                 beregning.input.sats,
-                                beregning.input.valuta,
                             ),
                             DataElement.text("per tiltaksplass per uke"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
@@ -203,24 +190,20 @@ data class TilsagnBeregningDto(
                             DataElement.text("uker"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
                             DataElement.money(
-                                beregning.output.belop,
-                                beregning.input.valuta,
+                                beregning.output.pris,
                             ),
                         ),
                     ),
                 )
 
                 is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningDto(
-                    belop = beregning.output.belop,
-                    valuta = beregning.output.valuta,
+                    pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn)
-                                .label("Prismodell"),
+                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn).label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.money(
                                 beregning.input.sats,
-                                beregning.input.valuta,
                             ).label("Avtalt pris per oppfølgingstime"),
                             DataElement.number(beregning.input.antallTimerOppfolgingPerDeltaker)
                                 .label("Antall oppfølgingstimer per deltaker"),
@@ -236,7 +219,6 @@ data class TilsagnBeregningDto(
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.money(
                                 beregning.input.sats,
-                                beregning.input.valuta,
                             ),
                             DataElement.text("per oppfølgingstime"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
@@ -244,8 +226,7 @@ data class TilsagnBeregningDto(
                             DataElement.text("oppfølgingstimer per deltaker"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
                             DataElement.money(
-                                beregning.output.belop,
-                                beregning.input.valuta,
+                                beregning.output.pris,
                             ),
                         ),
                     ),
@@ -257,16 +238,15 @@ data class TilsagnBeregningDto(
 
 private fun getRegnestykkeManedsverk(
     antallPlasser: Int,
-    sats: Int,
-    valuta: Valuta,
+    sats: ValutaBelop,
     periode: Periode,
-    belop: Int,
+    sum: ValutaBelop,
 ) = CalculationDto(
     expression = listOf(
         DataElement.number(antallPlasser),
         DataElement.text("plasser"),
         DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
-        DataElement.money(sats, valuta),
+        DataElement.money(sats),
         DataElement.text("per tiltaksplass per måned"),
         DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
         DataElement.number(
@@ -274,7 +254,7 @@ private fun getRegnestykkeManedsverk(
         ),
         DataElement.text("måneder"),
         DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
-        DataElement.money(belop, valuta),
+        DataElement.money(sum),
     ),
 )
 

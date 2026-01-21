@@ -13,7 +13,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import { AvtalteSatserForm } from "./AvtalteSatserForm";
-import { PrismodellType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
+import { PrismodellType, Tiltakskode, Valuta } from "@tiltaksadministrasjon/api-client";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 
 interface Props {
@@ -110,6 +110,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
           onClick={() =>
             append({
               type: "" as PrismodellType,
+              valuta: Valuta.NOK,
               satser: [],
               prisbetingelser: null,
             })

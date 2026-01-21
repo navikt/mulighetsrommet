@@ -23,15 +23,18 @@ export const PrismodellSchema = z.object({
         id: z.uuid().optional(),
         prisbetingelser: z.string().nullable(),
         type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
+        valuta: z.enum(Valuta, { error: "Du må velge en valuta" }),
         satser: z
           .array(
             z.object({
               gjelderFra: z.string().min(1, { message: "Gjelder fra må være satt" }),
               gjelderTil: z.string().nullable(),
-              pris: z
-                .number({ error: "Pris må være satt" })
-                .min(1, { message: "Pris må være positiv" }),
-              valuta: z.enum(Valuta, { error: "Du må velge en valuta" }),
+              pris: z.object({
+                belop: z
+                  .number({ error: "Pris må være satt" })
+                  .min(1, { message: "Pris må være positiv" }),
+                valuta: z.enum(Valuta, { error: "Du må velge en valuta" }),
+              }),
             }),
           )
           .nullable(),

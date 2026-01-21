@@ -3666,6 +3666,8 @@ components:
           format: uuid
         type:
           $ref: "#/components/schemas/PrismodellType"
+        valuta:
+          $ref: "#/components/schemas/Valuta"
         prisbetingelser:
           type:
           - "null"
@@ -3679,6 +3681,7 @@ components:
       - prisbetingelser
       - satser
       - type
+      - valuta
     PrismodellType:
       type: string
       enum:
@@ -3688,6 +3691,10 @@ components:
       - AVTALT_PRIS_PER_UKESVERK
       - AVTALT_PRIS_PER_HELE_UKESVERK
       - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+    Valuta:
+      type: string
+      enum:
+      - NOK
     AvtaltSatsRequest:
       type: object
       properties:
@@ -3697,20 +3704,23 @@ components:
           - string
           format: date
         pris:
-          type:
-          - "null"
-          - integer
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
+      required:
+      - gjelderFra
+      - pris
+    ValutaBelop:
+      type: object
+      properties:
+        belop:
+          type: integer
           format: int32
         valuta:
           $ref: "#/components/schemas/Valuta"
       required:
-      - gjelderFra
-      - pris
+      - belop
       - valuta
-    Valuta:
-      type: string
-      enum:
-      - NOK
     PersonvernRequest:
       type: object
       properties:
@@ -4152,6 +4162,8 @@ components:
           - array
           items:
             $ref: "#/components/schemas/AvtaltSatsDto"
+        valuta:
+          $ref: "#/components/schemas/Valuta"
         prisbetingelser:
           type:
           - "null"
@@ -4169,6 +4181,7 @@ components:
       - prisbetingelser
       - satser
       - type
+      - valuta
     AvtaltSatsDto:
       type: object
       properties:
@@ -4176,10 +4189,7 @@ components:
           type: string
           format: date
         pris:
-          type: integer
-          format: int32
-        valuta:
-          $ref: "#/components/schemas/Valuta"
+          $ref: "#/components/schemas/ValutaBelop"
         gjelderTil:
           type:
           - "null"
@@ -4189,7 +4199,6 @@ components:
       - gjelderFra
       - gjelderTil
       - pris
-      - valuta
     AvtaleDto:
       type: object
       properties:
@@ -5389,14 +5398,11 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         belop:
-          type: integer
-          format: int32
+          $ref: "#/components/schemas/ValutaBelop"
         belopBrukt:
-          type: integer
-          format: int32
+          $ref: "#/components/schemas/ValutaBelop"
         belopGjenstaende:
-          type: integer
-          format: int32
+          $ref: "#/components/schemas/ValutaBelop"
         kostnadssted:
           $ref: "#/components/schemas/KostnadsstedDto"
         bestillingsnummer:
@@ -5464,20 +5470,16 @@ components:
     TilsagnBeregningDto:
       type: object
       properties:
-        belop:
-          type: integer
-          format: int32
-        valuta:
-          $ref: "#/components/schemas/Valuta"
+        pris:
+          $ref: "#/components/schemas/ValutaBelop"
         prismodell:
           $ref: "#/components/schemas/DataDetails"
         regnestykke:
           $ref: "#/components/schemas/CalculationDto"
       required:
-      - belop
+      - pris
       - prismodell
       - regnestykke
-      - valuta
     DataDetails:
       type: object
       properties:
@@ -5698,15 +5700,10 @@ components:
           type:
           - "null"
           - string
-        belop:
-          type:
-          - "null"
-          - integer
-          format: int32
-        valuta:
+        pris:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/Valuta"
+          - $ref: "#/components/schemas/ValutaBelop"
         antall:
           type:
           - "null"
@@ -5714,10 +5711,9 @@ components:
           format: int32
       required:
       - antall
-      - belop
       - beskrivelse
       - id
-      - valuta
+      - pris
     TilsagnRequest:
       type: object
       properties:

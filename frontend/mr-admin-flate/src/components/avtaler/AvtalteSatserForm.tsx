@@ -47,16 +47,17 @@ export function AvtalteSatserForm({
         >
           <HStack key={satsField.id} gap="4" align="start">
             <Select readOnly label="Valuta" size="small">
-              <option value={undefined}>{satsField.valuta}</option>
+              <option value={undefined}>{satsField.pris.valuta}</option>
             </Select>
             <TextField
               label={avtaletekster.prismodell.pris.label}
               size="small"
               type="number"
               error={
-                errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.pris?.message
+                errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.pris?.belop
+                  ?.message
               }
-              {...register(`${field}.satser.${index}.pris` as const, {
+              {...register(`${field}.satser.${index}.pris.belop` as const, {
                 setValueAs: (v) => (v === "" ? null : Number(v)),
               })}
             />
@@ -91,7 +92,13 @@ export function AvtalteSatserForm({
         size="small"
         type="button"
         icon={<PlusIcon aria-hidden />}
-        onClick={() => append({ gjelderFra: "", gjelderTil: null, pris: 0, valuta: Valuta.NOK })}
+        onClick={() =>
+          append({
+            gjelderFra: "",
+            gjelderTil: null,
+            pris: { belop: 0, valuta: Valuta.NOK },
+          })
+        }
       >
         Legg til ny prisperiode
       </Button>

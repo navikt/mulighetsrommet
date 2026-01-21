@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 
 @Serializable
 @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
@@ -17,25 +17,23 @@ data class TilsagnBeregningFastSatsPerTiltaksplassPerManed(
     @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
     data class Input(
         val periode: Periode,
-        val sats: Int,
-        val valuta: Valuta,
+        val sats: ValutaBelop,
         val antallPlasser: Int,
     ) : TilsagnBeregningInput()
 
     @Serializable
     @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
     data class Output(
-        override val belop: Int,
-        override val valuta: Valuta,
+        override val pris: ValutaBelop,
     ) : TilsagnBeregningOutput()
 
     companion object {
         fun beregn(input: Input): TilsagnBeregningFastSatsPerTiltaksplassPerManed {
-            val (periode, sats, valuta, antallPlasser) = input
+            val (periode, sats, antallPlasser) = input
 
             val belop = UtbetalingBeregningHelpers.calculateManedsverkBelop(periode, sats, antallPlasser)
 
-            return TilsagnBeregningFastSatsPerTiltaksplassPerManed(input, Output(belop = belop, valuta = valuta))
+            return TilsagnBeregningFastSatsPerTiltaksplassPerManed(input, Output(pris = belop))
         }
     }
 }

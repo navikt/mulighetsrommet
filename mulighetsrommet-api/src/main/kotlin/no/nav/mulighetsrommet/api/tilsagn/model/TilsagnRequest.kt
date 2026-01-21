@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -31,8 +32,7 @@ data class TilsagnInputLinjeRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val beskrivelse: String? = null,
-    val belop: Int? = null,
-    val valuta: Valuta? = null,
+    val pris: ValutaBelop? = null,
     val antall: Int? = null,
 )
 

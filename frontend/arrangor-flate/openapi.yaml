@@ -1099,11 +1099,9 @@ components:
         status:
           $ref: "#/components/schemas/TilsagnStatus"
         bruktBelop:
-          type: integer
-          format: int32
+          $ref: "#/components/schemas/ValutaBelop"
         gjenstaendeBelop:
-          type: integer
-          format: int32
+          $ref: "#/components/schemas/ValutaBelop"
         beregning:
           $ref: "#/components/schemas/DataDetails"
         bestillingsnummer:
@@ -1211,6 +1209,21 @@ components:
       - ANNULLERT
       - TIL_OPPGJOR
       - OPPGJORT
+    ValutaBelop:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        valuta:
+          $ref: "#/components/schemas/Valuta"
+      required:
+      - belop
+      - valuta
+    Valuta:
+      type: string
+      enum:
+      - NOK
     DataDetails:
       type: object
       properties:

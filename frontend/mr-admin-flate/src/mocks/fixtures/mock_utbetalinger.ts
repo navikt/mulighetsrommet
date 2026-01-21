@@ -14,6 +14,7 @@ import {
   UtbetalingLinjeHandling,
   UtbetalingStatusDtoType,
   UtbetalingTypeDto,
+  Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { mockEnheter } from "./mock_enheter";
 
@@ -240,9 +241,9 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
+      belop: { belop: 14_000, valuta: Valuta.NOK },
+      belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
+      belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
         type: TilsagnStatus.TIL_GODKJENNING,
         status: {
@@ -290,9 +291,9 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
+      belop: { belop: 14_000, valuta: Valuta.NOK },
+      belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
+      belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
         type: TilsagnStatus.TIL_ANNULLERING,
         status: {
@@ -340,9 +341,9 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
+      belop: { belop: 14_000, valuta: Valuta.NOK },
+      belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
+      belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
         type: TilsagnStatus.GODKJENT,
         status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS, description: null },
@@ -387,9 +388,9 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
+      belop: { belop: 14_000, valuta: Valuta.NOK },
+      belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
+      belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
         type: TilsagnStatus.GODKJENT,
         status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS, description: null },
@@ -433,9 +434,9 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
+      belop: { belop: 14_000, valuta: Valuta.NOK },
+      belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
+      belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
         type: TilsagnStatus.GODKJENT,
         status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS, description: null },

@@ -44,6 +44,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -475,18 +476,29 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("endre prismodeller") {
+            val valuta = Valuta.NOK
             val prismodell1Dbo = PrismodellFixtures.createPrismodellDbo(
                 type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-                satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 1000, Valuta.NOK)),
+                satser = listOf(
+                    AvtaltSats(
+                        LocalDate.of(2025, 7, 1),
+                        1000.withValuta(valuta),
+                    ),
+                ),
             )
             val prismodell1 = Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
                 id = prismodell1Dbo.id,
                 prisbetingelser = null,
-                satser = listOf(AvtaltSatsDto(LocalDate.of(2025, 7, 1), 1000, Valuta.NOK)),
+                satser = listOf(
+                    AvtaltSatsDto(LocalDate.of(2025, 7, 1), 1000.withValuta(valuta)),
+                ),
+                valuta = valuta,
             )
             val prismodell2Dbo = PrismodellFixtures.createPrismodellDbo(
                 type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 2000, Valuta.NOK)),
+                satser = listOf(
+                    AvtaltSats(LocalDate.of(2025, 7, 1), 2000.withValuta(valuta)),
+                ),
             )
 
             database.runAndRollback { session ->
@@ -508,7 +520,10 @@ class AvtaleQueriesTest : FunSpec({
                     Prismodell.AvtaltPrisPerManedsverk(
                         id = prismodell2Dbo.id,
                         prisbetingelser = null,
-                        satser = listOf(AvtaltSatsDto(LocalDate.of(2025, 7, 1), 2000, Valuta.NOK)),
+                        satser = listOf(
+                            AvtaltSatsDto(LocalDate.of(2025, 7, 1), 2000.withValuta(Valuta.NOK)),
+                        ),
+                        valuta = valuta,
                     ),
                 )
 
@@ -522,7 +537,10 @@ class AvtaleQueriesTest : FunSpec({
                     Prismodell.AvtaltPrisPerHeleUkesverk(
                         id = prismodell2Dbo.id,
                         prisbetingelser = "$",
-                        satser = listOf(AvtaltSatsDto(LocalDate.of(2025, 7, 1), 2000, Valuta.NOK)),
+                        satser = listOf(
+                            AvtaltSatsDto(LocalDate.of(2025, 7, 1), 2000.withValuta(Valuta.NOK)),
+                        ),
+                        valuta = valuta,
                     ),
                 )
             }

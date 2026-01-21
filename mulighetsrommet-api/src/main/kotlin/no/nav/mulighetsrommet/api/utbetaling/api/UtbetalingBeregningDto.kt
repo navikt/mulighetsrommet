@@ -24,6 +24,8 @@ import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.UUID
@@ -317,7 +319,7 @@ private fun getRegnestykkeDeltakelsesfaktor(
                 DataElement.number(faktor),
                 DataElement.text(faktorLabel),
                 DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
-                DataElement.nok(sats),
+                DataElement.money(sats.withValuta(Valuta.NOK)), // TODO: Fjern hardkodet valuta
                 DataElement.text(satsLabel),
             )
         }

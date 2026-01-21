@@ -22,7 +22,7 @@ function useHentData(gjennomforingId: string) {
     // Denne blir bestemt av backend men er påkrevd
     beregning: {
       type: TilsagnBeregningType.FRI,
-      valuta: Valuta.NOK, // TODO: Hent fra gjennomforing prismodell
+      valuta: gjennomforing.prismodell?.valuta ?? Valuta.NOK,
       antallPlasser: null,
       prisbetingelser: null,
       antallTimerOppfolgingPerDeltaker: null,

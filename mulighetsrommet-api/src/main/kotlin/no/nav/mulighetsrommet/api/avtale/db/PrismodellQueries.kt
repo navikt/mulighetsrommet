@@ -7,6 +7,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.model.Valuta
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
@@ -18,16 +19,19 @@ class PrismodellQueries(private val session: Session) {
                                    system_id,
                                    prisbetingelser,
                                    prismodell_type,
-                                   satser)
+                                   satser,
+                                   valuta)
             values (:id::uuid,
                     :system_id,
                     :prisbetingelser,
                     :prismodell::prismodell_type,
-                    :satser::jsonb)
+                    :satser::jsonb,
+                    :valuta::currency)
             on conflict (id) do update set system_id       = excluded.system_id,
                                            prisbetingelser = excluded.prisbetingelser,
                                            prismodell_type = excluded.prismodell_type,
-                                           satser          = excluded.satser
+                                           satser          = excluded.satser,
+                                           valuta         = excluded.valuta
         """.trimIndent()
         val params = mapOf(
             "id" to dbo.id,
@@ -35,6 +39,7 @@ class PrismodellQueries(private val session: Session) {
             "prismodell" to dbo.type.name,
             "prisbetingelser" to dbo.prisbetingelser,
             "satser" to Json.encodeToString(dbo.satser),
+            "valuta" to dbo.valuta.name,
         )
         session.execute(queryOf(query, params))
     }
@@ -43,6 +48,7 @@ class PrismodellQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select id as prismodell_id,
+                   valuta,
                    prismodell_type,
                    prisbetingelser as prismodell_prisbetingelser,
                    satser as prismodell_satser
@@ -56,6 +62,7 @@ class PrismodellQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select id as prismodell_id,
+                   valuta as prismodell_valuta,
                    prismodell_type,
                    prisbetingelser as prismodell_prisbetingelser,
                    satser as prismodell_satser
@@ -78,7 +85,8 @@ class PrismodellQueries(private val session: Session) {
 fun Row.toPrismodell(): Prismodell {
     val id = uuid("prismodell_id")
     val type = PrismodellType.valueOf(string("prismodell_type"))
+    val valuta = Valuta.valueOf(string("prismodell_valuta"))
     val prisbetingelser = stringOrNull("prismodell_prisbetingelser")
     val satser = stringOrNull("prismodell_satser")?.let { Json.decodeFromString<List<AvtaltSats>?>(it) }
-    return Prismodell.from(type, id, prisbetingelser, satser)
+    return Prismodell.from(type, id, valuta, prisbetingelser, satser)
 }
