@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
@@ -36,6 +37,7 @@ object Fixtures {
             besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         ),
         annullering = null,
+        valuta = Valuta.NOK,
         linjer = listOf(
             Bestilling.Linje(
                 linjenummer = 1,
@@ -63,7 +65,6 @@ object Fixtures {
             kontonummer = Kontonummer("12345678901"),
             kid = Kid.parseOrThrow("0004614992"),
             betalingsKanal = OebsBetalingskanal.BBAN,
-            valutaKode = "NOK",
             bankNavn = null,
             bankLandKode = null,
             bic = null,
@@ -100,5 +101,6 @@ object Fixtures {
             Periode: 01.01.2025 - 31.01.2025
             Tilsagnsnummer: A-1
         """.trimIndent(),
+        valuta = Valuta.NOK,
     )
 }

@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.BestillingStatus
 import no.nav.tiltak.okonomi.BestillingStatusType
@@ -779,6 +780,7 @@ private fun createOpprettBestilling(bestillingsnummer: String, organisasjonsnumm
     besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
     kostnadssted = NavEnhetNummer("0400"),
+    valuta = Valuta.NOK,
 )
 
 private fun createBestilling(
@@ -809,6 +811,7 @@ private fun createBestilling(
                 belop = 1000,
             ),
         ),
+        valuta = Valuta.NOK,
     )
 }
 
@@ -835,6 +838,7 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
     besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
     gjorOppBestilling = false,
     beskrivelse = "Beskrivelse",
+    valuta = Valuta.NOK,
 )
 
 private fun createGjorOppBestilling(bestillingsnummer: String) = GjorOppBestilling(

@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.model.Bestilling
@@ -38,7 +39,8 @@ class BestillingQueries(private val session: Session) {
                 annullering_behandlet_av,
                 annullering_behandlet_tidspunkt,
                 annullering_besluttet_av,
-                annullering_besluttet_tidspunkt
+                annullering_besluttet_tidspunkt,
+                valuta
             ) values (
                 :bestillingsnummer,
                 :avtalenummer,
@@ -56,7 +58,8 @@ class BestillingQueries(private val session: Session) {
                 :annullering_behandlet_av,
                 :annullering_behandlet_tidspunkt,
                 :annullering_besluttet_av,
-                :annullering_besluttet_tidspunkt
+                :annullering_besluttet_tidspunkt,
+                :valuta
             )
             returning id
         """
@@ -78,6 +81,7 @@ class BestillingQueries(private val session: Session) {
             "annullering_behandlet_tidspunkt" to bestilling.annullering?.behandletTidspunkt,
             "annullering_besluttet_av" to bestilling.annullering?.besluttetAv?.part,
             "annullering_besluttet_tidspunkt" to bestilling.annullering?.besluttetTidspunkt,
+            "valuta" to bestilling.valuta.name,
         )
         val bestillingId = single(queryOf(insertBestilling, params)) { it.int("id") }
 
@@ -187,7 +191,8 @@ class BestillingQueries(private val session: Session) {
                 annullering_behandlet_av,
                 annullering_behandlet_tidspunkt,
                 annullering_besluttet_av,
-                annullering_besluttet_tidspunkt
+                annullering_besluttet_tidspunkt,
+                valuta
             from bestilling
             where bestillingsnummer = ?
         """.trimIndent()
@@ -216,7 +221,8 @@ class BestillingQueries(private val session: Session) {
                 annullering_behandlet_av,
                 annullering_behandlet_tidspunkt,
                 annullering_besluttet_av,
-                annullering_besluttet_tidspunkt
+                annullering_besluttet_tidspunkt,
+                valuta
             from bestilling
             where avstemt_tidspunkt is null
         """.trimIndent()
@@ -267,6 +273,7 @@ class BestillingQueries(private val session: Session) {
                 )
             },
             linjer = linjer,
+            valuta = Valuta.valueOf(string("valuta")),
         )
     }
 }

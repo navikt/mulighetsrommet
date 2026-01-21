@@ -740,7 +740,6 @@ class UtbetalingService(
                     bic = utbetaling.betalingsinformasjon.bic,
                     bankLandKode = utbetaling.betalingsinformasjon.bankLandKode,
                     bankNavn = utbetaling.betalingsinformasjon.bankNavn,
-                    valutaKode = "NOK", // TODO: Putt inn her når vi har valuta i prismodell,
                 )
 
             null -> {
@@ -762,6 +761,7 @@ class UtbetalingService(
             besluttetTidspunkt = opprettelse.besluttetTidspunkt,
             gjorOppBestilling = delutbetaling.gjorOppTilsagn,
             beskrivelse = beskrivelse,
+            valuta = tilsagn.beregning.output.valuta,
         )
 
         queries.delutbetaling.setSendtTilOkonomi(

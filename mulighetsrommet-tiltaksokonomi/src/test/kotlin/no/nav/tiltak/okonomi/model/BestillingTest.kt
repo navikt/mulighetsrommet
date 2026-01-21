@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
@@ -31,6 +32,7 @@ class BestillingTest : FunSpec({
             besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             kostnadssted = NavEnhetNummer("0400"),
+            valuta = Valuta.NOK,
         )
 
         val hovedenhet = Organisasjonsnummer("123456789")
