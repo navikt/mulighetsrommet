@@ -205,6 +205,7 @@ export function defaultAvtaleData(
       avtale?.prismodeller?.map((prismodell) => ({
         id: prismodell.id,
         type: prismodell.type,
+        valuta: prismodell.valuta,
         satser: prismodell.satser,
         prisbetingelser: prismodell.prisbetingelser || null,
       })) ?? [],
