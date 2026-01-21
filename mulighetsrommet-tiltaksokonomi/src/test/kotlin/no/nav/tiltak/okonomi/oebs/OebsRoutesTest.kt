@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.FakturaStatusType
@@ -62,6 +63,7 @@ class OebsRoutesTest : FunSpec({
             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             kostnadssted = NavEnhetNummer("0400"),
+            valuta = Valuta.NOK,
         ),
         Organisasjonsnummer("123456789"),
     )
@@ -81,6 +83,7 @@ class OebsRoutesTest : FunSpec({
             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
             gjorOppBestilling = false,
             beskrivelse = null,
+            valuta = Valuta.NOK,
         ),
         bestilling.linjer,
     )

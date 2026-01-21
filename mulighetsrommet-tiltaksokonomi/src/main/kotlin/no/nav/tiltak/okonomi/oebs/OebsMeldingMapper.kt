@@ -6,7 +6,6 @@ import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.model.OebsKontering
 
 object OebsMeldingMapper {
-
     fun toOebsBestillingMelding(
         bestilling: Bestilling,
         kontering: OebsKontering,
@@ -31,7 +30,7 @@ object OebsMeldingMapper {
             selger = selger,
             rammeavtaleNummer = bestilling.avtalenummer,
             totalSum = bestilling.belop,
-            valutaKode = "NOK",
+            valutaKode = bestilling.valuta.name,
             saksbehandler = bestilling.opprettelse.behandletAv.part,
             bdmGodkjenner = bestilling.opprettelse.besluttetAv.part,
             startDato = bestilling.periode.start,
@@ -91,7 +90,7 @@ object OebsMeldingMapper {
             bankNavn = faktura.betalingsinformasjon?.bankNavn,
             bankLandKode = faktura.betalingsinformasjon?.bankLandKode,
             bicSwiftKode = faktura.betalingsinformasjon?.bic,
-            valutaKode = faktura.betalingsinformasjon?.valutaKode ?: "NOK",
+            valutaKode = faktura.valuta.name,
             meldingTilLeverandor = faktura.beskrivelse.takeIf { faktura.betalingsinformasjon?.kid == null },
             beskrivelse = faktura.beskrivelse,
             fakturaLinjer = linjer,

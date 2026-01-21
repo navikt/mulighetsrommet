@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.avstemming.FakturaCsvData
@@ -31,7 +32,7 @@ class FakturaQueries(private val session: Session) {
                 iban,
                 bank_land_kode,
                 bank_navn,
-                valuta_kode,
+                valuta,
                 betalingskanal,
                 belop,
                 periode,
@@ -51,7 +52,7 @@ class FakturaQueries(private val session: Session) {
                 :iban,
                 :bank_land_kode,
                 :bank_navn,
-                :valuta_kode,
+                :valuta,
                 :betalingskanal,
                 :belop,
                 :periode::daterange,
@@ -83,7 +84,7 @@ class FakturaQueries(private val session: Session) {
             "iban" to faktura.betalingsinformasjon?.iban,
             "land_kode" to faktura.betalingsinformasjon?.bankLandKode,
             "bank_navn" to faktura.betalingsinformasjon?.bankNavn,
-            "valuta_kode" to faktura.betalingsinformasjon?.valutaKode,
+            "valuta" to faktura.valuta.name,
             "betalingskanal" to faktura.betalingsinformasjon?.betalingsKanal?.name,
         )
 
@@ -200,7 +201,7 @@ class FakturaQueries(private val session: Session) {
                 iban,
                 bank_land_kode,
                 bank_navn,
-                valuta_kode,
+                valuta,
                 betalingskanal,
                 belop,
                 periode,
@@ -215,41 +216,41 @@ class FakturaQueries(private val session: Session) {
             where fakturanummer = ?
         """.trimIndent()
 
-        return session.single(queryOf(selectFaktura, fakturanummer)) { faktura ->
-            val linjer = session.list(queryOf(selectLinje, faktura.int("id"))) { linje ->
+        return session.single(queryOf(selectFaktura, fakturanummer)) { row ->
+            val linjer = session.list(queryOf(selectLinje, row.int("id"))) { linje ->
                 Faktura.Linje(
                     linjenummer = linje.int("linjenummer"),
                     periode = linje.periode("periode"),
                     belop = linje.int("belop"),
                 )
             }
-            val betalingskanal = faktura.stringOrNull("betalingskanal")?.let { OebsBetalingskanal.valueOf(it) }
+            val betalingskanal = row.stringOrNull("betalingskanal")?.let { OebsBetalingskanal.valueOf(it) }
 
             Faktura(
-                bestillingsnummer = faktura.string("bestillingsnummer"),
-                fakturanummer = faktura.string("fakturanummer"),
+                bestillingsnummer = row.string("bestillingsnummer"),
+                fakturanummer = row.string("fakturanummer"),
                 betalingsinformasjon = betalingskanal?.let {
                     Faktura.Betalingsinformasjon(
-                        kontonummer = faktura.stringOrNull("kontonummer")?.let { Kontonummer(it) },
-                        kid = faktura.stringOrNull("kid")?.let { kid -> Kid.parseOrThrow(kid) },
-                        iban = faktura.stringOrNull("iban"),
-                        bic = faktura.stringOrNull("bic"),
-                        bankLandKode = faktura.stringOrNull("bank_land_kode"),
-                        bankNavn = faktura.stringOrNull("bank_navn"),
-                        valutaKode = faktura.string("valuta_kode"),
+                        kontonummer = row.stringOrNull("kontonummer")?.let { Kontonummer(it) },
+                        kid = row.stringOrNull("kid")?.let { kid -> Kid.parseOrThrow(kid) },
+                        iban = row.stringOrNull("iban"),
+                        bic = row.stringOrNull("bic"),
+                        bankLandKode = row.stringOrNull("bank_land_kode"),
+                        bankNavn = row.stringOrNull("bank_navn"),
                         betalingsKanal = betalingskanal,
                     )
                 },
-                belop = faktura.int("belop"),
-                periode = faktura.periode("periode"),
-                status = FakturaStatusType.valueOf(faktura.string("status")),
-                fakturaStatusSistOppdatert = faktura.localDateTimeOrNull("status_sist_oppdatert"),
-                behandletAv = OkonomiPart.fromString(faktura.string("behandlet_av")),
-                behandletTidspunkt = faktura.localDateTime("behandlet_tidspunkt"),
-                besluttetAv = OkonomiPart.fromString(faktura.string("besluttet_av")),
-                besluttetTidspunkt = faktura.localDateTime("besluttet_tidspunkt"),
+                belop = row.int("belop"),
+                periode = row.periode("periode"),
+                status = FakturaStatusType.valueOf(row.string("status")),
+                fakturaStatusSistOppdatert = row.localDateTimeOrNull("status_sist_oppdatert"),
+                behandletAv = OkonomiPart.fromString(row.string("behandlet_av")),
+                behandletTidspunkt = row.localDateTime("behandlet_tidspunkt"),
+                besluttetAv = OkonomiPart.fromString(row.string("besluttet_av")),
+                besluttetTidspunkt = row.localDateTime("besluttet_tidspunkt"),
                 linjer = linjer,
-                beskrivelse = faktura.stringOrNull("beskrivelse"),
+                beskrivelse = row.stringOrNull("beskrivelse"),
+                valuta = Valuta.valueOf(row.string("valuta")),
             )
         }
     }

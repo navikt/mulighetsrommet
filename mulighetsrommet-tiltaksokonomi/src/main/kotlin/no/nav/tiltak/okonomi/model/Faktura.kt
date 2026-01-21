@@ -3,6 +3,7 @@ package no.nav.tiltak.okonomi.model
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.OkonomiPart
@@ -27,10 +28,10 @@ data class Faktura(
     val besluttetTidspunkt: LocalDateTime,
     val linjer: List<Linje>,
     val beskrivelse: String?,
+    val valuta: Valuta,
 ) {
     data class Betalingsinformasjon(
         val betalingsKanal: OebsBetalingskanal,
-        val valutaKode: String,
         val kontonummer: Kontonummer?,
         val kid: Kid?,
         val bankNavn: String?,
@@ -48,7 +49,6 @@ data class Faktura(
                         bankNavn = null,
                         bankLandKode = null,
                         bic = null,
-                        valutaKode = "NOK",
                         iban = null,
                     )
 
@@ -59,7 +59,6 @@ data class Faktura(
                         bankNavn = betalingsinformasjon.bankNavn,
                         bankLandKode = betalingsinformasjon.bankLandKode,
                         bic = betalingsinformasjon.bic,
-                        valutaKode = betalingsinformasjon.valutaKode,
                         iban = betalingsinformasjon.iban,
                     )
                 }
@@ -105,6 +104,7 @@ data class Faktura(
                     )
                 },
                 beskrivelse = faktura.beskrivelse,
+                valuta = faktura.valuta,
             )
         }
 
@@ -133,6 +133,7 @@ data class Faktura(
                     ),
                 ),
                 beskrivelse = null,
+                valuta = Valuta.NOK,
             )
         }
     }
