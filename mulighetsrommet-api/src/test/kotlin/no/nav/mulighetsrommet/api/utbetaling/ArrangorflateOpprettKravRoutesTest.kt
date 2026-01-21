@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -12,7 +13,7 @@ import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.ApplicationConfigLocal
 import no.nav.mulighetsrommet.api.arrangorflate.api.DatoVelger
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingsInformasjon
-import no.nav.mulighetsrommet.api.arrangorflate.api.TiltaksoversiktResponse
+import no.nav.mulighetsrommet.api.arrangorflate.dto.TabelloversiktRadDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -101,8 +102,8 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
-            val body = response.body<TiltaksoversiktResponse>()
-            body.table.shouldBeNull()
+            val body = response.body<List<TabelloversiktRadDto>>()
+            body.shouldBeEmpty()
         }
     }
 
@@ -113,9 +114,9 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
-            val body = response.body<TiltaksoversiktResponse>()
-            body.table.shouldNotBeNull()
-            body.table.rows.size shouldBeGreaterThan 0
+            val body = response.body<List<TabelloversiktRadDto>>()
+            body.shouldNotBeNull()
+            body.size shouldBeGreaterThan 0
         }
     }
 

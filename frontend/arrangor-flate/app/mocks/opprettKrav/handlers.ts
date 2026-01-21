@@ -1,5 +1,4 @@
 import {
-  TiltaksoversiktResponse,
   TiltaksoversiktType,
   OpprettKravDeltakere,
   OpprettKravInnsendingsInformasjon,
@@ -8,6 +7,7 @@ import {
   OpprettKravUtbetalingsinformasjon,
   OpprettKravVedlegg,
   OpprettKravVeiviserMeta,
+  TabelloversiktRadDto,
 } from "@api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { oversiktAktiveGjennomforinger } from "./gjennomforingMocks";
@@ -19,18 +19,14 @@ import { oppsummering, utbetalingMap } from "./oppsummeringMocks";
 import { deltakere } from "./deltakelserMocks";
 
 export const handlers = [
-  http.get<PathParams, TiltaksoversiktResponse[]>(
+  http.get<PathParams, TabelloversiktRadDto[]>(
     "*/api/arrangorflate/arrangor/tiltaksoversikt",
     ({ request }) => {
       const type = new URL(request.url).searchParams.get("type");
       if (type === TiltaksoversiktType.AKTIVE) {
-        return HttpResponse.json<TiltaksoversiktResponse>({
-          table: oversiktAktiveGjennomforinger,
-        });
+        return HttpResponse.json<TabelloversiktRadDto[]>(oversiktAktiveGjennomforinger);
       }
-      return HttpResponse.json<TiltaksoversiktResponse>({
-        table: null,
-      });
+      return HttpResponse.json<TabelloversiktRadDto[]>(null);
     },
   ),
   http.get<PathParams, OpprettKravVeiviserMeta>(
