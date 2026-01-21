@@ -38,6 +38,7 @@ object UtbetalingMapper {
                 gjennomforing.arrangor.navn,
                 gjennomforing.arrangor.slettet,
             ),
+            valuta = dbo.valuta,
             beregning = dbo.beregning,
         )
     }

@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
@@ -19,11 +20,11 @@ data class ArrangorflateUtbetalingKompaktDto(
     val type: UtbetalingTypeDto,
     val periode: Periode,
     val status: ArrangorflateUtbetalingStatus,
-    val belop: Int,
-    val godkjentBelop: Int?,
+    val pris: ValutaBelop,
+    val godkjentBelop: ValutaBelop?,
 ) {
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling, status: ArrangorflateUtbetalingStatus, godkjentBelop: Int?) = ArrangorflateUtbetalingKompaktDto(
+        fun fromUtbetaling(utbetaling: Utbetaling, status: ArrangorflateUtbetalingStatus, godkjentBelop: ValutaBelop?) = ArrangorflateUtbetalingKompaktDto(
             id = utbetaling.id,
             status = status,
             tiltakstype = ArrangorflateTiltakstype(
@@ -41,7 +42,7 @@ data class ArrangorflateUtbetalingKompaktDto(
                 navn = utbetaling.arrangor.navn,
             ),
             periode = utbetaling.periode,
-            belop = utbetaling.beregning.output.belop,
+            pris = utbetaling.beregning.output.pris,
             godkjentBelop = godkjentBelop,
             type = UtbetalingType.from(utbetaling).toDto(),
         )

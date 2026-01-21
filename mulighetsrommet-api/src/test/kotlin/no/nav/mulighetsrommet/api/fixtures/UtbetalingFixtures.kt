@@ -17,6 +17,8 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -28,9 +30,10 @@ object UtbetalingFixtures {
         gjennomforingId = AFT1.id,
         status = UtbetalingStatusType.GENERERT,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+        valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFri(
-            input = UtbetalingBeregningFri.Input(1000),
-            output = UtbetalingBeregningFri.Output(1000),
+            input = UtbetalingBeregningFri.Input(1000.withValuta(Valuta.NOK)),
+            output = UtbetalingBeregningFri.Output(1000.withValuta(Valuta.NOK)),
         ),
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), null),
         innsender = null,
@@ -50,9 +53,10 @@ object UtbetalingFixtures {
             slutt = AFT1.sluttDato,
         ),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+        valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFri(
-            input = UtbetalingBeregningFri.Input(1000),
-            output = UtbetalingBeregningFri.Output(1000),
+            input = UtbetalingBeregningFri.Input(1000.withValuta(Valuta.NOK)),
+            output = UtbetalingBeregningFri.Output(1000.withValuta(Valuta.NOK)),
         ),
         innsender = null,
         beskrivelse = null,
@@ -82,9 +86,10 @@ object UtbetalingFixtures {
         gjennomforingId = AFT1.id,
         status = UtbetalingStatusType.GENERERT,
         periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
+        valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFri(
-            input = UtbetalingBeregningFri.Input(500),
-            output = UtbetalingBeregningFri.Output(500),
+            input = UtbetalingBeregningFri.Input(500.withValuta(Valuta.NOK)),
+            output = UtbetalingBeregningFri.Output(500.withValuta(Valuta.NOK)),
         ),
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), null),
         innsender = null,
@@ -99,9 +104,10 @@ object UtbetalingFixtures {
         gjennomforingId = GjennomforingFixtures.VTA1.id,
         status = UtbetalingStatusType.GENERERT,
         periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
+        valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFri(
-            input = UtbetalingBeregningFri.Input(500),
-            output = UtbetalingBeregningFri.Output(500),
+            input = UtbetalingBeregningFri.Input(500.withValuta(Valuta.NOK)),
+            output = UtbetalingBeregningFri.Output(500.withValuta(Valuta.NOK)),
         ),
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), null),
         innsender = null,
@@ -117,7 +123,7 @@ object UtbetalingFixtures {
         utbetalingId = utbetaling1.id,
         status = DelutbetalingStatus.TIL_ATTESTERING,
         fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
-        belop = 200,
+        pris = 200.withValuta(Valuta.NOK),
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
         lopenummer = 1,
@@ -131,7 +137,7 @@ object UtbetalingFixtures {
         utbetalingId = utbetaling1.id,
         status = DelutbetalingStatus.TIL_ATTESTERING,
         fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
-        belop = 150,
+        pris = 150.withValuta(Valuta.NOK),
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
         lopenummer = 1,

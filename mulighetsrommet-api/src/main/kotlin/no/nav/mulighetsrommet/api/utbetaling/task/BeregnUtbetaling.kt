@@ -22,6 +22,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.minus
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -139,6 +141,7 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
         val otherUtbetaling = other.find { it.gjennomforing.id == utbetaling.gjennomforing.id }
         val otherDeltakelser = otherUtbetaling?.beregning?.let { getDeltakelser(it) } ?: setOf()
         val deltakelser = getDeltakelser(utbetaling.beregning).subtract(otherDeltakelser)
+        val otherPris = otherUtbetaling?.beregning?.output?.pris ?: 0.withValuta(utbetaling.beregning.output.pris.valuta)
         deltakelser.sortedBy { it.deltakelseId }.forEach { deltakelse ->
             row(
                 utbetaling.tiltakstype.tiltakskode,
@@ -146,8 +149,8 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
                 utbetaling.gjennomforing.lopenummer,
                 utbetaling.beregning::class.simpleName!!,
                 utbetaling.periode.formatPeriode(),
-                utbetaling.beregning.output.belop,
-                utbetaling.beregning.output.belop - (otherUtbetaling?.beregning?.output?.belop ?: 0),
+                utbetaling.beregning.output.pris,
+                utbetaling.beregning.output.pris - otherPris,
                 deltakelse.deltakelseId,
                 deltakelse.perioder.sumOf { it.faktor },
             )
@@ -175,7 +178,7 @@ private fun getDeltakelseOutputPrisPerTimeOppfolging(beregning: UtbetalingBeregn
             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                 it.periode,
                 faktor = 0.0,
-                sats = 0,
+                sats = 0.withValuta(beregning.output.pris.valuta),
             ),
         ),
     )
@@ -188,6 +191,6 @@ private fun getDifference(
     val otherById = other.associateBy { it.gjennomforing.id }
     return source.filter { sourceEntry ->
         val otherEntry = otherById[sourceEntry.gjennomforing.id]
-        otherEntry == null || sourceEntry.beregning.output.belop != otherEntry.beregning.output.belop
+        otherEntry == null || sourceEntry.beregning.output.pris != otherEntry.beregning.output.pris
     }
 }

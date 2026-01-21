@@ -31,8 +31,6 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -51,7 +49,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     regenerertId: UUID?,
 ): ArrangorflateUtbetalingDto {
     val beregning = ArrangorflateBeregning(
-        belop = utbetaling.beregning.output.belop,
+        pris = utbetaling.beregning.output.pris,
         digest = utbetaling.beregning.getDigest(),
         deltakelser = beregningDeltakerTable(utbetaling, deltakereById, personaliaById),
         stengt = beregningStengt(utbetaling.beregning),
@@ -390,7 +388,7 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
                     satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
                 }",
                 entries = listOf(
-                    LabeledDataElement.money(satsLabel, satsPeriode.sats.withValuta(Valuta.NOK)), // TODO: Fjern hardkodet valuta
+                    LabeledDataElement.money(satsLabel, satsPeriode.sats),
                     LabeledDataElement.number(faktorLabel, faktor),
                 ),
             )
@@ -408,7 +406,7 @@ fun beregningSatsPeriodeDetaljerUtenFaktor(
                 satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
             }",
             entries = listOf(
-                LabeledDataElement.money(satsLabel, satsPeriode.sats.withValuta(Valuta.NOK)), // TODO: Fjern hardkodet valuta
+                LabeledDataElement.money(satsLabel, satsPeriode.sats),
             ),
         )
     }

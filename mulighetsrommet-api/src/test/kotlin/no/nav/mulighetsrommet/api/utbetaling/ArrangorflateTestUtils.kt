@@ -111,9 +111,15 @@ object ArrangorflateTestUtils {
             id = UUID.randomUUID(),
             gjennomforingId = GjennomforingFixtures.AFT1.id,
             status = UtbetalingStatusType.GENERERT,
+            valuta = Valuta.NOK,
             beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
                 input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                    satser = setOf(SatsPeriode(periode, 20205)),
+                    satser = setOf(
+                        SatsPeriode(
+                            periode = periode,
+                            sats = 20205.withValuta(Valuta.NOK),
+                        ),
+                    ),
                     stengt = setOf(),
                     deltakelser = setOf(
                         DeltakelseDeltakelsesprosentPerioder(
@@ -125,7 +131,7 @@ object ArrangorflateTestUtils {
                     ),
                 ),
                 output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
-                    belop = 10000,
+                    pris = 10000.withValuta(Valuta.NOK),
                     deltakelser = setOf(
                         UtbetalingBeregningOutputDeltakelse(
                             deltakerId,
@@ -133,7 +139,7 @@ object ArrangorflateTestUtils {
                                 UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                     periode,
                                     1.0,
-                                    20205,
+                                    20205.withValuta(Valuta.NOK),
                                 ),
                             ),
                         ),
@@ -154,9 +160,10 @@ object ArrangorflateTestUtils {
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         status = UtbetalingStatusType.GENERERT,
+        valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFri(
-            input = UtbetalingBeregningFri.Input(5000),
-            output = UtbetalingBeregningFri.Output(5000),
+            input = UtbetalingBeregningFri.Input(5000.withValuta(Valuta.NOK)),
+            output = UtbetalingBeregningFri.Output(5000.withValuta(Valuta.NOK)),
         ),
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("12312312312"), null),
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),

@@ -27,6 +27,9 @@ import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.compareTo
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
@@ -37,13 +40,13 @@ import kotlin.contracts.ExperimentalContracts
 object UtbetalingValidator {
     data class OpprettDelutbetaling(
         val id: UUID,
-        val belop: Int?,
+        val pris: ValutaBelop?,
         val gjorOppTilsagn: Boolean,
         val tilsagn: Tilsagn,
     ) {
         data class Tilsagn(
             val status: TilsagnStatus,
-            val gjenstaendeBelop: Int,
+            val gjenstaendeBelop: ValutaBelop,
         )
     }
 
@@ -71,13 +74,13 @@ object UtbetalingValidator {
                 "Utbetaling kan ikke endres fordi den har status: ${utbetaling.status}",
             )
         }
-        val totalBelopUtbetales = opprettDelutbetalinger.sumOf { it.belop ?: 0 }
-        validate(totalBelopUtbetales <= utbetaling.beregning.output.belop) {
+        val totalBelopUtbetales = opprettDelutbetalinger.sumOf { it.pris?.belop ?: 0 }.withValuta(utbetaling.valuta)
+        validate(totalBelopUtbetales <= utbetaling.beregning.output.pris) {
             FieldError.root(
                 "Kan ikke utbetale mer enn innsendt beløp",
             )
         }
-        validate(totalBelopUtbetales >= utbetaling.beregning.output.belop || !begrunnelse.isNullOrBlank()) {
+        validate(totalBelopUtbetales >= utbetaling.beregning.output.pris || !begrunnelse.isNullOrBlank()) {
             FieldError.root(
                 "Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp",
             )
@@ -89,15 +92,15 @@ object UtbetalingValidator {
         }
 
         opprettDelutbetalinger.forEachIndexed { index, req ->
-            validate(req.belop != null && req.belop > 0) {
+            validate(req.pris != null && req.pris.belop > 0) {
                 FieldError.ofPointer(
-                    "/$index/belop",
+                    "/$index/pris",
                     "Beløp må være positivt",
                 )
             }
-            validate(req.belop == null || req.belop <= req.tilsagn.gjenstaendeBelop) {
+            validate(req.pris == null || req.pris <= req.tilsagn.gjenstaendeBelop) {
                 FieldError.ofPointer(
-                    "/$index/belop",
+                    "/$index/pris",
                     "Kan ikke utbetale mer enn gjenstående beløp på tilsagn",
                 )
             }
@@ -121,8 +124,8 @@ object UtbetalingValidator {
         validateNotNull(request.periodeSlutt) {
             FieldError.of("Periodeslutt må være satt", OpprettUtbetalingRequest::periodeSlutt)
         }
-        validate(request.belop > 1) {
-            FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::belop)
+        validate(request.pris.belop > 1) {
+            FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris)
         }
         validate(request.beskrivelse.length > 10) {
             FieldError.of("Du må fylle ut beskrivelse", OpprettUtbetalingRequest::beskrivelse)
@@ -143,7 +146,7 @@ object UtbetalingValidator {
             gjennomforingId = request.gjennomforingId,
             periodeStart = periode.start,
             periodeSlutt = periode.getLastInclusiveDate(),
-            belop = request.belop,
+            pris = request.pris,
             kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             beskrivelse = request.beskrivelse,
             vedlegg = emptyList(),
@@ -158,7 +161,7 @@ object UtbetalingValidator {
         val periodeSlutt: LocalDate,
         val beskrivelse: String,
         val kidNummer: Kid? = null,
-        val belop: Int,
+        val pris: ValutaBelop,
         val tilskuddstype: Tilskuddstype,
         val vedlegg: List<Vedlegg>,
     )
@@ -250,8 +253,8 @@ object UtbetalingValidator {
             )
         }
 
-        validate(request.belop > 0) {
-            FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::belop)
+        validate(request.pris.belop > 0) {
+            FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::pris)
         }
         validate(request.vedlegg.size >= minAntallVedleggVedOpprettKrav(gjennomforing.prismodell?.type)) {
             FieldError.of("Du må legge ved vedlegg", OpprettKravUtbetalingRequest::vedlegg)
@@ -266,7 +269,7 @@ object UtbetalingValidator {
         ValidertUtbetalingKrav(
             periodeStart = LocalDate.parse(request.periodeStart),
             periodeSlutt = LocalDate.parse(request.periodeSlutt),
-            belop = request.belop,
+            pris = request.pris,
             kontonummer = kontonummer,
             kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             vedlegg = request.vedlegg,
@@ -278,7 +281,7 @@ object UtbetalingValidator {
         val periodeSlutt: LocalDate,
         val kontonummer: Kontonummer,
         val kidNummer: Kid? = null,
-        val belop: Int,
+        val pris: ValutaBelop,
         val vedlegg: List<Vedlegg>,
     )
 
@@ -294,7 +297,7 @@ object UtbetalingValidator {
             periodeSlutt = this.periodeSlutt,
             beskrivelse = "",
             kidNummer = this.kidNummer,
-            belop = this.belop,
+            pris = this.pris,
             vedlegg = this.vedlegg,
         )
     }

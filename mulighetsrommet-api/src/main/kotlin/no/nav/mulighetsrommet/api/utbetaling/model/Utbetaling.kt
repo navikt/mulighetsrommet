@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.AgentSerializer
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -28,6 +29,7 @@ data class Utbetaling(
     val tiltakstype: Tiltakstype,
     val gjennomforing: Gjennomforing,
     val arrangor: Arrangor,
+    val valuta: Valuta,
     val beregning: UtbetalingBeregning,
     val betalingsinformasjon: Betalingsinformasjon?,
     val journalpostId: String?,

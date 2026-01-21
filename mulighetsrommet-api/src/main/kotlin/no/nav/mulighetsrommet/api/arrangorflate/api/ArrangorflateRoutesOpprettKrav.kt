@@ -62,6 +62,9 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -804,7 +807,7 @@ data class OpprettKravOppsummeringRequest(
     val periodeSlutt: String,
     val periodeInklusiv: Boolean?,
     val kidNummer: String? = null,
-    val belop: Int,
+    val pris: ValutaBelop,
 )
 
 @Serializable
@@ -843,14 +846,14 @@ data class OpprettKravOppsummering(
                         "KID-nummer",
                         requestData.kidNummer ?: "",
                     ),
-                    LabeledDataElement.nok(
+                    LabeledDataElement.money(
                         "Beløp",
-                        requestData.belop,
+                        requestData.pris,
                     ),
                 ),
                 innsendingsData = InnsendingsData(
                     periode = periode,
-                    belop = requestData.belop,
+                    pris = requestData.pris,
                     kidNummer = requestData.kidNummer,
                     minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell?.type),
                 ),
@@ -862,7 +865,7 @@ data class OpprettKravOppsummering(
     @Serializable
     data class InnsendingsData(
         val periode: Periode,
-        val belop: Int,
+        val pris: ValutaBelop,
         val kidNummer: String?,
         val minAntallVedlegg: Int,
     )
@@ -875,7 +878,7 @@ data class OpprettKravUtbetalingRequest(
     val periodeStart: String,
     val periodeSlutt: String,
     val kidNummer: String? = null,
-    val belop: Int,
+    val pris: ValutaBelop,
     val vedlegg: List<Vedlegg>,
 )
 
@@ -919,7 +922,7 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either
         periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
         periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
         kidNummer = kidNummer,
-        belop = belop ?: 0,
+        pris = (belop ?: 0).withValuta(Valuta.NOK), // Fjern valuta når arrflate er oppdatert
         vedlegg = validatedVedlegg,
     )
 }

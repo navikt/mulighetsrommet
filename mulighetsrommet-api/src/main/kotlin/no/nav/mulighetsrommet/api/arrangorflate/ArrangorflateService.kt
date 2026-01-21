@@ -50,6 +50,9 @@ import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -85,7 +88,7 @@ class ArrangorflateService(
             ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
             ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
             ArrangorflateUtbetalingStatus.UTBETALT,
-            -> getGodkjentBelopForUtbetaling(utbetaling.id)
+            -> getGodkjentBelopForUtbetaling(utbetaling.id, valuta = utbetaling.beregning.output.pris.valuta)
 
             ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
             ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
@@ -191,8 +194,8 @@ class ArrangorflateService(
             }
     }
 
-    private fun getGodkjentBelopForUtbetaling(utbetalingId: UUID): Int = db.session {
-        return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.belop }
+    private fun getGodkjentBelopForUtbetaling(utbetalingId: UUID, valuta: Valuta): ValutaBelop = db.session {
+        return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.pris.belop }.withValuta(valuta)
     }
 
     suspend fun toArrangorflateUtbetaling(
@@ -239,7 +242,7 @@ class ArrangorflateService(
 
                 ArrangforflateUtbetalingLinje(
                     id = delutbetaling.id,
-                    belop = delutbetaling.belop,
+                    pris = delutbetaling.pris,
                     status = delutbetaling.status,
                     statusSistOppdatert = delutbetaling.faktura.statusSistOppdatert,
                     tilsagn = ArrangorflateTilsagnSummary(

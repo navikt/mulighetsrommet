@@ -8,6 +8,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.FakturaStatusType
 import org.intellij.lang.annotations.Language
 import java.time.Instant
@@ -24,6 +26,7 @@ class DelutbetalingQueries(private val session: Session) {
                 utbetaling_id,
                 status,
                 belop,
+                valuta,
                 gjor_opp_tilsagn,
                 periode,
                 lopenummer,
@@ -38,6 +41,7 @@ class DelutbetalingQueries(private val session: Session) {
                 :utbetaling_id::uuid,
                 :status::delutbetaling_status,
                 :belop,
+                :valuta::currency,
                 :gjor_opp_tilsagn::boolean,
                 :periode::daterange,
                 :lopenummer,
@@ -49,6 +53,7 @@ class DelutbetalingQueries(private val session: Session) {
             ) on conflict (id) do update set
                 status                        = excluded.status,
                 belop                         = excluded.belop,
+                valuta                        = excluded.valuta,
                 gjor_opp_tilsagn              = excluded.gjor_opp_tilsagn,
                 periode                       = excluded.periode,
                 lopenummer                    = excluded.lopenummer,
@@ -65,7 +70,8 @@ class DelutbetalingQueries(private val session: Session) {
             "utbetaling_id" to delutbetaling.utbetalingId,
             "status" to delutbetaling.status.name,
             "faktura_status_sist_oppdatert" to delutbetaling.fakturaStatusSistOppdatert,
-            "belop" to delutbetaling.belop,
+            "belop" to delutbetaling.pris.belop,
+            "valuta" to delutbetaling.pris.valuta.name,
             "gjor_opp_tilsagn" to delutbetaling.gjorOppTilsagn,
             "periode" to delutbetaling.periode.toDaterange(),
             "lopenummer" to delutbetaling.lopenummer,
@@ -219,20 +225,23 @@ class DelutbetalingQueries(private val session: Session) {
     }
 }
 
-private fun Row.toDelutbetaling() = Delutbetaling(
-    id = uuid("id"),
-    tilsagnId = uuid("tilsagn_id"),
-    utbetalingId = uuid("utbetaling_id"),
-    belop = int("belop"),
-    gjorOppTilsagn = boolean("gjor_opp_tilsagn"),
-    periode = periode("periode"),
-    lopenummer = int("lopenummer"),
-    status = DelutbetalingStatus.valueOf(string("status")),
-    faktura = Delutbetaling.Faktura(
-        fakturanummer = string("fakturanummer"),
-        sendtTidspunkt = localDateTimeOrNull("sendt_til_okonomi_tidspunkt"),
-        utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
-        statusSistOppdatert = localDateTimeOrNull("faktura_status_sist_oppdatert"),
-        status = stringOrNull("faktura_status")?.let { FakturaStatusType.valueOf(it) },
-    ),
-)
+private fun Row.toDelutbetaling(): Delutbetaling {
+    val valuta = string("valuta").let { Valuta.valueOf(it) }
+    return Delutbetaling(
+        id = uuid("id"),
+        tilsagnId = uuid("tilsagn_id"),
+        utbetalingId = uuid("utbetaling_id"),
+        pris = int("belop").withValuta(valuta),
+        gjorOppTilsagn = boolean("gjor_opp_tilsagn"),
+        periode = periode("periode"),
+        lopenummer = int("lopenummer"),
+        status = DelutbetalingStatus.valueOf(string("status")),
+        faktura = Delutbetaling.Faktura(
+            fakturanummer = string("fakturanummer"),
+            sendtTidspunkt = localDateTimeOrNull("sendt_til_okonomi_tidspunkt"),
+            utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
+            statusSistOppdatert = localDateTimeOrNull("faktura_status_sist_oppdatert"),
+            status = stringOrNull("faktura_status")?.let { FakturaStatusType.valueOf(it) },
+        ),
+    )
+}

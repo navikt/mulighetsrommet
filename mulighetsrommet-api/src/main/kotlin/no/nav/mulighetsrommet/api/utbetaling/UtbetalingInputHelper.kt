@@ -58,7 +58,7 @@ object UtbetalingInputHelper {
                 }
 
                 if (slutt.isAfter(start)) {
-                    SatsPeriode(Periode(start, slutt), current.sats.belop) // TODO: Ta med valuta
+                    SatsPeriode(Periode(start, slutt), current.sats)
                 } else {
                     null
                 }
