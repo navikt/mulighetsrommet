@@ -32,7 +32,7 @@ import { getOrgnrGjennomforingIdFrom, pathTo } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
 import { VedleggUtlisting } from "~/components/VedleggUtlisting";
 import { useFileStorage } from "~/hooks/useFileStorage";
-import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid";
 
 export const meta: MetaFunction = ({ matches }) => {
   return [

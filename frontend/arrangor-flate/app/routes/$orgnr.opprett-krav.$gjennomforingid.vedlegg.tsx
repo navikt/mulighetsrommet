@@ -23,7 +23,7 @@ import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-dat
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { getOrgnrGjennomforingIdFrom, pathBySteg } from "~/utils/navigation";
-import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid";
 import {
   nesteStegFieldName,
   OpprettKravVeiviserButtons,
