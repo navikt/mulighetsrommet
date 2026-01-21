@@ -7,12 +7,14 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
+import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
 fun Route.navEnhetRoutes() {
+    val kostnadsstedService: KostnadsstedService by inject()
     val navEnhetService: NavEnhetService by inject()
 
     route("nav-enheter") {
@@ -88,7 +90,7 @@ fun Route.navEnhetRoutes() {
             }
         }) {
             val regioner = call.parameters.getAll("regioner")?.map { NavEnhetNummer(it) } ?: emptyList()
-            call.respond(navEnhetService.hentKostnadssted(regioner))
+            call.respond(kostnadsstedService.hentKostnadssted(regioner))
         }
 
         get("kostnadsstedFilter", {
@@ -105,7 +107,7 @@ fun Route.navEnhetRoutes() {
                 }
             }
         }) {
-            call.respond(navEnhetService.hentKostnadsstedFilter())
+            call.respond(kostnadsstedService.hentKostnadsstedFilter())
         }
 
         get("{enhetsnummer}/overordnet", {

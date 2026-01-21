@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navenhet
+package no.nav.mulighetsrommet.api.kostnadssted
 
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 

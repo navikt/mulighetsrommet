@@ -1,9 +1,8 @@
-package no.nav.mulighetsrommet.api.navenhet.db
+package no.nav.mulighetsrommet.api.kostnadssted
 
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.navenhet.Kostnadssted
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.intellij.lang.annotations.Language

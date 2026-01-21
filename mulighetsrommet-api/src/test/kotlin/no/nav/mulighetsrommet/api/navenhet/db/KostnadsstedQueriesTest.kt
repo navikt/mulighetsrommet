@@ -5,7 +5,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.navenhet.Kostnadssted
+import no.nav.mulighetsrommet.api.kostnadssted.Kostnadssted
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.intellij.lang.annotations.Language
