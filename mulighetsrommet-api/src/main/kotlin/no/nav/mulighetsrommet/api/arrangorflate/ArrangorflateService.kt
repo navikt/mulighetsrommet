@@ -266,7 +266,7 @@ class ArrangorflateService(
 
             is UtbetalingBeregningPrisPerTimeOppfolging,
             is UtbetalingBeregningFri,
-            -> false to null
+            -> return false to null
         }
 
         val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(utbetaling.gjennomforing.id)
@@ -275,20 +275,11 @@ class ArrangorflateService(
         val regenerertKrav = utbetalingerSammePeriode
             .sortedByDescending { it.createdAt }
             .firstOrNull { it.status != UtbetalingStatusType.AVBRUTT }
-        if (regenerertKrav != null) {
-            return false to regenerertKrav.id
-        }
 
-        return when (utbetaling.beregning) {
-            is UtbetalingBeregningFri,
-            is UtbetalingBeregningPrisPerTimeOppfolging,
-            -> false to null
-
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerHeleUkesverk,
-            is UtbetalingBeregningPrisPerManedsverk,
-            is UtbetalingBeregningPrisPerUkesverk,
-            -> true to null
+        return if (regenerertKrav != null) {
+            false to regenerertKrav.id
+        } else {
+            true to null
         }
     }
 
