@@ -80,7 +80,7 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await parseFormData(
     request,
     {
-      maxFileSize: 10000000, // 10MB
+      maxFileSize: Infinity,
     },
     uploadHandler,
   );
@@ -163,8 +163,8 @@ export default function OpprettKravVedleggSteg() {
                 fileStorage
                 error={errorAt("/vedlegg", data?.errors)}
                 maxFiles={10}
-                maxSizeMB={3}
-                maxSizeBytes={3 * 1024 * 1024}
+                maxSizeMB={10}
+                maxSizeBytes={10 * 1024 * 1024}
                 id="vedlegg"
               />
             </VStack>
