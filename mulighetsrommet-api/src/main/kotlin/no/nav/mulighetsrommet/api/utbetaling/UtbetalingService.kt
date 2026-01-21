@@ -761,7 +761,7 @@ class UtbetalingService(
             besluttetTidspunkt = opprettelse.besluttetTidspunkt,
             gjorOppBestilling = delutbetaling.gjorOppTilsagn,
             beskrivelse = beskrivelse,
-            valuta = tilsagn.beregning.output.valuta,
+            valuta = tilsagn.beregning.output.pris.valuta,
         )
 
         queries.delutbetaling.setSendtTilOkonomi(

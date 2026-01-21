@@ -750,7 +750,7 @@ class TilsagnService(
             behandletTidspunkt = opprettelse.behandletTidspunkt,
             besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
             besluttetTidspunkt = opprettelse.besluttetTidspunkt,
-            valuta = tilsagn.beregning.output.valuta,
+            valuta = tilsagn.beregning.output.pris.valuta,
         )
 
         storeOkonomiMelding(bestilling.bestillingsnummer, OkonomiBestillingMelding.Bestilling(bestilling))
