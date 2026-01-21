@@ -2,12 +2,10 @@ package no.nav.mulighetsrommet.api.navenhet.db
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import org.intellij.lang.annotations.Language
 
 class NavEnhetQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -93,54 +91,6 @@ class NavEnhetQueriesTest : FunSpec({
                 overordnetEnhet,
                 underenhet4,
                 underenhet5,
-            )
-        }
-    }
-
-    test("kostnadssted") {
-        database.runAndRollback { session ->
-            queries.enhet.upsert(
-                createEnhet(
-                    enhet = NavEnhetNummer("0200"),
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            )
-            queries.enhet.upsert(
-                createEnhet(
-                    enhet = NavEnhetNummer("0106"),
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = NavEnhetNummer("0200"),
-                ),
-            )
-            queries.enhet.upsert(
-                createEnhet(
-                    enhet = NavEnhetNummer("0101"),
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = NavEnhetNummer("0200"),
-                ),
-            )
-            queries.enhet.upsert(
-                createEnhet(
-                    enhet = NavEnhetNummer("0128"),
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = NavEnhetNummer("0200"),
-                ),
-            )
-
-            @Language("PostgreSQL")
-            val setKostnadssteder = """
-                insert into kostnadssted (enhetsnummer, region)
-                values ('0106', '0200'), ('0101', '0200'), ('0200', '0200')
-                on conflict do nothing;
-            """.trimIndent()
-            session.execute(queryOf(setKostnadssteder))
-
-            queries.enhet.getKostnadssted(listOf(NavEnhetNummer("0200")))
-                .map { it.enhetsnummer } shouldContainExactlyInAnyOrder listOf(
-                NavEnhetNummer("0106"),
-                NavEnhetNummer("0101"),
-                NavEnhetNummer("0200"),
             )
         }
     }

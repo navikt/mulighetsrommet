@@ -45,6 +45,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomfo
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
+import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
 import no.nav.mulighetsrommet.api.lagretfilter.LagretFilterService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -398,6 +399,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get(), appConfig.arenaMigrering) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
+    single { KostnadsstedService(get()) }
     single { ArrangorService(get(), get(), get()) }
     single {
         val db: ApiDatabase = get()

@@ -26,7 +26,7 @@ class OppgaverService(val db: ApiDatabase) {
         regioner: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
     ): List<Oppgave> = db.transaction {
-        val navEnheterForRegioner = getNavEnheterForRegioner(regioner)
+        val navEnheterForRegioner = getNavEnheterOgKostnadsstederForRegioner(regioner)
 
         val oppgaver = buildList {
             if (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.TILSAGN }) {
@@ -155,13 +155,14 @@ class OppgaverService(val db: ApiDatabase) {
         }
     }
 
-    private fun QueryContext.getNavEnheterForRegioner(regioner: Set<NavEnhetNummer>): Set<NavEnhetNummer> {
-        return queries.enhet.getKostnadssted(regioner.toList())
+    private fun QueryContext.getNavEnheterOgKostnadsstederForRegioner(regioner: Set<NavEnhetNummer>): Set<NavEnhetNummer> {
+        val kostnadssteder = queries.kostnadssted.getAll(regioner.toList())
             .map { it.enhetsnummer }
-            .toSet() +
-            regioner.flatMapTo(mutableSetOf()) { region ->
-                queries.enhet.getAll(overordnetEnhet = region).map { it.enhetsnummer } + region
-            }
+            .toSet()
+        val navEnheter = regioner.flatMapTo(mutableSetOf()) { region ->
+            queries.enhet.getAll(overordnetEnhet = region).map { it.enhetsnummer } + region
+        }
+        return kostnadssteder + navEnheter
     }
 }
 

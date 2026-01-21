@@ -21,7 +21,6 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement } from "react";
-import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
@@ -29,6 +28,7 @@ import { tilsagnTekster } from "../TilsagnTekster";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 import { useOpprettTilsagn } from "@/api/tilsagn/mutations";
+import { useKostnadsstedFilter } from "@/api/enhet/useKostnadsstedFilter";
 
 interface Props {
   onSuccess: () => void;
@@ -42,7 +42,8 @@ interface Props {
 export function TilsagnForm(props: Props) {
   const { onSuccess, onAvbryt, defaultValues, regioner, gjennomforing } = props;
   const [searchParams] = useSearchParams();
-  const { data: kostnadssteder } = useKostnadssted(regioner);
+  const kostnadssteder = useRelevanteKostnadssteder(regioner);
+
   const tilsagnstype: TilsagnType =
     (searchParams.get("type") as TilsagnType | null) || TilsagnType.TILSAGN;
 
@@ -188,4 +189,11 @@ function InfomeldingOmInvesteringsTilsagn() {
       . Det kan ikke brukes til å utbetale ordinære driftsmidler til tiltaksarrangør.
     </Alert>
   );
+}
+
+function useRelevanteKostnadssteder(regioner: string[]) {
+  const { data: kostnadssteder } = useKostnadsstedFilter();
+  return kostnadssteder
+    .filter((region) => regioner.includes(region.enhetsnummer))
+    .flatMap((region) => region.enheter);
 }
