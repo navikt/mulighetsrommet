@@ -1,10 +1,7 @@
--- `console_5.sql`
 -- Transforms prismodell.satser from:
 -- [{gjelderFra, sats: 1000, valuta}]
 -- to:
 -- [{gjelderFra, sats: {belop: 1000, valuta}}]
-
-BEGIN;
 
 UPDATE prismodell p
 SET satser = (
@@ -38,5 +35,3 @@ WHERE p.satser IS NOT NULL
     FROM jsonb_array_elements(p.satser) e(elem)
     WHERE jsonb_typeof(elem->'sats') = 'number'
 );
-
-COMMIT;
