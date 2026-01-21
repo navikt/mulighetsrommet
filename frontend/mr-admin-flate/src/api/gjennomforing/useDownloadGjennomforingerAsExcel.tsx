@@ -6,7 +6,7 @@ import { useDownloadFile } from "@/api/useDownloadFile";
 export function useDownloadGjennomforingerAsExcel(filter: GjennomforingFilterType) {
   const query = {
     search: filter.search,
-    navEnheter: filter.navEnheter.map((enhet) => enhet.enhetsnummer),
+    navEnheter: filter.navEnheter,
     tiltakstyper: filter.tiltakstyper,
     statuser: filter.statuser,
     avtaleId: filter.avtale,

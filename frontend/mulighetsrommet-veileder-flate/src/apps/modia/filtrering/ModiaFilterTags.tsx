@@ -3,6 +3,8 @@ import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFi
 import { FilterTag } from "@mr/frontend-common/components/filter/filterTag/FilterTag";
 import { NavEnhetFilterTag } from "@mr/frontend-common/components/filter/filterTag/NavEnhetFilterTag";
 import { FilterTagsContainer } from "@mr/frontend-common/components/filter/filterTag/FilterTagsContainer";
+import { useRegioner } from "@/api/queries/useRegioner";
+import { getSelectedNavEnheter } from "@/utils/Utils";
 
 interface Props {
   filterOpen: boolean;
@@ -12,13 +14,15 @@ interface Props {
 export function ModiaFilterTags({ filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
+  const { data: regioner } = useRegioner();
+
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.innsatsgruppe && (
         <FilterTag label={filter.innsatsgruppe.tittel} testId={filter.innsatsgruppe.nokkel} />
       )}
       <NavEnhetFilterTag
-        navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
+        navEnheter={getSelectedNavEnheter(regioner, filter.navEnheter)}
         onClose={() => setFilter({ ...filter, navEnheter: [] })}
       />
       {filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT && (

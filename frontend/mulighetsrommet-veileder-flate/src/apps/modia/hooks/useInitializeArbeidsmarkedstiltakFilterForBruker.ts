@@ -28,7 +28,7 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
               tittel: brukersInnsatsgruppe.tittel,
             }
           : undefined,
-        navEnheter: brukerdata.enheter,
+        navEnheter: brukerdata.enheter.map((enhet) => enhet.enhetsnummer),
         erSykmeldtMedArbeidsgiver: brukerdata.erSykmeldtMedArbeidsgiver,
       });
     }

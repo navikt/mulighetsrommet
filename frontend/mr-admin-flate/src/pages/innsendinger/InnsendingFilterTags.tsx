@@ -17,15 +17,13 @@ export function InnsendingFilterTags({ filter, updateFilter, tiltakstypeId, filt
 
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={() => {}}>
-      {filter.navEnheter.map((enhet) => (
+      {filter.navEnheter.map((enhetsnummer) => (
         <FilterTag
-          key={enhet.enhetsnummer}
-          label={
-            enheter.find((e) => e.enhetsnummer === enhet.enhetsnummer)?.navn || enhet.enhetsnummer
-          }
+          key={enhetsnummer}
+          label={enheter.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
           onClose={() => {
             updateFilter({
-              navEnheter: addOrRemove(filter.navEnheter, enhet),
+              navEnheter: addOrRemove(filter.navEnheter, enhetsnummer),
             });
           }}
         />

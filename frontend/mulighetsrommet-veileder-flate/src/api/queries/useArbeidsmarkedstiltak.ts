@@ -42,7 +42,7 @@ function useGetArbeidsmarkedstiltakFilterAsQuery() {
       search: filter.search || undefined,
       apentForPamelding: filter.apentForPamelding,
       innsatsgruppe: filter.innsatsgruppe?.nokkel,
-      enheter: filter.navEnheter.map((enhet) => enhet.enhetsnummer),
+      enheter: filter.navEnheter,
       tiltakstyper,
       erSykmeldtMedArbeidsgiver: filter.erSykmeldtMedArbeidsgiver,
     },

@@ -3,11 +3,10 @@ import { z } from "zod";
 import { createFilterStateAtom } from "@/filter/filter-state";
 import { createFilterValidator } from "@/filter/filter-validator";
 import { createSorteringProps } from "@/api/atoms";
-import { NavEnhetDto } from "@tiltaksadministrasjon/api-client";
 
 export const InnsendingFilterSchema = z.object({
   tiltakstyper: z.string().array(),
-  navEnheter: z.custom<NavEnhetDto>().array(),
+  navEnheter: z.string().array(),
   sortering: createSorteringProps(z.string()),
 });
 

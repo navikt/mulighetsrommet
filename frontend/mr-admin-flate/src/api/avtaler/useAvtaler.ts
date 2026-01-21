@@ -12,7 +12,7 @@ export function useAvtaler(filter: Partial<AvtaleFilterType>) {
       search: debouncedSok || undefined,
       statuser: filter.statuser,
       avtaletyper: filter.avtaletyper,
-      navEnheter: filter.navEnheter?.map((enhet) => enhet.enhetsnummer) ?? [],
+      navEnheter: filter.navEnheter,
       sort: filter.sortering?.sortString,
       page: filter.page ?? 1,
       size: filter.pageSize,
