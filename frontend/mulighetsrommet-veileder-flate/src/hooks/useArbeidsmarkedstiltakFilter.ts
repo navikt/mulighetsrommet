@@ -17,13 +17,7 @@ import { z } from "zod";
 
 export const ArbeidsmarkedstiltakFilterSchema = z.object({
   search: z.string(),
-  navEnheter: z
-    .object({
-      navn: z.string(),
-      enhetsnummer: z.string(),
-      overordnetEnhet: z.string().nullable(),
-    })
-    .array(),
+  navEnheter: z.string().array(),
   innsatsgruppe: z
     .object({
       tittel: z.string(),

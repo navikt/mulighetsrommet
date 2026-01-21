@@ -9,7 +9,7 @@ export function useGetInnsendinger(filter: InnsendingFilterType) {
     queryFn: () =>
       UtbetalingService.getInnsendinger({
         query: {
-          navEnheter: filter.navEnheter.map((enhet) => enhet.enhetsnummer),
+          navEnheter: filter.navEnheter,
           tiltakstyper: filter.tiltakstyper,
           sort: filter.sortering.sortString,
         },

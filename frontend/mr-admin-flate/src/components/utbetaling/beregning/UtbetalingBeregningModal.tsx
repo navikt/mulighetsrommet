@@ -1,10 +1,8 @@
 import { Heading, HGrid, Modal, VStack } from "@navikt/ds-react";
-import { NavEnhetDto } from "@tiltaksadministrasjon/api-client";
 import { NavEnhetFilter } from "@mr/frontend-common";
 import { Suspense, useState } from "react";
 import { Laster } from "@/components/laster/Laster";
 import UtbetalingBeregning from "./UtbetalingBeregning";
-import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useUtbetalingBeregning } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 
 interface Props {
@@ -41,12 +39,8 @@ interface BodyProps {
 }
 
 function ModalBody({ utbetalingId }: BodyProps) {
-  const { data: enheter } = useNavEnheter();
-  const [navEnheter, setNavEnheter] = useState<NavEnhetDto[]>([]);
-  const { data: beregning } = useUtbetalingBeregning(
-    { navEnheter: navEnheter.map((e) => e.enhetsnummer) },
-    utbetalingId,
-  );
+  const [navEnheter, setNavEnheter] = useState<string[]>([]);
+  const { data: beregning } = useUtbetalingBeregning({ navEnheter }, utbetalingId);
 
   return (
     <VStack>
@@ -57,11 +51,7 @@ function ModalBody({ utbetalingId }: BodyProps) {
           </Heading>
           <NavEnhetFilter
             value={navEnheter}
-            onChange={(navEnheter) => {
-              return setNavEnheter(
-                enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
-              );
-            }}
+            onChange={setNavEnheter}
             regioner={beregning.deltakerRegioner}
           />
         </VStack>

@@ -59,9 +59,9 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
               value={filter.navEnheter}
               onChange={(navEnheter: string[]) => {
                 updateFilter({
-                  navEnheter: kostnadssteder.filter((enhet) =>
-                    navEnheter.includes(enhet.enhetsnummer),
-                  ),
+                  navEnheter: kostnadssteder
+                    .filter((enhet) => navEnheter.includes(enhet.enhetsnummer))
+                    .map((enhet) => enhet.enhetsnummer),
                 });
               }}
               regioner={kostnadsstedRegioner}
@@ -74,7 +74,7 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
                   size="small"
                   onChange={() =>
                     updateFilter({
-                      navEnheter: addOrRemove(filter.navEnheter, kostnadssted),
+                      navEnheter: addOrRemove(filter.navEnheter, kostnadssted.enhetsnummer),
                     })
                   }
                 >
