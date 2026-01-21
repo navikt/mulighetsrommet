@@ -13,7 +13,7 @@ import { Suspense } from "react";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 import { InnsendingFilterSchema, InnsendingFilterStateAtom } from "./filter";
-import { InnsendingFilter } from "./Innsendingfilter";
+import { InnsendingFilter } from "./InnsendingFilter";
 import { InnsendingTable } from "./InnsendingTable";
 import { InnsendingFilterTags } from "./InnsendingFilterTags";
 
