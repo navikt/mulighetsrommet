@@ -63,14 +63,28 @@ class NavEnhetService(
         return NavEnhetHelpers.buildNavRegioner(alleEnheter)
     }
 
-    fun hentKostnadssted(regioner: List<NavEnhetNummer>): List<NavEnhetDto> = db.session {
-        queries.enhet.getKostnadssted(regioner).map { it.toDto() }
+    fun hentKostnadssted(regioner: List<NavEnhetNummer>): List<Kostnadssted> = db.session {
+        queries.kostnadssted.getAll(regioner)
     }
 
-    fun hentKostnadsstedFiltre(): List<NavRegionDto> = db.session {
-        val regioner = hentAlleEnheter(EnhetFilter(statuser = listOf(NavEnhetStatus.AKTIV), typer = listOf(NavEnhetType.FYLKE)))
-        val kostnadssteder = queries.enhet.getKostnadssted().map { it.toDto() }
-        return NavEnhetHelpers.buildNavRegioner(kostnadssteder + regioner)
+    fun hentKostnadsstedFilter(): List<NavRegionDto> = db.session {
+        return queries.kostnadssted.getAll()
+            .groupBy { it.region }
+            .map { (region, kostnadssteder) ->
+                val enheter = kostnadssteder.map {
+                    NavRegionUnderenhetDto(
+                        navn = it.navn,
+                        enhetsnummer = it.enhetsnummer,
+                        overordnetEnhet = region.enhetsnummer,
+                        erStandardvalg = true,
+                    )
+                }
+                NavRegionDto(
+                    enhetsnummer = region.enhetsnummer,
+                    navn = region.navn,
+                    enheter = enheter,
+                )
+            }
     }
 
     private fun QueryContext.getNavEnhetDto(enhetsnummer: NavEnhetNummer): NavEnhetDto? {

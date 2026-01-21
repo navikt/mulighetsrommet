@@ -105,7 +105,7 @@ fun Route.navEnhetRoutes() {
                 }
             }
         }) {
-            call.respond(navEnhetService.hentKostnadsstedFiltre())
+            call.respond(navEnhetService.hentKostnadsstedFilter())
         }
 
         get("{enhetsnummer}/overordnet", {

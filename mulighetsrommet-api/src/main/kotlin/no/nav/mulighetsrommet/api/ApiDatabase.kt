@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
+import no.nav.mulighetsrommet.api.navenhet.db.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
@@ -57,6 +58,7 @@ open class QueryContext(open val session: Session) {
 
     inner class Queries {
         val enhet = NavEnhetQueries(session)
+        val kostnadssted = KostnadsstedQueries(session)
         val ansatt = NavAnsattQueries(session)
         val arrangor = ArrangorQueries(session)
         val tiltakstype = TiltakstypeQueries(session)

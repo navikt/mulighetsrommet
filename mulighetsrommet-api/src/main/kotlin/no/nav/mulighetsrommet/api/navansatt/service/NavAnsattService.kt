@@ -121,7 +121,7 @@ class NavAnsattService(
     }
 
     private fun withKostnadssteder(enhetsnummer: NavEnhetNummer): Set<NavEnhetNummer> = db.session {
-        queries.enhet.getKostnadssted(regioner = listOf(enhetsnummer))
+        queries.kostnadssted.getAll(regioner = listOf(enhetsnummer))
             .mapTo(mutableSetOf()) { it.enhetsnummer }
             .plus(enhetsnummer)
     }
