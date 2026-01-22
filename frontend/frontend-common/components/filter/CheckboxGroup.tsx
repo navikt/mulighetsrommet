@@ -67,49 +67,64 @@ export function CheckboxGroup({ value, onChange, groups }: CheckboxGroupProps) {
 
   return (
     <>
-      {groups.map((group: CheckboxGroup) => (
-        <div key={group.id}>
-          <div
-            className={styles.checkbox_and_caret}
-            onClick={() => setGroupOpen([...addOrRemove(groupOpen, group.id)])}
-          >
-            <div onClick={(e) => e.stopPropagation()} className={styles.checkbox}>
-              <Checkbox
-                size="small"
-                key={group.id}
-                checked={groupIsChecked(group)}
-                onChange={() => groupOnChange(group)}
-                indeterminate={groupIsIndeterminate(group)}
-              >
-                {group.navn}
-              </Checkbox>
-            </div>
-            <div className={styles.caret_container}>
-              <ChevronDownIcon
-                aria-label="Ikon ned"
-                fontSize="1.25rem"
-                className={classnames(styles.accordion_down, {
-                  [styles.accordion_down_open]: groupOpen.includes(group.id),
-                })}
-              />
-            </div>
-          </div>
-          {groupOpen.includes(group.id) && (
-            <div style={{ marginLeft: "1rem" }}>
-              {group.items.map(({ id, navn }) => (
+      {groups.map((group: CheckboxGroup) => {
+        if (group.items.length === 0) {
+          return (
+            <Checkbox
+              size="small"
+              key={group.id}
+              checked={itemIsChecked(group.id)}
+              onChange={() => itemOnChange(group.id)}
+            >
+              {group.navn}
+            </Checkbox>
+          );
+        }
+
+        return (
+          <div key={group.id}>
+            <div
+              className={styles.checkbox_and_caret}
+              onClick={() => setGroupOpen([...addOrRemove(groupOpen, group.id)])}
+            >
+              <div onClick={(e) => e.stopPropagation()} className={styles.checkbox}>
                 <Checkbox
-                  checked={itemIsChecked(id)}
-                  onChange={() => itemOnChange(id)}
-                  key={id}
                   size="small"
+                  key={group.id}
+                  checked={groupIsChecked(group)}
+                  onChange={() => groupOnChange(group)}
+                  indeterminate={groupIsIndeterminate(group)}
                 >
-                  {navn}
+                  {group.navn}
                 </Checkbox>
-              ))}
+              </div>
+              <div className={styles.caret_container}>
+                <ChevronDownIcon
+                  aria-label="Ikon ned"
+                  fontSize="1.25rem"
+                  className={classnames(styles.accordion_down, {
+                    [styles.accordion_down_open]: groupOpen.includes(group.id),
+                  })}
+                />
+              </div>
             </div>
-          )}
-        </div>
-      ))}
+            {groupOpen.includes(group.id) && (
+              <div style={{ marginLeft: "1rem" }}>
+                {group.items.map(({ id, navn }) => (
+                  <Checkbox
+                    checked={itemIsChecked(id)}
+                    onChange={() => itemOnChange(id)}
+                    key={id}
+                    size="small"
+                  >
+                    {navn}
+                  </Checkbox>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </>
   );
 }

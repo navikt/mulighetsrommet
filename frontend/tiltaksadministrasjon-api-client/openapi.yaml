@@ -3075,6 +3075,10 @@ components:
           type: string
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
+        gruppe:
+          type:
+          - "null"
+          - string
         startDato:
           type: string
           format: date
@@ -3100,10 +3104,6 @@ components:
           items:
             $ref: "#/components/schemas/TiltakstypeEgenskap"
           uniqueItems: true
-        gruppe:
-          type:
-          - "null"
-          - string
       required:
       - egenskaper
       - features
