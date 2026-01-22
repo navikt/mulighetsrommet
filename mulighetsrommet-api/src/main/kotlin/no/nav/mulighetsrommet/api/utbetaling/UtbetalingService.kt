@@ -380,6 +380,17 @@ class UtbetalingService(
         queries.utbetaling.delete(id).right()
     }
 
+    fun avbrytUtbetaling(utbetalingId: UUID, begrunnelse: String): Unit = db.transaction {
+        queries.utbetaling.avbrytUtbetaling(
+            utbetalingId,
+            begrunnelse,
+            Instant.now(),
+        )
+        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
+        logEndring("Utbetaling avbrutt", utbetaling, Arrangor)
+        return
+    }
+
     fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {
         val delutbetaling = queries.delutbetaling.getOrError(fakturanummer)
         publishOpprettFaktura(delutbetaling)
