@@ -3,11 +3,11 @@ import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
-import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "@mr/frontend-common";
+import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 import { AvtaleFilterType } from "@/pages/avtaler/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
-import { getSelectedNavEnheter } from "@/components/filter/utils";
+import { NavEnhetFilterTag } from "@/components/filter/NavEnhetFilterTag";
 
 interface Props {
   filter: AvtaleFilterType;
@@ -80,7 +80,8 @@ export function AvtaleFilterTags({
       )}
       {filter.navEnheter.length > 0 && (
         <NavEnhetFilterTag
-          navEnheter={getSelectedNavEnheter(regioner, filter.navEnheter)}
+          navEnheter={filter.navEnheter}
+          regioner={regioner}
           onClose={() => updateFilter({ navEnheter: [], page: 1 })}
         />
       )}

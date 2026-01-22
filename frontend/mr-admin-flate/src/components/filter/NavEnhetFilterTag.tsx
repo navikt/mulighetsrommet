@@ -1,14 +1,13 @@
-import { MultiLabelFilterTag } from "@mr/frontend-common/components/filter/filterTag/MultiLabelFilterTag";
-import { useRegioner } from "@/api/queries/useRegioner";
-import { NavRegionDto } from "@api-client";
+import { MultiLabelFilterTag } from "@mr/frontend-common";
+import { NavRegionDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   navEnheter: string[];
   onClose: () => void;
+  regioner: NavRegionDto[];
 }
 
-export function NavEnhetFilterTag({ navEnheter, onClose }: Props) {
-  const { data: regioner } = useRegioner();
+export function NavEnhetFilterTag({ navEnheter, onClose, regioner }: Props) {
   const labels = getSelectedNavEnheter(regioner, navEnheter);
   return <MultiLabelFilterTag labels={labels} onClose={onClose} />;
 }

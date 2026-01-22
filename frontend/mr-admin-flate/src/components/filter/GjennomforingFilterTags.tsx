@@ -2,11 +2,11 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
-import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "@mr/frontend-common";
+import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
-import { getSelectedNavEnheter } from "@/components/filter/utils";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
+import { NavEnhetFilterTag } from "@/components/filter/NavEnhetFilterTag";
 
 interface Props {
   filter: GjennomforingFilterType;
@@ -42,7 +42,8 @@ export function GjennomforingFilterTags({
       )}
       {filter.navEnheter.length > 0 && (
         <NavEnhetFilterTag
-          navEnheter={getSelectedNavEnheter(regioner, filter.navEnheter)}
+          navEnheter={filter.navEnheter}
+          regioner={regioner}
           onClose={() => updateFilter({ navEnheter: [], page: 1 })}
         />
       )}
