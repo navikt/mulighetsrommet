@@ -24,6 +24,8 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -60,6 +62,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
                 it.gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 it.gjennomforing.arena.shouldBeNull()
+                it.gjennomforing.oppstartstype shouldBe GjennomforingOppstartstype.LOPENDE
+                it.gjennomforing.pameldingstype shouldBe GjennomforingPameldingType.DIREKTE_VEDTAK
                 it.gjennomforing.arrangor shouldBe DatavarehusTiltakV1.Arrangor(
                     organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                 )
@@ -255,6 +259,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 )
                 it.gjennomforing.arena.shouldBeNull()
                 it.gjennomforing.navn.shouldBeNull()
+                it.gjennomforing.oppstartstype shouldBe GjennomforingOppstartstype.LOPENDE
+                it.gjennomforing.pameldingstype shouldBe GjennomforingPameldingType.TRENGER_GODKJENNING
                 it.gjennomforing.startDato.shouldBeNull()
                 it.gjennomforing.sluttDato.shouldBeNull()
                 it.gjennomforing.status.shouldBeNull()
