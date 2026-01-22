@@ -381,9 +381,12 @@ class UtbetalingService(
     }
 
     fun avbrytUtbetaling(utbetalingId: UUID, begrunnelse: String): Unit = db.transaction {
+        queries.utbetaling.avbrytUtbetaling(
+            utbetalingId,
+            begrunnelse,
+            Instant.now(),
+        )
         val utbetaling = queries.utbetaling.getOrError(utbetalingId)
-
-        queries.utbetaling.avbrytUtbetaling(utbetaling.id, begrunnelse, Instant.now())
         logEndring("Utbetaling avbrutt", utbetaling, Arrangor)
         return
     }
