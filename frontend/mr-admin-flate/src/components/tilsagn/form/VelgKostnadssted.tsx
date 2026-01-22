@@ -6,7 +6,7 @@ interface Props {
   kostnadssteder: KostnadsstedOption[];
 }
 
-interface KostnadsstedOption {
+export interface KostnadsstedOption {
   enhetsnummer: string;
   navn: string;
 }

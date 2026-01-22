@@ -1,8 +1,8 @@
 import {
-  Valuta,
   GjennomforingDto,
   TilsagnBeregningType,
   TilsagnRequest,
+  Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -20,13 +20,14 @@ import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
+import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 
 interface Props {
   gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
-  regioner: string[];
+  kostnadssteder: KostnadsstedOption[];
 }
 
 export function TilsagnFormFri(props: Props) {
