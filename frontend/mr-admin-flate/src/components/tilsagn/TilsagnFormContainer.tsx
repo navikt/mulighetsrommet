@@ -9,6 +9,8 @@ import {
 import { useNavigate } from "react-router";
 import { TilsagnFormFastSatsPerTiltaksplassPerManed } from "./form/TilsagnFormFastSatsPerTiltaksplassPerManed";
 import { TilsagnFormPrisPerTimeOppfolging } from "@/components/tilsagn/form/TilsagnFormPrisPerTimeOppfolging";
+import { useKostnadsstedFilter } from "@/api/enhet/useKostnadsstedFilter";
+import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -22,11 +24,11 @@ export function TilsagnFormContainer({ gjennomforing, defaults }: Props) {
     navigate(`/gjennomforinger/${gjennomforing.id}/tilsagn`);
   }
 
-  const regionerForKostnadssteder = getRegionerForKostnadssteder(gjennomforing, defaults.type);
+  const kostnadssteder = useRelevanteKostnadsstederForTilsagn(gjennomforing, defaults.type);
 
   const props = {
-    regioner: regionerForKostnadssteder,
-    gjennomforing: gjennomforing,
+    kostnadssteder,
+    gjennomforing,
     onSuccess: navigerTilTilsagn,
     onAvbryt: navigerTilTilsagn,
   };
@@ -91,8 +93,18 @@ export function TilsagnFormContainer({ gjennomforing, defaults }: Props) {
   }
 }
 
-function getRegionerForKostnadssteder(gjennomforing: GjennomforingDto, type?: TilsagnType) {
-  return type === TilsagnType.TILSAGN
-    ? gjennomforing.kontorstruktur.map((struktur) => struktur.region.enhetsnummer)
-    : [];
+function useRelevanteKostnadsstederForTilsagn(
+  gjennomforing: GjennomforingDto,
+  type?: TilsagnType,
+): KostnadsstedOption[] {
+  const { data: kostnadssteder } = useKostnadsstedFilter();
+
+  const relevanteRegioner =
+    type === TilsagnType.TILSAGN
+      ? gjennomforing.kontorstruktur.map((struktur) => struktur.region.enhetsnummer)
+      : kostnadssteder.map((region) => region.enhetsnummer);
+
+  return kostnadssteder
+    .filter((region) => relevanteRegioner.includes(region.enhetsnummer))
+    .flatMap((region) => region.enheter);
 }

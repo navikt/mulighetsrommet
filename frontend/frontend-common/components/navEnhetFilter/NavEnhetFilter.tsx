@@ -3,7 +3,7 @@ import { Checkbox } from "@navikt/ds-react";
 import classnames from "classnames";
 import { useState } from "react";
 import styles from "./NavEnhetFilter.module.scss";
-import { addOrRemoveBy, addOrRemove } from "../../utils/utils";
+import { addOrRemove, addOrRemoveBy } from "../../utils/utils";
 
 interface NavRegion {
   enhetsnummer: string;
@@ -14,79 +14,62 @@ interface NavRegion {
 interface NavRegionUnderenhet {
   navn: string;
   enhetsnummer: string;
-  overordnetEnhet: string;
   erStandardvalg: boolean;
 }
 
 interface NavEnhet {
   navn: string;
   enhetsnummer: string;
-  overordnetEnhet: string | null;
 }
 
-type RegionMap = Map<string, NavEnhet[]>;
-
 interface Props {
-  value: NavEnhet[];
+  value: string[];
   onChange: (navEnheter: string[]) => void;
   regioner: NavRegion[];
 }
 
 export function NavEnhetFilter({ value, onChange, regioner }: Props) {
-  const regionMap = buildRegionMap(value);
   const [regionOpen, setRegionOpen] = useState<string[]>([]);
 
-  function regionMapToNavEnheter(regionMap: RegionMap): string[] {
-    return Array.from(regionMap.values())
-      .flat(1)
-      .map((e) => e.enhetsnummer);
-  }
-
-  function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
-    const map: RegionMap = new Map<string, NavEnhet[]>();
-    navEnheter.forEach((enhet: NavEnhet) => {
-      const regionNavn = enhet.overordnetEnhet ?? "unknown";
-      const arr = map.get(regionNavn) ?? [];
-      arr.push(enhet);
-      map.set(regionNavn, arr);
-    });
-
-    return map;
-  }
-
-  function underenhetCount(region: NavRegion): number {
-    return regionMap.get(region.enhetsnummer)?.length ?? 0;
+  function getSelectedUnderenheter(region: NavRegion): string[] {
+    return value.filter((enhetsnummer) =>
+      region.enheter.some((enhet) => enhet.enhetsnummer === enhetsnummer),
+    );
   }
 
   function regionIsIndeterminate(region: NavRegion): boolean {
-    const count = underenhetCount(region);
+    const count = getSelectedUnderenheter(region).length;
     return count > 0 && count < region.enheter.length;
   }
 
   function regionIsChecked(region: NavRegion): boolean {
-    return underenhetCount(region) === region.enheter.length;
+    return getSelectedUnderenheter(region).length === region.enheter.length;
   }
 
   function regionOnChange(region: NavRegion) {
-    const count = underenhetCount(region);
+    const currentlySelectedInRegion = getSelectedUnderenheter(region);
 
-    const underenheter = count > 0 ? [] : region.enheter.filter((enhet) => enhet.erStandardvalg);
-    regionMap.set(region.enhetsnummer, underenheter);
-    onChange(regionMapToNavEnheter(regionMap));
+    const nextValue =
+      currentlySelectedInRegion.length > 0
+        ? value.filter((enhetsnummer) => !currentlySelectedInRegion.includes(enhetsnummer))
+        : Array.from(
+            new Set(
+              region.enheter
+                .filter((enhet) => enhet.erStandardvalg)
+                .map((enhet) => enhet.enhetsnummer)
+                .concat(value),
+            ),
+          );
+
+    onChange(nextValue);
   }
 
-  function underenhetIsChecked(enhet: NavEnhet, region: NavRegion): boolean {
-    return (regionMap.get(region.enhetsnummer) ?? []).some(
-      (e) => e.enhetsnummer === enhet.enhetsnummer,
-    );
+  function underenhetIsChecked(enhet: NavEnhet): boolean {
+    return value.includes(enhet.enhetsnummer);
   }
 
   function underenhetOnChange(enhet: NavEnhet) {
-    onChange(
-      addOrRemoveBy(value, enhet, (a, b) => a.enhetsnummer === b.enhetsnummer).map(
-        (e) => e.enhetsnummer,
-      ),
-    );
+    onChange(addOrRemoveBy(value, enhet.enhetsnummer, (a, b) => a === b));
   }
 
   return (
@@ -122,7 +105,7 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
             <div style={{ marginLeft: "1rem" }}>
               {region.enheter.map((enhet: NavEnhet) => (
                 <Checkbox
-                  checked={underenhetIsChecked(enhet, region)}
+                  checked={underenhetIsChecked(enhet)}
                   onChange={() => underenhetOnChange(enhet)}
                   key={enhet.enhetsnummer}
                   size="small"

@@ -6,10 +6,9 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { CheckboxList } from "@/components/filter/CheckboxList";
 import { tiltakstypeOptions } from "@/utils/filterUtils";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
+import { Accordion } from "@navikt/ds-react";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
-import { useKostnadssted } from "@/api/enhet/useKostnadssted";
-import { useKostnadsstedFiltre } from "@/api/enhet/useKostnadsstedFiltre";
+import { useKostnadsstedFilter } from "@/api/enhet/useKostnadsstedFilter";
 
 type Filters = "tiltakstype" | "navEnhet" | "sortering";
 
@@ -22,18 +21,15 @@ interface Props {
 export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(InnsendingFilterAccordionAtom);
   const { data: tiltakstyper } = useTiltakstyper();
-  const { data: regioner } = useKostnadsstedFiltre();
-  const { data: kostnadssteder } = useKostnadssted([]);
+  const { data: kostnadssteder } = useKostnadsstedFilter();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
   });
 
-  const kostnadsstedRegioner = regioner.filter((region) => region.enheter.length > 1);
-  const enkeltKostnadssteder = kostnadssteder.filter((enhet) => !enhet.overordnetEnhet);
-
   if (!arrangorer) {
     return <FilterSkeleton />;
   }
+
   function selectDeselectAll(checked: boolean, key: string, values: string[]) {
     updateFilter({
       [key]: checked ? values : [],
@@ -57,31 +53,11 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
           <Accordion.Content className="ml-[-2rem]">
             <NavEnhetFilter
               value={filter.navEnheter}
-              onChange={(navEnheter: string[]) => {
-                updateFilter({
-                  navEnheter: kostnadssteder.filter((enhet) =>
-                    navEnheter.includes(enhet.enhetsnummer),
-                  ),
-                });
+              onChange={(navEnheter) => {
+                updateFilter({ navEnheter });
               }}
-              regioner={kostnadsstedRegioner}
+              regioner={kostnadssteder}
             />
-            <CheckboxGroup legend="Enkeltstående kostnadssteder" size="small" className="mt-2">
-              {enkeltKostnadssteder.map((kostnadssted) => (
-                <Checkbox
-                  key={kostnadssted.enhetsnummer}
-                  value={kostnadssted}
-                  size="small"
-                  onChange={() =>
-                    updateFilter({
-                      navEnheter: addOrRemove(filter.navEnheter, kostnadssted),
-                    })
-                  }
-                >
-                  {kostnadssted.navn}
-                </Checkbox>
-              ))}
-            </CheckboxGroup>
           </Accordion.Content>
         </Accordion.Item>
         {!skjulFilter?.tiltakstype && (

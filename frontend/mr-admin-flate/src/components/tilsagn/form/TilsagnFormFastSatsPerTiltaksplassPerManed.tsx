@@ -9,20 +9,21 @@ import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { useFindAvtaltSats } from "@/api/avtaler/useFindAvtaltSats";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
+import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 
 interface Props {
   gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
-  regioner: string[];
+  kostnadssteder: KostnadsstedOption[];
 }
 
 export function TilsagnFormFastSatsPerTiltaksplassPerManed(props: Props) {
   return (
     <TilsagnForm
       gjennomforing={props.gjennomforing}
-      regioner={props.regioner}
+      kostnadssteder={props.kostnadssteder}
       onSuccess={props.onSuccess}
       onAvbryt={props.onAvbryt}
       defaultValues={props.defaultValues}
@@ -69,7 +70,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
             )}
             style={{ width: "180px" }}
             readOnly
-            value={sats?.pris ?? 0}
+            value={sats?.pris.belop ?? 0}
           />
         </VStack>
       </HGrid>

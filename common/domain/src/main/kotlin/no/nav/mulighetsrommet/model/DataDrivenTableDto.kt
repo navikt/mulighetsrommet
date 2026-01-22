@@ -68,13 +68,12 @@ data class LabeledDataElement(
 
         fun money(
             label: String,
-            value: Number?,
-            valuta: Valuta,
+            value: ValutaBelop?,
             type: LabeledDataElementType = LabeledDataElementType.INLINE,
         ) = LabeledDataElement(
             type = type,
             label = label,
-            value = DataElement.money(value, valuta),
+            value = DataElement.money(value),
         )
 
         fun date(label: String, value: LocalDate?, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
@@ -237,7 +236,7 @@ sealed class DataElement {
 
         fun nok(value: Number?) = Text(value?.toString(), Format.NOK)
 
-        fun money(value: Number?, valuta: Valuta) = MoneyAmount(value?.toString(), valuta.name)
+        fun money(value: ValutaBelop?) = MoneyAmount(value?.belop?.toString(), value?.valuta?.name ?: Valuta.NOK.name)
 
         fun date(value: LocalDate?) = Text(value?.toString(), Format.DATE)
 

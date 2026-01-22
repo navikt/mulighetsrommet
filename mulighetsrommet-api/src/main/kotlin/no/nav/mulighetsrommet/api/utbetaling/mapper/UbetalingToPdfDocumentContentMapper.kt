@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.api.beregningSatsDetaljer
 import no.nav.mulighetsrommet.api.arrangorflate.api.beregningStengt
@@ -166,6 +167,10 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Utbetalin
                 satsPeriode.entries.forEach { entry ->
                     val format = when (val value = entry.value) {
                         is DataElement.Text -> value.format?.toPdfDocumentContentFormat()
+
+                        // TODO: Støtte flere valuta
+                        is DataElement.MoneyAmount -> Format.NOK
+
                         else -> null
                     }
                     entry(entry.label, entry.value?.toPdfDocumentValue(), format)
@@ -179,12 +184,25 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Utbetalin
 }
 
 private fun PdfDocumentContentBuilder.addBetalingsinformasjonSection(
-    betalingsinformasjon: Utbetaling.Betalingsinformasjon,
+    betalingsinformasjon: Betalingsinformasjon?,
 ) {
     section("Betalingsinformasjon") {
         descriptionList {
-            entry("Kontonummer", betalingsinformasjon.kontonummer?.value)
-            entry("KID-nummer", betalingsinformasjon.kid?.value)
+            when (betalingsinformasjon) {
+                is Betalingsinformasjon.BBan -> {
+                    entry("Kontonummer", betalingsinformasjon.kontonummer.value)
+                    entry("KID-nummer", betalingsinformasjon.kid?.value)
+                }
+
+                is Betalingsinformasjon.IBan -> {
+                    entry("IBAN", betalingsinformasjon.iban)
+                    entry("BIC/SWIFT", betalingsinformasjon.bic)
+                    entry("Bank landkode", betalingsinformasjon.bankLandKode)
+                    entry("Banknavn", betalingsinformasjon.bankNavn)
+                }
+
+                null -> Unit
+            }
         }
     }
 }
@@ -360,5 +378,5 @@ private fun DataElement.toPdfDocumentValue(): String? = when (this) {
     is DataElement.Periode -> "${this.start} - ${this.slutt}"
     is DataElement.Status -> this.value
     is DataElement.Text -> this.value
-    is DataElement.MoneyAmount -> this.value // TODO: Bruk valuta i formattering
+    is DataElement.MoneyAmount -> this.value
 }

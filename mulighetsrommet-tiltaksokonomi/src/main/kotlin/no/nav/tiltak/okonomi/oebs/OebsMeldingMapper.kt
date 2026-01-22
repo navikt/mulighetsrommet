@@ -6,7 +6,6 @@ import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.model.OebsKontering
 
 object OebsMeldingMapper {
-
     fun toOebsBestillingMelding(
         bestilling: Bestilling,
         kontering: OebsKontering,
@@ -31,7 +30,7 @@ object OebsMeldingMapper {
             selger = selger,
             rammeavtaleNummer = bestilling.avtalenummer,
             totalSum = bestilling.belop,
-            valutaKode = "NOK",
+            valutaKode = bestilling.valuta.name,
             saksbehandler = bestilling.opprettelse.behandletAv.part,
             bdmGodkjenner = bestilling.opprettelse.besluttetAv.part,
             startDato = bestilling.periode.start,
@@ -82,17 +81,17 @@ object OebsMeldingMapper {
             organisasjonsNummer = bestilling.arrangorHovedenhet.value,
             bedriftsNummer = bestilling.arrangorUnderenhet.value,
             totalSum = faktura.belop,
-            valutaKode = "NOK",
             saksbehandler = faktura.behandletAv.part,
             bdmGodkjenner = faktura.besluttetAv.part,
             fakturaDato = faktura.besluttetTidspunkt.toLocalDate(),
-            betalingsKanal = OebsBetalingskanal.BBAN,
-            bankKontoNummer = faktura.kontonummer?.value,
-            kidNummer = faktura.kid?.value,
-            bankNavn = null,
-            bankLandKode = null,
-            bicSwiftKode = null,
-            meldingTilLeverandor = faktura.beskrivelse.takeIf { faktura.kid == null },
+            betalingsKanal = faktura.betalingsinformasjon?.betalingsKanal ?: OebsBetalingskanal.BBAN,
+            bankKontoNummer = faktura.betalingsinformasjon?.kontonummer?.value ?: faktura.betalingsinformasjon?.iban,
+            kidNummer = faktura.betalingsinformasjon?.kid?.value,
+            bankNavn = faktura.betalingsinformasjon?.bankNavn,
+            bankLandKode = faktura.betalingsinformasjon?.bankLandKode,
+            bicSwiftKode = faktura.betalingsinformasjon?.bic,
+            valutaKode = faktura.valuta.name,
+            meldingTilLeverandor = faktura.beskrivelse.takeIf { faktura.betalingsinformasjon?.kid == null },
             beskrivelse = faktura.beskrivelse,
             fakturaLinjer = linjer,
         )

@@ -82,27 +82,6 @@ class NavEnhetQueries(private val session: Session) {
 
         session.execute(queryOf(delete, parameters))
     }
-
-    fun getKostnadssted(regioner: List<NavEnhetNummer> = listOf()): List<NavEnhetDbo> {
-        @Language("PostgreSQL")
-        val query = """
-            select
-                nav_enhet.navn,
-                nav_enhet.enhetsnummer,
-                nav_enhet.status,
-                nav_enhet.type,
-                nav_enhet.overordnet_enhet
-            from nav_enhet
-                inner join kostnadssted on kostnadssted.enhetsnummer = nav_enhet.enhetsnummer
-            where (:regioner::text[] is null or kostnadssted.region = any(:regioner))
-        """.trimIndent()
-
-        val params = mapOf(
-            "regioner" to regioner.ifEmpty { null }?.map { it.value }?.let { session.createTextArray(it) },
-        )
-
-        return session.list(queryOf(query, params)) { it.toEnhetDbo() }
-    }
 }
 
 private fun Row.toEnhetDbo() = NavEnhetDbo(

@@ -10,6 +10,7 @@ import {
   TilsagnStatus,
   TilsagnType,
   Tiltakskode,
+  Valuta,
 } from "api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 import {
@@ -187,8 +188,8 @@ const avklaringManedsprisTilsagn: ArrangorflateTilsagnDto = {
   type: TilsagnType.TILSAGN,
   periode: { start: "2025-10-01", slutt: "2025-11-07" },
   status: TilsagnStatus.GODKJENT,
-  bruktBelop: 0,
-  gjenstaendeBelop: 1200000,
+  bruktBelop: { belop: 0, valuta: Valuta.NOK },
+  gjenstaendeBelop: { belop: 1200000, valuta: Valuta.NOK },
   beregning: beregningManedspris,
   bestillingsnummer: "A-2025/12611-1",
   beskrivelse: null,
@@ -227,8 +228,8 @@ const arrUkesprisTilsagn: ArrangorflateTilsagnDto = {
   type: TilsagnType.TILSAGN,
   periode: { start: "2025-10-01", slutt: "2025-11-01" },
   status: TilsagnStatus.GODKJENT,
-  bruktBelop: 0,
-  gjenstaendeBelop: 248400,
+  bruktBelop: { belop: 0, valuta: Valuta.NOK },
+  gjenstaendeBelop: { belop: 248400, valuta: Valuta.NOK },
   beregning: beregningUkespris,
   bestillingsnummer: "A-2025/4123-1",
   beskrivelse: null,
@@ -254,8 +255,8 @@ const aftFoobarTilsagnGodkjent: ArrangorflateTilsagnDto = {
     navn: "AFT Foobar",
     lopenummer: "2025/10001",
   },
-  bruktBelop: 51205,
-  gjenstaendeBelop: 5234495,
+  bruktBelop: { belop: 51205, valuta: Valuta.NOK },
+  gjenstaendeBelop: { belop: 5234495, valuta: Valuta.NOK },
   tiltakstype: {
     navn: "Arbeidsforberedende trening",
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -297,8 +298,8 @@ const aftFoobarInvesteringTilsagnGodkjent: ArrangorflateTilsagnDto = {
     navn: "AFT Foobar",
     lopenummer: "2025/10001",
   },
-  bruktBelop: 0,
-  gjenstaendeBelop: 123456,
+  bruktBelop: { belop: 0, valuta: Valuta.NOK },
+  gjenstaendeBelop: { belop: 123456, valuta: Valuta.NOK },
   tiltakstype: {
     navn: "Arbeidsforberedende trening",
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -340,8 +341,8 @@ const avklaringTilsagnAnnulert: ArrangorflateTilsagnDto = {
     navn: "Avklaringen sin det",
     lopenummer: "2025/10002",
   },
-  bruktBelop: 0,
-  gjenstaendeBelop: 0,
+  bruktBelop: { belop: 0, valuta: Valuta.NOK },
+  gjenstaendeBelop: { belop: 0, valuta: Valuta.NOK },
   tiltakstype: {
     navn: "Avklaring",
     tiltakskode: Tiltakskode.AVKLARING,
@@ -383,8 +384,8 @@ const aftFoobarEkstraTilsagnGodkjent: ArrangorflateTilsagnDto = {
     navn: "AFT Foobar",
     lopenummer: "2025/10001",
   },
-  bruktBelop: 55,
-  gjenstaendeBelop: 0,
+  bruktBelop: { belop: 55, valuta: Valuta.NOK },
+  gjenstaendeBelop: { belop: 0, valuta: Valuta.NOK },
   tiltakstype: {
     navn: "Arbeidsforberedende trening",
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -426,8 +427,9 @@ const mayRainVTATilsagnGodkjent: ArrangorflateTilsagnDto = {
     navn: "May rain - VTA",
     lopenummer: "2025/10003",
   },
-  bruktBelop: 0,
-  gjenstaendeBelop: 6000,
+  bruktBelop: { belop: 0, valuta: Valuta.NOK },
+  gjenstaendeBelop: { belop: 6000, valuta: Valuta.NOK },
+
   tiltakstype: {
     navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
     tiltakskode: Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,

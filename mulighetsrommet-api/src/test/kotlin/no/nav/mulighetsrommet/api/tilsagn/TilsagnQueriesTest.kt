@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.LocalDate
 import java.util.UUID
@@ -48,16 +49,14 @@ class TilsagnQueriesTest : FunSpec({
                     TilsagnBeregningFri.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "Beskrivelse",
-                        belop = 123,
-                        valuta = Valuta.NOK,
+                        pris = 123.withValuta(Valuta.NOK),
                         antall = 1,
                     ),
                 ),
                 prisbetingelser = "Prisbetingelser fra avtale",
             ),
             TilsagnBeregningFri.Output(
-                belop = 123,
-                valuta = Valuta.NOK,
+                pris = 123.withValuta(Valuta.NOK),
             ),
         )
     }
@@ -71,8 +70,7 @@ class TilsagnQueriesTest : FunSpec({
         kostnadssted = Gjovik.enhetsnummer,
         bestillingsnummer = "1",
         bestillingStatus = null,
-        belopBrukt = 0,
-        valuta = Valuta.NOK,
+        belopBrukt = 0.withValuta(Valuta.NOK),
         beregning = beregningFri(),
         kommentar = "Kommentar",
         beskrivelse = "Beskrivelse til arrangør",
@@ -112,8 +110,7 @@ class TilsagnQueriesTest : FunSpec({
                             prisbetingelser = "Prisbetingelser fra avtale",
                         ),
                         TilsagnBeregningFri.Output(
-                            belop = 123,
-                            valuta = Valuta.NOK,
+                            pris = 123.withValuta(Valuta.NOK),
                         ),
                     )
                     it.type shouldBe TilsagnType.TILSAGN
@@ -139,22 +136,19 @@ class TilsagnQueriesTest : FunSpec({
                             TilsagnBeregningFri.InputLinje(
                                 id = UUID.randomUUID(),
                                 beskrivelse = "To ting",
-                                valuta = Valuta.NOK,
-                                belop = 500,
+                                pris = 500.withValuta(Valuta.NOK),
                                 antall = 2,
                             ),
                             TilsagnBeregningFri.InputLinje(
                                 id = UUID.randomUUID(),
                                 beskrivelse = "En ting",
-                                valuta = Valuta.NOK,
-                                belop = 100,
+                                pris = 100.withValuta(Valuta.NOK),
                                 antall = 1,
                             ),
                         ),
                     ),
                     output = TilsagnBeregningFri.Output(
-                        belop = 1100,
-                        valuta = Valuta.NOK,
+                        pris = 1100.withValuta(Valuta.NOK),
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
@@ -171,12 +165,10 @@ class TilsagnQueriesTest : FunSpec({
                     input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                         periode = tilsagn.periode,
                         antallPlasser = 10,
-                        sats = 100,
-                        valuta = Valuta.NOK,
+                        sats = 100.withValuta(Valuta.NOK),
                     ),
                     output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
-                        belop = 1000,
-                        valuta = Valuta.NOK,
+                        pris = 1000.withValuta(Valuta.NOK),
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
@@ -193,13 +185,11 @@ class TilsagnQueriesTest : FunSpec({
                     input = TilsagnBeregningPrisPerManedsverk.Input(
                         periode = tilsagn.periode,
                         antallPlasser = 10,
-                        sats = 100,
-                        valuta = Valuta.NOK,
+                        sats = 100.withValuta(Valuta.NOK),
                         prisbetingelser = "Per måned",
                     ),
                     output = TilsagnBeregningPrisPerManedsverk.Output(
-                        belop = 1000,
-                        valuta = Valuta.NOK,
+                        pris = 1000.withValuta(Valuta.NOK),
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
@@ -216,13 +206,11 @@ class TilsagnQueriesTest : FunSpec({
                     input = TilsagnBeregningPrisPerUkesverk.Input(
                         periode = tilsagn.periode,
                         antallPlasser = 10,
-                        sats = 100,
-                        valuta = Valuta.NOK,
+                        sats = 100.withValuta(Valuta.NOK),
                         prisbetingelser = "Per uke",
                     ),
                     output = TilsagnBeregningPrisPerUkesverk.Output(
-                        belop = 1000,
-                        valuta = Valuta.NOK,
+                        pris = 1000.withValuta(Valuta.NOK),
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
@@ -239,13 +227,11 @@ class TilsagnQueriesTest : FunSpec({
                     input = TilsagnBeregningPrisPerHeleUkesverk.Input(
                         periode = tilsagn.periode,
                         antallPlasser = 10,
-                        sats = 100,
-                        valuta = Valuta.NOK,
+                        sats = 100.withValuta(Valuta.NOK),
                         prisbetingelser = "Per uke",
                     ),
                     output = TilsagnBeregningPrisPerHeleUkesverk.Output(
-                        1000,
-                        valuta = Valuta.NOK,
+                        1000.withValuta(Valuta.NOK),
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
@@ -261,15 +247,13 @@ class TilsagnQueriesTest : FunSpec({
                 val beregning = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
                     input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                         periode = tilsagn.periode,
-                        sats = 100,
-                        valuta = Valuta.NOK,
+                        sats = 100.withValuta(Valuta.NOK),
                         antallPlasser = 10,
                         antallTimerOppfolgingPerDeltaker = 5,
                         prisbetingelser = "Betingelser",
                     ),
                     output = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Output(
-                        belop = 5000,
-                        valuta = Valuta.NOK,
+                        pris = 5000.withValuta(Valuta.NOK),
                     ),
                 )
                 queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))

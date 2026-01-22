@@ -52,24 +52,6 @@ class OkonomiService(
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    /**
-     * Midlertidig håndtering av kjent utenlandsk aktør, siden det er opprettet tilsagn allerede
-     * TODO: Send med informasjonen i kafka-meldingen istedet
-     */
-    private val utbildingNord = OebsBestillingMelding.Selger(
-        organisasjonsNummer = "100000056",
-        organisasjonsNavn = "Utbilding Nord",
-        adresse = listOf(
-            OebsBestillingMelding.Selger.Adresse(
-                gateNavn = "Postboks 42",
-                by = "SE-95721 &#214;vertorne&#229;, Sverige",
-                postNummer = "0000",
-                landsKode = "SE",
-            ),
-        ),
-        bedriftsNummer = "100000056",
-    )
-
     data class Config(
         val topics: KafkaTopics,
         val faktura: FakturaConfig,
@@ -117,15 +99,25 @@ class OkonomiService(
             }
     }
 
-    suspend fun getSelger(organisasjonsnummer: Organisasjonsnummer): Either<OpprettBestillingError, OebsBestillingMelding.Selger> {
-        return if (organisasjonsnummer.erUtenlandsk()) {
-            if (organisasjonsnummer.value == utbildingNord.bedriftsNummer) {
-                Either.Right(utbildingNord)
-            } else {
-                Either.Left(OpprettBestillingError("Utenlandske organisasjonsnummer er ikke støttet enda: $organisasjonsnummer"))
+    suspend fun getSelger(arrangor: OpprettBestilling.Arrangor): Either<OpprettBestillingError, OebsBestillingMelding.Selger> {
+        return when (arrangor) {
+            is OpprettBestilling.Arrangor.Norsk -> getSelgerFromBreg(arrangor.organisasjonsnummer)
+
+            is OpprettBestilling.Arrangor.Utenlandsk -> {
+                OebsBestillingMelding.Selger(
+                    organisasjonsNummer = arrangor.organisasjonsnummer.value,
+                    organisasjonsNavn = arrangor.navn,
+                    adresse = listOf(
+                        OebsBestillingMelding.Selger.Adresse(
+                            gateNavn = arrangor.gateNavn,
+                            by = arrangor.by,
+                            postNummer = arrangor.postNummer,
+                            landsKode = arrangor.landKode,
+                        ),
+                    ),
+                    bedriftsNummer = arrangor.organisasjonsnummer.value,
+                ).right()
             }
-        } else {
-            getSelgerFromBreg(organisasjonsnummer)
         }
     }
 

@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKobling
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -34,17 +34,16 @@ import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
-import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.UUID
+import kotlin.String
 
 fun Route.arrangorRoutes() {
     val db: ApiDatabase by inject()
     val arrangorService: ArrangorService by inject()
-    val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient by inject()
 
     route("arrangorer") {
         post("{orgnr}", {
@@ -65,15 +64,6 @@ fun Route.arrangorRoutes() {
             }
         }) {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
-            if (isUtenlandskOrgnr(orgnr)) {
-                val virksomhet = db.session { queries.arrangor.get(orgnr) }
-                return@post if (virksomhet != null) {
-                    call.respond(virksomhet)
-                } else {
-                    call.respond(HttpStatusCode.NotFound, "Fant ikke enhet med orgnr: $orgnr")
-                }
-            }
 
             val response = arrangorService.getArrangorOrSyncFromBrreg(orgnr)
                 .mapLeft { toStatusResponseError(it, orgnr) }
@@ -141,16 +131,16 @@ fun Route.arrangorRoutes() {
             call.respond(arrangor)
         }
 
-        get("{id}/kontonummer", {
+        get("{id}/betalingsinformasjon", {
             tags = setOf("Arrangor")
-            operationId = "getKontonummer"
+            operationId = "getBetalingsinformasjon"
             request {
                 pathParameterUuid("id")
             }
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Kontonummer til arrangør"
-                    body<ArrangorKontonummerResponse>()
+                    description = "Betalingsinformasjon til arrangør"
+                    body<Betalingsinformasjon>()
                 }
                 default {
                     description = "Problem details"
@@ -159,16 +149,7 @@ fun Route.arrangorRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-            val arrangor = db.session { queries.arrangor.getById(id) }
-
-            val kontonummer =
-                kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
-
-            val result = kontonummer
-                .mapLeft { InternalServerError("Klarte ikke hente kontonummer for arrangør") }
-                .map { ArrangorKontonummerResponse(Kontonummer(it.kontonr)) }
-
-            call.respondWithStatusResponse(result)
+            call.respond(arrangorService.getBetalingsinformasjon(id))
         }
 
         get("{id}/hovedenhet", {
@@ -421,8 +402,3 @@ fun toStatusResponseError(it: BrregError) = when (it) {
     is BrregError.BadRequest -> BadRequest("Bad Request mot Brreg")
     is BrregError.Error -> InternalServerError("Internal server error fra Brreg")
 }
-
-@Serializable
-data class ArrangorKontonummerResponse(
-    val kontonummer: Kontonummer,
-)

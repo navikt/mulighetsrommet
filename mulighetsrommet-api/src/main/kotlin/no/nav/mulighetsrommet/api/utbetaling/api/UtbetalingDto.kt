@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.Agent
@@ -26,7 +27,7 @@ data class UtbetalingDto(
     val innsendtAvArrangorDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val utbetalesTidligstDato: LocalDate?,
-    val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
+    val betalingsinformasjon: Betalingsinformasjon?,
     val beskrivelse: String?,
     val begrunnelseMindreBetalt: String?,
     val avbruttBegrunnelse: String?,

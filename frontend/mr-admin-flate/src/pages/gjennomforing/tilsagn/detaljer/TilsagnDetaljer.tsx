@@ -37,7 +37,7 @@ import { TilsagnRegnestykke } from "@/components/tilsagn/beregning/TilsagnRegnes
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import {
   MetadataFritekstfelt,
   MetadataHGrid,
@@ -309,15 +309,18 @@ export function TilsagnDetaljer() {
               <VStack gap="4">
                 <MetadataHGrid
                   label={tilsagnTekster.beregning.belop.label}
-                  value={formaterNOK(beregning.belop)}
+                  value={formaterValuta(beregning.pris.belop, beregning.pris.valuta)}
                 />
                 <MetadataHGrid
                   label={tilsagnTekster.belopBrukt.label}
-                  value={formaterNOK(tilsagn.belopBrukt)}
+                  value={formaterValuta(tilsagn.belopBrukt.belop, tilsagn.belopBrukt.valuta)}
                 />
                 <MetadataHGrid
                   label={tilsagnTekster.belopGjenstaende.label}
-                  value={formaterNOK(tilsagn.belopGjenstaende)}
+                  value={formaterValuta(
+                    tilsagn.belopGjenstaende.belop,
+                    tilsagn.belopGjenstaende.valuta,
+                  )}
                 />
               </VStack>
               <Separator />

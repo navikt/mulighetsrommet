@@ -7,49 +7,17 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
+import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
 fun Route.navEnhetRoutes() {
+    val kostnadsstedService: KostnadsstedService by inject()
     val navEnhetService: NavEnhetService by inject()
 
     route("nav-enheter") {
-        get({
-            tags = setOf("NavEnheter")
-            operationId = "getEnheter"
-            request {
-                queryParameter<List<NavEnhetStatus>>("statuser") {
-                    description = "Filtrer på status"
-                    explode = true
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Alle Nav-enheter"
-                    body<List<NavEnhetDto>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val defaultFilter = EnhetFilter(
-                statuser = listOf(
-                    NavEnhetStatus.AKTIV,
-                    NavEnhetStatus.UNDER_AVVIKLING,
-                    NavEnhetStatus.UNDER_ETABLERING,
-                ),
-            )
-
-            // TODO: ikke returner _alle_ enheter her, de fleste typene er egentlig ikke relevante i adminflate
-            val enheter = navEnhetService.hentAlleEnheter(defaultFilter)
-
-            call.respond(enheter)
-        }
-
         get("regioner", {
             tags = setOf("NavEnheter")
             operationId = "getRegioner"
@@ -88,7 +56,7 @@ fun Route.navEnhetRoutes() {
             }
         }) {
             val regioner = call.parameters.getAll("regioner")?.map { NavEnhetNummer(it) } ?: emptyList()
-            call.respond(navEnhetService.hentKostnadssted(regioner))
+            call.respond(kostnadsstedService.hentKostnadssted(regioner))
         }
 
         get("kostnadsstedFilter", {
@@ -105,7 +73,7 @@ fun Route.navEnhetRoutes() {
                 }
             }
         }) {
-            call.respond(navEnhetService.hentKostnadsstedFiltre())
+            call.respond(kostnadsstedService.hentKostnadsstedFilter())
         }
 
         get("{enhetsnummer}/overordnet", {

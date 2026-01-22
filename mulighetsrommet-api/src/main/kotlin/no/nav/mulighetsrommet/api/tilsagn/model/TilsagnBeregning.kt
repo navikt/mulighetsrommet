@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 
 @Serializable
 sealed class TilsagnBeregning {
@@ -14,6 +14,5 @@ sealed class TilsagnBeregningInput
 
 @Serializable
 sealed class TilsagnBeregningOutput {
-    abstract val belop: Int
-    abstract val valuta: Valuta
+    abstract val pris: ValutaBelop
 }

@@ -6,6 +6,8 @@ import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "@mr/frontend-common";
 import { AvtaleFilterType } from "@/pages/avtaler/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
+import { useNavRegioner } from "@/api/enhet/useNavRegioner";
+import { getSelectedNavEnheter } from "@/components/filter/utils";
 
 interface Props {
   filter: AvtaleFilterType;
@@ -22,6 +24,7 @@ export function AvtaleFilterTags({
   filterOpen,
   setTagsHeight,
 }: Props) {
+  const { data: regioner } = useNavRegioner();
   const { data: tiltakstyper } = useTiltakstyper();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,
@@ -77,7 +80,7 @@ export function AvtaleFilterTags({
       )}
       {filter.navEnheter.length > 0 && (
         <NavEnhetFilterTag
-          navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
+          navEnheter={getSelectedNavEnheter(regioner, filter.navEnheter)}
           onClose={() => updateFilter({ navEnheter: [], page: 1 })}
         />
       )}

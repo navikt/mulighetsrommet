@@ -23,31 +23,51 @@ export const addFilesTo = async (
   setFiles: (value: SetStateAction<FileObject[]>) => void,
   storage: FileStorage,
 ): Promise<void> => {
-  storage
-    .getAll()
-    .then((files) => {
-      if (!fileInputRef.current) {
-        return storage.clear();
-      }
+  try {
+    const files = await storage.getAll();
 
-      const fileObjects = files.map<FileObject>((file) => ({
-        file: file.data as File,
-        error: false,
-      }));
-      setFiles(fileObjects);
+    // eslint-disable-next-line no-console
+    console.log("Retrieved files from IndexedDB:", {
+      count: files.length,
+      fileNames: files.map((f) => f.name),
+      fileSizes: files.map((f) => (f.data as Blob).size),
+    });
 
-      const dataTransfer = new DataTransfer();
-      fileObjects.forEach((file) => {
-        dataTransfer.items.add(file.file);
-      });
-      fileInputRef.current.files = dataTransfer.files;
-
-      return;
-    })
-    .catch((err) =>
+    if (!fileInputRef.current) {
       // eslint-disable-next-line no-console
-      console.log(err),
-    );
+      console.log("File input ref not available, clearing storage");
+      await storage.clear();
+      return;
+    }
+
+    const fileObjects = files.map<FileObject>((file) => ({
+      file: file.data as File,
+      error: false,
+    }));
+    setFiles(fileObjects);
+
+    const dataTransfer = new DataTransfer();
+    fileObjects.forEach((fileObj) => {
+      try {
+        dataTransfer.items.add(fileObj.file);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to add file to DataTransfer:", fileObj.file.name, err);
+      }
+    });
+
+    fileInputRef.current.files = dataTransfer.files;
+
+    // eslint-disable-next-line no-console
+    console.log("Files added to input:", {
+      filesInInput: fileInputRef.current.files.length,
+      fileNames: Array.from(fileInputRef.current.files).map((f) => f.name),
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to load files from IndexedDB:", err);
+    throw err;
+  }
 };
 
 export function FileUploader({

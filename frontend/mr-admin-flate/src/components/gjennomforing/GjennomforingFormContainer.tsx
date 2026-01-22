@@ -6,7 +6,6 @@ import {
   GjennomforingDeltakerSummary,
   GjennomforingDto,
   GjennomforingRequest,
-  NavEnhetDto,
   Tiltakskode,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
@@ -30,7 +29,6 @@ interface Props {
   gjennomforing: GjennomforingDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
   defaultValues: DeepPartial<GjennomforingRequest>;
-  enheter: NavEnhetDto[];
 }
 
 export function GjennomforingFormContainer(props: Props) {

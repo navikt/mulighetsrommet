@@ -1,6 +1,5 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
-import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { QueryKeys } from "@/api/QueryKeys";
 import { Header } from "@/components/detaljside/Header";
@@ -23,9 +22,8 @@ function useGjennomforingFormData() {
   const { data: gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
   const { data: ansatt } = useHentAnsatt();
-  const { data: enheter } = useNavEnheter();
   const { data: deltakere } = useGjennomforingDeltakerSummary(gjennomforingId);
-  return { gjennomforing, avtale, deltakere, ansatt, enheter };
+  return { gjennomforing, avtale, deltakere, ansatt };
 }
 
 export function GjennomforingFormPage() {
@@ -33,7 +31,7 @@ export function GjennomforingFormPage() {
   const location = useLocation();
   const queryClient = useQueryClient();
 
-  const { gjennomforing, avtale, deltakere, ansatt, enheter } = useGjennomforingFormData();
+  const { gjennomforing, avtale, deltakere, ansatt } = useGjennomforingFormData();
 
   const navigerTilbake = () => {
     navigate(-1);
@@ -88,7 +86,6 @@ export function GjennomforingFormPage() {
                 avtale,
                 location.state?.dupliserGjennomforing ?? gjennomforing,
               )}
-              enheter={enheter}
             />
           )}
         </Box>

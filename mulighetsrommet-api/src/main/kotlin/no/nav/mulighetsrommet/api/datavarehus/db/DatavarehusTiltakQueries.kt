@@ -11,6 +11,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AmoKurstype
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -165,6 +167,8 @@ private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
                 DatavarehusTiltakV1.ArenaData(aar = it.aar, lopenummer = it.lopenummer)
             },
             navn = string("navn").takeIfIsGruppetiltak(type),
+            oppstartstype = GjennomforingOppstartstype.valueOf(string("oppstart_type")),
+            pameldingstype = GjennomforingPameldingType.valueOf(string("pamelding_type")),
             startDato = localDate("start_dato").takeIfIsGruppetiltak(type),
             sluttDato = localDateOrNull("slutt_dato")?.takeIfIsGruppetiltak(type),
             status = GjennomforingStatusType.valueOf(string("status")).takeIfIsGruppetiltak(type),

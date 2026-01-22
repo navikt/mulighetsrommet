@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
@@ -30,6 +31,8 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -82,10 +85,11 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         ),
         periode = utbetaling.periode,
         beregning = beregning,
-        betalingsinformasjon = ArrangorflateBetalingsinformasjon(
-            kontonummer = utbetaling.betalingsinformasjon.kontonummer,
-            kid = utbetaling.betalingsinformasjon.kid,
-        ),
+        betalingsinformasjon = when (utbetaling.betalingsinformasjon) {
+            is Betalingsinformasjon.BBan -> utbetaling.betalingsinformasjon
+            is Betalingsinformasjon.IBan -> throw IllegalStateException("IBan funnet for norsk arrangor med id: ${utbetaling.arrangor.id}")
+            null -> null
+        },
         type = UtbetalingType.from(utbetaling).toDto(),
         linjer = linjer,
         innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),
@@ -100,7 +104,7 @@ private fun getInnsendingsDetaljer(
     utbetaling: Utbetaling,
     innsendtAvArrangorDato: LocalDate?,
 ): List<LabeledDataElement> {
-    return listOf(
+    return listOfNotNull(
         if (innsendtAvArrangorDato != null) {
             LabeledDataElement.date("Dato innsendt", innsendtAvArrangorDato)
         } else {
@@ -117,7 +121,7 @@ private fun getInnsendingsDetaljer(
             null
         },
         LabeledDataElement.text("Løpenummer", utbetaling.gjennomforing.lopenummer.toString()),
-    ).filterNotNull()
+    )
 }
 
 @Serializable
@@ -386,7 +390,7 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
                     satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
                 }",
                 entries = listOf(
-                    LabeledDataElement.nok(satsLabel, satsPeriode.sats),
+                    LabeledDataElement.money(satsLabel, satsPeriode.sats.withValuta(Valuta.NOK)), // TODO: Fjern hardkodet valuta
                     LabeledDataElement.number(faktorLabel, faktor),
                 ),
             )
@@ -404,7 +408,7 @@ fun beregningSatsPeriodeDetaljerUtenFaktor(
                 satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
             }",
             entries = listOf(
-                LabeledDataElement.nok(satsLabel, satsPeriode.sats),
+                LabeledDataElement.money(satsLabel, satsPeriode.sats.withValuta(Valuta.NOK)), // TODO: Fjern hardkodet valuta
             ),
         )
     }

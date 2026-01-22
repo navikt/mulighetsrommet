@@ -24,14 +24,14 @@ importers:
   frontend/arena-adapter-manager:
     dependencies:
       '@navikt/aksel-icons':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-css':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-react':
-        specifier: 7.36.0
-        version: 7.36.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
+        specifier: 7.38.0
+        version: 7.38.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       react:
         specifier: 19.0.3
         version: 19.0.3
@@ -85,17 +85,17 @@ importers:
         specifier: workspace:*
         version: link:../frontend-common
       '@navikt/aksel-icons':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-css':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-react':
-        specifier: 7.36.0
-        version: 7.36.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
+        specifier: 7.38.0
+        version: 7.38.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       '@navikt/ds-tailwind':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/nav-dekoratoren-moduler':
         specifier: 3.6.1
         version: 3.6.1(csp-header@6.3.0)(html-react-parser@5.2.11(@types/react@19.0.3)(react@19.0.3))(jsdom@27.4.0)(react@19.0.3)
@@ -103,14 +103,14 @@ importers:
         specifier: 4.1.1
         version: 4.1.1
       '@react-router/express':
-        specifier: 7.11.0
-        version: 7.11.0(express@5.2.1)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
+        specifier: 7.12.0
+        version: 7.12.0(express@5.2.1)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
       '@react-router/node':
-        specifier: 7.11.0
-        version: 7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
+        specifier: 7.12.0
+        version: 7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
       '@react-router/serve':
-        specifier: 7.11.0
-        version: 7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
+        specifier: 7.12.0
+        version: 7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
       '@tailwindcss/postcss':
         specifier: 4.1.18
         version: 4.1.18
@@ -179,11 +179,11 @@ importers:
         specifier: 1.57.0
         version: 1.57.0
       '@react-router/dev':
-        specifier: 7.11.0
-        version: 7.11.0(@react-router/serve@7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3))(@types/node@25.0.6)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(sass-embedded@1.97.2)(sass@1.97.2)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))(yaml@2.8.2)
+        specifier: 7.12.0
+        version: 7.12.0(@react-router/serve@7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3))(@types/node@25.0.6)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(sass-embedded@1.97.2)(sass@1.97.2)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))(yaml@2.8.2)
       '@react-router/fs-routes':
-        specifier: 7.11.0
-        version: 7.11.0(@react-router/dev@7.11.0(@react-router/serve@7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3))(@types/node@25.0.6)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(sass-embedded@1.97.2)(sass@1.97.2)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))(yaml@2.8.2))(typescript@5.9.3)
+        specifier: 7.12.0
+        version: 7.12.0(@react-router/dev@7.12.0(@react-router/serve@7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3))(@types/node@25.0.6)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(sass-embedded@1.97.2)(sass@1.97.2)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))(yaml@2.8.2))(typescript@5.9.3)
       '@tailwindcss/typography':
         specifier: 0.5.19
         version: 0.5.19(tailwindcss@4.1.18)
@@ -305,14 +305,14 @@ importers:
         specifier: 5.2.2
         version: 5.2.2(react-hook-form@7.71.0(react@19.0.3))
       '@navikt/aksel-icons':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-css':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-react':
-        specifier: 7.36.0
-        version: 7.36.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
+        specifier: 7.38.0
+        version: 7.38.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       '@tanstack/react-query':
         specifier: 5.90.16
         version: 5.90.16(react@19.0.3)
@@ -384,17 +384,17 @@ importers:
         specifier: workspace:*
         version: link:../frontend-common
       '@navikt/aksel-icons':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-css':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-react':
-        specifier: 7.36.0
-        version: 7.36.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
+        specifier: 7.38.0
+        version: 7.38.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       '@navikt/ds-tailwind':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@portabletext/editor':
         specifier: 4.2.2
         version: 4.2.2(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2)
@@ -520,8 +520,8 @@ importers:
   frontend/mulighetsrommet-cms:
     dependencies:
       '@navikt/aksel-icons':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@portabletext/react':
         specifier: 6.0.2
         version: 6.0.2(react@19.0.3)
@@ -581,17 +581,17 @@ importers:
         specifier: workspace:*
         version: link:../frontend-common
       '@navikt/aksel-icons':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-css':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-react':
-        specifier: 7.36.0
-        version: 7.36.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
+        specifier: 7.38.0
+        version: 7.38.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       '@navikt/ds-tailwind':
-        specifier: 7.36.0
-        version: 7.36.0
+        specifier: 7.38.0
+        version: 7.38.0
       '@portabletext/react':
         specifier: 6.0.2
         version: 6.0.2(react@19.0.3)
@@ -2226,24 +2226,24 @@ packages:
   '@mux/playback-core@0.32.1':
     resolution: {integrity: sha512-d1iYtftbbnjgXhL8htT6I1Z9zPdrRVcLYbOjifr5dUoqCHsXXq4f/FDCK1P5a787ekNIEG/5BT2/vWeuvjqYig==}
 
-  '@navikt/aksel-icons@7.36.0':
-    resolution: {integrity: sha512-zFLkhbaKFyXLWxXSnx3GW9tEGDz/fJ/Eug29tfgb6Lb934s3VEVUXQiYB8+BuUt6fTLz3ZGh3jv0NfWoGGtR1A==, tarball: https://npm.pkg.github.com/download/@navikt/aksel-icons/7.36.0/5d01680f20cd3ad3c447ea53fd4f71d9e40056e1}
+  '@navikt/aksel-icons@7.38.0':
+    resolution: {integrity: sha512-v+Kiss6gp/DXlbskkXrzfWUWvFEK+XQuhfauo0CP41JDyKsx3DSPKeB/pxFocio6MXGUNK/QQzjBfMPJh7ESng==, tarball: https://npm.pkg.github.com/download/@navikt/aksel-icons/7.38.0/f21368acbac4d1e28604e774d0b95f50404da561}
 
-  '@navikt/ds-css@7.36.0':
-    resolution: {integrity: sha512-MLWHW8jj0ypW2l0suDE+k6ZmqX15kKzvlM9qLacbyDBrOP5AQY/nRWFem5IRple6mjDNUcLfzk3Z7UVMozzqCA==, tarball: https://npm.pkg.github.com/download/@navikt/ds-css/7.36.0/d9e4574fe73a39a74ec442ac341d22ff61aab0d4}
+  '@navikt/ds-css@7.38.0':
+    resolution: {integrity: sha512-51dvtPgFHcfkKpnJ9fcwHJsfiyZuRsWaawSHxxv7jyXQkDTl8YEsZ0a31gAozgp2CW3wHJBDCSehC89Z9X4x8A==, tarball: https://npm.pkg.github.com/download/@navikt/ds-css/7.38.0/a150b0a282f19f2ba5c583406635fda7f4e4924a}
 
-  '@navikt/ds-react@7.36.0':
-    resolution: {integrity: sha512-mDTLc31q35kkf5KwIKbKISTKW2KjEplXDAhk/mAaa/E1HfZciLwhkOfnqVF89ktb4XsAUORwGVzrHp9PqabTUw==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/7.36.0/6deea33d6483ed91e7eee9a7dc57c0d10c9185c6}
+  '@navikt/ds-react@7.38.0':
+    resolution: {integrity: sha512-i/7lTbIvQ8ddw6TPXEAkrXmIM70haXyig+upB3M5mR8Vbl+DinJmUISBuzvaafWaj//2A5iWmwM9j577PrOKVw==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/7.38.0/cd426d7d27b652e85f9b511b46539b87c74f7e58}
     peerDependencies:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
 
-  '@navikt/ds-tailwind@7.36.0':
-    resolution: {integrity: sha512-6llAbLco2Tfzy98hUfJ+mlsBmT4N4nFKcgWGbJG6mPuGFi3aE1vH31jg7kbW28AE9zVB/bsr+G2+fMaI+MFnJg==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.36.0/f120f7679741c2be5b2a2d5eca88ff2981c5dec2}
+  '@navikt/ds-tailwind@7.38.0':
+    resolution: {integrity: sha512-S6cw95aQrsASTdZpUJww6KPYIUyil9CTk6Y2AIaxS8ALGnaIKnHCBvfH1F/lN9NttDiUwgh1UeDqTuH0PyW9Aw==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.38.0/282ddf91422cedd4b76fce089d7d4894d2cc1500}
 
-  '@navikt/ds-tokens@7.36.0':
-    resolution: {integrity: sha512-qGLDJfnqQJoSHz03lsxqXkbl4MqN/d9W532TKyGcXswsYSeTEj425weFUvPwTh2w29dM4ncGmomijZAUjFYH/w==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tokens/7.36.0/ad3ab2a9f2179c5a4703738de33233af54336dc2}
+  '@navikt/ds-tokens@7.38.0':
+    resolution: {integrity: sha512-4U3ozOfRap+9PcsQu1G96sZu4tQaYY2/eBil1Viqyqm+VvSNTJ4sEmDM9qUqOysEZl/8PKHHlegy0W9aDo/iag==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tokens/7.38.0/d98840acd074278426e3cbe2f767e3841d8b6bd6}
 
   '@navikt/nav-dekoratoren-moduler@3.6.1':
     resolution: {integrity: sha512-vfq24tA2eKEsZ9/qRzobRlrKV5NUbSuI9FA60AUhH+BX+61WE/ZsvHhNbFiO9NlXg/yYLmVZCg1uJB5V4QnU7A==, tarball: https://npm.pkg.github.com/download/@navikt/nav-dekoratoren-moduler/3.6.1/b0dfb47266ce90ffacd1905cd4feb53d8194dbcb}
@@ -2680,14 +2680,14 @@ packages:
   '@protobufjs/utf8@1.1.0':
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
 
-  '@react-router/dev@7.11.0':
-    resolution: {integrity: sha512-g1ou5Zw3r4mCU0L+EXH4vRtAiyt8qz1JOvL1k+PW4rZ4+71h5nBy/fLgD7cg5BnzQZmjRO1PzCgpF5BIrlKYxQ==}
+  '@react-router/dev@7.12.0':
+    resolution: {integrity: sha512-5GpwXgq4pnOVeG7l6ADkCHA1rthJus1q/A3NRYJAIypclUQDYAzg1/fDNjvaKuTSrq+Nr3u6aj2v+oC+47MX6g==}
     engines: {node: '>=20.0.0'}
     hasBin: true
     peerDependencies:
-      '@react-router/serve': ^7.11.0
+      '@react-router/serve': ^7.12.0
       '@vitejs/plugin-rsc': ~0.5.7
-      react-router: ^7.11.0
+      react-router: ^7.12.0
       react-server-dom-webpack: ^19.2.3
       typescript: ^5.1.0
       vite: ^5.1.0 || ^6.0.0 || ^7.0.0
@@ -2704,43 +2704,43 @@ packages:
       wrangler:
         optional: true
 
-  '@react-router/express@7.11.0':
-    resolution: {integrity: sha512-o5DeO9tqUrZcUWAgmPGgK4I/S6iFpqnj/e20xMGA04trk+90b9KAx9eqmRMgHERubVKANTM9gTDPduobQjeH1A==}
+  '@react-router/express@7.12.0':
+    resolution: {integrity: sha512-uAK+zF93M6XauGeXLh/UBh+3HrwiA/9lUS+eChjQ0a5FzjLpsc6ciUqF5oHh3lwWzLU7u7tj4qoeucUn6SInTw==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       express: ^4.17.1 || ^5
-      react-router: 7.11.0
+      react-router: 7.12.0
       typescript: ^5.1.0
     peerDependenciesMeta:
       typescript:
         optional: true
 
-  '@react-router/fs-routes@7.11.0':
-    resolution: {integrity: sha512-IMbbCqjBGn7X1/cJOHPt3jPhTUSShDd/6LAnkU4uIkMmkhZg+wm8lviCETFIfy0Ha95tFLVhBb6MnAYuzmmNCw==}
+  '@react-router/fs-routes@7.12.0':
+    resolution: {integrity: sha512-otlOIrIsJsqY5ACfgMsIkHPq1rfuvdwxBGWZRSscU+HK+BcHAz8ZDq+wYDGonOLcU6wUn33+G+/1skznIV1L8A==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
-      '@react-router/dev': ^7.11.0
+      '@react-router/dev': ^7.12.0
       typescript: ^5.1.0
     peerDependenciesMeta:
       typescript:
         optional: true
 
-  '@react-router/node@7.11.0':
-    resolution: {integrity: sha512-11ha8EW+F7wTMmPz2pdi11LJxz2irtuksiCpunpZjtpPmYU37S+GGihG8vFeTa2xFPNunEaHNlfzKyzeYm570Q==}
+  '@react-router/node@7.12.0':
+    resolution: {integrity: sha512-o/t10Cse4LK8kFefqJ8JjC6Ng6YuKD2I87S2AiJs17YAYtXU5W731ZqB73AWyCDd2G14R0dSuqXiASRNK/xLjg==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
-      react-router: 7.11.0
+      react-router: 7.12.0
       typescript: ^5.1.0
     peerDependenciesMeta:
       typescript:
         optional: true
 
-  '@react-router/serve@7.11.0':
-    resolution: {integrity: sha512-U5Ht9PmUYF4Ti1ssaWlddLY4ZCbXBtHDGFU/u1h3VsHqleSdHsFuGAFrr/ZEuqTuEWp1CLqn2npEDAmlV9IUKQ==}
+  '@react-router/serve@7.12.0':
+    resolution: {integrity: sha512-j1ltgU7s3wAwOosZ5oxgHSsmVyK706gY/yIs8qVmC239wQ3zr3eqaXk3TVVLMeRy+eDgPNmgc6oNJv2o328VgA==}
     engines: {node: '>=20.0.0'}
     hasBin: true
     peerDependencies:
-      react-router: 7.11.0
+      react-router: 7.12.0
 
   '@remix-run/node-fetch-server@0.9.0':
     resolution: {integrity: sha512-SoLMv7dbH+njWzXnOY6fI08dFMI5+/dQ+vY3n8RnnbdG7MdJEgiP28Xj/xWlnRnED/aB6SFw56Zop+LbmaaKqA==}
@@ -5313,6 +5313,10 @@ packages:
     resolution: {integrity: sha512-2Tth85cXwGFHfvRgZWszZSvdo+0Xsqmw8k8ZwxScfcBneNUraK+dxRxRm24nszx80Y0TVio8kKLt5sLE7ZCLlw==}
     engines: {node: '>=0.10.0'}
 
+  iconv-lite@0.7.2:
+    resolution: {integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==}
+    engines: {node: '>=0.10.0'}
+
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
 
@@ -6707,6 +6711,10 @@ packages:
     resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
     engines: {node: '>=0.6'}
 
+  qs@6.14.1:
+    resolution: {integrity: sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==}
+    engines: {node: '>=0.6'}
+
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
@@ -7590,8 +7598,8 @@ packages:
     resolution: {integrity: sha512-MeQTA1r0litLUf0Rp/iisCaL8761lKAZHaimlbGK4j0HysC4PLfqygQj9srcs0m2RdtDYnF8UuYyKpbjHYp7Jw==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  tabbable@6.3.0:
-    resolution: {integrity: sha512-EIHvdY5bPLuWForiR/AN2Bxngzpuwn1is4asboytXtpTgsArc+WmSJKVLlhdh71u7jFcryDqB2A8lQvj78MkyQ==}
+  tabbable@6.4.0:
+    resolution: {integrity: sha512-05PUHKSNE8ou2dwIxTngl4EzcnsCDZGJ/iCLtDflR/SHB/ny14rXc+qU5P4mG9JkusiV7EivzY9Mhm55AzAvCg==}
 
   tagged-tag@1.0.0:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
@@ -9686,7 +9694,7 @@ snapshots:
       '@floating-ui/utils': 0.2.10
       react: 19.0.3
       react-dom: 19.0.3(react@19.0.3)
-      tabbable: 6.3.0
+      tabbable: 6.4.0
 
   '@floating-ui/utils@0.2.10': {}
 
@@ -9827,7 +9835,7 @@ snapshots:
   '@inquirer/external-editor@1.0.3(@types/node@25.0.6)':
     dependencies:
       chardet: 2.1.1
-      iconv-lite: 0.7.1
+      iconv-lite: 0.7.2
     optionalDependencies:
       '@types/node': 25.0.6
 
@@ -10020,16 +10028,16 @@ snapshots:
       hls.js: 1.6.15
       mux-embed: 5.14.0
 
-  '@navikt/aksel-icons@7.36.0': {}
+  '@navikt/aksel-icons@7.38.0': {}
 
-  '@navikt/ds-css@7.36.0': {}
+  '@navikt/ds-css@7.38.0': {}
 
-  '@navikt/ds-react@7.36.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)':
+  '@navikt/ds-react@7.38.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)':
     dependencies:
       '@floating-ui/react': 0.27.8(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       '@floating-ui/react-dom': 2.1.6(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
-      '@navikt/aksel-icons': 7.36.0
-      '@navikt/ds-tokens': 7.36.0
+      '@navikt/aksel-icons': 7.38.0
+      '@navikt/ds-tokens': 7.38.0
       '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
@@ -10037,9 +10045,9 @@ snapshots:
       react-day-picker: 9.7.0(react@19.0.3)
       react-dom: 19.0.3(react@19.0.3)
 
-  '@navikt/ds-tailwind@7.36.0': {}
+  '@navikt/ds-tailwind@7.38.0': {}
 
-  '@navikt/ds-tokens@7.36.0': {}
+  '@navikt/ds-tokens@7.38.0': {}
 
   '@navikt/nav-dekoratoren-moduler@3.6.1(csp-header@6.3.0)(html-react-parser@5.2.11(@types/react@19.0.3)(react@19.0.3))(jsdom@27.4.0)(react@19.0.3)':
     dependencies:
@@ -10547,7 +10555,7 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@react-router/dev@7.11.0(@react-router/serve@7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3))(@types/node@25.0.6)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(sass-embedded@1.97.2)(sass@1.97.2)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))(yaml@2.8.2)':
+  '@react-router/dev@7.12.0(@react-router/serve@7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3))(@types/node@25.0.6)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(sass-embedded@1.97.2)(sass@1.97.2)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))(yaml@2.8.2)':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/generator': 7.28.5
@@ -10556,7 +10564,7 @@ snapshots:
       '@babel/preset-typescript': 7.28.5(@babel/core@7.28.5)
       '@babel/traverse': 7.28.5
       '@babel/types': 7.28.5
-      '@react-router/node': 7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
+      '@react-router/node': 7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
       '@remix-run/node-fetch-server': 0.9.0
       arg: 5.0.2
       babel-dead-code-elimination: 1.0.11
@@ -10580,7 +10588,7 @@ snapshots:
       vite: 7.3.1(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2)
       vite-node: 3.2.4(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2)
     optionalDependencies:
-      '@react-router/serve': 7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
+      '@react-router/serve': 7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
       - '@types/node'
@@ -10597,41 +10605,41 @@ snapshots:
       - tsx
       - yaml
 
-  '@react-router/express@7.11.0(express@4.22.1)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)':
+  '@react-router/express@7.12.0(express@4.22.1)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)':
     dependencies:
-      '@react-router/node': 7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
+      '@react-router/node': 7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
       express: 4.22.1
       react-router: 7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
     optionalDependencies:
       typescript: 5.9.3
 
-  '@react-router/express@7.11.0(express@5.2.1)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)':
+  '@react-router/express@7.12.0(express@5.2.1)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)':
     dependencies:
-      '@react-router/node': 7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
+      '@react-router/node': 7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
       express: 5.2.1
       react-router: 7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
     optionalDependencies:
       typescript: 5.9.3
 
-  '@react-router/fs-routes@7.11.0(@react-router/dev@7.11.0(@react-router/serve@7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3))(@types/node@25.0.6)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(sass-embedded@1.97.2)(sass@1.97.2)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))(yaml@2.8.2))(typescript@5.9.3)':
+  '@react-router/fs-routes@7.12.0(@react-router/dev@7.12.0(@react-router/serve@7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3))(@types/node@25.0.6)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(sass-embedded@1.97.2)(sass@1.97.2)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))(yaml@2.8.2))(typescript@5.9.3)':
     dependencies:
-      '@react-router/dev': 7.11.0(@react-router/serve@7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3))(@types/node@25.0.6)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(sass-embedded@1.97.2)(sass@1.97.2)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))(yaml@2.8.2)
+      '@react-router/dev': 7.12.0(@react-router/serve@7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3))(@types/node@25.0.6)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(sass-embedded@1.97.2)(sass@1.97.2)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.6)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))(yaml@2.8.2)
       minimatch: 9.0.5
     optionalDependencies:
       typescript: 5.9.3
 
-  '@react-router/node@7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)':
+  '@react-router/node@7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)':
     dependencies:
       '@mjackson/node-fetch-server': 0.2.0
       react-router: 7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
     optionalDependencies:
       typescript: 5.9.3
 
-  '@react-router/serve@7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)':
+  '@react-router/serve@7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)':
     dependencies:
       '@mjackson/node-fetch-server': 0.2.0
-      '@react-router/express': 7.11.0(express@4.22.1)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
-      '@react-router/node': 7.11.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
+      '@react-router/express': 7.12.0(express@4.22.1)(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
+      '@react-router/node': 7.12.0(react-router@7.12.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3))(typescript@5.9.3)
       compression: 1.8.1
       express: 4.22.1
       get-port: 5.1.1
@@ -12130,7 +12138,7 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.4.24
       on-finished: 2.4.1
-      qs: 6.14.0
+      qs: 6.14.1
       raw-body: 2.5.3
       type-is: 1.6.18
       unpipe: 1.0.0
@@ -13176,7 +13184,7 @@ snapshots:
       parseurl: 1.3.3
       path-to-regexp: 0.1.12
       proxy-addr: 2.0.7
-      qs: 6.14.0
+      qs: 6.14.1
       range-parser: 1.2.1
       safe-buffer: 5.2.1
       send: 0.19.2
@@ -13771,6 +13779,10 @@ snapshots:
       safer-buffer: 2.1.2
 
   iconv-lite@0.7.1:
+    dependencies:
+      safer-buffer: 2.1.2
+
+  iconv-lite@0.7.2:
     dependencies:
       safer-buffer: 2.1.2
 
@@ -15257,6 +15269,10 @@ snapshots:
     dependencies:
       side-channel: 1.1.0
 
+  qs@6.14.1:
+    dependencies:
+      side-channel: 1.1.0
+
   queue-microtask@1.2.3: {}
 
   quick-lru@4.0.1: {}
@@ -16441,7 +16457,7 @@ snapshots:
     dependencies:
       '@pkgr/core': 0.2.9
 
-  tabbable@6.3.0: {}
+  tabbable@6.4.0: {}
 
   tagged-tag@1.0.0: {}
 

@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
@@ -41,7 +42,7 @@ class AvstemmingServiceTest : FunSpec({
             bestillingsnummer = "1",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            arrangor = Organisasjonsnummer("234567891"),
+            arrangor = OpprettBestilling.Arrangor.Norsk(Organisasjonsnummer("234567891")),
             avtalenummer = null,
             belop = 1000,
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -50,6 +51,7 @@ class AvstemmingServiceTest : FunSpec({
             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             kostnadssted = NavEnhetNummer("0400"),
+            valuta = Valuta.NOK,
         ),
         Organisasjonsnummer("123456789"),
     )
@@ -58,7 +60,7 @@ class AvstemmingServiceTest : FunSpec({
         OpprettFaktura(
             fakturanummer = "1-1",
             bestillingsnummer = "1",
-            betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
+            betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
                 kontonummer = Kontonummer("12345678901"),
                 kid = null,
             ),
@@ -70,6 +72,7 @@ class AvstemmingServiceTest : FunSpec({
             besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
             gjorOppBestilling = false,
             beskrivelse = "Beskrivelse",
+            valuta = Valuta.NOK,
         ),
         bestillingLinjer = bestilling.linjer,
     )

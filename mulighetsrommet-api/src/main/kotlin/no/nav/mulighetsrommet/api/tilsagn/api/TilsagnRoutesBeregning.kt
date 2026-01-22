@@ -33,7 +33,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import org.koin.ktor.ext.inject
 import java.time.LocalDate.now
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
@@ -169,7 +169,7 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
                     TilsagnInputLinjeRequest(
                         id = it.id,
                         beskrivelse = it.beskrivelse,
-                        belop = it.belop,
+                        pris = it.pris,
                         antall = it.antall,
                     )
                 }
@@ -221,7 +221,7 @@ fun resolveTilsagnDefaults(
     }
 
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
-    val valuta = tilsagn?.valuta ?: Valuta.NOK // TODO: Oppdatere når vi introduserer annen valuta
+    val valuta = gjennomforing.prismodell.valuta
 
     val beregning = TilsagnBeregningRequest(
         type = beregningType,
@@ -232,9 +232,8 @@ fun resolveTilsagnDefaults(
             TilsagnInputLinjeRequest(
                 id = UUID.randomUUID(),
                 beskrivelse = "",
-                belop = 0,
+                pris = 0.withValuta(valuta),
                 antall = 1,
-                valuta = valuta,
             ),
         ),
         antallTimerOppfolgingPerDeltaker = when (tilsagn?.beregning) {
@@ -309,7 +308,7 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
     }
 
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
-    val valuta = Valuta.NOK // TODO: Oppdatere når vi introduserer annen valuta
+    val valuta = gjennomforing.prismodell.valuta
     return TilsagnRequest(
         id = UUID.randomUUID(),
         gjennomforingId = gjennomforing.id,
@@ -324,9 +323,8 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
                 TilsagnInputLinjeRequest(
                     id = UUID.randomUUID(),
                     beskrivelse = "",
-                    belop = 0,
+                    pris = 0.withValuta(valuta),
                     antall = 1,
-                    valuta = valuta,
                 ),
             ),
             antallPlasser = 0,

@@ -194,9 +194,10 @@ object AvtaleFixtures {
                 PrismodellRequest(
                     id = prismodell.id,
                     type = prismodell.type,
+                    valuta = Valuta.NOK,
                     prisbetingelser = prismodell.prisbetingelser,
                     satser = (prismodell.satser ?: listOf()).map {
-                        AvtaltSatsRequest(it.gjelderFra, it.sats, Valuta.NOK)
+                        AvtaltSatsRequest(it.gjelderFra, it.sats)
                     },
                 )
             },

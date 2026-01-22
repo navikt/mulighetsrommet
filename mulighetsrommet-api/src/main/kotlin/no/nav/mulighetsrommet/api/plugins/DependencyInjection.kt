@@ -45,6 +45,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomfo
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
+import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
 import no.nav.mulighetsrommet.api.lagretfilter.LagretFilterService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -67,6 +68,10 @@ import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaCons
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateDeltakerKafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateFakturaStatusConsumer
+import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
@@ -394,14 +399,22 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(get(), appConfig.arenaMigrering) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
-    single { ArrangorService(get(), get()) }
+    single { KostnadsstedService(get()) }
+    single { ArrangorService(get(), get(), get()) }
     single {
+        val db: ApiDatabase = get()
         GenererUtbetalingService(
             config = GenererUtbetalingService.Config(
                 gyldigTilsagnPeriode = appConfig.okonomi.gyldigTilsagnPeriode,
                 tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
-            get(),
+            db = db,
+            prismodeller = setOf(
+                FastSatsPerTiltaksplassPerManedBeregning,
+                PrisPerManedBeregning,
+                PrisPerUkeBeregning,
+                PrisPerHeleUkeBeregning,
+            ),
             get(),
         )
     }
@@ -411,6 +424,7 @@ private fun services(appConfig: AppConfig) = module {
                 bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
                 tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
+            get(),
             get(),
             get(),
             get(),

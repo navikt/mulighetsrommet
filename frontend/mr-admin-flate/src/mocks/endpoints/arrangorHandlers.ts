@@ -2,7 +2,7 @@ import { http, HttpResponse, PathParams } from "msw";
 import {
   ArrangorDto,
   ArrangorKontaktperson,
-  ArrangorKontonummerResponse,
+  Betalingsinformasjon,
   KoblingerForKontaktperson,
   PaginatedResponseArrangorDto,
 } from "@tiltaksadministrasjon/api-client";
@@ -33,10 +33,10 @@ export const arrangorHandlers = [
     },
   ),
 
-  http.get<PathParams, undefined, ArrangorKontonummerResponse>(
-    "*/api/tiltaksadministrasjon/arrangorer/:id/kontonummer",
+  http.get<PathParams, undefined, Betalingsinformasjon>(
+    "*/api/tiltaksadministrasjon/arrangorer/:id/bankkonto",
     () => {
-      return HttpResponse.json({ kontonummer: "12345678910" });
+      return HttpResponse.json({ type: "BBan", kontonummer: "12345678910", kid: null });
     },
   ),
 

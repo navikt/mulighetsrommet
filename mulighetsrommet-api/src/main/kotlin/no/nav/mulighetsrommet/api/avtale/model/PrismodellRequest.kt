@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -12,6 +13,7 @@ data class PrismodellRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val type: PrismodellType,
+    val valuta: Valuta,
     val prisbetingelser: String?,
     val satser: List<AvtaltSatsRequest>,
 )
@@ -20,6 +22,5 @@ data class PrismodellRequest(
 data class AvtaltSatsRequest(
     @Serializable(with = LocalDateSerializer::class)
     val gjelderFra: LocalDate?,
-    val pris: Int?,
-    val valuta: Valuta,
+    val pris: ValutaBelop?,
 )

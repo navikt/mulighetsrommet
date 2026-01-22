@@ -1,4 +1,4 @@
-import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
+import { KostnadsstedOption, VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
 import {
   GjennomforingDto,
   TilsagnRequest,
@@ -21,7 +21,6 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement } from "react";
-import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
@@ -34,15 +33,15 @@ interface Props {
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
-  regioner: string[];
+  kostnadssteder: KostnadsstedOption[];
   beregningInput: ReactElement;
   gjennomforing: GjennomforingDto;
 }
 
 export function TilsagnForm(props: Props) {
-  const { onSuccess, onAvbryt, defaultValues, regioner, gjennomforing } = props;
+  const { onSuccess, onAvbryt, defaultValues, kostnadssteder, gjennomforing } = props;
   const [searchParams] = useSearchParams();
-  const { data: kostnadssteder } = useKostnadssted(regioner);
+
   const tilsagnstype: TilsagnType =
     (searchParams.get("type") as TilsagnType | null) || TilsagnType.TILSAGN;
 

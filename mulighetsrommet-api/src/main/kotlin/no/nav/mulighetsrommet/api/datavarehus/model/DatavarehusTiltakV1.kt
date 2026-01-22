@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.datavarehus.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -39,6 +41,8 @@ sealed class DatavarehusTiltakV1 {
         val oppdatertTidspunkt: LocalDateTime,
         val arrangor: Arrangor,
         val navn: String?,
+        val oppstartstype: GjennomforingOppstartstype,
+        val pameldingstype: GjennomforingPameldingType,
         @Serializable(with = LocalDateSerializer::class)
         val startDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)

@@ -6,13 +6,14 @@ import { tilsagnTekster } from "../TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { useFindAvtaltSats } from "@/api/avtaler/useFindAvtaltSats";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
+import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 
 interface Props {
   gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
-  regioner: string[];
+  kostnadssteder: KostnadsstedOption[];
 }
 
 export function TilsagnFormPrisPerManedsverk(props: Props) {
@@ -67,7 +68,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
           label={tilsagnTekster.sats.label(type)}
           style={{ width: "180px" }}
           readOnly
-          value={sats?.pris ?? 0}
+          value={sats?.pris.belop ?? 0}
         />
       </HGrid>
     </VStack>

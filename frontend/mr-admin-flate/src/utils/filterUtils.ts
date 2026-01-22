@@ -3,8 +3,6 @@ import {
   AvtaleStatusType,
   Avtaletype,
   GjennomforingStatusType,
-  NavEnhetDto,
-  NavEnhetType,
   TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
 import { avtaletypeTilTekst } from "./Utils";
@@ -68,16 +66,6 @@ export const AVTALE_TYPE_OPTIONS: { label: string; value: Avtaletype }[] = [
     value: Avtaletype.RAMMEAVTALE,
   },
 ];
-
-export function regionOptions(enheter: NavEnhetDto[]) {
-  return enheter
-    .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
-    .sort()
-    .map((enhet) => ({
-      label: enhet.navn,
-      value: enhet.enhetsnummer,
-    }));
-}
 
 export function tiltakstypeOptions(tiltakstyper: TiltakstypeDto[]) {
   return tiltakstyper.sort().map((tiltakstype) => ({

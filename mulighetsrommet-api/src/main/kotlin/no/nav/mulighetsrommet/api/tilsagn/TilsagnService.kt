@@ -46,6 +46,8 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.AnnullerBestilling
@@ -99,6 +101,7 @@ class TilsagnService(
                 gyldigTilsagnPeriode = config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
                 gjennomforingSluttDato = gjennomforing.sluttDato,
                 avtalteSatser = avtalteSatser,
+                prismodellValuta = prismodell.valuta,
             )
             .map { validated ->
                 val lopenummer = previous?.lopenummer
@@ -116,8 +119,7 @@ class TilsagnService(
                     kostnadssted = validated.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
-                    belopBrukt = 0,
-                    valuta = validated.valuta,
+                    belopBrukt = 0.withValuta(prismodell.valuta),
                     beregning = validated.beregning,
                     kommentar = request.kommentar?.trim(),
                     beskrivelse = request.beskrivelse?.trim(),
@@ -185,8 +187,7 @@ class TilsagnService(
                                 TilsagnBeregningFri.InputLinje(
                                     id = it.id,
                                     beskrivelse = it.beskrivelse ?: "",
-                                    belop = it.belop ?: 0,
-                                    valuta = it.valuta ?: Valuta.NOK,
+                                    pris = it.pris ?: 0.withValuta(Valuta.NOK),
                                     antall = it.antall ?: 0,
                                 )
                             },
@@ -200,7 +201,6 @@ class TilsagnService(
                             TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
-                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                             ),
                         )
@@ -212,7 +212,6 @@ class TilsagnService(
                             TilsagnBeregningPrisPerManedsverk.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
-                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                             ),
@@ -225,7 +224,6 @@ class TilsagnService(
                             TilsagnBeregningPrisPerUkesverk.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
-                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                             ),
@@ -238,7 +236,6 @@ class TilsagnService(
                             TilsagnBeregningPrisPerHeleUkesverk.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
-                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                             ),
@@ -251,7 +248,6 @@ class TilsagnService(
                             TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
-                                valuta = fallback.valuta,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                                 antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
@@ -265,8 +261,7 @@ class TilsagnService(
     }
 
     private data class TilsagnBeregningFallbackResolver(
-        val sats: Int,
-        val valuta: Valuta,
+        val sats: ValutaBelop,
         val periode: Periode,
         val antallPlasser: Int,
         val antallTimerOppfolgingPerDeltaker: Int,
@@ -281,8 +276,7 @@ class TilsagnService(
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
         val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
         val avtaltSats = prismodell.satser().findAvtaltSats(request.periodeStart)
-        val sats = avtaltSats?.sats ?: 0
-        val valuta = avtaltSats?.valuta ?: Valuta.NOK
+        val sats = avtaltSats?.sats ?: ValutaBelop(0, Valuta.NOK)
 
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
@@ -290,7 +284,6 @@ class TilsagnService(
 
         return TilsagnBeregningFallbackResolver(
             sats = sats,
-            valuta = valuta,
             periode = periode,
             antallPlasser = antallPlasserFallback,
             antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltakerFallback,
@@ -717,9 +710,28 @@ class TilsagnService(
         }
 
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(tilsagn.gjennomforing.id)
+        val arrangorErUtenlandsk = queries.arrangor.getById(gjennomforing.arrangor.id).erUtenlandsk
 
         val avtale = checkNotNull(gjennomforing.avtaleId?.let { queries.avtale.get(it) }) {
             "Gjennomføring ${gjennomforing.id} mangler avtale"
+        }
+
+        val arrangor = if (arrangorErUtenlandsk) {
+            val utenlandskArrangor = requireNotNull(queries.arrangor.getUtenlandskArrangor(gjennomforing.arrangor.id)) {
+                "Mangler data om utenlandsk arrangør"
+            }
+            OpprettBestilling.Arrangor.Utenlandsk(
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                navn = gjennomforing.arrangor.navn,
+                by = utenlandskArrangor.by,
+                postNummer = utenlandskArrangor.postNummer,
+                landKode = utenlandskArrangor.landKode,
+                gateNavn = utenlandskArrangor.gateNavn,
+            )
+        } else {
+            OpprettBestilling.Arrangor.Norsk(
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+            )
         }
 
         val bestilling = OpprettBestilling(
@@ -729,15 +741,16 @@ class TilsagnService(
                 else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
             },
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-            arrangor = gjennomforing.arrangor.organisasjonsnummer,
+            arrangor = arrangor,
             kostnadssted = tilsagn.kostnadssted.enhetsnummer,
             avtalenummer = avtale.sakarkivNummer?.value,
-            belop = tilsagn.beregning.output.belop,
+            belop = tilsagn.beregning.output.pris.belop,
             periode = tilsagn.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
             behandletTidspunkt = opprettelse.behandletTidspunkt,
             besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
             besluttetTidspunkt = opprettelse.besluttetTidspunkt,
+            valuta = tilsagn.beregning.output.pris.valuta,
         )
 
         storeOkonomiMelding(bestilling.bestillingsnummer, OkonomiBestillingMelding.Bestilling(bestilling))
@@ -819,8 +832,8 @@ class TilsagnService(
         return setOfNotNull(
             TilsagnHandling.REDIGER.takeIf { status == TilsagnStatus.RETURNERT },
             TilsagnHandling.SLETT.takeIf { status == TilsagnStatus.RETURNERT },
-            TilsagnHandling.ANNULLER.takeIf { status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt == 0 },
-            TilsagnHandling.GJOR_OPP.takeIf { status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt > 0 },
+            TilsagnHandling.ANNULLER.takeIf { status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt.belop == 0 },
+            TilsagnHandling.GJOR_OPP.takeIf { status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt.belop > 0 },
             TilsagnHandling.GODKJENN.takeIf { status == TilsagnStatus.TIL_GODKJENNING },
             TilsagnHandling.RETURNER.takeIf { status == TilsagnStatus.TIL_GODKJENNING },
             TilsagnHandling.AVSLA_ANNULLERING.takeIf { status == TilsagnStatus.TIL_ANNULLERING },

@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -212,11 +214,12 @@ object UtbetalingBeregningHelpers {
         return UtbetalingBeregningOutputDeltakelse(deltakelse.deltakelseId, kombinertePerioder)
     }
 
-    fun calculateManedsverkBelop(periode: Periode, sats: Int, antallPlasser: Int): Int = calculateMonthsInPeriode(periode)
-        .multiply(BigDecimal(sats))
+    fun calculateManedsverkBelop(periode: Periode, sats: ValutaBelop, antallPlasser: Int): ValutaBelop = calculateMonthsInPeriode(periode)
+        .multiply(BigDecimal(sats.belop))
         .multiply(BigDecimal(antallPlasser))
         .setScale(0, RoundingMode.HALF_UP)
         .intValueExact()
+        .withValuta(sats.valuta)
 
     fun calculateMonthsInPeriode(periode: Periode): BigDecimal {
         return getMonthsFraction(periode)

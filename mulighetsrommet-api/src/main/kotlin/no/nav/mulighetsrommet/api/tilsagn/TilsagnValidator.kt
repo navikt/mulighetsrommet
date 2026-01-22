@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.findSats
+import no.nav.mulighetsrommet.api.avtale.model.findAvtaltSats
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 import java.time.LocalDate
 import kotlin.contracts.ExperimentalContracts
 
@@ -33,7 +34,6 @@ object TilsagnValidator {
         val kostnadssted: NavEnhetNummer,
         val periode: Periode,
         val beregning: TilsagnBeregning,
-        val valuta: Valuta,
     )
 
     fun validate(
@@ -44,6 +44,7 @@ object TilsagnValidator {
         gyldigTilsagnPeriode: Periode?,
         gjennomforingSluttDato: LocalDate?,
         avtalteSatser: List<AvtaltSats>,
+        prismodellValuta: Valuta,
     ): Either<List<FieldError>, Validated> = validation {
         validateNotNull(next.periodeStart) {
             FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart)
@@ -99,19 +100,14 @@ object TilsagnValidator {
 
         val periode = Periode.fromInclusiveDates(next.periodeStart, next.periodeSlutt)
 
-        val valuta = next.beregning.valuta
-        requireValid(valuta != null) {
-            FieldError.of("Valuta må være satt og gyldig", TilsagnRequest::beregning)
-        }
-
         val beregning = validateBeregning(
             request = next.beregning,
-            valuta,
+            prismodellValuta,
             periode = periode,
             avtalteSatser = avtalteSatser,
         )
 
-        validate(beregning.output.belop > 0) {
+        validate(beregning.output.pris.belop > 0) {
             FieldError.root("Beløp må være større enn 0")
         }
 
@@ -119,16 +115,16 @@ object TilsagnValidator {
             beregning = beregning,
             periode = periode,
             kostnadssted = next.kostnadssted,
-            valuta = valuta,
         )
     }
 
     fun FieldValidator.validateAvtaltSats(
         beregningType: TilsagnBeregningType,
+        valuta: Valuta,
         avtalteSatser: List<AvtaltSats>,
         periode: Periode,
-    ): Int = when (beregningType) {
-        TilsagnBeregningType.FRI -> 0
+    ): ValutaBelop = when (beregningType) {
+        TilsagnBeregningType.FRI -> ValutaBelop(0, valuta)
 
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,
@@ -136,7 +132,7 @@ object TilsagnValidator {
         TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
         TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
         -> {
-            val satsPeriodeStart = avtalteSatser.findSats(periode.start)
+            val satsPeriodeStart = avtalteSatser.findAvtaltSats(periode.start)
             requireValid(satsPeriodeStart != null) {
                 FieldError.of(
                     "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
@@ -144,21 +140,21 @@ object TilsagnValidator {
                 )
             }
 
-            val satsPeriodeSlutt = avtalteSatser.findSats(periode.getLastInclusiveDate())
+            val satsPeriodeSlutt = avtalteSatser.findAvtaltSats(periode.getLastInclusiveDate())
             validate(satsPeriodeSlutt != null) {
                 FieldError.of(
                     "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
                     TilsagnRequest::periodeSlutt,
                 )
             }
-            validate(satsPeriodeStart == satsPeriodeSlutt) {
+            validate(satsPeriodeStart.sats == satsPeriodeSlutt?.sats) {
                 FieldError.of(
                     "Tilsagnsperioden kan ikke gå over flere registrerte sats-/prisperioder på avtalen",
                     TilsagnRequest::periodeSlutt,
                 )
             }
 
-            satsPeriodeStart
+            satsPeriodeStart.sats
         }
     }
 
@@ -168,19 +164,18 @@ object TilsagnValidator {
         periode: Periode,
         avtalteSatser: List<AvtaltSats>,
     ): TilsagnBeregning {
-        val sats = validateAvtaltSats(request.type, avtalteSatser, periode)
+        val sats = validateAvtaltSats(request.type, valuta, avtalteSatser, periode)
         val antallPlasser = validateAntallPlasser(request.type, request.antallPlasser)
 
         return when (request.type) {
             TilsagnBeregningType.FRI ->
-                validateBeregningFriInput(request).bind()
+                validateBeregningFriInput(valuta, request).bind()
 
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
                 TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
                     TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                         periode = periode,
                         sats = sats,
-                        valuta = valuta,
                         antallPlasser = antallPlasser,
                     ),
                 )
@@ -190,7 +185,6 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerManedsverk.Input(
                         periode = periode,
                         sats = sats,
-                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -201,7 +195,6 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerHeleUkesverk.Input(
                         periode = periode,
                         sats = sats,
-                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -212,7 +205,6 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerUkesverk.Input(
                         periode = periode,
                         sats = sats,
-                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -223,7 +215,6 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                         periode = periode,
                         sats = sats,
-                        valuta = valuta,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                         antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(
@@ -278,7 +269,7 @@ object TilsagnValidator {
         }
     }
 
-    fun validateBeregningFriInput(request: TilsagnBeregningRequest): Either<List<FieldError>, TilsagnBeregning> = validation {
+    fun validateBeregningFriInput(prismodellValuta: Valuta, request: TilsagnBeregningRequest): Either<List<FieldError>, TilsagnBeregning> = validation {
         requireValid(!request.linjer.isNullOrEmpty()) {
             FieldError.of(
                 "Du må legge til en linje",
@@ -287,9 +278,9 @@ object TilsagnValidator {
             )
         }
         request.linjer.forEachIndexed { index, linje ->
-            validate(linje.belop != null && linje.belop > 0) {
+            validate(linje.pris != null && linje.pris.belop > 0) {
                 FieldError.ofPointer(
-                    pointer = "/beregning/linjer/$index/belop",
+                    pointer = "/beregning/linjer/$index/pris/belop",
                     detail = "Beløp må være positivt",
                 )
             }
@@ -311,10 +302,11 @@ object TilsagnValidator {
                     detail = "Antall må være positivt",
                 )
             }
-            requireValid(linje.valuta != null) {
+
+            validate(linje.pris?.valuta == prismodellValuta) {
                 FieldError.ofPointer(
-                    pointer = "/beregning/linjer/$index/valuta",
-                    detail = "Valuta mangler",
+                    pointer = "/beregning/linjer/$index/pris/belop",
+                    detail = "Må ha samme valuta som prismodellen: $prismodellValuta",
                 )
             }
         }
@@ -325,9 +317,8 @@ object TilsagnValidator {
                     TilsagnBeregningFri.InputLinje(
                         id = it.id,
                         beskrivelse = it.beskrivelse!!,
-                        belop = it.belop!!,
+                        pris = it.pris!!,
                         antall = it.antall!!,
-                        valuta = it.valuta!!,
                     )
                 },
                 prisbetingelser = request.prisbetingelser,

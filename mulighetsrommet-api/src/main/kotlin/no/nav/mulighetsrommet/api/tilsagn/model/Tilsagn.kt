@@ -6,7 +6,9 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.minus
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.util.UUID
@@ -17,8 +19,7 @@ data class Tilsagn(
     val id: UUID,
     val type: TilsagnType,
     val periode: Periode,
-    val valuta: Valuta,
-    val belopBrukt: Int,
+    val belopBrukt: ValutaBelop,
     val kostnadssted: NavEnhetDbo,
     val beregning: TilsagnBeregning,
     val lopenummer: Int,
@@ -59,10 +60,10 @@ data class Tilsagn(
         val status: BestillingStatusType?,
     )
 
-    fun gjenstaendeBelop(): Int = if (status in listOf(TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT)) {
-        0
+    fun gjenstaendeBelop(): ValutaBelop = if (status in listOf(TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT)) {
+        0.withValuta(belopBrukt.valuta)
     } else {
-        beregning.output.belop - belopBrukt
+        beregning.output.pris - belopBrukt
     }
 
     fun getTiltaksnavn(): String {

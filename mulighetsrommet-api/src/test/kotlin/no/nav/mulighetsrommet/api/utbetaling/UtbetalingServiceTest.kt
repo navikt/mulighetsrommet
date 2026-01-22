@@ -15,6 +15,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,8 @@ import kotlinx.coroutines.async
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -63,6 +66,7 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -81,6 +85,7 @@ class UtbetalingServiceTest : FunSpec({
     }
 
     var umiddelbarUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, _ -> null }
+    val arrangorService: ArrangorService = mockk()
 
     fun createUtbetalingService(
         tilsagnService: TilsagnService = mockk(relaxed = true),
@@ -94,6 +99,7 @@ class UtbetalingServiceTest : FunSpec({
         db = database.db,
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
+        arrangorService = arrangorService,
     )
 
     context("opprett utbetaling - annen avtalt pris") {
@@ -103,7 +109,6 @@ class UtbetalingServiceTest : FunSpec({
             periodeStart = LocalDate.of(2025, 1, 1),
             periodeSlutt = LocalDate.of(2025, 1, 31),
             beskrivelse = "Arrangør trenger penger",
-            kontonummer = Kontonummer("12345678901"),
             kidNummer = null,
             belop = 10,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -116,6 +121,11 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
             ).initialize(database.db)
+
+            coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
+                kontonummer = Kontonummer("12345678901"),
+                kid = null,
+            )
         }
 
         test("utbetaling blir opprettet med fri-beregning") {
@@ -1126,7 +1136,7 @@ class UtbetalingServiceTest : FunSpec({
                 }
 
                 queries.tilsagn.getOrError(Tilsagn1.id).should {
-                    it.belopBrukt shouldBe 1000
+                    it.belopBrukt shouldBe 1000.withValuta(Valuta.NOK)
                 }
 
                 val records = queries.kafkaProducerRecord.getRecords(50)
@@ -1440,8 +1450,7 @@ class UtbetalingServiceTest : FunSpec({
                     queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, utbetaling1.id)
                 utbetaling.status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
                 endringshistorikk.entries.shouldBeEmpty()
-                val diff =
-                    Duration.between(delutbetaling.faktura.statusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
+                val diff = Duration.between(delutbetaling.faktura.statusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
                 diff shouldBeLessThanOrEqualTo Duration.ofMillis(1)
             }
         }
@@ -1601,14 +1610,13 @@ fun getTilsagnBeregning(belop: Int, valuta: Valuta) = TilsagnBeregningFri(
             TilsagnBeregningFri.InputLinje(
                 id = UUID.randomUUID(),
                 beskrivelse = "Beskrivelse",
-                valuta = Valuta.NOK,
-                belop = 1500,
+                pris = 1500.withValuta(Valuta.NOK),
                 antall = 1,
             ),
         ),
         prisbetingelser = null,
     ),
-    output = TilsagnBeregningFri.Output(1500, Valuta.NOK),
+    output = TilsagnBeregningFri.Output(1500.withValuta(Valuta.NOK)),
 ).copy(
-    output = TilsagnBeregningFri.Output(belop, valuta),
+    output = TilsagnBeregningFri.Output(belop.withValuta(valuta)),
 )

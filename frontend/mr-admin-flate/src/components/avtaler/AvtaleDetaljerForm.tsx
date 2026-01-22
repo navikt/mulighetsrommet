@@ -20,6 +20,7 @@ import {
   OpsjonsmodellType,
   PrismodellType,
   Tiltakskode,
+  Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useParams } from "react-router";
@@ -69,6 +70,7 @@ export function AvtaleDetaljerForm() {
           {
             id: undefined,
             type: undefined as unknown as PrismodellType,
+            valuta: Valuta.NOK,
             satser: [],
             prisbetingelser: null,
           },

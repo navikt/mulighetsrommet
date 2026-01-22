@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.BestillingStatus
 import no.nav.tiltak.okonomi.BestillingStatusType
@@ -188,24 +189,6 @@ class OkonomiServiceTest : FunSpec({
             service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
                 it.message shouldBe "Klarte ikke utlede adresse for leverandør 123456789"
             }
-        }
-
-        test("feiler for ukjent utenlandsk leverandør") {
-            val service = createOkonomiService(oebsClient(oebsRespondOk()))
-
-            val opprettBestilling = createOpprettBestilling("3", organisasjonsnummer = Organisasjonsnummer("100000000"))
-
-            service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
-                it.message shouldBe "Utenlandske organisasjonsnummer er ikke støttet enda: 100000000"
-            }
-        }
-
-        test("midlertidig: kjenner til hardkodet leverandør") {
-            val service = createOkonomiService(oebsClient(oebsRespondOk()))
-
-            val opprettBestilling = createOpprettBestilling("56", organisasjonsnummer = Organisasjonsnummer("100000056"))
-
-            service.opprettBestilling(opprettBestilling).shouldBeRight()
         }
 
         test("oppretter bestilling med hovedenhet hentet fra brreg") {
@@ -788,7 +771,7 @@ private fun createOpprettBestilling(bestillingsnummer: String, organisasjonsnumm
     bestillingsnummer = bestillingsnummer,
     tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-    arrangor = organisasjonsnummer ?: Organisasjonsnummer("234567891"),
+    arrangor = OpprettBestilling.Arrangor.Norsk(organisasjonsnummer ?: Organisasjonsnummer("234567891")),
     avtalenummer = null,
     belop = 1000,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
@@ -797,6 +780,7 @@ private fun createOpprettBestilling(bestillingsnummer: String, organisasjonsnumm
     besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
     kostnadssted = NavEnhetNummer("0400"),
+    valuta = Valuta.NOK,
 )
 
 private fun createBestilling(
@@ -827,6 +811,7 @@ private fun createBestilling(
                 belop = 1000,
             ),
         ),
+        valuta = Valuta.NOK,
     )
 }
 
@@ -841,7 +826,7 @@ private fun createAnnullerBestilling(bestillingsnummer: String) = AnnullerBestil
 private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: String) = OpprettFaktura(
     fakturanummer = fakturanummer,
     bestillingsnummer = bestillingsnummer,
-    betalingsinformasjon = OpprettFaktura.Betalingsinformasjon(
+    betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
         kontonummer = Kontonummer("12345678901"),
         kid = null,
     ),
@@ -853,6 +838,7 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
     besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
     gjorOppBestilling = false,
     beskrivelse = "Beskrivelse",
+    valuta = Valuta.NOK,
 )
 
 private fun createGjorOppBestilling(bestillingsnummer: String) = GjorOppBestilling(

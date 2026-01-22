@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 
 class TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
@@ -13,8 +14,7 @@ class TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
         shouldThrow<ArithmeticException> {
             val input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-                sats = 20205,
-                valuta = Valuta.NOK,
+                sats = 20205.withValuta(Valuta.NOK),
                 antallPlasser = Int.MAX_VALUE,
                 antallTimerOppfolgingPerDeltaker = 1,
                 prisbetingelser = null,
@@ -27,8 +27,7 @@ class TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
         shouldThrow<ArithmeticException> {
             val input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2025, 1, 1)),
-                sats = 20205,
-                valuta = Valuta.NOK,
+                sats = 20205.withValuta(Valuta.NOK),
                 antallPlasser = 9500,
                 antallTimerOppfolgingPerDeltaker = 987_455,
                 prisbetingelser = null,
@@ -41,19 +40,18 @@ class TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
     test("periode påvirker ikke beregning") {
         val input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
             periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-            sats = 2,
-            valuta = Valuta.NOK,
+            sats = 2.withValuta(Valuta.NOK),
             antallPlasser = 2,
             antallTimerOppfolgingPerDeltaker = 2,
             prisbetingelser = null,
         )
 
-        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(input).output.belop shouldBe 8
+        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(input).output.pris shouldBe 8.withValuta(Valuta.NOK)
         TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
             input.copy(periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))),
-        ).output.belop shouldBe 8
+        ).output.pris shouldBe 8.withValuta(Valuta.NOK)
         TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
             input.copy(periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 2))),
-        ).output.belop shouldBe 8
+        ).output.pris shouldBe 8.withValuta(Valuta.NOK)
     }
 })

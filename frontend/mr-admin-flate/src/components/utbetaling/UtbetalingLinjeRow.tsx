@@ -4,7 +4,7 @@ import {
   FieldError,
   UtbetalingLinje,
 } from "@tiltaksadministrasjon/api-client";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { Alert, BodyShort, Heading, HStack, List, Table, VStack } from "@navikt/ds-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
@@ -111,7 +111,10 @@ export function UtbetalingLinjeRow({
       </Table.DataCell>
       <Table.DataCell className={grayBgClass}>{linje.tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell className={grayBgClass}>
-        {formaterNOK(linje.tilsagn.belopGjenstaende)}
+        {formaterValuta(
+          linje.tilsagn.belopGjenstaende.belop,
+          linje.tilsagn.belopGjenstaende.valuta,
+        )}
       </Table.DataCell>
       <Table.DataCell>{checkboxInput}</Table.DataCell>
       <Table.DataCell>{belopInput}</Table.DataCell>

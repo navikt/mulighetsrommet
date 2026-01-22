@@ -13,7 +13,7 @@ export function useGjennomforinger(filter: Partial<GjennomforingFilterType>) {
   const queryFilter: Pick<GetGjennomforingerData, "query"> = {
     query: {
       search: debouncedSok || undefined,
-      navEnheter: filter.navEnheter?.map((e) => e.enhetsnummer) ?? [],
+      navEnheter: filter.navEnheter,
       tiltakstyper: filter.tiltakstyper,
       statuser: filter.statuser,
       sort: filter.sortering ? filter.sortering.sortString : undefined,

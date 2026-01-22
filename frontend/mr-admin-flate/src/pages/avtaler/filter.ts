@@ -5,13 +5,13 @@ import { createFilterValidator } from "@/filter/filter-validator";
 import { createFilterStateAtom, FilterAction, FilterState } from "@/filter/filter-state";
 import { atomFamily } from "jotai/utils";
 import { atom, WritableAtom } from "jotai";
-import { AvtaleStatusType, Avtaletype, NavEnhetDto } from "@tiltaksadministrasjon/api-client";
+import { AvtaleStatusType, Avtaletype } from "@tiltaksadministrasjon/api-client";
 
 export const AvtaleFilterSchema = z.object({
   sok: z.string(),
   statuser: z.custom<AvtaleStatusType>().array(),
   avtaletyper: z.custom<Avtaletype>().array(),
-  navEnheter: z.custom<NavEnhetDto>().array(),
+  navEnheter: z.string().array(),
   tiltakstyper: z.string().array(),
   sortering: createSorteringProps(z.string()),
   arrangorer: z.string().array(),

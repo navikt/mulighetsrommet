@@ -1,49 +1,51 @@
-import { ArenaNavEnhet, NavEnhetDto, NavEnhetType } from "@tiltaksadministrasjon/api-client";
+import {
+  ArenaNavEnhet,
+  NavEnhetDto,
+  NavEnhetType,
+  NavRegionDto,
+  NavRegionUnderenhetDto,
+} from "@tiltaksadministrasjon/api-client";
 
 export function getDisplayName(enhet: NavEnhetDto | ArenaNavEnhet) {
   const { enhetsnummer, navn } = enhet;
   return navn ? `${enhetsnummer} ${navn}` : enhetsnummer;
 }
 
-function getUnderenheterAsSelectOptionsBy(
-  navRegioner: (string | undefined)[],
-  enheter: NavEnhetDto[],
-  predicate: (item: NavEnhetDto) => boolean,
-) {
-  return enheter
-    .filter((enhet) => {
-      return (
-        enhet.overordnetEnhet !== null &&
-        navRegioner.includes(enhet.overordnetEnhet) &&
-        predicate(enhet)
-      );
-    })
-    .map((enhet) => ({
-      label: enhet.navn,
-      value: enhet.enhetsnummer,
-    }));
-}
-
 export function getLokaleUnderenheterAsSelectOptions(
-  navRegioner: (string | undefined)[],
-  enheter: NavEnhetDto[],
+  valgteRegioner: (string | undefined)[],
+  regioner: NavRegionDto[],
 ) {
   return getUnderenheterAsSelectOptionsBy(
-    navRegioner,
-    enheter,
-    (enhet) => enhet.type === NavEnhetType.LOKAL,
+    valgteRegioner,
+    regioner,
+    (enhet) => enhet.erStandardvalg,
   );
 }
 
-const andreEnheter = [NavEnhetType.KO, NavEnhetType.ARK];
-
 export function getAndreUnderenheterAsSelectOptions(
-  navRegioner: (string | undefined)[],
-  enheter: NavEnhetDto[],
+  valgteRegioner: (string | undefined)[],
+  regioner: NavRegionDto[],
 ) {
-  return getUnderenheterAsSelectOptionsBy(navRegioner, enheter, (enhet) =>
-    andreEnheter.includes(enhet.type),
+  return getUnderenheterAsSelectOptionsBy(
+    valgteRegioner,
+    regioner,
+    (enhet) => !enhet.erStandardvalg,
   );
+}
+
+function getUnderenheterAsSelectOptionsBy(
+  valgteRegioner: (string | undefined)[],
+  regioner: NavRegionDto[],
+  predicate: (item: NavRegionUnderenhetDto) => boolean,
+) {
+  return regioner
+    .filter((region) => valgteRegioner.includes(region.enhetsnummer))
+    .flatMap((region) =>
+      region.enheter.filter(predicate).map((enhet) => ({
+        value: enhet.enhetsnummer,
+        label: enhet.navn,
+      })),
+    );
 }
 
 export interface TypeSplittedNavEnheter {

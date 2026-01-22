@@ -1,9 +1,9 @@
-import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 import { OppgaverFilterType } from "@/pages/oppgaveoversikt/oppgaver/filter";
+import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 
 interface Props {
   filter: OppgaverFilterType;
@@ -21,7 +21,7 @@ export function OppgaveFilterTags({
   setTagsHeight,
 }: Props) {
   const { data: oppgavetyper } = useGetOppgavetyper();
-  const { data: enheter } = useNavEnheter();
+  const { data: regioner } = useNavRegioner();
   const { data: tiltakstyper } = useTiltakstyper();
 
   return (
@@ -41,7 +41,7 @@ export function OppgaveFilterTags({
       {filter.regioner.map((enhetsnummer) => (
         <FilterTag
           key={enhetsnummer}
-          label={enheter.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
+          label={regioner.find((r) => r.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
           onClose={() => {
             updateFilter({
               regioner: addOrRemove(filter.regioner, enhetsnummer),

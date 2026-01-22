@@ -164,11 +164,11 @@ export default function BekreftUtbetaling() {
     if (
       fetcher.state === "idle" &&
       fetcher.data &&
-      fetcher.data !== utbetaling.betalingsinformasjon.kontonummer
+      fetcher.data !== utbetaling.betalingsinformasjon
     ) {
       revalidator.revalidate();
     }
-  }, [fetcher.state, fetcher.data, revalidator, utbetaling.betalingsinformasjon.kontonummer]);
+  }, [fetcher.state, fetcher.data, revalidator, utbetaling.betalingsinformasjon]);
 
   useEffect(() => {
     if (hasError) {
@@ -223,7 +223,7 @@ export default function BekreftUtbetaling() {
                     Betalingsinformasjon
                   </Heading>
                   <KontonummerInput
-                    kontonummer={utbetaling.betalingsinformasjon.kontonummer ?? undefined}
+                    kontonummer={utbetaling.betalingsinformasjon?.kontonummer ?? undefined}
                     error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
                     onClick={() => handleHentKontonummer()}
                   />
@@ -233,7 +233,7 @@ export default function BekreftUtbetaling() {
                     name="kid"
                     htmlSize={35}
                     error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
-                    defaultValue={utbetaling.betalingsinformasjon.kid ?? ""}
+                    defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
                     maxLength={25}
                     id="kid"
                   />

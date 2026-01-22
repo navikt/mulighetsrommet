@@ -14,6 +14,7 @@ import {
   UtbetalingLinjeHandling,
   UtbetalingStatusDtoType,
   UtbetalingTypeDto,
+  Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { mockEnheter } from "./mock_enheter";
 
@@ -55,6 +56,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     utbetalesTidligstDato: "2024-08-07",
     belop: 15000,
     betalingsinformasjon: {
+      type: "BBan",
       kontonummer: "1234.56.78900",
       kid: "12345678901",
     },
@@ -83,7 +85,8 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     utbetalesTidligstDato: "2024-08-07",
     belop: 18000,
     betalingsinformasjon: {
-      kontonummer: "9876.54.32100",
+      type: "BBan",
+      kontonummer: "1234.56.78900",
       kid: "98765432109",
     },
     beskrivelse: "Utbetaling for andre halvår 2024",
@@ -109,6 +112,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     utbetalesTidligstDato: "2025-05-07",
     belop: 9000,
     betalingsinformasjon: {
+      type: "BBan",
       kontonummer: "1111.22.33333",
       kid: "11122233344",
     },
@@ -138,8 +142,9 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     utbetalesTidligstDato: "2025-05-07",
     belop: 9000,
     betalingsinformasjon: {
-      kontonummer: "1111.22.33333",
-      kid: "11122233344",
+      type: "BBan",
+      kontonummer: "1234.56.78900",
+      kid: "98765432109",
     },
     beskrivelse: "Utbetaling for første kvartal 2025",
     innsendtAv: "Z987654",
@@ -236,9 +241,9 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
+      belop: { belop: 14_000, valuta: Valuta.NOK },
+      belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
+      belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
         type: TilsagnStatus.TIL_GODKJENNING,
         status: {
@@ -286,9 +291,9 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
+      belop: { belop: 14_000, valuta: Valuta.NOK },
+      belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
+      belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
         type: TilsagnStatus.TIL_ANNULLERING,
         status: {
@@ -336,9 +341,9 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
+      belop: { belop: 14_000, valuta: Valuta.NOK },
+      belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
+      belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
         type: TilsagnStatus.GODKJENT,
         status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS, description: null },
@@ -383,9 +388,9 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
+      belop: { belop: 14_000, valuta: Valuta.NOK },
+      belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
+      belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
         type: TilsagnStatus.GODKJENT,
         status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS, description: null },
@@ -429,9 +434,9 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
+      belop: { belop: 14_000, valuta: Valuta.NOK },
+      belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
+      belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
         type: TilsagnStatus.GODKJENT,
         status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS, description: null },

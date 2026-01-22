@@ -85,8 +85,10 @@ const tilBeslutning: TotrinnskontrollDtoTilBeslutning = {
 };
 
 const beregning: TilsagnBeregningDto = {
-  belop: 12207450,
-  valuta: Valuta.NOK,
+  pris: {
+    belop: 12207450,
+    valuta: Valuta.NOK,
+  },
   prismodell: {
     header: null,
     entries: [

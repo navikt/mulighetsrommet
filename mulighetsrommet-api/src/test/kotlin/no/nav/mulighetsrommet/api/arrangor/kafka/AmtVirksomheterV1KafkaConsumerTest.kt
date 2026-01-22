@@ -65,6 +65,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         val arrangorService = ArrangorService(
             db = database.db,
             brregClient = brregClient,
+            kontoregisterOrganisasjonClient = mockk(relaxed = true),
         )
         val virksomhetConsumer = AmtVirksomheterV1KafkaConsumer(
             arrangorService = arrangorService,
@@ -88,6 +89,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
                         organisasjonsnummer = virksomhetDto.organisasjonsnummer,
                         organisasjonsform = virksomhetDto.organisasjonsform,
                         navn = "Kiwi",
+                        erUtenlandsk = false,
                     ),
                 )
             }
@@ -115,6 +117,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
                         organisasjonsnummer = orgnr,
                         organisasjonsform = null,
                         navn = "Slottet",
+                        erUtenlandsk = false,
                     ),
                 )
             }
@@ -144,6 +147,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
                         organisasjonsnummer = underenhetDto.organisasjonsnummer,
                         organisasjonsform = virksomhetDto.organisasjonsform,
                         navn = "Kiwi",
+                        erUtenlandsk = false,
                     ),
                 )
                 queries.arrangor.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()

@@ -56,7 +56,7 @@ export const loader: LoaderFunction = async ({
   return {
     mottattDato,
     utbetalesTidligstDato: utbetaling.utbetalesTidligstDato,
-    kontonummer: utbetaling.betalingsinformasjon.kontonummer,
+    kontonummer: utbetaling.betalingsinformasjon?.kontonummer ?? null,
   };
 };
 

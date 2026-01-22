@@ -2,7 +2,7 @@ import { QueryKeys } from "@/api/QueryKeys";
 import { NavEnheterService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
-export function useKostnadsstedFiltre() {
+export function useKostnadsstedFilter() {
   return useApiSuspenseQuery({
     queryKey: QueryKeys.kostnadssted(),
 
