@@ -134,7 +134,7 @@ class NavAnsattServiceTest : FunSpec({
             val rolleBeslutterOslo = EntraGroupNavAnsattRolleMapping(
                 entraGroupId = adGruppeBeslutterOslo,
                 rolle = Rolle.BESLUTTER_TILSAGN,
-                enheter = setOf(NavEnhetNummer("0387")),
+                kostnadssteder = setOf(NavEnhetNummer("0387")),
             )
 
             val service = createNavAnsattService(setOf(rolleBeslutterOslo))
@@ -176,13 +176,13 @@ class NavAnsattServiceTest : FunSpec({
             val rolleBeslutterInnlandet = EntraGroupNavAnsattRolleMapping(
                 entraGroupId = adGruppeBeslutterInnlandet,
                 rolle = Rolle.BESLUTTER_TILSAGN,
-                enheter = setOf(NavEnhetNummer("0400")),
+                kostnadssteder = setOf(NavEnhetNummer("0400")),
             )
             val adGruppeBeslutterOslo = UUID.randomUUID()
             val rolleBeslutterOslo = EntraGroupNavAnsattRolleMapping(
                 entraGroupId = adGruppeBeslutterOslo,
                 rolle = Rolle.BESLUTTER_TILSAGN,
-                enheter = setOf(NavEnhetNummer("0300")),
+                kostnadssteder = setOf(NavEnhetNummer("0300")),
             )
 
             val service = createNavAnsattService(setOf(rolleBeslutterInnlandet, rolleBeslutterOslo))
@@ -218,7 +218,7 @@ class NavAnsattServiceTest : FunSpec({
             val rolleBeslutterOslo = EntraGroupNavAnsattRolleMapping(
                 entraGroupId = adGruppeBeslutterOslo,
                 rolle = Rolle.BESLUTTER_TILSAGN,
-                enheter = setOf(NavEnhetNummer("0387")),
+                kostnadssteder = setOf(NavEnhetNummer("0387")),
             )
 
             val service = createNavAnsattService(setOf(rolleBeslutterGenerell, rolleBeslutterOslo))

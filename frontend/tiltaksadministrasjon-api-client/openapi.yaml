@@ -6077,15 +6077,12 @@ components:
           type: string
         enhetsnummer:
           type: string
-        overordnetEnhet:
-          type: string
         erStandardvalg:
           type: boolean
       required:
       - enhetsnummer
       - erStandardvalg
       - navn
-      - overordnetEnhet
     UtbetalingBeregningDto:
       type: object
       properties:
