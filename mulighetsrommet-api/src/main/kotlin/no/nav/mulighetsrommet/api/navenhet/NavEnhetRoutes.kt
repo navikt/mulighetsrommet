@@ -18,40 +18,6 @@ fun Route.navEnhetRoutes() {
     val navEnhetService: NavEnhetService by inject()
 
     route("nav-enheter") {
-        get({
-            tags = setOf("NavEnheter")
-            operationId = "getEnheter"
-            request {
-                queryParameter<List<NavEnhetStatus>>("statuser") {
-                    description = "Filtrer på status"
-                    explode = true
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Alle Nav-enheter"
-                    body<List<NavEnhetDto>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val defaultFilter = EnhetFilter(
-                statuser = listOf(
-                    NavEnhetStatus.AKTIV,
-                    NavEnhetStatus.UNDER_AVVIKLING,
-                    NavEnhetStatus.UNDER_ETABLERING,
-                ),
-            )
-
-            // TODO: ikke returner _alle_ enheter her, de fleste typene er egentlig ikke relevante i adminflate
-            val enheter = navEnhetService.hentAlleEnheter(defaultFilter)
-
-            call.respond(enheter)
-        }
-
         get("regioner", {
             tags = setOf("NavEnheter")
             operationId = "getRegioner"
