@@ -1,4 +1,4 @@
-import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
+import { KostnadsstedOption, VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
 import {
   GjennomforingDto,
   TilsagnRequest,
@@ -28,21 +28,19 @@ import { tilsagnTekster } from "../TilsagnTekster";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 import { useOpprettTilsagn } from "@/api/tilsagn/mutations";
-import { useKostnadsstedFilter } from "@/api/enhet/useKostnadsstedFilter";
 
 interface Props {
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
-  regioner: string[];
+  kostnadssteder: KostnadsstedOption[];
   beregningInput: ReactElement;
   gjennomforing: GjennomforingDto;
 }
 
 export function TilsagnForm(props: Props) {
-  const { onSuccess, onAvbryt, defaultValues, regioner, gjennomforing } = props;
+  const { onSuccess, onAvbryt, defaultValues, kostnadssteder, gjennomforing } = props;
   const [searchParams] = useSearchParams();
-  const kostnadssteder = useRelevanteKostnadssteder(regioner);
 
   const tilsagnstype: TilsagnType =
     (searchParams.get("type") as TilsagnType | null) || TilsagnType.TILSAGN;
@@ -189,11 +187,4 @@ function InfomeldingOmInvesteringsTilsagn() {
       . Det kan ikke brukes til å utbetale ordinære driftsmidler til tiltaksarrangør.
     </Alert>
   );
-}
-
-function useRelevanteKostnadssteder(regioner: string[]) {
-  const { data: kostnadssteder } = useKostnadsstedFilter();
-  return kostnadssteder
-    .filter((region) => regioner.includes(region.enhetsnummer))
-    .flatMap((region) => region.enheter);
 }
