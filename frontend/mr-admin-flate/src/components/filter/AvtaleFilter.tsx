@@ -9,10 +9,11 @@ import {
 } from "@/utils/filterUtils";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
+import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
 import { CheckboxList } from "./CheckboxList";
 import { avtaleFilterAccordionAtom, AvtaleFilterType } from "@/pages/avtaler/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
+import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 
 type Filters = "tiltakstype";
@@ -91,7 +92,7 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
           <Accordion.Content className="ml-[-2rem]">
             <NavEnhetFilter
               value={filter.navEnheter}
-              onChange={(navEnheter: string[]) => {
+              onChange={(navEnheter) => {
                 updateFilter({ navEnheter, page: 1 });
               }}
               regioner={regioner}

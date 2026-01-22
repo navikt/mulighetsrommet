@@ -2,7 +2,7 @@ import useDebounce from "./hooks/useDebounce";
 import { SokeSelect } from "./components/SokeSelect";
 import { shallowEquals } from "./utils/shallow-equals";
 import { ControlledSokeSelect } from "./components/ControlledSokeSelect";
-import { NavEnhetFilter } from "./components/navEnhetFilter/NavEnhetFilter";
+import { CheckboxGroup } from "./components/filter/CheckboxGroup";
 import { NavEnhetFilterTag } from "./components/filter/filterTag/NavEnhetFilterTag";
 import { FilterTag } from "./components/filter/filterTag/FilterTag";
 import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
@@ -35,7 +35,7 @@ export {
   SokeSelect,
   ControlledSokeSelect,
   shallowEquals,
-  NavEnhetFilter,
+  CheckboxGroup,
   NavEnhetFilterTag,
   FilterTag,
   FilterTagsContainer,
