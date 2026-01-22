@@ -22,16 +22,16 @@ class NavEnhetHelpersTest : FunSpec({
                 enhetsnummer = NavEnhetNummer("0400"),
                 navn = "Fylke 1",
                 enheter = listOf(
-                    NavRegionUnderenhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetNummer("0400"), true),
-                    NavRegionUnderenhetDto("Lokal 2", NavEnhetNummer("0402"), NavEnhetNummer("0400"), true),
-                    NavRegionUnderenhetDto("Kø 1", NavEnhetNummer("0499"), NavEnhetNummer("0400"), false),
+                    NavRegionUnderenhetDto("Lokal 1", NavEnhetNummer("0401"), true),
+                    NavRegionUnderenhetDto("Lokal 2", NavEnhetNummer("0402"), true),
+                    NavRegionUnderenhetDto("Kø 1", NavEnhetNummer("0499"), false),
                 ),
             ),
             NavRegionDto(
                 enhetsnummer = NavEnhetNummer("0500"),
                 navn = "Fylke 2",
                 enheter = listOf(
-                    NavRegionUnderenhetDto("Lokal 3", NavEnhetNummer("0501"), NavEnhetNummer("0500"), true),
+                    NavRegionUnderenhetDto("Lokal 3", NavEnhetNummer("0501"), true),
                 ),
             ),
         )
@@ -53,7 +53,7 @@ class NavEnhetHelpersTest : FunSpec({
                 enhetsnummer = NavEnhetNummer("0400"),
                 navn = "Fylke 1",
                 enheter = listOf(
-                    NavRegionUnderenhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetNummer("0400"), true),
+                    NavRegionUnderenhetDto("Lokal 1", NavEnhetNummer("0401"), true),
                 ),
             ),
         )
@@ -74,7 +74,7 @@ class NavEnhetHelpersTest : FunSpec({
                 enhetsnummer = NavEnhetNummer("0400"),
                 navn = "Fylke 1",
                 enheter = listOf(
-                    NavRegionUnderenhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetNummer("0400"), true),
+                    NavRegionUnderenhetDto("Lokal 1", NavEnhetNummer("0401"), true),
                 ),
             ),
         )

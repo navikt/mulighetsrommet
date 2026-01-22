@@ -2065,14 +2065,11 @@ components:
           type: string
         enhetsnummer:
           type: string
-        overordnetEnhet:
-          type: string
         erStandardvalg:
           type: boolean
       required:
       - enhetsnummer
       - erStandardvalg
       - navn
-      - overordnetEnhet
   examples: {}
 webhooks: {}

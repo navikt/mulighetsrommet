@@ -64,6 +64,5 @@ data class NavRegionDto(
 data class NavRegionUnderenhetDto(
     val navn: String,
     val enhetsnummer: NavEnhetNummer,
-    val overordnetEnhet: NavEnhetNummer,
     val erStandardvalg: Boolean,
 )

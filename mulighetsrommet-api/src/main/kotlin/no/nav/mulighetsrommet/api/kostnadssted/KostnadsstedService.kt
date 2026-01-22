@@ -20,7 +20,6 @@ class KostnadsstedService(
                     NavRegionUnderenhetDto(
                         navn = it.navn,
                         enhetsnummer = it.enhetsnummer,
-                        overordnetEnhet = region.enhetsnummer,
                         erStandardvalg = true,
                     )
                 }
