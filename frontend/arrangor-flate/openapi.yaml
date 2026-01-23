@@ -1346,11 +1346,14 @@ components:
       properties:
         kontonummer:
           type: string
+        valuta:
+          $ref: "#/components/schemas/Valuta"
         navigering:
           $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
       required:
       - kontonummer
       - navigering
+      - valuta
     OpprettKravVedlegg.GuidePanelType:
       type: string
       enum:
@@ -1388,21 +1391,23 @@ components:
           type:
           - "null"
           - string
-        pris:
-          $ref: "#/components/schemas/ValutaBelop"
+        belop:
+          type: integer
+          format: int32
       required:
+      - belop
       - kidNummer
       - periodeInklusiv
       - periodeSlutt
       - periodeStart
-      - pris
     OpprettKravOppsummering.InnsendingsData:
       type: object
       properties:
         periode:
           $ref: "#/components/schemas/Periode"
-        pris:
-          $ref: "#/components/schemas/ValutaBelop"
+        belop:
+          type: integer
+          format: int32
         kidNummer:
           type:
           - "null"
@@ -1411,10 +1416,10 @@ components:
           type: integer
           format: int32
       required:
+      - belop
       - kidNummer
       - minAntallVedlegg
       - periode
-      - pris
     OpprettKravOppsummering:
       type: object
       properties:
@@ -1449,18 +1454,19 @@ components:
           type:
           - "null"
           - string
-        pris:
-          $ref: "#/components/schemas/ValutaBelop"
+        belop:
+          type: integer
+          format: int32
         vedlegg:
           type: array
           items:
             type: string
             format: binary
       required:
+      - belop
       - kidNummer
       - periodeSlutt
       - periodeStart
-      - pris
       - tilsagnId
       - vedlegg
     OpprettKravUtbetalingResponse:

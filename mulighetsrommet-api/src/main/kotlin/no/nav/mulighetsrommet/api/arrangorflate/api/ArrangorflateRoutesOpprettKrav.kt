@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
@@ -63,7 +64,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -206,8 +206,15 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         }) {
             val gjennomforing = requireGjennomforing()
 
+            requireNotNull(gjennomforing.prismodell) {
+                throw StatusException(
+                    HttpStatusCode.InternalServerError,
+                    "Gjennomføringen mangler prismodell, kan ikke opprette krav",
+                )
+            }
+
             val tilsagnstyper =
-                if (gjennomforing.prismodell?.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+                if (gjennomforing.prismodell.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                     listOf(TilsagnType.INVESTERING)
                 } else {
                     listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
@@ -676,9 +683,11 @@ data class OpprettKravVedlegg(
 
     companion object {
         fun from(gjennomforing: GjennomforingGruppetiltak): OpprettKravVedlegg {
+            requireNotNull(gjennomforing.prismodell)
+
             return OpprettKravVedlegg(
-                guidePanel = GuidePanelType.from(gjennomforing.prismodell?.type),
-                minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell?.type),
+                guidePanel = GuidePanelType.from(gjennomforing.prismodell.type),
+                minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell.type),
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.VEDLEGG, gjennomforing),
             )
         }
@@ -783,6 +792,7 @@ data class OpprettKravDeltakere(
 @Serializable
 data class OpprettKravUtbetalingsinformasjon(
     val kontonummer: Kontonummer,
+    val valuta: Valuta,
     val navigering: OpprettKravVeiviserNavigering,
 ) {
     companion object {
@@ -792,6 +802,7 @@ data class OpprettKravUtbetalingsinformasjon(
         ): OpprettKravUtbetalingsinformasjon {
             return OpprettKravUtbetalingsinformasjon(
                 kontonummer = kontonummer,
+                valuta = gjennomforing.prismodell!!.valuta,
                 navigering = getVeiviserNavigering(
                     OpprettKravVeiviserSteg.UTBETALING,
                     gjennomforing,
@@ -807,7 +818,7 @@ data class OpprettKravOppsummeringRequest(
     val periodeSlutt: String,
     val periodeInklusiv: Boolean?,
     val kidNummer: String? = null,
-    val pris: ValutaBelop,
+    val belop: Int,
 )
 
 @Serializable
@@ -823,6 +834,8 @@ data class OpprettKravOppsummering(
             gjennomforing: GjennomforingGruppetiltak,
             kontonummer: Kontonummer?,
         ): OpprettKravOppsummering {
+            requireNotNull(gjennomforing.prismodell)
+
             val periodeStart = LocalDate.parse(requestData.periodeStart)
             val periodeSlutt = LocalDate.parse(requestData.periodeSlutt)
             val periode = if (requestData.periodeInklusiv == true) {
@@ -848,14 +861,14 @@ data class OpprettKravOppsummering(
                     ),
                     LabeledDataElement.money(
                         "Beløp",
-                        requestData.pris,
+                        requestData.belop.withValuta(gjennomforing.prismodell.valuta),
                     ),
                 ),
                 innsendingsData = InnsendingsData(
                     periode = periode,
-                    pris = requestData.pris,
+                    belop = requestData.belop,
                     kidNummer = requestData.kidNummer,
-                    minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell?.type),
+                    minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell.type),
                 ),
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.OPPSUMMERING, gjennomforing),
             )
@@ -865,7 +878,7 @@ data class OpprettKravOppsummering(
     @Serializable
     data class InnsendingsData(
         val periode: Periode,
-        val pris: ValutaBelop,
+        val belop: Int,
         val kidNummer: String?,
         val minAntallVedlegg: Int,
     )
@@ -878,7 +891,7 @@ data class OpprettKravUtbetalingRequest(
     val periodeStart: String,
     val periodeSlutt: String,
     val kidNummer: String? = null,
-    val pris: ValutaBelop,
+    val belop: Int,
     val vedlegg: List<Vedlegg>,
 )
 
@@ -922,7 +935,7 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either
         periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
         periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
         kidNummer = kidNummer,
-        pris = (belop ?: 0).withValuta(Valuta.NOK), // Fjern valuta når arrflate er oppdatert
+        belop = belop ?: 0, // Valuta hentes fra prismodell
         vedlegg = validatedVedlegg,
     )
 }

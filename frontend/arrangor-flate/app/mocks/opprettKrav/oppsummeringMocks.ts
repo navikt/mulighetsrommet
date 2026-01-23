@@ -48,7 +48,7 @@ export const oppsummering: Record<
           label: "Beløp",
           type: LabeledDataElementType.INLINE,
           value: {
-            value: request.pris.belop.toString(),
+            value: request.belop.toString(),
             type: "DATA_ELEMENT_MONEY_AMOUNT",
             currency: "NOK",
           },
@@ -56,7 +56,7 @@ export const oppsummering: Record<
       ],
       innsendingsData: {
         periode: periode,
-        pris: request.pris,
+        belop: request.belop,
         kidNummer: request.kidNummer,
         minAntallVedlegg: 1,
       },
@@ -86,7 +86,7 @@ export const oppsummering: Record<
           label: "Beløp",
           type: LabeledDataElementType.INLINE,
           value: {
-            value: request.pris.belop.toString(),
+            value: request.belop.toString(),
             type: "DATA_ELEMENT_MONEY_AMOUNT",
             currency: "NOK",
           },
@@ -95,7 +95,7 @@ export const oppsummering: Record<
 
       innsendingsData: {
         periode: periode,
-        pris: request.pris,
+        belop: request.belop,
         kidNummer: request.kidNummer,
         minAntallVedlegg: 0,
       },
@@ -128,7 +128,7 @@ export const oppsummering: Record<
           label: "Beløp",
           type: LabeledDataElementType.INLINE,
           value: {
-            value: request.pris.belop.toString(),
+            value: request.belop.toString(),
             type: "DATA_ELEMENT_MONEY_AMOUNT",
             currency: "NOK",
           },
@@ -136,7 +136,7 @@ export const oppsummering: Record<
       ],
       innsendingsData: {
         periode: periode,
-        pris: request.pris,
+        belop: request.belop,
         kidNummer: request.kidNummer,
         minAntallVedlegg: 1,
       },

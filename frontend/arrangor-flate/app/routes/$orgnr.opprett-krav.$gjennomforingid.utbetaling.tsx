@@ -4,7 +4,6 @@ import {
   FieldError,
   OpprettKravUtbetalingsinformasjon,
   OpprettKravVeiviserSteg,
-  Valuta,
 } from "api-client";
 import {
   ActionFunctionArgs,
@@ -35,9 +34,8 @@ import {
 } from "~/components/OpprettKravVeiviserButtons";
 
 type LoaderData = {
-  innsendingsinformasjon: OpprettKravUtbetalingsinformasjon;
+  utbetalingsinformasjon: OpprettKravUtbetalingsinformasjon;
   sessionBelop?: string;
-  sessionValuta?: Valuta;
   sessionKid?: string;
 };
 
@@ -55,11 +53,9 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
   const session = await getSession(request.headers.get("Cookie"));
   let sessionBelop: string | undefined;
-  let sessionValuta: Valuta | undefined;
   let sessionKid: string | undefined;
   if (session.get("orgnr") === orgnr && session.get("gjennomforingId") === gjennomforingId) {
     sessionBelop = session.get("belop");
-    sessionValuta = session.get("valuta") as Valuta;
     sessionKid = session.get("kid");
   }
 
@@ -74,7 +70,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw problemDetailResponse(kontonummerError);
   }
 
-  return { innsendingsinformasjon: data, sessionBelop, sessionValuta, sessionKid };
+  return { utbetalingsinformasjon: data, sessionBelop, sessionKid };
 };
 
 interface ActionData {
@@ -96,7 +92,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const belop = formData.get("belop")?.toString();
-  const valuta = formData.get("valuta")?.toString();
   const kontonummer = formData.get("kontonummer")?.toString();
   const kid = formData.get("kid")?.toString();
 
@@ -118,7 +113,6 @@ export async function action({ request }: ActionFunctionArgs) {
   } else {
     const nesteSteg = formData.get(nesteStegFieldName) as OpprettKravVeiviserSteg;
     session.set("belop", belop);
-    session.set("valuta", valuta);
     session.set("kid", kid);
     session.set("kontonummer", kontonummer);
     return redirect(pathBySteg(nesteSteg, orgnr, gjennomforingId), {
@@ -131,8 +125,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function OpprettKravUtbetaling() {
   const data = useActionData<ActionData>();
-  const { innsendingsinformasjon, sessionBelop, sessionValuta, sessionKid } =
-    useLoaderData<LoaderData>();
+  const { utbetalingsinformasjon, sessionBelop, sessionKid } = useLoaderData<LoaderData>();
   const orgnr = useOrgnrFromUrl();
   const gjennomforingId = useGjennomforingIdFromUrl();
   const revalidator = useRevalidator();
@@ -164,11 +157,10 @@ export default function OpprettKravUtbetaling() {
             name="belop"
             id="belop"
           />
-          <input name="valuta" value={sessionValuta} hidden />
           <VStack gap="4">
             <KontonummerInput
               error={errorAt("/kontonummer", data?.errors)}
-              kontonummer={innsendingsinformasjon.kontonummer}
+              kontonummer={utbetalingsinformasjon.kontonummer}
               onClick={() => revalidator.revalidate()}
             />
             <TextField
@@ -196,7 +188,7 @@ export default function OpprettKravUtbetaling() {
             </ErrorSummary>
           )}
           <OpprettKravVeiviserButtons
-            navigering={innsendingsinformasjon.navigering}
+            navigering={utbetalingsinformasjon.navigering}
             orgnr={orgnr}
             gjennomforingId={gjennomforingId}
             submitNeste

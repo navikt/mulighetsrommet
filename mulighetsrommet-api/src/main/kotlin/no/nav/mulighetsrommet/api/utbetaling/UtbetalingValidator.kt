@@ -166,7 +166,7 @@ object UtbetalingValidator {
         val vedlegg: List<Vedlegg>,
     )
 
-    fun minAntallVedleggVedOpprettKrav(prismodellType: PrismodellType?): Int = when (prismodellType) {
+    fun minAntallVedleggVedOpprettKrav(prismodellType: PrismodellType): Int = when (prismodellType) {
         PrismodellType.ANNEN_AVTALT_PRIS -> 0
 
         PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
@@ -174,7 +174,6 @@ object UtbetalingValidator {
         PrismodellType.AVTALT_PRIS_PER_UKESVERK,
         PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
         PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-        null,
         ->
             1
     }
@@ -215,6 +214,8 @@ object UtbetalingValidator {
         okonomiConfig: OkonomiConfig,
         kontonummer: Kontonummer,
     ): Either<List<FieldError>, ValidertUtbetalingKrav> = validation {
+        requireNotNull(gjennomforing.prismodell)
+
         val start = try {
             LocalDate.parse(request.periodeStart)
         } catch (_: DateTimeParseException) {
@@ -253,10 +254,10 @@ object UtbetalingValidator {
             )
         }
 
-        validate(request.pris.belop > 0) {
-            FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::pris)
+        validate(request.belop > 0) {
+            FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::belop)
         }
-        validate(request.vedlegg.size >= minAntallVedleggVedOpprettKrav(gjennomforing.prismodell?.type)) {
+        validate(request.vedlegg.size >= minAntallVedleggVedOpprettKrav(gjennomforing.prismodell.type)) {
             FieldError.of("Du må legge ved vedlegg", OpprettKravUtbetalingRequest::vedlegg)
         }
         requireValid(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {
@@ -269,7 +270,7 @@ object UtbetalingValidator {
         ValidertUtbetalingKrav(
             periodeStart = LocalDate.parse(request.periodeStart),
             periodeSlutt = LocalDate.parse(request.periodeSlutt),
-            pris = request.pris,
+            pris = request.belop.withValuta(gjennomforing.prismodell.valuta),
             kontonummer = kontonummer,
             kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             vedlegg = request.vedlegg,

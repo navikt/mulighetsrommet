@@ -19,7 +19,7 @@ import {
   useActionData,
   useLoaderData,
 } from "react-router";
-import { ArrangorflateService, FieldError, OpprettKravOppsummering, Valuta } from "api-client";
+import { ArrangorflateService, FieldError, OpprettKravOppsummering } from "api-client";
 import { destroySession, getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
@@ -65,7 +65,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   let periodeSlutt: string | undefined;
   let periodeInklusiv: boolean | undefined;
   let belop: number | undefined;
-  let valuta: Valuta | undefined;
   let kontonummer: string | undefined;
   let kidNummer: string | undefined;
 
@@ -75,11 +74,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     periodeSlutt = session.get("periodeSlutt");
     periodeInklusiv = session.get("periodeInklusiv") == "true" || false;
     belop = Number(session.get("belop"));
-    valuta = session.get("valuta") as Valuta;
     kontonummer = session.get("kontonummer");
     kidNummer = session.get("kid");
   }
-  if (!tilsagnId || !periodeStart || !periodeSlutt || !belop || !valuta || !kontonummer) {
+  if (!tilsagnId || !periodeStart || !periodeSlutt || !belop || !kontonummer) {
     throw new Error("Formdata mangler");
   }
   const { data: oppsummering, error } = await ArrangorflateService.getOpprettKravOppsummering({
@@ -90,7 +88,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
       periodeSlutt,
       periodeInklusiv: periodeInklusiv ?? null,
       kidNummer: kidNummer ?? null,
-      pris: { belop, valuta },
+      belop,
     },
   });
   if (error) {
@@ -178,7 +176,6 @@ export const action: ActionFunction = async ({ request, params }) => {
   });
   const bekreftelse = formData.get("bekreftelse");
   const belop = Number(formData.get("belop"));
-  const valuta = formData.get("valuta") as Valuta;
   const periodeStart = formData.get("periodeStart");
   const periodeSlutt = formData.get("periodeSlutt");
   const kidNummer = formData.get("kidNummer");
@@ -208,7 +205,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const { error, data } = await ArrangorflateService.postOpprettKrav({
     path: { orgnr: orgnr!, gjennomforingId: gjennomforingId },
     body: {
-      pris: { belop, valuta },
+      belop,
       tilsagnId: tilsagnId!,
       periodeStart: periodeStart!.toString(),
       periodeSlutt: periodeSlutt!.toString(),
@@ -362,18 +359,7 @@ export default function OpprettKrav() {
             readOnly
             hidden
           />
-          <input
-            name="belop"
-            defaultValue={oppsummering.innsendingsData.pris.belop}
-            readOnly
-            hidden
-          />
-          <input
-            name="valuta"
-            defaultValue={oppsummering.innsendingsData.pris.valuta}
-            readOnly
-            hidden
-          />
+          <input name="belop" defaultValue={oppsummering.innsendingsData.belop} readOnly hidden />
           <VStack gap="6">
             {filesLoading && <Alert variant="info">Laster vedlegg...</Alert>}
             {filesLoadError && (
