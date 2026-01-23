@@ -22,12 +22,12 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
   }
 }
 
-export function formaterNOK(tall: number) {
-  return `${formaterTall(tall)}\u{00A0}NOK`;
-}
-
 export function formaterTall(tall: number) {
   return Intl.NumberFormat("no-nb", { maximumFractionDigits: 5 }).format(tall);
+}
+
+export function formaterValutaBelop({ belop, valuta }: { belop: number; valuta: string }): string {
+  return formaterValuta(belop, valuta);
 }
 
 export function formaterValuta(tall: number, valuta: string): string {

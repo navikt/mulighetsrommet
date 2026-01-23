@@ -1,5 +1,5 @@
 import { UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { InformationSquareFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Modal } from "@navikt/ds-react";
 
@@ -26,8 +26,8 @@ export default function AttesterDelutbetalingModal({
     >
       <Modal.Body>
         <BodyShort>
-          Du er i ferd med å attestere utbetalingsbeløp {formaterNOK(linje.belop)} for kostnadssted{" "}
-          {linje.tilsagn.kostnadssted.navn}. Er du sikker?
+          Du er i ferd med å attestere utbetalingsbeløp {formaterValutaBelop(linje.pris)} for
+          kostnadssted {linje.tilsagn.kostnadssted.navn}. Er du sikker?
         </BodyShort>
       </Modal.Body>
       <Modal.Footer>

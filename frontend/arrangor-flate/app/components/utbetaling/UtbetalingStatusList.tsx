@@ -1,4 +1,4 @@
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { Accordion, BodyShort, Heading, Link, VStack } from "@navikt/ds-react";
 import {
   ArrangforflateUtbetalingLinje,
@@ -24,7 +24,10 @@ const seesPaaSomUtbetalt = (status: ArrangorflateUtbetalingStatus) =>
 
 export default function UtbetalingStatusList({ utbetaling }: Props) {
   const erUtbetalt = seesPaaSomUtbetalt(utbetaling.status);
-
+  const godkjentBelop = {
+    valuta: utbetaling.valuta,
+    belop: utbetaling.linjer.reduce((acc, cur) => cur.pris.belop + acc, 0),
+  };
   return (
     <VStack gap="4">
       <Definisjonsliste
@@ -44,8 +47,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
           </Heading>
           <UtbetalingTilsagndetaljer linjer={utbetaling.linjer} />
           <BodyShort>
-            Godkjent beløp til utbetaling:{" "}
-            <b>{formaterNOK(utbetaling.linjer.reduce((acc, cur) => cur.belop + acc, 0))}</b>
+            Godkjent beløp til utbetaling: <b>{formaterValutaBelop(godkjentBelop)}</b>
           </BodyShort>
         </>
       ) : null}
@@ -76,7 +78,7 @@ function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangforflateUtbetalin
                       </Link>
                     ),
                   },
-                  { key: "Beløp til utbetaling", value: formaterNOK(linje.belop) },
+                  { key: "Beløp til utbetaling", value: formaterValutaBelop(linje.pris) },
                   {
                     key: "Status",
                     value: <DelUtbetalingStatusTag status={linje.status} size={"small"} />,

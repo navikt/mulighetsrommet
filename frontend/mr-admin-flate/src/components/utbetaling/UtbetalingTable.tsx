@@ -5,7 +5,7 @@ import {
   UtbetalingStatusDto,
   UtbetalingStatusDtoType,
 } from "@tiltaksadministrasjon/api-client";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { HelpText, HStack, Table, VStack } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useMemo } from "react";
@@ -105,7 +105,7 @@ export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
                 )}
               </Table.DataCell>
               <Table.DataCell align="right">
-                {belopUtbetalt ? formaterNOK(belopUtbetalt) : ""}
+                {belopUtbetalt ? formaterValutaBelop(belopUtbetalt) : ""}
               </Table.DataCell>
               <Table.DataCell align="right">
                 <UtbetalingStatusTag status={status} />

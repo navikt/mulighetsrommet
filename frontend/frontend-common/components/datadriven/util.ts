@@ -1,14 +1,12 @@
 import { DataElement, DataElementTextFormat } from "./types";
 import { ReactNode } from "react";
 import { formaterDato } from "../../utils/date";
-import { compare, formaterNOK, formaterTall } from "../../utils/utils";
+import { compare, formaterTall } from "../../utils/utils";
 
 export function formatText(value: string, format: DataElementTextFormat | null): ReactNode {
   switch (format) {
     case DataElementTextFormat.DATE:
       return formaterDato(value);
-    case DataElementTextFormat.NOK:
-      return formaterNOK(Number(value));
     case DataElementTextFormat.NUMBER:
       return formaterTall(Number(value));
     case null:

@@ -101,12 +101,12 @@ export function OpprettUtbetalingForm({ gjennomforing, betalingsinformasjon }: P
               <VStack align={"start"}>
                 <TextField
                   size="small"
-                  label="Beløp (NOK)"
+                  label={"Beløp (" + gjennomforing.prismodell?.valuta + ")"}
                   type="number"
-                  {...register("belop", {
+                  {...register("pris.belop", {
                     valueAsNumber: true,
                   })}
-                  error={errors.belop?.message}
+                  error={errors.pris?.belop?.message}
                 />
               </VStack>
               <HStack>

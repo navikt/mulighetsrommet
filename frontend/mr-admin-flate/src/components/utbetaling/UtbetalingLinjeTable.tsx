@@ -1,5 +1,5 @@
 import { UtbetalingDto, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { Box, CopyButton, HStack, Table } from "@navikt/ds-react";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import React from "react";
@@ -11,12 +11,12 @@ export interface Props {
 }
 
 export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
-  const utbetalesTotal = linjer.reduce((acc, d) => acc + d.belop, 0);
+  const utbetalesTotal = linjer.reduce((acc, d) => acc + d.pris.belop, 0);
   const totalGjenstaendeBelop = linjer.reduce(
     (acc, l) => acc + l.tilsagn.belopGjenstaende.belop,
     0,
   );
-  const differanse = utbetaling.belop - utbetalesTotal;
+  const differanse = utbetaling.pris.belop - utbetalesTotal;
 
   return (
     <Box className="overflow-x-scroll">
@@ -55,19 +55,21 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
           {linjer.map((linje, i) => renderRow(linje, i))}
           <Table.Row shadeOnHover={false}>
             <Table.DataCell colSpan={5} className="font-bold">
-              {`${utbetalingTekster.beregning.belop.label}: ${formaterNOK(utbetaling.belop)}`}
+              {`${utbetalingTekster.beregning.belop.label}: ${formaterValutaBelop(utbetaling.pris)}`}
             </Table.DataCell>
             <Table.DataCell className="font-bold" colSpan={2}>
-              {formaterNOK(totalGjenstaendeBelop)}
+              {formaterValuta(totalGjenstaendeBelop, utbetaling.pris.valuta)}
             </Table.DataCell>
-            <Table.DataCell className="font-bold">{formaterNOK(utbetalesTotal)}</Table.DataCell>
+            <Table.DataCell className="font-bold">
+              {formaterValuta(utbetalesTotal, utbetaling.pris.valuta)}
+            </Table.DataCell>
             <Table.DataCell className="font-bold" align="right" colSpan={2}>
               <HStack align="center">
                 <CopyButton
                   variant="action"
                   copyText={differanse.toString()}
                   size="small"
-                  text={`Differanse ${formaterNOK(differanse)}`}
+                  text={`Differanse ${formaterValuta(differanse, utbetaling.pris.valuta)}`}
                 />
               </HStack>
             </Table.DataCell>

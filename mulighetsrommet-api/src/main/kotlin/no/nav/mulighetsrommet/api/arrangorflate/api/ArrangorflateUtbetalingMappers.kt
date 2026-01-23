@@ -82,6 +82,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
             navn = utbetaling.arrangor.navn,
         ),
         periode = utbetaling.periode,
+        valuta = utbetaling.valuta,
         beregning = beregning,
         betalingsinformasjon = when (utbetaling.betalingsinformasjon) {
             is Betalingsinformasjon.BBan -> utbetaling.betalingsinformasjon

@@ -9,6 +9,7 @@ interface DrifttilskuddSessionData {
   periodeInklusiv?: string;
   vedlegg?: File[];
   belop?: string;
+  valuta?: string;
   kontonummer?: string;
   kid?: string;
   bekreftelse?: boolean;

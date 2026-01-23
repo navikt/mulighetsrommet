@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -36,6 +37,7 @@ data class ArrangorflateUtbetalingDto(
     val gjennomforing: ArrangorflateGjennomforingInfo,
     val arrangor: ArrangorflateArrangor,
     val betalingsinformasjon: Betalingsinformasjon.BBan?,
+    val valuta: Valuta,
     val beregning: ArrangorflateBeregning,
     val periode: Periode,
     val type: UtbetalingTypeDto,

@@ -95,7 +95,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
               belopInput={
                 <TextField
                   readOnly
-                  value={linje.belop}
+                  value={linje.pris.belop}
                   size="small"
                   style={{ maxWidth: "6rem" }}
                   hideLabel

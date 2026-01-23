@@ -1,8 +1,12 @@
 import { DataDrivenTable, getDataElement } from "@mr/frontend-common";
 import { MetadataHStack } from "@mr/frontend-common/components/datadriven/Metadata";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { CopyButton, Heading, VStack } from "@navikt/ds-react";
-import { DataDetails, UtbetalingBeregningDto } from "@tiltaksadministrasjon/api-client";
+import {
+  DataDetails,
+  UtbetalingBeregningDto,
+  ValutaBelop,
+} from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   beregning: UtbetalingBeregningDto;
@@ -12,16 +16,16 @@ export default function UtbetalingBeregning({ beregning }: Props) {
   return (
     <VStack gap="2">
       {beregning.deltakerTableData && <DataDrivenTable data={beregning.deltakerTableData} />}
-      <SatsPerioderOgBelop satsDetaljer={beregning.satsDetaljer} belop={beregning.belop} />
+      <SatsPerioderOgBelop satsDetaljer={beregning.satsDetaljer} pris={beregning.pris} />
     </VStack>
   );
 }
 
 function SatsPerioderOgBelop({
-  belop,
+  pris,
   satsDetaljer,
 }: {
-  belop: number;
+  pris: ValutaBelop;
   satsDetaljer: DataDetails[];
 }) {
   return (
@@ -48,8 +52,8 @@ function SatsPerioderOgBelop({
           <CopyButton
             variant="action"
             size="small"
-            copyText={belop.toString()}
-            text={formaterNOK(belop)}
+            copyText={pris.belop.toString()}
+            text={formaterValutaBelop(pris)}
           />
         }
       />

@@ -14,7 +14,7 @@ export const mockTilsagn: TilsagnDto[] = [
     id: "10e393b0-1b7c-4c68-9a42-b541b2f114b8",
     type: TilsagnType.TILSAGN,
     periode: { start: "2025-06-01", slutt: "2025-12-01" },
-    belop: { belop: 12207450, valuta: Valuta.NOK },
+    pris: { belop: 12207450, valuta: Valuta.NOK },
     belopBrukt: { belop: 0, valuta: Valuta.NOK },
     belopGjenstaende: { belop: 12207450, valuta: Valuta.NOK },
     kostnadssted: { navn: "Nav tiltak Oslo", enhetsnummer: "0387" },
@@ -32,7 +32,7 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     type: TilsagnType.TILSAGN,
-    belop: { belop: 14_000, valuta: Valuta.NOK },
+    pris: { belop: 14_000, valuta: Valuta.NOK },
     belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
     belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
     id: "fd1825aa-1951-4de2-9b72-12d22f121e92",
@@ -58,7 +58,7 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     type: TilsagnType.TILSAGN,
-    belop: { belop: 14_000, valuta: Valuta.NOK },
+    pris: { belop: 14_000, valuta: Valuta.NOK },
     belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
     belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
     id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
@@ -80,7 +80,7 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     type: TilsagnType.TILSAGN,
-    belop: { belop: 14_000, valuta: Valuta.NOK },
+    pris: { belop: 14_000, valuta: Valuta.NOK },
     belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
     belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
     id: "c7cd1ac0-34cd-46f2-b441-6d8c7318ee05",
@@ -106,7 +106,7 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     type: TilsagnType.TILSAGN,
-    belop: { belop: 14_000, valuta: Valuta.NOK },
+    pris: { belop: 14_000, valuta: Valuta.NOK },
     belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
     belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
     id: "5950e714-95bc-4d4c-b52e-c75fde749056",
@@ -209,9 +209,9 @@ export const mockTilsagnTable: DataDrivenTableDto = {
           format: DataElementTextFormat.NUMBER,
         },
         belop: {
-          type: "DATA_ELEMENT_TEXT",
+          type: "DATA_ELEMENT_MONEY_AMOUNT",
           value: "12207450",
-          format: DataElementTextFormat.NOK,
+          currency: "NOK",
         },
         status: {
           type: "DATA_ELEMENT_STATUS",
@@ -261,9 +261,9 @@ export const mockTilsagnTable: DataDrivenTableDto = {
           format: DataElementTextFormat.NUMBER,
         },
         belop: {
-          type: "DATA_ELEMENT_TEXT",
+          type: "DATA_ELEMENT_MONEY_AMOUNT",
           value: "1353",
-          format: DataElementTextFormat.NOK,
+          currency: "NOK",
         },
         status: {
           type: "DATA_ELEMENT_STATUS",
