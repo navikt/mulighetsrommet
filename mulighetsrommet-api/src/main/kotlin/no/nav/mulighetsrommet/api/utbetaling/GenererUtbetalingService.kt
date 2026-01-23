@@ -146,7 +146,7 @@ class GenererUtbetalingService(
                     return@mapNotNull null
                 }
 
-                oppdatertUtbetaling
+                oppdatertUtbetaling.takeIf { it.isNotEqualTo(utbetaling) }
             }
             .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
@@ -370,3 +370,18 @@ class GenererUtbetalingService(
         return queries.utbetaling.getOrError(id)
     }
 }
+
+private fun UtbetalingDbo.isNotEqualTo(utbetaling: Utbetaling): Boolean = this != UtbetalingDbo(
+    id = utbetaling.id,
+    innsender = utbetaling.innsender,
+    gjennomforingId = utbetaling.gjennomforing.id,
+    status = utbetaling.status,
+    valuta = utbetaling.valuta,
+    beregning = utbetaling.beregning,
+    betalingsinformasjon = utbetaling.betalingsinformasjon,
+    periode = utbetaling.periode,
+    beskrivelse = utbetaling.beskrivelse,
+    tilskuddstype = utbetaling.tilskuddstype,
+    godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+    utbetalesTidligstTidspunkt = utbetaling.utbetalesTidligstTidspunkt,
+)
