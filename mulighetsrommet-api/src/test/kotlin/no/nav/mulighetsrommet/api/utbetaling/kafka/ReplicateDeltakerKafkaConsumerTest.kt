@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
@@ -143,29 +144,6 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
                 queries.deltaker.getAll().shouldBeEmpty()
             }
         }
-
-        test("tolker deltakelsesprosent som 100 hvis den mangler for tiltak med forhåndsgodkjent prismodell") {
-            val deltakerConsumer = createConsumer()
-            deltakerConsumer.consume(
-                amtDeltaker1.id,
-                Json.encodeToJsonElement(amtDeltaker1.copy(gjennomforingId = AFT1.id)),
-            )
-            deltakerConsumer.consume(
-                amtDeltaker2.id,
-                Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = Oppfolging1.id)),
-            )
-
-            database.run {
-                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
-                    deltaker1Dbo
-                        .copy(gjennomforingId = AFT1.id, deltakelsesprosent = 100.0)
-                        .toDeltaker(),
-                    deltaker2Dbo
-                        .copy(gjennomforingId = Oppfolging1.id, deltakelsesprosent = null)
-                        .toDeltaker(),
-                )
-            }
-        }
     }
 
     context("deltakelser for utbetaling") {
@@ -241,6 +219,83 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
             )
             coVerify(exactly = 1) {
                 oppdaterUtbetaling.schedule(AFT1.id, any(), any())
+            }
+        }
+
+        test("trigger ikke beregning av utbetaling når prismodell er ANNEN_AVTALT_PRIS") {
+            val oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk()
+
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+                gjennomforinger = listOf(Oppfolging1.copy(prismodellId = PrismodellFixtures.AnnenAvtaltPris.id)),
+            ).initialize(database.db)
+
+            val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
+
+            val amtDeltaker = createAmtDeltakerV1Dto(
+                gjennomforingId = Oppfolging1.id,
+                status = DeltakerStatusType.DELTAR,
+                personIdent = "12345678910",
+            )
+            deltakerConsumer.consume(
+                amtDeltaker.id,
+                Json.encodeToJsonElement(amtDeltaker),
+            )
+
+            coVerify(exactly = 0) {
+                oppdaterUtbetaling.schedule(any(), any(), any())
+            }
+        }
+
+        test("trigger ikke beregning av utbetaling når prismodell er AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER") {
+            val oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk()
+
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+                gjennomforinger = listOf(Oppfolging1.copy(prismodellId = PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id)),
+            ).initialize(database.db)
+
+            val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
+
+            val amtDeltaker = createAmtDeltakerV1Dto(
+                gjennomforingId = Oppfolging1.id,
+                status = DeltakerStatusType.DELTAR,
+                personIdent = "12345678910",
+            )
+            deltakerConsumer.consume(
+                amtDeltaker.id,
+                Json.encodeToJsonElement(amtDeltaker),
+            )
+
+            coVerify(exactly = 0) {
+                oppdaterUtbetaling.schedule(any(), any(), any())
+            }
+        }
+
+        test("trigger beregning av utbetaling når prismodell er AVTALT_PRIS_PER_MANEDSVERK") {
+            val oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk()
+            coEvery { oppdaterUtbetaling.schedule(any(), any(), any()) } returns Unit
+
+            MulighetsrommetTestDomain(
+                prismodeller = listOf(PrismodellFixtures.AvtaltPrisPerManedsverk),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+                gjennomforinger = listOf(Oppfolging1.copy(prismodellId = PrismodellFixtures.AvtaltPrisPerManedsverk.id)),
+            ).initialize(database.db)
+
+            val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
+
+            val amtDeltaker = createAmtDeltakerV1Dto(
+                gjennomforingId = Oppfolging1.id,
+                status = DeltakerStatusType.DELTAR,
+                personIdent = "12345678910",
+            )
+            deltakerConsumer.consume(
+                amtDeltaker.id,
+                Json.encodeToJsonElement(amtDeltaker),
+            )
+
+            coVerify(exactly = 1) {
+                oppdaterUtbetaling.schedule(Oppfolging1.id, any(), any())
             }
         }
     }
