@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
