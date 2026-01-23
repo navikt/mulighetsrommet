@@ -177,7 +177,7 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = periodeStart.toString(),
                 periodeSlutt = today.toString(),
                 kidNummer = null,
-                pris = 1234.withValuta(Valuta.NOK),
+                belop = 1234,
                 vedlegg = vedlegg,
             )
             val result = UtbetalingValidator.validateOpprettKravArrangorflate(
@@ -208,7 +208,7 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = periodeStart.toString(),
                 periodeSlutt = periodeSlutt.toString(),
                 kidNummer = null,
-                pris = 1234.withValuta(Valuta.NOK),
+                belop = 1234,
                 vedlegg = vedlegg,
             )
             val result =
@@ -236,7 +236,7 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = periodeStart.toString(),
                 periodeSlutt = periodeSlutt.toString(),
                 kidNummer = null,
-                pris = 1234.withValuta(Valuta.NOK),
+                belop = 1234,
                 vedlegg = vedlegg,
             )
             val result =
@@ -264,7 +264,7 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = periodeStart.toString(),
                 periodeSlutt = periodeSlutt.toString(),
                 kidNummer = null,
-                pris = 1234.withValuta(Valuta.NOK),
+                belop = 1234,
                 vedlegg = vedlegg,
             )
             val result =
@@ -292,7 +292,7 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = periodeStart.toString(),
                 periodeSlutt = periodeSlutt.plusDays(1).toString(),
                 kidNummer = null,
-                pris = 1234.withValuta(Valuta.NOK),
+                belop = 1234,
                 vedlegg = vedlegg,
             )
             val result =
