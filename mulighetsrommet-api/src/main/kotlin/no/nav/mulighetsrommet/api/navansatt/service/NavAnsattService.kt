@@ -109,8 +109,8 @@ class NavAnsattService(
             .flatMap { rolesDirectory[it] ?: emptyList() }
             .groupBy { it.rolle }
             .map { (rolle, mappings) ->
-                val generell = mappings.any { it.enheter.isEmpty() }
-                val enheter = mappings.flatMap { it.enheter }.flatMapTo(mutableSetOf()) { withKostnadssteder(it) }
+                val generell = mappings.any { it.kostnadssteder.isEmpty() }
+                val enheter = mappings.flatMap { it.kostnadssteder }.flatMapTo(mutableSetOf()) { withKostnadssteder(it) }
                 NavAnsattRolle(rolle, generell, enheter)
             }.toSet()
     }
@@ -121,7 +121,7 @@ class NavAnsattService(
     }
 
     private fun withKostnadssteder(enhetsnummer: NavEnhetNummer): Set<NavEnhetNummer> = db.session {
-        queries.enhet.getKostnadssted(regioner = listOf(enhetsnummer))
+        queries.kostnadssted.getAll(regioner = listOf(enhetsnummer))
             .mapTo(mutableSetOf()) { it.enhetsnummer }
             .plus(enhetsnummer)
     }

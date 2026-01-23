@@ -41,8 +41,3 @@ spec:
     - team: teamoppfolging
       application: teamoppfolging-kafka-manager
       access: read
-
-    # Tiltakspenger
-    - team: tpts
-      application: tiltakspenger-tiltak
-      access: read

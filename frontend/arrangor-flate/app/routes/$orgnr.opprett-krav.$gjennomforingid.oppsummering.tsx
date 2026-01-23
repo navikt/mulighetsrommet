@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Checkbox,
   CheckboxGroup,
@@ -32,7 +33,7 @@ import { getOrgnrGjennomforingIdFrom, pathTo } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
 import { VedleggUtlisting } from "~/components/VedleggUtlisting";
 import { useFileStorage } from "~/hooks/useFileStorage";
-import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid";
 
 export const meta: MetaFunction = ({ matches }) => {
   return [
@@ -104,26 +105,77 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 };
 
 const uploadHandler: FileUploadHandler = async (fileUpload: FileUpload) => {
+  // eslint-disable-next-line no-console
+  console.log("Processing file upload:", {
+    fieldName: fileUpload.fieldName,
+    fileName: fileUpload.name,
+    fileType: fileUpload.type,
+    isPdf: fileUpload.name.endsWith(".pdf"),
+  });
+
   if (fileUpload.fieldName === "vedlegg" && fileUpload.name.endsWith(".pdf")) {
-    const bytes = await fileUpload.bytes();
-    return new File([bytes], fileUpload.name, { type: fileUpload.type });
+    try {
+      const bytes = await fileUpload.bytes();
+      // eslint-disable-next-line no-console
+      console.log("Successfully read file bytes:", {
+        fileName: fileUpload.name,
+        size: bytes.length,
+      });
+      return new File([bytes], fileUpload.name, { type: fileUpload.type });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to read file bytes:", fileUpload.name, error);
+      throw error;
+    }
+  } else {
+    // eslint-disable-next-line no-console
+    console.warn("File skipped (not a PDF or wrong field):", fileUpload.name);
   }
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
 
-  const formData = await parseFormData(
-    request,
-    {
-      maxFileSize: 10000000, // 10MB
-    },
-    uploadHandler,
-  );
+  let formData;
+  try {
+    formData = await parseFormData(
+      request,
+      {
+        maxFileSize: 10000000, // 10MB
+      },
+      uploadHandler,
+    );
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to parse form data:", error);
+    return {
+      errors: [
+        {
+          pointer: "/vedlegg",
+          detail: `Kunne ikke lese vedlegg fra skjemaet. Feilmelding: ${error instanceof Error ? error.message : String(error)}`,
+        },
+      ],
+    };
+  }
+
+  // Log what was successfully parsed
+  // eslint-disable-next-line no-console
+  console.log("Form data parsed successfully:", {
+    allKeys: Array.from(formData.keys()),
+    vedleggCount: formData.getAll("vedlegg").length,
+  });
+
   const session = await getSession(request.headers.get("Cookie"));
   const errors: FieldError[] = [];
 
   const vedlegg = formData.getAll("vedlegg") as File[];
+
+  // eslint-disable-next-line no-console
+  console.log("Vedlegg extracted from form:", {
+    count: vedlegg.length,
+    fileNames: vedlegg.map((f) => f.name),
+    fileSizes: vedlegg.map((f) => f.size),
+  });
   const bekreftelse = formData.get("bekreftelse");
   const belop = Number(formData.get("belop"));
   const valuta = formData.get("valuta") as Valuta;
@@ -188,6 +240,8 @@ export default function OpprettKrav() {
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<FileObject[]>([]);
+  const [filesLoading, setFilesLoading] = useState(true);
+  const [filesLoadError, setFilesLoadError] = useState<string | null>(null);
   const hasError = data?.errors && data.errors.length > 0;
 
   useEffect(() => {
@@ -196,13 +250,79 @@ export default function OpprettKrav() {
     }
   }, [data, hasError]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    // Ved last
-    if (!files.length) {
-      addFilesTo(fileInputRef, setFiles, storage);
+    // Ved last - only run once on mount
+    let isMounted = true;
+
+    const loadFiles = async () => {
+      if (files.length > 0) {
+        // Files already loaded
+        setFilesLoading(false);
+        return;
+      }
+
+      try {
+        setFilesLoading(true);
+        setFilesLoadError(null);
+        await addFilesTo(fileInputRef, setFiles, storage);
+
+        if (isMounted) {
+          setFilesLoading(false);
+          // eslint-disable-next-line no-console
+          console.log("Files loaded from IndexedDB successfully");
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to load files from IndexedDB:", error);
+        if (isMounted) {
+          setFilesLoadError(
+            error instanceof Error ? error.message : "Ukjent feil ved lasting av vedlegg",
+          );
+          setFilesLoading(false);
+        }
+      }
+    };
+
+    loadFiles();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [files.length, storage]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (filesLoading) {
+      e.preventDefault();
+      // eslint-disable-next-line no-console
+      console.warn("Form submission prevented: Files are still loading");
+      return;
     }
-  });
+
+    if (filesLoadError) {
+      e.preventDefault();
+      // eslint-disable-next-line no-console
+      console.warn("Form submission prevented: File load error");
+      return;
+    }
+
+    if (!fileInputRef.current?.files || fileInputRef.current.files.length === 0) {
+      e.preventDefault();
+      // eslint-disable-next-line no-console
+      console.error("Form submission prevented: No files attached to file input", {
+        filesInState: files.length,
+        filesInInput: fileInputRef.current?.files?.length || 0,
+      });
+      return;
+    }
+
+    // eslint-disable-next-line no-console
+    console.log("Form submitting with files:", {
+      filesInState: files.length,
+      filesInInput: fileInputRef.current.files.length,
+      fileNames: Array.from(fileInputRef.current.files).map((f) => f.name),
+      fileSizes: Array.from(fileInputRef.current.files).map((f) => f.size),
+    });
+  };
 
   return (
     <>
@@ -217,7 +337,7 @@ export default function OpprettKrav() {
         <Separator />
         <LabeledDataElementList title="Utbetaling" entries={oppsummering.utbetalingInformasjon} />
         <Separator />
-        <Form method="post" encType="multipart/form-data">
+        <Form method="post" encType="multipart/form-data" onSubmit={handleSubmit}>
           <input
             name="periodeStart"
             defaultValue={oppsummering.innsendingsData.periode.start}
@@ -255,6 +375,14 @@ export default function OpprettKrav() {
             hidden
           />
           <VStack gap="6">
+            {filesLoading && <Alert variant="info">Laster vedlegg...</Alert>}
+            {filesLoadError && (
+              <Alert variant="error">
+                Kunne ikke laste vedlegg fra lokal lagring: {filesLoadError}
+                <br />
+                Vennligst gå tilbake og last opp vedleggene på nytt.
+              </Alert>
+            )}
             <VedleggUtlisting files={files} fileInputRef={fileInputRef} />
             <Separator />
             <CheckboxGroup error={errorAt("/bekreftelse", data?.errors)} legend={"Bekreftelse"}>
@@ -290,7 +418,13 @@ export default function OpprettKrav() {
               >
                 Tilbake
               </Button>
-              <Button type="submit">Bekreft og send inn</Button>
+              <Button
+                type="submit"
+                loading={filesLoading}
+                disabled={filesLoading || !!filesLoadError}
+              >
+                Bekreft og send inn
+              </Button>
             </HStack>
           </VStack>
         </Form>

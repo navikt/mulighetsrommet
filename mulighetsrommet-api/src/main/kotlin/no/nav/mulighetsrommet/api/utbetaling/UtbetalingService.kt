@@ -388,6 +388,17 @@ class UtbetalingService(
         queries.utbetaling.delete(id).right()
     }
 
+    fun avbrytUtbetaling(utbetalingId: UUID, begrunnelse: String): Unit = db.transaction {
+        queries.utbetaling.avbrytUtbetaling(
+            utbetalingId,
+            begrunnelse,
+            Instant.now(),
+        )
+        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
+        logEndring("Utbetaling avbrutt", utbetaling, Arrangor)
+        return
+    }
+
     fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {
         val delutbetaling = queries.delutbetaling.getOrError(fakturanummer)
         publishOpprettFaktura(delutbetaling)
@@ -748,7 +759,6 @@ class UtbetalingService(
                     bic = utbetaling.betalingsinformasjon.bic,
                     bankLandKode = utbetaling.betalingsinformasjon.bankLandKode,
                     bankNavn = utbetaling.betalingsinformasjon.bankNavn,
-                    valutaKode = "NOK", // TODO: Putt inn her når vi har valuta i prismodell,
                 )
 
             null -> {
@@ -770,6 +780,7 @@ class UtbetalingService(
             besluttetTidspunkt = opprettelse.besluttetTidspunkt,
             gjorOppBestilling = delutbetaling.gjorOppTilsagn,
             beskrivelse = beskrivelse,
+            valuta = tilsagn.beregning.output.pris.valuta,
         )
 
         queries.delutbetaling.setSendtTilOkonomi(

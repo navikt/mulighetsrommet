@@ -49,7 +49,7 @@ import {
 } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathTo, pathBySteg } from "~/utils/navigation";
 import { LabeledDataElementList } from "~/components/common/Definisjonsliste";
-import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid";
 import { nesteStegFieldName } from "~/components/OpprettKravVeiviserButtons";
 import { filtrerOverlappendePerioder } from "~/utils/periode-filtrering";
 

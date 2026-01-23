@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettBestilling
@@ -23,6 +24,7 @@ data class Bestilling(
     val opprettelse: Totrinnskontroll,
     val annullering: Totrinnskontroll?,
     val linjer: List<Linje>,
+    val valuta: Valuta,
 ) {
     data class Totrinnskontroll(
         val behandletAv: OkonomiPart,
@@ -67,6 +69,7 @@ data class Bestilling(
                         belop = belop,
                     )
                 },
+                valuta = bestilling.valuta,
             )
         }
     }

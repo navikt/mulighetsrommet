@@ -2426,40 +2426,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/nav-enheter:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getEnheter
-      parameters:
-      - name: statuser
-        in: query
-        description: Filtrer på status
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavEnhetStatus"
-      responses:
-        "200":
-          description: Alle Nav-enheter
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavEnhetDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/nav-enheter/regioner:
     get:
       tags:
@@ -6073,15 +6039,12 @@ components:
           type: string
         enhetsnummer:
           type: string
-        overordnetEnhet:
-          type: string
         erStandardvalg:
           type: boolean
       required:
       - enhetsnummer
       - erStandardvalg
       - navn
-      - overordnetEnhet
     UtbetalingBeregningDto:
       type: object
       properties:
@@ -6401,13 +6364,6 @@ components:
       - navn
       - sortOrder
       - type
-    NavEnhetStatus:
-      type: string
-      enum:
-      - UNDER_ETABLERING
-      - AKTIV
-      - UNDER_AVVIKLING
-      - NEDLAGT
     Rolle:
       type: string
       enum:

@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
@@ -59,6 +60,7 @@ data class OpprettBestilling(
     val besluttetAv: OkonomiPart,
     @Serializable(with = LocalDateTimeSerializer::class)
     val besluttetTidspunkt: LocalDateTime,
+    val valuta: Valuta,
 ) {
     @Serializable
     sealed class Arrangor {
@@ -123,6 +125,7 @@ data class OpprettFaktura(
     val besluttetTidspunkt: LocalDateTime,
     val gjorOppBestilling: Boolean,
     val beskrivelse: String?,
+    val valuta: Valuta,
 ) {
     @Serializable
     sealed class Betalingsinformasjon {
@@ -138,7 +141,6 @@ data class OpprettFaktura(
             val iban: String,
             val bankNavn: String,
             val bankLandKode: String,
-            val valutaKode: String,
         ) : Betalingsinformasjon()
     }
 }

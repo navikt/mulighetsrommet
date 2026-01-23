@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import arrow.core.Either
 import arrow.core.getOrElse
-import arrow.core.raise.context.bind
 import arrow.core.raise.either
 import arrow.core.right
 import io.github.smiley4.ktoropenapi.get
@@ -32,7 +31,6 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.altinn.AltinnError
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
-import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.AVBRUTT
@@ -72,7 +70,6 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
-import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
@@ -119,7 +116,6 @@ suspend fun RoutingContext.requireTilgangHosArrangor(
     ?: throw StatusException(HttpStatusCode.Forbidden, "Ikke tilgang til bedrift")
 
 fun Route.arrangorflateRoutes(config: AppConfig) {
-    val db: ApiDatabase by inject()
     val utbetalingService: UtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
     val arrangorFlateService: ArrangorflateService by inject()
@@ -336,7 +332,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     call.respondWithProblemDetail(ValidationError(errors = it))
                 }
                 .onRight {
-                    db.session { queries.utbetaling.avbrytUtbetaling(utbetaling.id, it, Instant.now()) }
+                    utbetalingService.avbrytUtbetaling(utbetaling.id, it)
                     call.respond(HttpStatusCode.OK)
                 }
         }
