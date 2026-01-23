@@ -56,5 +56,12 @@ object PrismodellFixtures {
         ),
     )
 
+    val AvtaltPrisPerManedsverk = createPrismodellDbo(
+        type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+        satser = listOf(
+            AvtaltSats(LocalDate.of(2023, 1, 1), 1234.withValuta(Valuta.NOK)),
+        ),
+    )
+
     val AnnenAvtaltPris = createPrismodellDbo()
 }
