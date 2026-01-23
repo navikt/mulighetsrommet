@@ -3863,15 +3863,25 @@ components:
       type: object
       properties:
         region:
-          $ref: "#/components/schemas/NavEnhetDto"
+          $ref: "#/components/schemas/Kontorstruktur.Region"
         kontorer:
           type: array
           items:
-            $ref: "#/components/schemas/NavEnhetDto"
+            $ref: "#/components/schemas/Kontorstruktur.Kontor"
       required:
       - kontorer
       - region
-    NavEnhetDto:
+    Kontorstruktur.Region:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
+    Kontorstruktur.Kontor:
       type: object
       properties:
         navn:
@@ -3879,49 +3889,16 @@ components:
         enhetsnummer:
           type: string
         type:
-          $ref: "#/components/schemas/NavEnhetType"
-        overordnetEnhet:
-          type:
-          - "null"
-          - string
+          $ref: "#/components/schemas/Kontorstruktur.Kontortype"
       required:
       - enhetsnummer
       - navn
-      - overordnetEnhet
       - type
-    NavEnhetType:
+    Kontorstruktur.Kontortype:
       type: string
       enum:
-      - KO
-      - FYLKE
-      - TILTAK
-      - AAREG
-      - ALS
-      - ARK
-      - DIR
-      - DOKSENTER
-      - EKSTERN
-      - FORVALTNING
-      - FPY
-      - HELFO
-      - HMS
-      - INNKREV
-      - INTRO
-      - IT
-      - KLAGE
-      - KONTAKT
-      - KONTROLL
       - LOKAL
-      - OKONOMI
-      - OTENESTE
-      - OPPFUTLAND
-      - OTENESE
-      - RIKSREV
-      - ROBOT
-      - ROL
-      - TILLIT
-      - UTLAND
-      - YTA
+      - SPESIALENHET
     AmoKategorisering:
       anyOf:
       - $ref: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
