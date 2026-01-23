@@ -5,8 +5,11 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -25,34 +28,25 @@ class ReplicateDeltakerKafkaConsumer(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
-        val deltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerV1Dto?>(message)
+        val amtDeltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerV1Dto?>(message)
 
-        val gjennomforingId: UUID?
-        when {
-            deltaker == null -> {
-                gjennomforingId = queries.deltaker.get(key)?.gjennomforingId
-                logger.info("Mottok tombstone for deltaker deltakerId=$key, sletter deltakeren")
-                queries.deltaker.delete(key)
-            }
-
-            deltaker.status.type == DeltakerStatusType.FEILREGISTRERT -> {
-                gjennomforingId = deltaker.gjennomforingId
-                logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
-                queries.deltaker.delete(key)
-            }
-
-            else -> {
-                // TODO: implementere duplikatkontroll av deltaker for å unngå unødvendige updates
-                //   - og hvis duplikat, ikke sett gjør beregning/sett gjennomforingId her
-                gjennomforingId = deltaker.gjennomforingId
-
-                logger.info("Lagrer deltaker deltakerId=$key")
-                queries.deltaker.upsert(toDeltakerDbo(deltaker))
-            }
+        if (amtDeltaker == null) {
+            logger.info("Mottok tombstone for deltaker deltakerId=$key, sletter deltakeren")
+            queries.deltaker.get(key)?.let { skedulerOppdaterUtbetalinger(it.gjennomforingId) }
+            queries.deltaker.delete(key)
+            return
         }
 
-        if (gjennomforingId != null) {
-            skedulerOppdaterUtbetalinger(gjennomforingId)
+        if (amtDeltaker.status.type == DeltakerStatusType.FEILREGISTRERT) {
+            logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
+            queries.deltaker.delete(key)
+            return skedulerOppdaterUtbetalinger(amtDeltaker.gjennomforingId)
+        }
+
+        if (harEndringer(amtDeltaker)) {
+            logger.info("Lagrer deltaker deltakerId=$key")
+            queries.deltaker.upsert(amtDeltaker.toDeltakerDbo())
+            return skedulerOppdaterUtbetalinger(amtDeltaker.gjennomforingId)
         }
     }
 
@@ -63,26 +57,39 @@ class ReplicateDeltakerKafkaConsumer(
             tidspunkt = offsetITilfelleDetErMangeEndringerForGjennomforing,
         )
     }
+
+    private fun QueryContext.harEndringer(amtDeltaker: AmtDeltakerV1Dto): Boolean {
+        return queries.deltaker.get(amtDeltaker.id) != Deltaker(
+            id = amtDeltaker.id,
+            gjennomforingId = amtDeltaker.gjennomforingId,
+            startDato = amtDeltaker.startDato,
+            sluttDato = amtDeltaker.sluttDato,
+            registrertDato = amtDeltaker.registrertDato.toLocalDate(),
+            endretTidspunkt = amtDeltaker.endretDato,
+            status = amtDeltaker.status,
+            deltakelsesmengder = amtDeltaker.deltakelsesmengder.orEmpty().map {
+                Deltakelsesmengde(it.gyldigFra, it.deltakelsesprosent.toDouble())
+            },
+        )
+    }
 }
 
-private fun toDeltakerDbo(deltaker: AmtDeltakerV1Dto): DeltakerDbo {
+fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {
     return DeltakerDbo(
-        id = deltaker.id,
-        gjennomforingId = deltaker.gjennomforingId,
-        startDato = deltaker.startDato,
-        sluttDato = deltaker.sluttDato,
-        registrertDato = deltaker.registrertDato.toLocalDate(),
-        endretTidspunkt = deltaker.endretDato,
-        deltakelsesprosent = deltaker.prosentStilling?.toDouble(),
-        status = deltaker.status,
-        deltakelsesmengder = deltaker.deltakelsesmengder
-            ?.map {
-                DeltakerDbo.Deltakelsesmengde(
-                    gyldigFra = it.gyldigFra,
-                    opprettetTidspunkt = it.opprettet,
-                    deltakelsesprosent = it.deltakelsesprosent.toDouble(),
-                )
-            }
-            ?: listOf(),
+        id = id,
+        gjennomforingId = gjennomforingId,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        registrertDato = registrertDato.toLocalDate(),
+        endretTidspunkt = endretDato,
+        deltakelsesprosent = prosentStilling?.toDouble(),
+        status = status,
+        deltakelsesmengder = deltakelsesmengder.orEmpty().map {
+            DeltakerDbo.Deltakelsesmengde(
+                gyldigFra = it.gyldigFra,
+                opprettetTidspunkt = it.opprettet,
+                deltakelsesprosent = it.deltakelsesprosent.toDouble(),
+            )
+        },
     )
 }

@@ -3,6 +3,9 @@ package no.nav.mulighetsrommet.api.utbetaling.kafka
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -19,12 +22,11 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -41,31 +43,20 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
     }
 
     context("konsumering av deltakere") {
+        val opprettetDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+
         val amtDeltaker1 = createAmtDeltakerV1Dto(
             gjennomforingId = Oppfolging1.id,
             status = DeltakerStatusType.VENTER_PA_OPPSTART,
             personIdent = "12345678910",
+            opprettetDato = opprettetDato,
         )
 
         val amtDeltaker2 = createAmtDeltakerV1Dto(
             gjennomforingId = Oppfolging1.id,
             status = DeltakerStatusType.VENTER_PA_OPPSTART,
             personIdent = "12345678911",
-        )
-
-        val deltaker1Dbo = DeltakerDbo(
-            id = amtDeltaker1.id,
-            gjennomforingId = amtDeltaker1.gjennomforingId,
-            startDato = null,
-            sluttDato = null,
-            registrertDato = amtDeltaker1.registrertDato.toLocalDate(),
-            endretTidspunkt = amtDeltaker1.endretDato,
-            deltakelsesprosent = amtDeltaker1.prosentStilling?.toDouble(),
-            deltakelsesmengder = emptyList(),
-            status = amtDeltaker1.status,
-        )
-        val deltaker2Dbo = deltaker1Dbo.copy(
-            id = amtDeltaker2.id,
+            opprettetDato = opprettetDato,
         )
 
         val domain = MulighetsrommetTestDomain(
@@ -90,8 +81,34 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
 
             database.run {
                 queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
-                    deltaker1Dbo.toDeltaker(),
-                    deltaker2Dbo.toDeltaker(),
+                    Deltaker(
+                        id = amtDeltaker1.id,
+                        gjennomforingId = Oppfolging1.id,
+                        startDato = null,
+                        sluttDato = null,
+                        status = DeltakerStatus(
+                            type = DeltakerStatusType.VENTER_PA_OPPSTART,
+                            aarsak = null,
+                            opprettetDato = opprettetDato,
+                        ),
+                        registrertDato = LocalDate.of(2023, 3, 1),
+                        endretTidspunkt = opprettetDato,
+                        deltakelsesmengder = listOf(),
+                    ),
+                    Deltaker(
+                        id = amtDeltaker2.id,
+                        gjennomforingId = Oppfolging1.id,
+                        startDato = null,
+                        sluttDato = null,
+                        status = DeltakerStatus(
+                            type = DeltakerStatusType.VENTER_PA_OPPSTART,
+                            aarsak = null,
+                            opprettetDato = opprettetDato,
+                        ),
+                        registrertDato = LocalDate.of(2023, 3, 1),
+                        endretTidspunkt = opprettetDato,
+                        deltakelsesmengder = listOf(),
+                    ),
                 )
             }
         }
@@ -105,15 +122,16 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
             )
 
             database.run {
-                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
-                    deltaker1Dbo.copy(gjennomforingId = EnkelAmo1.id).toDeltaker(),
-                )
+                queries.deltaker.getAll().shouldHaveSize(1).first().should {
+                    it.id shouldBe amtDeltaker1.id
+                    it.gjennomforingId shouldBe EnkelAmo1.id
+                }
             }
         }
 
-        test("delete deltakere for tombstone messages") {
+        test("sletter deltakere ved tombstone-meldinger") {
             database.run {
-                queries.deltaker.upsert(deltaker1Dbo)
+                queries.deltaker.upsert(amtDeltaker1.toDeltakerDbo())
             }
 
             val deltakerConsumer = createConsumer()
@@ -126,7 +144,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
 
         test("sletter deltakere med status FEILREGISTRERT") {
             database.run {
-                queries.deltaker.upsert(deltaker1Dbo)
+                queries.deltaker.upsert(amtDeltaker1.toDeltakerDbo())
             }
 
             val deltakerConsumer = createConsumer()
@@ -184,18 +202,15 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
         test("trigger at utbetaling for aktuell gjennomføring beregnes på nytt ved feilregistrert deltaker") {
             val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
 
-            deltakerConsumer.consume(
-                amtDeltaker1.id,
-                Json.encodeToJsonElement(
-                    amtDeltaker1.copy(
-                        status = DeltakerStatus(
-                            type = DeltakerStatusType.FEILREGISTRERT,
-                            aarsak = null,
-                            opprettetDato = LocalDateTime.now(),
-                        ),
-                    ),
+            val feilregistrert = amtDeltaker1.copy(
+                status = DeltakerStatus(
+                    type = DeltakerStatusType.FEILREGISTRERT,
+                    aarsak = null,
+                    opprettetDato = LocalDateTime.now(),
                 ),
             )
+            deltakerConsumer.consume(feilregistrert.id, Json.encodeToJsonElement(feilregistrert))
+
             coVerify(exactly = 1) {
                 oppdaterUtbetaling.skedulerOppdaterUtbetalingerForGjennomforing(AFT1.id, any())
             }
@@ -204,20 +219,31 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
         test("trigger at utbetaling for aktuell gjennomføring beregnes på nytt ved ikke aktuell deltaker") {
             val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
 
-            deltakerConsumer.consume(
-                amtDeltaker1.id,
-                Json.encodeToJsonElement(
-                    amtDeltaker1.copy(
-                        status = DeltakerStatus(
-                            type = DeltakerStatusType.IKKE_AKTUELL,
-                            aarsak = null,
-                            opprettetDato = LocalDateTime.now(),
-                        ),
-                    ),
+            val ikkeAktuell = amtDeltaker1.copy(
+                status = DeltakerStatus(
+                    type = DeltakerStatusType.IKKE_AKTUELL,
+                    aarsak = null,
+                    opprettetDato = LocalDateTime.now(),
                 ),
             )
+            deltakerConsumer.consume(ikkeAktuell.id, Json.encodeToJsonElement(ikkeAktuell))
+
             coVerify(exactly = 1) {
                 oppdaterUtbetaling.skedulerOppdaterUtbetalingerForGjennomforing(AFT1.id, any())
+            }
+        }
+
+        test("trigger ikke ny beregning når deltaker er uendret") {
+            database.run {
+                queries.deltaker.upsert(amtDeltaker1.toDeltakerDbo())
+            }
+
+            val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
+
+            deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
+
+            coVerify(exactly = 0) {
+                oppdaterUtbetaling.skedulerOppdaterUtbetalingerForGjennomforing(any(), any())
             }
         }
     }
@@ -244,15 +270,4 @@ private fun createAmtDeltakerV1Dto(
     dagerPerUke = 2.5f,
     prosentStilling = null,
     deltakelsesmengder = listOf(),
-)
-
-fun DeltakerDbo.toDeltaker() = Deltaker(
-    id = id,
-    gjennomforingId = gjennomforingId,
-    startDato = startDato,
-    sluttDato = startDato,
-    registrertDato = registrertDato,
-    endretTidspunkt = endretTidspunkt,
-    status = status,
-    deltakelsesmengder = deltakelsesmengder.map { Deltakelsesmengde(it.gyldigFra, it.deltakelsesprosent) },
 )
