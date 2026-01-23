@@ -2,12 +2,32 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 @Serializable
 data class Kontorstruktur(
-    val region: NavEnhetDto,
-    val kontorer: List<NavEnhetDto>,
+    val region: Region,
+    val kontorer: List<Kontor>,
 ) {
+    @Serializable
+    data class Region(
+        val navn: String,
+        val enhetsnummer: NavEnhetNummer,
+    )
+
+    @Serializable
+    data class Kontor(
+        val navn: String,
+        val enhetsnummer: NavEnhetNummer,
+        val type: Kontortype,
+    )
+
+    enum class Kontortype {
+        LOKAL,
+        SPESIALENHET,
+    }
+
     companion object {
         fun fromNavEnheter(navEnheter: List<NavEnhetDto>): List<Kontorstruktur> {
             val enheterByEnhetsnummer = navEnheter.associateBy { it.enhetsnummer }
@@ -15,11 +35,23 @@ data class Kontorstruktur(
 
             val regioner = enheterByOverordnetEnhet[null].orEmpty()
                 .filter { it.enhetsnummer !in enheterByOverordnetEnhet.keys }
-                .map { Kontorstruktur(region = it, kontorer = emptyList()) }
+                .map { Kontorstruktur(region = Region(it.navn, it.enhetsnummer), kontorer = emptyList()) }
 
             val kontorstrukturer = enheterByOverordnetEnhet.entries.mapNotNull { (overordnetEnhet, enheter) ->
                 overordnetEnhet?.let {
-                    Kontorstruktur(region = enheterByEnhetsnummer.getValue(it), kontorer = enheter)
+                    Kontorstruktur(
+                        region = enheterByEnhetsnummer.getValue(it).let { region ->
+                            Region(region.navn, region.enhetsnummer)
+                        },
+                        kontorer = enheter.map { enhet ->
+                            val type = if (enhet.type == NavEnhetType.LOKAL) {
+                                Kontortype.LOKAL
+                            } else {
+                                Kontortype.SPESIALENHET
+                            }
+                            Kontor(enhet.navn, enhet.enhetsnummer, type)
+                        },
+                    )
                 }
             }
 

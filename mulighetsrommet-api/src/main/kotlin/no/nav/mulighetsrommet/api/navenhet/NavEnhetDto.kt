@@ -47,10 +47,10 @@ data class NavEnhetDto(
 )
 
 fun NavEnhetDbo.toDto() = NavEnhetDto(
-    navn = this.navn,
-    enhetsnummer = this.enhetsnummer,
-    type = NavEnhetType.valueOf(this.type.name),
-    overordnetEnhet = this.overordnetEnhet,
+    navn = navn,
+    enhetsnummer = enhetsnummer,
+    type = NavEnhetType.valueOf(type.name),
+    overordnetEnhet = overordnetEnhet,
 )
 
 @Serializable

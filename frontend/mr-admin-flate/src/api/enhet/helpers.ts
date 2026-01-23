@@ -1,12 +1,12 @@
 import {
   ArenaNavEnhet,
-  NavEnhetDto,
-  NavEnhetType,
+  KontorstrukturKontor,
+  KontorstrukturKontortype,
   NavRegionDto,
   NavRegionUnderenhetDto,
 } from "@tiltaksadministrasjon/api-client";
 
-export function getDisplayName(enhet: NavEnhetDto | ArenaNavEnhet) {
+export function getDisplayName(enhet: ArenaNavEnhet) {
   const { enhetsnummer, navn } = enhet;
   return navn ? `${enhetsnummer} ${navn}` : enhetsnummer;
 }
@@ -49,18 +49,18 @@ function getUnderenheterAsSelectOptionsBy(
 }
 
 export interface TypeSplittedNavEnheter {
-  navKontorEnheter: NavEnhetDto[];
-  navAndreEnheter: NavEnhetDto[];
+  navKontorEnheter: KontorstrukturKontor[];
+  navAndreEnheter: KontorstrukturKontor[];
 }
 
-export function splitNavEnheterByType(navEnheter: NavEnhetDto[]): TypeSplittedNavEnheter {
+export function splitNavEnheterByType(navEnheter: KontorstrukturKontor[]): TypeSplittedNavEnheter {
   const initial = { navKontorEnheter: [], navAndreEnheter: [] };
   if (!navEnheter.length) {
     return initial;
   }
   return navEnheter.reduce<TypeSplittedNavEnheter>(
     ({ navKontorEnheter, navAndreEnheter }, currNavEnhet) => {
-      if (currNavEnhet.type === NavEnhetType.LOKAL) {
+      if (currNavEnhet.type === KontorstrukturKontortype.LOKAL) {
         return { navKontorEnheter: [currNavEnhet, ...navKontorEnheter], navAndreEnheter };
       } else {
         return {

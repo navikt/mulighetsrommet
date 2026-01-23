@@ -10,6 +10,8 @@ import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
+import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
+import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.fromValidatedAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
@@ -38,6 +40,7 @@ import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Avtaletyper
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -87,7 +90,6 @@ object AvtaleValidator {
         request: OpprettAvtaleRequest,
         ctx: Ctx,
     ): Either<List<FieldError>, AvtaleDbo> = validation {
-        validateNavEnheter(ctx.navEnheter)
         val amoKategorisering = validateDetaljer(request.detaljer, ctx).bind()
         val detaljerDbo = request.detaljer.toDbo(
             ctx.tiltakstype.id,
@@ -106,7 +108,16 @@ object AvtaleValidator {
         }
 
         val personvernDbo = request.personvern.toDbo()
-        val veilederinformasjonDbo = request.veilederinformasjon.toDbo()
+
+        val navEnheter = validateNavEnheter(ctx.navEnheter)
+        val veilederinformasjonDbo = VeilederinformasjonDbo(
+            redaksjoneltInnhold = RedaksjoneltInnholdDbo(
+                beskrivelse = request.veilederinformasjon.beskrivelse,
+                faneinnhold = request.veilederinformasjon.faneinnhold,
+            ),
+            navEnheter = navEnheter,
+        )
+
         fromValidatedAvtaleRequest(request.id, detaljerDbo, prismodeller, personvernDbo, veilederinformasjonDbo)
     }
 
@@ -315,7 +326,7 @@ object AvtaleValidator {
         )
     }
 
-    fun validateNavEnheter(navEnheter: List<NavEnhetDto>): Either<List<FieldError>, Unit> = validation {
+    fun validateNavEnheter(navEnheter: List<NavEnhetDto>): Either<List<FieldError>, Set<NavEnhetNummer>> = validation {
         validateNavEnheter(navEnheter)
     }
 
@@ -503,13 +514,18 @@ object AvtaleValidator {
         }
     }
 
-    private fun FieldValidator.validateNavEnheter(navEnheter: List<NavEnhetDto>) {
-        validate(navEnheter.any { it.type == NavEnhetType.FYLKE }) {
-            FieldError.ofPointer("/navRegioner", "Du må velge minst én Nav-region")
+    private fun FieldValidator.validateNavEnheter(navEnheter: List<NavEnhetDto>): Set<NavEnhetNummer> {
+        val regioner = navEnheter.filter { it.type == NavEnhetType.FYLKE }.map { it.enhetsnummer }.toSet()
+        validate(regioner.isNotEmpty()) {
+            FieldError.ofPointer("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region")
         }
-        validate(navEnheter.any { it.type != NavEnhetType.FYLKE }) {
-            FieldError.ofPointer("/navKontorer", "Du må velge minst én Nav-enhet")
+
+        val kontorer = navEnheter.filter { it.overordnetEnhet in regioner }.map { it.enhetsnummer }.toSet()
+        validate(kontorer.isNotEmpty()) {
+            FieldError.ofPointer("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet")
         }
+
+        return regioner + kontorer
     }
 
     private fun FieldValidator.validateAmoKategorisering(

@@ -48,8 +48,8 @@ export function GjennomforingInformasjonForVeiledereForm({
     .map((kontor) => ({ value: kontor.enhetsnummer, label: kontor.navn }));
 
   const navEnheter = avtale.kontorstruktur
-    .flatMap((struk) => struk.kontorer)
-    .filter((kontor) => navRegioner.includes(kontor.overordnetEnhet ?? ""));
+    .filter(({ region }) => navRegioner.includes(region.enhetsnummer))
+    .flatMap(({ kontorer }) => kontorer);
 
   const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter);
   const kontorEnheterOptions = navKontorEnheter.map((enhet) => ({
