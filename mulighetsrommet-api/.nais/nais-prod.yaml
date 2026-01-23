@@ -180,11 +180,6 @@ spec:
           permissions:
             roles:
               - tiltaksgjennomforing-read
-        - application: tiltakspenger-tiltak
-          namespace: tpts
-          permissions:
-            roles:
-              - tiltaksgjennomforing-read
     outbound:
       rules:
         - application: pdfgen
