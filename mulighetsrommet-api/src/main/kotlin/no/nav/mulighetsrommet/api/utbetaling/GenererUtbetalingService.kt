@@ -2,6 +2,9 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
+import com.github.kagkarlsson.scheduler.task.helper.Tasks
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
@@ -26,11 +29,15 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tasks.executeSuspend
+import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
 import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -47,6 +54,18 @@ class GenererUtbetalingService(
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
         val tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator,
     )
+
+    @Serializable
+    data class OppdaterUtbetalingerTaskData(
+        @Serializable(with = UUIDSerializer::class)
+        val gjennomforingId: UUID,
+    )
+
+    val task: OneTimeTask<OppdaterUtbetalingerTaskData> = Tasks
+        .oneTime(javaClass.simpleName, OppdaterUtbetalingerTaskData::class.java)
+        .executeSuspend { instance, _ ->
+            oppdaterUtbetalingerForGjennomforing(instance.data.gjennomforingId)
+        }
 
     private data class UtbetalingContext(
         val gjennomforingId: UUID,
@@ -90,30 +109,30 @@ class GenererUtbetalingService(
             }
     }
 
-    suspend fun oppdaterUtbetalingerForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(id)
+    fun skedulerOppdaterUtbetalingerForGjennomforing(gjennomforingId: UUID, tidspunkt: Instant): Unit = db.transaction {
+        if (hentGenererteUtbetalinger(gjennomforingId).isEmpty()) {
+            return
+        }
+
+        val instance = task.instance(gjennomforingId.toString(), OppdaterUtbetalingerTaskData(gjennomforingId))
+        val client = transactionalSchedulerClient(task, session.connection.underlying)
+        client.scheduleIfNotExists(instance, tidspunkt)
+    }
+
+    // TODO: vurdere om denne burde utbedres til å fange opp at deltakere har blitt påmeldt med bakovervirkende
+    //  kraft _etter_ månedens kjøring av "generer utbetalinger".
+    //  I disse tilfellene vil ikke systemet fange opp at utbetlinagen _burde_ blitt generert etterskuddsvis.
+    //  Hvis vi skal støtte dette så må vi sørge for det ikke genereres opp utbetalinger lengre tilbake i tid enn f.eks.
+    //  gyldige tilsagnsperioder.
+    suspend fun oppdaterUtbetalingerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> = db.transaction {
+        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(gjennomforingId)
 
         if (gjennomforing.prismodell == null) {
-            log.info("Prismodell er ikke satt for gjennomføring med id=$id")
+            log.info("Prismodell er ikke satt for gjennomføring med id=$gjennomforingId")
             return listOf()
         }
 
-        queries.utbetaling
-            .getByGjennomforing(id)
-            .filter {
-                when (it.status) {
-                    UtbetalingStatusType.INNSENDT,
-                    UtbetalingStatusType.TIL_ATTESTERING,
-                    UtbetalingStatusType.RETURNERT,
-                    UtbetalingStatusType.FERDIG_BEHANDLET,
-                    UtbetalingStatusType.DELVIS_UTBETALT,
-                    UtbetalingStatusType.UTBETALT,
-                    UtbetalingStatusType.AVBRUTT,
-                    -> false
-
-                    UtbetalingStatusType.GENERERT -> true
-                }
-            }
+        hentGenererteUtbetalinger(gjennomforing.id)
             .mapNotNull { utbetaling ->
                 val oppdatertUtbetaling = genererUtbetaling(
                     utbetalingId = utbetaling.id,
@@ -165,6 +184,23 @@ class GenererUtbetalingService(
         val dto = getOrError(nyUtbetaling.id)
         logEndring("Utbetaling opprettet", dto, Tiltaksadministrasjon)
         dto
+    }
+
+    private fun QueryContext.hentGenererteUtbetalinger(gjennomforingId: UUID): List<Utbetaling> {
+        return queries.utbetaling.getByGjennomforing(gjennomforingId).filter {
+            when (it.status) {
+                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.TIL_ATTESTERING,
+                UtbetalingStatusType.RETURNERT,
+                UtbetalingStatusType.FERDIG_BEHANDLET,
+                UtbetalingStatusType.DELVIS_UTBETALT,
+                UtbetalingStatusType.UTBETALT,
+                UtbetalingStatusType.AVBRUTT,
+                -> false
+
+                UtbetalingStatusType.GENERERT -> true
+            }
+        }
     }
 
     private suspend fun QueryContext.genererUtbetaling(

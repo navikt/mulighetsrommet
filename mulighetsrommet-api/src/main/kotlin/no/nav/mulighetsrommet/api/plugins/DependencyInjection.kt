@@ -77,7 +77,6 @@ import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGe
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
-import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
@@ -172,17 +171,14 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
             config.clients.amtDeltakerV1 to ReplicateDeltakerKafkaConsumer(
                 db = get(),
-                oppdaterUtbetaling = get(),
+                genererUtbetalingService = get(),
             ),
             config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
             config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get()),
             config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
             config.clients.replicateBestillingStatus to ReplicateBestillingStatusConsumer(get()),
             config.clients.replicateFakturaStatus to ReplicateFakturaStatusConsumer(get()),
-            config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(
-                get(),
-                get(),
-            ),
+            config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(get()),
         )
         KafkaConsumerOrchestrator(
             db = get(),
@@ -479,7 +475,6 @@ private fun tasks(config: AppConfig) = module {
     single { GenerateUtbetaling(tasks.generateUtbetaling, get()) }
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
-    single { OppdaterUtbetalingBeregning(get()) }
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(
@@ -509,7 +504,7 @@ private fun tasks(config: AppConfig) = module {
         val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
         val generateUtbetaling: GenerateUtbetaling by inject()
         val journalforUtbetaling: JournalforUtbetaling by inject()
-        val oppdaterUtbetalingBeregning: OppdaterUtbetalingBeregning by inject()
+        val oppdaterUtbetalingBeregning: GenererUtbetalingService by inject()
         val beregnUtbetaling: BeregnUtbetaling by inject()
 
         val db: Database by inject()

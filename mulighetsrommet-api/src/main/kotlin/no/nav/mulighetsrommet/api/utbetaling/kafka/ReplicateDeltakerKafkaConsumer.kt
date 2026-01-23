@@ -5,10 +5,8 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -19,7 +17,7 @@ import java.util.UUID
 
 class ReplicateDeltakerKafkaConsumer(
     private val db: ApiDatabase,
-    private val oppdaterUtbetaling: OppdaterUtbetalingBeregning,
+    private val genererUtbetalingService: GenererUtbetalingService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
     JsonElementDeserializer(),
@@ -44,6 +42,8 @@ class ReplicateDeltakerKafkaConsumer(
             }
 
             else -> {
+                // TODO: implementere duplikatkontroll av deltaker for å unngå unødvendige updates
+                //   - og hvis duplikat, ikke sett gjør beregning/sett gjennomforingId her
                 gjennomforingId = deltaker.gjennomforingId
 
                 logger.info("Lagrer deltaker deltakerId=$key")
@@ -51,24 +51,17 @@ class ReplicateDeltakerKafkaConsumer(
             }
         }
 
-        gjennomforingId?.let { queries.gjennomforing.getPrismodell(it) }?.run {
-            when (type) {
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-                -> scheduleOppdateringAvUtbetaling(gjennomforingId)
-
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-                PrismodellType.ANNEN_AVTALT_PRIS,
-                -> Unit
-            }
+        if (gjennomforingId != null) {
+            skedulerOppdaterUtbetalinger(gjennomforingId)
         }
     }
 
-    private fun QueryContext.scheduleOppdateringAvUtbetaling(gjennomforingId: UUID) {
+    private fun skedulerOppdaterUtbetalinger(gjennomforingId: UUID) {
         val offsetITilfelleDetErMangeEndringerForGjennomforing = Instant.now().plusSeconds(30)
-        oppdaterUtbetaling.schedule(gjennomforingId, offsetITilfelleDetErMangeEndringerForGjennomforing, session)
+        genererUtbetalingService.skedulerOppdaterUtbetalingerForGjennomforing(
+            gjennomforingId = gjennomforingId,
+            tidspunkt = offsetITilfelleDetErMangeEndringerForGjennomforing,
+        )
     }
 }
 

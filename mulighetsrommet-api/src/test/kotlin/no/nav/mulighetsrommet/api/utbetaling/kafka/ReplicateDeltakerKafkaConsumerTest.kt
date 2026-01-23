@@ -18,11 +18,10 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
+import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
-import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -33,11 +32,11 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createConsumer(
-        oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk(relaxed = true),
+        oppdaterUtbetaling: GenererUtbetalingService = mockk(relaxed = true),
     ): ReplicateDeltakerKafkaConsumer {
         return ReplicateDeltakerKafkaConsumer(
             db = database.db,
-            oppdaterUtbetaling = oppdaterUtbetaling,
+            genererUtbetalingService = oppdaterUtbetaling,
         )
     }
 
@@ -147,7 +146,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
     }
 
     context("deltakelser for utbetaling") {
-        val oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk()
+        val oppdaterUtbetaling: GenererUtbetalingService = mockk()
 
         val amtDeltaker1 = createAmtDeltakerV1Dto(
             gjennomforingId = AFT1.id,
@@ -163,7 +162,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
         beforeEach {
             domain.initialize(database.db)
 
-            coEvery { oppdaterUtbetaling.schedule(any(), any(), any()) } returns Unit
+            coEvery { oppdaterUtbetaling.skedulerOppdaterUtbetalingerForGjennomforing(any(), any()) } returns Unit
         }
 
         afterEach {
@@ -178,7 +177,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
 
             coVerify(exactly = 1) {
-                oppdaterUtbetaling.schedule(AFT1.id, any(), any())
+                oppdaterUtbetaling.skedulerOppdaterUtbetalingerForGjennomforing(AFT1.id, any())
             }
         }
 
@@ -198,7 +197,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
                 ),
             )
             coVerify(exactly = 1) {
-                oppdaterUtbetaling.schedule(AFT1.id, any(), any())
+                oppdaterUtbetaling.skedulerOppdaterUtbetalingerForGjennomforing(AFT1.id, any())
             }
         }
 
@@ -218,84 +217,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
                 ),
             )
             coVerify(exactly = 1) {
-                oppdaterUtbetaling.schedule(AFT1.id, any(), any())
-            }
-        }
-
-        test("trigger ikke beregning av utbetaling når prismodell er ANNEN_AVTALT_PRIS") {
-            val oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk()
-
-            MulighetsrommetTestDomain(
-                avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(Oppfolging1.copy(prismodellId = PrismodellFixtures.AnnenAvtaltPris.id)),
-            ).initialize(database.db)
-
-            val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
-
-            val amtDeltaker = createAmtDeltakerV1Dto(
-                gjennomforingId = Oppfolging1.id,
-                status = DeltakerStatusType.DELTAR,
-                personIdent = "12345678910",
-            )
-            deltakerConsumer.consume(
-                amtDeltaker.id,
-                Json.encodeToJsonElement(amtDeltaker),
-            )
-
-            coVerify(exactly = 0) {
-                oppdaterUtbetaling.schedule(any(), any(), any())
-            }
-        }
-
-        test("trigger ikke beregning av utbetaling når prismodell er AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER") {
-            val oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk()
-
-            MulighetsrommetTestDomain(
-                avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(Oppfolging1.copy(prismodellId = PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id)),
-            ).initialize(database.db)
-
-            val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
-
-            val amtDeltaker = createAmtDeltakerV1Dto(
-                gjennomforingId = Oppfolging1.id,
-                status = DeltakerStatusType.DELTAR,
-                personIdent = "12345678910",
-            )
-            deltakerConsumer.consume(
-                amtDeltaker.id,
-                Json.encodeToJsonElement(amtDeltaker),
-            )
-
-            coVerify(exactly = 0) {
-                oppdaterUtbetaling.schedule(any(), any(), any())
-            }
-        }
-
-        test("trigger beregning av utbetaling når prismodell er AVTALT_PRIS_PER_MANEDSVERK") {
-            val oppdaterUtbetaling: OppdaterUtbetalingBeregning = mockk()
-            coEvery { oppdaterUtbetaling.schedule(any(), any(), any()) } returns Unit
-
-            MulighetsrommetTestDomain(
-                prismodeller = listOf(PrismodellFixtures.AvtaltPrisPerManedsverk),
-                avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(Oppfolging1.copy(prismodellId = PrismodellFixtures.AvtaltPrisPerManedsverk.id)),
-            ).initialize(database.db)
-
-            val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
-
-            val amtDeltaker = createAmtDeltakerV1Dto(
-                gjennomforingId = Oppfolging1.id,
-                status = DeltakerStatusType.DELTAR,
-                personIdent = "12345678910",
-            )
-            deltakerConsumer.consume(
-                amtDeltaker.id,
-                Json.encodeToJsonElement(amtDeltaker),
-            )
-
-            coVerify(exactly = 1) {
-                oppdaterUtbetaling.schedule(Oppfolging1.id, any(), any())
+                oppdaterUtbetaling.skedulerOppdaterUtbetalingerForGjennomforing(AFT1.id, any())
             }
         }
     }
