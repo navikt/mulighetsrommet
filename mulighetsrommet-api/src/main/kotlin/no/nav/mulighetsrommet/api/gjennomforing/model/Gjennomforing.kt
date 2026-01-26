@@ -104,27 +104,6 @@ data class GjennomforingGruppetiltak(
     val stengt: List<StengtPeriode>,
     val prismodell: Prismodell?,
 ) : Gjennomforing() {
-    fun toGjennomforingKompakt(): GjennomforingGruppetiltakKompakt = GjennomforingGruppetiltakKompakt(
-        id = id,
-        navn = navn,
-        lopenummer = lopenummer,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        status = status,
-        publisert = publisert,
-        prismodell = prismodell?.type,
-        kontorstruktur = kontorstruktur,
-        tiltakstype = GjennomforingGruppetiltakKompakt.Tiltakstype(
-            tiltakstype.id,
-            tiltakstype.navn,
-            tiltakstype.tiltakskode,
-        ),
-        arrangor = GjennomforingGruppetiltakKompakt.ArrangorUnderenhet(
-            arrangor.id,
-            arrangor.organisasjonsnummer,
-            arrangor.navn,
-        ),
-    )
 
     @Serializable
     data class Administrator(
