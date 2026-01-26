@@ -21,6 +21,8 @@ import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
+import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
+import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
@@ -34,7 +36,6 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.validation
@@ -74,18 +75,7 @@ class AvtaleService(
                 previous = null,
             ).bind()
         }
-        val avtaleDbo = AvtaleValidator
-            .validateCreateAvtale(
-                request.copy(
-                    veilederinformasjon = request.veilederinformasjon.copy(
-                        navEnheter = sanitizeNavEnheter(
-                            request.veilederinformasjon.navEnheter,
-                        ),
-                    ),
-                ),
-                createAvtaleContext,
-            )
-            .bind()
+        val avtaleDbo = AvtaleValidator.validateCreateAvtale(request, createAvtaleContext).bind()
 
         val createPrismodellerContext = ValidatePrismodellerContext(
             avtaletype = request.detaljer.avtaletype,
@@ -189,13 +179,17 @@ class AvtaleService(
         db.transaction {
             val previous = getOrError(avtaleId)
 
-            val navEnheter = db.session {
-                request.navEnheter.mapNotNull {
-                    queries.enhet.get(it)?.toDto()
-                }
+            val navEnheter = request.navEnheter.mapNotNull {
+                queries.enhet.get(it)?.toDto()
             }
-            AvtaleValidator.validateNavEnheter(navEnheter).bind()
-            val dbo = request.toDbo()
+            val validatedNavEnheter = AvtaleValidator.validateNavEnheter(navEnheter).bind()
+            val dbo = VeilederinformasjonDbo(
+                redaksjoneltInnhold = RedaksjoneltInnholdDbo(
+                    beskrivelse = request.beskrivelse,
+                    faneinnhold = request.faneinnhold,
+                ),
+                navEnheter = validatedNavEnheter,
+            )
 
             queries.avtale.updateVeilederinfo(previous.id, dbo)
 
@@ -460,16 +454,6 @@ class AvtaleService(
             Json.encodeToJsonElement(dto)
         }
         return dto
-    }
-
-    // Filtrer vekk underenheter uten fylke
-    fun sanitizeNavEnheter(
-        navEnheter: List<NavEnhetNummer>,
-    ): List<NavEnhetNummer> = db.session {
-        return NavEnhetHelpers.buildNavRegioner(
-            navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() },
-        )
-            .flatMap { listOf(it.enhetsnummer) + it.enheter.map { it.enhetsnummer } }
     }
 
     private suspend fun syncArrangorerFromBrreg(

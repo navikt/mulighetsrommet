@@ -1,6 +1,6 @@
 import { formaterNavEnheter } from "@/utils/Utils";
 import {
-  NavEnhetDto,
+  KostnadsstedDto,
   UtbetalingKompaktDto,
   UtbetalingStatusDto,
   UtbetalingStatusDtoType,
@@ -25,7 +25,7 @@ interface UtbetalingRow {
   periodeStart: string;
   periodeSlutt: string;
   status: UtbetalingStatusDto;
-  kostnadssteder: NavEnhetDto[];
+  kostnadssteder: KostnadsstedDto[];
 }
 
 export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {

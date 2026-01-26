@@ -3,10 +3,8 @@ package no.nav.mulighetsrommet.api.navenhet
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
-import io.ktor.server.util.getOrFail
 import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -35,30 +33,6 @@ fun Route.navEnhetRoutes() {
             call.respond(navEnhetService.hentRegioner())
         }
 
-        get("kostnadssted", {
-            tags = setOf("NavEnheter")
-            operationId = "getKostnadssted"
-            request {
-                queryParameter<List<NavEnhetNummer>>("regioner") {
-                    description = "Hvilke regioner man henter for"
-                    explode = true
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Alle kostnadssteder basert på filter"
-                    body<List<NavEnhetDto>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val regioner = call.parameters.getAll("regioner")?.map { NavEnhetNummer(it) } ?: emptyList()
-            call.respond(kostnadsstedService.hentKostnadssted(regioner))
-        }
-
         get("kostnadsstedFilter", {
             tags = setOf("NavEnheter")
             operationId = "getKostnadsstedFilter"
@@ -74,36 +48,6 @@ fun Route.navEnhetRoutes() {
             }
         }) {
             call.respond(kostnadsstedService.hentKostnadsstedFilter())
-        }
-
-        get("{enhetsnummer}/overordnet", {
-            tags = setOf("NavEnheter")
-            operationId = "getOverordnetEnhet"
-            request {
-                pathParameter<NavEnhetNummer>("enhetsnummer") {
-                    description = "Enhetsnummer for Nav-enhet"
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Overordnet Nav-enhet for gitt enhetsnummer"
-                    body<NavEnhetDto>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val enhetsnummer = call.parameters.getOrFail("enhetsnummer").let { NavEnhetNummer(it) }
-
-            val overordnetEnhet = navEnhetService.hentOverordnetFylkesenhet(enhetsnummer)
-                ?: return@get call.respondText(
-                    text = "Fant ikke overordnet enhet for enhetsnummer: $enhetsnummer",
-                    status = HttpStatusCode.NotFound,
-                )
-
-            call.respond(overordnetEnhet)
         }
     }
 }
