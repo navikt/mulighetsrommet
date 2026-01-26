@@ -60,7 +60,7 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <script src="/nais.js" />
+        <script type="module">import nais from "/nais.js"; window.nais = nais;</script>
         <Meta />
         <Links />
         {dekorator && parse(dekorator.head)}

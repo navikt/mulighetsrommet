@@ -4,7 +4,6 @@ interface NaisConfig {
   telemetryCollectorURL: string;
   app: {
     name: string;
-    version: string;
   };
 }
 
@@ -17,7 +16,9 @@ declare global {
 export function initializeLogs() {
   const nais = window.nais;
   if (!nais) {
-    console.warn("NAIS config not loaded");
+    return;
+  }
+  if (window.faro) {
     return;
   }
   const hostname = window.location.hostname;
