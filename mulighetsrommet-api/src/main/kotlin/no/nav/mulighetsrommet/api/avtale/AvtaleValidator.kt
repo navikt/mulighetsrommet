@@ -263,14 +263,14 @@ object AvtaleValidator {
 
             val satser = when (prismodell.type) {
                 PrismodellType.ANNEN_AVTALT_PRIS,
-                -> null
+                    -> null
 
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK,
                 PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-                -> validateSatser(context, index, prismodell.satser)
+                    -> validateSatser(context, prismodell.valuta, index, prismodell.satser)
             }
             PrismodellDbo(
                 id = prismodell.id,
@@ -278,7 +278,7 @@ object AvtaleValidator {
                 type = prismodell.type,
                 prisbetingelser = prismodell.prisbetingelser,
                 satser = satser,
-                valuta = Valuta.NOK,
+                valuta = prismodell.valuta,
             )
         }
     }
@@ -380,7 +380,7 @@ object AvtaleValidator {
                 OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN,
                 OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
                 OpsjonsmodellType.ANNET,
-                -> {
+                    -> {
                     validate(request.opsjonsmodell.opsjonMaksVarighet != null) {
                         FieldError.of(
                             "Du må legge inn maks varighet for opsjonen",
@@ -454,11 +454,20 @@ object AvtaleValidator {
 
     private fun FieldValidator.validateSatser(
         context: ValidatePrismodellerContext,
+        prismodellValuta: Valuta,
         prismodellIndex: Int,
         satserRequest: List<AvtaltSatsRequest>,
     ): List<AvtaltSats> {
         requireValid(satserRequest.isNotEmpty()) {
             FieldError.ofPointer("/prismodeller/$prismodellIndex/type", "Minst én pris er påkrevd")
+        }
+
+        val likValuta = satserRequest.all { it.pris?.valuta == prismodellValuta }
+        requireValid(likValuta) {
+            FieldError.ofPointer(
+                "/prismodeller/$prismodellIndex/satser",
+                "Satsene må ha lik valuta",
+            )
         }
 
         val satser = satserRequest.mapIndexed { index, request ->
@@ -545,7 +554,7 @@ object AvtaleValidator {
         Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        ->
+            ->
             null
 
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
@@ -604,7 +613,7 @@ object AvtaleValidator {
         }
 
         Tiltakskode.STUDIESPESIALISERING,
-        -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
+            -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
     }?.toDbo().right()
 
     private fun FieldValidator.validateUtdanningslop(
@@ -626,11 +635,11 @@ object AvtaleValidator {
         Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
         Tiltakskode.STUDIESPESIALISERING,
-        -> Unit
+            -> Unit
 
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        -> {
+            -> {
             validateNotNull(utdanningslop) {
                 FieldError.of(
                     "Du må velge et utdanningsprogram og minst ett lærefag",

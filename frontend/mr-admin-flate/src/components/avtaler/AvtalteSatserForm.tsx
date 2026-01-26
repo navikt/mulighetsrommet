@@ -1,11 +1,11 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { Button, HStack, Select, Spacer, TextField, VStack } from "@navikt/ds-react";
+import { Button, HStack, Spacer, TextField, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
-import { Valuta } from "@tiltaksadministrasjon/api-client";
+import { useEffect } from "react";
 
 export function AvtalteSatserForm({
   avtaleStartDato,
@@ -19,6 +19,7 @@ export function AvtalteSatserForm({
     register,
     setValue,
     getValues,
+    watch,
     formState: { errors },
   } = useFormContext<AvtaleFormValues>();
 
@@ -26,6 +27,13 @@ export function AvtalteSatserForm({
     name: `${field}.satser` as const,
     control,
   });
+
+  const valuta = watch(`${field}.valuta`);
+  useEffect(() => {
+    fields.forEach((satsField, index) => {
+      setValue(`${field}.satser.${index}.pris.valuta` as const, valuta);
+    });
+  }, [valuta]);
 
   // Flere aktive avtaler har start i 2001, 2010 osv, 30 år holder enn så lenge men
   // burde ha en bedre løsning her. F. eks ikke bruk datepicker, men tekstfelt
@@ -46,11 +54,8 @@ export function AvtalteSatserForm({
           className="border-border-subtle border rounded-lg"
         >
           <HStack key={satsField.id} gap="4" align="start">
-            <Select readOnly label="Valuta" size="small">
-              <option value={undefined}>{satsField.pris.valuta}</option>
-            </Select>
             <TextField
-              label={avtaletekster.prismodell.pris.label}
+              label={avtaletekster.prismodell.pris.label + " (" + valuta + ")"}
               size="small"
               type="number"
               error={
@@ -96,7 +101,7 @@ export function AvtalteSatserForm({
           append({
             gjelderFra: "",
             gjelderTil: null,
-            pris: { belop: 0, valuta: Valuta.NOK },
+            pris: { belop: 0, valuta: valuta },
           })
         }
       >

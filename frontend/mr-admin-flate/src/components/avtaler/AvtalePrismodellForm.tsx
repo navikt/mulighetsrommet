@@ -8,38 +8,41 @@ import {
   Textarea,
   InlineMessage,
 } from "@navikt/ds-react";
-import { useFormContext, useFieldArray } from "react-hook-form";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { PrismodellValues } from "@/schemas/avtale";
-import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
-import { AvtalteSatserForm } from "./AvtalteSatserForm";
-import { PrismodellType, Tiltakskode, Valuta } from "@tiltaksadministrasjon/api-client";
-import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
+import {useFormContext, useFieldArray} from "react-hook-form";
+import {avtaletekster} from "@/components/ledetekster/avtaleLedetekster";
+import {PrismodellValues} from "@/schemas/avtale";
+import {usePrismodeller} from "@/api/avtaler/usePrismodeller";
+import {AvtalteSatserForm} from "./AvtalteSatserForm";
+import {PrismodellType, Tiltakskode, Valuta} from "@tiltaksadministrasjon/api-client";
+import {PlusIcon, TrashIcon} from "@navikt/aksel-icons";
 
 interface Props {
   tiltakskode: Tiltakskode;
   avtaleStartDato: Date;
 }
 
-export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: Props) {
+export default function AvtalePrismodellForm({tiltakskode, avtaleStartDato}: Props) {
   const {
-    formState: { errors },
+    formState: {errors},
     control,
     setValue,
     watch,
     register,
   } = useFormContext<PrismodellValues>();
-  const { data: prismodellTyper = [] } = usePrismodeller(tiltakskode);
+  const {data: prismodellTyper = []} = usePrismodeller(tiltakskode);
 
-  const { fields, append, remove } = useFieldArray({
+  const {fields, append, remove} = useFieldArray({
     name: "prismodeller",
     control,
   });
+
+  const valutaOptions = [Valuta.NOK, Valuta.SEK];
 
   return (
     <VStack gap="4">
       {fields.map((field, index) => {
         const type = watch(`prismodeller.${index}.type`);
+        const selectedValuta = watch(`prismodeller.${index}.valuta`);
         const beskrivelse = prismodellTyper.find((p) => p.type === type)?.beskrivelse;
         return (
           <Box
@@ -51,25 +54,43 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
             background="surface-subtle"
           >
             <HStack justify="space-between" align="start">
-              <VStack gap="4" style={{ flex: 1 }}>
-                <Select
-                  label={avtaletekster.prismodell.label}
-                  size="small"
-                  error={errors.prismodeller?.[index]?.type?.message}
-                  value={type}
-                  onChange={(e) => {
-                    setValue(`prismodeller.${index}.type`, e.target.value as PrismodellType);
-                  }}
-                >
-                  <option key={undefined} value={undefined}>
-                    -- Velg prismodell --
-                  </option>
-                  {prismodellTyper.map(({ type, navn }) => (
-                    <option key={type} value={type}>
-                      {navn}
+              <VStack gap="4" style={{flex: 1}}>
+                <HStack gap="2">
+                  <Select
+                    className="flex-1"
+                    label={avtaletekster.prismodell.label}
+                    size="small"
+                    error={errors.prismodeller?.[index]?.type?.message}
+                    value={type}
+                    onChange={(e) => {
+                      setValue(`prismodeller.${index}.type`, e.target.value as PrismodellType);
+                    }}
+                  >
+                    <option key={undefined} value={undefined}>
+                      -- Velg prismodell --
                     </option>
-                  ))}
-                </Select>
+                    {prismodellTyper.map(({type, navn}) => (
+                      <option key={type} value={type}>
+                        {navn}
+                      </option>
+                    ))}
+                  </Select>
+                  <Select
+                    label="Valuta"
+                    size="small"
+                    value={selectedValuta}
+                    onChange={(e) => {
+                      setValue(`prismodeller.${index}.valuta`, e.target.value as Valuta);
+                    }}
+                  >
+                    {valutaOptions.map((valuta) => (
+                      <option key={valuta} value={valuta}>
+                        {valuta}
+                      </option>
+                    ))}
+                  </Select>
+                </HStack>
+
                 {beskrivelse &&
                   beskrivelse.map((tekst, i) => <BodyShort key={i}>{tekst}</BodyShort>)}
                 {type !== PrismodellType.ANNEN_AVTALT_PRIS && (
@@ -89,7 +110,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                     variant="secondary-neutral"
                     size="small"
                     type="button"
-                    icon={<TrashIcon aria-hidden />}
+                    icon={<TrashIcon aria-hidden/>}
                     onClick={() => remove(index)}
                     aria-label="Fjern prismodell"
                   >
@@ -103,14 +124,14 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
       })}
       <HStack>
         <Button
-          icon={<PlusIcon aria-hidden />}
+          icon={<PlusIcon aria-hidden/>}
           type="button"
           variant="tertiary"
           size="small"
           onClick={() =>
             append({
               type: "" as PrismodellType,
-              valuta: Valuta.NOK,
+              valuta: fields[fields.length - 1]?.valuta ?? Valuta.NOK,
               satser: [],
               prisbetingelser: null,
             })
