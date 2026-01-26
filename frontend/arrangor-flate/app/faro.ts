@@ -1,4 +1,4 @@
-import { getWebInstrumentations, initializeFaro } from "@grafana/faro-react";
+import { getWebInstrumentations, initializeFaro, Faro } from "@grafana/faro-react";
 
 interface NaisConfig {
   telemetryCollectorURL: string;
@@ -10,6 +10,7 @@ interface NaisConfig {
 declare global {
   interface Window {
     nais?: NaisConfig;
+    faro?: Faro;
   }
 }
 
