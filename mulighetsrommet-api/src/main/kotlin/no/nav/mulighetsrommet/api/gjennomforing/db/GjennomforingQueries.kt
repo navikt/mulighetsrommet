@@ -755,7 +755,7 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
         apentForPamelding = boolean("apent_for_pamelding"),
         antallPlasser = int("antall_plasser"),
         avtaleId = uuidOrNull("avtale_id"),
-        prismodell = toPrismodell(),
+        prismodell = uuidOrNull("prismodell_id")?.let { toPrismodell() },
         administratorer = administratorer,
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
