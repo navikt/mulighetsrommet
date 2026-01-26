@@ -116,17 +116,10 @@ export function GjennomforingDetaljer() {
       value: oppstart === GjennomforingOppstartstype.FELLES ? "Felles" : "Løpende oppstart",
     },
     {
-      key: gjennomforingTekster.pameldingTypeLabel,
-      value:
-        pameldingType === GjennomforingPameldingType.DIREKTE_VEDTAK
-          ? "Veileder fatter vedtaket direkte ved påmeldingen i Modia"
-          : "Vedtaket fattes i Tiltaksadministrasjon etter at deltakeren er søkt inn fra Modia",
-    },
-    { key: gjennomforingTekster.antallPlasserLabel, value: antallPlasser },
-    {
       key: gjennomforingTekster.apentForPameldingLabel,
       value: apentForPamelding ? "Ja" : "Nei",
     },
+    { key: gjennomforingTekster.antallPlasserLabel, value: antallPlasser },
 
     ...(kreverDeltidsprosent(tiltakstype.tiltakskode)
       ? [{ key: gjennomforingTekster.deltidsprosentLabel, value: deltidsprosent }]
@@ -142,6 +135,13 @@ export function GjennomforingDetaljer() {
           },
         ]
       : []),
+    {
+      key: gjennomforingTekster.pameldingTypeLabel,
+      value:
+        pameldingType === GjennomforingPameldingType.DIREKTE_VEDTAK
+          ? "Veileder fatter vedtaket direkte ved påmeldingen i Modia"
+          : "Vedtaket fattes i Tiltaksadministrasjon etter at deltakeren er søkt inn fra Modia",
+    },
   ];
   const administratorMeta: Definition[] = [
     {
@@ -218,6 +218,8 @@ export function GjennomforingDetaljer() {
           <Definisjonsliste title="Avtaledetaljer" definitions={avtaleMeta} />
           <Separator />
           <Definisjonsliste title="Varighet og påmelding" definitions={varighetMeta} />
+          {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
+          {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
           {prismodell && (
             <>
               <Separator />
@@ -227,8 +229,6 @@ export function GjennomforingDetaljer() {
               <PrismodellDetaljer prismodell={[prismodell]} />
             </>
           )}
-          {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
-          {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         </VStack>
         <VStack justify="space-between">
           <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
