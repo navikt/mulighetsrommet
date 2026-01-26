@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -39,7 +40,7 @@ sealed class UtbetalingBeregningInputDeltakelse {
 }
 
 sealed class UtbetalingBeregningOutput {
-    abstract val belop: Int
+    abstract val pris: ValutaBelop
     abstract fun deltakelser(): Set<UtbetalingBeregningOutputDeltakelse>
 }
 
@@ -55,14 +56,14 @@ data class UtbetalingBeregningOutputDeltakelse(
     data class BeregnetPeriode(
         val periode: Periode,
         val faktor: Double,
-        val sats: Int,
+        val sats: ValutaBelop,
     )
 }
 
 @Serializable
 data class SatsPeriode(
     val periode: Periode,
-    val sats: Int,
+    val sats: ValutaBelop,
 )
 
 @Serializable
@@ -252,15 +253,17 @@ object UtbetalingBeregningHelpers {
     }
 
     fun calculateBelopForDeltakelser(
+        valuta: Valuta,
         deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
-    ): Int {
+    ): ValutaBelop {
         return deltakelser
             .flatMap { deltakelse ->
-                deltakelse.perioder.map { BigDecimal(it.faktor).multiply(BigDecimal(it.sats)) }
+                deltakelse.perioder.map { BigDecimal(it.faktor).multiply(BigDecimal(it.sats.belop)) }
             }
             .sumOf { it }
             .setScale(0, RoundingMode.HALF_UP)
             .toInt()
+            .withValuta(valuta)
     }
 
     fun calculateDeltakelseOutput(

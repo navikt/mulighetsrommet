@@ -222,7 +222,7 @@ class TilsagnQueries(private val session: Session) {
         batchPreparedNamedStatement(query, paramCollection)
     }
 
-    fun setBruktBelop(id: UUID, belop: Int) {
+    fun setBruktBelop(id: UUID, belop: ValutaBelop) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
@@ -232,7 +232,7 @@ class TilsagnQueries(private val session: Session) {
 
         val params = mapOf(
             "id" to id,
-            "belop" to belop,
+            "belop" to belop.belop,
         )
 
         session.execute(queryOf(query, params))

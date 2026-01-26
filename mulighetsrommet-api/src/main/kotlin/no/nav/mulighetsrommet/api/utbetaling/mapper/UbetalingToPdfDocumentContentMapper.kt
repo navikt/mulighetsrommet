@@ -27,6 +27,9 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatofo
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.plus
+import no.nav.mulighetsrommet.model.withValuta
 import java.util.UUID
 
 object UbetalingToPdfDocumentContentMapper {
@@ -56,7 +59,7 @@ object UbetalingToPdfDocumentContentMapper {
             UtbetalingStatusType.FERDIG_BEHANDLET,
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
-            -> addUtbetalingsstatusSection(linjer)
+            -> addUtbetalingsstatusSection(utbetaling.valuta, linjer)
         }
     }
 
@@ -123,30 +126,30 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Utbetalin
     val utbetalingHeader = type.displayNameLong ?: type.displayName
     section(utbetalingHeader) {
         descriptionList {
-            entry(
+            text(
                 "Arrangør",
                 "${utbetaling.arrangor.navn} (${utbetaling.arrangor.organisasjonsnummer.value})",
             )
             utbetaling.godkjentAvArrangorTidspunkt
                 ?.let {
-                    entry(
+                    text(
                         "Dato innsendt av arrangør",
                         it.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
                     )
                 }
-                ?: entry(
+                ?: text(
                     "Dato opprettet hos Nav",
                     utbetaling.createdAt.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
                 )
-            entry("Tiltakstype", utbetaling.tiltakstype.navn)
+            text("Tiltakstype", utbetaling.tiltakstype.navn)
             if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
-                entry(
+                text(
                     "Tiltaksperiode",
                     Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt),
                 )
             }
 
-            entry("Løpenummer", utbetaling.gjennomforing.lopenummer.value)
+            text("Løpenummer", utbetaling.gjennomforing.lopenummer.value)
         }
     }
 }
@@ -154,8 +157,8 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Utbetalin
 private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Utbetaling) {
     section("Utbetaling") {
         descriptionList {
-            entry("Utbetalingsperiode", utbetaling.periode.formatPeriode())
-            entry("Utbetales tidligst", utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(), Format.DATE)
+            text("Utbetalingsperiode", utbetaling.periode.formatPeriode())
+            text("Utbetales tidligst", utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(), Format.DATE)
         }
 
         val satsDetaljer = beregningSatsDetaljer(utbetaling.beregning)
@@ -165,20 +168,25 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Utbetalin
                     description = satsPeriode.header
                 }
                 satsPeriode.entries.forEach { entry ->
-                    val format = when (val value = entry.value) {
-                        is DataElement.Text -> value.format?.toPdfDocumentContentFormat()
+                    when (val dataElement = entry.value) {
+                        is DataElement.Text ->
+                            text(
+                                entry.label,
+                                dataElement.toPdfDocumentValue(),
+                                dataElement.format?.toPdfDocumentContentFormat(),
+                            )
 
-                        // TODO: Støtte flere valuta
-                        is DataElement.MoneyAmount -> Format.NOK
+                        is DataElement.MoneyAmount ->
+                            money(entry.label, dataElement)
 
-                        else -> null
+                        else ->
+                            text(entry.label, entry.value?.toPdfDocumentValue())
                     }
-                    entry(entry.label, entry.value?.toPdfDocumentValue(), format)
                 }
             }
         }
         descriptionList {
-            entry("Beløp", utbetaling.beregning.output.belop, Format.NOK)
+            money("Beløp", utbetaling.beregning.output.pris)
         }
     }
 }
@@ -190,15 +198,15 @@ private fun PdfDocumentContentBuilder.addBetalingsinformasjonSection(
         descriptionList {
             when (betalingsinformasjon) {
                 is Betalingsinformasjon.BBan -> {
-                    entry("Kontonummer", betalingsinformasjon.kontonummer.value)
-                    entry("KID-nummer", betalingsinformasjon.kid?.value)
+                    text("Kontonummer", betalingsinformasjon.kontonummer.value)
+                    text("KID-nummer", betalingsinformasjon.kid?.value)
                 }
 
                 is Betalingsinformasjon.IBan -> {
-                    entry("IBAN", betalingsinformasjon.iban)
-                    entry("BIC/SWIFT", betalingsinformasjon.bic)
-                    entry("Bank landkode", betalingsinformasjon.bankLandKode)
-                    entry("Banknavn", betalingsinformasjon.bankNavn)
+                    text("IBAN", betalingsinformasjon.iban)
+                    text("BIC/SWIFT", betalingsinformasjon.bic)
+                    text("Bank landkode", betalingsinformasjon.bankLandKode)
+                    text("Banknavn", betalingsinformasjon.bankNavn)
                 }
 
                 null -> Unit
@@ -208,6 +216,7 @@ private fun PdfDocumentContentBuilder.addBetalingsinformasjonSection(
 }
 
 private fun PdfDocumentContentBuilder.addUtbetalingsstatusSection(
+    valuta: Valuta,
     linjer: List<ArrangforflateUtbetalingLinje>,
 ) {
     section("Utbetalingsstatus") {
@@ -217,21 +226,21 @@ private fun PdfDocumentContentBuilder.addUtbetalingsstatusSection(
             } else {
                 "Overført til utbetaling"
             }
-            entry("Status", status, Format.STATUS_SUCCESS)
+            text("Status", status, Format.STATUS_SUCCESS)
 
-            val totaltUtbetalt = linjer.fold(0) { acc, linje -> acc + linje.belop }
-            entry("Godkjent beløp til utbetaling", totaltUtbetalt.toString(), Format.NOK)
+            val totaltUtbetalt = linjer.fold(0.withValuta(valuta)) { acc, linje -> acc + linje.pris }
+            money("Godkjent beløp til utbetaling", totaltUtbetalt)
         }
     }
 
     section("Tilsagn som er brukt til utbetaling") {
         linjer.forEach {
             descriptionList {
-                entry("Tilsagn", it.tilsagn.bestillingsnummer)
-                entry("Beløp til utbetaling", it.belop.toString(), Format.NOK)
-                entry("Status", it.status.beskrivelse, Format.STATUS_SUCCESS)
+                text("Tilsagn", it.tilsagn.bestillingsnummer)
+                money("Beløp til utbetaling", it.pris)
+                text("Status", it.status.beskrivelse, Format.STATUS_SUCCESS)
                 it.statusSistOppdatert?.let { sistEndret ->
-                    entry(
+                    text(
                         "Status endret",
                         sistEndret.toString(),
                         Format.DATE,
@@ -367,7 +376,6 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
 
 private fun DataElement.Text.Format.toPdfDocumentContentFormat(): Format? = when (this) {
     DataElement.Text.Format.DATE -> Format.DATE
-    DataElement.Text.Format.NOK -> Format.NOK
     DataElement.Text.Format.NUMBER -> null
 }
 

@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
@@ -13,6 +14,6 @@ data class UtbetalingKompaktDto(
     val status: UtbetalingStatusDto,
     val periode: Periode,
     val kostnadssteder: List<KostnadsstedDto>,
-    val belopUtbetalt: Int?,
+    val belopUtbetalt: ValutaBelop?,
     val type: UtbetalingTypeDto,
 )

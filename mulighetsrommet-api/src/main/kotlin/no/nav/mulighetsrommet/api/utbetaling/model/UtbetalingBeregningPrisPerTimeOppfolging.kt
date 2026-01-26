@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.ValutaBelop
 
 @Serializable
 data class UtbetalingBeregningPrisPerTimeOppfolging(
@@ -17,7 +18,7 @@ data class UtbetalingBeregningPrisPerTimeOppfolging(
     @Serializable
     data class Input(
         val satser: Set<SatsPeriode>,
-        val belop: Int,
+        val pris: ValutaBelop,
         val stengt: Set<StengtPeriode>,
         val deltakelser: Set<DeltakelsePeriode>,
     ) : UtbetalingBeregningInput() {
@@ -25,7 +26,7 @@ data class UtbetalingBeregningPrisPerTimeOppfolging(
     }
 
     @Serializable
-    data class Output(override val belop: Int) : UtbetalingBeregningOutput() {
+    data class Output(override val pris: ValutaBelop) : UtbetalingBeregningOutput() {
         override fun deltakelser() = emptySet<UtbetalingBeregningOutputDeltakelse>()
     }
 
@@ -33,7 +34,7 @@ data class UtbetalingBeregningPrisPerTimeOppfolging(
         fun beregn(input: Input): UtbetalingBeregningPrisPerTimeOppfolging {
             return UtbetalingBeregningPrisPerTimeOppfolging(
                 input = input,
-                output = Output(belop = input.belop),
+                output = Output(pris = input.pris),
             )
         }
     }

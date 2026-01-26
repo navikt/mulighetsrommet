@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.api.pdfgen
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 
 @Serializable
 data class PdfDocumentContent(
@@ -49,12 +51,24 @@ data class DescriptionListBlock(
     override val description: String? = null,
     val entries: List<Entry> = listOf(),
 ) : Block() {
+    @OptIn(ExperimentalSerializationApi::class)
     @Serializable
-    data class Entry(
-        val label: String,
-        val value: String?,
-        val format: Format? = null,
-    )
+    @JsonClassDiscriminator("type")
+    sealed class Entry() {
+        @Serializable
+        data class Text(
+            val label: String,
+            val value: String?,
+            val format: Format? = null,
+        ) : Entry()
+
+        @Serializable
+        data class MoneyAmount(
+            val label: String,
+            val value: String?,
+            val currency: String?,
+        ) : Entry()
+    }
 }
 
 @Serializable
@@ -101,6 +115,7 @@ data class TableBlock(
 
 enum class Format {
     NOK,
+    MONEY,
     DATE,
     PERCENT,
     STATUS_SUCCESS,

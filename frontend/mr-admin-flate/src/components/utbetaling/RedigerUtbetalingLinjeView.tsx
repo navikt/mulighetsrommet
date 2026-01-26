@@ -7,6 +7,8 @@ import {
   UtbetalingHandling,
   UtbetalingLinje,
   ValidationError,
+  Valuta,
+  ValutaBelop,
 } from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import {
@@ -88,7 +90,7 @@ export function RedigerUtbetalingLinjeView({
   }
 
   function submitHandler(data: RedigerUtbetalingLinjeFormValues) {
-    if (utbetalesTotal(data.formLinjer) < utbetaling.belop) {
+    if (utbetalesTotal(utbetaling.pris.valuta, data.formLinjer).belop < utbetaling.pris.belop) {
       setMindreBelopModalOpen(true);
     } else {
       sendTilAttestering({
@@ -158,7 +160,7 @@ export function RedigerUtbetalingLinjeView({
                     hideLabel
                     type="number"
                     label={utbetalingTekster.delutbetaling.belop.label}
-                    {...form.register(`formLinjer.${index}.belop`, {
+                    {...form.register(`formLinjer.${index}.pris.belop`, {
                       setValueAs: (v) => (v === "" ? null : Number(v)),
                     })}
                   />
@@ -208,8 +210,8 @@ export function RedigerUtbetalingLinjeView({
             });
           }}
           begrunnelseOnChange={(e: any) => setBegrunnelseMindreBetalt(e.target.value)}
-          belopUtbetaling={utbetalesTotal(formLinjer)}
-          belopInnsendt={utbetaling.belop}
+          belopUtbetaling={utbetalesTotal(utbetaling.pris.valuta, formLinjer)}
+          belopInnsendt={utbetaling.pris}
         />
       </form>
       <SlettUtbetalingModal
@@ -223,8 +225,12 @@ export function RedigerUtbetalingLinjeView({
   );
 }
 
-function utbetalesTotal(formLinjer: UtbetalingLinje[]): number {
-  return formLinjer.reduce((acc: number, d: UtbetalingLinje) => acc + d.belop, 0);
+function utbetalesTotal(valuta: Valuta, formLinjer: UtbetalingLinje[]): ValutaBelop {
+  const totalt = formLinjer.reduce((acc: number, d: UtbetalingLinje) => acc + d.pris.belop, 0);
+  return {
+    belop: totalt,
+    valuta: valuta,
+  };
 }
 
 function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {

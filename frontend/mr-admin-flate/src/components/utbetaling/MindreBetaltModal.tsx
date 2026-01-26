@@ -1,6 +1,7 @@
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { InformationSquareFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Modal, Textarea, VStack } from "@navikt/ds-react";
+import { ValutaBelop } from "@tiltaksadministrasjon/api-client";
 import { ChangeEventHandler } from "react";
 
 export default function MindreBelopModal({
@@ -14,8 +15,8 @@ export default function MindreBelopModal({
   open: boolean;
   handleClose: () => void;
   onConfirm: () => void;
-  belopInnsendt: number;
-  belopUtbetaling: number;
+  belopInnsendt: ValutaBelop;
+  belopUtbetaling: ValutaBelop;
   begrunnelseOnChange: ChangeEventHandler<HTMLTextAreaElement>;
 }) {
   return (
@@ -35,8 +36,8 @@ export default function MindreBelopModal({
               Beløpet du er i ferd med å sende til attestering er mindre en beløpet på utbetalingen.
               Er du sikker?
             </BodyShort>
-            <BodyShort>Beløp til attestering: {formaterNOK(belopUtbetaling)}</BodyShort>
-            <BodyShort>Innsendt beløp: {formaterNOK(belopInnsendt)}</BodyShort>
+            <BodyShort>Beløp til attestering: {formaterValutaBelop(belopUtbetaling)}</BodyShort>
+            <BodyShort>Innsendt beløp: {formaterValutaBelop(belopInnsendt)}</BodyShort>
           </VStack>
           <Textarea
             label="Begrunnelse"

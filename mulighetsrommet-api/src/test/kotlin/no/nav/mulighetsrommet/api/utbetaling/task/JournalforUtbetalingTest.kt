@@ -33,6 +33,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
@@ -50,14 +52,15 @@ class JournalforUtbetalingTest : FunSpec({
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         status = UtbetalingStatusType.INNSENDT,
+        valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
             input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2024, 8, 1)), 20205)),
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2024, 8, 1)), 20205.withValuta(Valuta.NOK))),
                 stengt = setOf(),
                 deltakelser = emptySet(),
             ),
             output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
-                belop = 0,
+                pris = 0.withValuta(Valuta.NOK),
                 deltakelser = emptySet(),
             ),
         ),

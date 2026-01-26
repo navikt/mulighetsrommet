@@ -1,5 +1,4 @@
 import {
-  DataElementTextFormat,
   LabeledDataElementType,
   OpprettKravOppsummering,
   OpprettKravOppsummeringRequest,
@@ -50,8 +49,8 @@ export const oppsummering: Record<
           type: LabeledDataElementType.INLINE,
           value: {
             value: request.belop.toString(),
-            type: "DATA_ELEMENT_TEXT",
-            format: DataElementTextFormat.NOK,
+            type: "DATA_ELEMENT_MONEY_AMOUNT",
+            currency: "NOK",
           },
         },
       ],
@@ -88,8 +87,8 @@ export const oppsummering: Record<
           type: LabeledDataElementType.INLINE,
           value: {
             value: request.belop.toString(),
-            type: "DATA_ELEMENT_TEXT",
-            format: DataElementTextFormat.NOK,
+            type: "DATA_ELEMENT_MONEY_AMOUNT",
+            currency: "NOK",
           },
         },
       ],
@@ -130,8 +129,8 @@ export const oppsummering: Record<
           type: LabeledDataElementType.INLINE,
           value: {
             value: request.belop.toString(),
-            type: "DATA_ELEMENT_TEXT",
-            format: DataElementTextFormat.NOK,
+            type: "DATA_ELEMENT_MONEY_AMOUNT",
+            currency: "NOK",
           },
         },
       ],

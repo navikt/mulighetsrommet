@@ -11,7 +11,7 @@ import {
   UtbetalingHandling,
   UtbetalingStatusDtoType,
 } from "@tiltaksadministrasjon/api-client";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
 import { Accordion, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
@@ -135,7 +135,7 @@ export function UtbetalingPage() {
                     />
                     <MetadataHGrid
                       label={utbetalingTekster.beregning.belop.label}
-                      value={formaterNOK(utbetaling.belop)}
+                      value={formaterValutaBelop(utbetaling.pris)}
                     />
                     {utbetaling.beskrivelse && (
                       <MetadataFritekstfelt

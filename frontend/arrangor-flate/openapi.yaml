@@ -932,7 +932,6 @@ components:
       type: string
       enum:
       - date
-      - nok
       - number
     TimelineDto:
       type: object
@@ -1347,11 +1346,14 @@ components:
       properties:
         kontonummer:
           type: string
+        valuta:
+          $ref: "#/components/schemas/Valuta"
         navigering:
           $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
       required:
       - kontonummer
       - navigering
+      - valuta
     OpprettKravVedlegg.GuidePanelType:
       type: string
       enum:
@@ -1525,9 +1527,8 @@ components:
       properties:
         displayName:
           type: string
-        belop:
-          type: integer
-          format: int32
+        pris:
+          $ref: "#/components/schemas/ValutaBelop"
         digest:
           type: string
         stengt:
@@ -1543,10 +1544,10 @@ components:
           items:
             $ref: "#/components/schemas/DataDetails"
       required:
-      - belop
       - deltakelser
       - digest
       - displayName
+      - pris
       - satsDetaljer
       - stengt
     UtbetalingTypeDto:
@@ -1581,12 +1582,11 @@ components:
           - "null"
           - string
           format: date-time
-        belop:
-          type: integer
-          format: int32
+        pris:
+          $ref: "#/components/schemas/ValutaBelop"
       required:
-      - belop
       - id
+      - pris
       - status
       - statusSistOppdatert
       - tilsagn
@@ -1681,6 +1681,8 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/BBan"
+        valuta:
+          $ref: "#/components/schemas/Valuta"
         beregning:
           $ref: "#/components/schemas/ArrangorflateBeregning"
         periode:
@@ -1728,6 +1730,7 @@ components:
       - tiltakstype
       - type
       - utbetalesTidligstDato
+      - valuta
     GodkjennUtbetaling:
       type: object
       properties:

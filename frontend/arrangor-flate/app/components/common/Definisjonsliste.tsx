@@ -1,6 +1,5 @@
 import { Heading, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
-import { formaterNOK, formaterTall } from "@mr/frontend-common/utils/utils";
 import { LabeledDataElement } from "@api-client";
 import { getDataElement } from "@mr/frontend-common";
 import { MetadataHGrid } from "@mr/frontend-common/components/datadriven/Metadata";
@@ -19,7 +18,6 @@ export function LabeledDataElementList({ title, entries, className }: LabeledDat
       definitions={entries.map((entry) => ({
         key: entry.label,
         value: entry.value ? getDataElement(entry.value) : null,
-        format: null,
       }))}
     />
   );
@@ -28,10 +26,7 @@ export function LabeledDataElementList({ title, entries, className }: LabeledDat
 export interface Definition {
   key: string;
   value: string | ReactNode;
-  format?: DefinitionFormat | null;
 }
-
-export type DefinitionFormat = "NOK" | "NUMBER";
 
 interface Props {
   title?: string;
@@ -49,24 +44,9 @@ export function Definisjonsliste({ title, definitions, className }: Props) {
       )}
       <VStack gap="1">
         {definitions.map((definition, index) => (
-          <MetadataHGrid key={index} label={definition.key} value={getFormattedValue(definition)} />
+          <MetadataHGrid key={index} label={definition.key} value={definition.value} />
         ))}
       </VStack>
     </VStack>
   );
-}
-
-function getFormattedValue(definition: Definition) {
-  return definition.format && typeof definition.value === "string"
-    ? formatValue(definition.value, definition.format)
-    : definition.value;
-}
-
-function formatValue(value: string, format: DefinitionFormat) {
-  switch (format) {
-    case "NOK":
-      return formaterNOK(Number(value));
-    case "NUMBER":
-      return formaterTall(Number(value));
-  }
 }

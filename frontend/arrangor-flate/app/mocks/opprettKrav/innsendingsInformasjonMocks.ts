@@ -94,8 +94,8 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
             type: LabeledDataElementType.INLINE,
             value: {
               value: "20975",
-              type: "DATA_ELEMENT_TEXT",
-              format: DataElementTextFormat.NOK,
+              type: "DATA_ELEMENT_MONEY_AMOUNT",
+              currency: "NOK",
             },
           },
           {
@@ -103,8 +103,8 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
             type: LabeledDataElementType.INLINE,
             value: {
               value: "284177",
-              type: "DATA_ELEMENT_TEXT",
-              format: DataElementTextFormat.NOK,
+              type: "DATA_ELEMENT_MONEY_AMOUNT",
+              currency: "NOK",
             },
           },
           {
@@ -112,8 +112,8 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
             type: LabeledDataElementType.INLINE,
             value: {
               value: "276722",
-              type: "DATA_ELEMENT_TEXT",
-              format: DataElementTextFormat.NOK,
+              type: "DATA_ELEMENT_MONEY_AMOUNT",
+              currency: "NOK",
             },
           },
         ],
@@ -188,18 +188,18 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
             type: LabeledDataElementType.INLINE,
             label: "Totalbeløp",
             value: {
-              type: "DATA_ELEMENT_TEXT",
+              type: "DATA_ELEMENT_MONEY_AMOUNT",
               value: "364058",
-              format: DataElementTextFormat.NOK,
+              currency: "NOK",
             },
           },
           {
             type: LabeledDataElementType.INLINE,
             label: "Gjenstående beløp",
             value: {
-              type: "DATA_ELEMENT_TEXT",
+              type: "DATA_ELEMENT_MONEY_AMOUNT",
               value: "351058",
-              format: DataElementTextFormat.NOK,
+              currency: "NOK",
             },
           },
         ],
@@ -286,27 +286,27 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
             type: LabeledDataElementType.INLINE,
             label: "Pris per time oppfølging",
             value: {
-              type: "DATA_ELEMENT_TEXT",
+              type: "DATA_ELEMENT_MONEY_AMOUNT",
               value: "768",
-              format: DataElementTextFormat.NOK,
+              currency: "NOK",
             },
           },
           {
             type: LabeledDataElementType.INLINE,
             label: "Totalbeløp",
             value: {
-              type: "DATA_ELEMENT_TEXT",
+              type: "DATA_ELEMENT_MONEY_AMOUNT",
               value: "30720",
-              format: DataElementTextFormat.NOK,
+              currency: "NOK",
             },
           },
           {
             type: LabeledDataElementType.INLINE,
             label: "Gjenstående beløp",
             value: {
-              type: "DATA_ELEMENT_TEXT",
+              type: "DATA_ELEMENT_MONEY_AMOUNT",
               value: "30720",
-              format: DataElementTextFormat.NOK,
+              currency: "NOK",
             },
           },
         ],

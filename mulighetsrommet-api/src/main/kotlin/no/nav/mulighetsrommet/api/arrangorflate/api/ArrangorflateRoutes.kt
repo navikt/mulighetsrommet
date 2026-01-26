@@ -755,9 +755,9 @@ fun utbetalingKompaktDataDrivenTable(
                         "${utbetaling.arrangor.navn} (${utbetaling.arrangor.organisasjonsnummer.value})",
                     ),
                     "periode" to DataElement.periode(utbetaling.periode),
-                    "belop" to DataElement.nok(
+                    "belop" to DataElement.money(
                         when (tabellType) {
-                            UtbetalingOversiktType.AKTIVE -> utbetaling.belop
+                            UtbetalingOversiktType.AKTIVE -> utbetaling.pris
                             UtbetalingOversiktType.HISTORISKE -> utbetaling.godkjentBelop
                         },
                     ),

@@ -27,6 +27,8 @@ import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -39,7 +41,7 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla bla bla beskrivelse",
                 kidNummer = null,
-                belop = 150,
+                pris = 150.withValuta(Valuta.NOK),
             )
 
             val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
@@ -53,13 +55,13 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeSlutt = null,
                 beskrivelse = "Bla bla bla beskrivelse",
                 kidNummer = "asdf",
-                belop = -5,
+                pris = (-5).withValuta(Valuta.NOK),
             )
 
             val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
             result.shouldBeLeft().shouldContainAll(
                 FieldError.of("Periodeslutt må være satt", OpprettUtbetalingRequest::periodeSlutt),
-                FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::belop),
+                FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris),
                 FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer),
             )
         }
@@ -71,7 +73,7 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla bla bla beskrivelse",
                 kidNummer = null,
-                belop = 150,
+                pris = 150.withValuta(Valuta.NOK),
             )
 
             val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
@@ -92,13 +94,13 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla bla bla beskrivelse",
                 kidNummer = null,
-                belop = 0,
+                pris = 0.withValuta(Valuta.NOK),
             )
 
             val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
             result.shouldBeLeft().shouldContainAll(
                 listOf(
-                    FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::belop),
+                    FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris),
                 ),
             )
         }
@@ -110,7 +112,7 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla",
                 kidNummer = null,
-                belop = 150,
+                pris = 150.withValuta(Valuta.NOK),
             )
 
             val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
@@ -447,11 +449,11 @@ class UtbetalingValidatorTest : FunSpec({
                 opprettDelutbetalinger = listOf(
                     OpprettDelutbetaling(
                         id = UUID.randomUUID(),
-                        belop = 10000000,
+                        pris = 10000000.withValuta(Valuta.NOK),
                         gjorOppTilsagn = true,
                         tilsagn = OpprettDelutbetaling.Tilsagn(
                             status = TilsagnStatus.GODKJENT,
-                            gjenstaendeBelop = 10000000,
+                            gjenstaendeBelop = 10000000.withValuta(Valuta.NOK),
                         ),
                     ),
                 ),
@@ -467,11 +469,11 @@ class UtbetalingValidatorTest : FunSpec({
                 opprettDelutbetalinger = listOf(
                     OpprettDelutbetaling(
                         id = UUID.randomUUID(),
-                        belop = 1,
+                        pris = 1.withValuta(Valuta.NOK),
                         gjorOppTilsagn = true,
                         tilsagn = OpprettDelutbetaling.Tilsagn(
                             status = TilsagnStatus.GODKJENT,
-                            gjenstaendeBelop = 10,
+                            gjenstaendeBelop = 10.withValuta(Valuta.NOK),
                         ),
                     ),
                 ),

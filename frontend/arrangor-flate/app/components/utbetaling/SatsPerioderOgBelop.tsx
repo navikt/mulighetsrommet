@@ -1,16 +1,16 @@
 import { Heading, VStack } from "@navikt/ds-react";
-import { DataDetails } from "@api-client";
+import { DataDetails, ValutaBelop } from "@api-client";
 import { getDataElement } from "@mr/frontend-common";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { MetadataHGrid } from "@mr/frontend-common/components/datadriven/Metadata";
 import { Separator } from "../common/Separator";
 
 export function SatsPerioderOgBelop({
-  belop,
+  pris,
   satsDetaljer,
   className,
 }: {
-  belop: number;
+  pris: ValutaBelop;
   satsDetaljer: DataDetails[];
   className?: string;
 }) {
@@ -32,7 +32,7 @@ export function SatsPerioderOgBelop({
           <Separator className="w-1/2" />
         </>
       )}
-      <MetadataHGrid label="Beløp" value={formaterNOK(belop)} />
+      <MetadataHGrid label="Beløp" value={formaterValutaBelop(pris)} />
     </VStack>
   );
 }

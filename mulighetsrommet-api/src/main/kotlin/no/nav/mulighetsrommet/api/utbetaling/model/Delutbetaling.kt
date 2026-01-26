@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -20,7 +21,7 @@ data class Delutbetaling(
     val utbetalingId: UUID,
     val status: DelutbetalingStatus,
     val periode: Periode,
-    val belop: Int,
+    val pris: ValutaBelop,
     val gjorOppTilsagn: Boolean,
     val lopenummer: Int,
     val faktura: Faktura,

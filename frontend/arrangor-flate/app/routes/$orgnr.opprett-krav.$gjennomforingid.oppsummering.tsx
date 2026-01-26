@@ -205,7 +205,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const { error, data } = await ArrangorflateService.postOpprettKrav({
     path: { orgnr: orgnr!, gjennomforingId: gjennomforingId },
     body: {
-      belop: belop!,
+      belop,
       tilsagnId: tilsagnId!,
       periodeStart: periodeStart!.toString(),
       periodeSlutt: periodeSlutt!.toString(),

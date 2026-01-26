@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDateTime
@@ -15,6 +16,7 @@ data class UtbetalingDbo(
     val innsender: Agent?,
     val gjennomforingId: UUID,
     val status: UtbetalingStatusType,
+    val valuta: Valuta,
     val beregning: UtbetalingBeregning,
     val betalingsinformasjon: Betalingsinformasjon?,
     val periode: Periode,

@@ -4,11 +4,11 @@ import {
   DataDrivenTableDtoRow,
   DataElement,
   DataElementStatusVariant,
-  DataElementTextFormat,
 } from "api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 import {
   dataElementAction,
+  dataElementMoneyAmount,
   dataElementPeriode,
   dataElementStatus,
   dataElementText,
@@ -35,7 +35,7 @@ const arrUkesprisKlarTilGodkjenningTableRow: DataDrivenTableDtoRow = {
     tiltak: dataElementText("Arbeidsrettet rehabilitering (2025/10000)"),
     arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
     periode: dataElementPeriode({ start: "2025-10-01", slutt: "2025-11-01" }),
-    belop: dataElementText("53100", DataElementTextFormat.NOK),
+    belop: dataElementMoneyAmount("53100", "NOK"),
     type: dataElementText(""),
     status: dataElementStatus("Klar for innsending", DataElementStatusVariant.WARNING),
     action: dataElementAction(
@@ -54,7 +54,7 @@ const avklaringManedKlarTilInnsendingTableRow: DataDrivenTableDtoRow = {
     tiltak: dataElementText("Avklaring (2025/10001)"),
     arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
     periode: dataElementPeriode({ start: "2025-10-01", slutt: "2025-11-06" }),
-    belop: dataElementText("20000", DataElementTextFormat.NOK),
+    belop: dataElementMoneyAmount("20000", "NOK"),
     type: dataElementText(""),
     status: dataElementStatus("Klar for innsending", DataElementStatusVariant.WARNING),
     action: dataElementAction(
@@ -76,7 +76,7 @@ const solrikAftDataRow: DataDrivenTableDtoRow = {
       start: "2025-01-01",
       slutt: "2025-02-01",
     }),
-    belop: dataElementText("242904", DataElementTextFormat.NOK),
+    belop: dataElementMoneyAmount("242904", "NOK"),
     type: dataElementText(""),
     status: dataElementStatus("Krever endring", DataElementStatusVariant.WARNING),
     action: dataElementAction(
@@ -95,7 +95,7 @@ const aftTiltakspengerTableRow: DataDrivenTableDtoRow = {
       start: "2025-05-01",
       slutt: "2025-08-02",
     }),
-    belop: dataElementText("234", DataElementTextFormat.NOK),
+    belop: dataElementMoneyAmount("234", "NOK"),
     type: dataElementInvestering,
     status: dataElementStatus("Behandles av Nav", DataElementStatusVariant.WARNING),
     action: dataElementAction(
@@ -114,7 +114,7 @@ const aftTiltakspengerOverfortTilUtbetalingTableRow: DataDrivenTableDtoRow = {
       start: "2025-01-01",
       slutt: "2025-02-01",
     }),
-    belop: dataElementText("1200", DataElementTextFormat.NOK),
+    belop: dataElementMoneyAmount("1200", "NOK"),
     type: dataElementText(""),
     status: dataElementStatus("Overført til utbetaling", DataElementStatusVariant.SUCCESS),
     action: dataElementAction(
@@ -133,7 +133,7 @@ const mayRainAftTableRow: DataDrivenTableDtoRow = {
       start: "2025-06-01",
       slutt: "2025-07-01",
     }),
-    belop: dataElementText("16848", DataElementTextFormat.NOK),
+    belop: dataElementMoneyAmount("16848", "NOK"),
     type: dataElementText(""),
     status: dataElementStatus("Klar for innsending", DataElementStatusVariant.ALT_1),
     action: dataElementAction(
@@ -152,7 +152,7 @@ const aftFoobarTableRow: DataDrivenTableDtoRow = {
       start: "2025-01-01",
       slutt: "2025-02-01",
     }),
-    belop: dataElementText("1000", DataElementTextFormat.NOK),
+    belop: dataElementMoneyAmount("1000", "NOK"),
     type: dataElementText(""),
     status: dataElementStatus("Utbetalt", DataElementStatusVariant.SUCCESS),
     action: dataElementAction(

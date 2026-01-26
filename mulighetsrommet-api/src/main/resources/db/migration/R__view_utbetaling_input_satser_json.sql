@@ -7,7 +7,11 @@ select utbetaling_id,
                                'start', lower(periode),
                                'slutt', upper(periode)
                        ),
-                       'sats', sats
+                       'sats',
+                       jsonb_build_object(
+                               'belop', sats,
+                               'valuta', valuta
+                       )
                )
        ) as perioder_json
 from utbetaling_sats_periode

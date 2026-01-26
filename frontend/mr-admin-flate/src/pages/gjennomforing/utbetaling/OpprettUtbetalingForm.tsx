@@ -3,6 +3,7 @@ import {
   GjennomforingDto,
   OpprettUtbetalingRequest,
   ValidationError,
+  Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
@@ -50,6 +51,7 @@ export function OpprettUtbetalingForm({ gjennomforing, betalingsinformasjon }: P
         ...data,
         kidNummer: data.kidNummer || null,
         gjennomforingId: gjennomforing.id,
+        pris: { ...data.pris, valuta: gjennomforing.prismodell?.valuta ?? Valuta.NOK },
       },
       {
         onSuccess: () => {
@@ -101,12 +103,12 @@ export function OpprettUtbetalingForm({ gjennomforing, betalingsinformasjon }: P
               <VStack align={"start"}>
                 <TextField
                   size="small"
-                  label="Beløp (NOK)"
+                  label={"Beløp (" + gjennomforing.prismodell?.valuta + ")"}
                   type="number"
-                  {...register("belop", {
+                  {...register("pris.belop", {
                     valueAsNumber: true,
                   })}
-                  error={errors.belop?.message}
+                  error={errors.pris?.belop?.message}
                 />
               </VStack>
               <HStack>
