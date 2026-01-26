@@ -20,8 +20,8 @@ import css from "./root.module.css";
 import { ErrorPage } from "./components/common/ErrorPage";
 import { isDemo } from "./services/environment";
 import { Alert, Heading, Link } from "@navikt/ds-react";
-import { getFaro } from "./utils/telemetri";
 import { Header } from "./components/header/Header";
+import { initializeLogs, pushError } from "~/faro";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
@@ -30,24 +30,20 @@ export const loader: LoaderFunction = async () => {
   if (process.env.DISABLE_DEKORATOR !== "true") {
     dekorator = await fetchSsrDekorator();
   }
-  const telemetryUrl = process.env.TELEMETRY_URL;
-
   return {
     dekorator,
-    telemetryUrl,
   };
 };
 
 export type LoaderData = {
   dekorator: DekoratorElements | null;
-  telemetryUrl: string;
 };
 
 function App() {
-  const { dekorator, telemetryUrl } = useLoaderData<LoaderData>();
+  const { dekorator } = useLoaderData<LoaderData>();
 
   useEffect(() => {
-    getFaro(telemetryUrl);
+    initializeLogs();
   });
 
   return (
@@ -64,6 +60,7 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script src="/nais.js" />
         <Meta />
         <Links />
         {dekorator && parse(dekorator.head)}
@@ -115,7 +112,6 @@ function DekoratorHeader({ dekorator }: { dekorator?: DekoratorElements }) {
 export const ErrorBoundary = () => {
   const navigate = useNavigate();
   const error = useRouteError();
-  const faro = getFaro();
 
   useEffect(() => {
     if (isRouteErrorResponse(error)) {
@@ -129,10 +125,8 @@ export const ErrorBoundary = () => {
   }, [error, navigate]);
 
   useEffect(() => {
-    if (error instanceof Error) {
-      faro?.api.pushError(error);
-    }
-  }, [error, faro?.api]);
+    pushError(error);
+  }, [error]);
 
   if (isRouteErrorResponse(error)) {
     return (
