@@ -418,7 +418,6 @@ class GjennomforingQueries(private val session: Session) {
                    avbrutt_aarsaker,
                    avbrutt_forklaring,
                    publisert,
-                   prismodell_type,
                    nav_enheter_json,
                    tiltakstype_id,
                    tiltakstype_tiltakskode,
@@ -697,7 +696,6 @@ private fun Row.toGjennomforingKompakt(): GjennomforingGruppetiltakKompakt {
         sluttDato = localDateOrNull("slutt_dato"),
         status = toGjennomforingStatus(),
         publisert = boolean("publisert"),
-        prismodell = stringOrNull("prismodell_type")?.let { PrismodellType.valueOf(it) },
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
         arrangor = GjennomforingGruppetiltakKompakt.ArrangorUnderenhet(
             id = uuid("arrangor_id"),
