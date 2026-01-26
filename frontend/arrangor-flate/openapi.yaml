@@ -748,6 +748,11 @@ components:
         gjennomforingId:
           type: string
           format: uuid
+        utbetalingId:
+          type:
+          - "null"
+          - string
+          format: uuid
         arrangorNavn:
           type: string
         organisasjonsnummer:
@@ -790,6 +795,7 @@ components:
       - tiltakNavn
       - tiltakstypeNavn
       - type
+      - utbetalingId
     ValutaBelop:
       type: object
       properties:
