@@ -3,6 +3,7 @@ import {
   GjennomforingDto,
   OpprettUtbetalingRequest,
   ValidationError,
+  Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
@@ -50,6 +51,7 @@ export function OpprettUtbetalingForm({ gjennomforing, betalingsinformasjon }: P
         ...data,
         kidNummer: data.kidNummer || null,
         gjennomforingId: gjennomforing.id,
+        pris: { ...data.pris, valuta: gjennomforing.prismodell?.valuta ?? Valuta.NOK },
       },
       {
         onSuccess: () => {
