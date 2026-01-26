@@ -2,7 +2,7 @@ import { Box, Tabs, Button, HStack, Alert } from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrangorflateTilsagnOversikt,
-  TabelloversiktRadDto,
+  ArrangorInnsendingRadDto,
   UtbetalingOversiktType,
 } from "api-client";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
@@ -54,9 +54,11 @@ export default function Oversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
   const { data, tilsagn } = useLoaderData<typeof loader>();
 
-  const { sortedData, sort, toggleSort } = useSortableData<TabelloversiktRadDto, undefined, string>(
-    data,
-  );
+  const { sortedData, sort, toggleSort } = useSortableData<
+    ArrangorInnsendingRadDto,
+    undefined,
+    string
+  >(data);
   return (
     <Box className={css.side}>
       <HStack justify="space-between" align="center">

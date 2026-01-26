@@ -25,7 +25,7 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
-import no.nav.mulighetsrommet.api.arrangorflate.dto.TabelloversiktRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -118,7 +118,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         response {
             code(HttpStatusCode.OK) {
                 description = "Tiltak for arrangør"
-                body<List<TabelloversiktRadDto>>()
+                body<List<ArrangorInnsendingRadDto>>()
             }
             default {
                 description = "Problem details"

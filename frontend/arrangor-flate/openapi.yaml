@@ -30,7 +30,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TabelloversiktRadDto"
+                  $ref: "#/components/schemas/ArrangorInnsendingRadDto"
         default:
           description: Problem details
           headers: {}
@@ -418,7 +418,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TabelloversiktRadDto"
+                  $ref: "#/components/schemas/ArrangorInnsendingRadDto"
         default:
           description: Problem details
           headers: {}
@@ -742,7 +742,7 @@ components:
       enum:
       - AKTIVE
       - HISTORISKE
-    TabelloversiktRadDto:
+    ArrangorInnsendingRadDto:
       type: object
       properties:
         gjennomforingId:
@@ -772,9 +772,9 @@ components:
           - integer
           format: int32
         type:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/UtbetalingTypeDto"
+          type:
+          - "null"
+          - string
         status:
           oneOf:
           - type: "null"
@@ -791,23 +791,6 @@ components:
       - tiltakNavn
       - tiltakstypeNavn
       - type
-    UtbetalingTypeDto:
-      type: object
-      properties:
-        displayName:
-          type: string
-        displayNameLong:
-          type:
-          - "null"
-          - string
-        tagName:
-          type:
-          - "null"
-          - string
-      required:
-      - displayName
-      - displayNameLong
-      - tagName
     ArrangorflateUtbetalingStatus:
       type: string
       enum:
@@ -1601,6 +1584,23 @@ components:
       - displayName
       - satsDetaljer
       - stengt
+    UtbetalingTypeDto:
+      type: object
+      properties:
+        displayName:
+          type: string
+        displayNameLong:
+          type:
+          - "null"
+          - string
+        tagName:
+          type:
+          - "null"
+          - string
+      required:
+      - displayName
+      - displayNameLong
+      - tagName
     ArrangforflateUtbetalingLinje:
       type: object
       properties:

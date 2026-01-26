@@ -3,7 +3,7 @@ import {
   ArrangorflateTilsagnOversikt,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
-  TabelloversiktRadDto,
+  ArrangorInnsendingRadDto,
 } from "api-client";
 import {
   utbetalingTabellOversiktAktive,
@@ -17,13 +17,16 @@ export const handlers = [
   http.post<PathParams, DefaultBodyType>("*/api/arrangorflate/vedlegg/scan", () =>
     HttpResponse.json(true),
   ),
-  http.get<PathParams, TabelloversiktRadDto[]>("*/api/arrangorflate/utbetaling", ({ request }) => {
-    const type = new URL(request.url).searchParams.get("type");
-    if (type === "AKTIVE") {
-      return HttpResponse.json({ tabell: utbetalingTabellOversiktAktive });
-    }
-    return HttpResponse.json({ tabell: utbetalingTabellOversiktHistoriske });
-  }),
+  http.get<PathParams, ArrangorInnsendingRadDto[]>(
+    "*/api/arrangorflate/utbetaling",
+    ({ request }) => {
+      const type = new URL(request.url).searchParams.get("type");
+      if (type === "AKTIVE") {
+        return HttpResponse.json(utbetalingTabellOversiktAktive);
+      }
+      return HttpResponse.json(utbetalingTabellOversiktHistoriske);
+    },
+  ),
   http.get<PathParams, ArrangorflateUtbetalingDto[]>(
     "*/api/arrangorflate/utbetaling/:id",
     ({ params }) => {

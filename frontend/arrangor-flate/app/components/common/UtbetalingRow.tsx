@@ -1,12 +1,18 @@
-import { TabelloversiktRadDto } from "@api-client";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { BodyShort, Table } from "@navikt/ds-react";
 import { UtbetalingStatusTag } from "../utbetaling/UtbetalingStatusTag";
 import { UtbetalingTextLink } from "../utbetaling/UtbetalingTextLink";
 import css from "../../root.module.css";
+import { ArrangorInnsendingRadDto } from "api-client/types.gen";
 
-export function UtbetalingRow({ row, periode }: { row: TabelloversiktRadDto; periode?: boolean }) {
+export function UtbetalingRow({
+  row,
+  periode,
+}: {
+  row: ArrangorInnsendingRadDto;
+  periode?: boolean;
+}) {
   const formatertPeriode = periode ? (
     <Table.DataCell>
       {row.sluttDato && formaterPeriode({ start: row.startDato, slutt: row.sluttDato })}

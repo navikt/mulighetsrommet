@@ -41,7 +41,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatu
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.KREVER_ENDRING
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.UTBETALT
-import no.nav.mulighetsrommet.api.arrangorflate.dto.TabelloversiktRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
@@ -211,7 +211,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Utbetalinger i tabellformat"
-                    body<List<TabelloversiktRadDto>>()
+                    body<List<ArrangorInnsendingRadDto>>()
                 }
                 default {
                     description = "Problem details"

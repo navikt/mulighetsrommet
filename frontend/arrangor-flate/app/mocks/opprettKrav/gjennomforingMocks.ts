@@ -1,4 +1,4 @@
-import { ArrangorflateArrangor, TabelloversiktRadDto } from "@api-client";
+import { ArrangorflateArrangor, ArrangorInnsendingRadDto } from "@api-client";
 
 export const gjennomforingIdAFT = "54d0d2af-f329-480d-a427-30de446fea10";
 export const gjennomforingIdAvklaring = "54d0d2af-f329-480d-a427-30de446fea11";
@@ -12,7 +12,7 @@ export const arrangorMock: ArrangorflateArrangor = {
   organisasjonsnummer: "123456789",
 };
 
-export const gjennomforingAFT: TabelloversiktRadDto = {
+export const gjennomforingAFT: ArrangorInnsendingRadDto = {
   gjennomforingId: gjennomforingIdAFT,
   tiltakNavn: "Et AFT-tiltak Investering",
   tiltakstypeNavn: "Arbeidsforberedende trening",
@@ -26,7 +26,7 @@ export const gjennomforingAFT: TabelloversiktRadDto = {
   status: null,
 };
 
-export const gjennomforingAvklaring: TabelloversiktRadDto = {
+export const gjennomforingAvklaring: ArrangorInnsendingRadDto = {
   gjennomforingId: gjennomforingIdAvklaring,
   tiltakNavn: "Et avklaringstiltak med annen avtalt pris",
   tiltakstypeNavn: "Avklaring",
@@ -40,7 +40,7 @@ export const gjennomforingAvklaring: TabelloversiktRadDto = {
   status: null,
 };
 
-export const gjennomforingOppfolging: TabelloversiktRadDto = {
+export const gjennomforingOppfolging: ArrangorInnsendingRadDto = {
   gjennomforingId: gjennomforingIdOppfolging,
   tiltakNavn: "Et oppfølgingstiltak med avtalt timespris",
   tiltakstypeNavn: "Oppfølging",
@@ -54,7 +54,7 @@ export const gjennomforingOppfolging: TabelloversiktRadDto = {
   status: null,
 };
 
-export const oversiktAktiveGjennomforinger: TabelloversiktRadDto[] = [
+export const oversiktAktiveGjennomforinger: ArrangorInnsendingRadDto[] = [
   gjennomforingAFT,
   gjennomforingAvklaring,
   gjennomforingOppfolging,

@@ -12,7 +12,7 @@ import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.ApplicationConfigLocal
 import no.nav.mulighetsrommet.api.arrangorflate.api.DatoVelger
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingsInformasjon
-import no.nav.mulighetsrommet.api.arrangorflate.dto.TabelloversiktRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -101,7 +101,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
-            val body = response.body<List<TabelloversiktRadDto>>()
+            val body = response.body<List<ArrangorInnsendingRadDto>>()
             body.shouldBeEmpty()
         }
     }
@@ -113,7 +113,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
-            val body = response.body<List<TabelloversiktRadDto>>()
+            val body = response.body<List<ArrangorInnsendingRadDto>>()
             body.shouldNotBeNull()
             body.size shouldBeGreaterThan 0
         }

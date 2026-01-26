@@ -1,5 +1,5 @@
 import { Alert, BodyShort, Box, Heading, Tabs } from "@navikt/ds-react";
-import { ArrangorflateService, TabelloversiktRadDto, TiltaksoversiktType } from "api-client";
+import { ArrangorflateService, ArrangorInnsendingRadDto, TiltaksoversiktType } from "api-client";
 import { LoaderFunctionArgs, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils/validering";
@@ -44,9 +44,11 @@ export default function OpprettKravTiltaksOversikt() {
     storage.clear();
   }, [storage]);
 
-  const { sortedData, sort, toggleSort } = useSortableData<TabelloversiktRadDto, undefined, string>(
-    data,
-  );
+  const { sortedData, sort, toggleSort } = useSortableData<
+    ArrangorInnsendingRadDto,
+    undefined,
+    string
+  >(data);
 
   return (
     <InnsendingLayout contentGap="6">
@@ -78,7 +80,7 @@ export default function OpprettKravTiltaksOversikt() {
             </Box>
           ) : (
             <Tabellvisning kolonner={kolonner} sort={sort} onSortChange={toggleSort}>
-              {sortedData.map((row: TabelloversiktRadDto) => (
+              {sortedData.map((row: ArrangorInnsendingRadDto) => (
                 <UtbetalingRow key={row.gjennomforingId} row={row} />
               ))}
             </Tabellvisning>

@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingKompaktDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -13,7 +12,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
-data class TabelloversiktRadDto(
+data class ArrangorInnsendingRadDto(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
     val arrangorNavn: String,
@@ -26,11 +25,11 @@ data class TabelloversiktRadDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val belop: Int?,
-    val type: UtbetalingTypeDto?,
+    val type: String?,
     val status: ArrangorflateUtbetalingStatus?,
 )
 
-fun GjennomforingGruppetiltakKompakt.toRadDto(): TabelloversiktRadDto = TabelloversiktRadDto(
+fun GjennomforingGruppetiltakKompakt.toRadDto(): ArrangorInnsendingRadDto = ArrangorInnsendingRadDto(
     gjennomforingId = this.id,
     arrangorNavn = this.arrangor.navn,
     organisasjonsnummer = this.arrangor.organisasjonsnummer,
@@ -44,7 +43,7 @@ fun GjennomforingGruppetiltakKompakt.toRadDto(): TabelloversiktRadDto = Tabellov
     status = null,
 )
 
-fun ArrangorflateUtbetalingKompaktDto.toRadDto(): TabelloversiktRadDto = TabelloversiktRadDto(
+fun ArrangorflateUtbetalingKompaktDto.toRadDto(): ArrangorInnsendingRadDto = ArrangorInnsendingRadDto(
     gjennomforingId = this.gjennomforing.id,
     arrangorNavn = this.arrangor.navn,
     organisasjonsnummer = this.arrangor.organisasjonsnummer,
@@ -54,6 +53,6 @@ fun ArrangorflateUtbetalingKompaktDto.toRadDto(): TabelloversiktRadDto = Tabello
     startDato = this.periode.start,
     sluttDato = this.periode.slutt,
     belop = this.belop,
-    type = this.type,
+    type = this.type.displayName,
     status = this.status,
 )

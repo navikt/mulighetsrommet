@@ -1,38 +1,16 @@
-import { HStack, Tag } from "@navikt/ds-react";
-
-export type UtbetalingTypeDto = {
-  displayName: string;
-  displayNameLong: string | null;
-  tagName: string | null;
-};
+import { Tag } from "@navikt/ds-react";
 
 interface UtbetalingsTypeTagProps {
-  type: UtbetalingTypeDto;
+  type: "Investering" | "Korrigering" | string;
 }
 
 export function UtbetalingTypeTag({ type }: UtbetalingsTypeTagProps) {
-  if (!type.tagName) {
+  if (type !== "Investering" && type !== "Korrigering") {
     return null;
   }
   return (
-    <Tag variant="neutral" title={type.displayName} size="small">
-      {type.tagName}
+    <Tag variant="neutral" title={type} size="small">
+      {type === "Investering" ? "INV" : "KOR"}
     </Tag>
-  );
-}
-
-interface UtbetalingsTypeProps {
-  type: UtbetalingTypeDto;
-}
-
-export function UtbetalingTypeText({ type }: UtbetalingsTypeProps) {
-  if (!type.tagName) {
-    return null;
-  }
-  return (
-    <HStack gap="2">
-      {type.displayName}
-      <UtbetalingTypeTag type={type} />
-    </HStack>
   );
 }
