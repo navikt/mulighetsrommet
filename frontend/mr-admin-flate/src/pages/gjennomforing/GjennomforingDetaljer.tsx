@@ -106,10 +106,6 @@ export function GjennomforingDetaljer() {
         </HStack>
       ),
     },
-    {
-      key: gjennomforingTekster.apentForPameldingLabel,
-      value: apentForPamelding ? "Ja" : "Nei",
-    },
   ];
 
   const varighetMeta: Definition[] = [
@@ -127,6 +123,10 @@ export function GjennomforingDetaljer() {
           : "Vedtaket fattes i Tiltaksadministrasjon etter at deltakeren er søkt inn fra Modia",
     },
     { key: gjennomforingTekster.antallPlasserLabel, value: antallPlasser },
+    {
+      key: gjennomforingTekster.apentForPameldingLabel,
+      value: apentForPamelding ? "Ja" : "Nei",
+    },
 
     ...(kreverDeltidsprosent(tiltakstype.tiltakskode)
       ? [{ key: gjennomforingTekster.deltidsprosentLabel, value: deltidsprosent }]
