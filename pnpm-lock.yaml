@@ -396,14 +396,14 @@ importers:
         specifier: 7.38.0
         version: 7.38.0
       '@portabletext/editor':
-        specifier: 4.2.2
-        version: 4.2.2(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2)
+        specifier: 4.3.0
+        version: 4.3.0(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2)
       '@portabletext/react':
         specifier: 6.0.2
         version: 6.0.2(react@19.0.3)
       '@portabletext/toolbar':
-        specifier: 5.0.12
-        version: 5.0.12(@portabletext/editor@4.2.2(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.3)
+        specifier: 5.0.15
+        version: 5.0.15(@portabletext/editor@4.3.0(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.3)
       '@portabletext/types':
         specifier: 4.0.1
         version: 4.0.1
@@ -2540,8 +2540,8 @@ packages:
       react: ^18.3 || ^19
       rxjs: ^7.8.2
 
-  '@portabletext/editor@4.2.2':
-    resolution: {integrity: sha512-a8MS3F3PeZwLf/IvPhABjQtkUTPrG+dTiDrffE1aluUoeotm9KU5hwlFwMoLaPwP4AyhhPIEesSignI7kpRcPQ==}
+  '@portabletext/editor@4.3.0':
+    resolution: {integrity: sha512-sdjhztiANG7vSLgHT/H28EpWad3b6vy05oCOvm8nTUskSUfBmZOpRZxiGfYNGdX1+QQG8Y2Ydq/Q6hoDyqgq5Q==}
     engines: {node: '>=20.19 <22 || >=22.12'}
     peerDependencies:
       '@portabletext/sanity-bridge': ^2.0.0
@@ -2627,11 +2627,11 @@ packages:
     resolution: {integrity: sha512-cLaxxEoe3e8Py/t+hZEw2+sOIWPCpO9fyruUlRdZMQ65IkdyFaJEJlXkpNDqwV0+BO2GVJqaQVM5T6MeGdt8Xg==}
     engines: {node: '>=20.19 <22 || >=22.12'}
 
-  '@portabletext/toolbar@5.0.12':
-    resolution: {integrity: sha512-XV+BQPYCFmUAXBcL0Fg7yPlzLSSbbvcnhQgYE8A2PcCsQvaUIGb5ytqCeFwTcBhC+luSWtKtlRgJ7NAD+ufkPw==}
+  '@portabletext/toolbar@5.0.15':
+    resolution: {integrity: sha512-Y/SJFd4QkY+u2Nk1ZCoYCkFfVXp90Mxh0cvs18xkv2UGHNZrMaYNG7mfLuM0ZEICIWrcmXCxljALR+M+PBI8Eg==}
     engines: {node: '>=20.19 <22 || >=22.12'}
     peerDependencies:
-      '@portabletext/editor': ^4.2.2
+      '@portabletext/editor': ^4.3.0
       react: ^19.2.3
 
   '@portabletext/toolkit@4.0.0':
@@ -2979,6 +2979,9 @@ packages:
   '@sanity/generate-help-url@3.0.1':
     resolution: {integrity: sha512-bKqCEqFP7qXpNcHxJZnXFLrti8/HYQhhJtMRYFSNJ8bkUXCuUmhHKckzoyiH1n1WAZpI2Y05z2h5yZWbi3gThQ==}
 
+  '@sanity/generate-help-url@4.0.0':
+    resolution: {integrity: sha512-Ooa4xkLT3TLaX+mw/13fq3IeGdnAkx4rbpVASvRVixzBBvvcL6jPqj50fjlCd+EhgB5GRXBCNNAy/hWXwjZEUA==}
+
   '@sanity/icons@3.7.4':
     resolution: {integrity: sha512-O9MnckiDsphFwlRS8Q3kj3n+JYUZ0UzKRujnSikMZOKI0dayucRe4U2XvxikRhJnFhcEJXW2RkWJoBaCoup9Sw==}
     engines: {node: '>=14.0.0'}
@@ -3020,8 +3023,8 @@ packages:
   '@sanity/media-library-types@1.0.1':
     resolution: {integrity: sha512-lyjDQqq0IkVMBKPsm1+IeTpOki3OeFvSCyFms8pPTYcMaH0U5S+wK553QDI4HnmmPx0SiWpOWtLlTh1qkh+IFA==}
 
-  '@sanity/media-library-types@1.1.0':
-    resolution: {integrity: sha512-awoxTyK6jS57FILEFA18FFXcajQnl+tzTX/oqPZ9NIxVpFgzYEAbr+kw6iFlSjyRdTcm/g2gFzgzk2OOOzQkRQ==}
+  '@sanity/media-library-types@1.2.0':
+    resolution: {integrity: sha512-p+Bw96I63SwBcMNA/L5dnMdEcS88EEDUDZ65LGuwOCMXrESRGMFCSxgc+0HnL0JXDIzgYgfrPuf1I3bO9QneAw==}
 
   '@sanity/message-protocol@0.12.0':
     resolution: {integrity: sha512-RMRWQG5yVkCZnnBHW3qxVbZGUOeXPBzFPdD9+pynQCTVZI7zYBEzjnY8lcSYjty+0unDHqeoqMPfBXhqs0rg2g==}
@@ -3077,8 +3080,8 @@ packages:
   '@sanity/schema@4.22.0':
     resolution: {integrity: sha512-39cH5XwMsdLPuntLJyX+bre7FJyZvB3foDhHL7hUx4GCCOZ41X+6QV/yj8mbPzLSTbyhH7nNDBXrBYhvjig84Q==}
 
-  '@sanity/schema@5.2.0':
-    resolution: {integrity: sha512-OCUNMh5sydxhdKIpE0tBZ8QtMgDj35M56uB+dQMwKhTqrxvi1s5sWsT0pS/BX2b0mUa/2BpoHFqLEOM2Xm3R+g==}
+  '@sanity/schema@5.4.0':
+    resolution: {integrity: sha512-z6hGSRnWmY+Mk0FDD+UCWSOGw0aW7+6dLrD031The1egSlJXwbfV0N+TzAdvpxI+obd1z5n2wfdwxlPGolRvHA==}
 
   '@sanity/sdk@2.1.2':
     resolution: {integrity: sha512-gRBMDNvMUqlFTVoNgOLtcOFDO+e8Fh6v+BrEA4C5F18oi949ObjMmPB2aZMoyP3N3GQuqwVQP6L2PrhH70H7Bw==}
@@ -3110,8 +3113,8 @@ packages:
     peerDependencies:
       '@types/react': 18 || 19
 
-  '@sanity/types@5.2.0':
-    resolution: {integrity: sha512-6Ugw36yLRlZWI5tc5USlL71SD0iQE5tWl8i8okKKCeAEaPdxlN+lVuwF8AdKX9d54rdtkOqjRnxzeCpsbzAsEg==}
+  '@sanity/types@5.4.0':
+    resolution: {integrity: sha512-wy+w1K2WuMj+6xcP3z4dDLdMQiyinfemi0koX0HQulZ+s6uSPi2rDKgixe0+7hcQD8k1m2fGpDfvCfnlXAT0Vg==}
     peerDependencies:
       '@types/react': ^19.2
 
@@ -8275,6 +8278,9 @@ packages:
   xstate@5.25.0:
     resolution: {integrity: sha512-yyWzfhVRoTHNLjLoMmdwZGagAYfmnzpm9gPjlX2MhJZsDojXGqRxODDOi4BsgGRKD46NZRAdcLp6CKOyvQS0Bw==}
 
+  xstate@5.25.1:
+    resolution: {integrity: sha512-oyvsNH5pF2qkHmiHEMdWqc3OjDtoZOH2MTAI35r01f/ZQWOD+VLOiYqo65UgQET0XMA5s9eRm8fnsIo+82biEw==}
+
   xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
@@ -10328,7 +10334,7 @@ snapshots:
     dependencies:
       '@portabletext/sanity-bridge': 2.0.0(@types/react@19.0.3)(debug@4.4.3)
       '@portabletext/schema': 2.1.1
-      '@sanity/types': 5.2.0(@types/react@19.0.3)(debug@4.4.3)
+      '@sanity/types': 5.4.0(@types/react@19.0.3)(debug@4.4.3)
     transitivePeerDependencies:
       - '@types/react'
       - debug
@@ -10345,7 +10351,7 @@ snapshots:
       '@portabletext/to-html': 5.0.1
       '@sanity/schema': 4.22.0(@types/react@19.0.3)(debug@4.4.3)
       '@sanity/types': 4.22.0(@types/react@19.0.3)(debug@4.4.3)
-      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.3)(xstate@5.25.0)
+      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.3)(xstate@5.25.1)
       debug: 4.4.3(supports-color@8.1.1)
       react: 19.0.3
       react-compiler-runtime: 1.0.0(react@19.0.3)
@@ -10353,13 +10359,13 @@ snapshots:
       slate: 0.120.0
       slate-dom: 0.119.0(slate@0.120.0)
       slate-react: 0.120.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(slate-dom@0.119.0(slate@0.120.0))(slate@0.120.0)
-      xstate: 5.25.0
+      xstate: 5.25.1
     transitivePeerDependencies:
       - '@types/react'
       - react-dom
       - supports-color
 
-  '@portabletext/editor@4.2.2(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2)':
+  '@portabletext/editor@4.3.0(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2)':
     dependencies:
       '@portabletext/block-tools': 5.0.0(@types/react@19.0.3)(debug@4.4.3)
       '@portabletext/keyboard-shortcuts': 2.1.2
@@ -10368,16 +10374,16 @@ snapshots:
       '@portabletext/sanity-bridge': 2.0.0(@types/react@19.0.3)(debug@4.4.3)
       '@portabletext/schema': 2.1.1
       '@portabletext/to-html': 5.0.1
-      '@sanity/schema': 5.2.0(@types/react@19.0.3)(debug@4.4.3)
-      '@sanity/types': 5.2.0(@types/react@19.0.3)(debug@4.4.3)
-      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.3)(xstate@5.25.0)
+      '@sanity/schema': 5.4.0(@types/react@19.0.3)(debug@4.4.3)
+      '@sanity/types': 5.4.0(@types/react@19.0.3)(debug@4.4.3)
+      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.3)(xstate@5.25.1)
       debug: 4.4.3(supports-color@8.1.1)
       react: 19.0.3
       rxjs: 7.8.2
       slate: 0.120.0
       slate-dom: 0.119.0(slate@0.120.0)
       slate-react: 0.120.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(slate-dom@0.119.0(slate@0.120.0))(slate@0.120.0)
-      xstate: 5.25.0
+      xstate: 5.25.1
     transitivePeerDependencies:
       - '@types/react'
       - react-dom
@@ -10402,21 +10408,21 @@ snapshots:
   '@portabletext/plugin-character-pair-decorator@4.0.33(@portabletext/editor@3.3.16(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.3)':
     dependencies:
       '@portabletext/editor': 3.3.16(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2)
-      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.3)(xstate@5.25.0)
+      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.3)(xstate@5.25.1)
       react: 19.0.3
       react-compiler-runtime: 1.0.0(react@19.0.3)
       remeda: 2.32.0
-      xstate: 5.25.0
+      xstate: 5.25.1
     transitivePeerDependencies:
       - '@types/react'
 
   '@portabletext/plugin-input-rule@1.0.33(@portabletext/editor@3.3.16(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.3)':
     dependencies:
       '@portabletext/editor': 3.3.16(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2)
-      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.3)(xstate@5.25.0)
+      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.3)(xstate@5.25.1)
       react: 19.0.3
       react-compiler-runtime: 1.0.0(react@19.0.3)
-      xstate: 5.25.0
+      xstate: 5.25.1
     transitivePeerDependencies:
       - '@types/react'
 
@@ -10470,8 +10476,8 @@ snapshots:
   '@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3)(debug@4.4.3)':
     dependencies:
       '@portabletext/schema': 2.1.1
-      '@sanity/schema': 5.2.0(@types/react@19.0.3)(debug@4.4.3)
-      '@sanity/types': 5.2.0(@types/react@19.0.3)(debug@4.4.3)
+      '@sanity/schema': 5.4.0(@types/react@19.0.3)(debug@4.4.3)
+      '@sanity/types': 5.4.0(@types/react@19.0.3)(debug@4.4.3)
     transitivePeerDependencies:
       - '@types/react'
       - debug
@@ -10484,13 +10490,13 @@ snapshots:
       '@portabletext/toolkit': 5.0.1
       '@portabletext/types': 4.0.1
 
-  '@portabletext/toolbar@5.0.12(@portabletext/editor@4.2.2(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.3)':
+  '@portabletext/toolbar@5.0.15(@portabletext/editor@4.3.0(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.3)':
     dependencies:
-      '@portabletext/editor': 4.2.2(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2)
+      '@portabletext/editor': 4.3.0(@portabletext/sanity-bridge@2.0.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2)
       '@portabletext/keyboard-shortcuts': 2.1.2
-      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.3)(xstate@5.25.0)
+      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.3)(xstate@5.25.1)
       react: 19.0.3
-      xstate: 5.25.0
+      xstate: 5.25.1
     transitivePeerDependencies:
       - '@types/react'
 
@@ -10806,19 +10812,19 @@ snapshots:
     dependencies:
       rxjs: 7.8.2
       uuid: 11.1.0
-      xstate: 5.25.0
+      xstate: 5.25.1
 
   '@sanity/comlink@3.1.1':
     dependencies:
       rxjs: 7.8.2
       uuid: 11.1.0
-      xstate: 5.25.0
+      xstate: 5.25.1
 
   '@sanity/comlink@4.0.1':
     dependencies:
       rxjs: 7.8.2
       uuid: 13.0.0
-      xstate: 5.25.0
+      xstate: 5.25.1
 
   '@sanity/descriptors@1.3.0':
     dependencies:
@@ -10867,6 +10873,8 @@ snapshots:
       - supports-color
 
   '@sanity/generate-help-url@3.0.1': {}
+
+  '@sanity/generate-help-url@4.0.0': {}
 
   '@sanity/icons@3.7.4(react@19.0.3)':
     dependencies:
@@ -10930,7 +10938,7 @@ snapshots:
 
   '@sanity/media-library-types@1.0.1': {}
 
-  '@sanity/media-library-types@1.1.0': {}
+  '@sanity/media-library-types@1.2.0': {}
 
   '@sanity/message-protocol@0.12.0':
     dependencies:
@@ -11095,11 +11103,11 @@ snapshots:
       - debug
       - supports-color
 
-  '@sanity/schema@5.2.0(@types/react@19.0.3)(debug@4.4.3)':
+  '@sanity/schema@5.4.0(@types/react@19.0.3)(debug@4.4.3)':
     dependencies:
       '@sanity/descriptors': 1.3.0
-      '@sanity/generate-help-url': 3.0.1
-      '@sanity/types': 5.2.0(@types/react@19.0.3)(debug@4.4.3)
+      '@sanity/generate-help-url': 4.0.0
+      '@sanity/types': 5.4.0(@types/react@19.0.3)(debug@4.4.3)
       arrify: 2.0.1
       groq-js: 1.25.0
       humanize-list: 1.0.1
@@ -11150,7 +11158,7 @@ snapshots:
   '@sanity/types@3.99.0(@types/react@19.0.3)(debug@4.4.3)':
     dependencies:
       '@sanity/client': 7.13.0(debug@4.4.3)
-      '@sanity/media-library-types': 1.1.0
+      '@sanity/media-library-types': 1.2.0
       '@types/react': 19.0.3
     transitivePeerDependencies:
       - debug
@@ -11166,15 +11174,15 @@ snapshots:
   '@sanity/types@4.22.0(@types/react@19.0.3)(debug@4.4.3)':
     dependencies:
       '@sanity/client': 7.14.0(debug@4.4.3)
-      '@sanity/media-library-types': 1.1.0
+      '@sanity/media-library-types': 1.2.0
       '@types/react': 19.0.3
     transitivePeerDependencies:
       - debug
 
-  '@sanity/types@5.2.0(@types/react@19.0.3)(debug@4.4.3)':
+  '@sanity/types@5.4.0(@types/react@19.0.3)(debug@4.4.3)':
     dependencies:
       '@sanity/client': 7.14.0(debug@4.4.3)
-      '@sanity/media-library-types': 1.1.0
+      '@sanity/media-library-types': 1.2.0
       '@types/react': 19.0.3
     transitivePeerDependencies:
       - debug
@@ -11779,6 +11787,16 @@ snapshots:
       use-sync-external-store: 1.6.0(react@19.0.3)
     optionalDependencies:
       xstate: 5.25.0
+    transitivePeerDependencies:
+      - '@types/react'
+
+  '@xstate/react@6.0.0(@types/react@19.0.3)(react@19.0.3)(xstate@5.25.1)':
+    dependencies:
+      react: 19.0.3
+      use-isomorphic-layout-effect: 1.2.1(@types/react@19.0.3)(react@19.0.3)
+      use-sync-external-store: 1.6.0(react@19.0.3)
+    optionalDependencies:
+      xstate: 5.25.1
     transitivePeerDependencies:
       - '@types/react'
 
@@ -17089,6 +17107,8 @@ snapshots:
   xregexp@2.0.0: {}
 
   xstate@5.25.0: {}
+
+  xstate@5.25.1: {}
 
   xtend@4.0.2: {}
 
