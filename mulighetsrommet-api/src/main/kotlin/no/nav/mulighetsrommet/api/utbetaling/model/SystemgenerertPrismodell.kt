@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters.nextOrSame
 import java.time.temporal.TemporalAdjusters.previousOrSame
 
@@ -32,7 +33,7 @@ object FastSatsPerTiltaksplassPerManedBeregning :
 
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(deltakere, periode)
+        val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(deltakere, periode, gjennomforing.sluttDato)
         val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengt, deltakelser)
 
         val manedsverk = deltakelser
@@ -64,7 +65,7 @@ object PrisPerManedBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisP
 
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
+        val deltakelser = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode, gjennomforing.sluttDato)
         val input = UtbetalingBeregningPrisPerManedsverk.Input(satser, stengt, deltakelser)
 
         val manedsverk = deltakelser
@@ -110,7 +111,7 @@ object PrisPerHeleUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPri
 
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
+        val deltakelser = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode, gjennomforing.sluttDato)
         val input = UtbetalingBeregningPrisPerHeleUkesverk.Input(satser, stengt, deltakelser)
 
         val ukesverk = deltakelser
@@ -142,7 +143,7 @@ object PrisPerUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPer
 
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
+        val deltakelser = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode, gjennomforing.sluttDato)
         val input = UtbetalingBeregningPrisPerUkesverk.Input(satser, stengt, deltakelser)
 
         val ukesverk = deltakelser
@@ -177,10 +178,11 @@ private fun resolveStengtHosArrangor(
 private fun resolveDeltakelserPerioderMedDeltakelsesmengder(
     deltakere: List<Deltaker>,
     periode: Periode,
+    gjennomforingSluttDato: LocalDate?,
 ): Set<DeltakelseDeltakelsesprosentPerioder> {
     return deltakere
         .mapNotNull { deltaker ->
-            val (deltakelseId, deltakelsePeriode) = UtbetalingInputHelper.toDeltakelsePeriode(deltaker, periode)
+            val (deltakelseId, deltakelsePeriode) = UtbetalingInputHelper.toDeltakelsePeriode(deltaker, periode, gjennomforingSluttDato)
                 ?: return@mapNotNull null
 
             val perioder = deltaker.deltakelsesmengder.windowed(2, partialWindows = true).mapNotNull { window ->
@@ -201,11 +203,4 @@ private fun resolveDeltakelserPerioderMedDeltakelsesmengder(
             DeltakelseDeltakelsesprosentPerioder(deltakelseId, perioder)
         }
         .toSet()
-}
-
-private fun resolveDeltakelsePerioder(
-    deltakere: List<Deltaker>,
-    periode: Periode,
-): Set<DeltakelsePeriode> {
-    return UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
 }

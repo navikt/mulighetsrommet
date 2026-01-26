@@ -937,11 +937,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak"
+              $ref: "#/components/schemas/AvbrytGjennomforingRequest"
         required: false
       responses:
         "200":
-          description: Gjennomføring ble avbrutt
+          description: Avbryt gjennomføring
           headers: {}
         "400":
           description: Valideringsfeil
@@ -4805,15 +4805,6 @@ components:
       - tiltaksnummer
       - tiltakstype
       - utdanningslop
-    AvbrytGjennomforingAarsak:
-      type: string
-      enum:
-      - ENDRING_HOS_ARRANGOR
-      - BUDSJETT_HENSYN
-      - FOR_FAA_DELTAKERE
-      - FEILREGISTRERING
-      - AVBRUTT_I_ARENA
-      - ANNET
     AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak:
       type: object
       properties:
@@ -4828,6 +4819,28 @@ components:
       required:
       - aarsaker
       - forklaring
+    AvbrytGjennomforingAarsak:
+      type: string
+      enum:
+      - ENDRING_HOS_ARRANGOR
+      - BUDSJETT_HENSYN
+      - FOR_FAA_DELTAKERE
+      - FEILREGISTRERING
+      - AVBRUTT_I_ARENA
+      - ANNET
+    AvbrytGjennomforingRequest:
+      type: object
+      properties:
+        aarsakerOgForklaringRequest:
+          $ref: "#/components/schemas/AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak"
+        dato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - aarsakerOgForklaringRequest
+      - dato
     PublisertRequest:
       type: object
       properties:

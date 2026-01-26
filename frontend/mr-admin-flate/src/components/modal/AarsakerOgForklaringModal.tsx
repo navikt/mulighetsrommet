@@ -22,6 +22,7 @@ interface Props<T> {
   errors?: FieldError[];
   onClose: () => void;
   onConfirm: (data: { aarsaker: T[]; forklaring: string | null }) => void;
+  extraFields?: React.ReactNode;
 }
 
 const FORKLARING_MAX_LENGTH = 500;
@@ -42,18 +43,21 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
         </Modal.Header>
         <Modal.Body>
           <HGrid columns={2} gap="6" align="start">
-            <CheckboxGroup
-              onChange={setValgteAarsaker}
-              value={valgteAarsaker}
-              name="aarsak"
-              legend="Årsak"
-            >
-              {aarsaker.map(({ label, value }) => (
-                <Checkbox key={String(value)} value={value}>
-                  {label}
-                </Checkbox>
-              ))}
-            </CheckboxGroup>
+            <VStack gap="2">
+              {props.extraFields}
+              <CheckboxGroup
+                onChange={setValgteAarsaker}
+                value={valgteAarsaker}
+                name="aarsak"
+                legend="Årsak"
+              >
+                {aarsaker.map(({ label, value }) => (
+                  <Checkbox key={String(value)} value={value}>
+                    {label}
+                  </Checkbox>
+                ))}
+              </CheckboxGroup>
+            </VStack>
             <Textarea
               onChange={(val) => setForklaring(val.currentTarget.value)}
               label="Forklaring"

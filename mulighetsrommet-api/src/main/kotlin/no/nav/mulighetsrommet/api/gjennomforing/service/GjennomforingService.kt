@@ -234,6 +234,7 @@ class GjennomforingService(
             id = id,
             status = GjennomforingStatusType.AVSLUTTET,
             tidspunkt = avsluttetTidspunkt,
+            sluttDato = null,
             aarsaker = null,
             forklaring = null,
         )
@@ -277,6 +278,7 @@ class GjennomforingService(
             id = id,
             status = status,
             tidspunkt = tidspunkt,
+            sluttDato = tidspunkt.minusDays(1).toLocalDate(),
             aarsaker = aarsakerOgForklaring.aarsaker,
             forklaring = aarsakerOgForklaring.forklaring,
         )

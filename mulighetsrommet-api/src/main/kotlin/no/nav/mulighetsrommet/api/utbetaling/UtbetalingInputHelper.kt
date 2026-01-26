@@ -19,7 +19,7 @@ object UtbetalingInputHelper {
         val satser = resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
-        val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, periode)
+        val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, periode, gjennomforing.sluttDato)
         return AvtaltPrisPerTimeOppfolgingPerDeltaker(
             satser,
             stengtHosArrangor,
@@ -69,11 +69,12 @@ object UtbetalingInputHelper {
     fun resolveDeltakelsePerioder(
         deltakere: List<Deltaker>,
         periode: Periode,
+        gjennomforingSluttDato: LocalDate?,
     ): Set<DeltakelsePeriode> {
         return deltakere
             .asSequence()
             .mapNotNull { deltaker ->
-                toDeltakelsePeriode(deltaker, periode)
+                toDeltakelsePeriode(deltaker, periode, gjennomforingSluttDato)
             }
             .toSet()
     }
@@ -81,6 +82,7 @@ object UtbetalingInputHelper {
     fun toDeltakelsePeriode(
         deltaker: Deltaker,
         periode: Periode,
+        gjennomforingSluttDato: LocalDate?,
     ): DeltakelsePeriode? {
         if (!harDeltakerDeltatt(deltaker)) {
             return null
@@ -89,7 +91,7 @@ object UtbetalingInputHelper {
         val startDato = requireNotNull(deltaker.startDato) {
             "Deltaker må ha en startdato når status er ${deltaker.status.type} og den er relevant for utbetaling"
         }
-        val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
+        val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode, gjennomforingSluttDato)
         val overlappingPeriode = Periode.of(startDato, sluttDatoInPeriode)?.intersect(periode) ?: return null
         return DeltakelsePeriode(deltaker.id, overlappingPeriode)
     }
@@ -107,8 +109,12 @@ object UtbetalingInputHelper {
         return deltaker.status.type in avsluttendeStatus && deltaker.sluttDato != null
     }
 
-    fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
-        return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
+    fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode, gjennomforingSluttDato: LocalDate?): LocalDate {
+        return listOfNotNull(
+            deltaker.sluttDato?.plusDays(1),
+            periode.slutt,
+            gjennomforingSluttDato?.plusDays(1),
+        ).min()
     }
 
     fun resolveStengtHosArrangor(

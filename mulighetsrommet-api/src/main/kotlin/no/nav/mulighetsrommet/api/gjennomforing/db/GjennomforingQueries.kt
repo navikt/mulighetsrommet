@@ -575,6 +575,7 @@ class GjennomforingQueries(private val session: Session) {
         id: UUID,
         status: GjennomforingStatusType,
         tidspunkt: LocalDateTime?,
+        sluttDato: LocalDate?,
         aarsaker: List<AvbrytGjennomforingAarsak>?,
         forklaring: String?,
     ): Int = with(session) {
@@ -583,6 +584,7 @@ class GjennomforingQueries(private val session: Session) {
             update gjennomforing
             set status = :status::gjennomforing_status,
                 avsluttet_tidspunkt = :tidspunkt,
+                slutt_dato = coalesce(:slutt_dato, slutt_dato),
                 avbrutt_aarsaker = :aarsaker,
                 avbrutt_forklaring = :forklaring
             where id = :id::uuid
@@ -592,6 +594,7 @@ class GjennomforingQueries(private val session: Session) {
             "id" to id,
             "status" to status.name,
             "tidspunkt" to tidspunkt,
+            "slutt_dato" to sluttDato,
             "aarsaker" to aarsaker?.let { session.createTextArray(it) },
             "forklaring" to forklaring,
         )

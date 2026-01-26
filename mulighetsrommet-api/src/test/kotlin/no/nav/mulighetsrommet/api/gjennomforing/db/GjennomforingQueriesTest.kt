@@ -330,6 +330,7 @@ class GjennomforingQueriesTest : FunSpec({
                     id,
                     GjennomforingStatusType.AVBRUTT,
                     tidspunkt,
+                    tidspunkt.minusDays(1).toLocalDate(),
                     listOf(AvbrytGjennomforingAarsak.ANNET),
                     ":)",
                 )
@@ -343,6 +344,7 @@ class GjennomforingQueriesTest : FunSpec({
                     id = id,
                     status = GjennomforingStatusType.AVLYST,
                     tidspunkt = tidspunkt,
+                    tidspunkt.minusDays(1).toLocalDate(),
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
@@ -356,6 +358,7 @@ class GjennomforingQueriesTest : FunSpec({
                     id = id,
                     status = GjennomforingStatusType.GJENNOMFORES,
                     tidspunkt = tidspunkt,
+                    sluttDato = null,
                     aarsaker = null,
                     forklaring = null,
                 )
