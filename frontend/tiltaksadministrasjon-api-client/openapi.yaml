@@ -3597,6 +3597,7 @@ components:
       type: string
       enum:
       - NOK
+      - SEK
     AvtaltSatsRequest:
       type: object
       properties:
