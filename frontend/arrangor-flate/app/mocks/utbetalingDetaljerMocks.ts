@@ -7,6 +7,7 @@ import {
   DelutbetalingStatus,
   LabeledDataElementType,
   Tiltakskode,
+  Valuta,
 } from "api-client";
 import { utbetalingType } from "./utbetalingTypeMocks";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
@@ -24,7 +25,7 @@ const satsDetaljerForhondsgodkjent: DataDetails[] = [
       {
         type: LabeledDataElementType.INLINE,
         label: "Sats",
-        value: { type: "DATA_ELEMENT_TEXT", value: "20975", format: DataElementTextFormat.NOK },
+        value: { type: "DATA_ELEMENT_MONEY_AMOUNT", value: "20975", currency: "NOK" },
       },
       {
         type: LabeledDataElementType.INLINE,
@@ -46,7 +47,7 @@ const satsDetaljerManedspris: DataDetails[] = [
       {
         type: LabeledDataElementType.INLINE,
         label: "Avtalt månedspris per tiltaksplass",
-        value: { type: "DATA_ELEMENT_TEXT", value: "10000", format: DataElementTextFormat.NOK },
+        value: { type: "DATA_ELEMENT_MONEY_AMOUNT", value: "10000", currency: "NOK" },
       },
       {
         type: LabeledDataElementType.INLINE,
@@ -107,10 +108,11 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
   },
   arrangor: arrangorMock,
   kanViseBeregning: true,
+  valuta: Valuta.NOK,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
     satsDetaljer: satsDetaljerForhondsgodkjent,
-    belop: 10149,
+    pris: { belop: 10149, valuta: Valuta.NOK },
     digest: "b3602d2a",
     deltakelser: toSatserUkesverkDeltakelse,
     stengt: [],
@@ -128,7 +130,7 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
       },
       status: DelutbetalingStatus.UTBETALT,
       statusSistOppdatert: "2025-05-15T11:03:22.772767",
-      belop: 10149,
+      pris: { belop: 10149, valuta: Valuta.NOK },
     },
   ],
   innsendingsDetaljer: [
@@ -186,8 +188,9 @@ export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   },
   arrangor: arrangorMock,
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  valuta: Valuta.NOK,
   beregning: {
-    belop: 20000,
+    pris: { belop: 20000, valuta: Valuta.NOK },
     digest: "ca0a6c20",
     satsDetaljer: satsDetaljerManedspris,
     deltakelser: avklaringManedDeltakelse,
@@ -242,10 +245,11 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
   arrangor: arrangorMock,
   advarsler: [],
   kanViseBeregning: true,
+  valuta: Valuta.NOK,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
     satsDetaljer: satsDetaljerForhondsgodkjent,
-    belop: 242904,
+    pris: { belop: 242904, valuta: Valuta.NOK },
     digest: "db0c7c6e",
     deltakelser: toSatserUkesverkDeltakelse,
     stengt: [],
@@ -298,12 +302,13 @@ export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   },
   arrangor: arrangorMock,
   kanViseBeregning: false,
+  valuta: Valuta.NOK,
   beregning: {
     deltakelser: null,
     stengt: [],
     displayName: "Annen avtalt pris",
     satsDetaljer: [],
-    belop: 234,
+    pris: { belop: 234, valuta: Valuta.NOK },
     digest: "000001d4",
   },
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
@@ -362,12 +367,13 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
   },
   arrangor: arrangorMock,
   kanViseBeregning: false,
+  valuta: Valuta.NOK,
   beregning: {
     stengt: [],
     deltakelser: null,
     displayName: "Annen avtalt pris",
     satsDetaljer: [],
-    belop: 500,
+    pris: { belop: 500, valuta: Valuta.NOK },
     digest: "000003e8",
   },
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
@@ -382,7 +388,7 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
       },
       status: DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
       statusSistOppdatert: null,
-      belop: 500,
+      pris: { belop: 500, valuta: Valuta.NOK },
     },
   ],
   advarsler: [],
@@ -438,10 +444,11 @@ export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   },
   arrangor: arrangorMock,
   kanViseBeregning: true,
+  valuta: Valuta.NOK,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
     satsDetaljer: satsDetaljerForhondsgodkjent,
-    belop: 16848,
+    pris: { belop: 16848, valuta: Valuta.NOK },
     digest: "38c07a43",
     deltakelser: vtaManedDeltakelse,
     stengt: [],
@@ -499,8 +506,9 @@ export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   },
   arrangor: arrangorMock,
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  valuta: Valuta.NOK,
   beregning: {
-    belop: 53100,
+    pris: { belop: 53100, valuta: Valuta.NOK },
     digest: "28172363",
     satsDetaljer: satsDetaljerUkespris,
     deltakelser: arrUkesverkDeltakelse,

@@ -106,8 +106,8 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
           type: LabeledDataElementType.INLINE,
           value: {
             value: "768",
-            type: "DATA_ELEMENT_TEXT",
-            format: DataElementTextFormat.NOK,
+            type: "DATA_ELEMENT_MONEY_AMOUNT",
+            currency: "NOK",
           },
         },
       ],

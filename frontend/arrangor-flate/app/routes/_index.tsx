@@ -56,9 +56,14 @@ export default function Oversikt() {
 
   const { sortedData, sort, toggleSort } = useSortableData<
     ArrangorInnsendingRadDto,
-    undefined,
+    number | undefined,
     string
-  >(data);
+  >(data, undefined, (item, key) => {
+    if (key === "belop") {
+      return item.belop?.belop;
+    }
+    return (item as any)[key];
+  });
   return (
     <Box className={css.side}>
       <HStack justify="space-between" align="center">
@@ -95,7 +100,7 @@ export default function Oversikt() {
 const utbetalingKolonner: Array<{ key: string; label: string }> = [
   { key: "tiltakNavn", label: "Tiltak" },
   { key: "arrangorNavn", label: "Arrangør" },
-  { key: "periode", label: "Periode" },
+  { key: "startDato", label: "Periode" },
   { key: "belop", label: "Beløp" },
   { key: "type", label: "Type" },
   { key: "status", label: "Status" },

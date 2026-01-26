@@ -39,7 +39,9 @@ export function UtbetalingRow({
 
       {formatertPeriode}
 
-      {row.belop ? <Table.DataCell align="right">{row.belop}</Table.DataCell> : null}
+      {row.belop ? (
+        <Table.DataCell align="right">{`${row.belop.belop} ${row.belop.valuta}`}</Table.DataCell>
+      ) : null}
       {row.type ? (
         <Table.DataCell>
           <UtbetalingTypeTag type={row.type} />

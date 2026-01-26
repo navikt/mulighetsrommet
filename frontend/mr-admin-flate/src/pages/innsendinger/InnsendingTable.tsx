@@ -95,13 +95,13 @@ export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
                   >
                     <BodyShort>{formaterPeriode(innsending.periode)} </BodyShort>
                   </Table.DataCell>
-                  <Table.DataCell aria-label={`Beløp: ${innsending.belop}`}>
-                    {innsending.belop ?? "-"}
+                  <Table.DataCell aria-label={`Beløp: ${innsending.pris?.belop}`}>
+                    {innsending.pris?.belop ?? "-"}
                   </Table.DataCell>
                   <Table.DataCell aria-label={`Status: ${innsending.status}`}>
                     <UtbetalingStatusTag status={innsending.status} />
                   </Table.DataCell>
-                  <Table.DataCell aria-label={`Beløp: ${innsending.belop}`}>
+                  <Table.DataCell aria-label={`Beløp: ${innsending.pris?.belop}`}>
                     <Link
                       to={`/gjennomforinger/${innsending.gjennomforingId}/utbetalinger/${innsending.id}`}
                     >

@@ -9,7 +9,11 @@ with deltakelse_perioder as (select utbetaling_id,
                                                             'slutt', upper(periode)
                                                     ),
                                                     'faktor', faktor,
-                                                    'sats', sats
+                                                    'sats',
+                                                    jsonb_build_object(
+                                                            'belop', sats,
+                                                            'valuta', valuta
+                                                    )
                                             )
                                     ) as perioder
                              from utbetaling_deltakelse_faktor

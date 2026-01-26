@@ -767,10 +767,9 @@ components:
           - string
           format: date
         belop:
-          type:
-          - "null"
-          - integer
-          format: int32
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
         type:
           type:
           - "null"
@@ -791,6 +790,21 @@ components:
       - tiltakNavn
       - tiltakstypeNavn
       - type
+    ValutaBelop:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        valuta:
+          $ref: "#/components/schemas/Valuta"
+      required:
+      - belop
+      - valuta
+    Valuta:
+      type: string
+      enum:
+      - NOK
     ArrangorflateUtbetalingStatus:
       type: string
       enum:
@@ -1019,7 +1033,6 @@ components:
       type: string
       enum:
       - date
-      - nok
       - number
     ArrangorflateTilsagnDto:
       type: object
@@ -1150,21 +1163,6 @@ components:
       - ANNULLERT
       - TIL_OPPGJOR
       - OPPGJORT
-    ValutaBelop:
-      type: object
-      properties:
-        belop:
-          type: integer
-          format: int32
-        valuta:
-          $ref: "#/components/schemas/Valuta"
-      required:
-      - belop
-      - valuta
-    Valuta:
-      type: string
-      enum:
-      - NOK
     DataDetails:
       type: object
       properties:
@@ -1401,11 +1399,14 @@ components:
       properties:
         kontonummer:
           type: string
+        valuta:
+          $ref: "#/components/schemas/Valuta"
         navigering:
           $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
       required:
       - kontonummer
       - navigering
+      - valuta
     OpprettKravVedlegg.GuidePanelType:
       type: string
       enum:
@@ -1560,9 +1561,8 @@ components:
       properties:
         displayName:
           type: string
-        belop:
-          type: integer
-          format: int32
+        pris:
+          $ref: "#/components/schemas/ValutaBelop"
         digest:
           type: string
         stengt:
@@ -1578,10 +1578,10 @@ components:
           items:
             $ref: "#/components/schemas/DataDetails"
       required:
-      - belop
       - deltakelser
       - digest
       - displayName
+      - pris
       - satsDetaljer
       - stengt
     UtbetalingTypeDto:
@@ -1616,12 +1616,11 @@ components:
           - "null"
           - string
           format: date-time
-        belop:
-          type: integer
-          format: int32
+        pris:
+          $ref: "#/components/schemas/ValutaBelop"
       required:
-      - belop
       - id
+      - pris
       - status
       - statusSistOppdatert
       - tilsagn
@@ -1716,6 +1715,8 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/BBan"
+        valuta:
+          $ref: "#/components/schemas/Valuta"
         beregning:
           $ref: "#/components/schemas/ArrangorflateBeregning"
         periode:
@@ -1763,6 +1764,7 @@ components:
       - tiltakstype
       - type
       - utbetalesTidligstDato
+      - valuta
     GodkjennUtbetaling:
       type: object
       properties:

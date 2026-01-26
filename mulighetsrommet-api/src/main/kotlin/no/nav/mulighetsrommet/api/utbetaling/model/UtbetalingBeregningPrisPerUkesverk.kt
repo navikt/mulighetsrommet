@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.ValutaBelop
 
 @Serializable
 data class UtbetalingBeregningPrisPerUkesverk(
@@ -19,7 +20,7 @@ data class UtbetalingBeregningPrisPerUkesverk(
 
     @Serializable
     data class Output(
-        override val belop: Int,
+        override val pris: ValutaBelop,
         val deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
     ) : UtbetalingBeregningOutput() {
         override fun deltakelser() = deltakelser

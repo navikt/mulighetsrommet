@@ -182,7 +182,7 @@ export default function UtbetalingDetaljerSide() {
           ]}
         />
         <SatsPerioderOgBelop
-          belop={utbetaling.beregning.belop}
+          pris={utbetaling.beregning.pris}
           satsDetaljer={utbetaling.beregning.satsDetaljer}
         />
         {utbetaling.kanViseBeregning && (
@@ -316,7 +316,7 @@ function DeltakerModal({ utbetaling, deltakerlisteUrl, open, setOpen }: Deltaker
             deltakerlisteUrl={deltakerlisteUrl}
           />
           <SatsPerioderOgBelop
-            belop={utbetaling.beregning.belop}
+            pris={utbetaling.beregning.pris}
             satsDetaljer={utbetaling.beregning.satsDetaljer}
           />
         </VStack>

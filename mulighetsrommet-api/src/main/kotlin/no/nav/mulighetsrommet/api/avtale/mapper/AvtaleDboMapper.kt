@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
-import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
@@ -130,14 +129,6 @@ fun DetaljerRequest.toDbo(
 fun PersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(
     personvernBekreftet = personvernBekreftet,
     personopplysninger = personopplysninger,
-)
-
-fun VeilederinfoRequest.toDbo(): VeilederinformasjonDbo = VeilederinformasjonDbo(
-    redaksjoneltInnhold = RedaksjoneltInnholdDbo(
-        beskrivelse = beskrivelse,
-        faneinnhold = faneinnhold,
-    ),
-    navEnheter = navEnheter.toSet(),
 )
 
 fun AmoKategoriseringRequest.toDbo(): AmoKategorisering {

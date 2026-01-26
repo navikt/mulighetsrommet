@@ -46,8 +46,8 @@ const beregningManedspris: DataDetails = {
       type: LabeledDataElementType.INLINE,
       value: {
         value: "10000",
-        type: "DATA_ELEMENT_TEXT",
-        format: DataElementTextFormat.NOK,
+        type: "DATA_ELEMENT_MONEY_AMOUNT",
+        currency: "NOK",
       },
     },
     {
@@ -55,8 +55,8 @@ const beregningManedspris: DataDetails = {
       type: LabeledDataElementType.INLINE,
       value: {
         value: "1200000",
-        type: "DATA_ELEMENT_TEXT",
-        format: DataElementTextFormat.NOK,
+        type: "DATA_ELEMENT_MONEY_AMOUNT",
+        currency: "NOK",
       },
     },
     {
@@ -64,8 +64,8 @@ const beregningManedspris: DataDetails = {
       type: LabeledDataElementType.INLINE,
       value: {
         value: "1200000",
-        type: "DATA_ELEMENT_TEXT",
-        format: DataElementTextFormat.NOK,
+        type: "DATA_ELEMENT_MONEY_AMOUNT",
+        currency: "NOK",
       },
     },
   ],
@@ -96,27 +96,27 @@ const beregningUkespris: DataDetails = {
       type: LabeledDataElementType.INLINE,
       label: "Avtalt ukespris per tiltaksplass",
       value: {
-        type: "DATA_ELEMENT_TEXT",
+        type: "DATA_ELEMENT_MONEY_AMOUNT",
         value: "5015",
-        format: DataElementTextFormat.NOK,
+        currency: "NOK",
       },
     },
     {
       type: LabeledDataElementType.INLINE,
       label: "Totalbeløp",
       value: {
-        type: "DATA_ELEMENT_TEXT",
+        type: "DATA_ELEMENT_MONEY_AMOUNT",
         value: "36405891",
-        format: DataElementTextFormat.NOK,
+        currency: "NOK",
       },
     },
     {
       type: LabeledDataElementType.INLINE,
       label: "Gjenstående beløp",
       value: {
-        type: "DATA_ELEMENT_TEXT",
+        type: "DATA_ELEMENT_MONEY_AMOUNT",
         value: "35105891",
-        format: DataElementTextFormat.NOK,
+        currency: "NOK",
       },
     },
   ],
@@ -147,27 +147,27 @@ const beregningFastSats: DataDetails = {
       type: LabeledDataElementType.INLINE,
       label: "Sats per tiltaksplass per måned",
       value: {
-        type: "DATA_ELEMENT_TEXT",
+        type: "DATA_ELEMENT_MONEY_AMOUNT",
         value: "20975",
-        format: DataElementTextFormat.NOK,
+        currency: "NOK",
       },
     },
     {
       type: LabeledDataElementType.INLINE,
       label: "Totalbeløp",
       value: {
-        type: "DATA_ELEMENT_TEXT",
+        type: "DATA_ELEMENT_MONEY_AMOUNT",
         value: "1258500",
-        format: DataElementTextFormat.NOK,
+        currency: "NOK",
       },
     },
     {
       type: LabeledDataElementType.INLINE,
       label: "Gjenstående beløp",
       value: {
-        type: "DATA_ELEMENT_TEXT",
+        type: "DATA_ELEMENT_MONEY_AMOUNT",
         value: "1139293",
-        format: DataElementTextFormat.NOK,
+        currency: "NOK",
       },
     },
   ],

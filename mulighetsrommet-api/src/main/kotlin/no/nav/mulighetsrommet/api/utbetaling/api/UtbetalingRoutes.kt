@@ -45,6 +45,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -89,8 +91,8 @@ fun Route.utbetalingRoutes() {
                     ->
                         Pair(
                             delutbetalinger.sumOf {
-                                it.belop
-                            },
+                                it.pris.belop
+                            }.withValuta(utbetaling.valuta),
                             delutbetalinger.map { delutbetaling ->
                                 queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
                             }.distinct(),
@@ -363,7 +365,7 @@ fun Route.utbetalingRoutes() {
                                 id = UUID.randomUUID(),
                                 tilsagn = TilsagnDto.fromTilsagn(it),
                                 status = null,
-                                belop = 0,
+                                pris = 0.withValuta(utbetaling.valuta),
                                 gjorOppTilsagn = false,
                                 opprettelse = null,
                                 handlinger = emptySet(),
@@ -510,7 +512,7 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
     return UtbetalingLinje(
         id = delutbetaling.id,
         gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
-        belop = delutbetaling.belop,
+        pris = delutbetaling.pris,
         status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
         opprettelse = opprettelse.toDto(),
@@ -547,7 +549,7 @@ data class DelutbetalingRequest(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val tilsagnId: UUID,
-    val belop: Int?,
+    val pris: ValutaBelop?,
     val gjorOppTilsagn: Boolean,
 )
 
@@ -569,7 +571,7 @@ data class OpprettUtbetalingRequest(
     val periodeSlutt: LocalDate?,
     val beskrivelse: String,
     val kidNummer: String? = null,
-    val belop: Int,
+    val pris: ValutaBelop,
 )
 
 data class BeregningFilter(

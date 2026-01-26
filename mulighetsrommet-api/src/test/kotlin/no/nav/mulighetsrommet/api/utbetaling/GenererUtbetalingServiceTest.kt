@@ -237,8 +237,10 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .first()
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
-            utbetaling.betalingsinformasjon.shouldBeTypeOf<Betalingsinformasjon.BBan>().kontonummer shouldBe Kontonummer("12345678901")
-            utbetaling.beregning.output.belop shouldBe 20975
+            utbetaling.betalingsinformasjon.shouldBeTypeOf<Betalingsinformasjon.BBan>().kontonummer shouldBe Kontonummer(
+                "12345678901",
+            )
+            utbetaling.beregning.output.pris shouldBe 20975.withValuta(Valuta.NOK)
         }
 
         test("genererer utbetaling med kid-nummer fra forrige godkjente utbetaling fra arrangør") {
@@ -341,7 +343,9 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .first()
 
             utbetaling.gjennomforing.id shouldBe oppfolging.id
-            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>().output.belop shouldBe 100
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>().output.pris shouldBe 100.withValuta(
+                Valuta.NOK,
+            )
         }
 
         test("genererer en utbetaling for avtalt pris per ukesverk med korrekt beløp") {
@@ -362,7 +366,9 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .first()
 
             utbetaling.gjennomforing.id shouldBe oppfolging.id
-            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerUkesverk>().output.belop shouldBe 460
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerUkesverk>().output.pris shouldBe 460.withValuta(
+                Valuta.NOK,
+            )
         }
 
         test("utbetalinger blir oppdatert med ny beregning når avtalens prismodell endres") {
@@ -408,8 +414,8 @@ class GenererUtbetalingServiceTest : FunSpec({
                         innsender = NavIdent("B123456"),
                         status = UtbetalingStatusType.INNSENDT,
                         beregning = UtbetalingBeregningFri(
-                            input = UtbetalingBeregningFri.Input(1000),
-                            output = UtbetalingBeregningFri.Output(1000),
+                            input = UtbetalingBeregningFri.Input(1000.withValuta(Valuta.NOK)),
+                            output = UtbetalingBeregningFri.Output(1000.withValuta(Valuta.NOK)),
                         ),
                     ),
                 ),
@@ -605,16 +611,22 @@ class GenererUtbetalingServiceTest : FunSpec({
         val periode = Periode.forMonthOf(LocalDate.of(2026, 2, 1))
         val beregning = UtbetalingBeregningPrisPerManedsverk(
             input = UtbetalingBeregningPrisPerManedsverk.Input(
-                satser = setOf(SatsPeriode(periode, 100)),
+                satser = setOf(SatsPeriode(periode, 100.withValuta(Valuta.NOK))),
                 stengt = setOf(),
                 deltakelser = setOf(DeltakelsePeriode(deltaker.id, periode)),
             ),
             output = UtbetalingBeregningPrisPerManedsverk.Output(
-                belop = 100,
+                pris = 100.withValuta(Valuta.NOK),
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltaker.id,
-                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 100)),
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                periode,
+                                1.0,
+                                100.withValuta(Valuta.NOK),
+                            ),
+                        ),
                     ),
                 ),
             ),
@@ -645,7 +657,9 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .shouldHaveSize(1)
                 .first()
 
-            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Output>().belop shouldBe 50
+            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Output>().pris shouldBe 50.withValuta(
+                Valuta.NOK,
+            )
         }
 
         test("oppdaterer ikke utbetaling hvis den allerede er godkjent av arrangør") {
@@ -668,7 +682,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             database.run {
                 queries.utbetaling.getOrError(utbetaling1.id).beregning.output
                     .shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Output>()
-                    .belop shouldBe 100
+                    .pris shouldBe 100.withValuta(Valuta.NOK)
             }
         }
     }
@@ -721,7 +735,9 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.periode shouldBe Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 2, 3))
             utbetaling.gjennomforing.id shouldBe gjennomforing.id
-            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerHeleUkesverk>().output.belop shouldBe 100
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerHeleUkesverk>().output.pris shouldBe 100.withValuta(
+                Valuta.NOK,
+            )
         }
 
         test("ikke for deltakelse 29. sep fordi uken skal med i oktober") {

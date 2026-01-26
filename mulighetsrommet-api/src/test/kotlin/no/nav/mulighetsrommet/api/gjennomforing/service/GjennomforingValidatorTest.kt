@@ -17,12 +17,12 @@ import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
@@ -71,8 +71,10 @@ class GjennomforingValidatorTest : FunSpec({
         administratorer = emptyList(),
         kontorstruktur = listOf(
             Kontorstruktur(
-                region = NavEnhetFixtures.Innlandet.toDto(),
-                kontorer = listOf(NavEnhetFixtures.Gjovik.toDto()),
+                region = Kontorstruktur.Region(Innlandet.navn, Innlandet.enhetsnummer),
+                kontorer = listOf(
+                    Kontorstruktur.Kontor(Gjovik.navn, Gjovik.enhetsnummer, Kontorstruktur.Kontortype.LOKAL),
+                ),
             ),
         ),
         beskrivelse = null,
@@ -527,8 +529,8 @@ class GjennomforingValidatorTest : FunSpec({
             fornavn = "",
             etternavn = "",
             hovedenhet = NavAnsatt.Hovedenhet(
-                enhetsnummer = NavEnhetFixtures.Gjovik.enhetsnummer,
-                navn = NavEnhetFixtures.Gjovik.navn,
+                enhetsnummer = Gjovik.enhetsnummer,
+                navn = Gjovik.navn,
             ),
             mobilnummer = null,
             epost = "",

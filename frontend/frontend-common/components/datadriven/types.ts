@@ -119,7 +119,6 @@ export type DataElementText = {
 
 export enum DataElementTextFormat {
   DATE = "date",
-  NOK = "nok",
   NUMBER = "number",
 }
 

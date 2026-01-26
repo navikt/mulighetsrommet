@@ -29,6 +29,8 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -65,9 +67,10 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             navn = "Nav",
             slettet = false,
         ),
+        valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
             input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34)),
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34.withValuta(Valuta.NOK))),
                 stengt = setOf(
                     StengtPeriode(
                         periode = Periode(LocalDate.of(2025, 1, 7), LocalDate.of(2025, 1, 14)),
@@ -109,14 +112,14 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 ),
             ),
             output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
-                belop = 100,
+                pris = 100.withValuta(Valuta.NOK),
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakelseId = deltaker1Id,
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 1.0,
-                                sats = 1000,
+                                sats = 1000.withValuta(Valuta.NOK),
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
                             ),
                         ),
@@ -126,7 +129,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 1.0,
-                                sats = 1000,
+                                sats = 1000.withValuta(Valuta.NOK),
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
                             ),
                         ),
@@ -136,7 +139,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 0.75,
-                                sats = 1000,
+                                sats = 1000.withValuta(Valuta.NOK),
                                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
                             ),
                         ),
@@ -174,9 +177,10 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             navn = "Nav",
             slettet = false,
         ),
+        valuta = Valuta.NOK,
         beregning = UtbetalingBeregningPrisPerTimeOppfolging(
             input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
-                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34)),
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34.withValuta(Valuta.NOK))),
                 stengt = setOf(
                     StengtPeriode(
                         periode = Periode(LocalDate.of(2025, 1, 7), LocalDate.of(2025, 1, 14)),
@@ -197,10 +201,10 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                     ),
                 ),
-                belop = 100,
+                pris = 100.withValuta(Valuta.NOK),
             ),
             output = UtbetalingBeregningPrisPerTimeOppfolging.Output(
-                belop = 100,
+                pris = 100.withValuta(Valuta.NOK),
             ),
         ),
         betalingsinformasjon = Betalingsinformasjon.BBan(kontonummer = Kontonummer("12345678901"), null),
@@ -248,7 +252,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 bestillingsnummer = "A-1-1",
             ),
             status = DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-            belop = 99,
+            pris = 99.withValuta(Valuta.NOK),
             statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
         ),
         ArrangforflateUtbetalingLinje(
@@ -258,7 +262,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 bestillingsnummer = "A-1-2",
             ),
             status = DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-            belop = 1,
+            pris = 1.withValuta(Valuta.NOK),
             statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
         ),
     )
@@ -318,18 +322,22 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Arrangør",
               "value": "Nav (123456789)"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Dato innsendt av arrangør",
               "value": "02.01.2025"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Tiltakstype",
               "value": "Avklaring"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Løpenummer",
               "value": "2025/10000"
             }
@@ -347,10 +355,12 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Utbetalingsperiode",
               "value": "01.01.2025 - 31.01.2025"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Utbetales tidligst",
               "value": null,
               "format": "DATE"
@@ -361,11 +371,13 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Sats",
               "value": "34",
-              "format": "NOK"
+              "currency": "NOK"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Antall månedsverk",
               "value": "0.0"
             }
@@ -375,9 +387,10 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Beløp",
               "value": "100",
-              "format": "NOK"
+              "currency": "NOK"
             }
           ]
         }
@@ -393,10 +406,12 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Kontonummer",
               "value": "12345678901"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "KID-nummer",
               "value": null
             }
@@ -414,14 +429,16 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status",
               "value": "Overført til utbetaling",
               "format": "STATUS_SUCCESS"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Godkjent beløp til utbetaling",
               "value": "100",
-              "format": "NOK"
+              "currency": "NOK"
             }
           ]
         }
@@ -437,20 +454,24 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Tilsagn",
               "value": "A-1-1"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Beløp til utbetaling",
               "value": "99",
-              "format": "NOK"
+              "currency": "NOK"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status",
               "value": "Overført til utbetaling",
               "format": "STATUS_SUCCESS"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status endret",
               "value": "2025-01-03T00:00",
               "format": "DATE"
@@ -461,20 +482,24 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Tilsagn",
               "value": "A-1-2"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Beløp til utbetaling",
               "value": "1",
-              "format": "NOK"
+              "currency": "NOK"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status",
               "value": "Overført til utbetaling",
               "format": "STATUS_SUCCESS"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status endret",
               "value": "2025-01-03T00:00",
               "format": "DATE"
@@ -511,18 +536,22 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Arrangør",
                   "value": "Nav (123456789)"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Dato innsendt av arrangør",
                   "value": "02.01.2025"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Tiltakstype",
                   "value": "Oppfolging"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Løpenummer",
                   "value": "2025/10000"
                 }
@@ -540,10 +569,12 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Utbetalingsperiode",
                   "value": "01.01.2025 - 31.01.2025"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Utbetales tidligst",
                   "value": null,
                   "format": "DATE"
@@ -554,9 +585,10 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
                   "label": "Avtalt pris per time oppfølging",
                   "value": "34",
-                  "format": "NOK"
+                  "currency": "NOK"
                 }
               ]
             },
@@ -564,9 +596,10 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
                   "label": "Beløp",
                   "value": "100",
-                  "format": "NOK"
+                  "currency": "NOK"
                 }
               ]
             }
@@ -582,10 +615,12 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Kontonummer",
                   "value": "12345678901"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "KID-nummer",
                   "value": null
                 }
@@ -603,14 +638,16 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Status",
                   "value": "Overført til utbetaling",
                   "format": "STATUS_SUCCESS"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
                   "label": "Godkjent beløp til utbetaling",
                   "value": "100",
-                  "format": "NOK"
+                  "currency": "NOK"
                 }
               ]
             }
@@ -626,20 +663,24 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Tilsagn",
                   "value": "A-1-1"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
                   "label": "Beløp til utbetaling",
                   "value": "99",
-                  "format": "NOK"
+                  "currency": "NOK"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Status",
                   "value": "Overført til utbetaling",
                   "format": "STATUS_SUCCESS"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Status endret",
                   "value": "2025-01-03T00:00",
                   "format": "DATE"
@@ -650,20 +691,24 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Tilsagn",
                   "value": "A-1-2"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
                   "label": "Beløp til utbetaling",
                   "value": "1",
-                  "format": "NOK"
+                  "currency": "NOK"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Status",
                   "value": "Overført til utbetaling",
                   "format": "STATUS_SUCCESS"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Status endret",
                   "value": "2025-01-03T00:00",
                   "format": "DATE"
@@ -700,18 +745,22 @@ private val expectedJournalpostFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Arrangør",
               "value": "Nav (123456789)"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Dato innsendt av arrangør",
               "value": "02.01.2025"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Tiltakstype",
               "value": "Avklaring"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Løpenummer",
               "value": "2025/10000"
             }
@@ -729,10 +778,12 @@ private val expectedJournalpostFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Utbetalingsperiode",
               "value": "01.01.2025 - 31.01.2025"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Utbetales tidligst",
               "value": null,
               "format": "DATE"
@@ -743,11 +794,13 @@ private val expectedJournalpostFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Sats",
               "value": "34",
-              "format": "NOK"
+              "currency": "NOK"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Antall månedsverk",
               "value": "0.0"
             }
@@ -757,9 +810,10 @@ private val expectedJournalpostFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Beløp",
               "value": "100",
-              "format": "NOK"
+              "currency": "NOK"
             }
           ]
         }
@@ -775,10 +829,12 @@ private val expectedJournalpostFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Kontonummer",
               "value": "12345678901"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "KID-nummer",
               "value": null
             }
@@ -1012,18 +1068,22 @@ private val expectedJournalpostTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Arrangør",
                   "value": "Nav (123456789)"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Dato innsendt av arrangør",
                   "value": "02.01.2025"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Tiltakstype",
                   "value": "Oppfolging"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Løpenummer",
                   "value": "2025/10000"
                 }
@@ -1041,10 +1101,12 @@ private val expectedJournalpostTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Utbetalingsperiode",
                   "value": "01.01.2025 - 31.01.2025"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Utbetales tidligst",
                   "value": null,
                   "format": "DATE"
@@ -1055,9 +1117,10 @@ private val expectedJournalpostTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
                   "label": "Avtalt pris per time oppfølging",
                   "value": "34",
-                  "format": "NOK"
+                  "currency": "NOK"
                 }
               ]
             },
@@ -1065,9 +1128,10 @@ private val expectedJournalpostTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
                   "label": "Beløp",
                   "value": "100",
-                  "format": "NOK"
+                  "currency": "NOK"
                 }
               ]
             }
@@ -1083,10 +1147,12 @@ private val expectedJournalpostTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Kontonummer",
                   "value": "12345678901"
                 },
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "KID-nummer",
                   "value": null
                 }

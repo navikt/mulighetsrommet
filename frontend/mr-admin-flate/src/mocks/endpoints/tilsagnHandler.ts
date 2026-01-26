@@ -114,9 +114,9 @@ const beregning: TilsagnBeregningDto = {
         type: LabeledDataElementType.INLINE,
         label: "Sats",
         value: {
-          type: "DATA_ELEMENT_TEXT",
+          type: "DATA_ELEMENT_MONEY_AMOUNT",
           value: "20975",
-          format: DataElementTextFormat.NOK,
+          currency: "NOK",
         },
       },
     ],

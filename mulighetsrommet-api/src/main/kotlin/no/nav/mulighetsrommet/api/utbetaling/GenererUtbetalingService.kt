@@ -187,7 +187,7 @@ class GenererUtbetalingService(
 
         val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
 
-        return prismodell.beregn(gjennomforing, deltakere, periode).takeIf { it.output.belop > 0 }?.let {
+        return prismodell.beregn(gjennomforing, deltakere, periode).takeIf { it.output.pris.belop > 0 }?.let {
             createUtbetaling(
                 utbetalingId = utbetalingId,
                 gjennomforing = gjennomforing,
@@ -217,6 +217,7 @@ class GenererUtbetalingService(
             id = utbetalingId,
             gjennomforingId = gjennomforing.id,
             status = UtbetalingStatusType.GENERERT,
+            valuta = beregning.output.pris.valuta,
             beregning = beregning,
             betalingsinformasjon = kontonummer?.let {
                 Betalingsinformasjon.BBan(

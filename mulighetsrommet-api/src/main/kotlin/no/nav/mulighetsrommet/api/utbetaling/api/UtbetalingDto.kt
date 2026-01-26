@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -22,7 +23,7 @@ data class UtbetalingDto(
     val id: UUID,
     val status: UtbetalingStatusDto,
     val periode: Periode,
-    val belop: Int,
+    val pris: ValutaBelop,
     @Serializable(with = LocalDateSerializer::class)
     val innsendtAvArrangorDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
@@ -47,7 +48,7 @@ data class UtbetalingDto(
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
                 beskrivelse = utbetaling.beskrivelse,
                 begrunnelseMindreBetalt = utbetaling.begrunnelseMindreBetalt,
-                belop = utbetaling.beregning.output.belop,
+                pris = utbetaling.beregning.output.pris,
                 innsendtAv = formaterInnsendtAv(utbetaling.innsender),
                 journalpostId = utbetaling.journalpostId,
                 tilskuddstype = utbetaling.tilskuddstype,

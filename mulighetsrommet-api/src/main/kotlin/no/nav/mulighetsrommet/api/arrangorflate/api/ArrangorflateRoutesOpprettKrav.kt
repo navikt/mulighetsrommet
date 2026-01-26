@@ -62,6 +62,8 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -206,8 +208,15 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         }) {
             val gjennomforing = requireGjennomforing()
 
+            requireNotNull(gjennomforing.prismodell) {
+                throw StatusException(
+                    HttpStatusCode.InternalServerError,
+                    "Gjennomføringen mangler prismodell, kan ikke opprette krav",
+                )
+            }
+
             val tilsagnstyper =
-                if (gjennomforing.prismodell?.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+                if (gjennomforing.prismodell.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                     listOf(TilsagnType.INVESTERING)
                 } else {
                     listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
@@ -630,9 +639,11 @@ data class OpprettKravVedlegg(
 
     companion object {
         fun from(gjennomforing: GjennomforingGruppetiltak): OpprettKravVedlegg {
+            requireNotNull(gjennomforing.prismodell)
+
             return OpprettKravVedlegg(
-                guidePanel = GuidePanelType.from(gjennomforing.prismodell?.type),
-                minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell?.type),
+                guidePanel = GuidePanelType.from(gjennomforing.prismodell.type),
+                minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell.type),
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.VEDLEGG, gjennomforing),
             )
         }
@@ -737,6 +748,7 @@ data class OpprettKravDeltakere(
 @Serializable
 data class OpprettKravUtbetalingsinformasjon(
     val kontonummer: Kontonummer,
+    val valuta: Valuta,
     val navigering: OpprettKravVeiviserNavigering,
 ) {
     companion object {
@@ -746,6 +758,7 @@ data class OpprettKravUtbetalingsinformasjon(
         ): OpprettKravUtbetalingsinformasjon {
             return OpprettKravUtbetalingsinformasjon(
                 kontonummer = kontonummer,
+                valuta = gjennomforing.prismodell!!.valuta,
                 navigering = getVeiviserNavigering(
                     OpprettKravVeiviserSteg.UTBETALING,
                     gjennomforing,
@@ -777,6 +790,8 @@ data class OpprettKravOppsummering(
             gjennomforing: GjennomforingGruppetiltak,
             kontonummer: Kontonummer?,
         ): OpprettKravOppsummering {
+            requireNotNull(gjennomforing.prismodell)
+
             val periodeStart = LocalDate.parse(requestData.periodeStart)
             val periodeSlutt = LocalDate.parse(requestData.periodeSlutt)
             val periode = if (requestData.periodeInklusiv == true) {
@@ -800,16 +815,16 @@ data class OpprettKravOppsummering(
                         "KID-nummer",
                         requestData.kidNummer ?: "",
                     ),
-                    LabeledDataElement.nok(
+                    LabeledDataElement.money(
                         "Beløp",
-                        requestData.belop,
+                        requestData.belop.withValuta(gjennomforing.prismodell.valuta),
                     ),
                 ),
                 innsendingsData = InnsendingsData(
                     periode = periode,
                     belop = requestData.belop,
                     kidNummer = requestData.kidNummer,
-                    minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell?.type),
+                    minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell.type),
                 ),
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.OPPSUMMERING, gjennomforing),
             )
@@ -876,7 +891,7 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either
         periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
         periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
         kidNummer = kidNummer,
-        belop = belop ?: 0,
+        belop = belop ?: 0, // Valuta hentes fra prismodell
         vedlegg = validatedVedlegg,
     )
 }

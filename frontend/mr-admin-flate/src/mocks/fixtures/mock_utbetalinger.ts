@@ -1,7 +1,6 @@
 import {
   Besluttelse,
   DataElementStatusVariant,
-  DataElementTextFormat,
   DelutbetalingStatus,
   LabeledDataElementType,
   TilsagnStatus,
@@ -54,7 +53,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     innsendtAvArrangorDato: null,
     utbetalesTidligstDato: "2024-08-07",
-    belop: 15000,
+    pris: { belop: 15000, valuta: Valuta.NOK },
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",
@@ -83,7 +82,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     innsendtAvArrangorDato: "2024-07-02",
     utbetalesTidligstDato: "2024-08-07",
-    belop: 18000,
+    pris: { belop: 18000, valuta: Valuta.NOK },
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",
@@ -110,7 +109,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     innsendtAvArrangorDato: null,
     utbetalesTidligstDato: "2025-05-07",
-    belop: 9000,
+    pris: { belop: 9000, valuta: Valuta.NOK },
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1111.22.33333",
@@ -140,7 +139,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     innsendtAvArrangorDato: null,
     utbetalesTidligstDato: "2025-05-07",
-    belop: 9000,
+    pris: { belop: 9000, valuta: Valuta.NOK },
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",
@@ -199,7 +198,7 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
       slutt: "2025-03-31",
     },
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
-    belopUtbetalt: 13400,
+    belopUtbetalt: { belop: 13400, valuta: Valuta.NOK },
     status: {
       type: UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING,
       status: {
@@ -241,7 +240,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: { belop: 14_000, valuta: Valuta.NOK },
+      pris: { belop: 14_000, valuta: Valuta.NOK },
       belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
       belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
@@ -264,7 +263,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         description: null,
       },
     },
-    belop: 5000,
+    pris: { belop: 5000, valuta: Valuta.NOK },
     gjorOppTilsagn: true,
     opprettelse: {
       type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning",
@@ -291,7 +290,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: { belop: 14_000, valuta: Valuta.NOK },
+      pris: { belop: 14_000, valuta: Valuta.NOK },
       belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
       belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
@@ -310,7 +309,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       type: DelutbetalingStatus.RETURNERT,
       status: { value: "Returnert", variant: DataElementStatusVariant.ERROR, description: null },
     },
-    belop: 7500,
+    pris: { belop: 7500, valuta: Valuta.NOK },
     gjorOppTilsagn: false,
     opprettelse: {
       type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet",
@@ -341,7 +340,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: { belop: 14_000, valuta: Valuta.NOK },
+      pris: { belop: 14_000, valuta: Valuta.NOK },
       belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
       belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
@@ -356,7 +355,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       type: DelutbetalingStatus.RETURNERT,
       status: { value: "Returnert", variant: DataElementStatusVariant.ERROR, description: null },
     },
-    belop: 3000,
+    pris: { belop: 3000, valuta: Valuta.NOK },
     gjorOppTilsagn: true,
     opprettelse: {
       type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet",
@@ -388,7 +387,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: { belop: 14_000, valuta: Valuta.NOK },
+      pris: { belop: 14_000, valuta: Valuta.NOK },
       belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
       belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
@@ -408,7 +407,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         description: null,
       },
     },
-    belop: 3000,
+    pris: { belop: 3000, valuta: Valuta.NOK },
     gjorOppTilsagn: false,
     opprettelse: {
       type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning",
@@ -434,7 +433,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         enhetsnummer: "0300",
         navn: "Nav Oslo",
       },
-      belop: { belop: 14_000, valuta: Valuta.NOK },
+      pris: { belop: 14_000, valuta: Valuta.NOK },
       belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
       belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
       status: {
@@ -453,7 +452,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         description: null,
       },
     },
-    belop: 3000,
+    pris: { belop: 3000, valuta: Valuta.NOK },
     gjorOppTilsagn: false,
     opprettelse: {
       type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet",
@@ -479,7 +478,7 @@ export const mockBeregning: UtbetalingBeregningDto = {
     columns: [],
     rows: [],
   },
-  belop: 24000,
+  pris: { belop: 24000, valuta: Valuta.NOK },
   satsDetaljer: [
     {
       header: "Periode mars",
@@ -487,7 +486,7 @@ export const mockBeregning: UtbetalingBeregningDto = {
         {
           label: "Sats",
           type: LabeledDataElementType.INLINE,
-          value: { value: "25000", type: "DATA_ELEMENT_TEXT", format: DataElementTextFormat.NOK },
+          value: { value: "25000", type: "DATA_ELEMENT_MONEY_AMOUNT", currency: "NOK" },
         },
         {
           label: "Antall månedsverk",

@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
@@ -26,7 +27,7 @@ data class UtbetalingLinje(
     val id: UUID,
     val tilsagn: TilsagnDto,
     val status: DelutbetalingStatusDto?,
-    val belop: Int,
+    val pris: ValutaBelop,
     val gjorOppTilsagn: Boolean,
     val opprettelse: TotrinnskontrollDto?,
     val handlinger: Set<UtbetalingLinjeHandling>,

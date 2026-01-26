@@ -83,8 +83,8 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.input.satser shouldBe setOf(
-                SatsPeriode(Periode(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 15)), 50),
-                SatsPeriode(Periode(LocalDate.of(2026, 2, 15), LocalDate.of(2026, 3, 1)), 100),
+                SatsPeriode(Periode(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 15)), 50.withValuta(Valuta.NOK)),
+                SatsPeriode(Periode(LocalDate.of(2026, 2, 15), LocalDate.of(2026, 3, 1)), 100.withValuta(Valuta.NOK)),
             )
         }
 
@@ -120,16 +120,16 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.input shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                satser = setOf(SatsPeriode(periode, 50)),
+                satser = setOf(SatsPeriode(periode, 50.withValuta(Valuta.NOK))),
                 stengt = emptySet(),
                 deltakelser = setOf(DeltakelsePeriode(deltakere[0].id, periode)),
             )
             result.output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
-                belop = 250,
+                pris = 250.withValuta(Valuta.NOK),
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakere[0].id,
-                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 5.0, 50)),
+                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 5.0, 50.withValuta(Valuta.NOK))),
                     ),
                 ),
             )
@@ -156,7 +156,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
-                belop = 210,
+                pris = 210.withValuta(Valuta.NOK),
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakere[0].id,
@@ -164,7 +164,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2024, 12, 31)),
                                 1.0,
-                                10,
+                                10.withValuta(Valuta.NOK),
                             ),
                         ),
                     ),
@@ -174,7 +174,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2025, 1, 8), LocalDate.of(2025, 1, 9)),
                                 1.0,
-                                50,
+                                50.withValuta(Valuta.NOK),
                             ),
                         ),
                     ),
@@ -184,7 +184,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2025, 1, 17), LocalDate.of(2025, 1, 18)),
                                 1.0,
-                                50,
+                                50.withValuta(Valuta.NOK),
                             ),
                         ),
                     ),
@@ -194,7 +194,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2025, 1, 24), LocalDate.of(2025, 1, 25)),
                                 1.0,
-                                50,
+                                50.withValuta(Valuta.NOK),
                             ),
                         ),
                     ),
@@ -204,7 +204,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2025, 1, 31), LocalDate.of(2025, 2, 1)),
                                 1.0,
-                                50,
+                                50.withValuta(Valuta.NOK),
                             ),
                         ),
                     ),
@@ -228,16 +228,16 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
 
             result.input shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                satser = setOf(SatsPeriode(periode, 10)),
+                satser = setOf(SatsPeriode(periode, 10.withValuta(Valuta.NOK))),
                 stengt = setOf(StengtPeriode(Periode(mandag, fredag), "Stengt")),
                 deltakelser = setOf(DeltakelsePeriode(deltakere[0].id, periode)),
             )
             result.output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
-                belop = 10,
+                pris = 10.withValuta(Valuta.NOK),
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakere[0].id,
-                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(fredag, lordag), 1.0, 10)),
+                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(fredag, lordag), 1.0, 10.withValuta(Valuta.NOK))),
                     ),
                 ),
             )

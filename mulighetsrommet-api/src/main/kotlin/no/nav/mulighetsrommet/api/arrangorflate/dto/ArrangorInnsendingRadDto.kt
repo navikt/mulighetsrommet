@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatu
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -24,7 +25,7 @@ data class ArrangorInnsendingRadDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val belop: Int?,
+    val belop: ValutaBelop?,
     val type: String?,
     val status: ArrangorflateUtbetalingStatus?,
 )
@@ -52,7 +53,7 @@ fun ArrangorflateUtbetalingKompaktDto.toRadDto(): ArrangorInnsendingRadDto = Arr
     lopenummer = this.gjennomforing.lopenummer,
     startDato = this.periode.start,
     sluttDato = this.periode.slutt,
-    belop = this.belop,
+    belop = this.pris,
     type = this.type.displayName,
     status = this.status,
 )

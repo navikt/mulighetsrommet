@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api.pdfgen
 
+import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.ValutaBelop
+
 class PdfDocumentContentBuilder(
     private val title: String,
     private val subject: String,
@@ -55,8 +58,16 @@ class DescriptionListBlockBuilder {
     var description: String? = null
     private val entries = mutableListOf<DescriptionListBlock.Entry>()
 
-    fun entry(label: String, value: Any?, format: Format? = null) {
-        entries.add(DescriptionListBlock.Entry(label, value?.toString(), format))
+    fun text(label: String, value: Any?, format: Format? = null) {
+        entries.add(DescriptionListBlock.Entry.Text(label, value?.toString(), format))
+    }
+
+    fun money(label: String, value: ValutaBelop) {
+        entries.add(DescriptionListBlock.Entry.MoneyAmount(label, value.belop.toString(), value.valuta.name))
+    }
+
+    fun money(label: String, elem: DataElement.MoneyAmount) {
+        entries.add(DescriptionListBlock.Entry.MoneyAmount(label, elem.value, elem.currency))
     }
 
     fun build(): DescriptionListBlock = DescriptionListBlock(

@@ -60,12 +60,6 @@ data class LabeledDataElement(
             value = DataElement.text(value),
         )
 
-        fun nok(label: String, value: Number, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
-            type = type,
-            label = label,
-            value = DataElement.nok(value),
-        )
-
         fun money(
             label: String,
             value: ValutaBelop?,
@@ -114,9 +108,6 @@ sealed class DataElement {
         enum class Format {
             @SerialName("date")
             DATE,
-
-            @SerialName("nok")
-            NOK,
 
             @SerialName("number")
             NUMBER,
@@ -233,8 +224,6 @@ sealed class DataElement {
 
     companion object {
         fun text(value: String?) = Text(value, null)
-
-        fun nok(value: Number?) = Text(value?.toString(), Format.NOK)
 
         fun money(value: ValutaBelop?) = MoneyAmount(value?.belop?.toString(), value?.valuta?.name ?: Valuta.NOK.name)
 

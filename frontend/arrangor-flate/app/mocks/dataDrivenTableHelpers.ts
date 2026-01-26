@@ -11,6 +11,14 @@ export function dataElementText(
   };
 }
 
+export function dataElementMoneyAmount(belop: string, valuta: string): DataElement {
+  return {
+    type: "DATA_ELEMENT_MONEY_AMOUNT",
+    value: belop,
+    currency: valuta,
+  };
+}
+
 export function dataElementLink(text: string, href: string): DataElement {
   return {
     type: "DATA_ELEMENT_LINK",

@@ -34,7 +34,7 @@ import {
 } from "~/components/OpprettKravVeiviserButtons";
 
 type LoaderData = {
-  innsendingsinformasjon: OpprettKravUtbetalingsinformasjon;
+  utbetalingsinformasjon: OpprettKravUtbetalingsinformasjon;
   sessionBelop?: string;
   sessionKid?: string;
 };
@@ -70,7 +70,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw problemDetailResponse(kontonummerError);
   }
 
-  return { innsendingsinformasjon: data, sessionBelop, sessionKid };
+  return { utbetalingsinformasjon: data, sessionBelop, sessionKid };
 };
 
 interface ActionData {
@@ -125,7 +125,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function OpprettKravUtbetaling() {
   const data = useActionData<ActionData>();
-  const { innsendingsinformasjon, sessionBelop, sessionKid } = useLoaderData<LoaderData>();
+  const { utbetalingsinformasjon, sessionBelop, sessionKid } = useLoaderData<LoaderData>();
   const orgnr = useOrgnrFromUrl();
   const gjennomforingId = useGjennomforingIdFromUrl();
   const revalidator = useRevalidator();
@@ -160,7 +160,7 @@ export default function OpprettKravUtbetaling() {
           <VStack gap="4">
             <KontonummerInput
               error={errorAt("/kontonummer", data?.errors)}
-              kontonummer={innsendingsinformasjon.kontonummer}
+              kontonummer={utbetalingsinformasjon.kontonummer}
               onClick={() => revalidator.revalidate()}
             />
             <TextField
@@ -188,7 +188,7 @@ export default function OpprettKravUtbetaling() {
             </ErrorSummary>
           )}
           <OpprettKravVeiviserButtons
-            navigering={innsendingsinformasjon.navigering}
+            navigering={utbetalingsinformasjon.navigering}
             orgnr={orgnr}
             gjennomforingId={gjennomforingId}
             submitNeste

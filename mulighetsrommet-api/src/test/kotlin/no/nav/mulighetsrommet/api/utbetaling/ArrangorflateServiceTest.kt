@@ -30,6 +30,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -78,7 +80,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.id shouldBe utbetaling.id
 
         result.beregning.shouldBeInstanceOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed>().should {
-            it.output.belop shouldBe 10000
+            it.output.pris shouldBe 10000.withValuta(Valuta.NOK)
         }
     }
 
@@ -139,7 +141,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.id shouldBe friUtbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
         result.beregning.shouldBeInstanceOf<ArrangorflateBeregning> {
-            it.belop shouldBe 5000
+            it.pris shouldBe 5000.withValuta(Valuta.NOK)
             it.displayName shouldBe "Annen avtalt pris"
         }
     }

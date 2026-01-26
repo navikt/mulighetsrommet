@@ -1,8 +1,5 @@
 {{#if value}}
     {{#if format}}
-        {{#eq format "NOK"}}
-            {{currency_no value}} NOK
-        {{/eq}}
         {{#eq format "DATE"}}
             {{iso_to_nor_date value}}
         {{/eq}}
@@ -12,6 +9,8 @@
         {{#eq format "STATUS_SUCCESS"}}
             <span class="status_success">{{value}}</span>
         {{/eq}}
+    {{else if currency}}
+        {{currency_no value}} {{currency}}
     {{else}}
         {{value}}
     {{/if}}

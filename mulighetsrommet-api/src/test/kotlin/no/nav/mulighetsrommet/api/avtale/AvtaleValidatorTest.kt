@@ -127,8 +127,8 @@ class AvtaleValidatorTest : FunSpec({
         ).shouldBeLeft().shouldContainAll(
             listOf(
                 FieldError("/startDato", "Startdato må være før sluttdato"),
-                FieldError("/navRegioner", "Du må velge minst én Nav-region"),
-                FieldError("/navKontorer", "Du må velge minst én Nav-enhet"),
+                FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region"),
+                FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet"),
                 FieldError("/arrangorUnderenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
             ),
         )
@@ -185,8 +185,8 @@ class AvtaleValidatorTest : FunSpec({
         AvtaleValidator.validateCreateAvtale(avtaleRequest, ctx.copy(navEnheter = emptyList())).shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
                 listOf(
-                    FieldError("/navRegioner", "Du må velge minst én Nav-region"),
-                    FieldError("/navKontorer", "Du må velge minst én Nav-enhet"),
+                    FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region"),
+                    FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet"),
                 ),
             )
     }

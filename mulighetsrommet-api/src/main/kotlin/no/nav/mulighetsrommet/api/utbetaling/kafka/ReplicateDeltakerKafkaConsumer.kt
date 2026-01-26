@@ -45,14 +45,24 @@ class ReplicateDeltakerKafkaConsumer(
 
             else -> {
                 gjennomforingId = deltaker.gjennomforingId
-                val prismodell = queries.gjennomforing.getPrismodell(deltaker.gjennomforingId)
 
                 logger.info("Lagrer deltaker deltakerId=$key")
-                queries.deltaker.upsert(toDeltakerDbo(deltaker, prismodell?.type))
+                queries.deltaker.upsert(toDeltakerDbo(deltaker))
             }
         }
-        if (gjennomforingId != null) {
-            scheduleOppdateringAvUtbetaling(gjennomforingId)
+
+        gjennomforingId?.let { queries.gjennomforing.getPrismodell(it) }?.run {
+            when (type) {
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                -> scheduleOppdateringAvUtbetaling(gjennomforingId)
+
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                PrismodellType.ANNEN_AVTALT_PRIS,
+                -> Unit
+            }
         }
     }
 
@@ -62,13 +72,7 @@ class ReplicateDeltakerKafkaConsumer(
     }
 }
 
-private fun toDeltakerDbo(deltaker: AmtDeltakerV1Dto, prismodell: PrismodellType?): DeltakerDbo {
-    val deltakelsesprosent = when (prismodell) {
-        // Hvis deltakelsesprosent mangler for forhåndsgodkjente tiltak så skal det antas å være 100%
-        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> deltaker.prosentStilling?.toDouble() ?: 100.0
-
-        else -> null
-    }
+private fun toDeltakerDbo(deltaker: AmtDeltakerV1Dto): DeltakerDbo {
     return DeltakerDbo(
         id = deltaker.id,
         gjennomforingId = deltaker.gjennomforingId,
@@ -76,7 +80,7 @@ private fun toDeltakerDbo(deltaker: AmtDeltakerV1Dto, prismodell: PrismodellType
         sluttDato = deltaker.sluttDato,
         registrertDato = deltaker.registrertDato.toLocalDate(),
         endretTidspunkt = deltaker.endretDato,
-        deltakelsesprosent = deltakelsesprosent,
+        deltakelsesprosent = deltaker.prosentStilling?.toDouble(),
         status = deltaker.status,
         deltakelsesmengder = deltaker.deltakelsesmengder
             ?.map {

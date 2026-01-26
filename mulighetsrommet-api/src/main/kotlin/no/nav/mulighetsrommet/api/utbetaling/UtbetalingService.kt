@@ -58,6 +58,9 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.compareTo
+import no.nav.mulighetsrommet.model.plus
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
@@ -156,6 +159,9 @@ class UtbetalingService(
         gjennomforing: GjennomforingGruppetiltak,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        requireNotNull(gjennomforing.prismodell)
+
+        val valuta = gjennomforing.prismodell.valuta
         val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
         val utbetalingInfo = resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
         val dbo = UtbetalingDbo(
@@ -163,10 +169,11 @@ class UtbetalingService(
             gjennomforingId = gjennomforing.id,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = Betalingsinformasjon.BBan(utbetalingKrav.kontonummer, utbetalingKrav.kidNummer),
+            valuta = valuta,
             beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
                 input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
                     satser = utbetalingInfo.satser,
-                    belop = utbetalingKrav.belop,
+                    pris = utbetalingKrav.pris,
                     stengt = utbetalingInfo.stengtHosArrangor,
                     deltakelser = utbetalingInfo.deltakelsePerioder,
                 ),
@@ -218,8 +225,9 @@ class UtbetalingService(
 
                 is Betalingsinformasjon.IBan -> betalingsinformasjon
             },
+            valuta = request.pris.valuta,
             beregning = UtbetalingBeregningFri.beregn(
-                input = UtbetalingBeregningFri.Input(request.belop),
+                input = UtbetalingBeregningFri.Input(request.pris),
             ),
             periode = periode,
             innsender = agent,
@@ -277,9 +285,9 @@ class UtbetalingService(
                         gjorOppTilsagn = req.gjorOppTilsagn,
                         tilsagn = UtbetalingValidator.OpprettDelutbetaling.Tilsagn(
                             status = tilsagn.status,
-                            gjenstaendeBelop = tilsagn.gjenstaendeBelop().belop, // TODO: Ta med valuta
+                            gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
                         ),
-                        belop = req.belop,
+                        pris = req.pris,
                     )
                 },
                 request.begrunnelseMindreBetalt,
@@ -300,7 +308,7 @@ class UtbetalingService(
                         utbetaling,
                         requireNotNull(delutbetalingTilsagn[it.id]),
                         it.id,
-                        requireNotNull(it.belop),
+                        requireNotNull(it.pris),
                         it.gjorOppTilsagn,
                         navIdent,
                     )
@@ -378,6 +386,17 @@ class UtbetalingService(
             }
 
         queries.utbetaling.delete(id).right()
+    }
+
+    fun avbrytUtbetaling(utbetalingId: UUID, begrunnelse: String): Unit = db.transaction {
+        queries.utbetaling.avbrytUtbetaling(
+            utbetalingId,
+            begrunnelse,
+            Instant.now(),
+        )
+        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
+        logEndring("Utbetaling avbrutt", utbetaling, Arrangor)
+        return
     }
 
     fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {
@@ -481,7 +500,7 @@ class UtbetalingService(
         }
 
         val tilsagn = relevanteTilsagn[0]
-        if (tilsagn.gjenstaendeBelop().belop < utbetaling.beregning.output.belop) {
+        if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.pris) {
             return AutomatiskUtbetalingResult.IKKE_NOK_PENGER
         }
 
@@ -495,7 +514,7 @@ class UtbetalingService(
             utbetaling = utbetaling,
             tilsagn = tilsagn,
             id = delutbetalingId,
-            belop = utbetaling.beregning.output.belop,
+            pris = utbetaling.beregning.output.pris,
             gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
             behandletAv = Tiltaksadministrasjon,
         )
@@ -514,7 +533,7 @@ class UtbetalingService(
         utbetaling: Utbetaling,
         tilsagn: Tilsagn,
         id: UUID,
-        belop: Int,
+        pris: ValutaBelop,
         gjorOppTilsagn: Boolean,
         behandletAv: Agent,
     ) {
@@ -540,7 +559,7 @@ class UtbetalingService(
             tilsagnId = tilsagn.id,
             status = DelutbetalingStatus.TIL_ATTESTERING,
             periode = periode,
-            belop = belop,
+            pris = pris,
             gjorOppTilsagn = gjorOppTilsagn,
             lopenummer = lopenummer,
             fakturanummer = fakturanummer,
@@ -620,10 +639,10 @@ class UtbetalingService(
 
         delutbetalinger.forEach { delutbetaling ->
             val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
-            val benyttetBelop = tilsagn.belopBrukt.belop + delutbetaling.belop
+            val benyttetBelop = tilsagn.belopBrukt + delutbetaling.pris
             val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
             queries.tilsagn.setBruktBelop(tilsagn.id, benyttetBelop)
-            if (delutbetaling.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.pris.belop) {
+            if (delutbetaling.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.pris) {
                 tilsagnService.gjorOppTilsagnVedUtbetaling(
                     delutbetaling.tilsagnId,
                     behandletAv = opprettelse.behandletAv,
@@ -753,7 +772,7 @@ class UtbetalingService(
             fakturanummer = delutbetaling.faktura.fakturanummer,
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             betalingsinformasjon = betalingsinformasjon,
-            belop = delutbetaling.belop,
+            belop = delutbetaling.pris.belop, // Send med valuta
             periode = delutbetaling.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
             behandletTidspunkt = opprettelse.behandletTidspunkt,

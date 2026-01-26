@@ -210,7 +210,7 @@ export default function BekreftUtbetaling() {
           ]}
         />
         <SatsPerioderOgBelop
-          belop={utbetaling.beregning.belop}
+          pris={utbetaling.beregning.pris}
           satsDetaljer={utbetaling.beregning.satsDetaljer}
         />
         <Separator />

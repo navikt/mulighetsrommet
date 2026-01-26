@@ -12,6 +12,8 @@ import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -35,6 +37,7 @@ data class ArrangorflateUtbetalingDto(
     val gjennomforing: ArrangorflateGjennomforingInfo,
     val arrangor: ArrangorflateArrangor,
     val betalingsinformasjon: Betalingsinformasjon.BBan?,
+    val valuta: Valuta,
     val beregning: ArrangorflateBeregning,
     val periode: Periode,
     val type: UtbetalingTypeDto,
@@ -56,7 +59,7 @@ data class ArrangorflateBetalingsinformasjon(
 @Serializable
 class ArrangorflateBeregning(
     val displayName: String,
-    val belop: Int,
+    val pris: ValutaBelop,
     val digest: String,
     val stengt: List<StengtPeriode>,
     val deltakelser: DataDrivenTableDto?,
@@ -71,5 +74,5 @@ data class ArrangforflateUtbetalingLinje(
     val status: DelutbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val statusSistOppdatert: LocalDateTime?,
-    val belop: Int,
+    val pris: ValutaBelop,
 )

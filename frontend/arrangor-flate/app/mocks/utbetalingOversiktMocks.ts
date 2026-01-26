@@ -1,4 +1,4 @@
-import { ArrangorInnsendingRadDto, ArrangorflateUtbetalingStatus } from "api-client";
+import { ArrangorInnsendingRadDto, ArrangorflateUtbetalingStatus, Valuta } from "api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 import {
   arrUkesprisKlarTilGodkjenning,
@@ -19,7 +19,7 @@ const arrUkesprisKlarTilGodkjenningTableRow: ArrangorInnsendingRadDto = {
   lopenummer: "2025/10000",
   startDato: "2025-10-01",
   sluttDato: "2025-11-01",
-  belop: 53100,
+  belop: { belop: 53100, valuta: Valuta.NOK },
   type: "INNSENDING",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
 };
@@ -33,7 +33,7 @@ const avklaringManedKlarTilInnsendingTableRow: ArrangorInnsendingRadDto = {
   lopenummer: "2025/10001",
   startDato: "2025-10-01",
   sluttDato: "2025-11-06",
-  belop: 20000,
+  belop: { belop: 20000, valuta: Valuta.NOK },
   type: "INNSENDING",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
 };
@@ -47,7 +47,7 @@ const solrikAftDataRow: ArrangorInnsendingRadDto = {
   lopenummer: "2025/10003",
   startDato: "2025-01-01",
   sluttDato: "2025-02-01",
-  belop: 242904,
+  belop: { belop: 242904, valuta: Valuta.NOK },
   type: "INNSENDING",
   status: ArrangorflateUtbetalingStatus.KREVER_ENDRING,
 };
@@ -61,7 +61,7 @@ const aftTiltakspengerTableRow: ArrangorInnsendingRadDto = {
   lopenummer: "2025/10004",
   startDato: "2025-05-01",
   sluttDato: "2025-08-02",
-  belop: 234,
+  belop: { belop: 234, valuta: Valuta.NOK },
   type: "INVESTERING",
   status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
 };
@@ -75,7 +75,7 @@ const aftTiltakspengerOverfortTilUtbetalingTableRow: ArrangorInnsendingRadDto = 
   lopenummer: "2025/10005",
   startDato: "2025-01-01",
   sluttDato: "2025-02-01",
-  belop: 1200,
+  belop: { belop: 1200, valuta: Valuta.NOK },
   type: "INNSENDING",
   status: ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
 };
@@ -89,7 +89,7 @@ const mayRainAftTableRow: ArrangorInnsendingRadDto = {
   lopenummer: "2025/10006",
   startDato: "2025-06-01",
   sluttDato: "2025-07-01",
-  belop: 16848,
+  belop: { belop: 16848, valuta: Valuta.NOK },
   type: "INNSENDING",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
 };
@@ -103,7 +103,7 @@ const aftFoobarTableRow: ArrangorInnsendingRadDto = {
   lopenummer: "2025/10002",
   startDato: "2025-01-01",
   sluttDato: "2025-02-01",
-  belop: 1000,
+  belop: { belop: 1000, valuta: Valuta.NOK },
   type: "INNSENDING",
   status: ArrangorflateUtbetalingStatus.UTBETALT,
 };

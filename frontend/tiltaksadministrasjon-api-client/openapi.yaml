@@ -2450,40 +2450,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/nav-enheter/kostnadssted:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getKostnadssted
-      parameters:
-      - name: regioner
-        in: query
-        description: Hvilke regioner man henter for
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      responses:
-        "200":
-          description: Alle kostnadssteder basert på filter
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavEnhetDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/nav-enheter/kostnadsstedFilter:
     get:
       tags:
@@ -2500,36 +2466,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/NavRegionDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/nav-enheter/{enhetsnummer}/overordnet:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getOverordnetEnhet
-      parameters:
-      - name: enhetsnummer
-        in: path
-        description: Enhetsnummer for Nav-enhet
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Overordnet Nav-enhet for gitt enhetsnummer
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NavEnhetDto"
         default:
           description: Problem details
           headers: {}
@@ -3927,15 +3863,25 @@ components:
       type: object
       properties:
         region:
-          $ref: "#/components/schemas/NavEnhetDto"
+          $ref: "#/components/schemas/Kontorstruktur.Region"
         kontorer:
           type: array
           items:
-            $ref: "#/components/schemas/NavEnhetDto"
+            $ref: "#/components/schemas/Kontorstruktur.Kontor"
       required:
       - kontorer
       - region
-    NavEnhetDto:
+    Kontorstruktur.Region:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
+    Kontorstruktur.Kontor:
       type: object
       properties:
         navn:
@@ -3943,49 +3889,16 @@ components:
         enhetsnummer:
           type: string
         type:
-          $ref: "#/components/schemas/NavEnhetType"
-        overordnetEnhet:
-          type:
-          - "null"
-          - string
+          $ref: "#/components/schemas/Kontorstruktur.Kontortype"
       required:
       - enhetsnummer
       - navn
-      - overordnetEnhet
       - type
-    NavEnhetType:
+    Kontorstruktur.Kontortype:
       type: string
       enum:
-      - KO
-      - FYLKE
-      - TILTAK
-      - AAREG
-      - ALS
-      - ARK
-      - DIR
-      - DOKSENTER
-      - EKSTERN
-      - FORVALTNING
-      - FPY
-      - HELFO
-      - HMS
-      - INNKREV
-      - INTRO
-      - IT
-      - KLAGE
-      - KONTAKT
-      - KONTROLL
       - LOKAL
-      - OKONOMI
-      - OTENESTE
-      - OPPFUTLAND
-      - OTENESE
-      - RIKSREV
-      - ROBOT
-      - ROL
-      - TILLIT
-      - UTLAND
-      - YTA
+      - SPESIALENHET
     AmoKategorisering:
       anyOf:
       - $ref: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
@@ -5276,7 +5189,6 @@ components:
       type: string
       enum:
       - date
-      - nok
       - number
     TimelineDto:
       type: object
@@ -5363,7 +5275,7 @@ components:
           $ref: "#/components/schemas/TilsagnType"
         periode:
           $ref: "#/components/schemas/Periode"
-        belop:
+        pris:
           $ref: "#/components/schemas/ValutaBelop"
         belopBrukt:
           $ref: "#/components/schemas/ValutaBelop"
@@ -5384,7 +5296,6 @@ components:
           - "null"
           - string
       required:
-      - belop
       - belopBrukt
       - belopGjenstaende
       - beskrivelse
@@ -5393,6 +5304,7 @@ components:
       - kommentar
       - kostnadssted
       - periode
+      - pris
       - status
       - type
     TilsagnType:
@@ -5799,10 +5711,9 @@ components:
           items:
             $ref: "#/components/schemas/KostnadsstedDto"
         belopUtbetalt:
-          type:
-          - "null"
-          - integer
-          format: int32
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
         type:
           $ref: "#/components/schemas/UtbetalingTypeDto"
       required:
@@ -5865,11 +5776,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/KostnadsstedDto"
-        belop:
-          type:
-          - "null"
-          - integer
-          format: int32
+        pris:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
         arrangor:
           type: string
         tiltakstype:
@@ -5878,11 +5788,11 @@ components:
           $ref: "#/components/schemas/UtbetalingStatusDto"
       required:
       - arrangor
-      - belop
       - gjennomforingId
       - id
       - kostnadssteder
       - periode
+      - pris
       - status
       - tiltakstype
     Utbetaling.Tiltakstype:
@@ -5905,9 +5815,8 @@ components:
           $ref: "#/components/schemas/UtbetalingStatusDto"
         periode:
           $ref: "#/components/schemas/Periode"
-        belop:
-          type: integer
-          format: int32
+        pris:
+          $ref: "#/components/schemas/ValutaBelop"
         innsendtAvArrangorDato:
           type:
           - "null"
@@ -5949,7 +5858,6 @@ components:
       required:
       - avbruttBegrunnelse
       - begrunnelseMindreBetalt
-      - belop
       - beskrivelse
       - betalingsinformasjon
       - id
@@ -5957,6 +5865,7 @@ components:
       - innsendtAvArrangorDato
       - journalpostId
       - periode
+      - pris
       - status
       - tilskuddstype
       - type
@@ -6062,18 +5971,17 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/DataDrivenTableDto"
-        belop:
-          type: integer
-          format: int32
+        pris:
+          $ref: "#/components/schemas/ValutaBelop"
         satsDetaljer:
           type: array
           items:
             $ref: "#/components/schemas/DataDetails"
       required:
-      - belop
       - deltakerRegioner
       - deltakerTableData
       - heading
+      - pris
       - satsDetaljer
     UtbetalingLinje:
       type: object
@@ -6087,9 +5995,8 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/DelutbetalingStatusDto"
-        belop:
-          type: integer
-          format: int32
+        pris:
+          $ref: "#/components/schemas/ValutaBelop"
         gjorOppTilsagn:
           type: boolean
         opprettelse:
@@ -6102,11 +6009,11 @@ components:
             $ref: "#/components/schemas/UtbetalingLinjeHandling"
           uniqueItems: true
       required:
-      - belop
       - gjorOppTilsagn
       - handlinger
       - id
       - opprettelse
+      - pris
       - status
       - tilsagn
     DelutbetalingStatusDto:
@@ -6155,16 +6062,15 @@ components:
           type:
           - "null"
           - string
-        belop:
-          type: integer
-          format: int32
+        pris:
+          $ref: "#/components/schemas/ValutaBelop"
       required:
-      - belop
       - beskrivelse
       - gjennomforingId
       - kidNummer
       - periodeSlutt
       - periodeStart
+      - pris
     DelutbetalingRequest:
       type: object
       properties:
@@ -6174,17 +6080,16 @@ components:
         tilsagnId:
           type: string
           format: uuid
-        belop:
-          type:
-          - "null"
-          - integer
-          format: int32
+        pris:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
         gjorOppTilsagn:
           type: boolean
       required:
-      - belop
       - gjorOppTilsagn
       - id
+      - pris
       - tilsagnId
     OpprettDelutbetalingerRequest:
       type: object

@@ -100,7 +100,7 @@ export default function UtbetalingBeregning() {
         <SatsPerioderOgBelop
           className="w-[700px]"
           satsDetaljer={utbetaling.beregning.satsDetaljer}
-          belop={utbetaling.beregning.belop}
+          pris={utbetaling.beregning.pris}
         />
         <HStack gap="4">
           <Button

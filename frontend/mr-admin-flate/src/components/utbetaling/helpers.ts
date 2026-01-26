@@ -8,7 +8,7 @@ export function toDelutbetaling(linje: UtbetalingLinje): DelutbetalingRequest {
   return {
     id: linje.id,
     tilsagnId: linje.tilsagn.id,
-    belop: linje.belop,
+    pris: linje.pris,
     gjorOppTilsagn: linje.gjorOppTilsagn,
   };
 }

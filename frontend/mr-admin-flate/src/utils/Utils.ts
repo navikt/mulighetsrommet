@@ -8,7 +8,6 @@ import {
   TilsagnStatusAarsak,
   TilsagnType,
   Avtaletype,
-  NavEnhetDto,
   Tiltakskode,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
@@ -51,10 +50,6 @@ export function kalkulerStatusBasertPaaFraOgTilDato(
   }
 }
 
-export function inneholderUrl(string: string) {
-  return window.location.href.indexOf(string) > -1;
-}
-
 export function avtaletypeTilTekst(
   type: Avtaletype,
 ): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" | "Offentlig-offentlig samarbeid" {
@@ -81,55 +76,8 @@ export function validEmail(email: string | undefined): boolean {
   );
 }
 
-/**
- * @deprecated bruk `addDuration(date, {years: number})`
- */
-export function addYear(date: Date, numYears: number): Date {
-  const newDate = new Date(date);
-  newDate.setFullYear(date.getFullYear() + numYears);
-  return newDate;
-}
-
-/**
- * @deprecated Bruk `subDuration(date, {months: number})`
- */
-export function subtractMonths(date: Date, numMonths: number): Date {
-  const newDate = new Date(date);
-  newDate.setMonth(date.getMonth() - numMonths);
-  return newDate;
-}
-
-/**
- * @deprecated bruk `addDuration(date, {days: number})`
- */
-export function addDays(date: Date | string, numDays: number): Date {
-  const newDate = new Date(date);
-  newDate.setDate(newDate.getDate() + numDays);
-  return newDate;
-}
-
-/**
- * @deprecated Bruk `subDuration(date, {days: number})`
- */
-export function subtractDays(date: Date | string, numDays: number): Date {
-  const newDate = new Date(date);
-  newDate.setDate(newDate.getDate() - numDays);
-  return newDate;
-}
-
 export function avtaleHarRegioner(avtale: AvtaleDto): boolean {
   return avtale.kontorstruktur.length > 0;
-}
-
-/**
- * @deprecated Bruk maxOf([fra,til,annet])
- */
-export function max(a: Date, b: Date): Date {
-  return a > b ? a : b;
-}
-
-export function sorterPaRegionsnavn(a: { region: NavEnhetDto }, b: { region: NavEnhetDto }) {
-  return a.region.navn.localeCompare(b.region.navn);
 }
 
 export function formaterNavEnheter(
