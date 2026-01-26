@@ -18,7 +18,6 @@ import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
-import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import UtbetalingBeregningView from "@/components/utbetaling/beregning/UtbetalingBeregningView";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import {
@@ -36,6 +35,7 @@ import {
   MetadataFritekstfelt,
   MetadataHGrid,
 } from "@mr/frontend-common/components/datadriven/Metadata";
+import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
@@ -122,7 +122,12 @@ export function UtbetalingPage() {
                     {utbetaling.type.tagName && (
                       <MetadataHGrid
                         label={utbetalingTekster.metadata.type}
-                        value={<UtbetalingTypeText type={utbetaling.type} />}
+                        value={
+                          <HStack gap="2">
+                            {utbetaling.type.displayName}
+                            <UtbetalingTypeTag type={utbetaling.type.displayName} />
+                          </HStack>
+                        }
                       />
                     )}
                     <MetadataHGrid
