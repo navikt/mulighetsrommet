@@ -811,6 +811,7 @@ components:
       type: string
       enum:
       - NOK
+      - SEK
     ArrangorflateUtbetalingStatus:
       type: string
       enum:
