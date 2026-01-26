@@ -6,19 +6,33 @@ import { pathTo } from "~/utils/navigation";
 interface UtbetalingTextLinkProps {
   status: ArrangorflateUtbetalingStatus | undefined;
   gjennomforingNavn: string;
-  utbetalingId: string;
+  gjennomforingId: string;
+  utbetalingId: string | undefined;
   orgnr: string;
 }
 
 export function UtbetalingTextLink({
   status,
   gjennomforingNavn,
+  gjennomforingId,
   utbetalingId,
   orgnr,
 }: UtbetalingTextLinkProps) {
+  if (!utbetalingId) {
+    return (
+      <Link
+        as={ReactRouterLink}
+        aria-label={`Start innsending for krav om utbetaling for ${gjennomforingNavn}`}
+        to={pathTo.opprettKrav.innsendingsinformasjon(orgnr, gjennomforingId)}
+      >
+        Start innsending
+      </Link>
+    );
+  }
+
   switch (status) {
     case ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING:
-    case undefined: {
+    case undefined:
       return (
         <Link
           as={ReactRouterLink}
@@ -28,8 +42,7 @@ export function UtbetalingTextLink({
           Start innsending
         </Link>
       );
-    }
-    case ArrangorflateUtbetalingStatus.KREVER_ENDRING: {
+    case ArrangorflateUtbetalingStatus.KREVER_ENDRING:
       return (
         <Link
           as={ReactRouterLink}
@@ -39,12 +52,11 @@ export function UtbetalingTextLink({
           Se innsending
         </Link>
       );
-    }
     case ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV:
     case ArrangorflateUtbetalingStatus.UTBETALT:
     case ArrangorflateUtbetalingStatus.AVBRUTT:
     case ArrangorflateUtbetalingStatus.DELVIS_UTBETALT:
-    case ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING: {
+    case ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
       return (
         <Link
           as={ReactRouterLink}
@@ -54,6 +66,5 @@ export function UtbetalingTextLink({
           Se detaljer
         </Link>
       );
-    }
   }
 }

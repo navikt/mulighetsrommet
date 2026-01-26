@@ -11,9 +11,10 @@ import {
 } from "./utbetalingDetaljerMocks";
 
 const arrUkesprisKlarTilGodkjenningTableRow: ArrangorInnsendingRadDto = {
-  gjennomforingId: arrUkesprisKlarTilGodkjenning.id,
+  utbetalingId: arrUkesprisKlarTilGodkjenning.id,
   arrangorNavn: arrangorMock.navn,
   organisasjonsnummer: arrangorMock.organisasjonsnummer,
+  gjennomforingId: arrUkesprisKlarTilGodkjenning.gjennomforing.id,
   tiltakstypeNavn: "Arbeidsrettet rehabilitering",
   tiltakNavn: "Arbeidsrettet rehabilitering",
   lopenummer: "2025/10000",
@@ -25,7 +26,8 @@ const arrUkesprisKlarTilGodkjenningTableRow: ArrangorInnsendingRadDto = {
 };
 
 const avklaringManedKlarTilInnsendingTableRow: ArrangorInnsendingRadDto = {
-  gjennomforingId: avklaringManedKlarTilGodkjenning.id,
+  utbetalingId: avklaringManedKlarTilGodkjenning.id,
+  gjennomforingId: avklaringManedKlarTilGodkjenning.gjennomforing.id,
   arrangorNavn: arrangorMock.navn,
   organisasjonsnummer: arrangorMock.organisasjonsnummer,
   tiltakstypeNavn: "Avklaring",
@@ -39,7 +41,8 @@ const avklaringManedKlarTilInnsendingTableRow: ArrangorInnsendingRadDto = {
 };
 
 const solrikAftDataRow: ArrangorInnsendingRadDto = {
-  gjennomforingId: aftKreverEndring.id,
+  utbetalingId: aftKreverEndring.id,
+  gjennomforingId: aftKreverEndring.gjennomforing.id,
   arrangorNavn: arrangorMock.navn,
   organisasjonsnummer: arrangorMock.organisasjonsnummer,
   tiltakstypeNavn: "Arbeidsforberedende trening",
@@ -53,7 +56,8 @@ const solrikAftDataRow: ArrangorInnsendingRadDto = {
 };
 
 const aftTiltakspengerTableRow: ArrangorInnsendingRadDto = {
-  gjennomforingId: aftBehandlesAvNav.id,
+  gjennomforingId: aftBehandlesAvNav.gjennomforing.id,
+  utbetalingId: aftBehandlesAvNav.id,
   arrangorNavn: arrangorMock.navn,
   organisasjonsnummer: arrangorMock.organisasjonsnummer,
   tiltakstypeNavn: "Arbeidsforberedende trening",
@@ -67,7 +71,8 @@ const aftTiltakspengerTableRow: ArrangorInnsendingRadDto = {
 };
 
 const aftTiltakspengerOverfortTilUtbetalingTableRow: ArrangorInnsendingRadDto = {
-  gjennomforingId: avklaringOverfortTilUtbetaling.id,
+  gjennomforingId: avklaringOverfortTilUtbetaling.gjennomforing.id,
+  utbetalingId: avklaringOverfortTilUtbetaling.id,
   arrangorNavn: arrangorMock.navn,
   organisasjonsnummer: arrangorMock.organisasjonsnummer,
   tiltakstypeNavn: "Arbeidsforberedende trening",
@@ -81,7 +86,8 @@ const aftTiltakspengerOverfortTilUtbetalingTableRow: ArrangorInnsendingRadDto = 
 };
 
 const mayRainAftTableRow: ArrangorInnsendingRadDto = {
-  gjennomforingId: vtaKlarForGodkjenning.id,
+  gjennomforingId: vtaKlarForGodkjenning.gjennomforing.id,
+  utbetalingId: vtaKlarForGodkjenning.id,
   arrangorNavn: arrangorMock.navn,
   organisasjonsnummer: arrangorMock.organisasjonsnummer,
   tiltakstypeNavn: "Varig tilrettelagt arbeid i skjermet virksomhet",
@@ -95,7 +101,8 @@ const mayRainAftTableRow: ArrangorInnsendingRadDto = {
 };
 
 const aftFoobarTableRow: ArrangorInnsendingRadDto = {
-  gjennomforingId: aftUtbetalt.id,
+  gjennomforingId: aftUtbetalt.gjennomforing.id,
+  utbetalingId: aftUtbetalt.id,
   arrangorNavn: arrangorMock.navn,
   organisasjonsnummer: arrangorMock.organisasjonsnummer,
   tiltakstypeNavn: "Arbeidsforberedende trening",
