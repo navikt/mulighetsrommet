@@ -18,14 +18,14 @@
     "@navikt/aksel-icons": "7.38.0",
     "@navikt/ds-css": "7.38.0",
     "@navikt/ds-react": "7.38.0",
-    "@tanstack/react-query": "5.90.16",
+    "@tanstack/react-query": "5.90.19",
     "classnames": "2.5.1",
     "date-fns": "4.1.0",
     "date-fns-tz": "^3.2.0",
     "react": "19.0.3",
     "react-dom": "19.0.3",
-    "react-error-boundary": "6.0.3",
-    "react-hook-form": "7.71.0",
+    "react-error-boundary": "6.1.0",
+    "react-hook-form": "7.71.1",
     "react-router": "7.12.0",
     "react-select": "5.10.2",
     "zod": "4.3.5"
@@ -38,7 +38,7 @@
     "eslint": "9.39.2",
     "postcss": "8.5.6",
     "vite-tsconfig-paths": "6.0.4",
-    "vitest": "4.0.16"
+    "vitest": "4.0.17"
   },
   "repository": {
     "type": "git",
