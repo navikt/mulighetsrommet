@@ -3,8 +3,8 @@ import { useEffect } from "react";
 
 export type Tabs = "aktive" | "historiske" | "tilsagnsoversikt";
 
-export function getTabStateOrDefault(url: URL): Tabs {
-  const val = url.searchParams.get("forside-tab") || "";
+export function getTabStateOrDefault(request: { url: string }): Tabs {
+  const val = new URL(request.url).searchParams.get("forside-tab") || "";
   return convertToTabOrDefault(val);
 }
 

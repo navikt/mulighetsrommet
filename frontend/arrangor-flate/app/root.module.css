@@ -17,7 +17,7 @@ body {
 
 .side {
   margin: 1rem;
-  width: min(90%, 2500px);
+  width: min(95%, 2500px);
 }
 
 :global(#decorator-header) {
@@ -47,4 +47,8 @@ body {
   a[href]:after {
     content: none !important;
   }
+}
+
+.tag {
+  white-space: nowrap;
 }

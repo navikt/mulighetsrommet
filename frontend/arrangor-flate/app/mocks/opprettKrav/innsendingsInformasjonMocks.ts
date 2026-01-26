@@ -8,6 +8,7 @@ import {
   TilsagnStatus,
   TilsagnType,
   Valuta,
+  Tiltakskode,
 } from "@api-client";
 import { formaterPeriode, subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import {
@@ -38,7 +39,7 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
       label: "Tiltaksnavn",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingAFT.navn,
+        value: gjennomforingAFT.tiltakNavn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -47,7 +48,7 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
       label: "Tiltakstype",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingAFT.tiltakstype.navn,
+        value: gjennomforingAFT.tiltakstypeNavn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -56,10 +57,13 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
   tilsagn: [
     {
       id: "df4553e5-6a42-4a21-85a1-e0db8b5cb70a",
-      tiltakstype: gjennomforingAFT.tiltakstype,
+      tiltakstype: {
+        navn: gjennomforingAFT.tiltakstypeNavn,
+        tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+      },
       gjennomforing: {
-        id: gjennomforingAFT.id,
-        navn: gjennomforingAFT.navn,
+        id: gjennomforingAFT.gjennomforingId,
+        navn: gjennomforingAFT.tiltakNavn,
         lopenummer: "2025/10000",
       },
       arrangor: arrangorMock,
@@ -142,7 +146,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
       label: "Tiltaksnavn",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingAvklaring.navn,
+        value: gjennomforingAvklaring.tiltakNavn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -151,7 +155,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
       label: "Tiltakstype",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingAvklaring.tiltakstype.navn,
+        value: gjennomforingAvklaring.tiltakstypeNavn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -160,10 +164,13 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
   tilsagn: [
     {
       id: "b0a3c090-1f8c-44f3-b334-2b22022b3ce9",
-      tiltakstype: gjennomforingAvklaring.tiltakstype,
+      tiltakstype: {
+        navn: gjennomforingAvklaring.tiltakstypeNavn,
+        tiltakskode: Tiltakskode.AVKLARING,
+      },
       gjennomforing: {
-        id: gjennomforingAvklaring.id,
-        navn: gjennomforingAvklaring.navn,
+        id: gjennomforingAvklaring.gjennomforingId,
+        navn: gjennomforingAvklaring.tiltakNavn,
         lopenummer: "2025/10001",
       },
       arrangor: arrangorMock,
@@ -231,7 +238,7 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
       label: "Tiltaksnavn",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingOppfolging.navn,
+        value: gjennomforingOppfolging.tiltakNavn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -240,7 +247,7 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
       label: "Tiltakstype",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingOppfolging.tiltakstype.navn,
+        value: gjennomforingOppfolging.tiltakstypeNavn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -249,10 +256,13 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
   tilsagn: [
     {
       id: "6e716b3b-6a85-4791-a8bf-fa90a5dfb6be",
-      tiltakstype: gjennomforingOppfolging.tiltakstype,
+      tiltakstype: {
+        navn: gjennomforingOppfolging.tiltakstypeNavn,
+        tiltakskode: Tiltakskode.OPPFOLGING,
+      },
       gjennomforing: {
-        id: gjennomforingOppfolging.id,
-        navn: gjennomforingOppfolging.navn,
+        id: gjennomforingOppfolging.gjennomforingId,
+        navn: gjennomforingOppfolging.tiltakNavn,
         lopenummer: "2025/10002",
       },
       arrangor: arrangorMock,

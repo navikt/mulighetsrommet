@@ -274,7 +274,7 @@ function UtbetalingHeader({ utbetalingType }: { utbetalingType: UtbetalingTypeDt
       <Heading level="3" size="medium">
         {tekst}
       </Heading>
-      <UtbetalingTypeTag type={utbetalingType} />
+      <UtbetalingTypeTag type={utbetalingType.displayName} />
     </HStack>
   );
 }

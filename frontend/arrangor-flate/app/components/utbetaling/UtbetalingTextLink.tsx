@@ -4,7 +4,7 @@ import { Link as ReactRouterLink } from "react-router";
 import { pathTo } from "~/utils/navigation";
 
 interface UtbetalingTextLinkProps {
-  status: ArrangorflateUtbetalingStatus;
+  status: ArrangorflateUtbetalingStatus | undefined;
   gjennomforingNavn: string;
   utbetalingId: string;
   orgnr: string;
@@ -17,7 +17,8 @@ export function UtbetalingTextLink({
   orgnr,
 }: UtbetalingTextLinkProps) {
   switch (status) {
-    case ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING: {
+    case ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING:
+    case undefined: {
       return (
         <Link
           as={ReactRouterLink}

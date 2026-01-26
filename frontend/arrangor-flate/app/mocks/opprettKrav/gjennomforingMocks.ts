@@ -1,11 +1,4 @@
-import {
-  ArrangorflateArrangor,
-  DataDrivenTableDto,
-  DataDrivenTableDtoColumnAlign,
-  DataElementTextFormat,
-  Tiltakskode,
-} from "@api-client";
-import { dataElementLink, dataElementText } from "../dataDrivenTableHelpers";
+import { ArrangorflateArrangor, ArrangorInnsendingRadDto } from "@api-client";
 
 export const gjennomforingIdAFT = "54d0d2af-f329-480d-a427-30de446fea10";
 export const gjennomforingIdAvklaring = "54d0d2af-f329-480d-a427-30de446fea11";
@@ -19,78 +12,50 @@ export const arrangorMock: ArrangorflateArrangor = {
   organisasjonsnummer: "123456789",
 };
 
-export const gjennomforingAFT = {
-  id: gjennomforingIdAFT,
-  navn: "Et AFT-tiltak Investering",
-  tiltakstype: {
-    navn: "Arbeidsforberedende trening",
-    tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-  },
+export const gjennomforingAFT: ArrangorInnsendingRadDto = {
+  gjennomforingId: gjennomforingIdAFT,
+  tiltakNavn: "Et AFT-tiltak Investering",
+  tiltakstypeNavn: "Arbeidsforberedende trening",
+  arrangorNavn: arrangorMock.navn,
+  organisasjonsnummer: arrangorMock.organisasjonsnummer,
   startDato: new Date(today.getFullYear() - 5, 7, 1).toISOString().slice(0, 10),
   sluttDato: null,
   lopenummer: "2024/12345",
+  belop: null,
+  type: null,
+  status: null,
 };
 
-export const gjennomforingAvklaring = {
-  id: gjennomforingIdAvklaring,
-  navn: "Et avklaringstiltak med annen avtalt pris",
-  tiltakstype: {
-    navn: "Avklaring",
-    tiltakskode: Tiltakskode.AVKLARING,
-  },
+export const gjennomforingAvklaring: ArrangorInnsendingRadDto = {
+  gjennomforingId: gjennomforingIdAvklaring,
+  tiltakNavn: "Et avklaringstiltak med annen avtalt pris",
+  tiltakstypeNavn: "Avklaring",
+  arrangorNavn: arrangorMock.navn,
+  organisasjonsnummer: arrangorMock.organisasjonsnummer,
   startDato: new Date(today.getFullYear() - 1, 1, 1).toISOString().slice(0, 10),
   sluttDato: new Date(today.getFullYear() + 1, 11, 31).toISOString().slice(0, 10),
   lopenummer: "2025/54321",
+  belop: null,
+  type: null,
+  status: null,
 };
 
-export const gjennomforingOppfolging = {
-  id: gjennomforingIdOppfolging,
-  navn: "Et oppfølgingstiltak med avtalt timespris",
-  tiltakstype: {
-    navn: "Oppfølging",
-    tiltakskode: Tiltakskode.OPPFOLGING,
-  },
+export const gjennomforingOppfolging: ArrangorInnsendingRadDto = {
+  gjennomforingId: gjennomforingIdOppfolging,
+  tiltakNavn: "Et oppfølgingstiltak med avtalt timespris",
+  tiltakstypeNavn: "Oppfølging",
+  arrangorNavn: arrangorMock.navn,
+  organisasjonsnummer: arrangorMock.organisasjonsnummer,
   startDato: new Date(today.getFullYear() - 1, 1, 1).toISOString().slice(0, 10),
   sluttDato: new Date(today.getFullYear() + 1, 11, 31).toISOString().slice(0, 10),
   lopenummer: "2025/12354",
+  belop: null,
+  type: null,
+  status: null,
 };
 
-export const oversiktAktiveGjennomforinger: DataDrivenTableDto = {
-  columns: [
-    { key: "tiltak", label: "Tiltak", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    {
-      key: "arrangor",
-      label: "Arrangør",
-      sortable: true,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-    {
-      key: "startDato",
-      label: "Startdato",
-      sortable: true,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-    {
-      key: "sluttDato",
-      label: "Sluttdato",
-      sortable: true,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-    { key: "action", label: null, sortable: false, align: DataDrivenTableDtoColumnAlign.CENTER },
-  ],
-  rows: [gjennomforingAFT, gjennomforingAvklaring, gjennomforingOppfolging].map(
-    (gjennomforing) => ({
-      cells: {
-        tiltak: dataElementText(`${gjennomforing.tiltakstype.navn} (${gjennomforing.lopenummer})`),
-        arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-        startDato: dataElementText(gjennomforing.startDato, DataElementTextFormat.DATE),
-        sluttDato: dataElementText(gjennomforing.sluttDato ?? "", DataElementTextFormat.DATE),
-        action: dataElementLink(
-          "Start innsending",
-          `/123456789/opprett-krav/${gjennomforing.id}/innsendingsinformasjon`,
-        ),
-      },
-      content: null,
-    }),
-  ),
-};
+export const oversiktAktiveGjennomforinger: ArrangorInnsendingRadDto[] = [
+  gjennomforingAFT,
+  gjennomforingAvklaring,
+  gjennomforingOppfolging,
+];

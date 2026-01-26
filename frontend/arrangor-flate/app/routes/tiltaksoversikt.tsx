@@ -1,5 +1,5 @@
-import { Alert, BodyShort, Heading, HStack, Tabs } from "@navikt/ds-react";
-import { ArrangorflateService, TiltaksoversiktResponse, TiltaksoversiktType } from "api-client";
+import { Alert, BodyShort, Box, Heading, Tabs } from "@navikt/ds-react";
+import { ArrangorflateService, ArrangorInnsendingRadDto, TiltaksoversiktType } from "api-client";
 import { LoaderFunctionArgs, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils/validering";
@@ -8,7 +8,9 @@ import { tekster } from "~/tekster";
 import { getTabStateOrDefault, useTabState } from "~/hooks/useTabState";
 import { useFileStorage } from "~/hooks/useFileStorage";
 import { useEffect } from "react";
-import { DataDrivenTable } from "@mr/frontend-common";
+import { Tabellvisning } from "~/components/common/Tabellvisning";
+import { useSortableData } from "@mr/frontend-common";
+import { UtbetalingRow } from "~/components/common/UtbetalingRow";
 
 export const meta: MetaFunction = () => {
   return [
@@ -21,42 +23,44 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const tabState = getTabStateOrDefault(new URL(request.url));
-  const tiltaksOversiktType =
-    tabState === "aktive" ? TiltaksoversiktType.AKTIVE : TiltaksoversiktType.HISTORISKE;
-  const { data: gjennomforingerTabell, error: gjennomforingerError } =
-    await ArrangorflateService.getArrangorTiltaksoversikt({
-      query: { type: tiltaksOversiktType },
-      headers: await apiHeaders(request),
-    });
-  if (gjennomforingerError) {
-    throw problemDetailResponse(gjennomforingerError);
-  }
-  if (tiltaksOversiktType == TiltaksoversiktType.AKTIVE) {
-    return { aktive: gjennomforingerTabell };
-  }
-  return {
-    historiske: gjennomforingerTabell,
-  };
+  const tabState = getTabStateOrDefault(request);
+  const type = tabState === "aktive" ? TiltaksoversiktType.AKTIVE : TiltaksoversiktType.HISTORISKE;
+
+  const { data, error } = await ArrangorflateService.getArrangorTiltaksoversikt({
+    query: { type },
+    headers: await apiHeaders(request),
+  });
+  if (error) throw problemDetailResponse(error);
+
+  return { data } as const;
 }
 
-type Tabs = "aktive" | "historiske";
-
 export default function OpprettKravTiltaksOversikt() {
-  const [currentTab, setTab] = useTabState("forside-tab", "aktive");
   const storage = useFileStorage();
-  const { aktive, historiske } = useLoaderData<typeof loader>();
+  const { data } = useLoaderData<typeof loader>();
+  const [currentTab, setTab] = useTabState();
 
   useEffect(() => {
     storage.clear();
-  });
+  }, [storage]);
+
+  const { sortedData, sort, toggleSort } = useSortableData<
+    ArrangorInnsendingRadDto,
+    undefined,
+    string
+  >(data);
 
   return (
     <InnsendingLayout contentGap="6">
       <Heading level="2" size="large">
         {tekster.bokmal.gjennomforing.headingTitle}
       </Heading>
-      <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
+      <Tabs
+        defaultValue={currentTab}
+        onChange={(tab) => {
+          setTab(tab as "aktive" | "historiske");
+        }}
+      >
         <Tabs.List>
           <Tabs.Tab value="aktive" label={tekster.bokmal.gjennomforing.oversiktFaner.aktive} />
           <Tabs.Tab
@@ -64,36 +68,32 @@ export default function OpprettKravTiltaksOversikt() {
             label={tekster.bokmal.gjennomforing.oversiktFaner.historiske}
           />
         </Tabs.List>
-        <Tabs.Panel value="aktive" className="w-full">
-          <TabellVisning data={aktive} />
-        </Tabs.Panel>
-        <Tabs.Panel value="historiske" className="w-full">
-          <TabellVisning data={historiske} />
+        <Tabs.Panel value={currentTab}>
+          {sortedData.length === 0 ? (
+            <Box marginBlock="4">
+              <Alert variant="info">
+                <BodyShort>
+                  Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
+                </BodyShort>
+                <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
+              </Alert>
+            </Box>
+          ) : (
+            <Tabellvisning kolonner={kolonner} sort={sort} onSortChange={toggleSort}>
+              {sortedData.map((row: ArrangorInnsendingRadDto) => (
+                <UtbetalingRow key={row.gjennomforingId} row={row} />
+              ))}
+            </Tabellvisning>
+          )}
         </Tabs.Panel>
       </Tabs>
     </InnsendingLayout>
   );
 }
 
-interface TabellVisningProps {
-  data: TiltaksoversiktResponse | undefined;
-}
-
-function TabellVisning({ data }: TabellVisningProps) {
-  if (!data) {
-    return null;
-  }
-  if (!data.table) {
-    return (
-      <HStack align="center" justify="center" padding="32">
-        <Alert variant="info">
-          <BodyShort>
-            Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
-          </BodyShort>
-          <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
-        </Alert>
-      </HStack>
-    );
-  }
-  return <DataDrivenTable data={data.table} />;
-}
+const kolonner: Array<{ key: string; label: string }> = [
+  { key: "tiltakNavn", label: "Tiltak" },
+  { key: "arrangorNavn", label: "Arrangør" },
+  { key: "startDato", label: "Startdato" },
+  { key: "sluttDato", label: "Sluttdato" },
+];

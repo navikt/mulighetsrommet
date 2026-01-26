@@ -112,7 +112,7 @@ export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
               </Table.DataCell>
               {harUtbetalingsTypeTag && (
                 <Table.DataCell align="left">
-                  <UtbetalingTypeTag type={type} />
+                  <UtbetalingTypeTag type={type.displayName} />
                 </Table.DataCell>
               )}
               <Table.DataCell>

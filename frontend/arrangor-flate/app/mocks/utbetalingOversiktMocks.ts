@@ -1,220 +1,122 @@
-import {
-  DataDrivenTableDto,
-  DataDrivenTableDtoColumnAlign,
-  DataDrivenTableDtoRow,
-  DataElement,
-  DataElementStatusVariant,
-} from "api-client";
+import { ArrangorInnsendingRadDto, ArrangorflateUtbetalingStatus, Valuta } from "api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 import {
-  dataElementAction,
-  dataElementMoneyAmount,
-  dataElementPeriode,
-  dataElementStatus,
-  dataElementText,
-} from "~/mocks/dataDrivenTableHelpers";
-import { pathTo } from "~/utils/navigation";
-import {
-  aftBehandlesAvNav,
-  aftKreverEndring,
-  aftUtbetalt,
   arrUkesprisKlarTilGodkjenning,
   avklaringManedKlarTilGodkjenning,
   avklaringOverfortTilUtbetaling,
   vtaKlarForGodkjenning,
+  aftKreverEndring,
+  aftBehandlesAvNav,
+  aftUtbetalt,
 } from "./utbetalingDetaljerMocks";
 
-const dataElementInvestering: DataElement = dataElementStatus(
-  "INV",
-  DataElementStatusVariant.NEUTRAL,
-);
-
-const arrUkesprisKlarTilGodkjenningTableRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Arbeidsrettet rehabilitering (2025/10000)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({ start: "2025-10-01", slutt: "2025-11-01" }),
-    belop: dataElementMoneyAmount("53100", "NOK"),
-    type: dataElementText(""),
-    status: dataElementStatus("Klar for innsending", DataElementStatusVariant.WARNING),
-    action: dataElementAction(
-      "Start innsending",
-      pathTo.innsendingsinformasjon(
-        arrangorMock.organisasjonsnummer,
-        arrUkesprisKlarTilGodkjenning.id,
-      ),
-    ),
-  },
+const arrUkesprisKlarTilGodkjenningTableRow: ArrangorInnsendingRadDto = {
+  gjennomforingId: arrUkesprisKlarTilGodkjenning.id,
+  arrangorNavn: arrangorMock.navn,
+  organisasjonsnummer: arrangorMock.organisasjonsnummer,
+  tiltakstypeNavn: "Arbeidsrettet rehabilitering",
+  tiltakNavn: "Arbeidsrettet rehabilitering",
+  lopenummer: "2025/10000",
+  startDato: "2025-10-01",
+  sluttDato: "2025-11-01",
+  belop: { belop: 53100, valuta: Valuta.NOK },
+  type: "INNSENDING",
+  status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
 };
 
-const avklaringManedKlarTilInnsendingTableRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Avklaring (2025/10001)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({ start: "2025-10-01", slutt: "2025-11-06" }),
-    belop: dataElementMoneyAmount("20000", "NOK"),
-    type: dataElementText(""),
-    status: dataElementStatus("Klar for innsending", DataElementStatusVariant.WARNING),
-    action: dataElementAction(
-      "Start innsending",
-      pathTo.innsendingsinformasjon(
-        arrangorMock.organisasjonsnummer,
-        avklaringManedKlarTilGodkjenning.id,
-      ),
-    ),
-  },
+const avklaringManedKlarTilInnsendingTableRow: ArrangorInnsendingRadDto = {
+  gjennomforingId: avklaringManedKlarTilGodkjenning.id,
+  arrangorNavn: arrangorMock.navn,
+  organisasjonsnummer: arrangorMock.organisasjonsnummer,
+  tiltakstypeNavn: "Avklaring",
+  tiltakNavn: "Avklaring",
+  lopenummer: "2025/10001",
+  startDato: "2025-10-01",
+  sluttDato: "2025-11-06",
+  belop: { belop: 20000, valuta: Valuta.NOK },
+  type: "INNSENDING",
+  status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
 };
 
-const solrikAftDataRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Arbeidsforberedende trening (2025/10003)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({
-      start: "2025-01-01",
-      slutt: "2025-02-01",
-    }),
-    belop: dataElementMoneyAmount("242904", "NOK"),
-    type: dataElementText(""),
-    status: dataElementStatus("Krever endring", DataElementStatusVariant.WARNING),
-    action: dataElementAction(
-      "Se innsending",
-      pathTo.beregning(arrangorMock.organisasjonsnummer, aftKreverEndring.id),
-    ),
-  },
+const solrikAftDataRow: ArrangorInnsendingRadDto = {
+  gjennomforingId: aftKreverEndring.id,
+  arrangorNavn: arrangorMock.navn,
+  organisasjonsnummer: arrangorMock.organisasjonsnummer,
+  tiltakstypeNavn: "Arbeidsforberedende trening",
+  tiltakNavn: "Arbeidsforberedende trening",
+  lopenummer: "2025/10003",
+  startDato: "2025-01-01",
+  sluttDato: "2025-02-01",
+  belop: { belop: 242904, valuta: Valuta.NOK },
+  type: "INNSENDING",
+  status: ArrangorflateUtbetalingStatus.KREVER_ENDRING,
 };
 
-const aftTiltakspengerTableRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Arbeidsforberedende trening (2025/10004)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({
-      start: "2025-05-01",
-      slutt: "2025-08-02",
-    }),
-    belop: dataElementMoneyAmount("234", "NOK"),
-    type: dataElementInvestering,
-    status: dataElementStatus("Behandles av Nav", DataElementStatusVariant.WARNING),
-    action: dataElementAction(
-      "Se detaljer",
-      pathTo.detaljer(arrangorMock.organisasjonsnummer, aftBehandlesAvNav.id),
-    ),
-  },
+const aftTiltakspengerTableRow: ArrangorInnsendingRadDto = {
+  gjennomforingId: aftBehandlesAvNav.id,
+  arrangorNavn: arrangorMock.navn,
+  organisasjonsnummer: arrangorMock.organisasjonsnummer,
+  tiltakstypeNavn: "Arbeidsforberedende trening",
+  tiltakNavn: "Arbeidsforberedende trening",
+  lopenummer: "2025/10004",
+  startDato: "2025-05-01",
+  sluttDato: "2025-08-02",
+  belop: { belop: 234, valuta: Valuta.NOK },
+  type: "INVESTERING",
+  status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
 };
 
-const aftTiltakspengerOverfortTilUtbetalingTableRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Arbeidsforberedende trening (2025/10005)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({
-      start: "2025-01-01",
-      slutt: "2025-02-01",
-    }),
-    belop: dataElementMoneyAmount("1200", "NOK"),
-    type: dataElementText(""),
-    status: dataElementStatus("Overført til utbetaling", DataElementStatusVariant.SUCCESS),
-    action: dataElementAction(
-      "Se detaljer",
-      pathTo.detaljer(arrangorMock.organisasjonsnummer, avklaringOverfortTilUtbetaling.id),
-    ),
-  },
+const aftTiltakspengerOverfortTilUtbetalingTableRow: ArrangorInnsendingRadDto = {
+  gjennomforingId: avklaringOverfortTilUtbetaling.id,
+  arrangorNavn: arrangorMock.navn,
+  organisasjonsnummer: arrangorMock.organisasjonsnummer,
+  tiltakstypeNavn: "Arbeidsforberedende trening",
+  tiltakNavn: "Arbeidsforberedende trening",
+  lopenummer: "2025/10005",
+  startDato: "2025-01-01",
+  sluttDato: "2025-02-01",
+  belop: { belop: 1200, valuta: Valuta.NOK },
+  type: "INNSENDING",
+  status: ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
 };
 
-const mayRainAftTableRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Varig tilrettelagt arbeid i skjermet virksomhet (2025/10006)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({
-      start: "2025-06-01",
-      slutt: "2025-07-01",
-    }),
-    belop: dataElementMoneyAmount("16848", "NOK"),
-    type: dataElementText(""),
-    status: dataElementStatus("Klar for innsending", DataElementStatusVariant.ALT_1),
-    action: dataElementAction(
-      "Start innsending",
-      pathTo.innsendingsinformasjon(arrangorMock.organisasjonsnummer, vtaKlarForGodkjenning.id),
-    ),
-  },
+const mayRainAftTableRow: ArrangorInnsendingRadDto = {
+  gjennomforingId: vtaKlarForGodkjenning.id,
+  arrangorNavn: arrangorMock.navn,
+  organisasjonsnummer: arrangorMock.organisasjonsnummer,
+  tiltakstypeNavn: "Varig tilrettelagt arbeid i skjermet virksomhet",
+  tiltakNavn: "Varig tilrettelagt arbeid i skjermet virksomhet",
+  lopenummer: "2025/10006",
+  startDato: "2025-06-01",
+  sluttDato: "2025-07-01",
+  belop: { belop: 16848, valuta: Valuta.NOK },
+  type: "INNSENDING",
+  status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
 };
 
-const aftFoobarTableRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Arbeidsforberedende trening (2025/10002)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({
-      start: "2025-01-01",
-      slutt: "2025-02-01",
-    }),
-    belop: dataElementMoneyAmount("1000", "NOK"),
-    type: dataElementText(""),
-    status: dataElementStatus("Utbetalt", DataElementStatusVariant.SUCCESS),
-    action: dataElementAction(
-      "Se detaljer",
-      pathTo.detaljer(arrangorMock.organisasjonsnummer, aftUtbetalt.id),
-    ),
-  },
+const aftFoobarTableRow: ArrangorInnsendingRadDto = {
+  gjennomforingId: aftUtbetalt.id,
+  arrangorNavn: arrangorMock.navn,
+  organisasjonsnummer: arrangorMock.organisasjonsnummer,
+  tiltakstypeNavn: "Arbeidsforberedende trening",
+  tiltakNavn: "Arbeidsforberedende trening",
+  lopenummer: "2025/10002",
+  startDato: "2025-01-01",
+  sluttDato: "2025-02-01",
+  belop: { belop: 1000, valuta: Valuta.NOK },
+  type: "INNSENDING",
+  status: ArrangorflateUtbetalingStatus.UTBETALT,
 };
 
-export const utbetalingTabellOversiktAktive: DataDrivenTableDto = {
-  columns: [
-    { key: "tiltak", label: "Tiltak", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    {
-      key: "arrangor",
-      label: "Arrangør",
-      sortable: true,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-    { key: "periode", label: "Periode", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    { key: "belop", label: "Beløp", sortable: true, align: DataDrivenTableDtoColumnAlign.RIGHT },
-    { key: "type", label: "Type", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    { key: "status", label: "Status", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    {
-      key: "action",
-      label: "Handlinger",
-      sortable: false,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-  ],
-  rows: [
-    solrikAftDataRow,
-    aftTiltakspengerTableRow,
-    mayRainAftTableRow,
-    avklaringManedKlarTilInnsendingTableRow,
-    arrUkesprisKlarTilGodkjenningTableRow,
-  ],
-};
+export const utbetalingTabellOversiktAktive: ArrangorInnsendingRadDto[] = [
+  solrikAftDataRow,
+  aftTiltakspengerTableRow,
+  mayRainAftTableRow,
+  avklaringManedKlarTilInnsendingTableRow,
+  arrUkesprisKlarTilGodkjenningTableRow,
+];
 
-export const utbetalingTabellOversiktHistoriske: DataDrivenTableDto = {
-  columns: [
-    { key: "tiltak", label: "Tiltak", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    {
-      key: "arrangor",
-      label: "Arrangør",
-      sortable: true,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-    { key: "periode", label: "Periode", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    {
-      key: "belop",
-      label: "Godkjent beløp",
-      sortable: true,
-      align: DataDrivenTableDtoColumnAlign.RIGHT,
-    },
-    { key: "type", label: "Type", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    { key: "status", label: "Status", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    {
-      key: "action",
-      label: "Handlinger",
-      sortable: false,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-  ],
-  rows: [aftFoobarTableRow, aftTiltakspengerOverfortTilUtbetalingTableRow],
-};
+export const utbetalingTabellOversiktHistoriske: ArrangorInnsendingRadDto[] = [
+  aftFoobarTableRow,
+  aftTiltakspengerOverfortTilUtbetalingTableRow,
+];
