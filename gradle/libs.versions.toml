@@ -1,6 +1,6 @@
 [versions]
 common-java-modules = "3.2025.11.10_14.07-a9f44944d7bc"
-flyway = "11.20.1"
+flyway = "11.20.2"
 koin = "4.1.0-Beta8"
 kotest = "6.0.7"
 kotest-testcontainers = "2.0.2"
@@ -9,7 +9,7 @@ ktor = "3.3.3"
 logback = "1.5.25"
 metrics = "4.2.37"
 arrow = "2.2.1.1"
-micrometer = "1.16.1"
+micrometer = "1.16.2"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -52,8 +52,8 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:16.7.0"
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.27.1"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.61.0"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.28.0"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.62.0"
 
 hikaricp = "com.zaxxer:HikariCP:7.0.2"
 
@@ -120,7 +120,7 @@ nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.11.03_13.40-18456d0598
 
 opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.58.0"
 
-postgresql = "org.postgresql:postgresql:42.7.8"
+postgresql = "org.postgresql:postgresql:42.7.9"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
