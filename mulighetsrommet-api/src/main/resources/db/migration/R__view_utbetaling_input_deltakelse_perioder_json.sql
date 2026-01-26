@@ -1,3 +1,7 @@
+-- ${flyway:timestamp}
+
+drop view if exists view_utbetaling_input_deltakelse_perioder_json;
+
 create view view_utbetaling_input_deltakelse_perioder_json as
 select utbetaling_id,
        jsonb_agg(
