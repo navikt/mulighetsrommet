@@ -355,22 +355,6 @@ class GjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toGjennomforingGruppetiltak() }
     }
 
-    fun getPrismodell(id: UUID): Prismodell? {
-        @Language("PostgreSQL")
-        val query = """
-            select prismodell.id as prismodell_id,
-                   prismodell.prismodell_type,
-                   prismodell.valuta as prismodell_valuta,
-                   prismodell.prisbetingelser as prismodell_prisbetingelser,
-                   prismodell.satser as prismodell_satser
-            from gjennomforing
-                join prismodell on prismodell.id = gjennomforing.prismodell_id
-            where gjennomforing.id = ?::uuid
-        """.trimIndent()
-
-        return session.single(queryOf(query, id)) { it.toPrismodell() }
-    }
-
     fun getAllGruppetiltakKompakt(
         pagination: Pagination = Pagination.all(),
         search: String? = null,
@@ -432,7 +416,6 @@ class GjennomforingQueries(private val session: Session) {
                    avbrutt_aarsaker,
                    avbrutt_forklaring,
                    publisert,
-                   prismodell_type,
                    nav_enheter_json,
                    tiltakstype_id,
                    tiltakstype_tiltakskode,
@@ -513,6 +496,22 @@ class GjennomforingQueries(private val session: Session) {
         return queryOf(query, parameters + pagination.parameters)
             .mapPaginated { it.toEnkeltplass() }
             .runWithSession(session)
+    }
+
+    fun getPrismodell(id: UUID): Prismodell? {
+        @Language("PostgreSQL")
+        val query = """
+            select prismodell.id as prismodell_id,
+                   prismodell.prismodell_type,
+                   prismodell.valuta as prismodell_valuta,
+                   prismodell.prisbetingelser as prismodell_prisbetingelser,
+                   prismodell.satser as prismodell_satser
+            from gjennomforing
+                join prismodell on prismodell.id = gjennomforing.prismodell_id
+            where gjennomforing.id = ?::uuid
+        """.trimIndent()
+
+        return session.single(queryOf(query, id)) { it.toPrismodell() }
     }
 
     fun setFreeTextSearch(id: UUID, content: List<String>) {
@@ -695,7 +694,6 @@ private fun Row.toGjennomforingKompakt(): GjennomforingGruppetiltakKompakt {
         sluttDato = localDateOrNull("slutt_dato"),
         status = toGjennomforingStatus(),
         publisert = boolean("publisert"),
-        prismodell = stringOrNull("prismodell_type")?.let { PrismodellType.valueOf(it) },
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
         arrangor = GjennomforingGruppetiltakKompakt.ArrangorUnderenhet(
             id = uuid("arrangor_id"),
@@ -755,7 +753,7 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
         apentForPamelding = boolean("apent_for_pamelding"),
         antallPlasser = int("antall_plasser"),
         avtaleId = uuidOrNull("avtale_id"),
-        prismodell = toPrismodell(),
+        prismodell = uuidOrNull("prismodell_id")?.let { toPrismodell() },
         administratorer = administratorer,
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),

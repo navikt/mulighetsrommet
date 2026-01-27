@@ -57,7 +57,8 @@ export function UtbetalingRow({
         <UtbetalingTextLink
           status={row.status ?? undefined}
           gjennomforingNavn={row.tiltakNavn}
-          utbetalingId={row.gjennomforingId}
+          gjennomforingId={row.gjennomforingId}
+          utbetalingId={row.utbetalingId ?? undefined}
           orgnr={row.organisasjonsnummer}
         />
       </Table.DataCell>

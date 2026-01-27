@@ -12,8 +12,9 @@ export const arrangorMock: ArrangorflateArrangor = {
   organisasjonsnummer: "123456789",
 };
 
-export const gjennomforingAFT: ArrangorInnsendingRadDto = {
+export const gjennomforingAFT = {
   gjennomforingId: gjennomforingIdAFT,
+  utbetalingId: null,
   tiltakNavn: "Et AFT-tiltak Investering",
   tiltakstypeNavn: "Arbeidsforberedende trening",
   arrangorNavn: arrangorMock.navn,
@@ -26,8 +27,9 @@ export const gjennomforingAFT: ArrangorInnsendingRadDto = {
   status: null,
 };
 
-export const gjennomforingAvklaring: ArrangorInnsendingRadDto = {
+export const gjennomforingAvklaring = {
   gjennomforingId: gjennomforingIdAvklaring,
+  utbetalingId: null,
   tiltakNavn: "Et avklaringstiltak med annen avtalt pris",
   tiltakstypeNavn: "Avklaring",
   arrangorNavn: arrangorMock.navn,
@@ -40,8 +42,9 @@ export const gjennomforingAvklaring: ArrangorInnsendingRadDto = {
   status: null,
 };
 
-export const gjennomforingOppfolging: ArrangorInnsendingRadDto = {
+export const gjennomforingOppfolging = {
   gjennomforingId: gjennomforingIdOppfolging,
+  utbetalingId: null,
   tiltakNavn: "Et oppfølgingstiltak med avtalt timespris",
   tiltakstypeNavn: "Oppfølging",
   arrangorNavn: arrangorMock.navn,

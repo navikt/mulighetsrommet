@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -23,7 +22,6 @@ data class GjennomforingGruppetiltakKompakt(
     val sluttDato: LocalDate?,
     val status: GjennomforingStatus,
     val publisert: Boolean,
-    val prismodell: PrismodellType?,
     val kontorstruktur: List<Kontorstruktur>,
     val arrangor: ArrangorUnderenhet,
     val tiltakstype: Tiltakstype,

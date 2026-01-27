@@ -8,4 +8,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class Valuta {
     NOK,
+    SEK,
 }

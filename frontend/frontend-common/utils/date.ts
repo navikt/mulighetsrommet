@@ -85,11 +85,24 @@ type Periode = {
   slutt: string;
 };
 
+type PeriodeUdefinertSlutt = {
+  start: string;
+  slutt?: string | null | undefined;
+};
+
 export function formaterPeriode(periode: Periode) {
   return `${formaterPeriodeStart(periode)} - ${formaterPeriodeSlutt(periode)}`;
 }
 
-export function formaterPeriodeStart({ start }: Periode) {
+export function formaterPeriodeUdefinertSlutt(periode: PeriodeUdefinertSlutt) {
+  const start = formaterPeriodeStart(periode);
+  const slutt = periode.slutt
+    ? ` - ${formaterPeriodeSlutt({ slutt: periode.slutt } as Periode)}`
+    : " - pågående";
+  return `${start}${slutt}`;
+}
+
+export function formaterPeriodeStart({ start }: Periode | PeriodeUdefinertSlutt) {
   return formaterDato(start);
 }
 

@@ -16,6 +16,8 @@ import java.util.UUID
 data class ArrangorInnsendingRadDto(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val utbetalingId: UUID? = null,
     val arrangorNavn: String,
     val organisasjonsnummer: Organisasjonsnummer,
     val tiltakstypeNavn: String,
@@ -45,6 +47,7 @@ fun GjennomforingGruppetiltakKompakt.toRadDto(): ArrangorInnsendingRadDto = Arra
 )
 
 fun ArrangorflateUtbetalingKompaktDto.toRadDto(): ArrangorInnsendingRadDto = ArrangorInnsendingRadDto(
+    utbetalingId = this.id,
     gjennomforingId = this.gjennomforing.id,
     arrangorNavn = this.arrangor.navn,
     organisasjonsnummer = this.arrangor.organisasjonsnummer,

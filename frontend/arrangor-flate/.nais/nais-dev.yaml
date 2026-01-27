@@ -33,9 +33,6 @@ spec:
   readiness:
     path: /internal/isReady
     initialDelay: 20
-  env:
-    - name: TELEMETRY_URL
-      value: https://telemetry.ekstern.dev.nav.no/collect
   observability:
     autoInstrumentation:
       enabled: true
@@ -47,6 +44,9 @@ spec:
   prometheus:
     enabled: true
     path: /metrics
+  frontend:
+    generatedConfig:
+      mountPath: /app/build/client/nais.js
   accessPolicy:
     outbound:
       rules:
