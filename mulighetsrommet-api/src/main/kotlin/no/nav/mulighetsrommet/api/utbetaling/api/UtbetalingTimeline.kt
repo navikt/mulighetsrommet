@@ -8,11 +8,13 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.TimelineDto
 import no.nav.mulighetsrommet.model.TimelineDto.Row.Period
 import no.nav.mulighetsrommet.model.TimelineDto.Row.Period.Variant
+import no.nav.mulighetsrommet.model.ValutaBelop
 import java.text.NumberFormat
 import java.util.Locale
 
 object UtbetalingTimeline {
     val formatter: NumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("no-NO"))
+    val formatCurrency = { pris: ValutaBelop -> "${formatter.format(pris.belop)} ${pris.valuta.name}" }
 
     fun deltakelseTimeline(
         periode: Periode,
@@ -58,9 +60,9 @@ object UtbetalingTimeline {
                 key = index.toString(),
                 end = it.periode.getLastInclusiveDate(),
                 status = Variant.INFO,
-                content = "Pris per uke: ${formatter.format(it.sats)}, Ukesverk: ${formatter.format(it.faktor)}",
+                content = "Pris per uke: ${formatCurrency(it.sats)}, Ukesverk: ${formatter.format(it.faktor)}",
                 hover = """
-                    Pris per uke: ${formatter.format(it.sats)},
+                    Pris per uke: ${formatCurrency(it.sats)},
                     Ukesverk: ${formatter.format(it.faktor)},
                     Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} -
                         ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}
@@ -79,9 +81,9 @@ object UtbetalingTimeline {
                 key = index.toString(),
                 end = it.periode.getLastInclusiveDate(),
                 status = Variant.INFO,
-                content = "Pris per måned: ${formatter.format(it.sats)}, Månedsverk: ${formatter.format(it.faktor)}",
+                content = "Pris per måned: ${formatCurrency(it.sats)}, Månedsverk: ${formatter.format(it.faktor)}",
                 hover = """
-                    Pris per måned: ${formatter.format(it.sats)},
+                    Pris per måned: ${formatCurrency(it.sats)},
                     Månedsverk: ${formatter.format(it.faktor)},
                     Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} -
                         ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}
