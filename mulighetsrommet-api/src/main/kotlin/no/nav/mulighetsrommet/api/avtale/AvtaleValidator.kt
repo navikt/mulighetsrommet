@@ -462,17 +462,15 @@ object AvtaleValidator {
             FieldError.ofPointer("/prismodeller/$prismodellIndex/type", "Minst én pris er påkrevd")
         }
 
-        val likValuta = satserRequest.all { it.pris?.valuta == prismodellValuta }
-        requireValid(likValuta) {
-            FieldError.ofPointer(
-                "/prismodeller/$prismodellIndex/satser",
-                "Satsene må ha lik valuta",
-            )
-        }
-
         val satser = satserRequest.mapIndexed { index, request ->
             requireValid(request.pris != null && request.pris.belop > 0) {
                 FieldError.ofPointer("/prismodeller/$prismodellIndex/satser/$index/pris", "Pris må være positiv")
+            }
+            requireValid(request.pris.valuta == prismodellValuta) {
+                FieldError.ofPointer(
+                    "/prismodeller/$prismodellIndex/satser/$index/pris/valuta",
+                    "Satsene må ha lik valuta som prismodellen",
+                )
             }
             requireValid(request.gjelderFra != null) {
                 FieldError.ofPointer(
