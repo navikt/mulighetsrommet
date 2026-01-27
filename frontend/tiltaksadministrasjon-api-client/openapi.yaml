@@ -6246,6 +6246,7 @@ components:
       type: string
       enum:
       - TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER
+      - TILTAKSADMINISTRASJON_SVENSK_VALUTA
     LagretFilterType:
       type: string
       enum:

@@ -8,35 +8,42 @@ import {
   Textarea,
   InlineMessage,
 } from "@navikt/ds-react";
-import {useFormContext, useFieldArray} from "react-hook-form";
-import {avtaletekster} from "@/components/ledetekster/avtaleLedetekster";
-import {PrismodellValues} from "@/schemas/avtale";
-import {usePrismodeller} from "@/api/avtaler/usePrismodeller";
-import {AvtalteSatserForm} from "./AvtalteSatserForm";
-import {PrismodellType, Tiltakskode, Valuta} from "@tiltaksadministrasjon/api-client";
-import {PlusIcon, TrashIcon} from "@navikt/aksel-icons";
+import { useFormContext, useFieldArray } from "react-hook-form";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { PrismodellValues } from "@/schemas/avtale";
+import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
+import { AvtalteSatserForm } from "./AvtalteSatserForm";
+import {
+  FeatureToggle,
+  PrismodellType,
+  Tiltakskode,
+  Valuta,
+} from "@tiltaksadministrasjon/api-client";
+import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 interface Props {
   tiltakskode: Tiltakskode;
   avtaleStartDato: Date;
 }
 
-export default function AvtalePrismodellForm({tiltakskode, avtaleStartDato}: Props) {
+export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: Props) {
   const {
-    formState: {errors},
+    formState: { errors },
     control,
     setValue,
     watch,
     register,
   } = useFormContext<PrismodellValues>();
-  const {data: prismodellTyper = []} = usePrismodeller(tiltakskode);
+  const { data: prismodellTyper = [] } = usePrismodeller(tiltakskode);
+  const enableSEK = useFeatureToggle(FeatureToggle.TILTAKSADMINISTRASJON_SVENSK_VALUTA);
 
-  const {fields, append, remove} = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     name: "prismodeller",
     control,
   });
 
-  const valutaOptions = [Valuta.NOK, Valuta.SEK];
+  const valutaOptions = enableSEK.data ? [Valuta.NOK, Valuta.SEK] : [Valuta.NOK];
 
   return (
     <VStack gap="4">
@@ -54,7 +61,7 @@ export default function AvtalePrismodellForm({tiltakskode, avtaleStartDato}: Pro
             background="surface-subtle"
           >
             <HStack justify="space-between" align="start">
-              <VStack gap="4" style={{flex: 1}}>
+              <VStack gap="4" style={{ flex: 1 }}>
                 <HStack gap="2">
                   <Select
                     className="flex-1"
@@ -69,7 +76,7 @@ export default function AvtalePrismodellForm({tiltakskode, avtaleStartDato}: Pro
                     <option key={undefined} value={undefined}>
                       -- Velg prismodell --
                     </option>
-                    {prismodellTyper.map(({type, navn}) => (
+                    {prismodellTyper.map(({ type, navn }) => (
                       <option key={type} value={type}>
                         {navn}
                       </option>
@@ -110,7 +117,7 @@ export default function AvtalePrismodellForm({tiltakskode, avtaleStartDato}: Pro
                     variant="secondary-neutral"
                     size="small"
                     type="button"
-                    icon={<TrashIcon aria-hidden/>}
+                    icon={<TrashIcon aria-hidden />}
                     onClick={() => remove(index)}
                     aria-label="Fjern prismodell"
                   >
@@ -124,14 +131,14 @@ export default function AvtalePrismodellForm({tiltakskode, avtaleStartDato}: Pro
       })}
       <HStack>
         <Button
-          icon={<PlusIcon aria-hidden/>}
+          icon={<PlusIcon aria-hidden />}
           type="button"
           variant="tertiary"
           size="small"
           onClick={() =>
             append({
               type: "" as PrismodellType,
-              valuta: fields[fields.length - 1]?.valuta ?? Valuta.NOK,
+              valuta: Valuta.NOK,
               satser: [],
               prisbetingelser: null,
             })

@@ -30,7 +30,7 @@ export function AvtalteSatserForm({
 
   const valuta = watch(`${field}.valuta`);
   useEffect(() => {
-    fields.forEach((satsField, index) => {
+    fields.forEach((_satsField, index) => {
       setValue(`${field}.satser.${index}.pris.valuta` as const, valuta);
     });
   }, [valuta]);
