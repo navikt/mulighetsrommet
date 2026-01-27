@@ -270,7 +270,7 @@ object AvtaleValidator {
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK,
                 PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-                -> validateSatser(context, index, prismodell.satser)
+                -> validateSatser(context, prismodell.valuta, index, prismodell.satser)
             }
             PrismodellDbo(
                 id = prismodell.id,
@@ -278,7 +278,7 @@ object AvtaleValidator {
                 type = prismodell.type,
                 prisbetingelser = prismodell.prisbetingelser,
                 satser = satser,
-                valuta = Valuta.NOK,
+                valuta = prismodell.valuta,
             )
         }
     }
@@ -454,6 +454,7 @@ object AvtaleValidator {
 
     private fun FieldValidator.validateSatser(
         context: ValidatePrismodellerContext,
+        prismodellValuta: Valuta,
         prismodellIndex: Int,
         satserRequest: List<AvtaltSatsRequest>,
     ): List<AvtaltSats> {
@@ -464,6 +465,12 @@ object AvtaleValidator {
         val satser = satserRequest.mapIndexed { index, request ->
             requireValid(request.pris != null && request.pris.belop > 0) {
                 FieldError.ofPointer("/prismodeller/$prismodellIndex/satser/$index/pris", "Pris må være positiv")
+            }
+            requireValid(request.pris.valuta == prismodellValuta) {
+                FieldError.ofPointer(
+                    "/prismodeller/$prismodellIndex/satser/$index/pris/valuta",
+                    "Satsene må ha lik valuta som prismodellen",
+                )
             }
             requireValid(request.gjelderFra != null) {
                 FieldError.ofPointer(

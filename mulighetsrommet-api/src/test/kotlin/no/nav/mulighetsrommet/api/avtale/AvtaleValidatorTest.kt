@@ -682,6 +682,54 @@ class AvtaleValidatorTest : FunSpec({
             )
         }
 
+        test("tillater ikke forskjellig valuta på avtalte satser under en prismodell") {
+            AvtaleValidator.validatePrismodeller(
+                listOf(
+                    PrismodellRequest(
+                        id = UUID.randomUUID(),
+                        type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                        valuta = Valuta.NOK,
+                        prisbetingelser = null,
+                        satser = listOf(
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.NOK)),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2.withValuta(Valuta.SEK)),
+                        ),
+                    ),
+                ),
+                getContext(),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError(pointer = "/prismodeller/0/satser/1/pris/valuta", detail = "Satsene må ha lik valuta som prismodellen"),
+            )
+        }
+
+        test("tillater forskjellig valuta på forskjellige prismodeller") {
+            AvtaleValidator.validatePrismodeller(
+                listOf(
+                    PrismodellRequest(
+                        id = UUID.randomUUID(),
+                        type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                        valuta = Valuta.NOK,
+                        prisbetingelser = null,
+                        satser = listOf(
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.NOK)),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2.withValuta(Valuta.NOK)),
+                        ),
+                    ),
+                    PrismodellRequest(
+                        id = UUID.randomUUID(),
+                        type = PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+                        valuta = Valuta.SEK,
+                        prisbetingelser = null,
+                        satser = listOf(
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.SEK)),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2.withValuta(Valuta.SEK)),
+                        ),
+                    ),
+                ),
+                getContext(),
+            ).shouldBeRight()
+        }
+
         test("tillater ikke flere satser som starter på samme dato") {
             AvtaleValidator.validatePrismodeller(
                 listOf(
