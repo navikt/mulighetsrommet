@@ -38,7 +38,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class GjennomforingRoutesTest : FunSpec({
@@ -234,7 +233,6 @@ class GjennomforingRoutesTest : FunSpec({
             queries.gjennomforing.setStatus(
                 id = avbruttGjennomforingId,
                 status = GjennomforingStatusType.AVBRUTT,
-                tidspunkt = LocalDateTime.now(),
                 sluttDato = LocalDate.now(),
                 aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                 forklaring = null,

@@ -329,13 +329,11 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.gjennomforing.setStatus(
                     id,
                     GjennomforingStatusType.AVBRUTT,
-                    tidspunkt,
                     tidspunkt.minusDays(1).toLocalDate(),
                     listOf(AvbrytGjennomforingAarsak.ANNET),
                     ":)",
                 )
                 queries.gjennomforing.getGruppetiltakOrError(id).status shouldBe GjennomforingStatus.Avbrutt(
-                    tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
                     forklaring = ":)",
                 )
@@ -343,13 +341,11 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.gjennomforing.setStatus(
                     id = id,
                     status = GjennomforingStatusType.AVLYST,
-                    tidspunkt = tidspunkt,
                     tidspunkt.minusDays(1).toLocalDate(),
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
                 queries.gjennomforing.getGruppetiltakOrError(id).status shouldBe GjennomforingStatus.Avlyst(
-                    tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
@@ -357,8 +353,7 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.gjennomforing.setStatus(
                     id = id,
                     status = GjennomforingStatusType.GJENNOMFORES,
-                    tidspunkt = tidspunkt,
-                    sluttDato = null,
+                    sluttDato = tidspunkt.minusDays(1).toLocalDate(),
                     aarsaker = null,
                     forklaring = null,
                 )

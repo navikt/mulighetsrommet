@@ -136,7 +136,6 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 queries.gjennomforing.setStatus(
                     id = gjennomforing1.id,
                     status = AVSLUTTET,
-                    tidspunkt = LocalDate.of(2024, 1, 1).atStartOfDay(),
                     sluttDato = LocalDate.of(2023, 12, 31),
                     aarsaker = null,
                     forklaring = null,
@@ -145,7 +144,6 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 queries.gjennomforing.setStatus(
                     id = gjennomforing2.id,
                     status = AVLYST,
-                    tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
                     sluttDato = LocalDate.of(2022, 12, 30),
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
@@ -154,7 +152,6 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 queries.gjennomforing.setStatus(
                     id = gjennomforing3.id,
                     status = AVBRUTT,
-                    tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
                     sluttDato = LocalDate.of(2022, 12, 30),
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE),
                     forklaring = null,

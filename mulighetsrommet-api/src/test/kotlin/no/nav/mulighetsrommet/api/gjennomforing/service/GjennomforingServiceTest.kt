@@ -328,7 +328,6 @@ class GjennomforingServiceTest : FunSpec({
 
             service.avsluttGjennomforing(
                 gjennomforing.id,
-                LocalDate.of(2023, 7, 2).atStartOfDay(),
                 bertilNavIdent,
             ) should {
                 it.status.shouldBeTypeOf<GjennomforingStatus.Avsluttet>()
