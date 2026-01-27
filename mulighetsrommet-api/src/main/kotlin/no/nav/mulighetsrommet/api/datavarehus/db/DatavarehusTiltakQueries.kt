@@ -138,7 +138,11 @@ private fun Row.toAmoKategorisering(
                 .map { AmoKategorisering.InnholdElement.valueOf(it) },
         )
 
-        AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategorisering.ForberedendeOpplaeringForVoksne
+        AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategorisering.ForberedendeOpplaeringForVoksne(
+            innholdElementer = array<String>("innhold_elementer")
+                .toList()
+                .map { AmoKategorisering.InnholdElement.valueOf(it) },
+        )
 
         AmoKurstype.STUDIESPESIALISERING -> AmoKategorisering.Studiespesialisering
     }

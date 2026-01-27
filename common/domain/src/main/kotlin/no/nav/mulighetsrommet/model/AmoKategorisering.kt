@@ -78,7 +78,9 @@ sealed class AmoKategorisering {
 
     @Serializable
     @SerialName("FORBEREDENDE_OPPLAERING_FOR_VOKSNE")
-    data object ForberedendeOpplaeringForVoksne : AmoKategorisering()
+    data class ForberedendeOpplaeringForVoksne(
+        val innholdElementer: List<InnholdElement>,
+    ) : AmoKategorisering()
 
     @Serializable
     @SerialName("STUDIESPESIALISERING")
