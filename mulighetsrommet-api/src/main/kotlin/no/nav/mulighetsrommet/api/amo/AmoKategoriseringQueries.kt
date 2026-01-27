@@ -140,8 +140,9 @@ object AmoKategoriseringQueries {
             "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
 
-        AmoKategorisering.ForberedendeOpplaeringForVoksne -> mapOf(
+        is AmoKategorisering.ForberedendeOpplaeringForVoksne -> mapOf(
             "kurstype" to AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE.name,
+            "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
 
         is AmoKategorisering.GrunnleggendeFerdigheter -> mapOf(

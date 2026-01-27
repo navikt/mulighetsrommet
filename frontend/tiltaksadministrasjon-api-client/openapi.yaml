@@ -3939,7 +3939,13 @@ components:
       - sertifiseringer
     FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
       type: object
-      properties: {}
+      properties:
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+      required:
+      - innholdElementer
     GRUNNLEGGENDE_FERDIGHETER:
       type: object
       properties:
