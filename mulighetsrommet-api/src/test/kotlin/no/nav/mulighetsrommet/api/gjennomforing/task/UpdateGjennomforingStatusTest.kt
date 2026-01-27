@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TOPIC
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType.AVBRUTT
 import no.nav.mulighetsrommet.model.GjennomforingStatusType.AVLYST
@@ -35,6 +36,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
             config = GjennomforingService.Config(TEST_GJENNOMFORING_V1_TOPIC, TEST_GJENNOMFORING_V2_TOPIC),
             db = database.db,
             navAnsattService = mockk(relaxed = true),
+            tiltakstypeService = TiltakstypeService(db = database.db),
         ),
     )
 

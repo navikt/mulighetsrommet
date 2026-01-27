@@ -390,6 +390,7 @@ private fun services(appConfig: AppConfig) = module {
             ),
             get(),
             get(),
+            get(),
         )
     }
     single { TiltakstypeService(appConfig.tiltakstyper, get()) }

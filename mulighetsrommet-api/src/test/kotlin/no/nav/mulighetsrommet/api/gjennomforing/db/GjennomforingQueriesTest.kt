@@ -15,10 +15,12 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.EnkeltplassFixtures
+import no.nav.mulighetsrommet.api.fixtures.EnkeltplassFixtures.EnkelAmo1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
@@ -69,7 +71,7 @@ class GjennomforingQueriesTest : FunSpec({
         domain.initialize(database.db)
     }
 
-    context("CRUD") {
+    context("gruppetiltak") {
         test("lagre gjennomføring") {
             database.runAndRollback {
                 queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
@@ -479,7 +481,7 @@ class GjennomforingQueriesTest : FunSpec({
     }
 
     context("enkeltplasser") {
-        val enkelAmo1 = EnkeltplassFixtures.EnkelAmo1.copy(
+        val enkelAmo1 = EnkelAmo1.copy(
             navn = "Arena-navn",
             startDato = LocalDate.of(2025, 1, 1),
             sluttDato = null,
@@ -537,9 +539,9 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.gjennomforing.upsertEnkeltplass(enkelAmo1)
                 queries.gjennomforing.upsertEnkeltplass(enkelAmo2)
 
-                queries.gjennomforing.getAllEnkeltplass().totalCount shouldBe 2
-                queries.gjennomforing.getAllEnkeltplass(tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo.id)).totalCount shouldBe 2
-                queries.gjennomforing.getAllEnkeltplass(tiltakstyper = listOf(TiltakstypeFixtures.AFT.id)).totalCount shouldBe 0
+                queries.gjennomforing.getAll().totalCount shouldBe 2
+                queries.gjennomforing.getAll(tiltakstypeIder = listOf(TiltakstypeFixtures.EnkelAmo.id)).totalCount shouldBe 2
+                queries.gjennomforing.getAll(tiltakstypeIder = listOf(TiltakstypeFixtures.AFT.id)).totalCount shouldBe 0
             }
         }
     }
@@ -739,6 +741,56 @@ class GjennomforingQueriesTest : FunSpec({
                     .should { (totalCount) ->
                         totalCount shouldBe 3
                     }
+            }
+        }
+
+        test("filtrering på type gjennomføring") {
+            database.runAndRollback { session ->
+                MulighetsrommetTestDomain(
+                    gjennomforinger = listOf(Oppfolging1, AFT1),
+                    enkeltplasser = listOf(EnkelAmo1),
+                ).setup(session)
+
+                queries.gjennomforing.getAll().should { (totalCount, gjennomforinger) ->
+                    totalCount shouldBe 3
+                    gjennomforinger shouldContainExactlyIds listOf(Oppfolging1.id, AFT1.id, EnkelAmo1.id)
+                }
+
+                queries.gjennomforing.getAll(type = GjennomforingType.GRUPPETILTAK)
+                    .should { (totalCount, gjennomforinger) ->
+                        totalCount shouldBe 2
+                        gjennomforinger shouldContainExactlyIds listOf(Oppfolging1.id, AFT1.id)
+                    }
+
+                queries.gjennomforing.getAll(type = GjennomforingType.ENKELTPLASS)
+                    .should { (totalCount, gjennomforinger) ->
+                        totalCount shouldBe 1
+                        gjennomforinger shouldContainExactlyIds listOf(EnkelAmo1.id)
+                    }
+            }
+        }
+
+        test("filtrering på prismodell") {
+            database.runAndRollback { session ->
+                MulighetsrommetTestDomain(
+                    gjennomforinger = listOf(Oppfolging1, AFT1),
+                    enkeltplasser = listOf(EnkelAmo1),
+                ).setup(session)
+
+                queries.gjennomforing.getAll(
+                    prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
+                ).items shouldContainExactlyIds listOf(AFT1.id)
+
+                queries.gjennomforing.getAll(
+                    prismodeller = listOf(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER),
+                ).items shouldContainExactlyIds listOf(Oppfolging1.id)
+
+                queries.gjennomforing.getAll(
+                    prismodeller = listOf(
+                        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                        PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                    ),
+                ).totalCount shouldBe 2
             }
         }
     }

@@ -42,8 +42,7 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype_navn,
                 nav_enheter_json
             from view_gjennomforing_gruppetiltak
-            where
-                (:tiltakskoder::tiltakskode[] is null or tiltakstype_tiltakskode = any(:tiltakskoder::tiltakskode[]))
+            where (:tiltakskoder::tiltakskode[] is null or tiltakstype_tiltakskode = any(:tiltakskoder::tiltakskode[]))
                 and status = 'GJENNOMFORES'
                 and (:nav_enheter::text[] is null or
                    exists(select true

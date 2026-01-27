@@ -160,4 +160,3 @@ from gjennomforing
                             from gjennomforing_stengt_hos_arrangor
                             where gjennomforing_id = gjennomforing.id) on true
 where gjennomforing.gjennomforing_type = 'GRUPPETILTAK'
-
