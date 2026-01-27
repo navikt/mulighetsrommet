@@ -135,7 +135,7 @@ export function amoKategoriseringRequest(
     case "FORBEREDENDE_OPPLAERING_FOR_VOKSNE":
       return {
         kurstype: AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-        innholdElementer: null,
+        innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
         bransje: null,
         sertifiseringer: null,
