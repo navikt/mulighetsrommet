@@ -5,7 +5,9 @@ import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 interface FeatureToggleService {
-    fun isEnabled(feature: FeatureToggle, context: FeatureToggleContext): Boolean
+    fun isEnabled(feature: FeatureToggle): Boolean
 
-    fun isEnabledForTiltakstype(feature: FeatureToggle, vararg tiltakskoder: Tiltakskode): Boolean
+    fun isEnabled(feature: FeatureToggle, context: FeatureToggleContext): Boolean = isEnabled(feature)
+
+    fun isEnabledForTiltakstype(feature: FeatureToggle, vararg tiltakskoder: Tiltakskode): Boolean = isEnabled(feature)
 }
