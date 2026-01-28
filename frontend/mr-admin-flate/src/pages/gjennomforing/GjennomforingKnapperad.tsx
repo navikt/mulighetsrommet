@@ -69,6 +69,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
     aarsaker: AvbrytGjennomforingAarsak[],
     forklaring: string | null,
     dato: string | null,
+    avlys: boolean | null,
   ) {
     avbrytMutation.mutate(
       {
@@ -76,6 +77,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
         aarsaker,
         forklaring,
         dato,
+        avlys,
       },
       {
         onSuccess: () => {
@@ -205,6 +207,7 @@ interface AvbrytGjennomforingModalProps {
     aarsaker: AvbrytGjennomforingAarsak[],
     forklaring: string | null,
     dato: string | null,
+    avlys: boolean | null,
   ) => void;
   kanAvlyse: boolean;
 }
@@ -254,7 +257,7 @@ function AvbrytGjennomforingModal(props: AvbrytGjennomforingModalProps) {
           )}
         </VStack>
       }
-      onConfirm={({ aarsaker, forklaring }) => props.avbryt(aarsaker, forklaring, dato)}
+      onConfirm={({ aarsaker, forklaring }) => props.avbryt(aarsaker, forklaring, dato, avlys)}
     />
   );
 }

@@ -10,13 +10,13 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -692,7 +692,10 @@ private fun Row.toGjennomforingKompakt(): GjennomforingGruppetiltakKompakt {
         lopenummer = Tiltaksnummer(string("lopenummer")),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = toGjennomforingStatus(),
+        status = GjennomforingDtoMapper.fromGjennomforingStatus(
+            status = GjennomforingStatusType.valueOf(string("status")),
+            toAvbrytelse(),
+        ),
         publisert = boolean("publisert"),
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
         arrangor = GjennomforingGruppetiltakKompakt.ArrangorUnderenhet(
@@ -788,24 +791,6 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
         ),
         pameldingType = string("pamelding_type").let { GjennomforingPameldingType.valueOf(it) },
     )
-}
-
-private fun Row.toGjennomforingStatus(): GjennomforingStatus {
-    return when (GjennomforingStatusType.valueOf(string("status"))) {
-        GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
-
-        GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
-
-        GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
-            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-            stringOrNull("avbrutt_forklaring"),
-        )
-
-        GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
-            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-            stringOrNull("avbrutt_forklaring"),
-        )
-    }
 }
 
 private fun Row.toAvbrytelse(): GjennomforingGruppetiltak.Avbrytelse? {

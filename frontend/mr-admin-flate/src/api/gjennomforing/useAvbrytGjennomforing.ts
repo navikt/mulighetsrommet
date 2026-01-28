@@ -18,6 +18,7 @@ export function useAvbrytGjennomforing() {
       aarsaker: AvbrytGjennomforingAarsak[];
       forklaring: string | null;
       dato: string | null;
+      avlys: boolean | null;
     }
   >({
     mutationFn: (data: {
@@ -25,11 +26,13 @@ export function useAvbrytGjennomforing() {
       aarsaker: AvbrytGjennomforingAarsak[];
       forklaring: string | null;
       dato: string | null;
+      avlys: boolean | null;
     }) => {
       return GjennomforingService.avbrytGjennomforing({
         path: { id: data.id },
         body: {
           aarsakerOgForklaringRequest: { aarsaker: data.aarsaker, forklaring: data.forklaring },
+          avlys: data.avlys,
           dato: data.dato,
         },
       });

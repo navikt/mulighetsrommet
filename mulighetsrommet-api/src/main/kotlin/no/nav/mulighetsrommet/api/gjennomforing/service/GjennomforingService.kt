@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
@@ -172,7 +171,7 @@ class GjennomforingService(
                     lopenummer = it.lopenummer,
                     startDato = it.startDato,
                     sluttDato = it.sluttDato,
-                    status = GjennomforingDtoMapper.fromGjennomforingStatus(it.status),
+                    status = it.status,
                     publisert = it.publisert,
                     kontorstruktur = it.kontorstruktur,
                     arrangor = it.arrangor,

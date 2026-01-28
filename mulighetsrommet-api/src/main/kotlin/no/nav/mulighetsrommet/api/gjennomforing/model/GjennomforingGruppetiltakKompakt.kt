@@ -20,7 +20,7 @@ data class GjennomforingGruppetiltakKompakt(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: GjennomforingStatus,
+    val status: GjennomforingDto.Status,
     val publisert: Boolean,
     val kontorstruktur: List<Kontorstruktur>,
     val arrangor: ArrangorUnderenhet,

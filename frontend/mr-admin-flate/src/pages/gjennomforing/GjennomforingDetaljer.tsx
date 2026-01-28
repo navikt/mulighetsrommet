@@ -12,11 +12,15 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { formatertVentetid, kreverDeltidsprosent } from "@/utils/Utils";
+import {
+  formatertVentetid,
+  gjennomforingAvbruttAarsakTilTekst,
+  kreverDeltidsprosent,
+} from "@/utils/Utils";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { formaterDato, formaterPeriodeUdefinertSlutt } from "@mr/frontend-common/utils/date";
-import { BodyShort, Heading, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
+import { BodyShort, Heading, HelpText, HStack, InfoCard, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 import {
@@ -54,6 +58,7 @@ export function GjennomforingDetaljer() {
     amoKategorisering,
     utdanningslop,
     prismodell,
+    avbrytelse,
   } = gjennomforing;
 
   const avtaleMeta: Definition[] = [
@@ -108,9 +113,12 @@ export function GjennomforingDetaljer() {
     },
   ];
 
-  const varighetMeta: Definition[] = [
+  const startOgSluttDatoMeta: Definition[] = [
     { key: gjennomforingTekster.startdatoLabel, value: formaterDato(startDato) },
     { key: gjennomforingTekster.sluttdatoLabel, value: formaterDato(sluttDato) ?? "-" },
+  ];
+
+  const varighetMeta: Definition[] = [
     {
       key: gjennomforingTekster.oppstartstypeLabel,
       value: oppstart === GjennomforingOppstartstype.FELLES ? "Felles" : "Løpende oppstart",
@@ -217,7 +225,34 @@ export function GjennomforingDetaljer() {
           <Separator />
           <Definisjonsliste title="Avtaledetaljer" definitions={avtaleMeta} />
           <Separator />
-          <Definisjonsliste title="Varighet og påmelding" definitions={varighetMeta} />
+          <Definisjonsliste title="Varighet og påmelding" definitions={startOgSluttDatoMeta} />
+          {avbrytelse && (
+            <InfoCard data-color="warning" className="my-2 background-red">
+              <InfoCard.Header>
+                <InfoCard.Title>Avbrutt</InfoCard.Title>
+              </InfoCard.Header>
+              <InfoCard.Content>
+                <Definisjonsliste
+                  definitions={[
+                    {
+                      key: "Årsaker",
+                      value: (
+                        <ul>
+                          {avbrytelse.aarsaker.map((aarsak) => (
+                            <li key={aarsak} className="list-disc list-inside">
+                              {gjennomforingAvbruttAarsakTilTekst(aarsak)}
+                            </li>
+                          ))}
+                        </ul>
+                      ),
+                    },
+                    { key: "Forklaring", value: avbrytelse.forklaring },
+                  ]}
+                />
+              </InfoCard.Content>
+            </InfoCard>
+          )}
+          <Definisjonsliste definitions={varighetMeta} />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
           {prismodell && (

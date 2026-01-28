@@ -4607,6 +4607,29 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
+    GjennomforingGruppetiltak.Avbrytelse:
+      type: object
+      properties:
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - forklaring
+    AvbrytGjennomforingAarsak:
+      type: string
+      enum:
+      - ENDRING_HOS_ARRANGOR
+      - BUDSJETT_HENSYN
+      - FOR_FAA_DELTAKERE
+      - FEILREGISTRERING
+      - AVBRUTT_I_ARENA
+      - ANNET
     GjennomforingGruppetiltak.Administrator:
       type: object
       properties:
@@ -4705,6 +4728,10 @@ components:
           - $ref: "#/components/schemas/ArenaNavEnhet"
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
+        avbrytelse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingGruppetiltak.Avbrytelse"
         apentForPamelding:
           type: boolean
         antallPlasser:
@@ -4782,6 +4809,7 @@ components:
       - apentForPamelding
       - arenaAnsvarligEnhet
       - arrangor
+      - avbrytelse
       - avtaleId
       - beskrivelse
       - deltidsprosent
@@ -4820,15 +4848,6 @@ components:
       required:
       - aarsaker
       - forklaring
-    AvbrytGjennomforingAarsak:
-      type: string
-      enum:
-      - ENDRING_HOS_ARRANGOR
-      - BUDSJETT_HENSYN
-      - FOR_FAA_DELTAKERE
-      - FEILREGISTRERING
-      - AVBRUTT_I_ARENA
-      - ANNET
     AvbrytGjennomforingRequest:
       type: object
       properties:

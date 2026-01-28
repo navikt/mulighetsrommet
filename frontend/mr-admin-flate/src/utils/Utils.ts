@@ -10,6 +10,7 @@ import {
   Avtaletype,
   Tiltakskode,
   ValidationError,
+  AvbrytGjennomforingAarsak,
 } from "@tiltaksadministrasjon/api-client";
 
 export function capitalize(text?: string): string {
@@ -214,6 +215,23 @@ export function getPublisertStatus(statuser: string[] = []): boolean | undefined
   if (statuser.every((status) => status === "ikke-publisert")) return false;
 
   return undefined;
+}
+
+export function gjennomforingAvbruttAarsakTilTekst(aarsak: AvbrytGjennomforingAarsak): string {
+  switch (aarsak) {
+    case AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR:
+      return "Endring hos arrangør";
+    case AvbrytGjennomforingAarsak.BUDSJETT_HENSYN:
+      return "Budsjett hensyn";
+    case AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE:
+      return "For få deltakere";
+    case AvbrytGjennomforingAarsak.FEILREGISTRERING:
+      return "Feilregistrering";
+    case AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA:
+      return "Avbrutt i Arena";
+    case AvbrytGjennomforingAarsak.ANNET:
+      return "Annet";
+  }
 }
 
 export function tilsagnAarsakTilTekst(aarsak: TilsagnStatusAarsak): string {
