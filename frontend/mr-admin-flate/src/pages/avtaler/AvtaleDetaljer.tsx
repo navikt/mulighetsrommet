@@ -156,7 +156,12 @@ export function AvtaleDetaljer() {
         <Separator />
         <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
         {avtale.opsjonerRegistrert.length > 0 ? <RegistrerteOpsjoner readOnly /> : null}
-        {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+        {amoKategorisering && (
+          <>
+            <Separator />
+            <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
+          </>
+        )}
         {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
         <Separator />
         <Heading level="3" size="small" spacing>

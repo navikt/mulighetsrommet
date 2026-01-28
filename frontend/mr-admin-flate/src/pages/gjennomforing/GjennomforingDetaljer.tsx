@@ -219,7 +219,12 @@ export function GjennomforingDetaljer() {
           <Separator />
           <Definisjonsliste title="Varighet og påmelding" definitions={varighetMeta} />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
-          {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+          {amoKategorisering && (
+            <>
+              <Separator />
+              <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
+            </>
+          )}
           {prismodell && (
             <>
               <Separator />
