@@ -6,7 +6,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.ArenaMigreringConfig
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
@@ -20,6 +19,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseEierskap
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePamelding
@@ -54,18 +54,16 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     val gjennomforing = GjennomforingFixtures.Oppfolging1
 
-    val arenaMigreringConfig = ArenaMigreringConfig(
-        migrerteTiltakskoder = setOf(
-            Tiltakskode.AVKLARING,
-            Tiltakskode.OPPFOLGING,
-            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.JOBBKLUBB,
-            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        ),
+    val migrertConfig = mapOf(
+        Tiltakskode.AVKLARING to setOf(TiltakstypeFeature.MIGRERT),
+        Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.MIGRERT),
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT),
+        Tiltakskode.JOBBKLUBB to setOf(TiltakstypeFeature.MIGRERT),
+        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to setOf(TiltakstypeFeature.MIGRERT),
+        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to setOf(TiltakstypeFeature.MIGRERT),
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to setOf(TiltakstypeFeature.MIGRERT),
+        Tiltakskode.ARBEIDSRETTET_REHABILITERING to setOf(TiltakstypeFeature.MIGRERT),
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to setOf(TiltakstypeFeature.MIGRERT),
     )
 
     val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.TeamKometDeltakelse(
@@ -223,7 +221,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     fun createTiltakshistorikkService(isEnabled: () -> Boolean = { false }) = TiltakshistorikkService(
         historiskeIdenterQuery = historiskeIdenterQuery,
-        tiltakstypeService = TiltakstypeService(database.db, arenaMigreringConfig),
+        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(migrertConfig), database.db),
         amtDeltakerClient = amtDeltakerClient,
         tiltakshistorikkClient = tiltakshistorikkClient,
         features = object : FeatureToggleService {

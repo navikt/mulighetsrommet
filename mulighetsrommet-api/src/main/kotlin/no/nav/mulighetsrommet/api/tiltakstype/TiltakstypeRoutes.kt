@@ -11,6 +11,7 @@ import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -41,7 +42,7 @@ fun Route.tiltakstypeRoutes() {
         }) {
             val filter = getTiltakstypeFilter()
 
-            val tiltakstyper = tiltakstypeService.getAllGruppetiltak(filter)
+            val tiltakstyper = tiltakstypeService.getAll(filter)
 
             call.respond(tiltakstyper)
         }
@@ -110,11 +111,13 @@ fun Route.tiltakstypeRoutes() {
 
 data class TiltakstypeFilter(
     val sortering: String? = null,
+    val features: Set<TiltakstypeFeature> = setOf(),
 )
 
 fun RoutingContext.getTiltakstypeFilter(): TiltakstypeFilter {
     val sortering = call.request.queryParameters["sort"]
     return TiltakstypeFilter(
         sortering = sortering,
+        features = setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON),
     )
 }

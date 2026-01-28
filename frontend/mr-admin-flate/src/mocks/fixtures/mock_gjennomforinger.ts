@@ -304,10 +304,6 @@ export const paginertMockGjennomforinger: PaginatedResponseGjennomforingKompaktD
 };
 
 function getGjennomforingTiltakstype(dto: TiltakstypeDto): GjennomforingTiltakstype {
-  if (!dto.tiltakskode) {
-    throw new Error("Tiltakskode mangler");
-  }
-
   return {
     id: dto.id,
     navn: dto.navn,

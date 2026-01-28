@@ -11,6 +11,8 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.tidligstTidspunktForUtbetalingProd
@@ -263,18 +265,25 @@ val ApplicationConfigProd = AppConfig(
             ),
         ),
     ),
-    arenaMigrering = ArenaMigreringConfig(
-        migrerteTiltakskoder = setOf(
-            Tiltakskode.AVKLARING,
-            Tiltakskode.OPPFOLGING,
-            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.JOBBKLUBB,
-            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        ),
+    tiltakstyper = TiltakstypeService.Config(
+        features = run {
+            val migrert = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+                TiltakstypeFeature.KAN_OPPRETTE_AVTALE,
+                TiltakstypeFeature.MIGRERT,
+            )
+            mapOf(
+                Tiltakskode.AVKLARING to migrert,
+                Tiltakskode.OPPFOLGING to migrert,
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to migrert,
+                Tiltakskode.JOBBKLUBB to migrert,
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to migrert,
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
+            )
+        },
     ),
     navAnsattSync = NavAnsattSyncService.Config(
         ansattGroupsToSync = setOf(

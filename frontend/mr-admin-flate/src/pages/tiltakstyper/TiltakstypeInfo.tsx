@@ -15,7 +15,7 @@ export function TiltakstypeInfo() {
     <WhitePaddedBox>
       <Bolk>
         <MetadataVStack label="Tiltakstype" value={tiltakstype.navn} />
-        <MetadataVStack label="Tiltakskode" value={tiltakstype.arenaKode} />
+        <MetadataVStack label="Tiltakskode" value={tiltakstype.tiltakskode} />
       </Bolk>
       <Separator />
       <Bolk>
