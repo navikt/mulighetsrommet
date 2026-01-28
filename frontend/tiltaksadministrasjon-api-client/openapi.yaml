@@ -4839,8 +4839,13 @@ components:
           - "null"
           - string
           format: date
+        avlys:
+          type:
+          - "null"
+          - boolean
       required:
       - aarsakerOgForklaringRequest
+      - avlys
       - dato
     PublisertRequest:
       type: object
@@ -5005,6 +5010,7 @@ components:
       - PUBLISER
       - REDIGER
       - AVBRYT
+      - AVLYS
       - DUPLISER
       - ENDRE_APEN_FOR_PAMELDING
       - ENDRE_TILGJENGELIG_FOR_ARRANGOR

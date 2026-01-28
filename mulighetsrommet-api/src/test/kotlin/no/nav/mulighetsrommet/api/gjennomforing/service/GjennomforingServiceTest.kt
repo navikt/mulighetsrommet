@@ -39,7 +39,6 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 const val TEST_GJENNOMFORING_V1_TOPIC = "gjennomforing-v1"
 const val TEST_GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"
@@ -206,12 +205,13 @@ class GjennomforingServiceTest : FunSpec({
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
-                tidspunkt = LocalDateTime.now(),
+                dato = LocalDate.now(),
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
                     listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     null,
                 ),
                 avbruttAv = bertilNavIdent,
+                avlys = false,
             ).shouldBeLeft(
                 listOf(FieldError.root("Gjennomføringen er allerede avsluttet")),
             )
@@ -230,12 +230,13 @@ class GjennomforingServiceTest : FunSpec({
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
-                tidspunkt = LocalDate.of(2023, 7, 2).atStartOfDay(),
+                dato = LocalDate.of(2023, 7, 1),
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
                     listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     null,
                 ),
                 avbruttAv = bertilNavIdent,
+                avlys = false,
             ).shouldBeLeft(
                 listOf(FieldError.root("Gjennomføringen er allerede avsluttet")),
             )
@@ -253,12 +254,13 @@ class GjennomforingServiceTest : FunSpec({
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
-                tidspunkt = LocalDate.of(2023, 7, 1).atStartOfDay(),
+                dato = LocalDate.of(2023, 7, 1),
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
                     listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     null,
                 ),
                 avbruttAv = bertilNavIdent,
+                avlys = false,
             ).shouldBeRight().should {
                 it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>()
                 it.publisert shouldBe false
@@ -287,7 +289,7 @@ class GjennomforingServiceTest : FunSpec({
 
         test("stenger gjennomføring og får status avlyst når gjennomføring avbrytes før start") {
             val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
-                startDato = LocalDate.of(2023, 7, 1),
+                startDato = LocalDate.now().plusDays(7),
                 sluttDato = null,
             )
 
@@ -297,12 +299,13 @@ class GjennomforingServiceTest : FunSpec({
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
-                tidspunkt = LocalDate.of(2023, 6, 1).atStartOfDay(),
+                dato = null,
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
                     listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     null,
                 ),
                 avbruttAv = bertilNavIdent,
+                avlys = true,
             )
 
             service.get(gjennomforing.id).shouldNotBeNull().should {

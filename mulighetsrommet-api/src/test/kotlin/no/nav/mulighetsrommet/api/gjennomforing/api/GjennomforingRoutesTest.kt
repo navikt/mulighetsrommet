@@ -221,7 +221,7 @@ class GjennomforingRoutesTest : FunSpec({
             gjennomforinger = listOf(
                 GjennomforingFixtures.Oppfolging1.copy(
                     id = aktivGjennomforingId,
-                    startDato = LocalDate.now(),
+                    startDato = LocalDate.now().minusDays(20),
                     sluttDato = LocalDate.now().plusDays(20),
                     status = GjennomforingStatusType.GJENNOMFORES,
                 ),
@@ -324,7 +324,7 @@ class GjennomforingRoutesTest : FunSpec({
                                 aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                                 forklaring = null,
                             ),
-                            dato = LocalDate.now(),
+                            dato = LocalDate.now().minusDays(1),
                         ),
                     )
                 }

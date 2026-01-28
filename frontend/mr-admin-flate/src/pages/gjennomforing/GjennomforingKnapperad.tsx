@@ -7,7 +7,7 @@ import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/sten
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Checkbox, Dropdown, Switch, VStack } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
@@ -182,6 +182,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
         avbrytModalErrors={avbrytModalErrors}
         setAvbrytModalErrors={setAvbrytModalErrors}
         avbryt={avbryt}
+        kanAvlyse={handlinger.includes(GjennomforingHandling.AVLYS)}
       />
     </KnapperadContainer>
   );
@@ -205,10 +206,12 @@ interface AvbrytGjennomforingModalProps {
     forklaring: string | null,
     dato: string | null,
   ) => void;
+  kanAvlyse: boolean;
 }
 
 function AvbrytGjennomforingModal(props: AvbrytGjennomforingModalProps) {
   const [dato, setDato] = useState<string | null>(null);
+  const [avlys, setAvlys] = useState<boolean>(false);
 
   return (
     <AarsakerOgForklaringModal
@@ -237,12 +240,19 @@ function AvbrytGjennomforingModal(props: AvbrytGjennomforingModalProps) {
       }}
       errors={props.avbrytModalErrors}
       extraFields={
-        <ControlledDateInput
-          label="Dato tiltaket ble avbrutt"
-          fromDate={parseDate(props.gjennomforing.startDato)}
-          toDate={new Date()}
-          onChange={(val) => setDato(val)}
-        />
+        <VStack>
+          <ControlledDateInput
+            label="Dato tiltaket ble avbrutt"
+            fromDate={parseDate(props.gjennomforing.startDato)}
+            toDate={new Date()}
+            onChange={(val) => setDato(val)}
+          />
+          {props.kanAvlyse && (
+            <Checkbox checked={avlys} onChange={() => setAvlys(!avlys)}>
+              Avlys gjennomføringen
+            </Checkbox>
+          )}
+        </VStack>
       }
       onConfirm={({ aarsaker, forklaring }) => props.avbryt(aarsaker, forklaring, dato)}
     />

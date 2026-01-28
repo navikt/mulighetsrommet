@@ -62,7 +62,6 @@ import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.contracts.ExperimentalContracts
 
 fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
@@ -130,9 +129,10 @@ fun Route.gjennomforingRoutes() {
                     .flatMap { (aarsakerOgForklaring, dato) ->
                         gjennomforinger.avbrytGjennomforing(
                             id,
-                            tidspunkt = dato.plusDays(1).atStartOfDay(),
+                            dato = dato,
                             aarsakerOgForklaring = aarsakerOgForklaring,
                             avbruttAv = navIdent,
+                            avlys = request.avlys ?: false,
                         )
                     }
                     .onLeft {
@@ -750,6 +750,7 @@ enum class GjennomforingHandling {
     PUBLISER,
     REDIGER,
     AVBRYT,
+    AVLYS,
     DUPLISER,
     ENDRE_APEN_FOR_PAMELDING,
     ENDRE_TILGJENGELIG_FOR_ARRANGOR,
@@ -764,14 +765,13 @@ enum class GjennomforingHandling {
 data class AvbrytGjennomforingRequest(
     val aarsakerOgForklaringRequest: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>,
     @Serializable(with = LocalDateSerializer::class)
-    val dato: LocalDate?,
+    val dato: LocalDate? = null,
+    val avlys: Boolean? = false,
 ) {
-    @OptIn(ExperimentalContracts::class)
-    fun validate(): Either<List<FieldError>, Pair<AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>, LocalDate>> = validation {
+    fun validate(): Either<List<FieldError>, AvbrytGjennomforingRequest> = validation {
         aarsakerOgForklaringRequest.validate().bind()
-        requireValid(dato != null) {
+        validate(avlys == true || dato != null) {
             FieldError.of("Du må velge en dato", AvbrytGjennomforingRequest::dato)
         }
-        aarsakerOgForklaringRequest to dato
-    }
+    }.map { this }
 }

@@ -247,7 +247,8 @@ class GjennomforingService(
     fun avbrytGjennomforing(
         id: UUID,
         avbruttAv: Agent,
-        tidspunkt: LocalDateTime,
+        avlys: Boolean,
+        dato: LocalDate?,
         aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>,
     ): Either<List<FieldError>, GjennomforingGruppetiltak> = db.transaction {
         val gjennomforing = getOrError(id)
@@ -262,20 +263,34 @@ class GjennomforingService(
                 return FieldError.root("Gjennomføringen er allerede avsluttet").nel().left()
         }
 
-        val tidspunktForStart = gjennomforing.startDato.atStartOfDay()
-        val tidspunktForSlutt = gjennomforing.sluttDato?.plusDays(1)?.atStartOfDay()
-        val status = if (tidspunkt.isBefore(tidspunktForStart)) {
+        val start = gjennomforing.startDato
+        val slutt = gjennomforing.sluttDato
+
+        if (dato != null && (dato.isBefore(start) || (slutt != null && dato.isAfter(slutt)))) {
+            return FieldError.root("Dato må være mellom start og slutt").nel().left()
+        }
+
+        check(!avlys || LocalDate.now().isBefore(start)) {
+            "Kan ikke avlyse etter start"
+        }
+
+        val status = if (avlys) {
             GjennomforingStatusType.AVLYST
-        } else if (tidspunktForSlutt == null || tidspunkt.isBefore(tidspunktForSlutt)) {
-            GjennomforingStatusType.AVBRUTT
         } else {
-            throw Exception("Gjennomføring allerede avsluttet")
+            check(dato != null) {
+                "Enten avlys eller dato må være satt"
+            }
+            if (dato.isBefore(LocalDate.now())) {
+                GjennomforingStatusType.AVBRUTT
+            } else {
+                GjennomforingStatusType.GJENNOMFORES
+            }
         }
 
         queries.gjennomforing.setStatus(
             id = id,
             status = status,
-            sluttDato = tidspunkt.minusDays(1).toLocalDate(),
+            sluttDato = dato,
             aarsaker = aarsakerOgForklaring.aarsaker,
             forklaring = aarsakerOgForklaring.forklaring,
         )
@@ -446,6 +461,7 @@ class GjennomforingService(
         return setOfNotNull(
             GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
             GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
+            GjennomforingHandling.AVLYS.takeIf { statusGjennomfores && gjennomforing.startDato > LocalDate.now() },
             GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
             GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
             GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
@@ -474,6 +490,7 @@ class GjennomforingService(
             return when (handling) {
                 GjennomforingHandling.PUBLISER -> skrivGjennomforing
                 GjennomforingHandling.AVBRYT -> skrivGjennomforing
+                GjennomforingHandling.AVLYS -> skrivGjennomforing
                 GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING -> skrivGjennomforing || oppfolgerGjennomforing
                 GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR -> skrivGjennomforing || oppfolgerGjennomforing
                 GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR -> skrivGjennomforing
