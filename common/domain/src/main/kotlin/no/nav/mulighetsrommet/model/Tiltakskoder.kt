@@ -1,26 +1,23 @@
 package no.nav.mulighetsrommet.model
 
 enum class Tiltakskode(val arenakode: String) {
+    ARBEIDSMARKEDSOPPLAERING("GRUPPEAMO"),
     ARBEIDSFORBEREDENDE_TRENING("ARBFORB"),
     ARBEIDSRETTET_REHABILITERING("ARBRRHDAG"),
     AVKLARING("AVKLARAG"),
     DIGITALT_OPPFOLGINGSTILTAK("DIGIOPPARB"),
     ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING("ENKELAMO"),
     ENKELTPLASS_FAG_OG_YRKESOPPLAERING("ENKFAGYRKE"),
+    FAG_OG_YRKESOPPLAERING("GRUFAGYRKE"),
     GRUPPE_ARBEIDSMARKEDSOPPLAERING("GRUPPEAMO"),
     GRUPPE_FAG_OG_YRKESOPPLAERING("GRUFAGYRKE"),
     HOYERE_UTDANNING("HOYEREUTD"),
+    HOYERE_YRKESFAGLIG_UTDANNING("GRUFAGYRKE"),
     JOBBKLUBB("JOBBK"),
+    NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV("GRUPPEAMO"),
     OPPFOLGING("INDOPPFAG"),
+    STUDIESPESIALISERING("GRUPPEAMO"),
     VARIG_TILRETTELAGT_ARBEID_SKJERMET("VASV"),
-
-    // Nye tiltakskoder 2025 §7-2 a-f:
-    ARBEIDSMARKEDSOPPLAERING("GRUPPEAMO"), // a
-    NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV("GRUPPEAMO"), // b
-    STUDIESPESIALISERING("GRUPPEAMO"), // c
-    FAG_OG_YRKESOPPLAERING("GRUFAGYRKE"), // d
-    HOYERE_YRKESFAGLIG_UTDANNING("GRUFAGYRKE"), // e
-    // HOYERE_UTDANNING("HOYEREUTD") // f, eksisterer fra før
 }
 
 object Tiltakskoder {
@@ -38,6 +35,12 @@ object Tiltakskoder {
         Tiltakskode.OPPFOLGING,
         Tiltakskode.JOBBKLUBB,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        // TODO: disse tiltakskodene er egentlig ikke bare for "gruppetiltak", men foreløpig er det OK.
+        //  Vi burde komme oss vekk fra disse tiltaskode-listene og evt. erstatte med egenskaper direkte på Tiltalkskode-enumen
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+        Tiltakskode.STUDIESPESIALISERING,
+        Tiltakskode.FAG_OG_YRKESOPPLAERING,
     )
 
     /**
@@ -49,20 +52,11 @@ object Tiltakskoder {
         "UTVAOONAV",
     )
 
-    /**
-     * Tiltakskoder som, enn så lenge, blir antatt å ha en felles oppstartsdato for alle deltakere.
-     * Disse har blitt referert til som "kurs" av komet.
-     */
-    private val TiltakMedFellesOppstart = listOf(
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.JOBBKLUBB,
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-    )
-
     private val TiltakskoderEnkeltplasser = listOf(
         Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.HOYERE_UTDANNING,
+        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
     )
 
     fun isGruppetiltak(tiltakskode: Tiltakskode): Boolean {

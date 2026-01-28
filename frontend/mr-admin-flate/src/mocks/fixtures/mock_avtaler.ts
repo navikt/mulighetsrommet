@@ -286,10 +286,6 @@ export const mockAvtaler: AvtaleDto[] = [
 ];
 
 function getAvtaleTiltakstype(dto: TiltakstypeDto): AvtaleTiltakstype {
-  if (!dto.tiltakskode) {
-    throw new Error("Tiltakskode mangler");
-  }
-
   return {
     id: dto.id,
     navn: dto.navn,

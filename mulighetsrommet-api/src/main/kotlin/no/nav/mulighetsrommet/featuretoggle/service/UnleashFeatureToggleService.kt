@@ -35,6 +35,10 @@ class UnleashFeatureToggleService(config: Config) : FeatureToggleService {
         ByOrgnrStrategy(),
     )
 
+    override fun isEnabled(feature: FeatureToggle): Boolean {
+        return unleash.isEnabled(feature.key)
+    }
+
     override fun isEnabled(feature: FeatureToggle, context: FeatureToggleContext): Boolean {
         val ctx = UnleashContext.builder()
             .apply { context.userId?.let { userId(it) } }

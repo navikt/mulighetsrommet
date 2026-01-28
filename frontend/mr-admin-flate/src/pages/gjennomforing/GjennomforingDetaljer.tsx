@@ -254,7 +254,12 @@ export function GjennomforingDetaljer() {
           )}
           <Definisjonsliste definitions={varighetMeta} />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
-          {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+          {amoKategorisering && (
+            <>
+              <Separator />
+              <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
+            </>
+          )}
           {prismodell && (
             <>
               <Separator />

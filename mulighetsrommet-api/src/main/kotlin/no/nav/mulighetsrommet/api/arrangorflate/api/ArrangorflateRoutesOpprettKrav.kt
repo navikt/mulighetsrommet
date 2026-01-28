@@ -38,7 +38,6 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtalt
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.maksUtbetalingsPeriodeSluttDato
-import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.minAntallVedleggVedOpprettKrav
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
@@ -145,7 +144,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 return@session emptyList()
             } else {
                 queries.gjennomforing
-                    .getAllGruppetiltakKompakt(
+                    .getAll(
                         arrangorOrgnr = arrangorer,
                         prismodeller = gyldigePrismodeller,
                         tiltakstypeIder = gyldigeTiltakstyper,
@@ -643,7 +642,7 @@ data class OpprettKravVedlegg(
 
             return OpprettKravVedlegg(
                 guidePanel = GuidePanelType.from(gjennomforing.prismodell.type),
-                minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell.type),
+                minAntallVedlegg = UtbetalingValidator.MIN_ANTALL_VEDLEGG_OPPRETT_KRAV,
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.VEDLEGG, gjennomforing),
             )
         }
@@ -824,7 +823,7 @@ data class OpprettKravOppsummering(
                     periode = periode,
                     belop = requestData.belop,
                     kidNummer = requestData.kidNummer,
-                    minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell.type),
+                    minAntallVedlegg = UtbetalingValidator.MIN_ANTALL_VEDLEGG_OPPRETT_KRAV,
                 ),
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.OPPSUMMERING, gjennomforing),
             )

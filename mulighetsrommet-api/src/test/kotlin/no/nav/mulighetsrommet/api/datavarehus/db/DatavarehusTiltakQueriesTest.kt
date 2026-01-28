@@ -107,7 +107,11 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     ),
                     GruppeAmo1.copy(
                         id = UUID.randomUUID(),
-                        amoKategorisering = AmoKategorisering.ForberedendeOpplaeringForVoksne,
+                        amoKategorisering = AmoKategorisering.ForberedendeOpplaeringForVoksne(
+                            innholdElementer = listOf(
+                                AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING,
+                            ),
+                        ),
                     ),
                     GruppeAmo1.copy(
                         id = UUID.randomUUID(),

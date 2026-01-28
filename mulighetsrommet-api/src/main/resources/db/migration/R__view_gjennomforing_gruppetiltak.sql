@@ -131,7 +131,7 @@ from gjennomforing
                                                                    on aks.konsept_id = s.konsept_id
                                                      where aks.gjennomforing_id = k.gjennomforing_id),
                                                     '[]'::jsonb),
-                                           'innholdElementer', k.innhold_elementer
+                                           'innholdElementer', coalesce(k.innhold_elementer, '{}')
                                    ) as amo_kategorisering_json
                             from gjennomforing_amo_kategorisering k
                             where gjennomforing_id = gjennomforing.id) on true

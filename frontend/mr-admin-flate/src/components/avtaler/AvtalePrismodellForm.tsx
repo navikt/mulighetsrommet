@@ -13,8 +13,14 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import { AvtalteSatserForm } from "./AvtalteSatserForm";
-import { PrismodellType, Tiltakskode, Valuta } from "@tiltaksadministrasjon/api-client";
+import {
+  FeatureToggle,
+  PrismodellType,
+  Tiltakskode,
+  Valuta,
+} from "@tiltaksadministrasjon/api-client";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 interface Props {
   tiltakskode: Tiltakskode;
@@ -30,16 +36,20 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     register,
   } = useFormContext<PrismodellValues>();
   const { data: prismodellTyper = [] } = usePrismodeller(tiltakskode);
+  const enableSEK = useFeatureToggle(FeatureToggle.TILTAKSADMINISTRASJON_SVENSK_VALUTA);
 
   const { fields, append, remove } = useFieldArray({
     name: "prismodeller",
     control,
   });
 
+  const valutaOptions = enableSEK.data ? [Valuta.NOK, Valuta.SEK] : [Valuta.NOK];
+
   return (
     <VStack gap="4">
       {fields.map((field, index) => {
         const type = watch(`prismodeller.${index}.type`);
+        const selectedValuta = watch(`prismodeller.${index}.valuta`);
         const beskrivelse = prismodellTyper.find((p) => p.type === type)?.beskrivelse;
         return (
           <Box
@@ -52,24 +62,42 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
           >
             <HStack justify="space-between" align="start">
               <VStack gap="4" style={{ flex: 1 }}>
-                <Select
-                  label={avtaletekster.prismodell.label}
-                  size="small"
-                  error={errors.prismodeller?.[index]?.type?.message}
-                  value={type}
-                  onChange={(e) => {
-                    setValue(`prismodeller.${index}.type`, e.target.value as PrismodellType);
-                  }}
-                >
-                  <option key={undefined} value={undefined}>
-                    -- Velg prismodell --
-                  </option>
-                  {prismodellTyper.map(({ type, navn }) => (
-                    <option key={type} value={type}>
-                      {navn}
+                <HStack gap="2">
+                  <Select
+                    className="flex-1"
+                    label={avtaletekster.prismodell.label}
+                    size="small"
+                    error={errors.prismodeller?.[index]?.type?.message}
+                    value={type}
+                    onChange={(e) => {
+                      setValue(`prismodeller.${index}.type`, e.target.value as PrismodellType);
+                    }}
+                  >
+                    <option key={undefined} value={undefined}>
+                      -- Velg prismodell --
                     </option>
-                  ))}
-                </Select>
+                    {prismodellTyper.map(({ type, navn }) => (
+                      <option key={type} value={type}>
+                        {navn}
+                      </option>
+                    ))}
+                  </Select>
+                  <Select
+                    label="Valuta"
+                    size="small"
+                    value={selectedValuta}
+                    onChange={(e) => {
+                      setValue(`prismodeller.${index}.valuta`, e.target.value as Valuta);
+                    }}
+                  >
+                    {valutaOptions.map((valuta) => (
+                      <option key={valuta} value={valuta}>
+                        {valuta}
+                      </option>
+                    ))}
+                  </Select>
+                </HStack>
+
                 {beskrivelse &&
                   beskrivelse.map((tekst, i) => <BodyShort key={i}>{tekst}</BodyShort>)}
                 {type !== PrismodellType.ANNEN_AVTALT_PRIS && (

@@ -285,6 +285,7 @@ class TilsagnQueries(private val session: Session) {
         arrangorer: Set<Organisasjonsnummer>? = null,
         statuser: List<TilsagnStatus>? = null,
         periodeIntersectsWith: Periode? = null,
+        valuta: Valuta? = null,
     ): List<Tilsagn> {
         @Language("PostgreSQL")
         val query = """
@@ -296,6 +297,7 @@ class TilsagnQueries(private val session: Session) {
               and (:arrangorer::text[] is null or arrangor_organisasjonsnummer = any(:arrangorer))
               and (:statuser::tilsagn_status[] is null or status::tilsagn_status = any(:statuser))
               and (:periode::daterange is null or periode && :periode::daterange)
+              and (:valuta::currency is null or valuta = :valuta::currency)
             order by created_at desc
         """.trimIndent()
 
@@ -305,6 +307,7 @@ class TilsagnQueries(private val session: Session) {
             "arrangorer" to arrangorer?.let { list -> session.createArrayOfValue(list) { it.value } },
             "statuser" to statuser?.let { session.createArrayOfTilsagnStatus(it) },
             "periode" to periodeIntersectsWith?.toDaterange(),
+            "valuta" to valuta?.name,
         )
 
         return session.list(queryOf(query, params)) { it.toTilsagn() }

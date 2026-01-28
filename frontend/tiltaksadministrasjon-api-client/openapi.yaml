@@ -3073,17 +3073,8 @@ components:
           format: uuid
         navn:
           type: string
-        innsatsgrupper:
-          type: array
-          items:
-            $ref: "#/components/schemas/Innsatsgruppe"
-          uniqueItems: true
-        arenaKode:
-          type: string
         tiltakskode:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Tiltakskode"
+          $ref: "#/components/schemas/Tiltakskode"
         startDato:
           type: string
           format: date
@@ -3099,49 +3090,51 @@ components:
           - "null"
           - string
           format: uuid
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeFeature"
+          uniqueItems: true
       required:
-      - arenaKode
+      - features
       - id
-      - innsatsgrupper
       - navn
       - sanityId
       - sluttDato
       - startDato
       - status
       - tiltakskode
-    Innsatsgruppe:
-      type: string
-      enum:
-      - GODE_MULIGHETER
-      - TRENGER_VEILEDNING
-      - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
-      - JOBBE_DELVIS
-      - LITEN_MULIGHET_TIL_A_JOBBE
     Tiltakskode:
       type: string
       enum:
+      - ARBEIDSMARKEDSOPPLAERING
       - ARBEIDSFORBEREDENDE_TRENING
       - ARBEIDSRETTET_REHABILITERING
       - AVKLARING
       - DIGITALT_OPPFOLGINGSTILTAK
       - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+      - FAG_OG_YRKESOPPLAERING
       - GRUPPE_ARBEIDSMARKEDSOPPLAERING
       - GRUPPE_FAG_OG_YRKESOPPLAERING
       - HOYERE_UTDANNING
-      - JOBBKLUBB
-      - OPPFOLGING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-      - ARBEIDSMARKEDSOPPLAERING
-      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
-      - STUDIESPESIALISERING
-      - FAG_OG_YRKESOPPLAERING
       - HOYERE_YRKESFAGLIG_UTDANNING
+      - JOBBKLUBB
+      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+      - OPPFOLGING
+      - STUDIESPESIALISERING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
     TiltakstypeStatus:
       type: string
       enum:
       - AKTIV
       - AVSLUTTET
+    TiltakstypeFeature:
+      type: string
+      enum:
+      - VISES_I_TILTAKSADMINISTRASJON
+      - KAN_OPPRETTE_AVTALE
+      - MIGRERT
     ProblemDetail:
       type: object
       additionalProperties: {}
@@ -3161,6 +3154,14 @@ components:
       - status
       - title
       - type
+    Innsatsgruppe:
+      type: string
+      enum:
+      - GODE_MULIGHETER
+      - TRENGER_VEILEDNING
+      - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
+      - JOBBE_DELVIS
+      - LITEN_MULIGHET_TIL_A_JOBBE
     RegelverkLenke:
       type: object
       properties:
@@ -3939,7 +3940,13 @@ components:
       - sertifiseringer
     FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
       type: object
-      properties: {}
+      properties:
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+      required:
+      - innholdElementer
     GRUNNLEGGENDE_FERDIGHETER:
       type: object
       properties:
@@ -4938,9 +4945,9 @@ components:
           items:
             $ref: "#/components/schemas/Kontorstruktur"
         arrangor:
-          $ref: "#/components/schemas/GjennomforingGruppetiltakKompakt.ArrangorUnderenhet"
+          $ref: "#/components/schemas/GjennomforingKompakt.ArrangorUnderenhet"
         tiltakstype:
-          $ref: "#/components/schemas/GjennomforingGruppetiltakKompakt.Tiltakstype"
+          $ref: "#/components/schemas/GjennomforingKompakt.Tiltakstype"
       required:
       - arrangor
       - id
@@ -4952,7 +4959,7 @@ components:
       - startDato
       - status
       - tiltakstype
-    GjennomforingGruppetiltakKompakt.ArrangorUnderenhet:
+    GjennomforingKompakt.ArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -4966,7 +4973,7 @@ components:
       - id
       - navn
       - organisasjonsnummer
-    GjennomforingGruppetiltakKompakt.Tiltakstype:
+    GjennomforingKompakt.Tiltakstype:
       type: object
       properties:
         id:
@@ -6284,6 +6291,7 @@ components:
       type: string
       enum:
       - TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER
+      - TILTAKSADMINISTRASJON_SVENSK_VALUTA
     LagretFilterType:
       type: string
       enum:

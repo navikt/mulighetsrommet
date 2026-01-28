@@ -111,7 +111,7 @@ from avtale
                                                                    on aks.konsept_id = s.konsept_id
                                                      where aks.avtale_id = avtale_amo_kategorisering.avtale_id),
                                                     '[]'::jsonb),
-                                           'innholdElementer', avtale_amo_kategorisering.innhold_elementer
+                                           'innholdElementer', coalesce(avtale_amo_kategorisering.innhold_elementer, '{}')
                                    ) as amo_kategorisering_json
                             from avtale_amo_kategorisering
                             where avtale_id = avtale.id) on true

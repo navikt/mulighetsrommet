@@ -59,7 +59,7 @@ class VeilederflateService(
                     regelverkLenker = it.regelverkLenker,
                     faneinnhold = it.faneinnhold,
                     delingMedBruker = it.delingMedBruker,
-                    arenakode = tiltakstype.arenaKode,
+                    arenakode = tiltakstype.arenakode,
                     tiltakskode = tiltakstype.tiltakskode,
                     kanKombineresMed = it.kanKombineresMed,
                 )
@@ -179,7 +179,7 @@ class VeilederflateService(
                 regelverkLenker = regelverkLenker,
                 faneinnhold = faneinnhold,
                 delingMedBruker = delingMedBruker,
-                arenakode = tiltakstypeDto.arenaKode,
+                arenakode = tiltakstypeDto.arenakode,
                 tiltakskode = tiltakstypeDto.tiltakskode,
                 kanKombineresMed = kanKombineresMed,
             )
@@ -225,7 +225,7 @@ class VeilederflateService(
         val stedForGjennomforing = gjennomforing.stedForGjennomforing
 
         return when {
-            Tiltakskoder.isEgenRegiTiltak(tiltakstypeDto.arenaKode) -> {
+            Tiltakskoder.isEgenRegiTiltak(tiltakstypeDto.arenakode) -> {
                 VeilederflateTiltakEgenRegi(
                     tiltaksnummer = tiltaksnummer,
                     beskrivelse = beskrivelse,

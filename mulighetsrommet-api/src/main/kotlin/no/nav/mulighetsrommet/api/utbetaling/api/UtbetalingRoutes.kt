@@ -358,6 +358,7 @@ fun Route.utbetalingRoutes() {
                             gjennomforingId = utbetaling.gjennomforing.id,
                             periodeIntersectsWith = utbetaling.periode,
                             typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
+                            valuta = utbetaling.valuta,
                         )
                         .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
                         .map {

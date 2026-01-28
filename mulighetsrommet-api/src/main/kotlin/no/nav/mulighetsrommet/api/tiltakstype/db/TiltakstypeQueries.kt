@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.tiltakstype.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
+import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.model.Innholdselement
@@ -47,7 +47,7 @@ class TiltakstypeQueries(private val session: Session) {
         execute(queryOf(query, tiltakstype.toSqlParameters()))
     }
 
-    fun get(id: UUID): TiltakstypeDto? = with(session) {
+    fun get(id: UUID): Tiltakstype? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -55,7 +55,7 @@ class TiltakstypeQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, id)) { it.toTiltakstypeDto() }
+        return single(queryOf(query, id)) { it.toTiltakstype() }
     }
 
     fun getEksternTiltakstype(id: UUID): TiltakstypeV3Dto? = with(session) {
@@ -71,7 +71,7 @@ class TiltakstypeQueries(private val session: Session) {
         return single(queryOf(query, id)) { it.tiltakstypeEksternDto(deltakerRegistreringInnhold) }
     }
 
-    fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeDto = with(session) {
+    fun getByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -79,14 +79,14 @@ class TiltakstypeQueries(private val session: Session) {
             where tiltakskode = ?::tiltakskode
         """.trimIndent()
 
-        val tiltakstype = single(queryOf(query, tiltakskode.name)) { it.toTiltakstypeDto() }
+        val tiltakstype = single(queryOf(query, tiltakskode.name)) { it.toTiltakstype() }
 
         return requireNotNull(tiltakstype) {
             "Det finnes ingen tiltakstype for tiltakskode $tiltakskode"
         }
     }
 
-    fun getByArenaTiltakskode(arenaTiltakskode: String): List<TiltakstypeDto> = with(session) {
+    fun getByArenaTiltakskode(arenaTiltakskode: String): List<Tiltakstype> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -94,10 +94,10 @@ class TiltakstypeQueries(private val session: Session) {
             where arena_kode = ?
         """.trimIndent()
 
-        return list(queryOf(query, arenaTiltakskode)) { it.toTiltakstypeDto() }
+        return list(queryOf(query, arenaTiltakskode)) { it.toTiltakstype() }
     }
 
-    fun getBySanityId(sanityId: UUID): TiltakstypeDto = with(session) {
+    fun getBySanityId(sanityId: UUID): Tiltakstype = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -105,7 +105,7 @@ class TiltakstypeQueries(private val session: Session) {
             where sanity_id = ?::uuid
         """.trimIndent()
 
-        val tiltakstype = single(queryOf(query, sanityId)) { it.toTiltakstypeDto() }
+        val tiltakstype = single(queryOf(query, sanityId)) { it.toTiltakstype() }
 
         return requireNotNull(tiltakstype) {
             "Det finnes ingen tiltakstype med sanity_id=$sanityId"
@@ -116,7 +116,7 @@ class TiltakstypeQueries(private val session: Session) {
         tiltakskoder: Set<Tiltakskode> = setOf(),
         statuser: List<TiltakstypeStatus> = emptyList(),
         sortering: String? = null,
-    ): List<TiltakstypeDto> = with(session) {
+    ): List<Tiltakstype> = with(session) {
         val parameters = mapOf(
             "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { createArrayOfTiltakskode(it) },
             "statuser" to statuser.ifEmpty { null }?.let { createTextArray(it) },
@@ -141,7 +141,7 @@ class TiltakstypeQueries(private val session: Session) {
             order by $order
         """.trimIndent()
 
-        return list(queryOf(query, parameters)) { it.toTiltakstypeDto() }
+        return list(queryOf(query, parameters)) { it.toTiltakstype() }
     }
 
     private fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? = with(session) {
@@ -195,17 +195,17 @@ class TiltakstypeQueries(private val session: Session) {
         "slutt_dato" to sluttDato,
     )
 
-    private fun Row.toTiltakstypeDto(): TiltakstypeDto {
+    private fun Row.toTiltakstype(): Tiltakstype {
         val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")
             ?.map { Innsatsgruppe.valueOf(it) }
             ?.toSet()
             ?: emptySet()
 
-        return TiltakstypeDto(
+        return Tiltakstype(
             id = uuid("id"),
             navn = string("navn"),
             innsatsgrupper = innsatsgrupper,
-            arenaKode = string("arena_kode"),
+            arenakode = string("arena_kode"),
             tiltakskode = stringOrNull("tiltakskode")?.let { Tiltakskode.valueOf(it) },
             startDato = localDate("start_dato"),
             sluttDato = localDateOrNull("slutt_dato"),

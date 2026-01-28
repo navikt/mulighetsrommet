@@ -518,7 +518,7 @@ suspend fun receiveVedleggPart(part: PartData.FileItem): Either<List<FieldError>
         filename = part.originalFileName ?: "ukjent.pdf",
     )
     if (vedlegg.content.content.size > VEDLEGG_MAX_SIZE_BYTES) {
-        raise(listOf(FieldError.ofPointer("/vedlegg", "Vedlegg er større enn 10MB")))
+        raise(listOf(FieldError("/vedlegg", "Vedlegg er større enn 10MB")))
     }
     vedlegg
 }

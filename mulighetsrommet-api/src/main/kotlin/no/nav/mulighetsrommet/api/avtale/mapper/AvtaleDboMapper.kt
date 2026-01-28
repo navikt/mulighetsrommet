@@ -149,7 +149,9 @@ fun AmoKategoriseringRequest.toDbo(): AmoKategorisering {
             innholdElementer = this.innholdElementer ?: emptyList(),
         )
 
-        AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> ForberedendeOpplaeringForVoksne
+        AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> ForberedendeOpplaeringForVoksne(
+            innholdElementer = this.innholdElementer ?: emptyList(),
+        )
 
         AmoKurstype.STUDIESPESIALISERING -> Studiespesialisering
 

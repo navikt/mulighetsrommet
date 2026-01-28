@@ -206,7 +206,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.create(request, bertilNavIdent).shouldBeLeft(
                 listOf(
                     FieldError(
-                        "/arrangorHovedenhet",
+                        "/detaljer/arrangor/hovedenhet",
                         "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
                     ),
                 ),
