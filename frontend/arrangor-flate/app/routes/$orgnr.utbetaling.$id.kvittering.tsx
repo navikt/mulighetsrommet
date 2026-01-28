@@ -72,7 +72,7 @@ export default function UtbetalingKvittering() {
   });
 
   return (
-    <VStack gap="5" className="max-w-[50%] my-5 mx-auto">
+    <VStack gap="5" className="max-w-[50%] mx-auto">
       <PageHeading
         title={tekster.bokmal.utbetaling.kvittering.headingTitle}
         tilbakeLenke={{

@@ -12,7 +12,6 @@ import { PageHeading } from "~/components/common/PageHeading";
 import { getTabStateOrDefault, useTabState } from "~/hooks/useTabState";
 import { tekster } from "~/tekster";
 import { problemDetailResponse } from "~/utils/validering";
-import css from "../root.module.css";
 import { DataDrivenTable, useSortableData } from "@mr/frontend-common";
 import { pathTo } from "~/utils/navigation";
 import { Tabellvisning } from "~/components/common/Tabellvisning";
@@ -65,7 +64,7 @@ export default function Oversikt() {
     return (item as any)[key];
   });
   return (
-    <Box className={css.side}>
+    <Box>
       <HStack justify="space-between" align="center">
         <PageHeading title={tekster.bokmal.utbetaling.headingTitle} />
         <Button variant="secondary" as={ReactRouterLink} to={pathTo.tiltaksoversikt}>
@@ -87,7 +86,7 @@ export default function Oversikt() {
           ) : (
             <Tabellvisning kolonner={utbetalingKolonner} sort={sort} onSortChange={toggleSort}>
               {sortedData.map((rad, i) => (
-                <UtbetalingRow key={rad.gjennomforingId + i} row={rad} periode />
+                <UtbetalingRow key={rad.gjennomforingId + i} row={rad} />
               ))}
             </Tabellvisning>
           )}
