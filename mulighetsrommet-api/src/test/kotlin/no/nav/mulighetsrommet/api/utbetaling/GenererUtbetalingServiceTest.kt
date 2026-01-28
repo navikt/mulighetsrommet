@@ -237,7 +237,8 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .first()
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
-            utbetaling.betalingsinformasjon.shouldBeTypeOf<Betalingsinformasjon.BBan>().kontonummer shouldBe Kontonummer(
+            utbetaling.betalingsinformasjon
+                .shouldBeTypeOf<Betalingsinformasjon.BBan>().kontonummer shouldBe Kontonummer(
                 "12345678901",
             )
             utbetaling.beregning.output.pris shouldBe 20975.withValuta(Valuta.NOK)
@@ -396,6 +397,24 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .shouldHaveSize(1).first()
             oppdatertUtbetaling.id shouldBe generertUtbetaling.id
             oppdatertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerUkesverk>()
+        }
+
+        test("utbetalinger blir ikke oppdatert hvis oppdatert utbetaling er uendret") {
+            MulighetsrommetTestDomain(
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                        statusType = DeltakerStatusType.DELTAR,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1)
+                .first().status shouldBe UtbetalingStatusType.GENERERT
+
+            service.oppdaterUtbetalingerForGjennomforing(oppfolging.id).shouldBeEmpty()
         }
 
         test("innsendt fri utbetaling blir ikke slettet hvis avtalens prismodell endres") {
