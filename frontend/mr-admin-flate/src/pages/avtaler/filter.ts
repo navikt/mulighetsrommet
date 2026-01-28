@@ -2,9 +2,8 @@ import { AVTALE_PAGE_SIZE } from "@/constants";
 import { z } from "zod";
 import { createSorteringProps } from "@/api/atoms";
 import { createFilterValidator } from "@/filter/filter-validator";
-import { createFilterStateAtom, FilterAction, FilterState } from "@/filter/filter-state";
-import { atomFamily } from "jotai/utils";
-import { atom, WritableAtom } from "jotai";
+import { createFilterStateAtom } from "@/filter/filter-state";
+import { atom } from "jotai";
 import { AvtaleStatusType, Avtaletype } from "@tiltaksadministrasjon/api-client";
 
 export const AvtaleFilterSchema = z.object({
@@ -47,25 +46,6 @@ export const avtalerFilterStateAtom = createFilterStateAtom<AvtaleFilterType>(
   "avtale-filter",
   defaultAvtaleFilter,
   createFilterValidator(AvtaleFilterSchema),
-);
-
-export function getAvtalerForTiltakstypeFilterAtom(tiltakstypeId: string) {
-  const defaultFilterValue = { ...defaultAvtaleFilter, tiltakstyper: [tiltakstypeId] };
-  return avtalerForTiltakstypeFilterAtomFamily(defaultFilterValue);
-}
-
-const avtalerForTiltakstypeFilterAtomFamily = atomFamily<
-  AvtaleFilterType,
-  WritableAtom<FilterState<AvtaleFilterType>, [FilterAction<AvtaleFilterType>], void>
->(
-  (defaultFilter: AvtaleFilterType) => {
-    return createFilterStateAtom(
-      `avtale-filter-${defaultFilter.tiltakstyper[0]}`,
-      defaultFilter,
-      createFilterValidator(AvtaleFilterSchema),
-    );
-  },
-  (a, b) => a.tiltakstyper[0] === b.tiltakstyper[0],
 );
 
 export const avtaleFilterAccordionAtom = atom<string[]>(["navEnhet"]);
