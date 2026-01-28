@@ -145,7 +145,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 return@session emptyList()
             } else {
                 queries.gjennomforing
-                    .getAllGruppetiltakKompakt(
+                    .getAll(
                         arrangorOrgnr = arrangorer,
                         prismodeller = gyldigePrismodeller,
                         tiltakstypeIder = gyldigeTiltakstyper,
