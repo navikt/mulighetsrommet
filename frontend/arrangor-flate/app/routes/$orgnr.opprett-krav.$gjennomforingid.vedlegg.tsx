@@ -234,7 +234,9 @@ function GuidePanelVedlegg({ type }: GuidePanelVedleggProps) {
       );
     case OpprettKravVedleggGuidePanelType.AVTALT_PRIS:
       return (
-        <GuidePanel>Her kan du laste opp vedlegg som er relevante for utbetalingen</GuidePanel>
+        <GuidePanel>
+          Her skal du laste opp faktura og eventuelt andre vedlegg som er relevante for utbetalingen
+        </GuidePanel>
       );
 
     case null:

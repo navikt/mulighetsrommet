@@ -167,7 +167,7 @@ object UtbetalingValidator {
     )
 
     fun minAntallVedleggVedOpprettKrav(prismodellType: PrismodellType): Int = when (prismodellType) {
-        PrismodellType.ANNEN_AVTALT_PRIS -> 0
+        PrismodellType.ANNEN_AVTALT_PRIS -> 1
 
         PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
