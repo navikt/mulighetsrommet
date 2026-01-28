@@ -5,7 +5,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -13,7 +12,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TOPIC
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
@@ -82,13 +80,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
-                    it.status shouldBe GjennomforingStatus.Gjennomfores
+                    it.status shouldBe GJENNOMFORES
                 }
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing2.id).should {
-                    it.status shouldBe GjennomforingStatus.Gjennomfores
+                    it.status shouldBe GJENNOMFORES
                 }
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing3.id).should {
-                    it.status shouldBe GjennomforingStatus.Gjennomfores
+                    it.status shouldBe GJENNOMFORES
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()
@@ -102,13 +100,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
-                    it.status shouldBe GjennomforingStatus.Gjennomfores
+                    it.status shouldBe GJENNOMFORES
                 }
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing2.id).should {
-                    it.status shouldBe GjennomforingStatus.Avsluttet
+                    it.status shouldBe AVSLUTTET
                 }
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing3.id).should {
-                    it.status shouldBe GjennomforingStatus.Avsluttet
+                    it.status shouldBe AVSLUTTET
                 }
             }
         }
@@ -120,13 +118,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
-                    it.status shouldBe GjennomforingStatus.Gjennomfores
+                    it.status shouldBe GJENNOMFORES
                 }
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing2.id).should {
-                    it.status shouldBe GjennomforingStatus.Avsluttet
+                    it.status shouldBe AVSLUTTET
                 }
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing3.id).should {
-                    it.status shouldBe GjennomforingStatus.Avsluttet
+                    it.status shouldBe AVSLUTTET
                 }
             }
         }
@@ -164,15 +162,15 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
-                    it.status.shouldBeTypeOf<GjennomforingStatus.Avsluttet>()
+                    it.status shouldBe AVSLUTTET
                 }
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing2.id).should {
-                    it.status.shouldBeTypeOf<GjennomforingStatus.Avlyst>()
-                        .aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING
+                    it.status shouldBe AVLYST
+                    it.avbrytelse?.aarsaker?.shouldContain(AvbrytGjennomforingAarsak.FEILREGISTRERING)
                 }
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing3.id).should {
-                    it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>()
-                        .aarsaker shouldContain AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE
+                    it.status shouldBe AVBRUTT
+                    it.avbrytelse?.aarsaker?.shouldContain(AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE)
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()
@@ -211,7 +209,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing.id).should {
-                    it.status.shouldBe(GjennomforingStatus.Avsluttet)
+                    it.status.shouldBe(AVSLUTTET)
                     it.publisert.shouldBe(false)
                     it.apentForPamelding.shouldBe(false)
                 }

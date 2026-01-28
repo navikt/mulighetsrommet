@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Map
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -123,14 +122,14 @@ class GjennomforingService(
         val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
         val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
         val antallDeltakere = queries.deltaker.getByGjennomforingId(request.id).size
-        val status = resolveStatus(previous?.status?.type, request, today)
+        val status = resolveStatus(previous?.status, request, today)
         return GjennomforingValidator.Ctx(
             previous = previous?.let {
                 GjennomforingValidator.Ctx.Gjennomforing(
                     avtaleId = it.avtaleId,
                     oppstart = it.oppstart,
                     arrangorId = it.arrangor.id,
-                    status = it.status.type,
+                    status = it.status,
                     sluttDato = it.sluttDato,
                     pameldingType = it.pameldingType,
                 )
@@ -220,7 +219,7 @@ class GjennomforingService(
     ): GjennomforingGruppetiltak = db.transaction {
         val gjennomforing = getOrError(id)
 
-        check(gjennomforing.status is GjennomforingStatus.Gjennomfores) {
+        check(gjennomforing.status == GjennomforingStatusType.GJENNOMFORES) {
             "Gjennomføringen må være aktiv for å kunne avsluttes"
         }
 
@@ -254,12 +253,12 @@ class GjennomforingService(
         val gjennomforing = getOrError(id)
 
         when (gjennomforing.status) {
-            is GjennomforingStatus.Gjennomfores -> Unit
+            GjennomforingStatusType.GJENNOMFORES -> Unit
 
-            is GjennomforingStatus.Avlyst, is GjennomforingStatus.Avbrutt ->
+            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT ->
                 return FieldError.root("Gjennomføringen er allerede avbrutt").nel().left()
 
-            is GjennomforingStatus.Avsluttet ->
+            GjennomforingStatusType.AVSLUTTET ->
                 return FieldError.root("Gjennomføringen er allerede avsluttet").nel().left()
         }
 
@@ -456,7 +455,7 @@ class GjennomforingService(
     }
 
     fun handlinger(gjennomforing: GjennomforingGruppetiltak, ansatt: NavAnsatt): Set<GjennomforingHandling> {
-        val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
+        val statusGjennomfores = gjennomforing.status == GjennomforingStatusType.GJENNOMFORES
 
         return setOfNotNull(
             GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
@@ -516,7 +515,7 @@ private fun isEqual(
     arrangorKontaktpersoner = previous.arrangor.kontaktpersoner.map { it.id },
     startDato = previous.startDato,
     sluttDato = previous.sluttDato,
-    status = previous.status.type,
+    status = previous.status,
     antallPlasser = previous.antallPlasser,
     avtaleId = checkNotNull(previous.avtaleId) { "Forventet at avtale var definert!" },
     administratorer = previous.administratorer.map { it.navIdent },

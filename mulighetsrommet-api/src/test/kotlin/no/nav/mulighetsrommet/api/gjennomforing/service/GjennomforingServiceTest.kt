@@ -11,7 +11,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beInstanceOf
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -30,7 +29,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -262,7 +260,7 @@ class GjennomforingServiceTest : FunSpec({
                 avbruttAv = bertilNavIdent,
                 avlys = false,
             ).shouldBeRight().should {
-                it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>()
+                it.status shouldBe GjennomforingStatusType.AVBRUTT
                 it.publisert shouldBe false
                 it.apentForPamelding shouldBe false
             }
@@ -309,7 +307,7 @@ class GjennomforingServiceTest : FunSpec({
             )
 
             service.get(gjennomforing.id).shouldNotBeNull().should {
-                it.status.shouldBeTypeOf<GjennomforingStatus.Avlyst>()
+                it.status shouldBe GjennomforingStatusType.AVLYST
                 it.publisert shouldBe false
                 it.apentForPamelding shouldBe false
             }
@@ -333,7 +331,7 @@ class GjennomforingServiceTest : FunSpec({
                 gjennomforing.id,
                 bertilNavIdent,
             ) should {
-                it.status.shouldBeTypeOf<GjennomforingStatus.Avsluttet>()
+                it.status shouldBe GjennomforingStatusType.AVSLUTTET
                 it.publisert shouldBe false
                 it.apentForPamelding shouldBe false
             }

@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
@@ -91,7 +90,7 @@ class GjennomforingQueriesTest : FunSpec({
                     )
                     it.startDato shouldBe Oppfolging1.startDato
                     it.sluttDato shouldBe Oppfolging1.sluttDato
-                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.apentForPamelding shouldBe true
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId
@@ -333,10 +332,11 @@ class GjennomforingQueriesTest : FunSpec({
                     listOf(AvbrytGjennomforingAarsak.ANNET),
                     ":)",
                 )
-                queries.gjennomforing.getGruppetiltakOrError(id).status shouldBe GjennomforingStatus.Avbrutt(
-                    aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
-                    forklaring = ":)",
-                )
+                queries.gjennomforing.getGruppetiltakOrError(id) should {
+                    it.status shouldBe GjennomforingStatusType.AVBRUTT
+                    it.avbrytelse?.aarsaker shouldBe listOf(AvbrytGjennomforingAarsak.ANNET)
+                    it.avbrytelse?.forklaring shouldBe ":)"
+                }
 
                 queries.gjennomforing.setStatus(
                     id = id,
@@ -345,10 +345,11 @@ class GjennomforingQueriesTest : FunSpec({
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
-                queries.gjennomforing.getGruppetiltakOrError(id).status shouldBe GjennomforingStatus.Avlyst(
-                    aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
-                    forklaring = null,
-                )
+                queries.gjennomforing.getGruppetiltakOrError(id) should {
+                    it.status shouldBe GjennomforingStatusType.AVLYST
+                    it.avbrytelse?.aarsaker shouldBe listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING)
+                    it.avbrytelse?.forklaring shouldBe null
+                }
 
                 queries.gjennomforing.setStatus(
                     id = id,
@@ -357,7 +358,7 @@ class GjennomforingQueriesTest : FunSpec({
                     aarsaker = null,
                     forklaring = null,
                 )
-                queries.gjennomforing.getGruppetiltakOrError(id).status shouldBe GjennomforingStatus.Gjennomfores
+                queries.gjennomforing.getGruppetiltakOrError(id).status shouldBe GjennomforingStatusType.GJENNOMFORES
             }
         }
 
@@ -734,7 +735,7 @@ class GjennomforingQueriesTest : FunSpec({
     }
 
     test("pagination") {
-        database.runAndRollback { session ->
+        database.runAndRollback { _ ->
             (1..10).forEach {
                 queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(id = UUID.randomUUID(), navn = "$it".padStart(2, '0')),

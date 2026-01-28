@@ -5,7 +5,6 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
-import io.kotest.matchers.types.shouldBeTypeOf
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -28,7 +27,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.getAnsattClaims
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -334,10 +332,8 @@ class GjennomforingRoutesTest : FunSpec({
 
                 database.run {
                     queries.gjennomforing.getGruppetiltakOrError(aktivGjennomforingId).should {
-                        it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>().should {
-                            it.type shouldBe GjennomforingStatusType.AVBRUTT
-                            it.aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING
-                        }
+                        it.status shouldBe GjennomforingStatusType.AVBRUTT
+                        it.avbrytelse?.aarsaker?.shouldContain(AvbrytGjennomforingAarsak.FEILREGISTRERING)
                     }
                 }
             }

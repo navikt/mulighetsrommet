@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object GjennomforingDtoMapper {
     fun fromGjennomforing(gjennomforing: GjennomforingGruppetiltak) = GjennomforingDto(
@@ -17,7 +18,8 @@ object GjennomforingDtoMapper {
         startDato = gjennomforing.startDato,
         sluttDato = gjennomforing.sluttDato,
         arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
-        status = fromGjennomforingStatus(gjennomforing.status),
+        status = fromGjennomforingStatus(gjennomforing.status, gjennomforing.avbrytelse),
+        avbrytelse = gjennomforing.avbrytelse,
         apentForPamelding = gjennomforing.apentForPamelding,
         antallPlasser = gjennomforing.antallPlasser,
         avtaleId = gjennomforing.avtaleId,
@@ -53,5 +55,25 @@ object GjennomforingDtoMapper {
         }
         val element = DataElement.Status(status.type.beskrivelse, variant, description)
         return GjennomforingDto.Status(status.type, element)
+    }
+
+    fun fromGjennomforingStatus(status: GjennomforingStatusType, avbrytelse: GjennomforingGruppetiltak.Avbrytelse?): GjennomforingDto.Status {
+        val variant = when (status) {
+            GjennomforingStatusType.GJENNOMFORES -> DataElement.Status.Variant.SUCCESS
+            GjennomforingStatusType.AVSLUTTET -> DataElement.Status.Variant.NEUTRAL
+            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> DataElement.Status.Variant.ERROR
+        }
+        val description = when (status) {
+            GjennomforingStatusType.GJENNOMFORES,
+            GjennomforingStatusType.AVSLUTTET,
+            -> null
+
+            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT,
+            -> avbrytelse?.forklaring
+        }
+
+        avbrytelse?.forklaring
+        val element = DataElement.Status(status.beskrivelse, variant, description)
+        return GjennomforingDto.Status(status, element)
     }
 }

@@ -33,6 +33,7 @@ data class GjennomforingDto(
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val status: Status,
+    val avbrytelse: GjennomforingGruppetiltak.Avbrytelse?,
     val apentForPamelding: Boolean,
     val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)

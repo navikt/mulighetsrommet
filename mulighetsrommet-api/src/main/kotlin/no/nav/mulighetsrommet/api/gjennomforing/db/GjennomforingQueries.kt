@@ -749,7 +749,8 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
         ),
         startDato = startDato,
         sluttDato = sluttDato,
-        status = toGjennomforingStatus(),
+        status = GjennomforingStatusType.valueOf(string("status")),
+        avbrytelse = toAvbrytelse(),
         apentForPamelding = boolean("apent_for_pamelding"),
         antallPlasser = int("antall_plasser"),
         avtaleId = uuidOrNull("avtale_id"),
@@ -803,6 +804,17 @@ private fun Row.toGjennomforingStatus(): GjennomforingStatus {
         GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
             array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
             stringOrNull("avbrutt_forklaring"),
+        )
+    }
+}
+
+private fun Row.toAvbrytelse(): GjennomforingGruppetiltak.Avbrytelse? {
+    return when (val aarsaker = arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbrytGjennomforingAarsak.valueOf(it) }) {
+        null -> null
+
+        else -> GjennomforingGruppetiltak.Avbrytelse(
+            aarsaker = aarsaker,
+            forklaring = stringOrNull("avbrutt_forklaring"),
         )
     }
 }

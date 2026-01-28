@@ -79,7 +79,8 @@ data class GjennomforingGruppetiltak(
     override val deltidsprosent: Double,
     override val antallPlasser: Int,
     override val opphav: ArenaMigrering.Opphav,
-    val status: GjennomforingStatus,
+    val status: GjennomforingStatusType,
+    val avbrytelse: Avbrytelse?,
     val apentForPamelding: Boolean,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
@@ -135,6 +136,12 @@ data class GjennomforingGruppetiltak(
         @Serializable(with = LocalDateSerializer::class)
         val slutt: LocalDate,
         val beskrivelse: String,
+    )
+
+    @Serializable
+    data class Avbrytelse(
+        val aarsaker: List<AvbrytGjennomforingAarsak>,
+        val forklaring: String?,
     )
 }
 
