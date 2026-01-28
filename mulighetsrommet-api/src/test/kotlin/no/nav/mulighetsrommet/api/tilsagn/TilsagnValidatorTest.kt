@@ -95,7 +95,7 @@ class TilsagnValidatorTest : FunSpec({
                 prismodellValuta = Valuta.NOK,
             ) shouldBeLeft listOf(
                 FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart),
-                FieldError.ofPointer(
+                FieldError(
                     pointer = "/beregning/antallPlasser",
                     detail = "Antall plasser må være større enn 0",
                 ),

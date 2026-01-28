@@ -111,7 +111,7 @@ class UtbetalingRoutesTest : FunSpec({
                 }
                 response.status shouldBe HttpStatusCode.BadRequest
                 response.body<ValidationError>().errors shouldBe listOf(
-                    FieldError.ofPointer("/pris", "Beløp må være positivt"),
+                    FieldError("/pris", "Beløp må være positivt"),
                 )
             }
         }

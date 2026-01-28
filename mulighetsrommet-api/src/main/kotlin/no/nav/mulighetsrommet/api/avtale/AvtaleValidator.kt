@@ -49,7 +49,6 @@ import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
-import kotlin.reflect.KProperty1
 
 @OptIn(ExperimentalContracts::class)
 object AvtaleValidator {
@@ -90,7 +89,11 @@ object AvtaleValidator {
         request: OpprettAvtaleRequest,
         ctx: Ctx,
     ): Either<List<FieldError>, AvtaleDbo> = validation {
-        val amoKategorisering = validateDetaljer(request.detaljer, ctx).bind()
+        val amoKategorisering = path(OpprettAvtaleRequest::detaljer) {
+            validateDetaljer(request.detaljer, ctx).bind()
+        }
+
+        validateNavEnheter(ctx.navEnheter).bind()
         val detaljerDbo = request.detaljer.toDbo(
             ctx.tiltakstype.id,
             ctx.arrangor?.toDbo(request.detaljer.arrangor?.kontaktpersoner),
@@ -109,7 +112,7 @@ object AvtaleValidator {
 
         val personvernDbo = request.personvern.toDbo()
 
-        val navEnheter = validateNavEnheter(ctx.navEnheter)
+        val navEnheter = validateNavEnheter(ctx.navEnheter).bind()
         val veilederinformasjonDbo = VeilederinformasjonDbo(
             redaksjoneltInnhold = RedaksjoneltInnholdDbo(
                 beskrivelse = request.veilederinformasjon.beskrivelse,
@@ -124,7 +127,9 @@ object AvtaleValidator {
     fun validateUpdateDetaljer(
         request: DetaljerRequest,
         ctx: Ctx,
-    ): Either<List<FieldError>, DetaljerDbo> = validation {
+    ): Either<List<FieldError>, DetaljerDbo> = validation(OpprettAvtaleRequest::detaljer) {
+        val amoKategorisering = validateDetaljer(request, ctx).bind()
+
         val previous = requireNotNull(ctx.previous) { "Avtalen finnes ikke" }
 
         validate(request.tiltakskode == previous.tiltakskode) {
@@ -172,9 +177,10 @@ object AvtaleValidator {
                     gjennomforing.status != GjennomforingStatusType.GJENNOMFORES || ctx.arrangor?.underenheter?.map { it.id }
                         ?.contains(arrangorId) == true,
                 ) {
-                    FieldError.ofPointer(
-                        "/arrangorUnderenheter",
+                    FieldError.of(
                         "Arrangøren ${gjennomforing.arrangor.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
+                        DetaljerRequest::arrangor,
+                        DetaljerRequest.Arrangor::underenheter,
                     )
                 }
 
@@ -198,7 +204,6 @@ object AvtaleValidator {
                 }
             }
         }
-        val amoKategorisering = validateDetaljer(request, ctx).bind()
 
         request.toDbo(
             ctx.tiltakstype.id,
@@ -255,7 +260,7 @@ object AvtaleValidator {
 
         request.mapIndexed { index, prismodell ->
             validate(prismodell.type in Prismodeller.getPrismodellerForTiltak(context.tiltakskode)) {
-                FieldError.ofPointer(
+                FieldError(
                     "/prismodeller/$index/type",
                     "${prismodell.type.navn} er ikke tillatt for tiltakstype ${context.tiltakstypeNavn}",
                 )
@@ -327,7 +332,17 @@ object AvtaleValidator {
     }
 
     fun validateNavEnheter(navEnheter: List<NavEnhetDto>): Either<List<FieldError>, Set<NavEnhetNummer>> = validation {
-        validateNavEnheter(navEnheter)
+        val regioner = navEnheter.filter { it.type == NavEnhetType.FYLKE }.map { it.enhetsnummer }.toSet()
+        validate(regioner.isNotEmpty()) {
+            FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region")
+        }
+
+        val kontorer = navEnheter.filter { it.overordnetEnhet in regioner }.map { it.enhetsnummer }.toSet()
+        validate(kontorer.isNotEmpty()) {
+            FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet")
+        }
+
+        regioner + kontorer
     }
 
     private fun FieldValidator.validateDetaljer(
@@ -347,9 +362,10 @@ object AvtaleValidator {
             FieldError.of("Startdato må være før sluttdato", DetaljerRequest::startDato)
         }
         validate(request.arrangor == null || request.arrangor.underenheter.isNotEmpty()) {
-            FieldError.ofPointer(
-                "/arrangorUnderenheter",
+            FieldError.of(
                 "Du må velge minst én underenhet for tiltaksarrangør",
+                DetaljerRequest::arrangor,
+                DetaljerRequest.Arrangor::underenheter,
             )
         }
         validate(!request.avtaletype.kreverSakarkivNummer() || request.sakarkivNummer != null) {
@@ -403,8 +419,8 @@ object AvtaleValidator {
         val amoKategorisering = validateAmoKategorisering(request.tiltakskode, request.amoKategorisering)
         validateUtdanningslop(request.tiltakskode, request.utdanningslop)
 
-        validateSlettetNavAnsatte(ctx.administratorer, DetaljerRequest::administratorer)
-        ctx.arrangor?.let { validateArrangor(it) }
+        validateSlettetNavAnsatte(ctx.administratorer)
+        ctx.arrangor?.let { validateArrangor(it).bind() }
         return amoKategorisering
     }
 
@@ -422,31 +438,30 @@ object AvtaleValidator {
         AvtaleStatusType.AVSLUTTET
     }
 
-    private fun FieldValidator.validateArrangor(
-        arrangor: ArrangorDto,
-    ) {
+    private fun validateArrangor(arrangor: ArrangorDto) = validation(DetaljerRequest::arrangor) {
         if (arrangor.erUtenlandsk) {
-            return
+            return@validation
         }
+
         validate(arrangor.slettetDato == null) {
-            FieldError.ofPointer(
-                "/arrangor/hovedenhet",
+            FieldError.of(
                 "Arrangøren ${arrangor.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                DetaljerRequest.Arrangor::hovedenhet,
             )
         }
 
         arrangor.underenheter?.forEach { underenhet ->
             validate(underenhet.slettetDato == null) {
-                FieldError.ofPointer(
-                    "/arrangor/underenheter",
+                FieldError.of(
                     "Arrangøren ${underenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                    DetaljerRequest.Arrangor::underenheter,
                 )
             }
 
             validate(underenhet.overordnetEnhet == arrangor.organisasjonsnummer) {
-                FieldError.ofPointer(
-                    "/arrangor/underenheter",
+                FieldError.of(
                     "Arrangøren ${underenhet.navn} - ${underenhet.organisasjonsnummer.value} er ikke en gyldig underenhet til hovedenheten ${arrangor.navn}.",
+                    DetaljerRequest.Arrangor::underenheter,
                 )
             }
         }
@@ -459,21 +474,21 @@ object AvtaleValidator {
         satserRequest: List<AvtaltSatsRequest>,
     ): List<AvtaltSats> {
         requireValid(satserRequest.isNotEmpty()) {
-            FieldError.ofPointer("/prismodeller/$prismodellIndex/type", "Minst én pris er påkrevd")
+            FieldError("/prismodeller/$prismodellIndex/type", "Minst én pris er påkrevd")
         }
 
         val satser = satserRequest.mapIndexed { index, request ->
             requireValid(request.pris != null && request.pris.belop > 0) {
-                FieldError.ofPointer("/prismodeller/$prismodellIndex/satser/$index/pris", "Pris må være positiv")
+                FieldError("/prismodeller/$prismodellIndex/satser/$index/pris", "Pris må være positiv")
             }
             requireValid(request.pris.valuta == prismodellValuta) {
-                FieldError.ofPointer(
+                FieldError(
                     "/prismodeller/$prismodellIndex/satser/$index/pris/valuta",
                     "Satsene må ha lik valuta som prismodellen",
                 )
             }
             requireValid(request.gjelderFra != null) {
-                FieldError.ofPointer(
+                FieldError(
                     "/prismodeller/$prismodellIndex/satser/$index/gjelderFra",
                     "Gjelder fra må være satt",
                 )
@@ -484,7 +499,7 @@ object AvtaleValidator {
         val duplicateDates = satser.map { it.gjelderFra }.groupBy { it }.filter { it.value.size > 1 }.keys
         satser.forEachIndexed { index, (gjelderFra) ->
             validate(gjelderFra !in duplicateDates) {
-                FieldError.ofPointer(
+                FieldError(
                     "/prismodeller/$prismodellIndex/satser/$index/gjelderFra",
                     "Gjelder fra må være unik per rad",
                 )
@@ -498,7 +513,7 @@ object AvtaleValidator {
                 context.gyldigTilsagnPeriode[context.tiltakskode]?.start ?: context.avtaleStartDato,
             )
             validate(minSatsDato <= requiredMinSatsDato) {
-                FieldError.ofPointer(
+                FieldError(
                     "/prismodeller/$prismodellIndex/satser/0/gjelderFra",
                     "Første sats må gjelde fra ${requiredMinSatsDato.formaterDatoTilEuropeiskDatoformat()}",
                 )
@@ -506,33 +521,14 @@ object AvtaleValidator {
         }
     }
 
-    private fun FieldValidator.validateSlettetNavAnsatte(
-        navAnsatte: List<NavAnsatt>,
-        property: KProperty1<*, *>,
-    ) {
-        val slettedeNavIdenter = navAnsatte
-            .filter { it.skalSlettesDato != null }
-
+    private fun FieldValidator.validateSlettetNavAnsatte(navAnsatte: List<NavAnsatt>) {
+        val slettedeNavIdenter = navAnsatte.filter { it.skalSlettesDato != null }
         validate(!slettedeNavIdenter.isNotEmpty()) {
             FieldError.of(
                 "Nav identer " + slettedeNavIdenter.joinToString(", ") { it.navIdent.value } + " er slettet og må fjernes",
-                property,
+                DetaljerRequest::administratorer,
             )
         }
-    }
-
-    private fun FieldValidator.validateNavEnheter(navEnheter: List<NavEnhetDto>): Set<NavEnhetNummer> {
-        val regioner = navEnheter.filter { it.type == NavEnhetType.FYLKE }.map { it.enhetsnummer }.toSet()
-        validate(regioner.isNotEmpty()) {
-            FieldError.ofPointer("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region")
-        }
-
-        val kontorer = navEnheter.filter { it.overordnetEnhet in regioner }.map { it.enhetsnummer }.toSet()
-        validate(kontorer.isNotEmpty()) {
-            FieldError.ofPointer("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet")
-        }
-
-        return regioner + kontorer
     }
 
     private fun FieldValidator.validateAmoKategorisering(

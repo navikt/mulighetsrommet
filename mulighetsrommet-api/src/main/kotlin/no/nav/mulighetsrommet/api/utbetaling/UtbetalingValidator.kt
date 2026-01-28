@@ -93,19 +93,19 @@ object UtbetalingValidator {
 
         opprettDelutbetalinger.forEachIndexed { index, req ->
             validate(req.pris != null && req.pris.belop > 0) {
-                FieldError.ofPointer(
+                FieldError(
                     "/$index/pris",
                     "Beløp må være positivt",
                 )
             }
             validate(req.pris == null || req.pris <= req.tilsagn.gjenstaendeBelop) {
-                FieldError.ofPointer(
+                FieldError(
                     "/$index/pris",
                     "Kan ikke utbetale mer enn gjenstående beløp på tilsagn",
                 )
             }
             validate(req.tilsagn.status == TilsagnStatus.GODKJENT) {
-                FieldError.ofPointer(
+                FieldError(
                     "/$index/tilsagnId",
                     "Tilsagnet har status ${req.tilsagn.status.beskrivelse} og kan ikke benyttes, linjen må fjernes",
                 )
@@ -316,16 +316,16 @@ object UtbetalingValidator {
             FieldError.root("Utbetalingen kan ikke godkjennes før perioden er passert")
         }
         validate(advarsler.isEmpty()) {
-            FieldError.ofPointer(
+            FieldError(
                 "/info",
                 "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.",
             )
         }
         validate(request.digest == utbetaling.beregning.getDigest()) {
-            FieldError.ofPointer("/info", "Informasjonen i kravet har endret seg. Vennligst se over på nytt.")
+            FieldError("/info", "Informasjonen i kravet har endret seg. Vennligst se over på nytt.")
         }
         validate(utbetaling.betalingsinformasjon != null) {
-            FieldError.ofPointer("/info", "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.")
+            FieldError("/info", "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.")
         }
         requireValid(request.kid == null || Kid.parse(request.kid) != null) {
             FieldError.of("Ugyldig kid", GodkjennUtbetaling::kid)
