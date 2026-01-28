@@ -392,7 +392,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { TiltakstypeService(get(), appConfig.arenaMigrering) }
+    single { TiltakstypeService(appConfig.tiltakstyper, get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { KostnadsstedService(get()) }

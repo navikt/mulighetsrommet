@@ -3073,17 +3073,8 @@ components:
           format: uuid
         navn:
           type: string
-        innsatsgrupper:
-          type: array
-          items:
-            $ref: "#/components/schemas/Innsatsgruppe"
-          uniqueItems: true
-        arenaKode:
-          type: string
         tiltakskode:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Tiltakskode"
+          $ref: "#/components/schemas/Tiltakskode"
         startDato:
           type: string
           format: date
@@ -3099,24 +3090,20 @@ components:
           - "null"
           - string
           format: uuid
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeFeature"
+          uniqueItems: true
       required:
-      - arenaKode
+      - features
       - id
-      - innsatsgrupper
       - navn
       - sanityId
       - sluttDato
       - startDato
       - status
       - tiltakskode
-    Innsatsgruppe:
-      type: string
-      enum:
-      - GODE_MULIGHETER
-      - TRENGER_VEILEDNING
-      - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
-      - JOBBE_DELVIS
-      - LITEN_MULIGHET_TIL_A_JOBBE
     Tiltakskode:
       type: string
       enum:
@@ -3142,6 +3129,12 @@ components:
       enum:
       - AKTIV
       - AVSLUTTET
+    TiltakstypeFeature:
+      type: string
+      enum:
+      - VISES_I_TILTAKSADMINISTRASJON
+      - KAN_OPPRETTE_AVTALE
+      - MIGRERT
     ProblemDetail:
       type: object
       additionalProperties: {}
@@ -3161,6 +3154,14 @@ components:
       - status
       - title
       - type
+    Innsatsgruppe:
+      type: string
+      enum:
+      - GODE_MULIGHETER
+      - TRENGER_VEILEDNING
+      - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
+      - JOBBE_DELVIS
+      - LITEN_MULIGHET_TIL_A_JOBBE
     RegelverkLenke:
       type: object
       properties:

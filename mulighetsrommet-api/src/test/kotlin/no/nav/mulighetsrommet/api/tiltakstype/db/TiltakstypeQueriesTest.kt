@@ -10,7 +10,7 @@ import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
+import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
@@ -181,6 +181,6 @@ class TiltakstypeQueriesTest : FunSpec({
     }
 })
 
-private infix fun Collection<TiltakstypeDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
+private infix fun Collection<Tiltakstype>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }
