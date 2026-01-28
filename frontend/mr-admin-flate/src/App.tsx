@@ -24,7 +24,6 @@ import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utb
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
-import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { Suspense } from "react";
 import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
@@ -132,10 +131,6 @@ const routes: RouteObject[] = [
           {
             index: true,
             element: <TiltakstypeInfo />,
-          },
-          {
-            path: "avtaler",
-            element: <AvtalerForTiltakstypePage />,
           },
         ],
       },

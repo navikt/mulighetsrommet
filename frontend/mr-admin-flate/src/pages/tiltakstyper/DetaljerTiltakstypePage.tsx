@@ -5,11 +5,10 @@ import { TiltakstypeStatusTag } from "@/components/statuselementer/TiltakstypeSt
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { Heading, Tabs } from "@navikt/ds-react";
-import { Outlet, useLocation, useMatch } from "react-router";
+import { Outlet, useMatch } from "react-router";
 import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 
 export function DetaljerTiltakstypePage() {
-  const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltakstype } = useTiltakstypeById();
 
@@ -32,18 +31,12 @@ export function DetaljerTiltakstypePage() {
         <TiltakstypeStatusTag status={tiltakstype.status} />
       </Header>
 
-      <Tabs value={pathname.includes("avtaler") ? "avtaler" : "arenainfo"}>
+      <Tabs value={"detaljer"}>
         <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
           <Tabs.Tab
-            value="arenainfo"
-            label="Arenainfo"
+            value="detaljer"
+            label="Detaljer"
             onClick={() => navigateAndReplaceUrl(`/tiltakstyper/${tiltakstype.id}`)}
-            aria-controls="panel"
-          />
-          <Tabs.Tab
-            value="avtaler"
-            label="Avtaler"
-            onClick={() => navigateAndReplaceUrl(`/tiltakstyper/${tiltakstype.id}/avtaler`)}
             aria-controls="panel"
           />
         </Tabs.List>
