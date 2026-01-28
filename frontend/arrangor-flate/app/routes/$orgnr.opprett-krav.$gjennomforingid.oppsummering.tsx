@@ -30,10 +30,10 @@ import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-dat
 import { addFilesTo } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { getOrgnrGjennomforingIdFrom, pathTo } from "~/utils/navigation";
-import { Separator } from "~/components/common/Separator";
 import { VedleggUtlisting } from "~/components/VedleggUtlisting";
 import { useFileStorage } from "~/hooks/useFileStorage";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export const meta: MetaFunction = ({ matches }) => {
   return [

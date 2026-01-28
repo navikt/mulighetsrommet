@@ -30,7 +30,6 @@ import {
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
-import { Separator } from "~/components/common/Separator";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
@@ -38,6 +37,7 @@ import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrangorflateUtbetalingDto;
