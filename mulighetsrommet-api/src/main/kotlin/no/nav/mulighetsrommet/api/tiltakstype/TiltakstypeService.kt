@@ -44,7 +44,7 @@ class TiltakstypeService(
         .recordStats()
         .build()
 
-    fun erMigrert(tiltakskode: Tiltakskode?): Boolean {
+    fun erMigrert(tiltakskode: Tiltakskode): Boolean {
         return config.features[tiltakskode].orEmpty().contains(TiltakstypeFeature.MIGRERT)
     }
 
