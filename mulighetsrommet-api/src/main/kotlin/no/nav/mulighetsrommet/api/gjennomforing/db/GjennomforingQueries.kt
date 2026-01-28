@@ -436,7 +436,7 @@ class GjennomforingQueries(private val session: Session) {
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)))
-              and ((:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb) or (:koordinator_nav_ident::text is null or koordinator_json @> :koordinator_nav_ident::jsonb))
+              and ((:administrator_nav_ident::text is null and :koordinator_nav_ident::text is null) or (administratorer_json @> :administrator_nav_ident::jsonb) or (koordinator_json @> :koordinator_nav_ident::jsonb))
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and (:statuser::text[] is null or status = any(:statuser))
               and (:publisert::boolean is null or publisert = :publisert::boolean)

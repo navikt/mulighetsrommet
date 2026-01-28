@@ -661,20 +661,28 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                queries.gjennomforing.getAllGruppetiltakKompakt(
+                queries.gjennomforing.getAll(
                     administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
-                    koordinatorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
-                )
-                    .totalCount shouldBe 2
+                ).totalCount shouldBe 2
 
-                queries.gjennomforing.getAllGruppetiltakKompakt(
+                queries.gjennomforing.getAll(
+                    koordinatorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                ).totalCount shouldBe 0
+
+                queries.gjennomforing.insertKoordinatorForGjennomforing(
+                    UUID.randomUUID(),
+                    NavAnsattFixture.DonaldDuck.navIdent,
+                    domain.gjennomforinger[0].id,
+                )
+
+                queries.gjennomforing.getAll(
+                    koordinatorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                ).items shouldContainExactlyIds listOf(domain.gjennomforinger[0].id)
+
+                queries.gjennomforing.getAll(
                     administratorNavIdent = NavAnsattFixture.MikkeMus.navIdent,
                     koordinatorNavIdent = NavAnsattFixture.MikkeMus.navIdent,
-                )
-                    .should {
-                        it.totalCount shouldBe 1
-                        it.items shouldContainExactlyIds listOf(domain.gjennomforinger[1].id)
-                    }
+                ).items shouldContainExactlyIds listOf(domain.gjennomforinger[1].id)
             }
         }
 
