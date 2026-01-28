@@ -4900,9 +4900,9 @@ components:
           items:
             $ref: "#/components/schemas/Kontorstruktur"
         arrangor:
-          $ref: "#/components/schemas/GjennomforingGruppetiltakKompakt.ArrangorUnderenhet"
+          $ref: "#/components/schemas/GjennomforingKompakt.ArrangorUnderenhet"
         tiltakstype:
-          $ref: "#/components/schemas/GjennomforingGruppetiltakKompakt.Tiltakstype"
+          $ref: "#/components/schemas/GjennomforingKompakt.Tiltakstype"
       required:
       - arrangor
       - id
@@ -4914,7 +4914,7 @@ components:
       - startDato
       - status
       - tiltakstype
-    GjennomforingGruppetiltakKompakt.ArrangorUnderenhet:
+    GjennomforingKompakt.ArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -4928,7 +4928,7 @@ components:
       - id
       - navn
       - organisasjonsnummer
-    GjennomforingGruppetiltakKompakt.Tiltakstype:
+    GjennomforingKompakt.Tiltakstype:
       type: object
       properties:
         id:

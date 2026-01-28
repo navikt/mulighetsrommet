@@ -90,7 +90,7 @@ class InitialLoadGjennomforinger(
         val total = paginateFanOut(
             { pagination: Pagination ->
                 logger.info("Henter gjennomføringer pagination=$pagination")
-                val result = queries.gjennomforing.getAllGruppetiltakKompakt(
+                val result = queries.gjennomforing.getAll(
                     pagination = pagination,
                     tiltakstypeIder = listOf(tiltakstypeId),
                 )

@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingKompaktDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.ValutaBelop
@@ -30,7 +30,7 @@ data class ArrangorInnsendingRadDto(
     val status: ArrangorflateUtbetalingStatus?,
 )
 
-fun GjennomforingGruppetiltakKompakt.toRadDto(): ArrangorInnsendingRadDto = ArrangorInnsendingRadDto(
+fun GjennomforingKompakt.toRadDto(): ArrangorInnsendingRadDto = ArrangorInnsendingRadDto(
     gjennomforingId = this.id,
     arrangorNavn = this.arrangor.navn,
     organisasjonsnummer = this.arrangor.organisasjonsnummer,
