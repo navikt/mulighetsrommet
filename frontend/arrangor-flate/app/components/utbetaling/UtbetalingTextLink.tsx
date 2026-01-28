@@ -4,35 +4,20 @@ import { Link as ReactRouterLink } from "react-router";
 import { pathTo } from "~/utils/navigation";
 
 interface UtbetalingTextLinkProps {
-  status: ArrangorflateUtbetalingStatus | undefined;
+  status: ArrangorflateUtbetalingStatus;
   gjennomforingNavn: string;
-  gjennomforingId: string;
-  utbetalingId: string | undefined;
+  utbetalingId: string;
   orgnr: string;
 }
 
 export function UtbetalingTextLink({
   status,
   gjennomforingNavn,
-  gjennomforingId,
   utbetalingId,
   orgnr,
 }: UtbetalingTextLinkProps) {
-  if (!utbetalingId) {
-    return (
-      <Link
-        as={ReactRouterLink}
-        aria-label={`Start innsending for krav om utbetaling for ${gjennomforingNavn}`}
-        to={pathTo.opprettKrav.innsendingsinformasjon(orgnr, gjennomforingId)}
-      >
-        Start innsending
-      </Link>
-    );
-  }
-
   switch (status) {
     case ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING:
-    case undefined:
       return (
         <Link
           as={ReactRouterLink}
