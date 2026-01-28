@@ -38,6 +38,7 @@ import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
 object UtbetalingValidator {
+    const val MIN_ANTALL_VEDLEGG_OPPRETT_KRAV = 1
     data class OpprettDelutbetaling(
         val id: UUID,
         val pris: ValutaBelop?,
@@ -166,18 +167,6 @@ object UtbetalingValidator {
         val vedlegg: List<Vedlegg>,
     )
 
-    fun minAntallVedleggVedOpprettKrav(prismodellType: PrismodellType): Int = when (prismodellType) {
-        PrismodellType.ANNEN_AVTALT_PRIS -> 0
-
-        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-        PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-        PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-        PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-        PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-        ->
-            1
-    }
-
     fun maksUtbetalingsPeriodeSluttDato(
         gjennomforing: GjennomforingGruppetiltak,
         okonomiConfig: OkonomiConfig,
@@ -257,7 +246,7 @@ object UtbetalingValidator {
         validate(request.belop > 0) {
             FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::belop)
         }
-        validate(request.vedlegg.size >= minAntallVedleggVedOpprettKrav(gjennomforing.prismodell.type)) {
+        validate(request.vedlegg.size >= MIN_ANTALL_VEDLEGG_OPPRETT_KRAV) {
             FieldError.of("Du må legge ved vedlegg", OpprettKravUtbetalingRequest::vedlegg)
         }
         requireValid(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {

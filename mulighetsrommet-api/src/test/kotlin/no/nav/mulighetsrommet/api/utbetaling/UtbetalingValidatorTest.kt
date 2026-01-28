@@ -226,7 +226,7 @@ class UtbetalingValidatorTest : FunSpec({
             every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
             every { gjennomforing.prismodell?.type } returns prismodell
             every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
-            every { vedlegg.size } returns 0
+            every { vedlegg.size } returns 1
 
             val periodeStart = LocalDate.now().minusDays(5)
             val periodeSlutt = periodeStart.plusDays(30)
