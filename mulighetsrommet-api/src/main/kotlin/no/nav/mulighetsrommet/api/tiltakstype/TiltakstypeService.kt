@@ -98,6 +98,7 @@ class TiltakstypeService(
             sanityId = sanityId,
             features = features,
             egenskaper = tiltakskode.egenskaper,
+            gruppe = tiltakskode.gruppe?.tittel,
         )
     }
 }

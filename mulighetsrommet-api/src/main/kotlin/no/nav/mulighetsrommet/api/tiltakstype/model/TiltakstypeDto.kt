@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tiltakstype.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.Tiltaksgruppe
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
@@ -24,6 +25,7 @@ data class TiltakstypeDto(
     val sanityId: UUID?,
     val features: Set<TiltakstypeFeature>,
     val egenskaper: Set<TiltakstypeEgenskap>,
+    val gruppe: String?,
 )
 
 enum class TiltakstypeFeature {
