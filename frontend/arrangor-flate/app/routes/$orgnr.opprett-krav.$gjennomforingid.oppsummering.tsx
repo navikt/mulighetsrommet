@@ -1,5 +1,6 @@
 import {
   Alert,
+  Box,
   Button,
   Checkbox,
   CheckboxGroup,
@@ -7,7 +8,6 @@ import {
   FileObject,
   Heading,
   HStack,
-  VStack,
 } from "@navikt/ds-react";
 import {
   ActionFunction,
@@ -326,95 +326,89 @@ export default function OpprettKrav() {
       <Heading level="2" spacing size="large">
         Oppsummering
       </Heading>
-      <VStack gap="6">
-        <LabeledDataElementList
-          title="Innsendingsinformasjon"
-          entries={oppsummering.innsendingsInformasjon}
+      <LabeledDataElementList
+        title="Innsendingsinformasjon"
+        entries={oppsummering.innsendingsInformasjon}
+      />
+      <Separator />
+      <LabeledDataElementList title="Utbetaling" entries={oppsummering.utbetalingInformasjon} />
+      <Separator />
+      <Form method="post" encType="multipart/form-data" onSubmit={handleSubmit}>
+        <input
+          name="periodeStart"
+          defaultValue={oppsummering.innsendingsData.periode.start}
+          readOnly
+          hidden
         />
-        <Separator />
-        <LabeledDataElementList title="Utbetaling" entries={oppsummering.utbetalingInformasjon} />
-        <Separator />
-        <Form method="post" encType="multipart/form-data" onSubmit={handleSubmit}>
-          <input
-            name="periodeStart"
-            defaultValue={oppsummering.innsendingsData.periode.start}
-            readOnly
-            hidden
-          />
-          <input
-            name="periodeSlutt"
-            defaultValue={oppsummering.innsendingsData.periode.slutt}
-            readOnly
-            hidden
-          />
-          <input
-            name="kidNummer"
-            defaultValue={oppsummering.innsendingsData.kidNummer ?? undefined}
-            readOnly
-            hidden
-          />
-          <input
-            name="minAntallVedlegg"
-            defaultValue={oppsummering.innsendingsData.minAntallVedlegg}
-            readOnly
-            hidden
-          />
-          <input name="belop" defaultValue={oppsummering.innsendingsData.belop} readOnly hidden />
-          <VStack gap="6">
-            {filesLoading && <Alert variant="info">Laster vedlegg...</Alert>}
-            {filesLoadError && (
-              <Alert variant="error">
-                Kunne ikke laste vedlegg fra lokal lagring: {filesLoadError}
-                <br />
-                Vennligst gå tilbake og last opp vedleggene på nytt.
-              </Alert>
-            )}
-            <VedleggUtlisting files={files} fileInputRef={fileInputRef} />
-            <Separator />
-            <CheckboxGroup error={errorAt("/bekreftelse", data?.errors)} legend={"Bekreftelse"}>
-              <Checkbox
-                name="bekreftelse"
-                value="bekreftet"
-                id="bekreftelse"
-                error={errorAt("/bekreftelse", data?.errors) !== undefined}
-              >
-                {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
-              </Checkbox>
-            </CheckboxGroup>
-            {hasError && (
-              <ErrorSummary ref={errorSummaryRef}>
-                {data.errors?.map((error: FieldError) => {
-                  return (
-                    <ErrorSummary.Item
-                      href={`#${jsonPointerToFieldPath(error.pointer)}`}
-                      key={jsonPointerToFieldPath(error.pointer)}
-                    >
-                      {error.detail}
-                    </ErrorSummary.Item>
-                  );
-                })}
-              </ErrorSummary>
-            )}
-            <HStack gap="4">
-              <Button
-                as={ReactRouterLink}
-                type="button"
-                variant="tertiary"
-                to={pathTo.opprettKrav.vedlegg(orgnr, gjennomforingId)}
-              >
-                Tilbake
-              </Button>
-              <Button
-                type="submit"
-                loading={filesLoading}
-                disabled={filesLoading || !!filesLoadError}
-              >
-                Bekreft og send inn
-              </Button>
-            </HStack>
-          </VStack>
-        </Form>
-      </VStack>
+        <input
+          name="periodeSlutt"
+          defaultValue={oppsummering.innsendingsData.periode.slutt}
+          readOnly
+          hidden
+        />
+        <input
+          name="kidNummer"
+          defaultValue={oppsummering.innsendingsData.kidNummer ?? undefined}
+          readOnly
+          hidden
+        />
+        <input
+          name="minAntallVedlegg"
+          defaultValue={oppsummering.innsendingsData.minAntallVedlegg}
+          readOnly
+          hidden
+        />
+        <input name="belop" defaultValue={oppsummering.innsendingsData.belop} readOnly hidden />
+        <Box marginBlock="0 8">
+          {filesLoading && <Alert variant="info">Laster vedlegg...</Alert>}
+          {filesLoadError && (
+            <Alert variant="error">
+              Kunne ikke laste vedlegg fra lokal lagring: {filesLoadError}
+              <br />
+              Vennligst gå tilbake og last opp vedleggene på nytt.
+            </Alert>
+          )}
+          <VedleggUtlisting files={files} fileInputRef={fileInputRef} />
+          <Separator />
+          <CheckboxGroup error={errorAt("/bekreftelse", data?.errors)} legend={"Bekreftelse"}>
+            <Checkbox
+              name="bekreftelse"
+              value="bekreftet"
+              id="bekreftelse"
+              error={errorAt("/bekreftelse", data?.errors) !== undefined}
+            >
+              {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
+            </Checkbox>
+          </CheckboxGroup>
+          {hasError && (
+            <ErrorSummary ref={errorSummaryRef}>
+              {data.errors?.map((error: FieldError) => {
+                return (
+                  <ErrorSummary.Item
+                    href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                    key={jsonPointerToFieldPath(error.pointer)}
+                  >
+                    {error.detail}
+                  </ErrorSummary.Item>
+                );
+              })}
+            </ErrorSummary>
+          )}
+        </Box>
+        <HStack gap="4">
+          <Button
+            as={ReactRouterLink}
+            type="button"
+            variant="tertiary"
+            to={pathTo.opprettKrav.vedlegg(orgnr, gjennomforingId)}
+          >
+            Tilbake
+          </Button>
+          <Button type="submit" loading={filesLoading} disabled={filesLoading || !!filesLoadError}>
+            Bekreft og send inn
+          </Button>
+        </HStack>
+      </Form>
     </>
   );
 }
