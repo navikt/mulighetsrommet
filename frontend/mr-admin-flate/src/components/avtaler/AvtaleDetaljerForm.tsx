@@ -12,7 +12,6 @@ import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 import {
   Avtaletype,
@@ -24,12 +23,13 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useParams } from "react-router";
+import { useTiltakstyperForAvtaler } from "@/api/tiltakstyper/useTiltakstyperForAvtaler";
 
 export function AvtaleDetaljerForm() {
   const { avtaleId } = useParams();
   const { data: administratorer } = useAvtaleAdministratorer();
   const { data: ansatt } = useHentAnsatt();
-  const { data: tiltakstyper } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyperForAvtaler();
   const { data: avtale } = usePotentialAvtale(avtaleId ?? null);
 
   const {
