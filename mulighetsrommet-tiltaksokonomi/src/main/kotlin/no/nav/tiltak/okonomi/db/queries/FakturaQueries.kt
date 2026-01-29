@@ -161,6 +161,7 @@ class FakturaQueries(private val session: Session) {
             select
                 faktura.fakturanummer,
                 faktura.belop,
+                faktura.valuta,
                 faktura.besluttet_tidspunkt,
                 bestilling.arrangor_hovedenhet,
                 bestilling.arrangor_underenhet
@@ -173,6 +174,7 @@ class FakturaQueries(private val session: Session) {
             FakturaCsvData(
                 fakturanummer = it.string("fakturanummer"),
                 belop = it.int("belop"),
+                valuta = Valuta.valueOf(it.string("valuta")),
                 besluttetTidspunkt = it.localDateTime("besluttet_tidspunkt"),
                 arrangorHovedenhet = Organisasjonsnummer(it.string("arrangor_hovedenhet")),
                 arrangorUnderenhet = Organisasjonsnummer(it.string("arrangor_underenhet")),

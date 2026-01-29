@@ -1,6 +1,7 @@
 package no.nav.tiltak.okonomi.avstemming
 
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.model.Bestilling
 import org.slf4j.Logger
@@ -78,7 +79,7 @@ fun Bestilling.toDailyCSVRad(): String {
     data.add(opprettelse.besluttetTidspunkt.toLocalDate().toString())
     data.add(if (this.annullering != null) "Annullert" else "Godkjent")
     data.add(this.belop.toString())
-    data.add("NOK")
+    data.add(this.valuta.name)
     data.add(this.arrangorUnderenhet.value)
     data.add(this.arrangorHovedenhet.value)
     return data.joinToString(";")
@@ -93,7 +94,7 @@ fun FakturaCsvData.toDailyCSVRad(): String {
     data.add(besluttetTidspunkt.toLocalDate().toString())
     data.add("Godkjent")
     data.add(belop.toString())
-    data.add("NOK")
+    data.add(this.valuta.name)
     data.add(arrangorUnderenhet.value)
     data.add(arrangorHovedenhet.value)
     return data.joinToString(";")
@@ -102,6 +103,7 @@ fun FakturaCsvData.toDailyCSVRad(): String {
 data class FakturaCsvData(
     val fakturanummer: String,
     val belop: Int,
+    val valuta: Valuta,
     val besluttetTidspunkt: LocalDateTime,
     val arrangorHovedenhet: Organisasjonsnummer,
     val arrangorUnderenhet: Organisasjonsnummer,
