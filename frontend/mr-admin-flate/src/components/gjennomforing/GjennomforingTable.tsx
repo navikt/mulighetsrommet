@@ -195,21 +195,14 @@ export function GjennomforingTable({
                       </SkjulKolonne>
                       <Table.DataCell>
                         <VStack align={"center"}>
-                          {gjennomforing.publisert ? (
+                          {gjennomforing.publisert && (
                             <Tag
-                              aria-label="Tiltaket er publisert for alle"
-                              title="Tiltaket er publisert for alle"
+                              title="Tiltaket er publisert og synlig for veileder i Modia"
                               variant="success-filled"
+                              size="small"
                             >
-                              Ja
+                              Publisert
                             </Tag>
-                          ) : (
-                            <span
-                              // Denne span'en må være her så brukere av skjermlesere får beskjed om at tiltaket ikke er tilgjengelig.
-                              // Klassen under gjør at elementet er usynlig for brukere som kan se, men skjermlesere kan fortsatt få tak i elementet
-                              className="navds-sr-only"
-                              title="Tiltaket er ikke publisert for alle"
-                            />
                           )}
                         </VStack>
                       </Table.DataCell>
@@ -247,7 +240,7 @@ export function GjennomforingTable({
 
 interface ColumnHeader {
   sortKey: Kolonne;
-  tittel: string;
+  tittel: string | null;
   sortable: boolean;
   width: string;
 }
@@ -296,9 +289,9 @@ const headers: ColumnHeader[] = [
     width: "1fr",
   },
   {
-    sortKey: "publisert",
-    tittel: "Publisert",
-    sortable: true,
+    sortKey: "tags",
+    tittel: null,
+    sortable: false,
     width: "1fr",
   },
 ];
@@ -313,4 +306,4 @@ type Kolonne =
   | "startdato"
   | "sluttdato"
   | "status"
-  | "publisert";
+  | "tags";
