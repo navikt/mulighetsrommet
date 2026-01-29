@@ -33,11 +33,6 @@ enum class TiltakstypeFeature {
     VISES_I_TILTAKSADMINISTRASJON,
 
     /**
-     * Kan opprettes i Tiltaksadministrasjon
-     */
-    KAN_OPPRETTE_AVTALE,
-
-    /**
      * Administreres i Tiltaksadministrasjon og deles med Arena
      */
     MIGRERT,
