@@ -195,7 +195,10 @@ export default function BekreftUtbetaling() {
               key: "Arrangør",
               value: `${utbetaling.arrangor.navn} - ${utbetaling.arrangor.organisasjonsnummer}`,
             },
-            { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
+            {
+              key: "Tiltaksnavn",
+              value: `${utbetaling.gjennomforing.navn} (${utbetaling.gjennomforing.lopenummer})`,
+            },
             { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
           ]}
         />

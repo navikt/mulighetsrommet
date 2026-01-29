@@ -119,7 +119,6 @@ private fun getInnsendingsDetaljer(
         } else {
             null
         },
-        LabeledDataElement.text("Løpenummer", utbetaling.gjennomforing.lopenummer.toString()),
     )
 }
 
