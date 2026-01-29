@@ -8,6 +8,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
   useNavigate,
   useRouteError,
 } from "react-router";
@@ -16,10 +17,9 @@ import { ReactNode, useEffect } from "react";
 import { DekoratorElements, fetchSsrDekorator } from "~/services/dekorator/dekorator.server";
 import useInjectDecoratorScript from "~/services/dekorator/useInjectScript";
 import "./tailwind.css";
-import css from "./root.module.css";
 import { ErrorPage } from "./components/common/ErrorPage";
 import { isDemo } from "./services/environment";
-import { Alert, Heading, Link } from "@navikt/ds-react";
+import { Alert, Heading, Link, Page } from "@navikt/ds-react";
 import { Header } from "./components/header/Header";
 import { initializeLogs, pushError } from "~/faro";
 
@@ -55,6 +55,9 @@ function App() {
 
 function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; children: ReactNode }) {
   useInjectDecoratorScript(dekorator?.scripts);
+  const location = useLocation();
+  const isLandingPage = location.pathname === "/";
+
   return (
     <html lang="no">
       <head>
@@ -63,23 +66,26 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
         <script type="module">import nais from "/nais.js"; window.nais = nais;</script>
         <Meta />
         <Links />
-        {dekorator && parse(dekorator.head)}
-      </head>
-      <body>
-        <DekoratorHeader dekorator={dekorator} />
-        <Header />
-        <main id="maincontent" className={css.main}>
-          {children}
-        </main>
-        <ScrollRestoration />
         <script
           dangerouslySetInnerHTML={{
             __html: `window.isDemo = ${isDemo()}`,
           }}
         />
+        {dekorator && parse(dekorator.head)}
+      </head>
+      <Page
+        as="body"
+        footer={dekorator && parse(dekorator.footer)}
+        background={isLandingPage ? "bg-default" : "bg-subtle"}
+      >
+        <DekoratorHeader dekorator={dekorator} />
+        <Header />
+        <Page.Block as="main" width="2xl" gutters>
+          {children}
+        </Page.Block>
+        <ScrollRestoration />
         <Scripts />
-        {dekorator && parse(dekorator.footer)}
-      </body>
+      </Page>
     </html>
   );
 }
@@ -87,7 +93,7 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
 function DekoratorHeader({ dekorator }: { dekorator?: DekoratorElements }) {
   if (isDemo()) {
     return (
-      <Alert fullWidth variant="warning" className="max-w-1920">
+      <Alert fullWidth variant="warning">
         <Heading spacing size="small" level="3">
           Demo Arrangørflate
         </Heading>

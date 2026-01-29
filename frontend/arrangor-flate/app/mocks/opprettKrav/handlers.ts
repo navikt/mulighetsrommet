@@ -20,7 +20,7 @@ import { deltakere } from "./deltakelserMocks";
 
 export const handlers = [
   http.get<PathParams, ArrangorInnsendingRadDto[]>(
-    "*/api/arrangorflate/arrangor/tiltaksoversikt",
+    "*/api/arrangorflate/tiltaksoversikt",
     ({ request }) => {
       const type = new URL(request.url).searchParams.get("type");
       if (type === TiltaksoversiktType.AKTIVE) {

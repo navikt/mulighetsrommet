@@ -1,38 +1,31 @@
-import { Heading, VStack } from "@navikt/ds-react";
+import { Box, Heading } from "@navikt/ds-react";
 import { DataDetails, ValutaBelop } from "@api-client";
 import { getDataElement } from "@mr/frontend-common";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { MetadataHGrid } from "@mr/frontend-common/components/datadriven/Metadata";
-import { Separator } from "../common/Separator";
+import { MetadataHGrid, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function SatsPerioderOgBelop({
   pris,
   satsDetaljer,
-  className,
 }: {
   pris: ValutaBelop;
   satsDetaljer: DataDetails[];
-  className?: string;
 }) {
   return (
-    <VStack className={className} gap="2">
-      {satsDetaljer.length > 0 && (
-        <>
-          {satsDetaljer.map((s) => (
-            <VStack>
-              {satsDetaljer.length > 1 && <Heading size="xsmall">{s.header}</Heading>}
-              {s.entries.map((entry) => (
-                <MetadataHGrid
-                  label={entry.label}
-                  value={entry.value ? getDataElement(entry.value) : null}
-                />
-              ))}
-            </VStack>
+    <Box width="50%">
+      {satsDetaljer.map((s) => (
+        <Box key={s.header} marginBlock="2 0">
+          {satsDetaljer.length > 1 && <Heading size="xsmall">{s.header}</Heading>}
+          {s.entries.map((entry) => (
+            <MetadataHGrid
+              label={entry.label}
+              value={entry.value ? getDataElement(entry.value) : null}
+            />
           ))}
-          <Separator className="w-1/2" />
-        </>
-      )}
+        </Box>
+      ))}
+      <Separator />
       <MetadataHGrid label="Beløp" value={formaterValutaBelop(pris)} />
-    </VStack>
+    </Box>
   );
 }

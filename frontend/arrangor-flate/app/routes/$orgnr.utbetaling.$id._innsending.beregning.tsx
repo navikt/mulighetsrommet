@@ -98,7 +98,6 @@ export default function UtbetalingBeregning() {
           deltakerlisteUrl={deltakerlisteUrl}
         />
         <SatsPerioderOgBelop
-          className="w-[700px]"
           satsDetaljer={utbetaling.beregning.satsDetaljer}
           pris={utbetaling.beregning.pris}
         />

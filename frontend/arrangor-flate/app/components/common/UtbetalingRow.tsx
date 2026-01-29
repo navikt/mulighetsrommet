@@ -1,32 +1,16 @@
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
-import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
-import { BodyShort, Table } from "@navikt/ds-react";
+import { formaterPeriodeUdefinertSlutt } from "@mr/frontend-common/utils/date";
+import { BodyShort, Link, Table } from "@navikt/ds-react";
+import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "../utbetaling/UtbetalingStatusTag";
 import { UtbetalingTextLink } from "../utbetaling/UtbetalingTextLink";
-import css from "../../root.module.css";
 import { ArrangorInnsendingRadDto } from "api-client/types.gen";
+import { pathTo } from "~/utils/navigation";
 
-export function UtbetalingRow({
-  row,
-  periode,
-}: {
-  row: ArrangorInnsendingRadDto;
-  periode?: boolean;
-}) {
-  const formatertPeriode = periode ? (
-    <Table.DataCell>
-      {row.sluttDato && formaterPeriode({ start: row.startDato, slutt: row.sluttDato })}
-    </Table.DataCell>
-  ) : (
-    <>
-      <Table.DataCell>{formaterDato(row.startDato)}</Table.DataCell>
-      <Table.DataCell>{formaterDato(row.sluttDato)}</Table.DataCell>
-    </>
-  );
-
+export function UtbetalingRow({ row }: { row: ArrangorInnsendingRadDto }) {
   return (
     <Table.Row>
-      <Table.HeaderCell>
+      <Table.HeaderCell scope="row">
         <strong>{row.tiltakstypeNavn}</strong>
         <BodyShort>
           {row.tiltakNavn} ({row.lopenummer})
@@ -37,7 +21,9 @@ export function UtbetalingRow({
         {row.arrangorNavn} ({row.organisasjonsnummer})
       </Table.DataCell>
 
-      {formatertPeriode}
+      <Table.DataCell>
+        {formaterPeriodeUdefinertSlutt({ start: row.startDato, slutt: row.sluttDato })}
+      </Table.DataCell>
 
       {row.belop ? (
         <Table.DataCell align="right">{`${row.belop.belop} ${row.belop.valuta}`}</Table.DataCell>
@@ -48,19 +34,31 @@ export function UtbetalingRow({
         </Table.DataCell>
       ) : null}
       {row.status ? (
-        <Table.DataCell className={css.tag}>
+        <Table.DataCell>
           <UtbetalingStatusTag status={row.status} />
         </Table.DataCell>
       ) : null}
 
       <Table.DataCell>
-        <UtbetalingTextLink
-          status={row.status ?? undefined}
-          gjennomforingNavn={row.tiltakNavn}
-          gjennomforingId={row.gjennomforingId}
-          utbetalingId={row.utbetalingId ?? undefined}
-          orgnr={row.organisasjonsnummer}
-        />
+        {row.status && row.utbetalingId ? (
+          <UtbetalingTextLink
+            status={row.status}
+            gjennomforingNavn={row.tiltakNavn}
+            utbetalingId={row.utbetalingId}
+            orgnr={row.organisasjonsnummer}
+          />
+        ) : (
+          <Link
+            as={ReactRouterLink}
+            aria-label={`Start innsending for krav om utbetaling for ${row.tiltakNavn}`}
+            to={pathTo.opprettKrav.innsendingsinformasjon(
+              row.organisasjonsnummer,
+              row.gjennomforingId,
+            )}
+          >
+            Start innsending
+          </Link>
+        )}
       </Table.DataCell>
     </Table.Row>
   );
