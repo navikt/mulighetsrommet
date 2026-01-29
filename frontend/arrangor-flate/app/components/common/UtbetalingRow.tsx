@@ -6,6 +6,15 @@ import { UtbetalingTextLink } from "../utbetaling/UtbetalingTextLink";
 import css from "../../root.module.css";
 import { ArrangorInnsendingRadDto } from "api-client/types.gen";
 
+export const utbetalingKolonner: Array<{ key: string; label: string }> = [
+  { key: "tiltakNavn", label: "Tiltak" },
+  { key: "arrangorNavn", label: "Arrangør" },
+  { key: "startDato", label: "Periode" },
+  { key: "belop", label: "Beløp" },
+  { key: "type", label: "Type" },
+  { key: "status", label: "Status" },
+];
+
 export function UtbetalingRow({
   row,
   periode,

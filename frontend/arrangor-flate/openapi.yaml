@@ -345,16 +345,18 @@ paths:
       - Arrangorflate
       description: Hent oversikt over tilsagn for alle arrangører brukeren har tilgang
         til
-      operationId: getArrangorflateTilsagnOversikt
+      operationId: getArrangorflateTilsagnRader
       parameters: []
       responses:
         "200":
-          description: Utbetalinger i tabellformat
+          description: Tilsagn i tabellrad format
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrangorflateTilsagnOversikt"
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateTilsagnRadDto"
         default:
           description: Problem details
           headers: {}
@@ -1537,15 +1539,35 @@ components:
           format: uuid
       required:
       - id
-    ArrangorflateTilsagnOversikt:
+    ArrangorflateTilsagnRadDto:
       type: object
       properties:
-        tabell:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DataDrivenTableDto"
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        tiltakTypeNavn:
+          type: string
+        tiltakNavn:
+          type: string
+        arrangorNavn:
+          type: string
+        periode:
+          $ref: "#/components/schemas/Periode"
+        tilsagnNavn:
+          type: string
+        status:
+          $ref: "#/components/schemas/TilsagnStatus"
       required:
-      - tabell
+      - arrangorNavn
+      - id
+      - organisasjonsnummer
+      - periode
+      - status
+      - tilsagnNavn
+      - tiltakNavn
+      - tiltakTypeNavn
     UtbetalingOversiktType:
       type: string
       enum:
