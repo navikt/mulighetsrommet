@@ -1,5 +1,4 @@
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
-import { getDisplayName } from "@/api/enhet/helpers";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { usePollTiltaksnummer } from "@/api/gjennomforing/usePollTiltaksnummer";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
@@ -48,7 +47,6 @@ export function GjennomforingDetaljer() {
     deltidsprosent,
     apentForPamelding,
     administratorer,
-    arenaAnsvarligEnhet,
     arrangor,
     oppmoteSted,
     amoKategorisering,
@@ -160,20 +158,6 @@ export function GjennomforingDetaljer() {
         </ul>
       ) : (
         gjennomforingTekster.ingenAdministratorerSattForGjennomforingenLabel
-      ),
-    },
-    {
-      key: gjennomforingTekster.ansvarligEnhetFraArenaLabel,
-      value: arenaAnsvarligEnhet ? (
-        <HStack gap="2">
-          {getDisplayName(arenaAnsvarligEnhet)}
-          <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
-            Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet når man
-            oppretter tiltak i Arena.
-          </HelpText>
-        </HStack>
-      ) : (
-        "-"
       ),
     },
   ];

@@ -1,15 +1,9 @@
 import {
-  ArenaNavEnhet,
   KontorstrukturKontor,
   KontorstrukturKontortype,
   NavRegionDto,
   NavRegionUnderenhetDto,
 } from "@tiltaksadministrasjon/api-client";
-
-export function getDisplayName(enhet: ArenaNavEnhet) {
-  const { enhetsnummer, navn } = enhet;
-  return navn ? `${enhetsnummer} ${navn}` : enhetsnummer;
-}
 
 export function getLokaleUnderenheterAsSelectOptions(
   valgteRegioner: (string | undefined)[],

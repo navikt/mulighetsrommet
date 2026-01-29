@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
@@ -555,7 +554,13 @@ private fun Row.toAvtale(): Avtale {
     }
 
     val prismodeller = Json.decodeFromString<List<PrismodellDbo>>(string("prismodeller_json")).map { prismodell ->
-        Prismodell.from(prismodell.type, prismodell.id, prismodell.valuta, prismodell.prisbetingelser, prismodell.satser)
+        Prismodell.from(
+            prismodell.type,
+            prismodell.id,
+            prismodell.valuta,
+            prismodell.prisbetingelser,
+            prismodell.satser,
+        )
     }
 
     val status = when (AvtaleStatusType.valueOf(string("status"))) {
@@ -589,12 +594,6 @@ private fun Row.toAvtale(): Avtale {
         administratorer = administratorer,
         kontorstruktur = kontorstruktur,
         arrangor = arrangor,
-        arenaAnsvarligEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
-            ArenaNavEnhet(
-                navn = stringOrNull("arena_nav_enhet_navn"),
-                enhetsnummer = it,
-            )
-        },
         tiltakstype = Avtale.Tiltakstype(
             id = uuid("tiltakstype_id"),
             navn = string("tiltakstype_navn"),

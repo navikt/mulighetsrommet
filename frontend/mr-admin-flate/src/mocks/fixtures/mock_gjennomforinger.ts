@@ -52,7 +52,6 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     startDato: "2022-01-01",
     sluttDato: "2029-12-12",
     deltidsprosent: 100,
-    arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [
       {
         region: mockEnheter._0300,
@@ -149,7 +148,6 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.ARBFORB),
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
-    arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     kontorstruktur: [],
     status: {
@@ -202,7 +200,6 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     ],
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
-    arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [],
     status: {
       type: GjennomforingStatusType.GJENNOMFORES,
@@ -255,7 +252,6 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     avtaleId: mockAvtaler[3].id,
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
-    arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     kontorstruktur: [],
     status: {
