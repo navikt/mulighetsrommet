@@ -3139,7 +3139,6 @@ components:
       type: string
       enum:
       - VISES_I_TILTAKSADMINISTRASJON
-      - KAN_OPPRETTE_AVTALE
       - MIGRERT
     TiltakstypeEgenskap:
       type: string
