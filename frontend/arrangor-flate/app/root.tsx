@@ -8,6 +8,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
   useNavigate,
   useRouteError,
 } from "react-router";
@@ -54,6 +55,9 @@ function App() {
 
 function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; children: ReactNode }) {
   useInjectDecoratorScript(dekorator?.scripts);
+  const location = useLocation();
+  const isLandingPage = location.pathname === "/";
+
   return (
     <html lang="no">
       <head>
@@ -64,26 +68,24 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
         <Links />
         {dekorator && parse(dekorator.head)}
       </head>
-      <body>
-        <Page
-          footerPosition="belowFold"
-          contentBlockPadding="end"
-          footer={dekorator && parse(dekorator.footer)}
-        >
-          <DekoratorHeader dekorator={dekorator} />
-          <Header />
-          <Page.Block as="main" width="2xl" gutters>
-            {children}
-          </Page.Block>
-          <ScrollRestoration />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `window.isDemo = ${isDemo()}`,
-            }}
-          />
-          <Scripts />
-        </Page>
-      </body>
+      <Page
+        as="body"
+        footer={dekorator && parse(dekorator.footer)}
+        background={isLandingPage ? "bg-default" : "bg-subtle"}
+      >
+        <DekoratorHeader dekorator={dekorator} />
+        <Header />
+        <Page.Block as="main" width="2xl" gutters>
+          {children}
+        </Page.Block>
+      </Page>
+      <ScrollRestoration />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.isDemo = ${isDemo()}`,
+        }}
+      />
+      <Scripts />
     </html>
   );
 }
@@ -91,7 +93,7 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
 function DekoratorHeader({ dekorator }: { dekorator?: DekoratorElements }) {
   if (isDemo()) {
     return (
-      <Alert fullWidth variant="warning" className="max-w-1920">
+      <Alert fullWidth variant="warning" className="max-w-1920 mb-2">
         <Heading spacing size="small" level="3">
           Demo Arrangørflate
         </Heading>

@@ -1,5 +1,5 @@
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
-import { Box, Hide, Link, Stepper, VStack, VStackProps } from "@navikt/ds-react";
+import { Box, Hide, Link, Stepper, VStack } from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
 import { pathTo } from "~/utils/navigation";
 
@@ -19,7 +19,6 @@ interface InnsendingLayoutProps {
   activeStep?: StepperSteg["order"];
   hideStepper?: boolean;
   topNavigationLink?: TopNavigationLink;
-  contentGap?: VStackProps["gap"];
 }
 export function InnsendingLayout({
   steps,
@@ -27,7 +26,6 @@ export function InnsendingLayout({
   hideStepper,
   children,
   topNavigationLink,
-  contentGap,
 }: InnsendingLayoutProps) {
   const { path, text } = topNavigationLink || {
     path: pathTo.utbetalinger,
@@ -35,30 +33,28 @@ export function InnsendingLayout({
   };
 
   return (
-    <Box width="100%" className="bg-bg-subtle flex-1 px-10 pt-4 pb-10">
-      <VStack gap="4" justify="center" className="xl:max-w-[1920px] xl:mx-auto">
-        <Link as={ReactRouterLink} to={path} className="max-w-max">
-          <ChevronLeftIcon /> {text}
-        </Link>
-        {steps && steps.length > 0 && (
-          <Hide below="sm" hidden={hideStepper}>
-            <Stepper aria-label="Steg" activeStep={activeStep || 0} orientation="horizontal">
-              {steps.map(({ name }, index) => (
-                <Stepper.Step
-                  key={name}
-                  interactive={false}
-                  completed={!!activeStep && activeStep > index + 1}
-                >
-                  {name}
-                </Stepper.Step>
-              ))}
-            </Stepper>
-          </Hide>
-        )}
-        <VStack padding="8" flexGrow="2" gap={contentGap} className="bg-bg-default rounded-lg">
-          {children}
-        </VStack>
-      </VStack>
-    </Box>
+    <VStack gap="4" justify="center">
+      <Link as={ReactRouterLink} to={path} className="max-w-max">
+        <ChevronLeftIcon /> {text}
+      </Link>
+      {steps && steps.length > 0 && (
+        <Hide below="sm" hidden={hideStepper}>
+          <Stepper aria-label="Steg" activeStep={activeStep || 0} orientation="horizontal">
+            {steps.map(({ name }, index) => (
+              <Stepper.Step
+                key={name}
+                interactive={false}
+                completed={!!activeStep && activeStep > index + 1}
+              >
+                {name}
+              </Stepper.Step>
+            ))}
+          </Stepper>
+        </Hide>
+      )}
+      <Box background="bg-default" borderRadius="large" padding="8">
+        {children}
+      </Box>
+    </VStack>
   );
 }
