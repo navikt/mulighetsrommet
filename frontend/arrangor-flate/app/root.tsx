@@ -66,6 +66,11 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
         <script type="module">import nais from "/nais.js"; window.nais = nais;</script>
         <Meta />
         <Links />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.isDemo = ${isDemo()}`,
+          }}
+        />
         {dekorator && parse(dekorator.head)}
       </head>
       <Page
@@ -78,14 +83,9 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
         <Page.Block as="main" width="2xl" gutters>
           {children}
         </Page.Block>
+        <ScrollRestoration />
+        <Scripts />
       </Page>
-      <ScrollRestoration />
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.isDemo = ${isDemo()}`,
-        }}
-      />
-      <Scripts />
     </html>
   );
 }
@@ -93,7 +93,7 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
 function DekoratorHeader({ dekorator }: { dekorator?: DekoratorElements }) {
   if (isDemo()) {
     return (
-      <Alert fullWidth variant="warning" className="max-w-1920 mb-2">
+      <Alert fullWidth variant="warning">
         <Heading spacing size="small" level="3">
           Demo Arrangørflate
         </Heading>
