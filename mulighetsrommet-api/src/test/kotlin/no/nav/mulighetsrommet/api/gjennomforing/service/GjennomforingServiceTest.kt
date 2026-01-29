@@ -305,9 +305,7 @@ class GjennomforingServiceTest : FunSpec({
                     null,
                 ),
                 avbruttAv = bertilNavIdent,
-            )
-
-            service.getGruppetiltak(gjennomforing.id).shouldNotBeNull().should {
+            ).shouldBeRight().should {
                 it.status.shouldBeTypeOf<GjennomforingStatus.Avlyst>()
                 it.publisert shouldBe false
                 it.apentForPamelding shouldBe false
