@@ -133,7 +133,7 @@ data class Faktura(
                     ),
                 ),
                 beskrivelse = null,
-                valuta = Valuta.NOK,
+                valuta = bestilling.valuta,
             )
         }
     }
