@@ -29,7 +29,10 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
         <VStack gap="1">
           <MetadataHGrid label="Status" value={<TilsagnStatusTag status={tilsagn.status} />} />
           <MetadataHGrid label="Tiltakstype" value={tilsagn.tiltakstype.navn} />
-          <MetadataHGrid label="Tiltaksnavn" value={tilsagn.gjennomforing.navn} />
+          <MetadataHGrid
+            label="Tiltaksnavn"
+            value={`${tilsagn.gjennomforing.navn} (${tilsagn.gjennomforing.lopenummer})`}
+          />
         </VStack>
       )}
       {tilsagn.beregning.entries.map((entry) => (

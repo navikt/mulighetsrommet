@@ -109,7 +109,7 @@ private fun getInnsendingsDetaljer(
         } else {
             LabeledDataElement.date("Dato opprettet hos Nav", utbetaling.createdAt.toLocalDate())
         },
-        LabeledDataElement.text("Tiltaksnavn", utbetaling.gjennomforing.navn),
+        LabeledDataElement.text("Tiltaksnavn", "${utbetaling.gjennomforing.navn} (${utbetaling.gjennomforing.lopenummer.value})"),
         LabeledDataElement.text("Tiltakstype", utbetaling.tiltakstype.navn),
         if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
             LabeledDataElement.text(

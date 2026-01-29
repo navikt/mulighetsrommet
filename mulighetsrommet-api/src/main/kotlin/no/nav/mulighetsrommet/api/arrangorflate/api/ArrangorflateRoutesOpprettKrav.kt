@@ -553,7 +553,7 @@ fun getInnsendingsInformasjon(gjennomforing: GjennomforingGruppetiltak): List<La
             "Arrangør",
             "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
         ),
-        LabeledDataElement.text("Tiltaksnavn", gjennomforing.navn),
+        LabeledDataElement.text("Tiltaksnavn", "${gjennomforing.navn} (${gjennomforing.lopenummer.value})"),
         LabeledDataElement.text("Tiltakstype", gjennomforing.tiltakstype.navn),
     )
     if (gjennomforing.prismodell?.type == PrismodellType.ANNEN_AVTALT_PRIS) {

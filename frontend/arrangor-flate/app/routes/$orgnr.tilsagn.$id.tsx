@@ -38,7 +38,7 @@ export default function TilsagnDetaljerPage() {
         title={tekster.bokmal.tilsagn.detaljer.headingTitle}
         tilbakeLenke={{
           navn: tekster.bokmal.tilsagn.detaljer.tilbakeLenke,
-          url: pathTo.utbetalinger,
+          url: pathTo.tilsagnOversikt,
         }}
       />
       <TilsagnDetaljer tilsagn={tilsagn} />

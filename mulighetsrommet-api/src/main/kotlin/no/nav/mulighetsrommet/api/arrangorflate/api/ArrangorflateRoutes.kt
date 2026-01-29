@@ -58,8 +58,6 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.DataDrivenTableDto
-import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -512,28 +510,27 @@ suspend fun receiveVedleggPart(part: PartData.FileItem): Either<List<FieldError>
     vedlegg
 }
 
-private suspend fun receiveScanVedleggRequest(call: RoutingCall): Either<List<FieldError>, ScanVedleggRequest> =
-    either {
-        val vedlegg: MutableList<Vedlegg> = mutableListOf()
-        val multipart = call.receiveMultipart()
+private suspend fun receiveScanVedleggRequest(call: RoutingCall): Either<List<FieldError>, ScanVedleggRequest> = either {
+    val vedlegg: MutableList<Vedlegg> = mutableListOf()
+    val multipart = call.receiveMultipart()
 
-        multipart.forEachPart { part ->
-            when (part) {
-                is PartData.FileItem -> {
-                    if (part.name == "vedlegg") {
-                        vedlegg.add(receiveVedleggPart(part).bind())
-                    }
+    multipart.forEachPart { part ->
+        when (part) {
+            is PartData.FileItem -> {
+                if (part.name == "vedlegg") {
+                    vedlegg.add(receiveVedleggPart(part).bind())
                 }
-
-                else -> {}
             }
 
-            part.dispose()
+            else -> {}
         }
 
-        val validatedVedlegg = vedlegg.validateVedlegg()
-        return ScanVedleggRequest(validatedVedlegg).right()
+        part.dispose()
     }
+
+    val validatedVedlegg = vedlegg.validateVedlegg()
+    return ScanVedleggRequest(validatedVedlegg).right()
+}
 
 fun MutableList<Vedlegg>.validateVedlegg(): List<Vedlegg> {
     return this.map { v ->
@@ -662,6 +659,6 @@ fun ArrangorflateTilsagnDto.toRadDto(): ArrangorflateTilsagnRadDto = Arrangorfla
     tiltakNavn = "${gjennomforing.navn} (${gjennomforing.lopenummer})",
     arrangorNavn = "${arrangor.navn} (${arrangor.organisasjonsnummer.value})",
     periode = periode,
-    tilsagnNavn = "${type.displayName()} (${bestillingsnummer})",
+    tilsagnNavn = "${type.displayName()} ($bestillingsnummer)",
     status = status,
 )
