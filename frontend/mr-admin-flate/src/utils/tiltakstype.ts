@@ -1,5 +1,9 @@
-import { TiltakstypeDto, TiltakstypeFeature } from "@tiltaksadministrasjon/api-client";
+import { TiltakstypeDto, TiltakstypeEgenskap } from "@tiltaksadministrasjon/api-client";
 
-export function hasFeature(tiltalstype: TiltakstypeDto, feature: TiltakstypeFeature): boolean {
-  return tiltalstype.features.includes(feature);
+export function harEgenskap(tiltakstype: TiltakstypeDto, egenskap: TiltakstypeEgenskap): boolean {
+  return (
+    tiltakstype.egenskaper.includes(egenskap) ||
+    // Midlertidig bakoverkompatibilitet (skal fjernes)
+    tiltakstype.features.includes(egenskap as any)
+  );
 }

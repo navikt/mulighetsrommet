@@ -97,6 +97,7 @@ class TiltakstypeService(
             status = status,
             sanityId = sanityId,
             features = features,
+            egenskaper = tiltakskode.egenskaper,
         )
     }
 }

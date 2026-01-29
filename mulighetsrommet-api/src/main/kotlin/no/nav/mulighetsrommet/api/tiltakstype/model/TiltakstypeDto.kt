@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tiltakstype.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -22,6 +23,7 @@ data class TiltakstypeDto(
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
     val features: Set<TiltakstypeFeature>,
+    val egenskaper: Set<TiltakstypeEgenskap>,
 )
 
 enum class TiltakstypeFeature {

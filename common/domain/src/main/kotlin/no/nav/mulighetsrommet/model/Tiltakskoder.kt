@@ -1,23 +1,78 @@
 package no.nav.mulighetsrommet.model
 
-enum class Tiltakskode(val arenakode: String) {
-    ARBEIDSMARKEDSOPPLAERING("GRUPPEAMO"),
-    ARBEIDSFORBEREDENDE_TRENING("ARBFORB"),
-    ARBEIDSRETTET_REHABILITERING("ARBRRHDAG"),
-    AVKLARING("AVKLARAG"),
-    DIGITALT_OPPFOLGINGSTILTAK("DIGIOPPARB"),
-    ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING("ENKELAMO"),
-    ENKELTPLASS_FAG_OG_YRKESOPPLAERING("ENKFAGYRKE"),
-    FAG_OG_YRKESOPPLAERING("GRUFAGYRKE"),
-    GRUPPE_ARBEIDSMARKEDSOPPLAERING("GRUPPEAMO"),
-    GRUPPE_FAG_OG_YRKESOPPLAERING("GRUFAGYRKE"),
-    HOYERE_UTDANNING("HOYEREUTD"),
-    HOYERE_YRKESFAGLIG_UTDANNING("GRUFAGYRKE"),
-    JOBBKLUBB("JOBBK"),
-    NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV("GRUPPEAMO"),
-    OPPFOLGING("INDOPPFAG"),
-    STUDIESPESIALISERING("GRUPPEAMO"),
-    VARIG_TILRETTELAGT_ARBEID_SKJERMET("VASV"),
+enum class Tiltakskode(val arenakode: String, val egenskaper: Set<TiltakstypeEgenskap>) {
+    ARBEIDSMARKEDSOPPLAERING(
+        arenakode = "GRUPPEAMO",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    ARBEIDSFORBEREDENDE_TRENING(
+        arenakode = "ARBFORB",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    ARBEIDSRETTET_REHABILITERING(
+        arenakode = "ARBRRHDAG",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    AVKLARING(
+        arenakode = "AVKLARAG",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    DIGITALT_OPPFOLGINGSTILTAK(
+        arenakode = "DIGIOPPARB",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING(
+        arenakode = "ENKELAMO",
+        egenskaper = setOf(),
+    ),
+    ENKELTPLASS_FAG_OG_YRKESOPPLAERING(
+        arenakode = "ENKFAGYRKE",
+        egenskaper = setOf(),
+    ),
+    FAG_OG_YRKESOPPLAERING(
+        arenakode = "GRUFAGYRKE",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    GRUPPE_ARBEIDSMARKEDSOPPLAERING(
+        arenakode = "GRUPPEAMO",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    GRUPPE_FAG_OG_YRKESOPPLAERING(
+        arenakode = "GRUFAGYRKE",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    HOYERE_UTDANNING(
+        arenakode = "HOYEREUTD",
+        egenskaper = setOf(),
+    ),
+    HOYERE_YRKESFAGLIG_UTDANNING(
+        arenakode = "GRUFAGYRKE",
+        egenskaper = setOf(),
+    ),
+    JOBBKLUBB(
+        arenakode = "JOBBK",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV(
+        arenakode = "GRUPPEAMO",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    OPPFOLGING(
+        arenakode = "INDOPPFAG",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    STUDIESPESIALISERING(
+        arenakode = "GRUPPEAMO",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    VARIG_TILRETTELAGT_ARBEID_SKJERMET(
+        arenakode = "VASV",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+}
+
+enum class TiltakstypeEgenskap {
+    KAN_OPPRETTE_AVTALE,
 }
 
 object Tiltakskoder {
