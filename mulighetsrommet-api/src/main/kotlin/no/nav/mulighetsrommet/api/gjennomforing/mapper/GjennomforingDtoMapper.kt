@@ -1,13 +1,23 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object GjennomforingDtoMapper {
-    fun fromGjennomforing(gjennomforing: GjennomforingGruppetiltak) = GjennomforingDto(
+    fun fromGjennomforing(gjennomforing: Gjennomforing) = when (gjennomforing) {
+        is GjennomforingGruppetiltak -> fromGruppetiltak(gjennomforing)
+        is GjennomforingEnkeltplass -> fromEnkeltplass(gjennomforing)
+    }
+
+    fun fromGruppetiltak(gjennomforing: GjennomforingGruppetiltak) = GjennomforingDto(
         id = gjennomforing.id,
         tiltakstype = gjennomforing.tiltakstype,
         navn = gjennomforing.navn,
@@ -39,6 +49,49 @@ object GjennomforingDtoMapper {
         prismodell = gjennomforing.prismodell?.let { fromPrismodell(it) },
         pameldingType = gjennomforing.pameldingType,
     )
+
+    fun fromEnkeltplass(gjennomforing: GjennomforingEnkeltplass) = GjennomforingDto(
+        id = gjennomforing.id,
+        tiltakstype = gjennomforing.tiltakstype,
+        navn = gjennomforing.navn,
+        lopenummer = gjennomforing.lopenummer,
+        tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+        arrangor = gjennomforing.arrangor,
+        startDato = gjennomforing.startDato,
+        sluttDato = gjennomforing.sluttDato,
+        arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
+        status = fromGjennomforingStatus(gjennomforing.status),
+        antallPlasser = gjennomforing.antallPlasser,
+        oppstart = GjennomforingOppstartstype.LOPENDE,
+        pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
+        opphav = gjennomforing.opphav,
+        deltidsprosent = gjennomforing.deltidsprosent,
+        apentForPamelding = false,
+        avtaleId = null,
+        administratorer = listOf(),
+        kontorstruktur = listOf(),
+        kontaktpersoner = listOf(),
+        oppmoteSted = null,
+        faneinnhold = null,
+        beskrivelse = null,
+        publisert = false,
+        estimertVentetid = null,
+        tilgjengeligForArrangorDato = null,
+        amoKategorisering = null,
+        utdanningslop = null,
+        stengt = listOf(),
+        prismodell = null,
+    )
+
+    private fun fromGjennomforingStatus(status: GjennomforingStatusType): GjennomforingDto.Status {
+        val variant = when (status) {
+            GjennomforingStatusType.GJENNOMFORES -> DataElement.Status.Variant.SUCCESS
+            GjennomforingStatusType.AVSLUTTET -> DataElement.Status.Variant.NEUTRAL
+            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> DataElement.Status.Variant.ERROR
+        }
+        val element = DataElement.Status(status.beskrivelse, variant)
+        return GjennomforingDto.Status(status, element)
+    }
 
     fun fromGjennomforingStatus(status: GjennomforingStatus): GjennomforingDto.Status {
         val variant = when (status) {

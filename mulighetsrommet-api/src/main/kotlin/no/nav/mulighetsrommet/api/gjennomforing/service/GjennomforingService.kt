@@ -25,6 +25,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktEnkeltplass
@@ -74,7 +76,7 @@ class GjennomforingService(
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, GjennomforingGruppetiltak> = either {
-        val previous = get(request.id)
+        val previous = getGruppetiltak(request.id)
         val ctx = getValidatorCtx(request, previous, today)
 
         val dbo = GjennomforingValidator
@@ -150,7 +152,11 @@ class GjennomforingService(
         )
     }
 
-    fun get(id: UUID): GjennomforingGruppetiltak? = db.session {
+    fun get(id: UUID): Gjennomforing? = db.session {
+        getGruppetiltak(id) ?: queries.gjennomforing.getEnkeltplass(id)
+    }
+
+    fun getGruppetiltak(id: UUID): GjennomforingGruppetiltak? = db.session {
         queries.gjennomforing.getGruppetiltak(id)
     }
 
@@ -404,7 +410,7 @@ class GjennomforingService(
         dbo: GjennomforingGruppetiltakDbo,
         navIdent: NavIdent,
     ) {
-        val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet()
+        val currentAdministratorer = getGruppetiltak(dbo.id)?.administratorer?.map { it.navIdent }?.toSet()
             ?: setOf()
 
         val administratorsToNotify = (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull()
@@ -467,29 +473,31 @@ class GjennomforingService(
             .flatMap { it.enheter.map { it.enhetsnummer } }
     }
 
-    fun handlinger(gjennomforing: GjennomforingGruppetiltak, ansatt: NavAnsatt): Set<GjennomforingHandling> {
-        val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
+    fun handlinger(gjennomforing: Gjennomforing, ansatt: NavAnsatt): Set<GjennomforingHandling> = when (gjennomforing) {
+        is GjennomforingEnkeltplass -> setOf()
 
-        return setOfNotNull(
-            GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
-            GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
-            GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
-            GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
-            GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
-            GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
-            GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
-                gjennomforing.tiltakstype.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
-            },
+        is GjennomforingGruppetiltak -> {
+            val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
 
-            GjennomforingHandling.DUPLISER,
-            GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
-            GjennomforingHandling.OPPRETT_TILSAGN,
-            GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
-        )
-            .filter {
-                tilgangTilHandling(it, ansatt)
-            }
-            .toSet()
+            return setOfNotNull(
+                GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
+                GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
+                GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
+                GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
+                GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
+                GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
+                GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
+                    gjennomforing.tiltakstype.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
+                },
+
+                GjennomforingHandling.DUPLISER,
+                GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
+                GjennomforingHandling.OPPRETT_TILSAGN,
+                GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
+            )
+                .filter { tilgangTilHandling(it, ansatt) }
+                .toSet()
+        }
     }
 
     companion object {

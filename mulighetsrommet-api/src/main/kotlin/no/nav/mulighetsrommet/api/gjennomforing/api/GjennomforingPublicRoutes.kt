@@ -96,7 +96,7 @@ private fun Route.getGjennomforingV1Route() {
     }) {
         val id: UUID by call.parameters
 
-        val result = gjennomforingService.get(id)
+        val result = gjennomforingService.getGruppetiltak(id)
             ?.let { TiltaksgjennomforingV1Mapper.fromGjennomforing(it) }
             ?: return@get call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
 
