@@ -29,10 +29,11 @@ object FastSatsPerTiltaksplassPerManedBeregning :
         periode: Periode,
     ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed {
         requireNotNull(gjennomforing.prismodell)
+        val justertPeriode = Periode(periode.start, listOfNotNull(periode.slutt, gjennomforing.sluttDato?.plusDays(1)).min())
 
-        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
-        val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(deltakere, periode)
+        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, justertPeriode)
+        val stengt = resolveStengtHosArrangor(justertPeriode, gjennomforing.stengt)
+        val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(deltakere, justertPeriode)
         val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengt, deltakelser)
 
         val manedsverk = deltakelser
@@ -64,7 +65,7 @@ object PrisPerManedBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisP
 
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
+        val deltakelser = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
         val input = UtbetalingBeregningPrisPerManedsverk.Input(satser, stengt, deltakelser)
 
         val manedsverk = deltakelser
@@ -110,7 +111,7 @@ object PrisPerHeleUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPri
 
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
+        val deltakelser = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
         val input = UtbetalingBeregningPrisPerHeleUkesverk.Input(satser, stengt, deltakelser)
 
         val ukesverk = deltakelser
@@ -142,7 +143,7 @@ object PrisPerUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPer
 
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
+        val deltakelser = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
         val input = UtbetalingBeregningPrisPerUkesverk.Input(satser, stengt, deltakelser)
 
         val ukesverk = deltakelser
@@ -183,17 +184,19 @@ private fun resolveDeltakelserPerioderMedDeltakelsesmengder(
             val (deltakelseId, deltakelsePeriode) = UtbetalingInputHelper.toDeltakelsePeriode(deltaker, periode)
                 ?: return@mapNotNull null
 
-            val perioder = deltaker.deltakelsesmengder.windowed(2, partialWindows = true).mapNotNull { window ->
-                val mengde = window[0]
-                val gyldigTil = window.getOrNull(1)?.gyldigFra ?: deltakelsePeriode.slutt
+            val perioder = deltaker.deltakelsesmengder
+                .windowed(2, partialWindows = true)
+                .mapNotNull { window ->
+                    val mengde = window[0]
+                    val gyldigTil = window.getOrNull(1)?.gyldigFra ?: deltakelsePeriode.slutt
 
-                Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
-                    DeltakelsesprosentPeriode(
-                        periode = overlappingPeriode,
-                        deltakelsesprosent = mengde.deltakelsesprosent,
-                    )
+                    Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
+                        DeltakelsesprosentPeriode(
+                            periode = overlappingPeriode,
+                            deltakelsesprosent = mengde.deltakelsesprosent,
+                        )
+                    }
                 }
-            }
             check(perioder.isNotEmpty()) {
                 "Deltaker id=$deltakelseId er relevant for utbetaling, men mangler deltakelsesmengder innenfor perioden=$periode"
             }
@@ -201,11 +204,4 @@ private fun resolveDeltakelserPerioderMedDeltakelsesmengder(
             DeltakelseDeltakelsesprosentPerioder(deltakelseId, perioder)
         }
         .toSet()
-}
-
-private fun resolveDeltakelsePerioder(
-    deltakere: List<Deltaker>,
-    periode: Periode,
-): Set<DeltakelsePeriode> {
-    return UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
 }

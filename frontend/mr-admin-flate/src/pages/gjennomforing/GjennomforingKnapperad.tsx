@@ -7,7 +7,7 @@ import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/sten
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Checkbox, Dropdown, Switch, VStack } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
@@ -25,6 +25,8 @@ import {
   NavAnsattDto,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
+import { parseDate } from "@mr/frontend-common/utils/date";
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 
 interface Props {
   ansatt: NavAnsattDto;
@@ -63,12 +65,19 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
     });
   }
 
-  function avbryt(aarsaker: AvbrytGjennomforingAarsak[], forklaring: string | null) {
+  function avbryt(
+    aarsaker: AvbrytGjennomforingAarsak[],
+    forklaring: string | null,
+    dato: string | null,
+    avlys: boolean | null,
+  ) {
     avbrytMutation.mutate(
       {
         id: gjennomforing.id,
         aarsaker,
         forklaring,
+        dato,
+        avlys,
       },
       {
         onSuccess: () => {
@@ -167,32 +176,15 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
         modalRef={apentForPameldingModalRef}
         gjennomforing={gjennomforing}
       />
-      <AarsakerOgForklaringModal<AvbrytGjennomforingAarsak>
-        header={`Ønsker du å avbryte «${gjennomforing.navn}»?`}
-        open={avbrytModalOpen}
-        buttonLabel="Ja, jeg vil avbryte gjennomføringen"
-        ingress={
-          deltakerSummary.antallDeltakere > 0 && (
-            <Alert variant="warning">
-              {`Det finnes ${deltakerSummary.antallDeltakere} deltaker${deltakerSummary.antallDeltakere > 1 ? "e" : ""} på gjennomføringen. Ved å
-           avbryte denne vil det føre til statusendring på alle deltakere som har en aktiv status.`}
-            </Alert>
-          )
-        }
-        aarsaker={[
-          { value: AvbrytGjennomforingAarsak.BUDSJETT_HENSYN, label: "Budsjetthensyn" },
-          { value: AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR, label: "Endring hos arrangør" },
-          { value: AvbrytGjennomforingAarsak.FEILREGISTRERING, label: "Feilregistrering" },
-          { value: AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE, label: "For få deltakere" },
-          { value: AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA, label: "Avbrutt i Arena" },
-          { value: AvbrytGjennomforingAarsak.ANNET, label: "Annet" },
-        ]}
-        onClose={() => {
-          setAvbrytModalOpen(false);
-          setAvbrytModalErrors([]);
-        }}
-        onConfirm={({ aarsaker, forklaring }) => avbryt(aarsaker, forklaring)}
-        errors={avbrytModalErrors}
+      <AvbrytGjennomforingModal
+        gjennomforing={gjennomforing}
+        avbrytModalOpen={avbrytModalOpen}
+        setAvbrytModalOpen={setAvbrytModalOpen}
+        antallDeltakere={deltakerSummary.antallDeltakere}
+        avbrytModalErrors={avbrytModalErrors}
+        setAvbrytModalErrors={setAvbrytModalErrors}
+        avbryt={avbryt}
+        kanAvlyse={handlinger.includes(GjennomforingHandling.AVLYS)}
       />
     </KnapperadContainer>
   );
@@ -202,4 +194,70 @@ function GjennomforingEndringshistorikk({ id }: { id: string }) {
   const historikk = useGjennomforingEndringshistorikk(id);
 
   return <ViewEndringshistorikk historikk={historikk.data} />;
+}
+
+interface AvbrytGjennomforingModalProps {
+  gjennomforing: GjennomforingDto;
+  avbrytModalOpen: boolean;
+  setAvbrytModalOpen: (b: boolean) => void;
+  antallDeltakere: number;
+  avbrytModalErrors: FieldError[];
+  setAvbrytModalErrors: (e: FieldError[]) => void;
+  avbryt: (
+    aarsaker: AvbrytGjennomforingAarsak[],
+    forklaring: string | null,
+    dato: string | null,
+    avlys: boolean | null,
+  ) => void;
+  kanAvlyse: boolean;
+}
+
+function AvbrytGjennomforingModal(props: AvbrytGjennomforingModalProps) {
+  const [dato, setDato] = useState<string | null>(null);
+  const [avlys, setAvlys] = useState<boolean>(false);
+
+  return (
+    <AarsakerOgForklaringModal
+      header={`Ønsker du å avbryte «${props.gjennomforing.navn}»?`}
+      open={props.avbrytModalOpen}
+      buttonLabel="Ja, jeg vil avbryte gjennomføringen"
+      ingress={
+        props.antallDeltakere > 0 && (
+          <Alert variant="warning">
+            {`Det finnes ${props.antallDeltakere} deltaker${props.antallDeltakere > 1 ? "e" : ""} på gjennomføringen. Ved å
+           avbryte denne vil det føre til statusendring på alle deltakere som har en aktiv status.`}
+          </Alert>
+        )
+      }
+      aarsaker={[
+        { value: AvbrytGjennomforingAarsak.BUDSJETT_HENSYN, label: "Budsjetthensyn" },
+        { value: AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR, label: "Endring hos arrangør" },
+        { value: AvbrytGjennomforingAarsak.FEILREGISTRERING, label: "Feilregistrering" },
+        { value: AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE, label: "For få deltakere" },
+        { value: AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA, label: "Avbrutt i Arena" },
+        { value: AvbrytGjennomforingAarsak.ANNET, label: "Annet" },
+      ]}
+      onClose={() => {
+        props.setAvbrytModalOpen(false);
+        props.setAvbrytModalErrors([]);
+      }}
+      errors={props.avbrytModalErrors}
+      extraFields={
+        <VStack>
+          <ControlledDateInput
+            label="Dato tiltaket ble avbrutt"
+            fromDate={parseDate(props.gjennomforing.startDato)}
+            toDate={new Date()}
+            onChange={(val) => setDato(val)}
+          />
+          {props.kanAvlyse && (
+            <Checkbox checked={avlys} onChange={() => setAvlys(!avlys)}>
+              Avlys gjennomføringen
+            </Checkbox>
+          )}
+        </VStack>
+      }
+      onConfirm={({ aarsaker, forklaring }) => props.avbryt(aarsaker, forklaring, dato, avlys)}
+    />
+  );
 }

@@ -206,7 +206,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2024#2024")
                     it.arena?.ansvarligNavEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
-                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.avtaleId shouldBe gjennomforing1.avtaleId
                     it.navn shouldBe gjennomforing1.navn

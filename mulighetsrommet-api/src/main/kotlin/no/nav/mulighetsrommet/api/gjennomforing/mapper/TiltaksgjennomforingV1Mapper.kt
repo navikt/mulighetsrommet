@@ -15,7 +15,7 @@ object TiltaksgjennomforingV1Mapper {
         navn = gjennomforing.navn,
         startDato = gjennomforing.startDato,
         sluttDato = gjennomforing.sluttDato,
-        status = gjennomforing.status.type,
+        status = gjennomforing.status,
         virksomhetsnummer = gjennomforing.arrangor.organisasjonsnummer.value,
         oppstart = gjennomforing.oppstart,
         tilgjengeligForArrangorFraOgMedDato = gjennomforing.tilgjengeligForArrangorDato,

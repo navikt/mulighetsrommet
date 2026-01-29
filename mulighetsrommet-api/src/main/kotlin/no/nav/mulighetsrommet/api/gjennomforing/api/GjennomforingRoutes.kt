@@ -46,6 +46,7 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -60,7 +61,6 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 fun Route.gjennomforingRoutes() {
@@ -105,11 +105,11 @@ fun Route.gjennomforingRoutes() {
                 operationId = "avbrytGjennomforing"
                 request {
                     pathParameterUuid("id")
-                    body<AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>>()
+                    body<AvbrytGjennomforingRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Gjennomføring ble avbrutt"
+                        description = "Avbryt gjennomføring"
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
@@ -123,15 +123,16 @@ fun Route.gjennomforingRoutes() {
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>>()
+                val request = call.receive<AvbrytGjennomforingRequest>()
 
                 request.validate()
-                    .flatMap {
+                    .flatMap { (aarsakerOgForklaring, dato) ->
                         gjennomforinger.avbrytGjennomforing(
                             id,
-                            tidspunkt = LocalDateTime.now(),
-                            aarsakerOgForklaring = it,
+                            dato = dato,
+                            aarsakerOgForklaring = aarsakerOgForklaring,
                             avbruttAv = navIdent,
+                            avlys = request.avlys ?: false,
                         )
                     }
                     .onLeft {
@@ -749,6 +750,7 @@ enum class GjennomforingHandling {
     PUBLISER,
     REDIGER,
     AVBRYT,
+    AVLYS,
     DUPLISER,
     ENDRE_APEN_FOR_PAMELDING,
     ENDRE_TILGJENGELIG_FOR_ARRANGOR,
@@ -757,4 +759,19 @@ enum class GjennomforingHandling {
     OPPRETT_EKSTRATILSAGN,
     OPPRETT_TILSAGN_FOR_INVESTERINGER,
     OPPRETT_KORREKSJON_PA_UTBETALING,
+}
+
+@Serializable
+data class AvbrytGjennomforingRequest(
+    val aarsakerOgForklaringRequest: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>,
+    @Serializable(with = LocalDateSerializer::class)
+    val dato: LocalDate? = null,
+    val avlys: Boolean? = false,
+) {
+    fun validate(): Either<List<FieldError>, AvbrytGjennomforingRequest> = validation {
+        aarsakerOgForklaringRequest.validate().bind()
+        validate(avlys == true || dato != null) {
+            FieldError.of("Du må velge en dato", AvbrytGjennomforingRequest::dato)
+        }
+    }.map { this }
 }

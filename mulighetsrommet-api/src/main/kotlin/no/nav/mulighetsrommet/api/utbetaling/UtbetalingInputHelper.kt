@@ -16,10 +16,11 @@ object UtbetalingInputHelper {
         gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): AvtaltPrisPerTimeOppfolgingPerDeltaker {
-        val satser = resolveAvtalteSatser(gjennomforing, periode)
-        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
+        val justertPeriode = Periode(periode.start, listOfNotNull(periode.slutt, gjennomforing.sluttDato?.plusDays(1)).min())
+        val satser = resolveAvtalteSatser(gjennomforing, justertPeriode)
+        val stengtHosArrangor = resolveStengtHosArrangor(justertPeriode, gjennomforing.stengt)
         val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
-        val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, periode)
+        val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, justertPeriode)
         return AvtaltPrisPerTimeOppfolgingPerDeltaker(
             satser,
             stengtHosArrangor,
@@ -108,7 +109,10 @@ object UtbetalingInputHelper {
     }
 
     fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
-        return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
+        return listOfNotNull(
+            deltaker.sluttDato?.plusDays(1),
+            periode.slutt,
+        ).min()
     }
 
     fun resolveStengtHosArrangor(

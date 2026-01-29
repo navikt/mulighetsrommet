@@ -10,13 +10,13 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -42,7 +42,6 @@ import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class GjennomforingQueries(private val session: Session) {
@@ -414,7 +413,6 @@ class GjennomforingQueries(private val session: Session) {
                    start_dato,
                    slutt_dato,
                    status,
-                   avsluttet_tidspunkt,
                    avbrutt_aarsaker,
                    avbrutt_forklaring,
                    publisert,
@@ -573,7 +571,7 @@ class GjennomforingQueries(private val session: Session) {
     fun setStatus(
         id: UUID,
         status: GjennomforingStatusType,
-        tidspunkt: LocalDateTime?,
+        sluttDato: LocalDate?,
         aarsaker: List<AvbrytGjennomforingAarsak>?,
         forklaring: String?,
     ): Int = with(session) {
@@ -581,7 +579,7 @@ class GjennomforingQueries(private val session: Session) {
         val query = """
             update gjennomforing
             set status = :status::gjennomforing_status,
-                avsluttet_tidspunkt = :tidspunkt,
+                slutt_dato = coalesce(:slutt_dato, slutt_dato),
                 avbrutt_aarsaker = :aarsaker,
                 avbrutt_forklaring = :forklaring
             where id = :id::uuid
@@ -590,7 +588,7 @@ class GjennomforingQueries(private val session: Session) {
         val params = mapOf(
             "id" to id,
             "status" to status.name,
-            "tidspunkt" to tidspunkt,
+            "slutt_dato" to sluttDato,
             "aarsaker" to aarsaker?.let { session.createTextArray(it) },
             "forklaring" to forklaring,
         )
@@ -694,7 +692,10 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
         lopenummer = Tiltaksnummer(string("lopenummer")),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = toGjennomforingStatus(),
+        status = GjennomforingDtoMapper.fromGjennomforingStatus(
+            status = GjennomforingStatusType.valueOf(string("status")),
+            toAvbrytelse(),
+        ),
         publisert = boolean("publisert"),
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
         arrangor = GjennomforingKompakt.ArrangorUnderenhet(
@@ -751,7 +752,8 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
         ),
         startDato = startDato,
         sluttDato = sluttDato,
-        status = toGjennomforingStatus(),
+        status = GjennomforingStatusType.valueOf(string("status")),
+        avbrytelse = toAvbrytelse(),
         apentForPamelding = boolean("apent_for_pamelding"),
         antallPlasser = int("antall_plasser"),
         avtaleId = uuidOrNull("avtale_id"),
@@ -791,22 +793,13 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
     )
 }
 
-private fun Row.toGjennomforingStatus(): GjennomforingStatus {
-    return when (GjennomforingStatusType.valueOf(string("status"))) {
-        GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
+private fun Row.toAvbrytelse(): GjennomforingGruppetiltak.Avbrytelse? {
+    return when (val aarsaker = arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbrytGjennomforingAarsak.valueOf(it) }) {
+        null -> null
 
-        GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
-
-        GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
-            tidspunkt = localDateTime("avsluttet_tidspunkt"),
-            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-            stringOrNull("avbrutt_forklaring"),
-        )
-
-        GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
-            tidspunkt = localDateTime("avsluttet_tidspunkt"),
-            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-            stringOrNull("avbrutt_forklaring"),
+        else -> GjennomforingGruppetiltak.Avbrytelse(
+            aarsaker = aarsaker,
+            forklaring = stringOrNull("avbrutt_forklaring"),
         )
     }
 }

@@ -125,7 +125,7 @@ class AvtaleService(
                         arrangor = it.arrangor,
                         startDato = it.startDato,
                         utdanningslop = it.utdanningslop,
-                        status = it.status.type,
+                        status = it.status,
                         prismodellId = it.prismodell?.id ?: avtale.prismodeller.first().id,
                     )
                 },
@@ -268,7 +268,7 @@ class AvtaleService(
             }
 
             val antallAktiveGjennomforinger = queries.gjennomforing.getByAvtale(id).count {
-                it.status.type == GjennomforingStatusType.GJENNOMFORES
+                it.status == GjennomforingStatusType.GJENNOMFORES
             }
             validate(antallAktiveGjennomforinger == 0) {
                 val message = listOf(

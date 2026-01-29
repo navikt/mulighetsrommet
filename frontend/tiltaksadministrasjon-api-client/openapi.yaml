@@ -937,11 +937,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak"
+              $ref: "#/components/schemas/AvbrytGjennomforingRequest"
         required: false
       responses:
         "200":
-          description: Gjennomføring ble avbrutt
+          description: Avbryt gjennomføring
           headers: {}
         "400":
           description: Valideringsfeil
@@ -4614,6 +4614,29 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
+    GjennomforingGruppetiltak.Avbrytelse:
+      type: object
+      properties:
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - forklaring
+    AvbrytGjennomforingAarsak:
+      type: string
+      enum:
+      - ENDRING_HOS_ARRANGOR
+      - BUDSJETT_HENSYN
+      - FOR_FAA_DELTAKERE
+      - FEILREGISTRERING
+      - AVBRUTT_I_ARENA
+      - ANNET
     GjennomforingGruppetiltak.Administrator:
       type: object
       properties:
@@ -4712,6 +4735,10 @@ components:
           - $ref: "#/components/schemas/ArenaNavEnhet"
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
+        avbrytelse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingGruppetiltak.Avbrytelse"
         apentForPamelding:
           type: boolean
         antallPlasser:
@@ -4789,6 +4816,7 @@ components:
       - apentForPamelding
       - arenaAnsvarligEnhet
       - arrangor
+      - avbrytelse
       - avtaleId
       - beskrivelse
       - deltidsprosent
@@ -4813,15 +4841,6 @@ components:
       - tiltaksnummer
       - tiltakstype
       - utdanningslop
-    AvbrytGjennomforingAarsak:
-      type: string
-      enum:
-      - ENDRING_HOS_ARRANGOR
-      - BUDSJETT_HENSYN
-      - FOR_FAA_DELTAKERE
-      - FEILREGISTRERING
-      - AVBRUTT_I_ARENA
-      - ANNET
     AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak:
       type: object
       properties:
@@ -4836,6 +4855,24 @@ components:
       required:
       - aarsaker
       - forklaring
+    AvbrytGjennomforingRequest:
+      type: object
+      properties:
+        aarsakerOgForklaringRequest:
+          $ref: "#/components/schemas/AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak"
+        dato:
+          type:
+          - "null"
+          - string
+          format: date
+        avlys:
+          type:
+          - "null"
+          - boolean
+      required:
+      - aarsakerOgForklaringRequest
+      - avlys
+      - dato
     PublisertRequest:
       type: object
       properties:
@@ -4999,6 +5036,7 @@ components:
       - PUBLISER
       - REDIGER
       - AVBRYT
+      - AVLYS
       - DUPLISER
       - ENDRE_APEN_FOR_PAMELDING
       - ENDRE_TILGJENGELIG_FOR_ARRANGOR

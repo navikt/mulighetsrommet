@@ -106,6 +106,27 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 ),
             )
         }
+
+        test("gjennomføringens sluttDato er maks grense for perioden") {
+            val periode = Periode.forMonthOf(LocalDate.of(2026, 2, 1))
+
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = sats)
+                .copy(sluttDato = LocalDate.of(2026, 2, 5))
+            val deltakere = listOf(
+                createDeltaker(
+                    Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 4, 1)),
+                    deltakelsesmengder = listOf(Deltakelsesmengde(LocalDate.of(2026, 1, 1), 100.0)),
+                ),
+            )
+
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
+            result.input.deltakelser shouldBe setOf(
+                DeltakelseDeltakelsesprosentPerioder(
+                    deltakere[0].id,
+                    listOf(DeltakelsesprosentPeriode(Periode(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 6)), 100.0)),
+                ),
+            )
+        }
     }
 
     context("beregning for fast sats per tiltaksplass per måned") {

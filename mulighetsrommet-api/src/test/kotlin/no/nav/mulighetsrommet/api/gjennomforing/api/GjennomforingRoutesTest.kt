@@ -5,7 +5,6 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
-import io.kotest.matchers.types.shouldBeTypeOf
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -28,7 +27,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.getAnsattClaims
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -38,7 +36,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class GjennomforingRoutesTest : FunSpec({
@@ -222,8 +219,8 @@ class GjennomforingRoutesTest : FunSpec({
             gjennomforinger = listOf(
                 GjennomforingFixtures.Oppfolging1.copy(
                     id = aktivGjennomforingId,
-                    startDato = LocalDate.now(),
-                    sluttDato = LocalDate.now(),
+                    startDato = LocalDate.now().minusDays(20),
+                    sluttDato = LocalDate.now().plusDays(20),
                     status = GjennomforingStatusType.GJENNOMFORES,
                 ),
                 GjennomforingFixtures.Oppfolging1.copy(
@@ -234,7 +231,7 @@ class GjennomforingRoutesTest : FunSpec({
             queries.gjennomforing.setStatus(
                 id = avbruttGjennomforingId,
                 status = GjennomforingStatusType.AVBRUTT,
-                tidspunkt = LocalDateTime.now(),
+                sluttDato = LocalDate.now(),
                 aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                 forklaring = null,
             )
@@ -272,9 +269,12 @@ class GjennomforingRoutesTest : FunSpec({
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(
-                            AarsakerOgForklaringRequest(
-                                aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
-                                forklaring = null,
+                            AvbrytGjennomforingRequest(
+                                aarsakerOgForklaringRequest = AarsakerOgForklaringRequest(
+                                    aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
+                                    forklaring = null,
+                                ),
+                                dato = LocalDate.now(),
                             ),
                         )
                     }
@@ -292,9 +292,12 @@ class GjennomforingRoutesTest : FunSpec({
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(
-                            AarsakerOgForklaringRequest(
-                                aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
-                                forklaring = null,
+                            AvbrytGjennomforingRequest(
+                                aarsakerOgForklaringRequest = AarsakerOgForklaringRequest(
+                                    aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
+                                    forklaring = null,
+                                ),
+                                dato = LocalDate.now(),
                             ),
                         )
                     }
@@ -314,9 +317,12 @@ class GjennomforingRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        AarsakerOgForklaringRequest(
-                            aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
-                            forklaring = null,
+                        AvbrytGjennomforingRequest(
+                            aarsakerOgForklaringRequest = AarsakerOgForklaringRequest(
+                                aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
+                                forklaring = null,
+                            ),
+                            dato = LocalDate.now().minusDays(1),
                         ),
                     )
                 }
@@ -326,10 +332,8 @@ class GjennomforingRoutesTest : FunSpec({
 
                 database.run {
                     queries.gjennomforing.getGruppetiltakOrError(aktivGjennomforingId).should {
-                        it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>().should {
-                            it.type shouldBe GjennomforingStatusType.AVBRUTT
-                            it.aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING
-                        }
+                        it.status shouldBe GjennomforingStatusType.AVBRUTT
+                        it.avbrytelse?.aarsaker?.shouldContain(AvbrytGjennomforingAarsak.FEILREGISTRERING)
                     }
                 }
             }

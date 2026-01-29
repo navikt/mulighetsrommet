@@ -21,13 +21,11 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -123,14 +121,14 @@ class GjennomforingService(
         val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
         val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
         val antallDeltakere = queries.deltaker.getByGjennomforingId(request.id).size
-        val status = resolveStatus(previous?.status?.type, request, today)
+        val status = resolveStatus(previous?.status, request, today)
         return GjennomforingValidator.Ctx(
             previous = previous?.let {
                 GjennomforingValidator.Ctx.Gjennomforing(
                     avtaleId = it.avtaleId,
                     oppstart = it.oppstart,
                     arrangorId = it.arrangor.id,
-                    status = it.status.type,
+                    status = it.status,
                     sluttDato = it.sluttDato,
                     pameldingType = it.pameldingType,
                 )
@@ -173,7 +171,7 @@ class GjennomforingService(
                     lopenummer = it.lopenummer,
                     startDato = it.startDato,
                     sluttDato = it.sluttDato,
-                    status = GjennomforingDtoMapper.fromGjennomforingStatus(it.status),
+                    status = it.status,
                     publisert = it.publisert,
                     kontorstruktur = it.kontorstruktur,
                     arrangor = it.arrangor,
@@ -216,24 +214,23 @@ class GjennomforingService(
 
     fun avsluttGjennomforing(
         id: UUID,
-        avsluttetTidspunkt: LocalDateTime,
         endretAv: Agent,
     ): GjennomforingGruppetiltak = db.transaction {
         val gjennomforing = getOrError(id)
 
-        check(gjennomforing.status is GjennomforingStatus.Gjennomfores) {
+        check(gjennomforing.status == GjennomforingStatusType.GJENNOMFORES) {
             "Gjennomføringen må være aktiv for å kunne avsluttes"
         }
 
         val tidspunktForSlutt = gjennomforing.sluttDato?.plusDays(1)?.atStartOfDay()
-        check(tidspunktForSlutt != null && !avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
+        check(tidspunktForSlutt != null && !LocalDateTime.now().isBefore(tidspunktForSlutt)) {
             "Gjennomføringen kan ikke avsluttes før sluttdato"
         }
 
         queries.gjennomforing.setStatus(
             id = id,
             status = GjennomforingStatusType.AVSLUTTET,
-            tidspunkt = avsluttetTidspunkt,
+            sluttDato = null,
             aarsaker = null,
             forklaring = null,
         )
@@ -248,35 +245,50 @@ class GjennomforingService(
     fun avbrytGjennomforing(
         id: UUID,
         avbruttAv: Agent,
-        tidspunkt: LocalDateTime,
+        avlys: Boolean,
+        dato: LocalDate?,
         aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>,
     ): Either<List<FieldError>, GjennomforingGruppetiltak> = db.transaction {
         val gjennomforing = getOrError(id)
 
         when (gjennomforing.status) {
-            is GjennomforingStatus.Gjennomfores -> Unit
+            GjennomforingStatusType.GJENNOMFORES -> Unit
 
-            is GjennomforingStatus.Avlyst, is GjennomforingStatus.Avbrutt ->
+            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT ->
                 return FieldError.root("Gjennomføringen er allerede avbrutt").nel().left()
 
-            is GjennomforingStatus.Avsluttet ->
+            GjennomforingStatusType.AVSLUTTET ->
                 return FieldError.root("Gjennomføringen er allerede avsluttet").nel().left()
         }
 
-        val tidspunktForStart = gjennomforing.startDato.atStartOfDay()
-        val tidspunktForSlutt = gjennomforing.sluttDato?.plusDays(1)?.atStartOfDay()
-        val status = if (tidspunkt.isBefore(tidspunktForStart)) {
+        val start = gjennomforing.startDato
+        val slutt = gjennomforing.sluttDato
+
+        if (dato != null && (dato.isBefore(start) || (slutt != null && dato.isAfter(slutt)))) {
+            return FieldError.root("Dato må være mellom start og slutt").nel().left()
+        }
+
+        check(!avlys || LocalDate.now().isBefore(start)) {
+            "Kan ikke avlyse etter start"
+        }
+
+        val status = if (avlys) {
             GjennomforingStatusType.AVLYST
-        } else if (tidspunktForSlutt == null || tidspunkt.isBefore(tidspunktForSlutt)) {
-            GjennomforingStatusType.AVBRUTT
         } else {
-            throw Exception("Gjennomføring allerede avsluttet")
+            check(dato != null) {
+                "Enten avlys eller dato må være satt"
+            }
+            if (dato.isBefore(LocalDate.now())) {
+                GjennomforingStatusType.AVBRUTT
+            } else {
+                GjennomforingStatusType.GJENNOMFORES
+            }
         }
 
         queries.gjennomforing.setStatus(
             id = id,
             status = status,
-            tidspunkt = tidspunkt,
+            sluttDato = dato,
             aarsaker = aarsakerOgForklaring.aarsaker,
             forklaring = aarsakerOgForklaring.forklaring,
         )
@@ -442,11 +454,12 @@ class GjennomforingService(
     }
 
     fun handlinger(gjennomforing: GjennomforingGruppetiltak, ansatt: NavAnsatt): Set<GjennomforingHandling> {
-        val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
+        val statusGjennomfores = gjennomforing.status == GjennomforingStatusType.GJENNOMFORES
 
         return setOfNotNull(
             GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
             GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
+            GjennomforingHandling.AVLYS.takeIf { statusGjennomfores && gjennomforing.startDato > LocalDate.now() },
             GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
             GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
             GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
@@ -475,6 +488,7 @@ class GjennomforingService(
             return when (handling) {
                 GjennomforingHandling.PUBLISER -> skrivGjennomforing
                 GjennomforingHandling.AVBRYT -> skrivGjennomforing
+                GjennomforingHandling.AVLYS -> skrivGjennomforing
                 GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING -> skrivGjennomforing || oppfolgerGjennomforing
                 GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR -> skrivGjennomforing || oppfolgerGjennomforing
                 GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR -> skrivGjennomforing
@@ -500,7 +514,7 @@ private fun isEqual(
     arrangorKontaktpersoner = previous.arrangor.kontaktpersoner.map { it.id },
     startDato = previous.startDato,
     sluttDato = previous.sluttDato,
-    status = previous.status.type,
+    status = previous.status,
     antallPlasser = previous.antallPlasser,
     avtaleId = checkNotNull(previous.avtaleId) { "Forventet at avtale var definert!" },
     administratorer = previous.administratorer.map { it.navIdent },

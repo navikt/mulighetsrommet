@@ -46,7 +46,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 "navRegion or arenaAnsvarligEnhet was null! Should not be possible!"
             }
 
-            val status = when (gjennomforing.status.type) {
+            val status = when (gjennomforing.status) {
                 GjennomforingStatusType.GJENNOMFORES -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
                 GjennomforingStatusType.AVSLUTTET -> ArenaTiltaksgjennomforingStatus.AVSLUTTET
                 GjennomforingStatusType.AVBRUTT -> ArenaTiltaksgjennomforingStatus.AVBRUTT

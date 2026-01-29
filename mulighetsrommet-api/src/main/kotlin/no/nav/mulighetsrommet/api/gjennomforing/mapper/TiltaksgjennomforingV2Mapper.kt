@@ -22,7 +22,7 @@ object TiltaksgjennomforingV2Mapper {
             navn = gjennomforing.navn,
             startDato = gjennomforing.startDato,
             sluttDato = gjennomforing.sluttDato,
-            status = gjennomforing.status.type,
+            status = gjennomforing.status,
             oppstart = gjennomforing.oppstart,
             tilgjengeligForArrangorFraOgMedDato = gjennomforing.tilgjengeligForArrangorDato,
             apentForPamelding = gjennomforing.apentForPamelding,

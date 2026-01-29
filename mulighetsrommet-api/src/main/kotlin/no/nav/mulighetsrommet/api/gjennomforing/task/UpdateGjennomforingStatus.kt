@@ -37,7 +37,6 @@ class UpdateGjennomforingStatus(
             logger.info("Avslutter gjennomføring id=$id")
             gjennomforingService.avsluttGjennomforing(
                 id = id,
-                avsluttetTidspunkt = now,
                 endretAv = Tiltaksadministrasjon,
             )
         }

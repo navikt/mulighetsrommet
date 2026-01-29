@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object GjennomforingDtoMapper {
     fun fromGjennomforing(gjennomforing: GjennomforingGruppetiltak) = GjennomforingDto(
@@ -17,7 +17,8 @@ object GjennomforingDtoMapper {
         startDato = gjennomforing.startDato,
         sluttDato = gjennomforing.sluttDato,
         arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
-        status = fromGjennomforingStatus(gjennomforing.status),
+        status = fromGjennomforingStatus(gjennomforing.status, gjennomforing.avbrytelse),
+        avbrytelse = gjennomforing.avbrytelse,
         apentForPamelding = gjennomforing.apentForPamelding,
         antallPlasser = gjennomforing.antallPlasser,
         avtaleId = gjennomforing.avtaleId,
@@ -40,18 +41,23 @@ object GjennomforingDtoMapper {
         pameldingType = gjennomforing.pameldingType,
     )
 
-    fun fromGjennomforingStatus(status: GjennomforingStatus): GjennomforingDto.Status {
+    fun fromGjennomforingStatus(status: GjennomforingStatusType, avbrytelse: GjennomforingGruppetiltak.Avbrytelse?): GjennomforingDto.Status {
         val variant = when (status) {
-            GjennomforingStatus.Gjennomfores -> DataElement.Status.Variant.SUCCESS
-            GjennomforingStatus.Avsluttet -> DataElement.Status.Variant.NEUTRAL
-            is GjennomforingStatus.Avlyst, is GjennomforingStatus.Avbrutt -> DataElement.Status.Variant.ERROR
+            GjennomforingStatusType.GJENNOMFORES -> DataElement.Status.Variant.SUCCESS
+            GjennomforingStatusType.AVSLUTTET -> DataElement.Status.Variant.NEUTRAL
+            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> DataElement.Status.Variant.ERROR
         }
         val description = when (status) {
-            GjennomforingStatus.Gjennomfores, GjennomforingStatus.Avsluttet -> null
-            is GjennomforingStatus.Avlyst -> status.forklaring
-            is GjennomforingStatus.Avbrutt -> status.forklaring
+            GjennomforingStatusType.GJENNOMFORES,
+            GjennomforingStatusType.AVSLUTTET,
+            -> null
+
+            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT,
+            -> avbrytelse?.forklaring
         }
-        val element = DataElement.Status(status.type.beskrivelse, variant, description)
-        return GjennomforingDto.Status(status.type, element)
+
+        avbrytelse?.forklaring
+        val element = DataElement.Status(status.beskrivelse, variant, description)
+        return GjennomforingDto.Status(status, element)
     }
 }
