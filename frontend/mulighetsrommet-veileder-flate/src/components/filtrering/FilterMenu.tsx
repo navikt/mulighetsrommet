@@ -1,8 +1,7 @@
-import { useRegioner } from "@/api/queries/useRegioner";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { ApentForPamelding } from "@api-client";
-import { FilterAccordionHeader, NavEnhetFilter } from "@mr/frontend-common";
+import { FilterAccordionHeader } from "@mr/frontend-common";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Accordion } from "@navikt/ds-react";
@@ -11,11 +10,11 @@ import { FilterToggle } from "./FilterToggle";
 import { InnsatsgruppeFilter } from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
 import { TiltakstypeFilter } from "./TiltakstypeFilter";
+import { NavEnhetFilter } from "@/components/filtrering/NavEnhetFilter";
 
 export function FilterMenu() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
-  const { data: regioner } = useRegioner();
 
   return (
     <div data-testid="filtertabs">
@@ -60,7 +59,6 @@ export function FilterMenu() {
             <NavEnhetFilter
               value={filter.navEnheter}
               onChange={(navEnheter) => setFilter({ ...filter, navEnheter })}
-              regioner={regioner}
             />
           </Accordion.Content>
         </Accordion.Item>

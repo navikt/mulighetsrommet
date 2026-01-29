@@ -5,33 +5,18 @@ import styles from "./FilterTag.module.scss";
 import { MouseEvent } from "react";
 
 interface Props {
-  navEnheter: string[];
+  labels: string[];
   onClose?: (e: MouseEvent) => void;
 }
 
-export function NavEnhetFilterTag({ navEnheter, onClose }: Props) {
-  if (navEnheter.length === 0) {
+export function MultiLabelFilterTag({ labels, onClose }: Props) {
+  if (labels.length === 0) {
     return null;
   }
 
-  function tagLabel() {
-    const firstEnhetName = navEnheter[0];
-    if (navEnheter.length > 1) {
-      return `${firstEnhetName} +${navEnheter.length - 1}`;
-    }
-    return firstEnhetName;
-  }
-
   return (
-    <Tag
-      size="small"
-      variant="info"
-      key="navenhet"
-      data-testid="filtertag_navenhet"
-      className={styles.filtertag}
-      title={navEnheter.join(", ")}
-    >
-      {tagLabel()}
+    <Tag size="small" variant="info" className={styles.filtertag} title={labels.join(", ")}>
+      {tagLabel(labels)}
       {onClose ? (
         <Ikonknapp
           className={styles.overstyrt_ikon_knapp}
@@ -42,4 +27,12 @@ export function NavEnhetFilterTag({ navEnheter, onClose }: Props) {
       ) : null}
     </Tag>
   );
+}
+
+function tagLabel(labels: string[]) {
+  const firstLabel = labels[0];
+  if (labels.length > 1) {
+    return `${firstLabel} +${labels.length - 1}`;
+  }
+  return firstLabel;
 }

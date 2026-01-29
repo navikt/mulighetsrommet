@@ -7,7 +7,7 @@ import {
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
-import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
+import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { CheckboxList } from "./CheckboxList";
@@ -16,6 +16,7 @@ import {
   GjennomforingFilterType,
 } from "@/pages/gjennomforing/filter";
 import { ArrangorKobling, AvtaleDto } from "@tiltaksadministrasjon/api-client";
+import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
 
 type Filters = "tiltakstype";
 
