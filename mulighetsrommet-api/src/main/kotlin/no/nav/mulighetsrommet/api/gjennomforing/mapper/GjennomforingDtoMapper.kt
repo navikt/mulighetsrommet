@@ -56,7 +56,6 @@ object GjennomforingDtoMapper {
             -> avbrytelse?.forklaring
         }
 
-        avbrytelse?.forklaring
         val element = DataElement.Status(status.beskrivelse, variant, description)
         return GjennomforingDto.Status(status, element)
     }
