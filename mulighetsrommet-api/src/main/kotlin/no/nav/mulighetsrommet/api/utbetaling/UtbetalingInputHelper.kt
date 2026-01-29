@@ -16,10 +16,11 @@ object UtbetalingInputHelper {
         gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): AvtaltPrisPerTimeOppfolgingPerDeltaker {
-        val satser = resolveAvtalteSatser(gjennomforing, periode)
-        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
+        val justertPeriode = Periode(periode.start, listOfNotNull(periode.slutt, gjennomforing.sluttDato?.plusDays(1)).min())
+        val satser = resolveAvtalteSatser(gjennomforing, justertPeriode)
+        val stengtHosArrangor = resolveStengtHosArrangor(justertPeriode, gjennomforing.stengt)
         val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
-        val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, periode, gjennomforing.sluttDato)
+        val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, justertPeriode)
         return AvtaltPrisPerTimeOppfolgingPerDeltaker(
             satser,
             stengtHosArrangor,
@@ -69,12 +70,11 @@ object UtbetalingInputHelper {
     fun resolveDeltakelsePerioder(
         deltakere: List<Deltaker>,
         periode: Periode,
-        gjennomforingSluttDato: LocalDate?,
     ): Set<DeltakelsePeriode> {
         return deltakere
             .asSequence()
             .mapNotNull { deltaker ->
-                toDeltakelsePeriode(deltaker, periode, gjennomforingSluttDato)
+                toDeltakelsePeriode(deltaker, periode)
             }
             .toSet()
     }
@@ -82,7 +82,6 @@ object UtbetalingInputHelper {
     fun toDeltakelsePeriode(
         deltaker: Deltaker,
         periode: Periode,
-        gjennomforingSluttDato: LocalDate?,
     ): DeltakelsePeriode? {
         if (!harDeltakerDeltatt(deltaker)) {
             return null
@@ -91,7 +90,7 @@ object UtbetalingInputHelper {
         val startDato = requireNotNull(deltaker.startDato) {
             "Deltaker må ha en startdato når status er ${deltaker.status.type} og den er relevant for utbetaling"
         }
-        val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode, gjennomforingSluttDato)
+        val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
         val overlappingPeriode = Periode.of(startDato, sluttDatoInPeriode)?.intersect(periode) ?: return null
         return DeltakelsePeriode(deltaker.id, overlappingPeriode)
     }
@@ -109,11 +108,10 @@ object UtbetalingInputHelper {
         return deltaker.status.type in avsluttendeStatus && deltaker.sluttDato != null
     }
 
-    fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode, gjennomforingSluttDato: LocalDate?): LocalDate {
+    fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
         return listOfNotNull(
             deltaker.sluttDato?.plusDays(1),
             periode.slutt,
-            gjennomforingSluttDato?.plusDays(1),
         ).min()
     }
 

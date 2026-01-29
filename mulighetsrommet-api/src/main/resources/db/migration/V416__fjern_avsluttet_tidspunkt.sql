@@ -6,4 +6,3 @@ update gjennomforing set slutt_dato = avsluttet_tidspunkt::date - interval '1 DA
     and avsluttet_tidspunkt >= start_dato;
 
 alter table gjennomforing drop column avsluttet_tidspunkt;
-alter table gjennomforing add column avbry_dato date;
