@@ -16,6 +16,7 @@ fun Route.navEnhetRoutes() {
     val navEnhetService: NavEnhetService by inject()
 
     route("nav-enheter") {
+        // TODO: ikke returner NavRegionDto, men heller kontorstruktur-modellen. Deretter la frontend bestemme hva som er standardvalg
         get("regioner", {
             tags = setOf("NavEnheter")
             operationId = "getRegioner"
@@ -33,6 +34,7 @@ fun Route.navEnhetRoutes() {
             call.respond(navEnhetService.hentRegioner())
         }
 
+        // TODO: eget kodeverk-route for kostnadssteder? Og ikke benytt NavRegionDto til dette...
         get("kostnadsstedFilter", {
             tags = setOf("NavEnheter")
             operationId = "getKostnadsstedFilter"
