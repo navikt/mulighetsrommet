@@ -1,5 +1,4 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import {
   arrangorOptions,
@@ -14,6 +13,7 @@ import { CheckboxList } from "./CheckboxList";
 import { avtaleFilterAccordionAtom, AvtaleFilterType } from "@/pages/avtaler/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
+import { useTiltakstyperForAvtaler } from "@/api/tiltakstyper/useTiltakstyperForAvtaler";
 
 type Filters = "tiltakstype";
 
@@ -26,7 +26,7 @@ interface Props {
 export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
 
-  const { data: tiltakstyper } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyperForAvtaler();
   const { data: regioner } = useNavRegioner();
   const { data: arrangorData } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,

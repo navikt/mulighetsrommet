@@ -20,6 +20,7 @@ import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
@@ -46,6 +47,7 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -95,7 +97,7 @@ fun Route.gjennomforingRoutes() {
 
                 val result = gjennomforinger.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
-                    .map { GjennomforingDtoMapper.fromGjennomforing(it) }
+                    .map { GjennomforingDtoMapper.fromGruppetiltak(it) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -261,7 +263,7 @@ fun Route.gjennomforingRoutes() {
                         gjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
-                    .map { GjennomforingDtoMapper.fromGjennomforing(it) }
+                    .map { GjennomforingDtoMapper.fromGruppetiltak(it) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -442,7 +444,7 @@ fun Route.gjennomforingRoutes() {
 
             gjennomforinger.get(id)
                 ?.let { call.respond(GjennomforingDtoMapper.fromGjennomforing(it)) }
-                ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
+                ?: call.respondUkjentGjennomforing(id)
         }
 
         get("{id}/tiltaksnummer", {
@@ -470,7 +472,7 @@ fun Route.gjennomforingRoutes() {
                         ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it.value)) }
                         ?: call.respond(HttpStatusCode.NoContent)
                 }
-                ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
+                ?: call.respondUkjentGjennomforing(id)
         }
 
         get("{id}/historikk", {
@@ -557,9 +559,13 @@ fun Route.gjennomforingRoutes() {
             gjennomforinger.get(id)
                 ?.let { gjennomforinger.handlinger(it, ansatt) }
                 ?.let { call.respond(it) }
-                ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
+                ?: call.respondUkjentGjennomforing(id)
         }
     }
+}
+
+private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {
+    respondWithProblemDetail(BadRequest("Ingen tiltaksgjennomføring med id=$id"))
 }
 
 data class AdminTiltaksgjennomforingFilter(

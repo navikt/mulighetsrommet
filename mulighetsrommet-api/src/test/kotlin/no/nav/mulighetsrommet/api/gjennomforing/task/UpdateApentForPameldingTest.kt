@@ -46,7 +46,8 @@ class UpdateApentForPameldingTest : FunSpec({
         val service = GjennomforingService(
             config = GjennomforingService.Config(TEST_GJENNOMFORING_V1_TOPIC, TEST_GJENNOMFORING_V2_TOPIC),
             db = database.db,
-            navAnsattService = mockk(relaxed = true),
+            navAnsattService = mockk(),
+            tiltakstypeService = mockk(),
         )
 
         val updateApentForPamelding = UpdateApentForPamelding(

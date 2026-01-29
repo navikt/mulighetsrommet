@@ -11,11 +11,12 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Map
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktGruppetiltak
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -58,12 +59,8 @@ class InitialLoadGjennomforinger(
                 initialLoadGjennomforingerById(input.ids)
             }
 
-            input.tiltakskode?.takeIf { Tiltakskoder.isGruppetiltak(it) }?.let {
-                initialLoadGruppetiltakByTiltakskode(it)
-            }
-
-            input.tiltakskode?.takeIf { Tiltakskoder.isEnkeltplassTiltak(it) }?.let {
-                initialLoadEnkeltplassByTiltakskode(it)
+            if (input.tiltakskode != null) {
+                initialLoadByTiltakskode(input.tiltakskode)
             }
 
             if (input.avtaleId != null) {
@@ -82,7 +79,7 @@ class InitialLoadGjennomforinger(
         return id
     }
 
-    private suspend fun initialLoadGruppetiltakByTiltakskode(
+    private suspend fun initialLoadByTiltakskode(
         tiltakskode: Tiltakskode,
     ): Unit = db.session {
         val tiltakstypeId = queries.tiltakstype.getByTiltakskode(tiltakskode).id
@@ -97,31 +94,13 @@ class InitialLoadGjennomforinger(
                 result.items
             },
         ) {
-            publish(queries.gjennomforing.getGruppetiltakOrError(it.id))
+            when (it) {
+                is GjennomforingKompaktGruppetiltak -> publish(queries.gjennomforing.getGruppetiltakOrError(it.id))
+                is GjennomforingKompaktEnkeltplass -> publish(queries.gjennomforing.getEnkeltplassOrError(it.id))
+            }
         }
 
-        logger.info("Antall gruppetiltak relastet på topic: $total")
-    }
-
-    private suspend fun initialLoadEnkeltplassByTiltakskode(
-        tiltakskode: Tiltakskode,
-    ): Unit = db.session {
-        val tiltakstypeId = queries.tiltakstype.getByTiltakskode(tiltakskode).id
-
-        val total = paginateFanOut(
-            { pagination: Pagination ->
-                logger.info("Henter enkeltplasser pagination=$pagination")
-                val result = queries.gjennomforing.getAllEnkeltplass(
-                    pagination = pagination,
-                    tiltakstyper = listOf(tiltakstypeId),
-                )
-                result.items
-            },
-        ) {
-            publish(it)
-        }
-
-        logger.info("Antall enkeltplasser relastet på topic: $total")
+        logger.info("Gjennomføringer relastet på topic, tiltakskode=$tiltakskode, antall=$total")
     }
 
     private fun initialLoadGjennomforingerById(ids: List<UUID>) = db.session {

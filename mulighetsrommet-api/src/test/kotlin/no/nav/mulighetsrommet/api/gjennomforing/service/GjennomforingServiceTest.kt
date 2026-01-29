@@ -32,6 +32,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFil
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -51,6 +52,7 @@ class GjennomforingServiceTest : FunSpec({
         config = GjennomforingService.Config(TEST_GJENNOMFORING_V1_TOPIC, TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         navAnsattService = mockk(relaxed = true),
+        tiltakstypeService = TiltakstypeService(db = database.db),
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -303,9 +305,7 @@ class GjennomforingServiceTest : FunSpec({
                     null,
                 ),
                 avbruttAv = bertilNavIdent,
-            )
-
-            service.get(gjennomforing.id).shouldNotBeNull().should {
+            ).shouldBeRight().should {
                 it.status.shouldBeTypeOf<GjennomforingStatus.Avlyst>()
                 it.publisert shouldBe false
                 it.apentForPamelding shouldBe false

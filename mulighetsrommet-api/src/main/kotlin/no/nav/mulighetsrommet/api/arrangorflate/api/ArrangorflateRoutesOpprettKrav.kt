@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -145,6 +146,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             } else {
                 queries.gjennomforing
                     .getAll(
+                        type = GjennomforingType.GRUPPETILTAK,
                         arrangorOrgnr = arrangorer,
                         prismodeller = gyldigePrismodeller,
                         tiltakstypeIder = gyldigeTiltakstyper,

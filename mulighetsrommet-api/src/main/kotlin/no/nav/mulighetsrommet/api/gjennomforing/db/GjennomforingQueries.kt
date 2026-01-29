@@ -15,6 +15,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
@@ -371,6 +373,7 @@ class GjennomforingQueries(private val session: Session) {
         publisert: Boolean? = null,
         koordinatorNavIdent: NavIdent? = null,
         prismodeller: List<PrismodellType> = emptyList(),
+        type: GjennomforingType? = null,
     ): PaginatedResult<GjennomforingKompakt> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
@@ -382,10 +385,11 @@ class GjennomforingQueries(private val session: Session) {
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { createUuidArray(it) },
             "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
             "statuser" to statuser.ifEmpty { null }?.let { createArrayOf("gjennomforing_status", statuser) },
-            "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
-            "koordinator_nav_ident" to koordinatorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
+            "administrator_nav_ident" to administratorNavIdent?.value,
+            "koordinator_nav_ident" to koordinatorNavIdent?.value,
             "publisert" to publisert,
             "prismodeller" to prismodeller.ifEmpty { null }?.let { createArrayOf("prismodell_type", prismodeller) },
+            "gjennomforing_type" to type?.name,
         )
 
         val order = when (sortering) {
@@ -409,6 +413,7 @@ class GjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select id,
+                   gjennomforing_type,
                    lopenummer,
                    navn,
                    start_dato,
@@ -418,15 +423,15 @@ class GjennomforingQueries(private val session: Session) {
                    avbrutt_aarsaker,
                    avbrutt_forklaring,
                    publisert,
-                   nav_enheter_json,
                    tiltakstype_id,
                    tiltakstype_tiltakskode,
                    tiltakstype_navn,
                    arrangor_id,
                    arrangor_organisasjonsnummer,
                    arrangor_navn,
+                   nav_enheter_json,
                    count(*) over () as total_count
-            from view_gjennomforing_gruppetiltak
+            from view_gjennomforing_kompakt
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
               and (:avtale_id::uuid is null or avtale_id = :avtale_id)
               and (:arrangor_ids::uuid[] is null or arrangor_id = any(:arrangor_ids))
@@ -436,11 +441,14 @@ class GjennomforingQueries(private val session: Session) {
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)))
-              and ((:administrator_nav_ident::text is null and :koordinator_nav_ident::text is null) or (administratorer_json @> :administrator_nav_ident::jsonb) or (koordinator_json @> :koordinator_nav_ident::jsonb))
+              and ((:administrator_nav_ident::text is null and :koordinator_nav_ident::text is null)
+                    or :administrator_nav_ident in (select nav_ident from gjennomforing_administrator where gjennomforing_id = id)
+                    or :koordinator_nav_ident in (select nav_ident from gjennomforing_koordinator where gjennomforing_id = view_gjennomforing_kompakt.id))
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and (:statuser::text[] is null or status = any(:statuser))
               and (:publisert::boolean is null or publisert = :publisert::boolean)
-              and (:prismodeller::text[] is null or prismodell_type = any(:prismodeller))
+              and (:gjennomforing_type::gjennomforing_type is null or gjennomforing_type = :gjennomforing_type::gjennomforing_type)
+              and (:prismodeller::prismodell_type[] is null or (select prismodell_type from prismodell where id = prismodell_id) = any(:prismodeller::prismodell_type[]))
             order by $order
             limit :limit
             offset :offset
@@ -475,29 +483,6 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { it.toEnkeltplass() }
-    }
-
-    fun getAllEnkeltplass(
-        pagination: Pagination = Pagination.all(),
-        tiltakstyper: List<UUID> = emptyList(),
-    ): PaginatedResult<GjennomforingEnkeltplass> {
-        @Language("PostgreSQL")
-        val query = """
-            select *, count(*) over () as total_count
-            from view_gjennomforing_enkeltplass
-            where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
-            order by id
-            limit :limit
-            offset :offset
-        """.trimIndent()
-
-        val parameters = mapOf(
-            "tiltakstype_ids" to tiltakstyper.ifEmpty { null }?.let { session.createUuidArray(it) },
-        )
-
-        return queryOf(query, parameters + pagination.parameters)
-            .mapPaginated { it.toEnkeltplass() }
-            .runWithSession(session)
     }
 
     fun getPrismodell(id: UUID): Prismodell? {
@@ -684,30 +669,48 @@ class GjennomforingQueries(private val session: Session) {
 }
 
 private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
-    val navEnheter = stringOrNull("nav_enheter_json")
-        ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
-        ?: emptyList()
-
-    return GjennomforingKompakt(
-        id = uuid("id"),
-        navn = string("navn"),
-        lopenummer = Tiltaksnummer(string("lopenummer")),
-        startDato = localDate("start_dato"),
-        sluttDato = localDateOrNull("slutt_dato"),
-        status = toGjennomforingStatus(),
-        publisert = boolean("publisert"),
-        kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
-        arrangor = GjennomforingKompakt.ArrangorUnderenhet(
-            id = uuid("arrangor_id"),
-            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-            navn = string("arrangor_navn"),
-        ),
-        tiltakstype = GjennomforingKompakt.Tiltakstype(
-            id = uuid("tiltakstype_id"),
-            navn = string("tiltakstype_navn"),
-            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-        ),
+    val arrangor = GjennomforingKompakt.ArrangorUnderenhet(
+        id = uuid("arrangor_id"),
+        organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+        navn = string("arrangor_navn"),
     )
+    val tiltakstype = GjennomforingKompakt.Tiltakstype(
+        id = uuid("tiltakstype_id"),
+        navn = string("tiltakstype_navn"),
+        tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+    )
+    return when (GjennomforingType.valueOf(string("gjennomforing_type"))) {
+        GjennomforingType.GRUPPETILTAK -> {
+            val navEnheter = stringOrNull("nav_enheter_json")
+                ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
+                ?: emptyList()
+            GjennomforingKompaktGruppetiltak(
+                id = uuid("id"),
+                navn = string("navn"),
+                lopenummer = Tiltaksnummer(string("lopenummer")),
+                startDato = localDate("start_dato"),
+                sluttDato = localDateOrNull("slutt_dato"),
+                status = toGjennomforingStatus(),
+                publisert = boolean("publisert"),
+                kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
+                arrangor = arrangor,
+                tiltakstype = tiltakstype,
+            )
+        }
+
+        GjennomforingType.ENKELTPLASS -> {
+            GjennomforingKompaktEnkeltplass(
+                id = uuid("id"),
+                navn = string("navn"),
+                lopenummer = Tiltaksnummer(string("lopenummer")),
+                startDato = localDate("start_dato"),
+                sluttDato = localDateOrNull("slutt_dato"),
+                status = toGjennomforingStatus(),
+                arrangor = arrangor,
+                tiltakstype = tiltakstype,
+            )
+        }
+    }
 }
 
 private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
@@ -833,7 +836,7 @@ private fun Row.toEnkeltplass(): GjennomforingEnkeltplass {
         ),
         arena = Gjennomforing.ArenaData(
             tiltaksnummer = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) },
-            ansvarligNavEnhet = stringOrNull("arena_ansvarlig_enhet")?.let { ArenaNavEnhet(navn = null, it) },
+            ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let { ArenaNavEnhet(null, it) },
         ),
         navn = string("navn"),
         startDato = localDate("start_dato"),

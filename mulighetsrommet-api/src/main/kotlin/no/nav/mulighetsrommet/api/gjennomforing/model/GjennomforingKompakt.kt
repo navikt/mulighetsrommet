@@ -5,27 +5,20 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
 
-@Serializable
-data class GjennomforingKompakt(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val navn: String,
-    val lopenummer: Tiltaksnummer,
-    @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?,
-    val status: GjennomforingStatus,
-    val publisert: Boolean,
-    val kontorstruktur: List<Kontorstruktur>,
-    val arrangor: ArrangorUnderenhet,
-    val tiltakstype: Tiltakstype,
-) {
+sealed class GjennomforingKompakt {
+    abstract val id: UUID
+    abstract val lopenummer: Tiltaksnummer
+    abstract val tiltakstype: Tiltakstype
+    abstract val arrangor: ArrangorUnderenhet
+    abstract val navn: String
+    abstract val startDato: LocalDate
+    abstract val sluttDato: LocalDate?
+    abstract val status: GjennomforingStatus
+
     @Serializable
     data class Tiltakstype(
         @Serializable(with = UUIDSerializer::class)
@@ -42,3 +35,27 @@ data class GjennomforingKompakt(
         val navn: String,
     )
 }
+
+data class GjennomforingKompaktGruppetiltak(
+    override val id: UUID,
+    override val lopenummer: Tiltaksnummer,
+    override val tiltakstype: Tiltakstype,
+    override val arrangor: ArrangorUnderenhet,
+    override val navn: String,
+    override val startDato: LocalDate,
+    override val sluttDato: LocalDate?,
+    override val status: GjennomforingStatus,
+    val kontorstruktur: List<Kontorstruktur>,
+    val publisert: Boolean,
+) : GjennomforingKompakt()
+
+data class GjennomforingKompaktEnkeltplass(
+    override val id: UUID,
+    override val lopenummer: Tiltaksnummer,
+    override val tiltakstype: Tiltakstype,
+    override val arrangor: ArrangorUnderenhet,
+    override val navn: String,
+    override val startDato: LocalDate,
+    override val sluttDato: LocalDate?,
+    override val status: GjennomforingStatus,
+) : GjennomforingKompakt()
