@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktGruppe
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
@@ -783,12 +782,7 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
         stengt = stengt,
         arena = Gjennomforing.ArenaData(
             tiltaksnummer = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) },
-            ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
-                ArenaNavEnhet(
-                    navn = stringOrNull("arena_nav_enhet_navn"),
-                    enhetsnummer = it,
-                )
-            },
+            ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer"),
         ),
         pameldingType = string("pamelding_type").let { GjennomforingPameldingType.valueOf(it) },
     )
@@ -836,7 +830,7 @@ private fun Row.toEnkeltplass(): GjennomforingEnkeltplass {
         ),
         arena = Gjennomforing.ArenaData(
             tiltaksnummer = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) },
-            ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let { ArenaNavEnhet(null, it) },
+            ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer"),
         ),
         navn = string("navn"),
         startDato = localDate("start_dato"),

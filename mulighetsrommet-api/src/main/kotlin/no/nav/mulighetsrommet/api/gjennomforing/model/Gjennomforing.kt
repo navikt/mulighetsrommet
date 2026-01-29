@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Faneinnhold
@@ -59,7 +58,7 @@ sealed class Gjennomforing {
     @Serializable
     data class ArenaData(
         val tiltaksnummer: Tiltaksnummer?,
-        val ansvarligNavEnhet: ArenaNavEnhet?,
+        val ansvarligNavEnhet: String?,
     )
 }
 

@@ -91,7 +91,6 @@ class GjennomforingValidatorTest : FunSpec({
                 prisbetingelser = null,
             ),
         ),
-        arenaAnsvarligEnhet = null,
         opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
         opsjonerRegistrert = emptyList(),
     )
