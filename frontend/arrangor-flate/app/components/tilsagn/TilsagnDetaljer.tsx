@@ -1,6 +1,6 @@
 import { ArrangorflateTilsagnDto } from "api-client";
 import { tekster } from "~/tekster";
-import { tilsagnStatusElement } from "./TilsagnStatusTag";
+import { TilsagnStatusTag } from "./TilsagnStatusTag";
 import {
   MetadataFritekstfelt,
   MetadataHGrid,
@@ -15,7 +15,6 @@ interface Props {
 }
 
 export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Props) {
-  const status = tilsagnStatusElement(tilsagn.status);
   return (
     <Box
       padding="4"
@@ -33,9 +32,12 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
         )}
         {!minimal && (
           <>
-            <MetadataHGrid label="Status" value={status ? getDataElement(status) : null} />
+            <MetadataHGrid label="Status" value={<TilsagnStatusTag status={tilsagn.status} />} />
             <MetadataHGrid label="Tiltakstype" value={tilsagn.tiltakstype.navn} />
-            <MetadataHGrid label="Tiltaksnavn" value={tilsagn.gjennomforing.navn} />
+            <MetadataHGrid
+              label="Tiltaksnavn"
+              value={`${tilsagn.gjennomforing.navn} (${tilsagn.gjennomforing.lopenummer})`}
+            />
           </>
         )}
         {tilsagn.beregning.entries.map((entry) => (

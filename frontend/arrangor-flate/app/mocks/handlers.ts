@@ -1,6 +1,6 @@
 import { DefaultBodyType, http, HttpResponse, PathParams } from "msw";
 import {
-  ArrangorflateTilsagnOversikt,
+  ArrangorflateTilsagnRadDto,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
   ArrangorInnsendingRadDto,
@@ -10,7 +10,7 @@ import {
   utbetalingTabellOversiktHistoriske,
 } from "./utbetalingOversiktMocks";
 import { arrFlateUtbetaling, klarForGodkjenningIds } from "./utbetalingDetaljerMocks";
-import { arrangorflateTilsagn, tilsagnOversikt } from "./tilsagnMocks";
+import { arrangorflateTilsagn, tilsagnRader } from "./tilsagnMocks";
 import { handlers as opprettKravHandlers } from "./opprettKrav/handlers";
 
 export const handlers = [
@@ -82,8 +82,8 @@ export const handlers = [
       .includes("ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS");
     return HttpResponse.json(toggleEnabled);
   }),
-  http.get<PathParams, ArrangorflateTilsagnOversikt>("*/api/arrangorflate/tilsagn", () => {
-    return HttpResponse.json({ tabell: tilsagnOversikt });
+  http.get<PathParams, ArrangorflateTilsagnRadDto[]>("*/api/arrangorflate/tilsagn", () => {
+    return HttpResponse.json({ tabell: tilsagnRader });
   }),
   http.get<PathParams, ArrangorflateUtbetalingDto[]>(
     "*/api/arrangorflate/tilsagn/:id",

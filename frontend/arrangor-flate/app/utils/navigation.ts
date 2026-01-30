@@ -35,7 +35,8 @@ export function getOrgnrGjennomforingIdFrom(params: Params<string>): {
 }
 
 export const pathTo = {
-  utbetalinger: "/",
+  utbetalinger: "/?forside-tab=aktive",
+  tilsagnOversikt: "/?forside-tab=tilsagnsoversikt",
   tiltaksoversikt: "/tiltaksoversikt",
   opprettKrav: {
     innsendingsinformasjon: (orgnr: string, gjennomforingId: string) =>
