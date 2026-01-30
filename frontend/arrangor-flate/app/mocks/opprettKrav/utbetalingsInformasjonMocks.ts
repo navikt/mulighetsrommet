@@ -1,4 +1,4 @@
-import { OpprettKravUtbetalingsinformasjon, OpprettKravVeiviserSteg, Valuta } from "@api-client";
+import { OpprettKravUtbetalingSteg, Valuta } from "@api-client";
 import {
   gjennomforingIdAFT,
   gjennomforingIdAvklaring,
@@ -6,23 +6,15 @@ import {
 } from "./gjennomforingMocks";
 
 export const kontonummer = "10002427740";
-const informasjonFelles: OpprettKravUtbetalingsinformasjon = {
+const informasjonFelles: OpprettKravUtbetalingSteg = {
   kontonummer: kontonummer,
   valuta: Valuta.NOK,
-  navigering: {
-    tilbake: OpprettKravVeiviserSteg.INFORMASJON,
-    neste: OpprettKravVeiviserSteg.VEDLEGG,
-  },
 };
 
-export const utbetalingsInformasjon: Record<string, OpprettKravUtbetalingsinformasjon> = {
+export const utbetalingsInformasjon: Record<string, OpprettKravUtbetalingSteg> = {
   [gjennomforingIdAFT]: informasjonFelles,
   [gjennomforingIdAvklaring]: informasjonFelles,
   [gjennomforingIdOppfolging]: {
     ...informasjonFelles,
-    navigering: {
-      tilbake: OpprettKravVeiviserSteg.DELTAKERLISTE,
-      neste: OpprettKravVeiviserSteg.VEDLEGG,
-    },
   },
 };

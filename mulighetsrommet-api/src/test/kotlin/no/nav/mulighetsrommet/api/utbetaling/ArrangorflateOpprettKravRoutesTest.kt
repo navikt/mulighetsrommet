@@ -11,7 +11,7 @@ import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.ApplicationConfigLocal
 import no.nav.mulighetsrommet.api.arrangorflate.api.DatoVelger
-import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingsInformasjon
+import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingSteg
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -127,7 +127,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
                 }
 
             response.status shouldBe HttpStatusCode.OK
-            val data = response.body<OpprettKravInnsendingsInformasjon>()
+            val data = response.body<OpprettKravInnsendingSteg>()
             when (data.datoVelger) {
                 is DatoVelger.DatoSelect ->
                     data.datoVelger.periodeForslag.isNotEmpty()
@@ -147,7 +147,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
                 }
 
             response.status shouldBe HttpStatusCode.OK
-            val data = response.body<OpprettKravInnsendingsInformasjon>()
+            val data = response.body<OpprettKravInnsendingSteg>()
             when (data.datoVelger) {
                 is DatoVelger.DatoSelect ->
                     fail { "Annen avtalt pris skal ha start- og sluttdato datepicker" }
@@ -167,7 +167,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
                 }
 
             response.status shouldBe HttpStatusCode.OK
-            val data = response.body<OpprettKravInnsendingsInformasjon>()
+            val data = response.body<OpprettKravInnsendingSteg>()
             when (data.datoVelger) {
                 is DatoVelger.DatoSelect ->
                     fail { "Investeringer skal ha start- og sluttdato datepicker" }
