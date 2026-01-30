@@ -2,12 +2,12 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.OkonomiConfig
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.arrangorflate.api.AvbrytUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
-import no.nav.mulighetsrommet.api.arrangorflate.arrangorAvbrytStatus
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
+import no.nav.mulighetsrommet.api.arrangorflate.service.arrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.responses.FieldError

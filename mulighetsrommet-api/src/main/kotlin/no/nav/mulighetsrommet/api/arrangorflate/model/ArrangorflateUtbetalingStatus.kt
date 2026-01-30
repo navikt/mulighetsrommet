@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.arrangorflate.api
+package no.nav.mulighetsrommet.api.arrangorflate.model
 
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 

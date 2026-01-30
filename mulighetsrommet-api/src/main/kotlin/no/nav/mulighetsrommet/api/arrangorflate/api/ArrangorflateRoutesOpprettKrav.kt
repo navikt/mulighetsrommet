@@ -24,11 +24,15 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflatePersonalia
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
+import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerUtenFaktor
+import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonCells
+import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonColumns
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -44,7 +48,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
@@ -70,7 +73,6 @@ import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import kotlin.collections.listOf
 
 fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     val db: ApiDatabase by inject()
@@ -144,16 +146,12 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             if (gyldigePrismodeller.isEmpty() || gyldigeTiltakstyper.isEmpty()) {
                 return@session emptyList()
             } else {
-                queries.gjennomforing
-                    .getAll(
-                        type = GjennomforingType.GRUPPETILTAK,
-                        arrangorOrgnr = arrangorer,
-                        prismodeller = gyldigePrismodeller,
-                        tiltakstypeIder = gyldigeTiltakstyper,
-                        sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
-                        statuser = type.toGjennomforingStatuses(),
-                    )
-                    .items
+                queries.arrangorTiltak.getAll(
+                    tiltakstyper = gyldigeTiltakstyper,
+                    organisasjonsnummer = arrangorer,
+                    prismodeller = gyldigePrismodeller,
+                    statuser = type.toGjennomforingStatuses(),
+                )
             }
         }
 
