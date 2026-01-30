@@ -11,7 +11,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { formatertVentetid, kreverDeltidsprosent } from "@/utils/Utils";
+import { formatertVentetid } from "@/utils/Utils";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { formaterDato, formaterPeriodeUdefinertSlutt } from "@mr/frontend-common/utils/date";
@@ -29,14 +29,17 @@ import {
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { kreverDeltidsprosent } from "@/utils/tiltakstype";
+import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
+  const tiltakstype = useTiltakstype(gjennomforing.tiltakstype.id);
+
   const {
     navn,
-    tiltakstype,
     lopenummer,
     tiltaksnummer,
     startDato,
@@ -119,7 +122,7 @@ export function GjennomforingDetaljer() {
     },
     { key: gjennomforingTekster.antallPlasserLabel, value: antallPlasser },
 
-    ...(kreverDeltidsprosent(tiltakstype.tiltakskode)
+    ...(kreverDeltidsprosent(tiltakstype)
       ? [{ key: gjennomforingTekster.deltidsprosentLabel, value: deltidsprosent }]
       : []),
     ...(gjennomforing.estimertVentetid

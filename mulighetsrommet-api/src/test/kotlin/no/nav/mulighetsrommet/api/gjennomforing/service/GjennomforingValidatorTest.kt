@@ -146,7 +146,7 @@ class GjennomforingValidatorTest : FunSpec({
     test("skal ikke kunne sette felles oppsart når tiltaket krever løpende oppstart") {
         GjennomforingValidator.validate(request.copy(oppstart = GjennomforingOppstartstype.FELLES), ctx)
             .shouldBeLeft()
-            .shouldContainExactlyInAnyOrder(FieldError("/oppstart", "Tiltaket må ha løpende oppstartstype"))
+            .shouldContainExactlyInAnyOrder(FieldError("/oppstart", "Tiltaket må ha løpende oppstart"))
     }
 
     test("skal ikke kunne sette direkte vedtak når oppsart er felles") {

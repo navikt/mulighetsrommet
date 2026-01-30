@@ -16,26 +16,13 @@ import { useLocation, useNavigate } from "react-router";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 import { DataElementStatusTag } from "@mr/frontend-common";
+import { AvtaleDto, GjennomforingDto } from "@tiltaksadministrasjon/api-client";
+import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 
-function useGjennomforingFormData() {
+export function RedigerGjennomforingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  const { data: ansatt } = useHentAnsatt();
-  const { data: deltakere } = useGjennomforingDeltakerSummary(gjennomforingId);
-  return { gjennomforing, avtale, deltakere, ansatt };
-}
-
-export function GjennomforingFormPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const queryClient = useQueryClient();
-
-  const { gjennomforing, avtale, deltakere, ansatt } = useGjennomforingFormData();
-
-  const navigerTilbake = () => {
-    navigate(-1);
-  };
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
 
@@ -65,31 +52,59 @@ export function GjennomforingFormPage() {
       </Header>
       <ContentBox>
         <Box padding="4" background="bg-default">
-          {isError && <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>}
-          {avtale && (
-            <GjennomforingFormContainer
-              onClose={() => {
-                navigerTilbake();
-              }}
-              onSuccess={async (id) => {
-                await queryClient.invalidateQueries({
-                  queryKey: QueryKeys.gjennomforing(id),
-                  type: "all",
-                });
-                navigate(`/gjennomforinger/${id}`);
-              }}
-              avtale={avtale}
-              gjennomforing={gjennomforing}
-              deltakere={deltakere}
-              defaultValues={defaultGjennomforingData(
-                ansatt,
-                avtale,
-                location.state?.dupliserGjennomforing ?? gjennomforing,
-              )}
-            />
+          {isError ? (
+            <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>
+          ) : (
+            <RedigerGjennomforing avtale={avtale} gjennomforing={gjennomforing} />
           )}
         </Box>
       </ContentBox>
     </>
+  );
+}
+
+interface RedigerGjennomforingProps {
+  avtale: AvtaleDto;
+  gjennomforing: GjennomforingDto;
+}
+
+function RedigerGjennomforing(props: RedigerGjennomforingProps) {
+  const { avtale, gjennomforing } = props;
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const queryClient = useQueryClient();
+
+  const tiltakstype = useTiltakstype(gjennomforing.tiltakstype.id);
+  const { data: ansatt } = useHentAnsatt();
+  const { data: deltakere } = useGjennomforingDeltakerSummary(gjennomforing.id);
+
+  const navigerTilbake = () => {
+    navigate(-1);
+  };
+
+  const navigerTilGjennomforing = async (id: string) => {
+    await queryClient.invalidateQueries({
+      queryKey: QueryKeys.gjennomforing(id),
+      type: "all",
+    });
+    navigate(`/gjennomforinger/${id}`);
+  };
+
+  return (
+    <GjennomforingFormContainer
+      onClose={navigerTilbake}
+      onSuccess={navigerTilGjennomforing}
+      tiltakstype={tiltakstype}
+      avtale={avtale}
+      gjennomforing={gjennomforing}
+      deltakere={deltakere}
+      defaultValues={defaultGjennomforingData(
+        ansatt,
+        tiltakstype,
+        avtale,
+        location.state?.dupliserGjennomforing ?? gjennomforing,
+      )}
+    />
   );
 }

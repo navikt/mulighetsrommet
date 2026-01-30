@@ -10,6 +10,7 @@ import {
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingRequest,
+  TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
 import {
   Alert,
@@ -37,16 +38,19 @@ import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
 import { ControlledSokeSelect } from "@mr/frontend-common";
-import { kanEndreOppstartOgPamelding, kreverDeltidsprosent } from "@/utils/Utils";
 import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
+import { kanEndreOppstartOgPamelding, kreverDeltidsprosent } from "@/utils/tiltakstype";
 
 interface Props {
+  tiltakstype: TiltakstypeDto;
   avtale: AvtaleDto;
   gjennomforing: GjennomforingDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
 }
 
-export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: Props) {
+export function GjennomforingFormDetaljer(props: Props) {
+  const { tiltakstype, avtale, gjennomforing, deltakere } = props;
+
   const { data: administratorer } = useGjennomforingAdministratorer();
   const { data: ansatt } = useHentAnsatt();
   const [visEstimertVentetid, setVisEstimertVentetid] = useState<boolean>(
@@ -145,7 +149,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               label="Oppstartstype"
               placeholder="Velg oppstart"
               name="oppstart"
-              readOnly={!kanEndreOppstartOgPamelding(avtale.tiltakstype.tiltakskode)}
+              readOnly={!kanEndreOppstartOgPamelding(tiltakstype)}
               onChange={(e) => {
                 if (e.target.value === GjennomforingOppstartstype.FELLES) {
                   setValue("pameldingType", GjennomforingPameldingType.TRENGER_GODKJENNING);
@@ -219,7 +223,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
                   valueAsNumber: true,
                 })}
               />
-              {kreverDeltidsprosent(avtale.tiltakstype.tiltakskode) && (
+              {kreverDeltidsprosent(tiltakstype) && (
                 <TextField
                   size="small"
                   error={errors.deltidsprosent?.message as string}

@@ -3149,6 +3149,9 @@ components:
       type: string
       enum:
       - KAN_OPPRETTE_AVTALE
+      - KREVER_DELTIDSPROSENT
+      - STOTTER_FELLES_OPPSTART
+      - STOTTER_LOPENDE_OPPSTART
     ProblemDetail:
       type: object
       additionalProperties: {}

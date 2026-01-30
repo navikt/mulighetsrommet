@@ -11,22 +11,32 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
+import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 
 function useGjennomforingFormData() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
+  const tiltakstype = useTiltakstype(avtale.tiltakstype.id);
   const { data: ansatt } = useHentAnsatt();
-  return { avtale, ansatt };
+  return { tiltakstype, avtale, ansatt };
 }
 
-export function NewGjennomforingFormPage() {
+export function OpprettGjennomforingFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { avtale, ansatt } = useGjennomforingFormData();
+  const { tiltakstype, avtale, ansatt } = useGjennomforingFormData();
   const queryClient = useQueryClient();
 
   const navigerTilbake = () => {
     navigate(-1);
+  };
+
+  const navigerTilGjennomforing = async (id: string) => {
+    await queryClient.invalidateQueries({
+      queryKey: QueryKeys.gjennomforing(id),
+      type: "all",
+    });
+    navigate(`/gjennomforinger/${id}`);
   };
 
   const brodsmuler: Array<Brodsmule | undefined> = [
@@ -51,21 +61,15 @@ export function NewGjennomforingFormPage() {
       <ContentBox>
         <Box padding="4" background="bg-default">
           <GjennomforingFormContainer
-            onClose={() => {
-              navigerTilbake();
-            }}
-            onSuccess={async (id) => {
-              await queryClient.invalidateQueries({
-                queryKey: QueryKeys.gjennomforing(id),
-                type: "all",
-              });
-              navigate(`/gjennomforinger/${id}`);
-            }}
+            onClose={navigerTilbake}
+            onSuccess={navigerTilGjennomforing}
+            tiltakstype={tiltakstype}
             avtale={avtale}
             gjennomforing={null}
             deltakere={null}
             defaultValues={defaultGjennomforingData(
               ansatt,
+              tiltakstype,
               avtale,
               location.state?.dupliserGjennomforing,
             )}
