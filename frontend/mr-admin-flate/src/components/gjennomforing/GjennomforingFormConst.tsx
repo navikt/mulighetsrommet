@@ -1,4 +1,3 @@
-import { kanEndreOppstartOgPamelding } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
   AvtaleDto,
@@ -7,22 +6,13 @@ import {
   GjennomforingPameldingType,
   GjennomforingRequest,
   NavAnsattDto,
+  TiltakstypeDto,
   UtdanningslopDbo,
   UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 import { amoKategoriseringRequest } from "@/schemas/avtale";
-
-export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
-  if (!avtale) {
-    return GjennomforingOppstartstype.LOPENDE;
-  }
-
-  const tiltakskode = avtale.tiltakstype.tiltakskode;
-  return !kanEndreOppstartOgPamelding(tiltakskode)
-    ? GjennomforingOppstartstype.LOPENDE
-    : GjennomforingOppstartstype.FELLES;
-}
+import { kanEndreOppstartOgPamelding } from "@/utils/tiltakstype";
 
 export function defaultPameldingType(
   oppstart: GjennomforingOppstartstype,
@@ -74,6 +64,7 @@ function defaultArrangor(
 
 export function defaultGjennomforingData(
   ansatt: NavAnsattDto,
+  tiltakstype: TiltakstypeDto,
   avtale: AvtaleDto,
   gjennomforing?: Partial<GjennomforingDto>,
 ): DeepPartial<GjennomforingRequest> {
@@ -81,7 +72,8 @@ export function defaultGjennomforingData(
 
   const faneInnhold = gjennomforing?.faneinnhold ?? avtale.faneinnhold;
 
-  const oppstart = gjennomforing?.oppstart || defaultOppstartType(avtale);
+  const defaultOppstart = getDefaultOppstart(tiltakstype);
+  const oppstart = gjennomforing?.oppstart || defaultOppstart;
   return {
     navn: gjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
@@ -91,12 +83,12 @@ export function defaultGjennomforingData(
     antallPlasser: gjennomforing?.antallPlasser ?? null,
     startDato: gjennomforing?.startDato
       ? gjennomforing.startDato
-      : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
+      : defaultOppstart === GjennomforingOppstartstype.LOPENDE
         ? avtale.startDato
         : null,
     sluttDato: gjennomforing?.sluttDato
       ? gjennomforing.sluttDato
-      : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
+      : defaultOppstart === GjennomforingOppstartstype.LOPENDE
         ? avtale.sluttDato
         : null,
     arrangorId: defaultArrangor(avtale, gjennomforing),
@@ -132,4 +124,10 @@ function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {
     utdanningsprogram: data.utdanningsprogram.id,
     utdanninger: data.utdanninger.map((utdanning) => utdanning.id),
   };
+}
+
+function getDefaultOppstart(tiltakstype: TiltakstypeDto): GjennomforingOppstartstype {
+  return kanEndreOppstartOgPamelding(tiltakstype)
+    ? GjennomforingOppstartstype.FELLES
+    : GjennomforingOppstartstype.LOPENDE;
 }

@@ -4,10 +4,10 @@ import {
   AmoKategoriseringBransjeOgYrkesrettetForerkortKlasse as ForerkortKlasse,
   AmoKategoriseringInnholdElement as InnholdElement,
   AvtaleDto,
+  Avtaletype,
   DelutbetalingReturnertAarsak,
   TilsagnStatusAarsak,
   TilsagnType,
-  Avtaletype,
   Tiltakskode,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
@@ -262,30 +262,6 @@ export function tilsagnTypeToString(type: TilsagnType): string {
 }
 
 export function kreverDeltidsprosent(tiltakskode: Tiltakskode): boolean {
-  switch (tiltakskode) {
-    case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
-    case Tiltakskode.ARBEIDSRETTET_REHABILITERING:
-    case Tiltakskode.AVKLARING:
-    case Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK:
-    case Tiltakskode.OPPFOLGING:
-    case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
-    case Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING:
-    case Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING:
-      return false;
-    case Tiltakskode.ARBEIDSMARKEDSOPPLAERING:
-    case Tiltakskode.FAG_OG_YRKESOPPLAERING:
-    case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
-    case Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING:
-    case Tiltakskode.HOYERE_UTDANNING:
-    case Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING:
-    case Tiltakskode.JOBBKLUBB:
-    case Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV:
-    case Tiltakskode.STUDIESPESIALISERING:
-      return true;
-  }
-}
-
-export function kanEndreOppstartOgPamelding(tiltakskode: Tiltakskode): boolean {
   switch (tiltakskode) {
     case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
     case Tiltakskode.ARBEIDSRETTET_REHABILITERING:

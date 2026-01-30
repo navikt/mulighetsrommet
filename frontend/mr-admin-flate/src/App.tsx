@@ -14,7 +14,7 @@ import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
-import { GjennomforingFormPage } from "./pages/gjennomforing/GjennomforingFormPage";
+import { RedigerGjennomforingFormPage } from "./pages/gjennomforing/RedigerGjennomforingFormPage";
 import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
@@ -29,7 +29,7 @@ import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
 import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
 import { OpprettAvtaleFormPage } from "./pages/avtaler/OpprettAvtaleFormPage";
-import { NewGjennomforingFormPage } from "./pages/gjennomforing/NewGjennomforingFormPage";
+import { OpprettGjennomforingFormPage } from "./pages/gjennomforing/OpprettGjennomforingFormPage";
 import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
 import { GjennomforingDetaljer } from "./pages/gjennomforing/GjennomforingDetaljer";
 import { RedaksjoneltInnholdGjennomforing } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdGjennomforing";
@@ -191,7 +191,7 @@ const routes: RouteObject[] = [
       },
       {
         path: "avtaler/:avtaleId/gjennomforinger/skjema",
-        element: <NewGjennomforingFormPage />,
+        element: <OpprettGjennomforingFormPage />,
         errorElement: <ErrorPage />,
       },
       {
@@ -239,12 +239,12 @@ const routes: RouteObject[] = [
       },
       {
         path: "gjennomforinger/:gjennomforingId/skjema",
-        element: <GjennomforingFormPage />,
+        element: <RedigerGjennomforingFormPage />,
         errorElement: <ErrorPage />,
       },
       {
         path: "gjennomforinger/:gjennomforingId/redaksjonelt-innhold/skjema",
-        element: <GjennomforingFormPage />,
+        element: <RedigerGjennomforingFormPage />,
         errorElement: <ErrorPage />,
       },
       {
