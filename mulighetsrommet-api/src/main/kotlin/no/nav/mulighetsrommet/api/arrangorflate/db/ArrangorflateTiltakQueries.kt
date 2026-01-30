@@ -4,9 +4,11 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
+import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -16,7 +18,7 @@ import java.util.UUID
 
 class ArrangorflateTiltakQueries(private val session: Session) {
 
-    fun get(id: UUID): ArrangorflateTiltak? {
+    fun getOrError(id: UUID): ArrangorflateTiltak {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -24,7 +26,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, id)) { it.toArrangorflateTiltak() }
+        return session.requireSingle(queryOf(query, id)) { it.toArrangorflateTiltak() }
     }
 
     fun getAll(
@@ -74,5 +76,6 @@ private fun Row.toArrangorflateTiltak(): ArrangorflateTiltak {
         status = GjennomforingStatusType.GJENNOMFORES,
         arrangor = arrangor,
         tiltakstype = tiltakstype,
+        prismodell = toPrismodell(),
     )
 }
