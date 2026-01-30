@@ -1766,6 +1766,11 @@ components:
             $ref: "#/components/schemas/DeltakerAdvarsel"
         kanAvbrytes:
           $ref: "#/components/schemas/ArrangorAvbrytStatus"
+        avbruttDato:
+          type:
+          - "null"
+          - string
+          format: date
         kanRegenereres:
           type: boolean
         regenerertId:
@@ -1776,6 +1781,7 @@ components:
       required:
       - advarsler
       - arrangor
+      - avbruttDato
       - beregning
       - betalingsinformasjon
       - createdAt

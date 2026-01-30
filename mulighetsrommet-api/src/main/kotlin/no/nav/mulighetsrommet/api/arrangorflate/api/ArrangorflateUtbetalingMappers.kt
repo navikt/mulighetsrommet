@@ -94,6 +94,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),
         advarsler = advarsler,
         kanAvbrytes = kanAvbrytes,
+        avbruttDato = utbetaling.avbruttTidspunkt?.tilNorskDato(),
         kanRegenereres = kanRegenereres,
         regenerertId = regenerertId,
     )
