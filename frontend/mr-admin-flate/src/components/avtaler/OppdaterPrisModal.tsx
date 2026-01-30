@@ -1,13 +1,14 @@
 import { PrismodellSchema, PrismodellValues } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleDto, PrismodellDto, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { Button, InfoCard, Modal, VStack } from "@navikt/ds-react";
+import { Button, HStack, InfoCard, Modal, VStack } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import AvtalePrismodellForm from "./AvtalePrismodellForm";
 import { useUpsertPrismodell } from "@/api/avtaler/useUpsertPrismodell";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { safeParseDate } from "@mr/frontend-common/utils/date";
 import { toPrismodellRequest } from "@/pages/avtaler/avtaleFormUtils";
+import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 
 interface Props {
   open: boolean;
@@ -75,12 +76,15 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
             </VStack>
           </Modal.Body>
           <Modal.Footer>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Lagrer..." : "Bekreft"}
-            </Button>
-            <Button type="button" variant="tertiary" onClick={closeAndResetForm}>
-              Avbryt
-            </Button>
+            <HStack gap="1" className="flex-row-reverse">
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? "Lagrer..." : "Bekreft"}
+              </Button>
+              <Button type="button" variant="tertiary" onClick={closeAndResetForm}>
+                Avbryt
+              </Button>
+              <ValideringsfeilOppsummering />
+            </HStack>
           </Modal.Footer>
         </form>
       </FormProvider>
