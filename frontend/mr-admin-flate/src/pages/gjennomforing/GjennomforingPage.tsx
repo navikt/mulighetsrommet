@@ -34,7 +34,7 @@ export function GjennomforingPage() {
   const currentTab = getCurrentTab(pathname);
 
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
+  const { gjennomforing } = useGjennomforing(gjennomforingId);
 
   const brodsmuler: (Brodsmule | undefined)[] = [
     {

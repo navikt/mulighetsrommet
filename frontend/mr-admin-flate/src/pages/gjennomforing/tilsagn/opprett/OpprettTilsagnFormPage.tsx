@@ -1,9 +1,29 @@
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
-import { Valuta, TilsagnBeregningType, TilsagnType } from "@tiltaksadministrasjon/api-client";
+import { TilsagnBeregningType, TilsagnType, Valuta } from "@tiltaksadministrasjon/api-client";
 import { useSearchParams } from "react-router";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagnDefaults } from "./opprettTilsagnLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { GjennomforingManglerPrismodellWarning } from "@/pages/gjennomforing/tilsagn/GjennomforingManglerPrismodellWarning";
+import { useRelevanteKostnadssteder } from "@/pages/gjennomforing/tilsagn/useRelevanteKostnadssteder";
+
+export function OpprettTilsagnFormPage() {
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { gjennomforing, prismodell, kostnadssteder, defaults } = useHentData(gjennomforingId);
+
+  if (!prismodell) {
+    return <GjennomforingManglerPrismodellWarning />;
+  }
+
+  return (
+    <TilsagnFormContainer
+      gjennomforing={gjennomforing}
+      prismodell={prismodell}
+      kostnadssteder={kostnadssteder}
+      defaults={defaults}
+    />
+  );
+}
 
 function useHentData(gjennomforingId: string) {
   const [searchParams] = useSearchParams();
@@ -12,7 +32,7 @@ function useHentData(gjennomforingId: string) {
   const periodeSlutt = searchParams.get("periodeSlutt");
   const kostnadssted = searchParams.get("kostnadssted");
 
-  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
+  const { gjennomforing, veilederinfo, prismodell } = useGjennomforing(gjennomforingId);
   const { data: defaults } = useTilsagnDefaults({
     id: null,
     gjennomforingId,
@@ -22,7 +42,7 @@ function useHentData(gjennomforingId: string) {
     // Denne blir bestemt av backend men er påkrevd
     beregning: {
       type: TilsagnBeregningType.FRI,
-      valuta: gjennomforing.prismodell?.valuta ?? Valuta.NOK,
+      valuta: prismodell?.valuta ?? Valuta.NOK,
       antallPlasser: null,
       prisbetingelser: null,
       antallTimerOppfolgingPerDeltaker: null,
@@ -33,12 +53,11 @@ function useHentData(gjennomforingId: string) {
     beskrivelse: null,
   });
 
-  return { gjennomforing, defaults };
-}
-
-export function OpprettTilsagnFormPage() {
-  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { gjennomforing, defaults } = useHentData(gjennomforingId);
-
-  return <TilsagnFormContainer gjennomforing={gjennomforing} defaults={defaults} />;
+  const kostnadssteder = useRelevanteKostnadssteder(veilederinfo?.kontorstruktur ?? []);
+  return {
+    gjennomforing,
+    prismodell,
+    kostnadssteder,
+    defaults,
+  };
 }

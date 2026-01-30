@@ -19,10 +19,6 @@ import { BodyShort, Heading, HelpText, HStack, Tag, VStack } from "@navikt/ds-re
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 import {
-  GjennomforingOppstartstype,
-  GjennomforingPameldingType,
-} from "@tiltaksadministrasjon/api-client";
-import {
   Definisjonsliste,
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
@@ -34,28 +30,10 @@ import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
+  const detaljer = useGjennomforing(gjennomforingId);
+  const { gjennomforing, veilederinfo, utdanningslop, amoKategorisering, prismodell } = detaljer;
+  const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  const tiltakstype = useTiltakstype(gjennomforing.tiltakstype.id);
-
-  const {
-    navn,
-    lopenummer,
-    tiltaksnummer,
-    startDato,
-    sluttDato,
-    oppstart,
-    pameldingType,
-    antallPlasser,
-    deltidsprosent,
-    apentForPamelding,
-    administratorer,
-    arrangor,
-    oppmoteSted,
-    amoKategorisering,
-    utdanningslop,
-    prismodell,
-  } = gjennomforing;
 
   const avtaleMeta: Definition[] = [
     {
@@ -77,20 +55,20 @@ export function GjennomforingDetaljer() {
   ];
 
   const gjennomforingMeta: Definition[] = [
-    { key: gjennomforingTekster.tiltaksnavnLabel, value: navn },
+    { key: gjennomforingTekster.tiltaksnavnLabel, value: gjennomforing.navn },
     {
       key: gjennomforingTekster.tiltakstypeLabel,
       value: tiltakstype.navn,
     },
     {
       key: gjennomforingTekster.tiltaksnummerLabel,
-      value: tiltaksnummer ?? <HentTiltaksnummer id={gjennomforing.id} />,
+      value: gjennomforing.tiltaksnummer ?? <HentTiltaksnummer id={gjennomforing.id} />,
     },
     {
       key: gjennomforingTekster.lopenummerLabel,
       value: (
         <HStack gap="2">
-          {lopenummer}
+          {gjennomforing.lopenummer}
           <HelpText title="Hva betyr feltet 'Løpenummer'?">
             <VStack gap="2">
               <Heading level="3" size="xsmall">
@@ -110,46 +88,46 @@ export function GjennomforingDetaljer() {
   ];
 
   const varighetMeta: Definition[] = [
-    { key: gjennomforingTekster.startdatoLabel, value: formaterDato(startDato) },
-    { key: gjennomforingTekster.sluttdatoLabel, value: formaterDato(sluttDato) ?? "-" },
     {
-      key: gjennomforingTekster.oppstartstypeLabel,
-      value: oppstart === GjennomforingOppstartstype.FELLES ? "Felles" : "Løpende oppstart",
+      key: gjennomforingTekster.startdatoLabel,
+      value: formaterDato(gjennomforing.startDato),
+    } as Definition,
+    {
+      key: gjennomforingTekster.sluttdatoLabel,
+      value: formaterDato(gjennomforing.sluttDato) ?? "-",
     },
     {
+      key: gjennomforingTekster.oppstart.label,
+      value: gjennomforingTekster.oppstart.beskrivelse(gjennomforing.oppstart),
+    },
+    veilederinfo && {
       key: gjennomforingTekster.apentForPameldingLabel,
-      value: apentForPamelding ? "Ja" : "Nei",
+      value: veilederinfo.apentForPamelding ? "Ja" : "Nei",
     },
-    { key: gjennomforingTekster.antallPlasserLabel, value: antallPlasser },
-
-    ...(kreverDeltidsprosent(tiltakstype)
-      ? [{ key: gjennomforingTekster.deltidsprosentLabel, value: deltidsprosent }]
-      : []),
-    ...(gjennomforing.estimertVentetid
-      ? [
-          {
-            key: gjennomforingTekster.estimertVentetidLabel,
-            value: formatertVentetid(
-              gjennomforing.estimertVentetid.verdi,
-              gjennomforing.estimertVentetid.enhet,
-            ),
-          },
-        ]
-      : []),
+    { key: gjennomforingTekster.antallPlasserLabel, value: gjennomforing.antallPlasser },
+    kreverDeltidsprosent(tiltakstype) && {
+      key: gjennomforingTekster.deltidsprosentLabel,
+      value: gjennomforing.deltidsprosent,
+    },
+    veilederinfo?.estimertVentetid && {
+      key: gjennomforingTekster.estimertVentetidLabel,
+      value: formatertVentetid(
+        veilederinfo.estimertVentetid.verdi,
+        veilederinfo.estimertVentetid.enhet,
+      ),
+    },
     {
-      key: gjennomforingTekster.pameldingTypeLabel,
-      value:
-        pameldingType === GjennomforingPameldingType.DIREKTE_VEDTAK
-          ? "Veileder fatter vedtaket direkte ved påmeldingen i Modia"
-          : "Vedtaket fattes i Tiltaksadministrasjon etter at deltakeren er søkt inn fra Modia",
+      key: gjennomforingTekster.pamelding.label,
+      value: gjennomforingTekster.pamelding.beskrivelse(gjennomforing.pameldingType),
     },
-  ];
+  ].filter((definition): definition is Definition => !!definition);
+
   const administratorMeta: Definition[] = [
     {
       key: gjennomforingTekster.administratorerForGjennomforingenLabel,
-      value: administratorer.length ? (
+      value: gjennomforing.administratorer.length ? (
         <ul>
-          {administratorer.map((admin) => {
+          {gjennomforing.administratorer.map((admin) => {
             return (
               <li key={admin.navIdent}>
                 <Lenke to={`${NOM_ANSATT_SIDE}${admin.navIdent}`} isExternal>
@@ -164,6 +142,8 @@ export function GjennomforingDetaljer() {
       ),
     },
   ];
+
+  const { arrangor } = gjennomforing;
   const arrangorMeta: Definition[] = [
     ...(avtale?.arrangor
       ? [
@@ -190,10 +170,6 @@ export function GjennomforingDetaljer() {
             ))
           : "-",
     },
-  ];
-
-  const stedMeta: Definition[] = [
-    { key: gjennomforingTekster.oppmoteStedLabel, value: oppmoteSted ?? "-" },
   ];
 
   return (
@@ -226,14 +202,24 @@ export function GjennomforingDetaljer() {
           <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
           <Separator />
           <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-          {oppmoteSted && (
+          {veilederinfo?.oppmoteSted && (
             <>
               <Separator />
-              <Definisjonsliste title="Sted" definitions={stedMeta} columns={1} />
+              <Definisjonsliste
+                title="Sted"
+                definitions={[
+                  { key: gjennomforingTekster.oppmoteStedLabel, value: veilederinfo.oppmoteSted },
+                ]}
+                columns={1}
+              />
             </>
           )}
           {gjennomforing.stengt.length !== 0 && (
-            <StengtHosArrangorTable gjennomforing={gjennomforing} readOnly />
+            <StengtHosArrangorTable
+              readOnly
+              gjennomforingId={gjennomforing.id}
+              stengt={gjennomforing.stengt}
+            />
           )}
           {new Date() < new Date(gjennomforing.startDato) && (
             <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />

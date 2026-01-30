@@ -1,5 +1,5 @@
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
-import { GjennomforingDto, TilsagnRequest } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingDto, PrismodellDto, TilsagnRequest } from "@tiltaksadministrasjon/api-client";
 import { HGrid, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
@@ -10,6 +10,7 @@ import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 
 interface Props {
   gjennomforing: GjennomforingDto;
+  prismodell: PrismodellDto;
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
@@ -20,12 +21,12 @@ export function TilsagnFormPrisPerManedsverk(props: Props) {
   return (
     <TilsagnForm
       {...props}
-      beregningInput={<BeregningInputSkjema gjennomforing={props.gjennomforing} />}
+      beregningInput={<BeregningInputSkjema prismodell={props.prismodell} />}
     />
   );
 }
 
-function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
+function BeregningInputSkjema({ prismodell }: Pick<Props, "prismodell">) {
   const {
     register,
     formState: { errors },
@@ -34,7 +35,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   } = useFormContext<TilsagnRequest>();
 
   const periodeStart = watch("periodeStart");
-  const sats = useFindAvtaltSats(gjennomforing, periodeStart);
+  const sats = useFindAvtaltSats(prismodell, periodeStart);
 
   const type = getValues("beregning.type");
   const prisbetingelser = watch("beregning.prisbetingelser");

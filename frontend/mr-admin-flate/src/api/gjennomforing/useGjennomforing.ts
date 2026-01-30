@@ -3,10 +3,11 @@ import { GjennomforingService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useGjennomforing(id: string) {
-  return useApiSuspenseQuery({
+  const result = useApiSuspenseQuery({
     queryKey: QueryKeys.gjennomforing(id),
     queryFn: () => GjennomforingService.getGjennomforing({ path: { id } }),
   });
+  return result.data;
 }
 
 export function useGjennomforingHandlinger(id: string) {

@@ -6,7 +6,7 @@ import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetal
 
 export function OpprettUtbetalingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
+  const { gjennomforing, prismodell } = useGjennomforing(gjennomforingId);
   const { data: betalingsinformasjon } = useArrangorBetalingsinformasjon(gjennomforing.arrangor.id);
 
   return (
@@ -14,6 +14,7 @@ export function OpprettUtbetalingPage() {
       <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger`}>Tilbake</Link>
       <OpprettUtbetalingForm
         gjennomforing={gjennomforing}
+        prismodell={prismodell}
         betalingsinformasjon={betalingsinformasjon}
       />
     </div>

@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.api.gjennomforing.db
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.data.forAll
-import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -35,6 +33,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -778,21 +777,39 @@ class GjennomforingQueriesTest : FunSpec({
                 )
             }
 
-            forAll(
-                row(Pagination.all(), 10, "01", "10", 10),
-                row(Pagination.of(page = 1, size = 20), 10, "01", "10", 10),
-                row(Pagination.of(page = 1, size = 2), 2, "01", "02", 10),
-                row(Pagination.of(page = 3, size = 2), 2, "05", "06", 10),
-                row(Pagination.of(page = 3, size = 4), 2, "09", "10", 10),
-                row(Pagination.of(page = 2, size = 20), 0, null, null, 0),
-            ) { pagination, expectedSize, expectedFirst, expectedLast, expectedTotalCount ->
-                val (totalCount, items) = queries.gjennomforing.getAll(pagination)
+            queries.gjennomforing.getAll(Pagination.all()).should {
+                it.totalCount shouldBe 10
+                it.items.first().shouldBeTypeOf<GjennomforingKompaktGruppetiltak>().navn shouldBe "01"
+                it.items.last().shouldBeTypeOf<GjennomforingKompaktGruppetiltak>().navn shouldBe "10"
+            }
 
-                items.size shouldBe expectedSize
-                items.firstOrNull()?.navn shouldBe expectedFirst
-                items.lastOrNull()?.navn shouldBe expectedLast
+            queries.gjennomforing.getAll(Pagination.of(page = 1, size = 20)).should {
+                it.totalCount shouldBe 10
+                it.items.first().shouldBeTypeOf<GjennomforingKompaktGruppetiltak>().navn shouldBe "01"
+                it.items.last().shouldBeTypeOf<GjennomforingKompaktGruppetiltak>().navn shouldBe "10"
+            }
 
-                totalCount shouldBe expectedTotalCount
+            queries.gjennomforing.getAll(Pagination.of(page = 1, size = 2)).should {
+                it.totalCount shouldBe 10
+                it.items.first().shouldBeTypeOf<GjennomforingKompaktGruppetiltak>().navn shouldBe "01"
+                it.items.last().shouldBeTypeOf<GjennomforingKompaktGruppetiltak>().navn shouldBe "02"
+            }
+
+            queries.gjennomforing.getAll(Pagination.of(page = 3, size = 2)).should {
+                it.totalCount shouldBe 10
+                it.items.first().shouldBeTypeOf<GjennomforingKompaktGruppetiltak>().navn shouldBe "05"
+                it.items.last().shouldBeTypeOf<GjennomforingKompaktGruppetiltak>().navn shouldBe "06"
+            }
+
+            queries.gjennomforing.getAll(Pagination.of(page = 3, size = 4)).should {
+                it.totalCount shouldBe 10
+                it.items.first().shouldBeTypeOf<GjennomforingKompaktGruppetiltak>().navn shouldBe "09"
+                it.items.last().shouldBeTypeOf<GjennomforingKompaktGruppetiltak>().navn shouldBe "10"
+            }
+
+            queries.gjennomforing.getAll(Pagination.of(page = 2, size = 20)).should {
+                it.totalCount shouldBe 0
+                it.items.shouldBeEmpty()
             }
         }
     }

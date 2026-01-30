@@ -1,21 +1,39 @@
 import { useDeleteStengtHosArrangor } from "@/api/gjennomforing/useDeleteStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingGruppetiltakStengtPeriode } from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Table } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface StengtHosArrangorTableProps {
-  gjennomforing: GjennomforingDto;
+  gjennomforingId: string;
+  stengt: GjennomforingGruppetiltakStengtPeriode[];
   readOnly?: boolean;
 }
 
-export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArrangorTableProps) {
-  const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforing.id);
+export function StengtHosArrangorTable({
+  gjennomforingId,
+  stengt,
+  readOnly,
+}: StengtHosArrangorTableProps) {
+  const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforingId);
   const queryClient = useQueryClient();
 
-  if (gjennomforing.stengt.length === 0) return null;
+  if (stengt.length === 0) {
+    return null;
+  }
+
+  function deleteStengtPeriode(periodeId: number) {
+    deleteStengtHosArrangor.mutate(periodeId, {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: QueryKeys.gjennomforing(gjennomforingId),
+          refetchType: "all",
+        });
+      },
+    });
+  }
 
   return (
     <section className="bg-surface-subtle p-4 rounded-lg">
@@ -34,7 +52,7 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {gjennomforing.stengt.map((periode) => {
+          {stengt.map((periode) => {
             return (
               <Table.Row key={periode.id}>
                 <Table.DataCell>{`${formaterDato(periode.start)} - ${formaterDato(periode.slutt)}`}</Table.DataCell>
@@ -46,16 +64,7 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
                       size="small"
                       variant="secondary-neutral"
                       icon={<TrashIcon aria-hidden />}
-                      onClick={async () => {
-                        deleteStengtHosArrangor.mutate(periode.id, {
-                          onSuccess: async () => {
-                            await queryClient.invalidateQueries({
-                              queryKey: QueryKeys.gjennomforing(gjennomforing.id),
-                              refetchType: "all",
-                            });
-                          },
-                        });
-                      }}
+                      onClick={() => deleteStengtPeriode(periode.id)}
                     >
                       Slett
                     </Button>

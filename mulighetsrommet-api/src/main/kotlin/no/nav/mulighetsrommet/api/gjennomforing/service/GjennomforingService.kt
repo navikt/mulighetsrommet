@@ -200,7 +200,7 @@ class GjennomforingService(
 
                     is GjennomforingKompaktEnkeltplass -> GjennomforingKompaktDto(
                         id = it.id,
-                        navn = it.navn,
+                        navn = it.tiltakstype.navn,
                         lopenummer = it.lopenummer,
                         startDato = it.startDato,
                         sluttDato = it.sluttDato,

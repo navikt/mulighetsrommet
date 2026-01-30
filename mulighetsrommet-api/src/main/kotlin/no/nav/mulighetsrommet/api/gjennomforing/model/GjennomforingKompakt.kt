@@ -14,7 +14,6 @@ sealed class GjennomforingKompakt {
     abstract val lopenummer: Tiltaksnummer
     abstract val tiltakstype: Tiltakstype
     abstract val arrangor: ArrangorUnderenhet
-    abstract val navn: String
     abstract val startDato: LocalDate
     abstract val sluttDato: LocalDate?
     abstract val status: GjennomforingStatus
@@ -41,10 +40,10 @@ data class GjennomforingKompaktGruppetiltak(
     override val lopenummer: Tiltaksnummer,
     override val tiltakstype: Tiltakstype,
     override val arrangor: ArrangorUnderenhet,
-    override val navn: String,
     override val startDato: LocalDate,
     override val sluttDato: LocalDate?,
     override val status: GjennomforingStatus,
+    val navn: String,
     val kontorstruktur: List<Kontorstruktur>,
     val publisert: Boolean,
 ) : GjennomforingKompakt()
@@ -54,7 +53,6 @@ data class GjennomforingKompaktEnkeltplass(
     override val lopenummer: Tiltaksnummer,
     override val tiltakstype: Tiltakstype,
     override val arrangor: ArrangorUnderenhet,
-    override val navn: String,
     override val startDato: LocalDate,
     override val sluttDato: LocalDate?,
     override val status: GjennomforingStatus,

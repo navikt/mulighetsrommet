@@ -2,6 +2,7 @@ import {
   Betalingsinformasjon,
   GjennomforingDto,
   OpprettUtbetalingRequest,
+  PrismodellDto,
   ValidationError,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
@@ -28,13 +29,14 @@ import { useOpprettUtbetaling } from "@/api/utbetaling/mutations";
 
 interface Props {
   gjennomforing: GjennomforingDto;
+  prismodell: PrismodellDto | null;
   betalingsinformasjon?: Betalingsinformasjon;
 }
 
 const MIN_BEGRUNNELSE_LENGDE = 10;
 const MAKS_BEGRUNNELSE_LENGDE = 300;
 
-export function OpprettUtbetalingForm({ gjennomforing, betalingsinformasjon }: Props) {
+export function OpprettUtbetalingForm({ gjennomforing, prismodell, betalingsinformasjon }: Props) {
   const form = useForm<OpprettUtbetalingRequest>({
     resolver: async (values) => ({ values, errors: {} }),
   });
@@ -51,7 +53,7 @@ export function OpprettUtbetalingForm({ gjennomforing, betalingsinformasjon }: P
         ...data,
         kidNummer: data.kidNummer || null,
         gjennomforingId: gjennomforing.id,
-        pris: { ...data.pris, valuta: gjennomforing.prismodell?.valuta ?? Valuta.NOK },
+        pris: { ...data.pris, valuta: prismodell?.valuta ?? Valuta.NOK },
       },
       {
         onSuccess: () => {
@@ -103,7 +105,7 @@ export function OpprettUtbetalingForm({ gjennomforing, betalingsinformasjon }: P
               <VStack align={"start"}>
                 <TextField
                   size="small"
-                  label={"Beløp (" + gjennomforing.prismodell?.valuta + ")"}
+                  label={`Beløp (${prismodell?.valuta})`}
                   type="number"
                   {...register("pris.belop", {
                     valueAsNumber: true,
