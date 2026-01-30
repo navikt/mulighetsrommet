@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.UUID
@@ -104,7 +105,7 @@ object GjennomforingValidator {
                 EstimertVentetid::verdi,
             )
         }
-        if (Tiltakskoder.kreverDeltidsprosent(ctx.avtale.tiltakstype.tiltakskode)) {
+        if (ctx.avtale.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.KREVER_DELTIDSPROSENT)) {
             validate(request.deltidsprosent > 0 && request.deltidsprosent <= 100) {
                 FieldError.of(
                     "Du må velge en deltidsprosent mellom 0 og 100",

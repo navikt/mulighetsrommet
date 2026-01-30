@@ -5,6 +5,14 @@ enum class Tiltakskode(
     val egenskaper: Set<TiltakstypeEgenskap>,
     val gruppe: Tiltaksgruppe? = null,
 ) {
+    ARBEIDSMARKEDSOPPLAERING(
+        arenakode = "GRUPPEAMO",
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+        ),
+        gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
     ARBEIDSFORBEREDENDE_TRENING(
         arenakode = "ARBFORB",
         egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
@@ -21,24 +29,6 @@ enum class Tiltakskode(
         arenakode = "DIGIOPPARB",
         egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
     ),
-    JOBBKLUBB(
-        arenakode = "JOBBK",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
-    ),
-    OPPFOLGING(
-        arenakode = "INDOPPFAG",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
-    ),
-    VARIG_TILRETTELAGT_ARBEID_SKJERMET(
-        arenakode = "VASV",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
-    ),
-
-    ARBEIDSMARKEDSOPPLAERING(
-        arenakode = "GRUPPEAMO",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
-        gruppe = Tiltaksgruppe.OPPLAERING,
-    ),
     ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING(
         arenakode = "ENKELAMO",
         egenskaper = setOf(),
@@ -51,43 +41,80 @@ enum class Tiltakskode(
     ),
     FAG_OG_YRKESOPPLAERING(
         arenakode = "GRUFAGYRKE",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+        ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     GRUPPE_ARBEIDSMARKEDSOPPLAERING(
         arenakode = "GRUPPEAMO",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+        ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     GRUPPE_FAG_OG_YRKESOPPLAERING(
         arenakode = "GRUFAGYRKE",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+        ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     HOYERE_UTDANNING(
         arenakode = "HOYEREUTD",
-        egenskaper = setOf(),
+        egenskaper = setOf(TiltakstypeEgenskap.KREVER_DELTIDSPROSENT),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     HOYERE_YRKESFAGLIG_UTDANNING(
         arenakode = "GRUFAGYRKE",
-        egenskaper = setOf(),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+        ),
         gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
+    JOBBKLUBB(
+        arenakode = "JOBBK",
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+        ),
     ),
     NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV(
         arenakode = "GRUPPEAMO",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+        ),
         gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
+    OPPFOLGING(
+        arenakode = "INDOPPFAG",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
     ),
     STUDIESPESIALISERING(
         arenakode = "GRUPPEAMO",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+        ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
+    VARIG_TILRETTELAGT_ARBEID_SKJERMET(
+        arenakode = "VASV",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+    ;
+
+    fun harEgenskap(egenskap: TiltakstypeEgenskap): Boolean = egenskap in egenskaper
 }
 
 enum class TiltakstypeEgenskap {
     KAN_OPPRETTE_AVTALE,
+    KREVER_DELTIDSPROSENT,
 }
 
 enum class Tiltaksgruppe(val tittel: String) {
@@ -146,31 +173,6 @@ object Tiltakskoder {
     }
 
     fun kanEndreOppstartOgPamelding(tiltakskode: Tiltakskode): Boolean {
-        return when (tiltakskode) {
-            Tiltakskode.JOBBKLUBB,
-            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.HOYERE_UTDANNING,
-            Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
-            Tiltakskode.STUDIESPESIALISERING,
-            Tiltakskode.FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-            -> true
-
-            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-            Tiltakskode.AVKLARING,
-            Tiltakskode.OPPFOLGING,
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            -> false
-        }
-    }
-
-    fun kreverDeltidsprosent(tiltakskode: Tiltakskode): Boolean {
         return when (tiltakskode) {
             Tiltakskode.JOBBKLUBB,
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
