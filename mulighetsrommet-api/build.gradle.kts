@@ -96,6 +96,7 @@ dependencies {
     implementation(libs.nav.common.auditLog)
 
     // Dependency injection
+    implementation(platform(libs.koin.bom))
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
 
