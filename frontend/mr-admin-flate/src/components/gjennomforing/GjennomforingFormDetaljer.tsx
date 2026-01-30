@@ -38,9 +38,8 @@ import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
 import { ControlledSokeSelect } from "@mr/frontend-common";
-import { kreverDeltidsprosent } from "@/utils/Utils";
 import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
-import { kanEndreOppstartOgPamelding } from "@/utils/tiltakstype";
+import { kanEndreOppstartOgPamelding, kreverDeltidsprosent } from "@/utils/tiltakstype";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -224,7 +223,7 @@ export function GjennomforingFormDetaljer(props: Props) {
                   valueAsNumber: true,
                 })}
               />
-              {kreverDeltidsprosent(avtale.tiltakstype.tiltakskode) && (
+              {kreverDeltidsprosent(tiltakstype) && (
                 <TextField
                   size="small"
                   error={errors.deltidsprosent?.message as string}

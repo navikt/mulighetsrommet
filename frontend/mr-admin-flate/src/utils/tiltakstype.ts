@@ -7,3 +7,7 @@ export function harEgenskap(tiltakstype: TiltakstypeDto, egenskap: TiltakstypeEg
 export function kanEndreOppstartOgPamelding(tiltakstype: TiltakstypeDto) {
   return harEgenskap(tiltakstype, TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART);
 }
+
+export function kreverDeltidsprosent(tiltakstype: TiltakstypeDto) {
+  return harEgenskap(tiltakstype, TiltakstypeEgenskap.KREVER_DELTIDSPROSENT);
+}
