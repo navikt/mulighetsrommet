@@ -1,22 +1,25 @@
 import {
   TiltaksoversiktType,
   OpprettKravDeltakere,
-  OpprettKravInnsendingsInformasjon,
-  OpprettKravOppsummering,
-  OpprettKravOppsummeringRequest,
-  OpprettKravUtbetalingsinformasjon,
-  OpprettKravVedlegg,
-  OpprettKravVeiviserMeta,
   ArrangorInnsendingRadDto,
+  OpprettKravData,
 } from "@api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { oversiktAktiveGjennomforinger } from "./gjennomforingMocks";
 import { innsendingsInformasjon } from "./innsendingsInformasjonMocks";
-import { veiviserMeta } from "./opprettKravStegMocks";
+import { steg } from "./opprettKravStegMocks";
 import { utbetalingsInformasjon } from "./utbetalingsInformasjonMocks";
 import { vedlegg } from "./vedleggMocks";
-import { oppsummering, utbetalingMap } from "./oppsummeringMocks";
 import { deltakere } from "./deltakelserMocks";
+
+function opprettKravData(id: string): OpprettKravData {
+  return {
+    steg: steg[id],
+    innsendingSteg: innsendingsInformasjon[id],
+    utbetalingSteg: utbetalingsInformasjon[id],
+    vedleggSteg: vedlegg[id],
+  };
+}
 
 export const handlers = [
   http.get<PathParams, ArrangorInnsendingRadDto[]>(
@@ -29,20 +32,11 @@ export const handlers = [
       return HttpResponse.json<ArrangorInnsendingRadDto[]>([]);
     },
   ),
-  http.get<PathParams, OpprettKravVeiviserMeta>(
+  http.get<PathParams, OpprettKravData>(
     "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav",
     ({ params }) => {
       const { gjennomforingId } = params;
-      return HttpResponse.json<OpprettKravVeiviserMeta>(veiviserMeta[gjennomforingId as string]);
-    },
-  ),
-  http.get<PathParams, OpprettKravInnsendingsInformasjon>(
-    "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav/innsendingsinformasjon",
-    ({ params }) => {
-      const { gjennomforingId } = params;
-      return HttpResponse.json<OpprettKravInnsendingsInformasjon>(
-        innsendingsInformasjon[gjennomforingId as string],
-      );
+      return HttpResponse.json<OpprettKravData>(opprettKravData(gjennomforingId as string));
     },
   ),
   http.get<PathParams, OpprettKravDeltakere>(
@@ -50,40 +44,6 @@ export const handlers = [
     ({ params }) => {
       const { gjennomforingId } = params;
       return HttpResponse.json<OpprettKravDeltakere>(deltakere[gjennomforingId as string]);
-    },
-  ),
-  http.get<PathParams, OpprettKravUtbetalingsinformasjon>(
-    "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav/utbetalingsinformasjon",
-    ({ params }) => {
-      const { gjennomforingId } = params;
-      return HttpResponse.json<OpprettKravUtbetalingsinformasjon>(
-        utbetalingsInformasjon[gjennomforingId as string],
-      );
-    },
-  ),
-  http.get<PathParams, OpprettKravUtbetalingsinformasjon>(
-    "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav/vedlegg",
-    ({ params }) => {
-      const { gjennomforingId } = params;
-      return HttpResponse.json<OpprettKravVedlegg>(vedlegg[gjennomforingId as string]);
-    },
-  ),
-  http.post<PathParams, OpprettKravOppsummeringRequest, OpprettKravOppsummering>(
-    "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav/oppsummering",
-    async ({ params, request }) => {
-      const { gjennomforingId } = params;
-      const requestBody = await request.json();
-      return HttpResponse.json<OpprettKravOppsummering>(
-        oppsummering[gjennomforingId as string](requestBody),
-      );
-    },
-  ),
-
-  http.post<PathParams, OpprettKravOppsummering>(
-    "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav",
-    ({ params }) => {
-      const { gjennomforingId } = params;
-      return HttpResponse.json({ id: utbetalingMap[gjennomforingId as string] });
     },
   ),
 ];

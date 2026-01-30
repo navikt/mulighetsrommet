@@ -4,7 +4,6 @@ import {
   LabeledDataElementType,
   OpprettKravDeltakere,
   OpprettKravDeltakereGuidePanelType,
-  OpprettKravVeiviserSteg,
 } from "@api-client";
 import { dataElementText } from "../dataDrivenTableHelpers";
 import { gjennomforingIdOppfolging } from "./gjennomforingMocks";
@@ -113,10 +112,6 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
       ],
     },
   ],
-  navigering: {
-    tilbake: OpprettKravVeiviserSteg.INFORMASJON,
-    neste: OpprettKravVeiviserSteg.UTBETALING,
-  },
 };
 
 export const deltakere: Record<string, OpprettKravDeltakere> = {
