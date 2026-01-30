@@ -25,7 +25,6 @@ class UnleashFeatureToggleService(config: Config) : FeatureToggleService {
         .instanceId(config.instanceId)
         .unleashAPI("${config.url}/api")
         .apiKey(config.token)
-        .environment(config.environment)
         .build()
 
     private val unleash: Unleash = DefaultUnleash(

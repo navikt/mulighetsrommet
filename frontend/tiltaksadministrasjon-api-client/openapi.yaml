@@ -3075,6 +3075,10 @@ components:
           type: string
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
+        gruppe:
+          type:
+          - "null"
+          - string
         startDato:
           type: string
           format: date
@@ -3103,6 +3107,7 @@ components:
       required:
       - egenskaper
       - features
+      - gruppe
       - id
       - navn
       - sanityId
@@ -3113,11 +3118,14 @@ components:
     Tiltakskode:
       type: string
       enum:
-      - ARBEIDSMARKEDSOPPLAERING
       - ARBEIDSFORBEREDENDE_TRENING
       - ARBEIDSRETTET_REHABILITERING
       - AVKLARING
       - DIGITALT_OPPFOLGINGSTILTAK
+      - JOBBKLUBB
+      - OPPFOLGING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
       - FAG_OG_YRKESOPPLAERING
@@ -3125,11 +3133,8 @@ components:
       - GRUPPE_FAG_OG_YRKESOPPLAERING
       - HOYERE_UTDANNING
       - HOYERE_YRKESFAGLIG_UTDANNING
-      - JOBBKLUBB
       - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
-      - OPPFOLGING
       - STUDIESPESIALISERING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
     TiltakstypeStatus:
       type: string
       enum:

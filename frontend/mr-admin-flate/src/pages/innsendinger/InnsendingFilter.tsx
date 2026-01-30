@@ -2,14 +2,12 @@ import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
 import { InnsendingFilterAccordionAtom, InnsendingFilterType } from "./filter";
 import { useAtom } from "jotai";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { CheckboxList } from "@/components/filter/CheckboxList";
-import { tiltakstypeOptions } from "@/utils/filterUtils";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { Accordion } from "@navikt/ds-react";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { useKostnadsstedFilter } from "@/api/enhet/useKostnadsstedFilter";
 import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
+import { GjennomforingTiltakstypeFilter } from "@/components/filter/GjennomforingTiltakstypeFilter";
 
 type Filters = "tiltakstype" | "navEnhet" | "sortering";
 
@@ -21,7 +19,7 @@ interface Props {
 
 export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(InnsendingFilterAccordionAtom);
-  const { data: tiltakstyper } = useTiltakstyper();
+
   const { data: kostnadssteder } = useKostnadsstedFilter();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
@@ -29,12 +27,6 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
 
   if (!arrangorer) {
     return <FilterSkeleton />;
-  }
-
-  function selectDeselectAll(checked: boolean, key: string, values: string[]) {
-    updateFilter({
-      [key]: checked ? values : [],
-    });
   }
 
   return (
@@ -74,20 +66,10 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
               />
             </Accordion.Header>
             <Accordion.Content className="ml-[-2rem]">
-              <CheckboxList
-                onSelectAll={(checked) => {
-                  selectDeselectAll(
-                    checked,
-                    "tiltakstyper",
-                    tiltakstyper.map((t) => t.id),
-                  );
-                }}
-                items={tiltakstypeOptions(tiltakstyper)}
-                isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
-                onChange={(tiltakstype) => {
-                  updateFilter({
-                    tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
-                  });
+              <GjennomforingTiltakstypeFilter
+                value={filter.tiltakstyper}
+                onChange={(tiltakstyper) => {
+                  updateFilter({ tiltakstyper });
                 }}
               />
             </Accordion.Content>

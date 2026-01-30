@@ -15,6 +15,7 @@ data class TiltakstypeDto(
     val id: UUID,
     val navn: String,
     val tiltakskode: Tiltakskode,
+    val gruppe: String?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

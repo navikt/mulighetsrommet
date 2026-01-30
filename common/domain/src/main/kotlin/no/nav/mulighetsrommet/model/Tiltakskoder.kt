@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.model
 
-enum class Tiltakskode(val arenakode: String, val egenskaper: Set<TiltakstypeEgenskap>) {
-    ARBEIDSMARKEDSOPPLAERING(
-        arenakode = "GRUPPEAMO",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
-    ),
+enum class Tiltakskode(
+    val arenakode: String,
+    val egenskaper: Set<TiltakstypeEgenskap>,
+    val gruppe: Tiltaksgruppe? = null,
+) {
     ARBEIDSFORBEREDENDE_TRENING(
         arenakode = "ARBFORB",
         egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
@@ -21,58 +21,77 @@ enum class Tiltakskode(val arenakode: String, val egenskaper: Set<TiltakstypeEge
         arenakode = "DIGIOPPARB",
         egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
     ),
-    ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING(
-        arenakode = "ENKELAMO",
-        egenskaper = setOf(),
-    ),
-    ENKELTPLASS_FAG_OG_YRKESOPPLAERING(
-        arenakode = "ENKFAGYRKE",
-        egenskaper = setOf(),
-    ),
-    FAG_OG_YRKESOPPLAERING(
-        arenakode = "GRUFAGYRKE",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
-    ),
-    GRUPPE_ARBEIDSMARKEDSOPPLAERING(
-        arenakode = "GRUPPEAMO",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
-    ),
-    GRUPPE_FAG_OG_YRKESOPPLAERING(
-        arenakode = "GRUFAGYRKE",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
-    ),
-    HOYERE_UTDANNING(
-        arenakode = "HOYEREUTD",
-        egenskaper = setOf(),
-    ),
-    HOYERE_YRKESFAGLIG_UTDANNING(
-        arenakode = "GRUFAGYRKE",
-        egenskaper = setOf(),
-    ),
     JOBBKLUBB(
         arenakode = "JOBBK",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
-    ),
-    NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV(
-        arenakode = "GRUPPEAMO",
         egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
     ),
     OPPFOLGING(
         arenakode = "INDOPPFAG",
         egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
     ),
-    STUDIESPESIALISERING(
-        arenakode = "GRUPPEAMO",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
-    ),
     VARIG_TILRETTELAGT_ARBEID_SKJERMET(
         arenakode = "VASV",
         egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+    ),
+
+    ARBEIDSMARKEDSOPPLAERING(
+        arenakode = "GRUPPEAMO",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
+    ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING(
+        arenakode = "ENKELAMO",
+        egenskaper = setOf(),
+        gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
+    ENKELTPLASS_FAG_OG_YRKESOPPLAERING(
+        arenakode = "ENKFAGYRKE",
+        egenskaper = setOf(),
+        gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
+    FAG_OG_YRKESOPPLAERING(
+        arenakode = "GRUFAGYRKE",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
+    GRUPPE_ARBEIDSMARKEDSOPPLAERING(
+        arenakode = "GRUPPEAMO",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
+    GRUPPE_FAG_OG_YRKESOPPLAERING(
+        arenakode = "GRUFAGYRKE",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
+    HOYERE_UTDANNING(
+        arenakode = "HOYEREUTD",
+        egenskaper = setOf(),
+        gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
+    HOYERE_YRKESFAGLIG_UTDANNING(
+        arenakode = "GRUFAGYRKE",
+        egenskaper = setOf(),
+        gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
+    NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV(
+        arenakode = "GRUPPEAMO",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        gruppe = Tiltaksgruppe.OPPLAERING,
+    ),
+    STUDIESPESIALISERING(
+        arenakode = "GRUPPEAMO",
+        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        gruppe = Tiltaksgruppe.OPPLAERING,
     ),
 }
 
 enum class TiltakstypeEgenskap {
     KAN_OPPRETTE_AVTALE,
+}
+
+enum class Tiltaksgruppe(val tittel: String) {
+    OPPLAERING("Opplæringstiltak"),
 }
 
 object Tiltakskoder {

@@ -1,11 +1,6 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import {
-  arrangorOptions,
-  AVTALE_STATUS_OPTIONS,
-  AVTALE_TYPE_OPTIONS,
-  tiltakstypeOptions,
-} from "@/utils/filterUtils";
+import { arrangorOptions, AVTALE_STATUS_OPTIONS, AVTALE_TYPE_OPTIONS } from "@/utils/filterUtils";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
@@ -14,7 +9,7 @@ import { avtaleFilterAccordionAtom, AvtaleFilterType } from "@/pages/avtaler/fil
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
-import { useTiltakstyperForAvtaler } from "@/api/tiltakstyper/useTiltakstyperForAvtaler";
+import { AvtaleTiltakstypeFilter } from "@/components/filter/AvtaleTiltakstypeFilter";
 
 type Filters = "tiltakstype";
 
@@ -27,7 +22,6 @@ interface Props {
 export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
 
-  const tiltakstyper = useTiltakstyperForAvtaler();
   const { data: regioner } = useNavRegioner();
   const { data: arrangorData } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,
@@ -141,21 +135,10 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
               />
             </Accordion.Header>
             <Accordion.Content className="ml-[-2rem]">
-              <CheckboxList
-                onSelectAll={(checked) => {
-                  selectDeselectAll(
-                    checked,
-                    "tiltakstyper",
-                    tiltakstyper.map((t) => t.id),
-                  );
-                }}
-                items={tiltakstypeOptions(tiltakstyper)}
-                isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
-                onChange={(tiltakstype) => {
-                  updateFilter({
-                    tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
-                    page: 1,
-                  });
+              <AvtaleTiltakstypeFilter
+                value={filter.tiltakstyper}
+                onChange={(tiltakstyper) => {
+                  updateFilter({ tiltakstyper, page: 1 });
                 }}
               />
             </Accordion.Content>
