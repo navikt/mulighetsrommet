@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TOPIC
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
-import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -205,7 +204,7 @@ class ArenaAdapterServiceTest : FunSpec({
             database.run {
                 queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2024#2024")
-                    it.arena?.ansvarligNavEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
+                    it.arena?.ansvarligNavEnhet shouldBe "0387"
                     it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.avtaleId shouldBe gjennomforing1.avtaleId
@@ -327,7 +326,7 @@ class ArenaAdapterServiceTest : FunSpec({
             database.run {
                 queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id).should {
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
-                    it.arena?.ansvarligNavEnhet?.enhetsnummer shouldBe "1000"
+                    it.arena?.ansvarligNavEnhet shouldBe "1000"
                 }
             }
         }

@@ -41,7 +41,6 @@ import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
 import { deltakerOversiktLenke, pathTo } from "~/utils/navigation";
 import { isValidationError, problemDetailResponse } from "~/utils/validering";
-import css from "../root.module.css";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 import { FeilmeldingMedVarselTrekant } from "../../../mr-admin-flate/src/components/skjema/FeilmeldingMedVarseltrekant";
 import { DataDetails } from "@mr/frontend-common";
@@ -145,8 +144,8 @@ export default function UtbetalingDetaljerSide() {
   ].includes(utbetaling.status);
 
   return (
-    <div className={css.side}>
-      <VStack gap="4" className="max-w-[1250px]">
+    <Box background="bg-default" borderRadius="large" padding="8">
+      <VStack gap="4">
         <HStack gap="2" align="end" justify="space-between">
           <PageHeading
             title="Detaljer"
@@ -212,7 +211,7 @@ export default function UtbetalingDetaljerSide() {
           padding="6"
           borderRadius="medium"
           borderColor="border-subtle"
-          borderWidth={"1 1 1 1"}
+          borderWidth="1"
         >
           <UtbetalingStatusList utbetaling={utbetaling} />
         </Box>
@@ -263,7 +262,7 @@ export default function UtbetalingDetaljerSide() {
           setOpen={setDeltakerModalOpen}
         />
       </VStack>
-    </div>
+    </Box>
   );
 }
 

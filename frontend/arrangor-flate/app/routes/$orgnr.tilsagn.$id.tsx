@@ -3,8 +3,7 @@ import { LoaderFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { tekster } from "~/tekster";
-import { VStack } from "@navikt/ds-react";
-import css from "../root.module.css";
+import { Box, VStack } from "@navikt/ds-react";
 import { pathTo } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { PageHeading } from "~/components/common/PageHeading";
@@ -33,15 +32,17 @@ export default function TilsagnDetaljerPage() {
   const { tilsagn } = useLoaderData<LoaderData>();
 
   return (
-    <VStack gap="4" className={css.side}>
-      <PageHeading
-        title={tekster.bokmal.tilsagn.detaljer.headingTitle}
-        tilbakeLenke={{
-          navn: tekster.bokmal.tilsagn.detaljer.tilbakeLenke,
-          url: pathTo.tilsagnOversikt,
-        }}
-      />
-      <TilsagnDetaljer tilsagn={tilsagn} />
-    </VStack>
+    <Box background="bg-default" paddingInline="8" paddingBlock="8 16" borderRadius="large">
+      <VStack gap="4">
+        <PageHeading
+          title={tekster.bokmal.tilsagn.detaljer.headingTitle}
+          tilbakeLenke={{
+            navn: tekster.bokmal.tilsagn.detaljer.tilbakeLenke,
+            url: pathTo.tilsagnOversikt,
+          }}
+        />
+        <TilsagnDetaljer tilsagn={tilsagn} />
+      </VStack>
+    </Box>
   );
 }

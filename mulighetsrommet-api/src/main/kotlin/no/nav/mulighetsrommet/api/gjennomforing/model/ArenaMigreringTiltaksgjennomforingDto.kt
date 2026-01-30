@@ -38,7 +38,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
             arenaId: Int?,
         ): ArenaMigreringTiltaksgjennomforingDto {
             val enhetsnummer = if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
-                gjennomforing.arena?.ansvarligNavEnhet?.enhetsnummer
+                gjennomforing.arena?.ansvarligNavEnhet
             } else {
                 gjennomforing.kontorstruktur.firstOrNull()?.region?.enhetsnummer?.value
             }

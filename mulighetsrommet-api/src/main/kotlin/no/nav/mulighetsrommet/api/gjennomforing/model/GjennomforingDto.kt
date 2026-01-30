@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
-import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.DataElement
@@ -31,7 +30,6 @@ data class GjennomforingDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val status: Status,
     val apentForPamelding: Boolean,
     val antallPlasser: Int,

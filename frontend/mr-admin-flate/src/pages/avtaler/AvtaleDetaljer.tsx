@@ -1,4 +1,3 @@
-import { getDisplayName } from "@/api/enhet/helpers";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { RegistrerteOpsjoner } from "@/components/avtaler/opsjoner/RegistrerteOpsjoner";
 import { hentOpsjonsmodell } from "@/components/avtaler/opsjoner/opsjonsmodeller";
@@ -14,7 +13,7 @@ import {
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
-import { Alert, Heading, HelpText, HStack, VStack } from "@navikt/ds-react";
+import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link } from "react-router";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
@@ -34,7 +33,6 @@ export function AvtaleDetaljer() {
     sluttDato,
     administratorer,
     sakarkivNummer,
-    arenaAnsvarligEnhet,
     arrangor,
     amoKategorisering,
     utdanningslop,
@@ -97,20 +95,6 @@ export function AvtaleDetaljer() {
         </ul>
       ) : (
         avtaletekster.ingenAdministratorerSattLabel
-      ),
-    },
-    {
-      key: avtaletekster.ansvarligEnhetFraArenaLabel,
-      value: arenaAnsvarligEnhet ? (
-        <HStack gap="2">
-          {getDisplayName(arenaAnsvarligEnhet)}
-          <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
-            Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet når det
-            opprettes avtale i Arena.
-          </HelpText>
-        </HStack>
-      ) : (
-        "-"
       ),
     },
   ];

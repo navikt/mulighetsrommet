@@ -1,10 +1,9 @@
 import { Alert, BodyShort, VStack } from "@navikt/ds-react";
-import css from "../root.module.css";
 import { PageHeading } from "~/components/common/PageHeading";
 
 export default function IngenTilgang() {
   return (
-    <VStack align="start" gap="4" className={css.side}>
+    <VStack align="start" gap="4">
       <PageHeading title="Mangler tilgang" />
       <Alert variant="warning">
         <BodyShort>

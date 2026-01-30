@@ -16,7 +16,6 @@ object AvtaleDtoMapper {
         arrangor = avtale.arrangor,
         startDato = avtale.startDato,
         sluttDato = avtale.sluttDato,
-        arenaAnsvarligEnhet = avtale.arenaAnsvarligEnhet,
         avtaletype = avtale.avtaletype,
         status = fromAvtaleStatus(avtale.status),
         administratorer = avtale.administratorer,

@@ -3139,7 +3139,6 @@ components:
       type: string
       enum:
       - VISES_I_TILTAKSADMINISTRASJON
-      - KAN_OPPRETTE_AVTALE
       - MIGRERT
     TiltakstypeEgenskap:
       type: string
@@ -3797,18 +3796,6 @@ components:
       - id
       - navn
       - telefon
-    ArenaNavEnhet:
-      type: object
-      properties:
-        navn:
-          type:
-          - "null"
-          - string
-        enhetsnummer:
-          type: string
-      required:
-      - enhetsnummer
-      - navn
     AvtaleDto.Status:
       type: object
       properties:
@@ -4126,10 +4113,6 @@ components:
           - "null"
           - string
           format: date
-        arenaAnsvarligEnhet:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ArenaNavEnhet"
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         status:
@@ -4179,7 +4162,6 @@ components:
       required:
       - administratorer
       - amoKategorisering
-      - arenaAnsvarligEnhet
       - arrangor
       - avtalenummer
       - avtaletype
@@ -4716,10 +4698,6 @@ components:
           - "null"
           - string
           format: date
-        arenaAnsvarligEnhet:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ArenaNavEnhet"
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
         apentForPamelding:
@@ -4797,7 +4775,6 @@ components:
       - amoKategorisering
       - antallPlasser
       - apentForPamelding
-      - arenaAnsvarligEnhet
       - arrangor
       - avtaleId
       - beskrivelse

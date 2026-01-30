@@ -1,4 +1,4 @@
-import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
+import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
 import { InnsendingFilterAccordionAtom, InnsendingFilterType } from "./filter";
 import { useAtom } from "jotai";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
@@ -9,6 +9,7 @@ import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { Accordion } from "@navikt/ds-react";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { useKostnadsstedFilter } from "@/api/enhet/useKostnadsstedFilter";
+import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
 
 type Filters = "tiltakstype" | "navEnhet" | "sortering";
 

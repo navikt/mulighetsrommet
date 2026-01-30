@@ -286,7 +286,6 @@ val ApplicationConfigDev = AppConfig(
         features = run {
             val migrert = setOf(
                 TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-                TiltakstypeFeature.KAN_OPPRETTE_AVTALE,
                 TiltakstypeFeature.MIGRERT,
             )
             val vises = setOf(

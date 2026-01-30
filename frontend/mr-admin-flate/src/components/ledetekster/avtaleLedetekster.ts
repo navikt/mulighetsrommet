@@ -25,7 +25,6 @@ export const avtaletekster = {
   navRegionerLabel: "Nav-regioner",
   navEnheterLabel: "Nav-enheter (kontorer)",
   navAndreEnheterLabel: "Nav-enheter (andre)",
-  ansvarligEnhetFraArenaLabel: "Ansvarlig enhet fra Arena",
   tiltaksarrangorHovedenhetLabel: "Tiltaksarrangør hovedenhet",
   tiltaksarrangorUnderenheterLabel: "Tiltaksarrangør underenheter",
   kontaktpersonerHosTiltaksarrangorLabel: "Kontaktpersoner hos tiltaksarrangør",

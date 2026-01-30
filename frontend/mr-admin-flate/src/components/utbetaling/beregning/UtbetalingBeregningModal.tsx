@@ -1,9 +1,9 @@
 import { Heading, HGrid, Modal, VStack } from "@navikt/ds-react";
-import { NavEnhetFilter } from "@mr/frontend-common";
 import { Suspense, useState } from "react";
 import { Laster } from "@/components/laster/Laster";
 import UtbetalingBeregning from "./UtbetalingBeregning";
 import { useUtbetalingBeregning } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
+import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
 
 interface Props {
   modalOpen: boolean;

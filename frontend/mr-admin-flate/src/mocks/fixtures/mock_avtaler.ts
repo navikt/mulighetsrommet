@@ -57,7 +57,6 @@ export const mockAvtaler: AvtaleDto[] = [
       type: AvtaleStatusType.AKTIV,
       status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
     },
-    arenaAnsvarligEnhet: mockEnheter._0300,
     kontorstruktur: [
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
       {
@@ -135,7 +134,6 @@ export const mockAvtaler: AvtaleDto[] = [
           "Denne avtalen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
       },
     },
-    arenaAnsvarligEnhet: mockEnheter._0400,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
     ],
@@ -195,7 +193,6 @@ export const mockAvtaler: AvtaleDto[] = [
       type: AvtaleStatusType.AKTIV,
       status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
     },
-    arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
@@ -256,7 +253,6 @@ export const mockAvtaler: AvtaleDto[] = [
       type: AvtaleStatusType.AKTIV,
       status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
     },
-    arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },

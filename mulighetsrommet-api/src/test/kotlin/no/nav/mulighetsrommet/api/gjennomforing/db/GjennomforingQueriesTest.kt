@@ -525,7 +525,7 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.gjennomforing.getEnkeltplassOrError(enkelAmo1.id).should {
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2025#1")
-                    it.arena?.ansvarligNavEnhet?.enhetsnummer shouldBe "0400"
+                    it.arena?.ansvarligNavEnhet shouldBe "0400"
                 }
 
                 queries.gjennomforing.delete(enkelAmo1.id)
@@ -796,7 +796,7 @@ class GjennomforingQueriesTest : FunSpec({
     }
 
     test("pagination") {
-        database.runAndRollback { session ->
+        database.runAndRollback { _ ->
             (1..10).forEach {
                 queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(id = UUID.randomUUID(), navn = "$it".padStart(2, '0')),

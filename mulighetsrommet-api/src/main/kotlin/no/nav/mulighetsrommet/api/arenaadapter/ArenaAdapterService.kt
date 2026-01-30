@@ -171,7 +171,7 @@ class ArenaAdapterService(
         arenaGjennomforing: ArenaGjennomforingDbo,
         current: Gjennomforing,
     ): Boolean {
-        return arenaGjennomforing.tiltaksnummer != current.arena?.tiltaksnummer?.value || arenaGjennomforing.arenaAnsvarligEnhet != current.arena?.ansvarligNavEnhet?.enhetsnummer
+        return arenaGjennomforing.tiltaksnummer != current.arena?.tiltaksnummer?.value || arenaGjennomforing.arenaAnsvarligEnhet != current.arena?.ansvarligNavEnhet
     }
 
     private fun hasRelevantChanges(
@@ -198,7 +198,7 @@ class ArenaAdapterService(
         return arenadata != GjennomforingArenaDataDbo(
             id = current.id,
             tiltaksnummer = current.arena?.tiltaksnummer,
-            arenaAnsvarligEnhet = current.arena?.ansvarligNavEnhet?.enhetsnummer,
+            arenaAnsvarligEnhet = current.arena?.ansvarligNavEnhet,
         )
     }
 
