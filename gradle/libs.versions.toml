@@ -1,7 +1,7 @@
 [versions]
 common-java-modules = "3.2025.11.10_14.07-a9f44944d7bc"
 flyway = "11.20.2"
-koin = "4.1.0-Beta8"
+koin-bom = "4.1.1"
 kotest = "6.0.7"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.3.0"
@@ -57,8 +57,9 @@ google-cloud-storage = "com.google.cloud:google-cloud-storage:2.62.0"
 
 hikaricp = "com.zaxxer:HikariCP:7.0.2"
 
-koin-ktor = { module = "io.insert-koin:koin-ktor3", version.ref = "koin" }
-koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
+koin-ktor = { module = "io.insert-koin:koin-ktor" }
+koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
 
 kotest-assertions-arrow = "io.kotest.extensions:kotest-assertions-arrow:2.0.0"
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
