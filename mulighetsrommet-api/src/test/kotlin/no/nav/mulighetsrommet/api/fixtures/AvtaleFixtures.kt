@@ -197,7 +197,7 @@ object AvtaleFixtures {
                     valuta = Valuta.NOK,
                     prisbetingelser = prismodell.prisbetingelser,
                     satser = (prismodell.satser ?: listOf()).map {
-                        AvtaltSatsRequest(it.gjelderFra, it.sats)
+                        AvtaltSatsRequest(it.gjelderFra, it.sats.belop)
                     },
                 )
             },

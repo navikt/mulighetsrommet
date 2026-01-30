@@ -554,7 +554,7 @@ class AvtaleValidatorTest : FunSpec({
                     satser = listOf(
                         AvtaltSatsRequest(
                             gjelderFra = LocalDate.of(2025, 3, 1),
-                            pris = 1.withValuta(Valuta.NOK),
+                            pris = 1,
                         ),
                     ),
                 ),
@@ -592,7 +592,7 @@ class AvtaleValidatorTest : FunSpec({
                         satser = listOf(
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2024, 12, 1),
-                                pris = 1.withValuta(Valuta.NOK),
+                                pris = 1,
                             ),
                         ),
                     ),
@@ -627,7 +627,7 @@ class AvtaleValidatorTest : FunSpec({
                         satser = listOf(
                             AvtaltSatsRequest(
                                 gjelderFra = null,
-                                pris = 1.withValuta(Valuta.NOK),
+                                pris = 1,
                             ),
                         ),
                     ),
@@ -659,7 +659,7 @@ class AvtaleValidatorTest : FunSpec({
                         satser = listOf(
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
-                                pris = 0.withValuta(Valuta.NOK),
+                                pris = 0,
                             ),
                         ),
                     ),
@@ -675,7 +675,7 @@ class AvtaleValidatorTest : FunSpec({
                         satser = listOf(
                             AvtaltSatsRequest(
                                 gjelderFra = LocalDate.of(2025, 1, 1),
-                                pris = 1.withValuta(Valuta.NOK),
+                                pris = 1,
                             ),
                         ),
                     ),
@@ -683,26 +683,6 @@ class AvtaleValidatorTest : FunSpec({
                 getContext(),
             ).shouldBeRight()[0].satser shouldBe listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 1.withValuta(Valuta.NOK)),
-            )
-        }
-
-        test("tillater ikke forskjellig valuta på avtalte satser under en prismodell") {
-            AvtaleValidator.validatePrismodeller(
-                listOf(
-                    PrismodellRequest(
-                        id = UUID.randomUUID(),
-                        type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                        valuta = Valuta.NOK,
-                        prisbetingelser = null,
-                        satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.NOK)),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2.withValuta(Valuta.SEK)),
-                        ),
-                    ),
-                ),
-                getContext(),
-            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError(pointer = "/prismodeller/0/satser/1/pris/valuta", detail = "Satsene må ha lik valuta som prismodellen"),
             )
         }
 
@@ -715,8 +695,8 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.NOK)),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2.withValuta(Valuta.NOK)),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
                     ),
                     PrismodellRequest(
@@ -725,8 +705,8 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.SEK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.SEK)),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2.withValuta(Valuta.SEK)),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
                     ),
                 ),
@@ -743,9 +723,9 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.NOK)),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.NOK)),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2.withValuta(Valuta.NOK)),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
                     ),
                 ),
@@ -765,9 +745,9 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3.withValuta(Valuta.NOK)),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1.withValuta(Valuta.NOK)),
-                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2.withValuta(Valuta.NOK)),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                            AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
                     ),
                 ),

@@ -267,7 +267,7 @@ class AvtaleServiceTest : FunSpec({
                 type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 valuta = Valuta.NOK,
                 prisbetingelser = null,
-                satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100.withValuta(Valuta.NOK))),
+                satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100)),
             )
 
             avtaleService.upsertPrismodell(AvtaleFixtures.oppfolging.id, listOf(request), bertilNavIdent)

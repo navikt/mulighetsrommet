@@ -29,12 +29,9 @@ export const PrismodellSchema = z.object({
             z.object({
               gjelderFra: z.string().min(1, { message: "Gjelder fra må være satt" }),
               gjelderTil: z.string().nullable(),
-              pris: z.object({
-                belop: z
-                  .number({ error: "Pris må være satt" })
-                  .min(1, { message: "Pris må være positiv" }),
-                valuta: z.enum(Valuta, { error: "Du må velge en valuta" }),
-              }),
+              pris: z
+                .number({ error: "Pris må være satt" })
+                .min(1, { message: "Pris må være positiv" }),
             }),
           )
           .nullable(),
@@ -206,7 +203,12 @@ export function defaultAvtaleData(
         id: prismodell.id,
         type: prismodell.type,
         valuta: prismodell.valuta,
-        satser: prismodell.satser,
+        satser:
+          prismodell.satser?.map((sats) => ({
+            gjelderFra: sats.gjelderFra,
+            gjelderTil: sats.gjelderTil,
+            pris: sats.pris.belop,
+          })) ?? null,
         prisbetingelser: prismodell.prisbetingelser || null,
       })) ?? [],
   };
