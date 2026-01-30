@@ -57,7 +57,7 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
     >
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(postData)}>
-          <Modal.Body>
+          <Modal.Body className="max-h-[70vh] overflow-y-auto">
             <VStack gap="4">
               <InfoCard data-color="warning">
                 <InfoCard.Header>
