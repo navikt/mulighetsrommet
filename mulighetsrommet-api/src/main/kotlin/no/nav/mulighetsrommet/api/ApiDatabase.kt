@@ -4,6 +4,7 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorQueries
+import no.nav.mulighetsrommet.api.arrangorflate.db.ArrangorflateTiltakQueries
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellQueries
@@ -81,6 +82,7 @@ open class QueryContext(open val session: Session) {
         val veilederJoyride = VeilederJoyrideQueries(session)
         val kafkaProducerRecord = KafkaProducerRecordQueries(session)
         val oppgave = OppgaveQueries(session)
+        val arrangorTiltak = ArrangorflateTiltakQueries(session)
     }
 }
 

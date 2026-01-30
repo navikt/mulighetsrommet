@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangorflate.api.beregningSatsPeriodeDetaljerMedFaktor
-import no.nav.mulighetsrommet.api.arrangorflate.api.beregningSatsPeriodeDetaljerUtenFaktor
+import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerMedFaktor
+import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerUtenFaktor
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.navenhet.NavRegionDto
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhet

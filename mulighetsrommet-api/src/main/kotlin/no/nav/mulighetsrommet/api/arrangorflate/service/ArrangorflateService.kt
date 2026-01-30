@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.arrangorflate
+package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import arrow.core.Either
 import arrow.core.getOrElse
@@ -6,18 +6,16 @@ import io.ktor.http.HttpStatusCode
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangforflateUtbetalingLinje
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateArrangor
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateGjennomforingInfo
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflatePersonalia
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnDto
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnSummary
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTiltakstype
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingDto
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingKompaktDto
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
-import no.nav.mulighetsrommet.api.arrangorflate.api.mapUtbetalingToArrangorflateUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
@@ -70,7 +68,7 @@ class ArrangorflateService(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
-    private fun tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompaktDto {
+    private fun tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
         val harAdvarsler = when (utbetaling.status) {
             UtbetalingStatusType.GENERERT -> harAdvarsler(utbetaling)
 
@@ -96,10 +94,10 @@ class ArrangorflateService(
             ArrangorflateUtbetalingStatus.AVBRUTT,
             -> null
         }
-        return ArrangorflateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
+        return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
     }
 
-    fun getUtbetalingerByArrangorerAndStatus(arrangorer: Set<Organisasjonsnummer>, statuser: Set<UtbetalingStatusType>): List<ArrangorflateUtbetalingKompaktDto> = db.session {
+    fun getUtbetalingerByArrangorerAndStatus(arrangorer: Set<Organisasjonsnummer>, statuser: Set<UtbetalingStatusType>): List<ArrangorflateUtbetalingKompakt> = db.session {
         queries.utbetaling.getByArrangorerAndStatus(arrangorer, statuser).map { tilArrangorflateUtbetalingKompakt(it) }
     }
 
@@ -423,21 +421,21 @@ fun toArrangorflateTilsagn(
 ): ArrangorflateTilsagnDto {
     return ArrangorflateTilsagnDto(
         id = tilsagn.id,
-        gjennomforing = ArrangorflateGjennomforingInfo(
+        gjennomforing = ArrangorflateGjennomforingDto(
             id = tilsagn.gjennomforing.id,
             lopenummer = tilsagn.gjennomforing.lopenummer,
             navn = tilsagn.gjennomforing.navn,
         ),
         bruktBelop = tilsagn.belopBrukt,
         gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
-        tiltakstype = ArrangorflateTiltakstype(
+        tiltakstype = ArrangorflateTiltakstypeDto(
             navn = tilsagn.tiltakstype.navn,
             tiltakskode = tilsagn.tiltakstype.tiltakskode,
         ),
         type = tilsagn.type,
         periode = tilsagn.periode,
         beregning = toArrangorflateTilsagnBeregningDetails(tilsagn),
-        arrangor = ArrangorflateArrangor(
+        arrangor = ArrangorflateArrangorDto(
             id = tilsagn.arrangor.id,
             navn = tilsagn.arrangor.navn,
             organisasjonsnummer = tilsagn.arrangor.organisasjonsnummer,

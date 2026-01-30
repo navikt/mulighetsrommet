@@ -54,6 +54,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -104,7 +105,7 @@ class UtbetalingServiceTest : FunSpec({
     )
 
     context("opprett utbetaling - annen avtalt pris") {
-        val opprettAnnenAvtaltPrisUtbetaling = UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling(
+        val opprettAnnenAvtaltPrisUtbetaling = OpprettUtbetalingAnnenAvtaltPris(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
             periodeStart = LocalDate.of(2025, 1, 1),

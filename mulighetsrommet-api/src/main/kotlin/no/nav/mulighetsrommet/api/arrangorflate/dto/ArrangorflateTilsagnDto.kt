@@ -1,6 +1,7 @@
-package no.nav.mulighetsrommet.api.arrangorflate.api
+package no.nav.mulighetsrommet.api.arrangorflate.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.DataDetails
@@ -13,9 +14,9 @@ import java.util.UUID
 data class ArrangorflateTilsagnDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tiltakstype: ArrangorflateTiltakstype,
-    val gjennomforing: ArrangorflateGjennomforingInfo,
-    val arrangor: ArrangorflateArrangor,
+    val tiltakstype: ArrangorflateTiltakstypeDto,
+    val gjennomforing: ArrangorflateGjennomforingDto,
+    val arrangor: ArrangorflateArrangorDto,
     val type: TilsagnType,
     val periode: Periode,
     val status: TilsagnStatus,

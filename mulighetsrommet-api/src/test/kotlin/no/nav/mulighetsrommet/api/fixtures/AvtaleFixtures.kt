@@ -106,7 +106,6 @@ object AvtaleFixtures {
             tiltakstypeId = TiltakstypeFixtures.VTA.id,
             avtaletype = Avtaletype.FORHANDSGODKJENT,
             opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
-
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),

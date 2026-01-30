@@ -1050,11 +1050,11 @@ components:
           type: string
           format: uuid
         tiltakstype:
-          $ref: "#/components/schemas/ArrangorflateTiltakstype"
+          $ref: "#/components/schemas/ArrangorflateTiltakstypeDto"
         gjennomforing:
-          $ref: "#/components/schemas/ArrangorflateGjennomforingInfo"
+          $ref: "#/components/schemas/ArrangorflateGjennomforingDto"
         arrangor:
-          $ref: "#/components/schemas/ArrangorflateArrangor"
+          $ref: "#/components/schemas/ArrangorflateArrangorDto"
         type:
           $ref: "#/components/schemas/TilsagnType"
         periode:
@@ -1086,7 +1086,7 @@ components:
       - status
       - tiltakstype
       - type
-    ArrangorflateTiltakstype:
+    ArrangorflateTiltakstypeDto:
       type: object
       properties:
         navn:
@@ -1116,7 +1116,7 @@ components:
       - HOYERE_YRKESFAGLIG_UTDANNING
       - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
       - STUDIESPESIALISERING
-    ArrangorflateGjennomforingInfo:
+    ArrangorflateGjennomforingDto:
       type: object
       properties:
         id:
@@ -1130,7 +1130,7 @@ components:
       - id
       - lopenummer
       - navn
-    ArrangorflateArrangor:
+    ArrangorflateArrangorDto:
       type: object
       properties:
         id:
@@ -1735,11 +1735,11 @@ components:
           - string
           format: date-time
         tiltakstype:
-          $ref: "#/components/schemas/ArrangorflateTiltakstype"
+          $ref: "#/components/schemas/ArrangorflateTiltakstypeDto"
         gjennomforing:
-          $ref: "#/components/schemas/ArrangorflateGjennomforingInfo"
+          $ref: "#/components/schemas/ArrangorflateGjennomforingDto"
         arrangor:
-          $ref: "#/components/schemas/ArrangorflateArrangor"
+          $ref: "#/components/schemas/ArrangorflateArrangorDto"
         betalingsinformasjon:
           oneOf:
           - type: "null"

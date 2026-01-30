@@ -1,15 +1,16 @@
-package no.nav.mulighetsrommet.api.arrangorflate.api
+package no.nav.mulighetsrommet.api.arrangorflate.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorAvbrytStatus
+import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
-import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
@@ -33,9 +34,9 @@ data class ArrangorflateUtbetalingDto(
     val kanViseBeregning: Boolean,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime?,
-    val tiltakstype: ArrangorflateTiltakstype,
-    val gjennomforing: ArrangorflateGjennomforingInfo,
-    val arrangor: ArrangorflateArrangor,
+    val tiltakstype: ArrangorflateTiltakstypeDto,
+    val gjennomforing: ArrangorflateGjennomforingDto,
+    val arrangor: ArrangorflateArrangorDto,
     val betalingsinformasjon: Betalingsinformasjon.BBan?,
     val valuta: Valuta,
     val beregning: ArrangorflateBeregning,
@@ -50,12 +51,6 @@ data class ArrangorflateUtbetalingDto(
     val kanRegenereres: Boolean,
     @Serializable(with = UUIDSerializer::class)
     val regenerertId: UUID?,
-)
-
-@Serializable
-data class ArrangorflateBetalingsinformasjon(
-    val kontonummer: Kontonummer?,
-    val kid: Kid?,
 )
 
 @Serializable

@@ -1,22 +1,21 @@
-package no.nav.mulighetsrommet.api.arrangorflate.api
+package no.nav.mulighetsrommet.api.arrangorflate.model
 
-import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
-@Serializable
-data class ArrangorflateUtbetalingKompaktDto(
-    @Serializable(with = UUIDSerializer::class)
+data class ArrangorflateUtbetalingKompakt(
     val id: UUID,
-    val tiltakstype: ArrangorflateTiltakstype,
-    val gjennomforing: ArrangorflateGjennomforingInfo,
-    val arrangor: ArrangorflateArrangor,
+    val tiltakstype: ArrangorflateTiltakstypeDto,
+    val gjennomforing: ArrangorflateGjennomforingDto,
+    val arrangor: ArrangorflateArrangorDto,
     val type: UtbetalingTypeDto,
     val periode: Periode,
     val status: ArrangorflateUtbetalingStatus,
@@ -24,19 +23,19 @@ data class ArrangorflateUtbetalingKompaktDto(
     val godkjentBelop: ValutaBelop?,
 ) {
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling, status: ArrangorflateUtbetalingStatus, godkjentBelop: ValutaBelop?) = ArrangorflateUtbetalingKompaktDto(
+        fun fromUtbetaling(utbetaling: Utbetaling, status: ArrangorflateUtbetalingStatus, godkjentBelop: ValutaBelop?) = ArrangorflateUtbetalingKompakt(
             id = utbetaling.id,
             status = status,
-            tiltakstype = ArrangorflateTiltakstype(
+            tiltakstype = ArrangorflateTiltakstypeDto(
                 navn = utbetaling.tiltakstype.navn,
                 tiltakskode = utbetaling.tiltakstype.tiltakskode,
             ),
-            gjennomforing = ArrangorflateGjennomforingInfo(
+            gjennomforing = ArrangorflateGjennomforingDto(
                 id = utbetaling.gjennomforing.id,
                 lopenummer = utbetaling.gjennomforing.lopenummer,
                 navn = utbetaling.gjennomforing.navn,
             ),
-            arrangor = ArrangorflateArrangor(
+            arrangor = ArrangorflateArrangorDto(
                 id = utbetaling.arrangor.id,
                 organisasjonsnummer = utbetaling.arrangor.organisasjonsnummer,
                 navn = utbetaling.arrangor.navn,

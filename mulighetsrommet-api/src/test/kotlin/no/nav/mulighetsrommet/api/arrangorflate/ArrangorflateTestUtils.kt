@@ -1,11 +1,9 @@
-package no.nav.mulighetsrommet.api.utbetaling
+package no.nav.mulighetsrommet.api.arrangorflate
 
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
-import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
-import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedPartyType
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
@@ -202,17 +200,17 @@ object ArrangorflateTestUtils {
             if (body.value == identMedTilgang.value) {
                 respondJson(
                     listOf(
-                        AuthorizedParty(
+                        AltinnClient.AuthorizedParty(
                             organizationNumber = underenhet.organisasjonsnummer.value,
                             name = underenhet.navn,
-                            type = AuthorizedPartyType.Organization,
+                            type = AltinnClient.AuthorizedPartyType.Organization,
                             authorizedResources = listOf("nav_tiltaksarrangor_be-om-utbetaling"),
                             subunits = emptyList(),
                         ),
                     ),
                 )
             } else {
-                respondJson(emptyList<AuthorizedParty>())
+                respondJson(emptyList<AltinnClient.AuthorizedParty>())
             }
         }
     }

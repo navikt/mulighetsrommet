@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -371,7 +370,6 @@ class GjennomforingQueries(private val session: Session) {
         administratorNavIdent: NavIdent? = null,
         publisert: Boolean? = null,
         koordinatorNavIdent: NavIdent? = null,
-        prismodeller: List<PrismodellType> = emptyList(),
         type: GjennomforingType? = null,
     ): PaginatedResult<GjennomforingKompakt> = with(session) {
         val parameters = mapOf(
@@ -387,7 +385,6 @@ class GjennomforingQueries(private val session: Session) {
             "administrator_nav_ident" to administratorNavIdent?.value,
             "koordinator_nav_ident" to koordinatorNavIdent?.value,
             "publisert" to publisert,
-            "prismodeller" to prismodeller.ifEmpty { null }?.let { createArrayOf("prismodell_type", prismodeller) },
             "gjennomforing_type" to type?.name,
         )
 
@@ -447,7 +444,6 @@ class GjennomforingQueries(private val session: Session) {
               and (:statuser::text[] is null or status = any(:statuser))
               and (:publisert::boolean is null or publisert = :publisert::boolean)
               and (:gjennomforing_type::gjennomforing_type is null or gjennomforing_type = :gjennomforing_type::gjennomforing_type)
-              and (:prismodeller::prismodell_type[] is null or (select prismodell_type from prismodell where id = prismodell_id) = any(:prismodeller::prismodell_type[]))
             order by $order
             limit :limit
             offset :offset
