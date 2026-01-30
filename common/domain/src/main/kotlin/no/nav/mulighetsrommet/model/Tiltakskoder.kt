@@ -149,8 +149,8 @@ enum class Tiltakskode(
     ),
     ;
 
-    fun harEgenskap(vararg required: TiltakstypeEgenskap): Boolean {
-        return egenskaper.containsAll(required.toSet())
+    fun harEgenskap(vararg egenskap: TiltakstypeEgenskap): Boolean {
+        return egenskaper.containsAll(egenskap.toSet())
     }
 }
 
