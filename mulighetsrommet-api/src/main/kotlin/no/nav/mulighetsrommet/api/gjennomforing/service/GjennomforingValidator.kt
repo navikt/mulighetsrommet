@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
@@ -131,7 +130,12 @@ object GjennomforingValidator {
                 GjennomforingRequest::prismodellId,
             )
         }
-        if (Tiltakskoder.kanEndreOppstartOgPamelding(ctx.avtale.tiltakstype.tiltakskode)) {
+
+        if (ctx.avtale.tiltakstype.tiltakskode.harEgenskap(
+                TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
+                TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+            )
+        ) {
             if (request.oppstart == GjennomforingOppstartstype.FELLES) {
                 validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
                     FieldError.of(
@@ -140,12 +144,13 @@ object GjennomforingValidator {
                     )
                 }
             }
-        } else {
-            validate(next.oppstart != GjennomforingOppstartstype.FELLES) {
-                FieldError.of(
-                    "Tiltaket må ha løpende oppstartstype",
-                    GjennomforingRequest::oppstart,
-                )
+        } else if (ctx.avtale.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART)) {
+            validate(next.oppstart == GjennomforingOppstartstype.FELLES) {
+                FieldError.of("Tiltaket må ha felles oppstart", GjennomforingRequest::oppstart)
+            }
+        } else if (ctx.avtale.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART)) {
+            validate(next.oppstart == GjennomforingOppstartstype.LOPENDE) {
+                FieldError.of("Tiltaket må ha løpende oppstart", GjennomforingRequest::oppstart)
             }
         }
 

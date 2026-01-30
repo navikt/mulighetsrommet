@@ -10,33 +10,51 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     ARBEIDSFORBEREDENDE_TRENING(
         arenakode = "ARBFORB",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
     ),
     ARBEIDSRETTET_REHABILITERING(
         arenakode = "ARBRRHDAG",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
     ),
     AVKLARING(
         arenakode = "AVKLARAG",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
     ),
     DIGITALT_OPPFOLGINGSTILTAK(
         arenakode = "DIGIOPPARB",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
     ),
     ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING(
         arenakode = "ENKELAMO",
-        egenskaper = setOf(),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     ENKELTPLASS_FAG_OG_YRKESOPPLAERING(
         arenakode = "ENKFAGYRKE",
-        egenskaper = setOf(),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     FAG_OG_YRKESOPPLAERING(
@@ -44,6 +62,8 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -52,6 +72,8 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -60,12 +82,17 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     HOYERE_UTDANNING(
         arenakode = "HOYEREUTD",
-        egenskaper = setOf(TiltakstypeEgenskap.KREVER_DELTIDSPROSENT),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     HOYERE_YRKESFAGLIG_UTDANNING(
@@ -73,6 +100,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -81,6 +109,8 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
     ),
     NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV(
@@ -88,33 +118,47 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     OPPFOLGING(
         arenakode = "INDOPPFAG",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
     ),
     STUDIESPESIALISERING(
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     VARIG_TILRETTELAGT_ARBEID_SKJERMET(
         arenakode = "VASV",
-        egenskaper = setOf(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE),
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
     ),
     ;
 
-    fun harEgenskap(egenskap: TiltakstypeEgenskap): Boolean = egenskap in egenskaper
+    fun harEgenskap(vararg required: TiltakstypeEgenskap): Boolean {
+        return egenskaper.containsAll(required.toSet())
+    }
 }
 
 enum class TiltakstypeEgenskap {
     KAN_OPPRETTE_AVTALE,
     KREVER_DELTIDSPROSENT,
+    STOTTER_FELLES_OPPSTART,
+    STOTTER_LOPENDE_OPPSTART,
 }
 
 enum class Tiltaksgruppe(val tittel: String) {
@@ -170,31 +214,6 @@ object Tiltakskoder {
 
     fun isEgenRegiTiltak(arenaKode: String): Boolean {
         return arenaKode in TiltakskoderEgenRegi
-    }
-
-    fun kanEndreOppstartOgPamelding(tiltakskode: Tiltakskode): Boolean {
-        return when (tiltakskode) {
-            Tiltakskode.JOBBKLUBB,
-            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.HOYERE_UTDANNING,
-            Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
-            Tiltakskode.STUDIESPESIALISERING,
-            Tiltakskode.FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-            -> true
-
-            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-            Tiltakskode.AVKLARING,
-            Tiltakskode.OPPFOLGING,
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            -> false
-        }
     }
 
     fun isEnkeltplassTiltak(arenakode: String): Boolean {
