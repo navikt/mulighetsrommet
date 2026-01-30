@@ -18,6 +18,7 @@ object UtbetalingMapper {
             beskrivelse = dbo.beskrivelse,
             begrunnelseMindreBetalt = null,
             avbruttBegrunnelse = null,
+            avbruttTidspunkt = null,
             journalpostId = null,
             tilskuddstype = dbo.tilskuddstype,
             innsender = null,
