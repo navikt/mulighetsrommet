@@ -5,16 +5,6 @@ enum class Tiltakskode(
     val egenskaper: Set<TiltakstypeEgenskap>,
     val gruppe: Tiltaksgruppe? = null,
 ) {
-    ARBEIDSMARKEDSOPPLAERING(
-        arenakode = "GRUPPEAMO",
-        egenskaper = setOf(
-            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
-            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
-        ),
-        gruppe = Tiltaksgruppe.OPPLAERING,
-    ),
     ARBEIDSFORBEREDENDE_TRENING(
         arenakode = "ARBFORB",
         egenskaper = setOf(
@@ -42,6 +32,40 @@ enum class Tiltakskode(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
+    ),
+    JOBBKLUBB(
+        arenakode = "JOBBK",
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
+    ),
+    OPPFOLGING(
+        arenakode = "INDOPPFAG",
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
+    ),
+    VARIG_TILRETTELAGT_ARBEID_SKJERMET(
+        arenakode = "VASV",
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
+    ),
+
+    ARBEIDSMARKEDSOPPLAERING(
+        arenakode = "GRUPPEAMO",
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
+            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+        ),
+        gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING(
         arenakode = "ENKELAMO",
@@ -104,15 +128,6 @@ enum class Tiltakskode(
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
-    JOBBKLUBB(
-        arenakode = "JOBBK",
-        egenskaper = setOf(
-            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
-            TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
-        ),
-    ),
     NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV(
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
@@ -123,13 +138,6 @@ enum class Tiltakskode(
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
-    OPPFOLGING(
-        arenakode = "INDOPPFAG",
-        egenskaper = setOf(
-            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
-        ),
-    ),
     STUDIESPESIALISERING(
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
@@ -139,13 +147,6 @@ enum class Tiltakskode(
             TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
-    ),
-    VARIG_TILRETTELAGT_ARBEID_SKJERMET(
-        arenakode = "VASV",
-        egenskaper = setOf(
-            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
-        ),
     ),
     ;
 
