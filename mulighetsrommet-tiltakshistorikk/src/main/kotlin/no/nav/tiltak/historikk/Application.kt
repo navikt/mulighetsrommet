@@ -2,7 +2,6 @@ package no.nav.tiltak.historikk
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStarted
-import io.ktor.server.application.ApplicationStopPreparing
 import io.ktor.server.application.ApplicationStopped
 import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.log
@@ -10,7 +9,6 @@ import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
-import io.ktor.util.AttributeKey
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -56,18 +54,14 @@ fun main() {
     ).start(wait = true)
 }
 
-val IsReadyState = AttributeKey<Boolean>("app-is-ready")
-
 fun Application.configure(config: AppConfig) {
-    attributes.put(IsReadyState, true)
-
     configureMetrics()
 
     val database = configureDatabase(config)
 
     configureAuthentication(config.auth)
     configureSerialization()
-    configureMonitoring({ attributes[IsReadyState] }, { database.isHealthy() })
+    configureMonitoring({ database.isHealthy() })
     configureHTTP()
 
     val texasClient = TexasClient(config.auth.texas, config.auth.texas.engine ?: config.httpClientEngine)
@@ -96,11 +90,6 @@ fun Application.configure(config: AppConfig) {
 
     routing {
         tiltakshistorikkRoutes(kafka, db, tiltakshistorikk, virksomheter)
-    }
-
-    monitor.subscribe(ApplicationStopPreparing) {
-        log.info("ApplicationStopPreparing")
-        attributes.put(IsReadyState, false)
     }
 }
 

@@ -3,7 +3,9 @@ package no.nav.mulighetsrommet.arena.adapter
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStarted
-import io.ktor.server.application.ApplicationStopPreparing
+import io.ktor.server.application.ApplicationStopped
+import io.ktor.server.application.ApplicationStopping
+import io.ktor.server.application.log
 import io.ktor.server.auth.authenticate
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
@@ -81,18 +83,27 @@ fun Application.configure(config: AppConfig) {
 
     monitor.subscribe(ApplicationStarted) {
         if (config.enableFailedRecordProcessor) {
+            log.info("Starting kafka consumer record processor")
             kafka.enableFailedRecordProcessor()
         }
 
+        log.info("Starting task scheduler")
         scheduler.start()
 
         replayEvents.schedule(Instant.now().plusSeconds(60))
     }
 
-    monitor.subscribe(ApplicationStopPreparing) {
+    monitor.subscribe(ApplicationStopping) {
+        log.info("Stopping task scheduler...")
+        scheduler.stop()
+
+        log.info("Stopping kafka consumers...")
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
+    }
 
+    monitor.subscribe(ApplicationStopped) {
+        log.info("Closing db...")
         db.close()
     }
 }
