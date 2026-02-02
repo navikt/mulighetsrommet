@@ -1,55 +1,51 @@
-import { Tag, TagProps } from "@navikt/ds-react";
+import { Tag } from "@navikt/ds-react";
+import { AkselColor } from "@navikt/ds-react/types/theme";
 import { ArrangorflateUtbetalingStatus } from "api-client";
 import { ReactNode } from "react";
 
 interface Props {
   status: ArrangorflateUtbetalingStatus;
-  size?: TagProps["size"];
 }
 
+const utbetalingStatusConfig: Record<
+  ArrangorflateUtbetalingStatus,
+  { label: string; color: AkselColor }
+> = {
+  [ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING]: {
+    label: "Overført til utbetaling",
+    color: "success",
+  },
+  [ArrangorflateUtbetalingStatus.UTBETALT]: {
+    label: "Utbetalt",
+    color: "success",
+  },
+  [ArrangorflateUtbetalingStatus.DELVIS_UTBETALT]: {
+    label: "Delvis utbetalt",
+    color: "success",
+  },
+  [ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV]: {
+    label: "Behandles av Nav",
+    color: "warning",
+  },
+  [ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING]: {
+    label: "Klar for innsending",
+    color: "meta-purple",
+  },
+  [ArrangorflateUtbetalingStatus.KREVER_ENDRING]: {
+    label: "Krever endring",
+    color: "warning",
+  },
+  [ArrangorflateUtbetalingStatus.AVBRUTT]: {
+    label: "Avbrutt av arrangør",
+    color: "danger",
+  },
+};
+
 export function UtbetalingStatusTag({ status }: Props): ReactNode {
-  switch (status) {
-    case ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
-      return (
-        <Tag data-color="success" variant="outline" size="small">
-          Overført til utbetaling
-        </Tag>
-      );
-    case ArrangorflateUtbetalingStatus.UTBETALT:
-      return (
-        <Tag data-color="success" variant="outline" size="small">
-          Utbetalt
-        </Tag>
-      );
-    case ArrangorflateUtbetalingStatus.DELVIS_UTBETALT:
-      return (
-        <Tag data-color="success" variant="outline" size="small">
-          Delvis utbetalt
-        </Tag>
-      );
-    case ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV:
-      return (
-        <Tag data-color="warning" variant="outline" size="small">
-          Behandles av Nav
-        </Tag>
-      );
-    case ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING:
-      return (
-        <Tag data-color="meta-purple" variant="outline" size="small">
-          Klar for innsending
-        </Tag>
-      );
-    case ArrangorflateUtbetalingStatus.KREVER_ENDRING:
-      return (
-        <Tag data-color="warning" variant="outline" size="small">
-          Krever endring
-        </Tag>
-      );
-    case ArrangorflateUtbetalingStatus.AVBRUTT:
-      return (
-        <Tag data-color="danger" variant="outline" size="small">
-          Avbrutt av arrangør
-        </Tag>
-      );
-  }
+  const config = utbetalingStatusConfig[status];
+  return (
+    <Tag data-color={config.color} size="small" className="whitespace-nowrap">
+      {config.label}
+    </Tag>
+  );
 }

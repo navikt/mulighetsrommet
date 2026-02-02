@@ -19,7 +19,7 @@ import useInjectDecoratorScript from "~/services/dekorator/useInjectScript";
 import "./tailwind.css";
 import { ErrorPage } from "./components/common/ErrorPage";
 import { isDemo } from "./services/environment";
-import { Alert, Heading, Link, Page } from "@navikt/ds-react";
+import { Alert, Box, Heading, Link, Page } from "@navikt/ds-react";
 import { Header } from "./components/header/Header";
 import { initializeLogs, pushError } from "~/faro";
 
@@ -73,15 +73,17 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
         />
         {dekorator && parse(dekorator.head)}
       </head>
-      <Page as="body" footer={dekorator && parse(dekorator.footer)}>
-        <DekoratorHeader dekorator={dekorator} />
-        <Header />
-        <Page.Block as="main" width="2xl" gutters>
-          {children}
-        </Page.Block>
-        <ScrollRestoration />
-        <Scripts />
-      </Page>
+      <Box asChild background={isLandingPage ? "default" : "sunken"}>
+        <Page as="body" footer={dekorator && parse(dekorator.footer)}>
+          <DekoratorHeader dekorator={dekorator} />
+          <Header />
+          <Page.Block as="main" width="2xl" gutters>
+            {children}
+          </Page.Block>
+          <ScrollRestoration />
+          <Scripts />
+        </Page>
+      </Box>
     </html>
   );
 }

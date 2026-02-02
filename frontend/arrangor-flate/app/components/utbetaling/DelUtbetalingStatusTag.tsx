@@ -1,24 +1,22 @@
-import { Tag, TagProps } from "@navikt/ds-react";
+import { Tag } from "@navikt/ds-react";
 import { DelutbetalingStatus } from "api-client";
 import { ReactNode } from "react";
 
 interface Props {
   status: DelutbetalingStatus;
-  size?: TagProps["size"];
 }
 
-export function DelUtbetalingStatusTag({ status, size }: Props): ReactNode {
-  const tagSize = size || "medium";
+export function DelUtbetalingStatusTag({ status }: Props): ReactNode {
   switch (status) {
     case DelutbetalingStatus.OVERFORT_TIL_UTBETALING:
       return (
-        <Tag data-color="success" variant="outline" size={tagSize}>
+        <Tag data-color="success" variant="outline" size="small">
           Overført til utbetaling
         </Tag>
       );
     case DelutbetalingStatus.UTBETALT:
       return (
-        <Tag data-color="success" variant="outline" size={tagSize}>
+        <Tag data-color="success" variant="outline" size="small">
           Utbetalt
         </Tag>
       );
@@ -26,7 +24,7 @@ export function DelUtbetalingStatusTag({ status, size }: Props): ReactNode {
     case DelutbetalingStatus.GODKJENT:
     case DelutbetalingStatus.RETURNERT:
       return (
-        <Tag data-color="info" variant="outline" size={tagSize}>
+        <Tag data-color="info" variant="outline" size="small">
           Behandles av Nav
         </Tag>
       );

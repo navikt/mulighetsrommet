@@ -6,14 +6,12 @@ import { MetadataHGrid } from "@mr/frontend-common/components/datadriven/Metadat
 
 interface LabeledDataElementListProps {
   title?: string;
-  className?: string;
   entries: LabeledDataElement[];
 }
 
-export function LabeledDataElementList({ title, entries, className }: LabeledDataElementListProps) {
+export function LabeledDataElementList({ title, entries }: LabeledDataElementListProps) {
   return (
     <Definisjonsliste
-      className={className}
       title={title}
       definitions={entries.map((entry) => ({
         key: entry.label,
@@ -30,21 +28,20 @@ export interface Definition {
 
 interface Props {
   title?: string;
-  className?: string;
   definitions: Definition[];
 }
 
-export function Definisjonsliste({ title, definitions, className }: Props) {
+export function Definisjonsliste({ title, definitions }: Props) {
   return (
-    <VStack gap="space-12" className={className}>
+    <VStack gap="space-12">
       {title && (
         <Heading size="medium" level="3">
           {title}
         </Heading>
       )}
       <VStack gap="space-4">
-        {definitions.map((definition, index) => (
-          <MetadataHGrid key={index} label={definition.key} value={definition.value} />
+        {definitions.map((definition) => (
+          <MetadataHGrid key={definition.key} label={definition.key} value={definition.value} />
         ))}
       </VStack>
     </VStack>

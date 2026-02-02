@@ -40,7 +40,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
         definitions={[
           {
             key: "Status",
-            value: <UtbetalingStatusTag status={utbetaling.status} size={"small"} />,
+            value: <UtbetalingStatusTag status={utbetaling.status} />,
           },
           ...avbruttDato,
         ]}
@@ -86,7 +86,7 @@ function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangforflateUtbetalin
                   { key: "Beløp til utbetaling", value: formaterValutaBelop(linje.pris) },
                   {
                     key: "Status",
-                    value: <DelUtbetalingStatusTag status={linje.status} size={"small"} />,
+                    value: <DelUtbetalingStatusTag status={linje.status} />,
                   },
                   {
                     key: "Status endret",

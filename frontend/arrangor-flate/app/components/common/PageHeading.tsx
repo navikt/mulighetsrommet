@@ -1,5 +1,6 @@
-import { Heading } from "@navikt/ds-react";
-import { LinkWithTabState } from "./LinkWithTabState";
+import { ChevronLeftIcon } from "@navikt/aksel-icons";
+import { Heading, Link } from "@navikt/ds-react";
+import { Link as ReactRouterLink, useSearchParams } from "react-router";
 
 interface Props {
   title: string;
@@ -10,15 +11,21 @@ interface Props {
 }
 
 export function PageHeading({ title, tilbakeLenke }: Props) {
+  const [searchParams] = useSearchParams();
+  const currentTab = searchParams.get("forside-tab");
+  const linkTo = currentTab
+    ? `${tilbakeLenke?.url}?${currentTab}=${encodeURIComponent(currentTab)}`
+    : (tilbakeLenke?.url ?? "");
   return (
     <div className="flex flex-col relative gap-1">
       <Heading level="2" size="large" className="mb-3" id="innsending-table-header">
         {title}
       </Heading>
       {tilbakeLenke ? (
-        <LinkWithTabState className="inline hover:underline" to={tilbakeLenke.url}>
+        <Link as={ReactRouterLink} to={linkTo}>
+          <ChevronLeftIcon />
           {tilbakeLenke.navn}
-        </LinkWithTabState>
+        </Link>
       ) : null}
     </div>
   );
