@@ -113,11 +113,11 @@ fun Application.configure(config: AppConfig) {
         producerRecordProcessor.close()
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
+        log.info("Closing Shedlock client...")
+        shedLockLeaderElectionClient.close()
     }
 
     monitor.subscribe(ApplicationStopped) {
-        log.info("Closing Shedlock client...")
-        shedLockLeaderElectionClient.close()
         log.info("Closing db...")
         db.close()
     }

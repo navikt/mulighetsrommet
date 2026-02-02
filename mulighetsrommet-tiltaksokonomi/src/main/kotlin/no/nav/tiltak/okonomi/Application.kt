@@ -182,11 +182,11 @@ private fun Application.configureKafka(
         kafkaConsumerOrchestrator.disableFailedRecordProcessor()
         kafkaConsumerOrchestrator.stopPollingTopicChanges()
         producerRecordProcessor.close()
+        log.info("Closing Shedlock client...")
+        shedLockLeaderElectionClient.close()
     }
 
     monitor.subscribe(ApplicationStopped) {
-        log.info("Closing Shedlock client...")
-        shedLockLeaderElectionClient.close()
         log.info("Closing db...")
         db.close()
     }
