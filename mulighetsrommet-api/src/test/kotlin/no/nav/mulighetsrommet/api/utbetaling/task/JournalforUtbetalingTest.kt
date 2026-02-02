@@ -4,6 +4,7 @@ import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -36,7 +37,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
-import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -147,12 +147,13 @@ class JournalforUtbetalingTest : FunSpec({
     test("task scheduleres ikke hvis transaction rulles tilbake") {
         val task = createTask()
 
-        assertThrows<Exception>("Test") {
+        val exception = shouldThrowExactly<Exception> {
             database.run { tx ->
                 task.schedule(utbetaling.id, Instant.now(), tx, emptyList())
                 throw Exception("Test")
             }
         }
+        exception.message shouldBe "Test"
 
         database.assertTable("scheduled_tasks")
             .hasNumberOfRows(0)

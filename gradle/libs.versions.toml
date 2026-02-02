@@ -2,12 +2,12 @@
 common-java-modules = "3.2025.11.10_14.07-a9f44944d7bc"
 flyway = "11.20.2"
 koin-bom = "4.1.1"
-kotest = "6.0.7"
+kotest = "6.1.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.3.0"
-ktor = "3.3.3"
-logback = "1.5.25"
-metrics = "4.2.37"
+ktor = "3.4.0"
+logback = "1.5.26"
+metrics = "4.2.38"
 arrow = "2.2.1.1"
 micrometer = "1.16.2"
 
@@ -68,7 +68,7 @@ kotest-extensions-testcontainers = { module = "io.kotest.extensions:kotest-exten
 kotest-extensions-testcontainers-kafka = { module = "io.kotest.extensions:kotest-extensions-testcontainers-kafka", version.ref = "kotest-testcontainers" }
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
-kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0"
+kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0"
 kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2"
 
 kotliquery = "com.github.seratch:kotliquery:1.9.1"
@@ -134,4 +134,4 @@ slf4j = "org.slf4j:slf4j-api:2.0.17"
 apache-poi = "org.apache.poi:poi:5.5.1"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.5.1"
 
-unleash = "io.getunleash:unleash-client-java:12.0.1"
+unleash = "io.getunleash:unleash-client-java:12.1.0"

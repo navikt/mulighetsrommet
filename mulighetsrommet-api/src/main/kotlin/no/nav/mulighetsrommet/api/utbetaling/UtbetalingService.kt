@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -28,7 +27,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
-import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.toAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
@@ -39,6 +37,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -47,6 +48,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.model.toAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.clamav.Vedlegg
@@ -109,35 +111,34 @@ class UtbetalingService(
     }
 
     suspend fun opprettUtbetaling(
-        utbetalingKrav: UtbetalingValidator.ValidertUtbetalingKrav,
-        gjennomforing: GjennomforingGruppetiltak,
+        utbetalingKrav: OpprettUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> {
         val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
-        return when (gjennomforing.prismodell?.type) {
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
-                opprettAnnenAvtaltPrisUtbetaling(
-                    utbetalingKrav.toAnnenAvtaltPris(
-                        gjennomforingId = gjennomforing.id,
-                        tilskuddstype = Tilskuddstype.TILTAK_INVESTERINGER,
+        val prismodell = db.session { queries.gjennomforing.getPrismodell(utbetalingKrav.gjennomforingId) }
+        return when (prismodell?.type) {
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            -> opprettAnnenAvtaltPrisUtbetaling(
+                utbetalingKrav.toAnnenAvtaltPris(
+                    gjennomforingId = utbetalingKrav.gjennomforingId,
+                    tilskuddstype = Tilskuddstype.TILTAK_INVESTERINGER,
+                ),
+                agent,
+                periode,
+            )
 
-                    ),
-                    agent,
-                    periode,
-                )
+            PrismodellType.ANNEN_AVTALT_PRIS,
+            -> opprettAnnenAvtaltPrisUtbetaling(
+                utbetalingKrav.toAnnenAvtaltPris(
+                    gjennomforingId = utbetalingKrav.gjennomforingId,
+                    tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+                ),
+                agent,
+                periode,
+            )
 
-            PrismodellType.ANNEN_AVTALT_PRIS ->
-                opprettAnnenAvtaltPrisUtbetaling(
-                    utbetalingKrav.toAnnenAvtaltPris(
-                        gjennomforingId = gjennomforing.id,
-                        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                    ),
-                    agent,
-                    periode,
-                )
-
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
-                opprettAvtaltPrisPerTimeOppfolging(utbetalingKrav, gjennomforing, agent)
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+            -> opprettAvtaltPrisPerTimeOppfolging(utbetalingKrav, agent)
 
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
@@ -155,21 +156,18 @@ class UtbetalingService(
     }
 
     fun opprettAvtaltPrisPerTimeOppfolging(
-        utbetalingKrav: UtbetalingValidator.ValidertUtbetalingKrav,
-        gjennomforing: GjennomforingGruppetiltak,
+        utbetalingKrav: OpprettUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        requireNotNull(gjennomforing.prismodell)
-
-        val valuta = gjennomforing.prismodell.valuta
+        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(utbetalingKrav.gjennomforingId)
         val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
         val utbetalingInfo = resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
         val dbo = UtbetalingDbo(
             id = UUID.randomUUID(),
-            gjennomforingId = gjennomforing.id,
+            gjennomforingId = utbetalingKrav.gjennomforingId,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = Betalingsinformasjon.BBan(utbetalingKrav.kontonummer, utbetalingKrav.kidNummer),
-            valuta = valuta,
+            valuta = checkNotNull(gjennomforing.prismodell).valuta,
             beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
                 input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
                     satser = utbetalingInfo.satser,
@@ -180,7 +178,7 @@ class UtbetalingService(
             ),
             periode = periode,
             innsender = agent,
-            beskrivelse = "",
+            beskrivelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
                 LocalDateTime.now()
@@ -193,19 +191,16 @@ class UtbetalingService(
     }
 
     suspend fun opprettAnnenAvtaltPrisUtbetaling(
-        request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
+        request: OpprettUtbetalingAnnenAvtaltPris,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = opprettAnnenAvtaltPrisUtbetaling(
         request,
         agent,
-        Periode.fromInclusiveDates(
-            request.periodeStart,
-            request.periodeSlutt,
-        ),
+        Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
     )
 
-    suspend fun opprettAnnenAvtaltPrisUtbetaling(
-        request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
+    private suspend fun opprettAnnenAvtaltPrisUtbetaling(
+        request: OpprettUtbetalingAnnenAvtaltPris,
         agent: Agent,
         periode: Periode,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
@@ -280,10 +275,10 @@ class UtbetalingService(
                 utbetaling,
                 request.delutbetalinger.map { req ->
                     val tilsagn = requireNotNull(delutbetalingTilsagn[req.id])
-                    UtbetalingValidator.OpprettDelutbetaling(
+                    OpprettDelutbetaling(
                         id = req.id,
                         gjorOppTilsagn = req.gjorOppTilsagn,
-                        tilsagn = UtbetalingValidator.OpprettDelutbetaling.Tilsagn(
+                        tilsagn = OpprettDelutbetaling.Tilsagn(
                             status = tilsagn.status,
                             gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
                         ),

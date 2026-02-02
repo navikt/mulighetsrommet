@@ -1,5 +1,6 @@
-package no.nav.mulighetsrommet.api.utbetaling
+package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import io.kotest.assertions.shouldFail
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.comparables.shouldBeGreaterThan
@@ -10,8 +11,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.ApplicationConfigLocal
-import no.nav.mulighetsrommet.api.arrangorflate.api.DatoVelger
-import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingSteg
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -22,12 +22,10 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.ArrangorflateTestUtils.hovedenhet
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.junit.jupiter.api.fail
 import java.time.LocalDate
 
 class ArrangorflateOpprettKravRoutesTest : FunSpec({
@@ -53,7 +51,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             TiltakstypeFixtures.ArbeidsrettetRehabilitering,
         ),
         deltakere = listOf(deltaker),
-        arrangorer = listOf(hovedenhet, ArrangorflateTestUtils.underenhet),
+        arrangorer = listOf(ArrangorflateTestUtils.hovedenhet, ArrangorflateTestUtils.underenhet),
         tilsagn = listOf(tilsagn),
         gjennomforinger = listOf(
             aftGjennomforing,
@@ -122,18 +120,18 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
     test("Avtalt pris per time oppfølging får liste av tilgjengelige perioder") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val response =
-                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${oppfolgingGjennomforing.id}/opprett-krav/innsendingsinformasjon") {
+                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${oppfolgingGjennomforing.id}/opprett-krav") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 }
 
             response.status shouldBe HttpStatusCode.OK
-            val data = response.body<OpprettKravInnsendingSteg>()
-            when (data.datoVelger) {
+            val data = response.body<OpprettKravData>()
+            when (data.innsendingSteg.datoVelger) {
                 is DatoVelger.DatoSelect ->
-                    data.datoVelger.periodeForslag.isNotEmpty()
+                    data.innsendingSteg.datoVelger.periodeForslag.isNotEmpty()
 
                 is DatoVelger.DatoRange ->
-                    fail { "Skal vise en liste av perioder for timespris innsending" }
+                    shouldFail { "Skal vise en liste av perioder for timespris innsending" }
             }
         }
     }
@@ -142,19 +140,19 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
         val config = ArrangorflateTestUtils.appConfig(oauth)
         withTestApplication(config) {
             val response =
-                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${arrGjennomforing.id}/opprett-krav/innsendingsinformasjon") {
+                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${arrGjennomforing.id}/opprett-krav") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 }
 
             response.status shouldBe HttpStatusCode.OK
-            val data = response.body<OpprettKravInnsendingSteg>()
-            when (data.datoVelger) {
+            val data = response.body<OpprettKravData>()
+            when (data.innsendingSteg.datoVelger) {
                 is DatoVelger.DatoSelect ->
-                    fail { "Annen avtalt pris skal ha start- og sluttdato datepicker" }
+                    shouldFail { "Annen avtalt pris skal ha start- og sluttdato datepicker" }
 
                 is DatoVelger.DatoRange ->
                     // skal være slutt dato for konfigurert tilsagnsperiode
-                    data.datoVelger.maksSluttdato shouldBe config.okonomi.gyldigTilsagnPeriode[Tiltakskode.ARBEIDSRETTET_REHABILITERING]!!.slutt
+                    data.innsendingSteg.datoVelger.maksSluttdato shouldBe config.okonomi.gyldigTilsagnPeriode[Tiltakskode.ARBEIDSRETTET_REHABILITERING]!!.slutt
             }
         }
     }
@@ -162,18 +160,18 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
     test("Investeringskrav skal bare kunne velge fra forrige utbetalingsperiode") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val response =
-                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${aftGjennomforing.id}/opprett-krav/innsendingsinformasjon") {
+                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${aftGjennomforing.id}/opprett-krav") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 }
 
             response.status shouldBe HttpStatusCode.OK
-            val data = response.body<OpprettKravInnsendingSteg>()
-            when (data.datoVelger) {
+            val data = response.body<OpprettKravData>()
+            when (data.innsendingSteg.datoVelger) {
                 is DatoVelger.DatoSelect ->
-                    fail { "Investeringer skal ha start- og sluttdato datepicker" }
+                    shouldFail { "Investeringer skal ha start- og sluttdato datepicker" }
 
                 is DatoVelger.DatoRange ->
-                    data.datoVelger.maksSluttdato shouldBe LocalDate.now() // Eksklusiv maks dato
+                    data.innsendingSteg.datoVelger.maksSluttdato shouldBe LocalDate.now() // Eksklusiv maks dato
             }
         }
     }

@@ -24,13 +24,17 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflatePersonalia
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingValidator
+import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerUtenFaktor
+import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonCells
+import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonColumns
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -38,13 +42,11 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.maksUtbetalingsPeriodeSluttDato
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
@@ -69,7 +71,6 @@ import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import kotlin.collections.listOf
 
 fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     val db: ApiDatabase by inject()
@@ -79,23 +80,21 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     val altinnRettigheterService: AltinnRettigheterService by inject()
 
     fun requireGjennomforingTilArrangor(
-        gjennomforing: Gjennomforing,
+        tiltak: ArrangorflateTiltak,
         organisasjonsnummer: Organisasjonsnummer,
-    ) = if (gjennomforing.arrangor.organisasjonsnummer != organisasjonsnummer) {
+    ): ArrangorflateTiltak = if (tiltak.arrangor.organisasjonsnummer != organisasjonsnummer) {
         throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
     } else {
-        Unit
+        tiltak
     }
 
-    suspend fun RoutingContext.requireGjennomforing(): GjennomforingGruppetiltak {
+    suspend fun RoutingContext.requireArrangorflateTiltak(): ArrangorflateTiltak {
         val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
         requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
-        val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
-        val gjennomforing = db.session { queries.gjennomforing.getGruppetiltakOrError(gjennomforingId) }
-        requireGjennomforingTilArrangor(gjennomforing, orgnr)
-
-        return gjennomforing
+        val id = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
+        val tiltak = db.session { queries.arrangorTiltak.getOrError(id) }
+        return requireGjennomforingTilArrangor(tiltak, orgnr)
     }
 
     fun RoutingContext.getPeriodeFromQuery(): Periode {
@@ -132,8 +131,9 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             respondWithManglerTilgangHosArrangor()
             return@get
         }
+
         val type = TiltaksoversiktType.from(call.queryParameters["type"])
-        val gjennomforinger = db.session {
+        val tiltak = db.session {
             val gyldigeTiltakstyper = queries.tiltakstype
                 .getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
                 .map { it.id }
@@ -141,23 +141,19 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             val gyldigePrismodeller = okonomiConfig.opprettKravPrismodeller
 
             if (gyldigePrismodeller.isEmpty() || gyldigeTiltakstyper.isEmpty()) {
-                return@session emptyList()
+                emptyList()
             } else {
-                queries.gjennomforing
-                    .getAll(
-                        type = GjennomforingType.GRUPPETILTAK,
-                        arrangorOrgnr = arrangorer,
-                        prismodeller = gyldigePrismodeller,
-                        tiltakstypeIder = gyldigeTiltakstyper,
-                        sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
-                        statuser = type.toGjennomforingStatuses(),
-                    )
-                    .items
+                queries.arrangorTiltak.getAll(
+                    tiltakstyper = gyldigeTiltakstyper,
+                    organisasjonsnummer = arrangorer,
+                    prismodeller = gyldigePrismodeller,
+                    statuser = type.toGjennomforingStatuses(),
+                )
             }
         }
 
         call.respond(
-            gjennomforinger.map { it.toRadDto() },
+            tiltak.map { it.toRadDto() },
         )
     }
 
@@ -181,40 +177,32 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 }
             }
         }) {
-            val gjennomforing = requireGjennomforing()
+            val tiltak = requireArrangorflateTiltak()
 
-            val stegListe = getVeiviserSteg(gjennomforing)
+            val stegListe = getVeiviserSteg(tiltak)
 
-            requireNotNull(gjennomforing.prismodell) {
-                throw StatusException(
-                    HttpStatusCode.InternalServerError,
-                    "Gjennomføringen mangler prismodell, kan ikke opprette krav",
-                )
+            val tilsagnstyper = if (tiltak.prismodell.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+                listOf(TilsagnType.INVESTERING)
+            } else {
+                listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
             }
-
-            val tilsagnstyper =
-                if (gjennomforing.prismodell.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
-                    listOf(TilsagnType.INVESTERING)
-                } else {
-                    listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
-                }
             val tilsagn = arrangorFlateService.getTilsagn(
-                arrangorer = setOf(gjennomforing.arrangor.organisasjonsnummer),
+                arrangorer = setOf(tiltak.arrangor.organisasjonsnummer),
                 typer = tilsagnstyper,
                 statuser = listOf(TilsagnStatus.GODKJENT),
-                gjennomforingId = gjennomforing.id,
+                gjennomforingId = tiltak.id,
             )
 
             // TODO: Inkluder filtrering på eksisternde utbetalinger
             // val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
             val innsendingsinformasjon = OpprettKravInnsendingSteg.from(
                 okonomiConfig,
-                gjennomforing,
+                tiltak,
                 tilsagn,
                 tidligereUtbetalinger = emptyList(),
             )
 
-            val kontonummer = arrangorFlateService.getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
+            val kontonummer = arrangorFlateService.getKontonummer(tiltak.arrangor.organisasjonsnummer)
                 .onLeft { return@get call.respondWithProblemDetail(InternalServerError("Klarte ikke å hente kontonummeret")) }
                 .getOrElse { throw IllegalStateException("unreachable") }
 
@@ -223,10 +211,10 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                     steg = stegListe.map { it.toDto() },
                     innsendingSteg = innsendingsinformasjon,
                     utbetalingSteg = OpprettKravUtbetalingSteg.from(
-                        gjennomforing,
+                        tiltak,
                         kontonummer,
                     ),
-                    vedleggSteg = OpprettKravVedleggSteg.from(gjennomforing),
+                    vedleggSteg = OpprettKravVedleggSteg.from(tiltak),
                 ),
             )
         }
@@ -252,11 +240,12 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 }
             }
         }) {
-            val gjennomforing = requireGjennomforing()
+            val tiltak = requireArrangorflateTiltak()
 
             val periode = getPeriodeFromQuery()
 
             val avtaltPrisPerTimeOppfolgingPerDeltaker = db.session {
+                val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(tiltak.id)
                 resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
             }
 
@@ -264,9 +253,10 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 avtaltPrisPerTimeOppfolgingPerDeltaker
                     .deltakelsePerioder.map { it.deltakelseId }.toSet(),
             )
+
             call.respond(
                 OpprettKravDeltakere.from(
-                    gjennomforing,
+                    tiltak,
                     satser = avtaltPrisPerTimeOppfolgingPerDeltaker.satser,
                     stengtHosArrangor = avtaltPrisPerTimeOppfolgingPerDeltaker.stengtHosArrangor,
                     deltakere = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakere,
@@ -300,7 +290,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 }
             }
         }) {
-            val gjennomforing = requireGjennomforing()
+            val tiltak = requireArrangorflateTiltak()
             receiveOpprettKravUtbetalingRequest()
                 .onLeft { return@post call.respondWithProblemDetail(ValidationError(errors = it)) }
                 .flatMap { request ->
@@ -309,17 +299,17 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                         return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
                     }
 
-                    arrangorFlateService.getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
+                    arrangorFlateService.getKontonummer(tiltak.arrangor.organisasjonsnummer)
                         .mapLeft { FieldError("/kontonummer", "Klarte ikke hente kontonummer").nel() }
                         .flatMap { kontonummer ->
-                            UtbetalingValidator.validateOpprettKravArrangorflate(
+                            ArrangorflateUtbetalingValidator.validateOpprettKravArrangorflate(
                                 request,
-                                gjennomforing,
+                                tiltak,
                                 okonomiConfig,
                                 kontonummer,
                             )
                         }
-                        .flatMap { utbetalingService.opprettUtbetaling(it, gjennomforing, Arrangor) }
+                        .flatMap { utbetalingService.opprettUtbetaling(it, Arrangor) }
                         .onLeft { errors ->
                             call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
                         }
@@ -370,7 +360,7 @@ enum class OpprettKravVeiviserSteg(val navn: String, val order: Int) {
     OPPSUMMERING("Oppsummering", 5),
 }
 
-fun getVeiviserSteg(gjennomforing: GjennomforingGruppetiltak): List<OpprettKravVeiviserSteg> {
+fun getVeiviserSteg(tiltak: ArrangorflateTiltak): List<OpprettKravVeiviserSteg> {
     val stegListe = mutableListOf(
         OpprettKravVeiviserSteg.INFORMASJON,
         OpprettKravVeiviserSteg.UTBETALING,
@@ -378,7 +368,7 @@ fun getVeiviserSteg(gjennomforing: GjennomforingGruppetiltak): List<OpprettKravV
         OpprettKravVeiviserSteg.OPPSUMMERING,
     )
 
-    if (gjennomforing.prismodell?.type == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER) {
+    if (tiltak.prismodell.type == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER) {
         stegListe.add(OpprettKravVeiviserSteg.DELTAKERLISTE)
     }
     stegListe.sortBy { it.order }
@@ -400,19 +390,19 @@ data class OpprettKravInnsendingSteg(
     companion object {
         fun from(
             okonomiConfig: OkonomiConfig,
-            gjennomforing: GjennomforingGruppetiltak,
+            tiltak: ArrangorflateTiltak,
             tilsagn: List<ArrangorflateTilsagnDto>,
             tidligereUtbetalinger: List<Utbetaling>,
         ): OpprettKravInnsendingSteg {
             val datoVelger = DatoVelger.from(
                 okonomiConfig,
-                gjennomforing,
+                tiltak,
                 tidligereUtbetalingsPerioder = tidligereUtbetalinger.map { it.periode }.toSet(),
             )
 
             return OpprettKravInnsendingSteg(
-                guidePanel = panelGuide(gjennomforing.prismodell?.type),
-                definisjonsListe = getInnsendingsInformasjon(gjennomforing),
+                guidePanel = panelGuide(tiltak.prismodell.type),
+                definisjonsListe = getInnsendingsInformasjon(tiltak),
                 tilsagn = tilsagn,
                 datoVelger = datoVelger,
             )
@@ -433,20 +423,20 @@ data class OpprettKravInnsendingSteg(
     }
 }
 
-fun getInnsendingsInformasjon(gjennomforing: GjennomforingGruppetiltak): List<LabeledDataElement> {
+fun getInnsendingsInformasjon(tiltak: ArrangorflateTiltak): List<LabeledDataElement> {
     val standardList = listOf(
         LabeledDataElement.text(
             "Arrangør",
-            "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
+            "${tiltak.arrangor.navn} - ${tiltak.arrangor.organisasjonsnummer.value}",
         ),
-        LabeledDataElement.text("Tiltaksnavn", "${gjennomforing.navn} (${gjennomforing.lopenummer.value})"),
-        LabeledDataElement.text("Tiltakstype", gjennomforing.tiltakstype.navn),
+        LabeledDataElement.text("Tiltaksnavn", "${tiltak.navn} (${tiltak.lopenummer.value})"),
+        LabeledDataElement.text("Tiltakstype", tiltak.tiltakstype.navn),
     )
-    if (gjennomforing.prismodell?.type == PrismodellType.ANNEN_AVTALT_PRIS) {
+    if (tiltak.prismodell.type == PrismodellType.ANNEN_AVTALT_PRIS) {
         return standardList +
             LabeledDataElement.text(
                 "Tiltaksperiode",
-                Periode.formatPeriode(gjennomforing.startDato, gjennomforing.sluttDato!!),
+                Periode.formatPeriode(tiltak.startDato, tiltak.sluttDato!!),
             )
     }
     return standardList
@@ -477,19 +467,19 @@ sealed class DatoVelger {
     companion object {
         fun from(
             okonomiConfig: OkonomiConfig,
-            gjennomforing: GjennomforingGruppetiltak,
+            tiltak: ArrangorflateTiltak,
             tidligereUtbetalingsPerioder: Set<Periode> = emptySet(),
         ): DatoVelger {
-            when (gjennomforing.prismodell?.type) {
+            when (tiltak.prismodell.type) {
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> {
                     // Har de nådd innsendingssteget, kan vi garantere at tiltakskoden er konfigurert opp
                     val tilsagnPeriode =
-                        okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
+                        okonomiConfig.gyldigTilsagnPeriode[tiltak.tiltakstype.tiltakskode]!!
 
                     val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
                     val perioder = Periode(
-                        start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
-                        slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
+                        start = maxOf(tilsagnPeriode.start, tiltak.startDato),
+                        slutt = minOf(firstOfThisMonth, tiltak.sluttDato ?: firstOfThisMonth),
                     ).splitByMonth()
                     val filtrertePerioder =
                         perioder.filter { it !in tidligereUtbetalingsPerioder }.sortedBy { it.start }
@@ -500,18 +490,17 @@ sealed class DatoVelger {
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 -> {
                     return DatoRange(
-                        maksUtbetalingsPeriodeSluttDato(
-                            gjennomforing,
+                        ArrangorflateUtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
+                            tiltak,
                             okonomiConfig,
                         ),
                     )
                 }
 
-                else ->
-                    throw StatusException(
-                        HttpStatusCode.Forbidden,
-                        "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen",
-                    )
+                else -> throw StatusException(
+                    HttpStatusCode.Forbidden,
+                    "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen",
+                )
             }
         }
     }
@@ -523,11 +512,9 @@ data class OpprettKravVedleggSteg(
     val minAntallVedlegg: Int,
 ) {
     companion object {
-        fun from(gjennomforing: GjennomforingGruppetiltak): OpprettKravVedleggSteg {
-            requireNotNull(gjennomforing.prismodell)
-
+        fun from(tiltak: ArrangorflateTiltak): OpprettKravVedleggSteg {
             return OpprettKravVedleggSteg(
-                guidePanel = GuidePanelType.from(gjennomforing.prismodell.type),
+                guidePanel = GuidePanelType.from(tiltak.prismodell.type),
                 minAntallVedlegg = UtbetalingValidator.MIN_ANTALL_VEDLEGG_OPPRETT_KRAV,
             )
         }
@@ -560,16 +547,15 @@ data class OpprettKravDeltakere(
 ) {
     companion object {
         fun from(
-            gjennomforing: GjennomforingGruppetiltak,
+            tiltak: ArrangorflateTiltak,
             satser: Set<SatsPeriode>,
             stengtHosArrangor: Set<StengtPeriode>,
             deltakere: List<Deltaker>,
             deltakelsePerioder: List<DeltakelsePeriode>,
             personalia: Map<UUID, ArrangorflatePersonalia>,
         ): OpprettKravDeltakere {
-            requireNotNull(gjennomforing.prismodell?.type)
             return OpprettKravDeltakere(
-                guidePanel = GuidePanelType.from(gjennomforing.prismodell.type),
+                guidePanel = GuidePanelType.from(tiltak.prismodell.type),
                 stengtHosArrangor = stengtHosArrangor,
                 tabell = DataDrivenTableDto(
                     columns = deltakelseCommonColumns(),
@@ -634,12 +620,12 @@ data class OpprettKravUtbetalingSteg(
 ) {
     companion object {
         fun from(
-            gjennomforing: GjennomforingGruppetiltak,
+            tiltak: ArrangorflateTiltak,
             kontonummer: Kontonummer,
         ): OpprettKravUtbetalingSteg {
             return OpprettKravUtbetalingSteg(
                 kontonummer = kontonummer,
-                valuta = gjennomforing.prismodell!!.valuta,
+                valuta = tiltak.prismodell.valuta,
             )
         }
     }
