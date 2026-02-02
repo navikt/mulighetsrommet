@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import io.kotest.assertions.shouldFail
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.comparables.shouldBeGreaterThan
@@ -25,7 +26,6 @@ import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.junit.jupiter.api.fail
 import java.time.LocalDate
 
 class ArrangorflateOpprettKravRoutesTest : FunSpec({
@@ -131,7 +131,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
                     data.datoVelger.periodeForslag.isNotEmpty()
 
                 is DatoVelger.DatoRange ->
-                    fail { "Skal vise en liste av perioder for timespris innsending" }
+                    shouldFail { "Skal vise en liste av perioder for timespris innsending" }
             }
         }
     }
@@ -148,7 +148,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             val data = response.body<OpprettKravInnsendingsInformasjon>()
             when (data.datoVelger) {
                 is DatoVelger.DatoSelect ->
-                    fail { "Annen avtalt pris skal ha start- og sluttdato datepicker" }
+                    shouldFail { "Annen avtalt pris skal ha start- og sluttdato datepicker" }
 
                 is DatoVelger.DatoRange ->
                     // skal være slutt dato for konfigurert tilsagnsperiode
@@ -168,7 +168,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             val data = response.body<OpprettKravInnsendingsInformasjon>()
             when (data.datoVelger) {
                 is DatoVelger.DatoSelect ->
-                    fail { "Investeringer skal ha start- og sluttdato datepicker" }
+                    shouldFail { "Investeringer skal ha start- og sluttdato datepicker" }
 
                 is DatoVelger.DatoRange ->
                     data.datoVelger.maksSluttdato shouldBe LocalDate.now() // Eksklusiv maks dato
