@@ -1,10 +1,10 @@
-package no.nav.mulighetsrommet.api.arrangorflate.api
+package no.nav.mulighetsrommet.api.arrangorflate.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 @Serializable
-data class ArrangorflateTiltakstype(
+data class ArrangorflateTiltakstypeDto(
     val navn: String,
     val tiltakskode: Tiltakskode,
 )

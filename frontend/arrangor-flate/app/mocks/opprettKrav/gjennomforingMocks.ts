@@ -1,4 +1,4 @@
-import { ArrangorflateArrangor, ArrangorInnsendingRadDto } from "@api-client";
+import { ArrangorflateArrangorDto, ArrangorInnsendingRadDto } from "@api-client";
 
 export const gjennomforingIdAFT = "54d0d2af-f329-480d-a427-30de446fea10";
 export const gjennomforingIdAvklaring = "54d0d2af-f329-480d-a427-30de446fea11";
@@ -6,7 +6,7 @@ export const gjennomforingIdOppfolging = "54d0d2af-f329-480d-a427-30de446fea12";
 
 const today: Date = new Date();
 
-export const arrangorMock: ArrangorflateArrangor = {
+export const arrangorMock: ArrangorflateArrangorDto = {
   id: "cc04c391-d733-4762-8208-b0dd4387a126",
   navn: "Arrangørens navn",
   organisasjonsnummer: "123456789",

@@ -1,8 +1,15 @@
-package no.nav.mulighetsrommet.api.arrangorflate.api
+package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorAvbrytStatus
+import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTimeline
@@ -67,16 +74,16 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
         kanViseBeregning = kanViseBeregningMedDeltakelse,
         createdAt = utbetaling.createdAt,
-        tiltakstype = ArrangorflateTiltakstype(
+        tiltakstype = ArrangorflateTiltakstypeDto(
             navn = utbetaling.tiltakstype.navn,
             tiltakskode = utbetaling.tiltakstype.tiltakskode,
         ),
-        gjennomforing = ArrangorflateGjennomforingInfo(
+        gjennomforing = ArrangorflateGjennomforingDto(
             id = utbetaling.gjennomforing.id,
             lopenummer = utbetaling.gjennomforing.lopenummer,
             navn = utbetaling.gjennomforing.navn,
         ),
-        arrangor = ArrangorflateArrangor(
+        arrangor = ArrangorflateArrangorDto(
             id = utbetaling.arrangor.id,
             organisasjonsnummer = utbetaling.arrangor.organisasjonsnummer,
             navn = utbetaling.arrangor.navn,
@@ -110,7 +117,10 @@ private fun getInnsendingsDetaljer(
         } else {
             LabeledDataElement.date("Dato opprettet hos Nav", utbetaling.createdAt.toLocalDate())
         },
-        LabeledDataElement.text("Tiltaksnavn", "${utbetaling.gjennomforing.navn} (${utbetaling.gjennomforing.lopenummer.value})"),
+        LabeledDataElement.text(
+            "Tiltaksnavn",
+            "${utbetaling.gjennomforing.navn} (${utbetaling.gjennomforing.lopenummer})",
+        ),
         LabeledDataElement.text("Tiltakstype", utbetaling.tiltakstype.navn),
         if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
             LabeledDataElement.text(
