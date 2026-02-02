@@ -19,7 +19,7 @@ import {
   useDatepicker,
   VStack,
 } from "@navikt/ds-react";
-import { SyntheticEvent, useEffect, useMemo, useState } from "react";
+import { SyntheticEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { OpprettKravFormState } from "~/routes/$orgnr.opprett-krav.$gjennomforingid";
 import { filtrerOverlappendePerioder } from "~/utils/periode-filtrering";
 import { TilsagnDetaljer } from "../tilsagn/TilsagnDetaljer";
@@ -60,18 +60,21 @@ export default function InnsendingsinformasjonSteg({
     return filtrerOverlappendePerioder<ArrangorflateTilsagnDto>(valgtPeriode, data.tilsagn);
   }, [data.tilsagn, valgtPeriode]);
 
-  const handlePeriodeSelected = (periode?: Periode) => {
-    setValgtPeriode(periode);
-    if (periode) {
-      updateFormState({
-        periodeStart: periode.start,
-        periodeSlutt: periode.slutt,
-        tilsagnId: undefined,
-      });
-    } else {
-      updateFormState({ periodeStart: undefined, periodeSlutt: undefined, tilsagnId: undefined });
-    }
-  };
+  const handlePeriodeSelected = useCallback(
+    (periode?: Periode) => {
+      setValgtPeriode(periode);
+      if (periode) {
+        updateFormState({
+          periodeStart: periode.start,
+          periodeSlutt: periode.slutt,
+          tilsagnId: undefined,
+        });
+      } else {
+        updateFormState({ periodeStart: undefined, periodeSlutt: undefined, tilsagnId: undefined });
+      }
+    },
+    [updateFormState],
+  );
 
   useEffect(() => {
     if (relevanteTilsagn.length > 0) {
