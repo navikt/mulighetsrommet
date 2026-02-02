@@ -493,32 +493,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/arrangorflate/vedlegg/scan:
-    post:
-      tags:
-      - Arrangorflate
-      description: Antivirus scan av vedlegg
-      operationId: scanVedlegg
-      parameters: []
-      requestBody:
-        description: Vedleggene som skal scannes
-        content:
-          multipart/form-data:
-            schema:
-              $ref: "#/components/schemas/ScanVedleggRequest"
-        required: false
-      responses:
-        "200":
-          description: Fant ikke virus i vedleggene
-          headers: {}
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/arrangorflate/{orgnr}/features:
     get:
       tags:
@@ -1623,16 +1597,6 @@ components:
           type: string
       required:
       - kontonummer
-    ScanVedleggRequest:
-      type: object
-      properties:
-        vedlegg:
-          type: array
-          items:
-            type: string
-            format: binary
-      required:
-      - vedlegg
     FeatureToggle:
       type: string
       enum:

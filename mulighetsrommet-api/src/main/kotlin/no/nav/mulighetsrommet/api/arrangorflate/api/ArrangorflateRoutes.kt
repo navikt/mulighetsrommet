@@ -1,29 +1,21 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import arrow.core.Either
 import arrow.core.getOrElse
-import arrow.core.raise.either
-import arrow.core.right
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.PartData
-import io.ktor.http.content.forEachPart
 import io.ktor.server.application.log
 import io.ktor.server.auth.principal
 import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.request.receive
-import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.application
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
-import io.ktor.utils.io.toByteArray
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -41,7 +33,6 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerR
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
@@ -51,8 +42,6 @@ import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentConten
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.clamav.ClamAvClient
-import no.nav.mulighetsrommet.clamav.Content
-import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
@@ -460,91 +449,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     call.respond(KontonummerResponse(kontonummer))
                 }
         }
-    }
-
-    route("/vedlegg") {
-        post("/scan", {
-            description = "Antivirus scan av vedlegg"
-            tags = setOf("Arrangorflate")
-            operationId = "scanVedlegg"
-            request {
-                body<ScanVedleggRequest> {
-                    description = "Vedleggene som skal scannes"
-                    mediaTypes(ContentType.MultiPart.FormData)
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Fant ikke virus i vedleggene"
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            receiveScanVedleggRequest(call)
-                .onRight { request ->
-                    if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
-                        return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
-                    }
-
-                    call.respond(HttpStatusCode.OK)
-                }
-                .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
-        }
-    }
-}
-
-const val VEDLEGG_MAX_SIZE_BYTES = 10 * 1024 * 1024
-
-suspend fun receiveVedleggPart(part: PartData.FileItem): Either<List<FieldError>, Vedlegg> = either {
-    val vedlegg = Vedlegg(
-        content = Content(
-            contentType = part.contentType.toString(),
-            content = part.provider().toByteArray(),
-        ),
-        filename = part.originalFileName ?: "ukjent.pdf",
-    )
-    if (vedlegg.content.content.size > VEDLEGG_MAX_SIZE_BYTES) {
-        raise(listOf(FieldError("/vedlegg", "Vedlegg er større enn 10MB")))
-    }
-    vedlegg
-}
-
-private suspend fun receiveScanVedleggRequest(call: RoutingCall): Either<List<FieldError>, ScanVedleggRequest> = either {
-    val vedlegg: MutableList<Vedlegg> = mutableListOf()
-    val multipart = call.receiveMultipart()
-
-    multipart.forEachPart { part ->
-        when (part) {
-            is PartData.FileItem -> {
-                if (part.name == "vedlegg") {
-                    vedlegg.add(receiveVedleggPart(part).bind())
-                }
-            }
-
-            else -> {}
-        }
-
-        part.dispose()
-    }
-
-    val validatedVedlegg = vedlegg.validateVedlegg()
-    return ScanVedleggRequest(validatedVedlegg).right()
-}
-
-fun MutableList<Vedlegg>.validateVedlegg(): List<Vedlegg> {
-    return this.map { v ->
-        // Optionally validate file type and size here
-        val fileName = v.filename
-        val contentType = v.content.contentType
-
-        require(contentType.equals("application/pdf", ignoreCase = true)) {
-            "Vedlegg $fileName er ikke en PDF"
-        }
-
-        v
     }
 }
 

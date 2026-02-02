@@ -17,6 +17,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
+import io.ktor.utils.io.toByteArray
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -48,6 +49,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.ClamAvClient
+import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
@@ -692,3 +694,33 @@ data class OpprettKravUtbetalingResponse(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
 )
+
+fun MutableList<Vedlegg>.validateVedlegg(): List<Vedlegg> {
+    return this.map { v ->
+        // Optionally validate file type and size here
+        val fileName = v.filename
+        val contentType = v.content.contentType
+
+        require(contentType.equals("application/pdf", ignoreCase = true)) {
+            "Vedlegg $fileName er ikke en PDF"
+        }
+
+        v
+    }
+}
+
+const val VEDLEGG_MAX_SIZE_BYTES = 10 * 1024 * 1024
+
+suspend fun receiveVedleggPart(part: PartData.FileItem): Either<List<FieldError>, Vedlegg> = either {
+    val vedlegg = Vedlegg(
+        content = Content(
+            contentType = part.contentType.toString(),
+            content = part.provider().toByteArray(),
+        ),
+        filename = part.originalFileName ?: "ukjent.pdf",
+    )
+    if (vedlegg.content.content.size > VEDLEGG_MAX_SIZE_BYTES) {
+        raise(listOf(FieldError("/vedlegg", "Vedlegg er større enn 10MB")))
+    }
+    vedlegg
+}
