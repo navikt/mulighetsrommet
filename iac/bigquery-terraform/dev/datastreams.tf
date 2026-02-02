@@ -50,7 +50,9 @@ module "mr_api_datastream" {
         {
           table   = "totrinnskontroll",
           columns = ["id", "entity_id", "behandlet_tidspunkt", "behandlet_av", "besluttet_av", "besluttet_tidspunkt", "besluttelse"]
-        }
+        },
+        { table = "prismodell" },
+        { table = "avtale_prismodell" }
       ]
     }
   ]
