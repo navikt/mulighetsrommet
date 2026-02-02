@@ -1,6 +1,6 @@
 import { getToken, parseIdportenToken, requestTokenxOboToken, validateToken } from "@navikt/oasis";
 import { redirectDocument } from "react-router";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
 import { Environment, getEnvironment, isDemo } from "~/services/environment";
 
 const loginUrl = "/oauth2/login";
@@ -17,7 +17,7 @@ export async function apiHeaders(request: Request): Promise<Record<string, strin
   }
   return {
     Accept: "application/json",
-    "Nav-Consumer-Id": uuidv4(),
+    "Nav-Consumer-Id": randomUUID(),
     Authorization: `Bearer ${token}`,
   };
 }
