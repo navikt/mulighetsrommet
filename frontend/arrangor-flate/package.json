@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.39.2",
-    "@hey-api/openapi-ts": "0.90.4",
+    "@hey-api/openapi-ts": "0.90.10",
     "@playwright/test": "1.58.0",
     "@react-router/dev": "7.12.0",
     "@react-router/fs-routes": "7.12.0",
