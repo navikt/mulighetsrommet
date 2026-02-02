@@ -41,6 +41,8 @@ fun Application.configureMonitoring(vararg resources: MonitoredResource) {
         attributes.put(IsReadyState, false)
     }
 
+    val checkReadyState = { attributes[IsReadyState] }
+
     install(CallId) {
         retrieveFromHeader("Nav-Call-Id")
         retrieveFromHeader(HttpHeaders.XRequestId)
@@ -85,7 +87,7 @@ fun Application.configureMonitoring(vararg resources: MonitoredResource) {
         }
 
         get("/internal/readiness") {
-            if (resources.all { it.isAvailable() } && attributes[IsReadyState]) {
+            if (resources.all { it.isAvailable() } && checkReadyState()) {
                 call.respond(HttpStatusCode.OK)
             } else {
                 call.respond(HttpStatusCode.InternalServerError)
