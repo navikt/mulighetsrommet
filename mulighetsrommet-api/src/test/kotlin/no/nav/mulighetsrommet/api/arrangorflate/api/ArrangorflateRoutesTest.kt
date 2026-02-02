@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling
+package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
@@ -22,13 +22,12 @@ import kotlinx.serialization.json.JsonElement
 import kotliquery.Query
 import no.nav.amt.model.EndringAarsak
 import no.nav.amt.model.Melding
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingDto
-import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag.Status
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -243,7 +242,7 @@ class ArrangorflateRoutesTest : FunSpec({
                         aarsak = EndringAarsak.Syk,
                         harDeltatt = false,
                     ),
-                    status = Status.VENTER_PA_SVAR,
+                    status = DeltakerForslag.Status.VENTER_PA_SVAR,
                 ),
             )
         }

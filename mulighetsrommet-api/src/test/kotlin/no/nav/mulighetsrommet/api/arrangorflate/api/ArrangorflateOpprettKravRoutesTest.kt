@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling
+package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import io.kotest.assertions.shouldFail
 import io.kotest.core.spec.style.FunSpec
@@ -11,8 +11,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.ApplicationConfigLocal
-import no.nav.mulighetsrommet.api.arrangorflate.api.DatoVelger
-import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingsInformasjon
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -23,7 +22,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.ArrangorflateTestUtils.hovedenhet
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -53,7 +51,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             TiltakstypeFixtures.ArbeidsrettetRehabilitering,
         ),
         deltakere = listOf(deltaker),
-        arrangorer = listOf(hovedenhet, ArrangorflateTestUtils.underenhet),
+        arrangorer = listOf(ArrangorflateTestUtils.hovedenhet, ArrangorflateTestUtils.underenhet),
         tilsagn = listOf(tilsagn),
         gjennomforinger = listOf(
             aftGjennomforing,

@@ -32,9 +32,11 @@ import no.nav.mulighetsrommet.altinn.AltinnError
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.AppConfig
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
