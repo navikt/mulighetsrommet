@@ -67,7 +67,7 @@ export default function TilsagnDetaljerPage() {
       <Heading level="2" spacing size="large">
         Innsendingsinformasjon
       </Heading>
-      <VStack gap="4">
+      <VStack gap="space-16">
         <Definisjonsliste
           definitions={[
             {
@@ -104,7 +104,7 @@ export default function TilsagnDetaljerPage() {
           />
         ))}
         {harTilsagn && (
-          <HStack gap="4" className="mt-4">
+          <HStack gap="space-16" className="mt-4">
             <Button as={ReactRouterLink} type="button" variant="tertiary" to={pathTo.utbetalinger}>
               Avbryt
             </Button>

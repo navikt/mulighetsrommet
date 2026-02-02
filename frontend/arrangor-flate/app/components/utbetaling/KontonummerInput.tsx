@@ -18,10 +18,10 @@ interface Props {
 
 export function KontonummerInput({ kontonummer, error, onClick }: Props) {
   return (
-    <VStack gap="2">
+    <VStack gap="space-8">
       {!kontonummer ? (
         <Alert variant="warning">
-          <VStack align="start" gap="2">
+          <VStack align="start" gap="space-8">
             <Heading spacing size="xsmall" level="3">
               Fant ikke kontonummer
             </Heading>
@@ -36,7 +36,7 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
           </VStack>
         </Alert>
       ) : null}
-      <HStack gap="2" align="end">
+      <HStack gap="space-8" align="end">
         <TextField
           label="Kontonummer"
           size="small"
@@ -50,7 +50,7 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
           id="kontonummer"
           readOnly
         />
-        <HStack align="center" gap="2">
+        <HStack align="center" gap="space-8">
           <Button type="button" variant="secondary" size="small" onClick={onClick}>
             Synkroniser kontonummer
           </Button>

@@ -62,7 +62,7 @@ export default function UtbetalingBeregning() {
   const { utbetaling, deltakerlisteUrl } = useLoaderData<LoaderData>();
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <Heading level="2" spacing size="large">
         Beregning
       </Heading>
@@ -79,7 +79,7 @@ export default function UtbetalingBeregning() {
       <Heading level="3" size="medium">
         Deltakere
       </Heading>
-      <VStack gap="4">
+      <VStack gap="space-16">
         {utbetaling.beregning.stengt.length > 0 && (
           <Alert variant={"info"}>
             {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
@@ -101,7 +101,7 @@ export default function UtbetalingBeregning() {
           satsDetaljer={utbetaling.beregning.satsDetaljer}
           pris={utbetaling.beregning.pris}
         />
-        <HStack gap="4">
+        <HStack gap="space-16">
           <Button
             as={ReactRouterLink}
             type="button"

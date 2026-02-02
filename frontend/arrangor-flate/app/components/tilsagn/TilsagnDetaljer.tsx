@@ -17,16 +17,16 @@ interface Props {
 export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Props) {
   return (
     <Box
-      padding="4"
-      borderColor="border-divider"
+      padding="space-16"
+      borderColor="neutral-subtle"
       borderWidth="1"
-      borderRadius="large"
+      borderRadius="8"
       maxWidth="max-content"
     >
       <Heading size={headingLevel == "4" ? "small" : "medium"} spacing>
         {`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} ${tilsagn.bestillingsnummer}`}
       </Heading>
-      <VStack gap="1">
+      <VStack gap="space-4">
         {tilsagn.beskrivelse && (
           <MetadataFritekstfelt label="Beskrivelse" value={tilsagn.beskrivelse} />
         )}

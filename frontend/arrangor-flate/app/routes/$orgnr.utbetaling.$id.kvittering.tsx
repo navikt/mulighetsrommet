@@ -65,8 +65,8 @@ export default function UtbetalingKvittering() {
   const orgnr = useOrgnrFromUrl();
 
   return (
-    <Box background="bg-default" padding="8" borderRadius="large" marginInline="auto">
-      <VStack gap="5">
+    <Box background="default" padding="space-32" borderRadius="8" marginInline="auto">
+      <VStack gap="space-20">
         <PageHeading
           title={tekster.bokmal.utbetaling.kvittering.headingTitle}
           tilbakeLenke={{
@@ -85,7 +85,7 @@ export default function UtbetalingKvittering() {
             </ExpansionCard.Title>
           </ExpansionCard.Header>
           <ExpansionCard.Content>
-            <VStack gap="2">
+            <VStack gap="space-8">
               <BodyShort>{tekster.bokmal.utbetaling.kvittering.mottattAv(mottattDato)}</BodyShort>
               {utbetalesTidligstDato && (
                 <BodyShort spacing>
@@ -113,7 +113,7 @@ export default function UtbetalingKvittering() {
             </ExpansionCard.Title>
           </ExpansionCard.Header>
           <ExpansionCard.Content>
-            <VStack gap="2">
+            <VStack gap="space-8">
               <BodyShort weight="semibold">
                 {tekster.bokmal.utbetaling.kvittering.kontonummerRegistrert}
               </BodyShort>

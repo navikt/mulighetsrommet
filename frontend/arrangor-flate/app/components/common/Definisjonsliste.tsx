@@ -36,13 +36,13 @@ interface Props {
 
 export function Definisjonsliste({ title, definitions, className }: Props) {
   return (
-    <VStack gap="3" className={className}>
+    <VStack gap="space-12" className={className}>
       {title && (
         <Heading size="medium" level="3">
           {title}
         </Heading>
       )}
-      <VStack gap="1">
+      <VStack gap="space-4">
         {definitions.map((definition, index) => (
           <MetadataHGrid key={index} label={definition.key} value={definition.value} />
         ))}

@@ -73,11 +73,7 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
         />
         {dekorator && parse(dekorator.head)}
       </head>
-      <Page
-        as="body"
-        footer={dekorator && parse(dekorator.footer)}
-        background={isLandingPage ? "bg-default" : "bg-subtle"}
-      >
+      <Page as="body" footer={dekorator && parse(dekorator.footer)}>
         <DekoratorHeader dekorator={dekorator} />
         <Header />
         <Page.Block as="main" width="2xl" gutters>

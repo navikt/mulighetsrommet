@@ -12,13 +12,13 @@ export function DelUtbetalingStatusTag({ status, size }: Props): ReactNode {
   switch (status) {
     case DelutbetalingStatus.OVERFORT_TIL_UTBETALING:
       return (
-        <Tag variant="success" size={tagSize}>
+        <Tag data-color="success" variant="outline" size={tagSize}>
           Overført til utbetaling
         </Tag>
       );
     case DelutbetalingStatus.UTBETALT:
       return (
-        <Tag variant="success" size={tagSize}>
+        <Tag data-color="success" variant="outline" size={tagSize}>
           Utbetalt
         </Tag>
       );
@@ -26,7 +26,7 @@ export function DelUtbetalingStatusTag({ status, size }: Props): ReactNode {
     case DelutbetalingStatus.GODKJENT:
     case DelutbetalingStatus.RETURNERT:
       return (
-        <Tag variant="info" size={tagSize}>
+        <Tag data-color="info" variant="outline" size={tagSize}>
           Behandles av Nav
         </Tag>
       );

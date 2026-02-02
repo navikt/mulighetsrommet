@@ -3,7 +3,7 @@ import { PageHeading } from "~/components/common/PageHeading";
 
 export default function IngenTilgang() {
   return (
-    <VStack align="start" gap="4">
+    <VStack align="start" gap="space-16">
       <PageHeading title="Mangler tilgang" />
       <Alert variant="warning">
         <BodyShort>

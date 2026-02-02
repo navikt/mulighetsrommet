@@ -34,7 +34,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
     : [];
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <Definisjonsliste
         title="Utbetalingsstatus"
         definitions={[
@@ -45,7 +45,6 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
           ...avbruttDato,
         ]}
       />
-
       {erUtbetalt && utbetaling.linjer.length > 0 ? (
         <>
           <Heading size="small" level="4">

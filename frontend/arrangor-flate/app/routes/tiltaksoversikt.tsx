@@ -50,8 +50,8 @@ export default function OpprettKravTiltaksOversikt() {
   >(data);
 
   return (
-    <Box background="bg-default" padding="4" borderRadius="large">
-      <VStack gap="4">
+    <Box background="default" padding="space-16" borderRadius="8">
+      <VStack gap="space-16">
         <Link as={ReactRouterLink} to={pathTo.utbetalinger} className="max-w-max">
           <ChevronLeftIcon /> Tilbake til oversikt
         </Link>
@@ -73,7 +73,7 @@ export default function OpprettKravTiltaksOversikt() {
           </Tabs.List>
           <Tabs.Panel value={currentTab}>
             {sortedData.length === 0 ? (
-              <Box marginBlock="4">
+              <Box marginBlock="space-16">
                 <Alert variant="info">
                   <BodyShort>
                     Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
