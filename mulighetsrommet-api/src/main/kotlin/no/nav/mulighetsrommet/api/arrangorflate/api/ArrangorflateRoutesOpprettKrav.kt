@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.getOrElse
 import arrow.core.nel
 import arrow.core.raise.either
 import io.github.smiley4.ktoropenapi.get
@@ -10,13 +11,13 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
-import io.ktor.server.request.receive
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
+import io.ktor.utils.io.toByteArray
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -48,6 +49,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.ClamAvClient
+import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
@@ -65,7 +67,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -160,17 +161,17 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
 
     route("/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav") {
         get({
-            description = "Hent veiviser informasjon"
+            description = "Hent opprettkrav data"
             tags = setOf("Arrangorflate")
-            operationId = "getOpprettKravVeiviser"
+            operationId = "getOpprettKravData"
             request {
                 pathParameter<Organisasjonsnummer>("orgnr")
                 pathParameter<String>("gjennomforingId")
             }
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Veiviser metadata (steg)"
-                    body<OpprettKravVeiviserMeta>()
+                    description = "Opprett krav data"
+                    body<OpprettKravData>()
                 }
                 default {
                     description = "Problem details"
@@ -179,30 +180,8 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             }
         }) {
             val tiltak = requireArrangorflateTiltak()
-            val stegListe = getVeiviserSteg(tiltak)
-            call.respond(OpprettKravVeiviserMeta(stegListe.map { it.toDto() }))
-        }
 
-        get("/innsendingsinformasjon", {
-            description = "Hent innsendingsinformasjon"
-            tags = setOf("Arrangorflate")
-            operationId = "getOpprettKravInnsendingsinformasjon"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-                pathParameter<String>("gjennomforingId")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Innsendingsdetaljer"
-                    body<OpprettKravInnsendingsInformasjon>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val tiltak = requireArrangorflateTiltak()
+            val stegListe = getVeiviserSteg(tiltak)
 
             val tilsagnstyper = if (tiltak.prismodell.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                 listOf(TilsagnType.INVESTERING)
@@ -218,13 +197,28 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
 
             // TODO: Inkluder filtrering på eksisternde utbetalinger
             // val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
-            val payload = OpprettKravInnsendingsInformasjon.from(
+            val innsendingsinformasjon = OpprettKravInnsendingSteg.from(
                 okonomiConfig,
                 tiltak,
                 tilsagn,
                 tidligereUtbetalinger = emptyList(),
             )
-            call.respond(payload)
+
+            val kontonummer = arrangorFlateService.getKontonummer(tiltak.arrangor.organisasjonsnummer)
+                .onLeft { return@get call.respondWithProblemDetail(InternalServerError("Klarte ikke å hente kontonummeret")) }
+                .getOrElse { throw IllegalStateException("unreachable") }
+
+            call.respond(
+                OpprettKravData(
+                    steg = stegListe.map { it.toDto() },
+                    innsendingSteg = innsendingsinformasjon,
+                    utbetalingSteg = OpprettKravUtbetalingSteg.from(
+                        tiltak,
+                        kontonummer,
+                    ),
+                    vedleggSteg = OpprettKravVedleggSteg.from(tiltak),
+                ),
+            )
         }
 
         get("/deltakere", {
@@ -273,93 +267,6 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                     personalia,
                 ),
             )
-        }
-
-        get("/utbetalingsinformasjon", {
-            description = "Hent utbetalingsinformasjon"
-            tags = setOf("Arrangorflate")
-            operationId = "getOpprettKravUtbetalingsinformasjon"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-                pathParameter<String>("gjennomforingId")
-                queryParameter<String>("periodeStart")
-                queryParameter<String>("periodeSlutt")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Utbetalingsinformasjon"
-                    body<OpprettKravUtbetalingsinformasjon>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val tiltak = requireArrangorflateTiltak()
-            arrangorFlateService.getKontonummer(tiltak.arrangor.organisasjonsnummer)
-                .onLeft { call.respondWithProblemDetail(InternalServerError("Klarte ikke å hente kontonummeret")) }
-                .onRight { kontonummer ->
-                    call.respond(OpprettKravUtbetalingsinformasjon.from(tiltak, kontonummer))
-                }
-        }
-
-        get("/vedlegg", {
-            description = "Hent vedleggsinfo"
-            tags = setOf("Arrangorflate")
-            operationId = "getOpprettKravVedlegg"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-                pathParameter<String>("gjennomforingId")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Vedleggsinfo"
-                    body<OpprettKravVedlegg>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val tiltak = requireArrangorflateTiltak()
-            call.respond(
-                OpprettKravVedlegg.from(tiltak),
-            )
-        }
-
-        post("/oppsummering", {
-            description = "Hent oppsummering"
-            tags = setOf("Arrangorflate")
-            operationId = "getOpprettKravOppsummering"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-                pathParameter<String>("gjennomforingId")
-                body<OpprettKravOppsummeringRequest> {
-                    description = "Request for creating a payment claim"
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Informasjon om opprettet krav om utbetaling"
-                    body<OpprettKravOppsummering>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val tiltak = requireArrangorflateTiltak()
-            val request = call.receive<OpprettKravOppsummeringRequest>()
-            arrangorFlateService.getKontonummer(tiltak.arrangor.organisasjonsnummer)
-                .onLeft { call.respondWithProblemDetail(InternalServerError("Klarte ikke å hente kontonummeret")) }
-                .onRight { kontonummer ->
-                    call.respond(
-                        OpprettKravOppsummering.from(request, tiltak, kontonummer),
-                    )
-                }
         }
 
         post({
@@ -439,7 +346,12 @@ enum class TiltaksoversiktType {
 }
 
 @Serializable
-data class OpprettKravVeiviserMeta(val steg: List<OpprettKravVeiviserStegDto>)
+data class OpprettKravData(
+    val steg: List<OpprettKravVeiviserStegDto>,
+    val innsendingSteg: OpprettKravInnsendingSteg,
+    val utbetalingSteg: OpprettKravUtbetalingSteg,
+    val vedleggSteg: OpprettKravVedleggSteg,
+)
 
 @Serializable
 enum class OpprettKravVeiviserSteg(val navn: String, val order: Int) {
@@ -471,27 +383,11 @@ fun OpprettKravVeiviserSteg.toDto(): OpprettKravVeiviserStegDto = OpprettKravVei
 data class OpprettKravVeiviserStegDto(val type: OpprettKravVeiviserSteg, val navn: String, val order: Int)
 
 @Serializable
-data class OpprettKravVeiviserNavigering(val tilbake: OpprettKravVeiviserSteg?, val neste: OpprettKravVeiviserSteg?)
-
-fun getVeiviserNavigering(
-    steg: OpprettKravVeiviserSteg,
-    tiltak: ArrangorflateTiltak,
-): OpprettKravVeiviserNavigering {
-    val stegListe = getVeiviserSteg(tiltak)
-    val stegIndex = stegListe.indexOf(steg)
-    return OpprettKravVeiviserNavigering(
-        tilbake = stegListe.getOrNull(stegIndex - 1),
-        neste = stegListe.getOrNull(stegIndex + 1),
-    )
-}
-
-@Serializable
-data class OpprettKravInnsendingsInformasjon(
+data class OpprettKravInnsendingSteg(
     val guidePanel: GuidePanelType?,
     val definisjonsListe: List<LabeledDataElement>,
     val tilsagn: List<ArrangorflateTilsagnDto>,
     val datoVelger: DatoVelger,
-    val navigering: OpprettKravVeiviserNavigering,
 ) {
     companion object {
         fun from(
@@ -499,20 +395,18 @@ data class OpprettKravInnsendingsInformasjon(
             tiltak: ArrangorflateTiltak,
             tilsagn: List<ArrangorflateTilsagnDto>,
             tidligereUtbetalinger: List<Utbetaling>,
-        ): OpprettKravInnsendingsInformasjon {
-            val navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.INFORMASJON, tiltak)
+        ): OpprettKravInnsendingSteg {
             val datoVelger = DatoVelger.from(
                 okonomiConfig,
                 tiltak,
                 tidligereUtbetalingsPerioder = tidligereUtbetalinger.map { it.periode }.toSet(),
             )
 
-            return OpprettKravInnsendingsInformasjon(
+            return OpprettKravInnsendingSteg(
                 guidePanel = panelGuide(tiltak.prismodell.type),
                 definisjonsListe = getInnsendingsInformasjon(tiltak),
                 tilsagn = tilsagn,
                 datoVelger = datoVelger,
-                navigering = navigering,
             )
         }
 
@@ -615,18 +509,15 @@ sealed class DatoVelger {
 }
 
 @Serializable
-data class OpprettKravVedlegg(
+data class OpprettKravVedleggSteg(
     val guidePanel: GuidePanelType?,
     val minAntallVedlegg: Int,
-    val navigering: OpprettKravVeiviserNavigering,
 ) {
-
     companion object {
-        fun from(tiltak: ArrangorflateTiltak): OpprettKravVedlegg {
-            return OpprettKravVedlegg(
+        fun from(tiltak: ArrangorflateTiltak): OpprettKravVedleggSteg {
+            return OpprettKravVedleggSteg(
                 guidePanel = GuidePanelType.from(tiltak.prismodell.type),
                 minAntallVedlegg = UtbetalingValidator.MIN_ANTALL_VEDLEGG_OPPRETT_KRAV,
-                navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.VEDLEGG, tiltak),
             )
         }
     }
@@ -655,7 +546,6 @@ data class OpprettKravDeltakere(
     val stengtHosArrangor: Set<StengtPeriode>,
     val tabell: DataDrivenTableDto,
     val tabellFooter: List<DataDetails>,
-    val navigering: OpprettKravVeiviserNavigering,
 ) {
     companion object {
         fun from(
@@ -682,7 +572,6 @@ data class OpprettKravDeltakere(
                     },
                 ),
                 tabellFooter = tableFooter(satser, deltakelsePerioder.size),
-                navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.DELTAKERLISTE, tiltak),
             )
         }
 
@@ -727,93 +616,21 @@ data class OpprettKravDeltakere(
 }
 
 @Serializable
-data class OpprettKravUtbetalingsinformasjon(
+data class OpprettKravUtbetalingSteg(
     val kontonummer: Kontonummer,
     val valuta: Valuta,
-    val navigering: OpprettKravVeiviserNavigering,
 ) {
     companion object {
         fun from(
             tiltak: ArrangorflateTiltak,
             kontonummer: Kontonummer,
-        ): OpprettKravUtbetalingsinformasjon {
-            return OpprettKravUtbetalingsinformasjon(
+        ): OpprettKravUtbetalingSteg {
+            return OpprettKravUtbetalingSteg(
                 kontonummer = kontonummer,
                 valuta = tiltak.prismodell.valuta,
-                navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.UTBETALING, tiltak),
             )
         }
     }
-}
-
-@Serializable
-data class OpprettKravOppsummeringRequest(
-    val periodeStart: String,
-    val periodeSlutt: String,
-    val periodeInklusiv: Boolean?,
-    val kidNummer: String? = null,
-    val belop: Int,
-)
-
-@Serializable
-data class OpprettKravOppsummering(
-    val innsendingsInformasjon: List<LabeledDataElement>,
-    val utbetalingInformasjon: List<LabeledDataElement>,
-    val innsendingsData: InnsendingsData,
-    val navigering: OpprettKravVeiviserNavigering,
-) {
-    companion object {
-        fun from(
-            requestData: OpprettKravOppsummeringRequest,
-            tiltak: ArrangorflateTiltak,
-            kontonummer: Kontonummer?,
-        ): OpprettKravOppsummering {
-            val periodeStart = LocalDate.parse(requestData.periodeStart)
-            val periodeSlutt = LocalDate.parse(requestData.periodeSlutt)
-            val periode = if (requestData.periodeInklusiv == true) {
-                Periode.fromInclusiveDates(periodeStart, periodeSlutt)
-            } else {
-                Periode(periodeStart, periodeSlutt)
-            }
-
-            return OpprettKravOppsummering(
-                innsendingsInformasjon = getInnsendingsInformasjon(tiltak),
-                utbetalingInformasjon = listOf(
-                    LabeledDataElement.text(
-                        "Utbetalingsperiode",
-                        periode.formatPeriode(),
-                    ),
-                    LabeledDataElement.text(
-                        "Kontonummer",
-                        kontonummer?.value ?: "Klarte ikke hente kontonummer",
-                    ),
-                    LabeledDataElement.text(
-                        "KID-nummer",
-                        requestData.kidNummer ?: "",
-                    ),
-                    LabeledDataElement.money(
-                        "Beløp",
-                        requestData.belop.withValuta(tiltak.prismodell.valuta),
-                    ),
-                ),
-                innsendingsData = InnsendingsData(
-                    periode = periode,
-                    belop = requestData.belop,
-                    kidNummer = requestData.kidNummer,
-                    minAntallVedlegg = UtbetalingValidator.MIN_ANTALL_VEDLEGG_OPPRETT_KRAV,
-                ),
-                navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.OPPSUMMERING, tiltak),
-            )
-        }
-    }
-
-    @Serializable
-    data class InnsendingsData(
-        val periode: Periode,
-        val belop: Int,
-        val kidNummer: String?,
-        val minAntallVedlegg: Int,
-    )
 }
 
 @Serializable
@@ -877,3 +694,33 @@ data class OpprettKravUtbetalingResponse(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
 )
+
+fun MutableList<Vedlegg>.validateVedlegg(): List<Vedlegg> {
+    return this.map { v ->
+        // Optionally validate file type and size here
+        val fileName = v.filename
+        val contentType = v.content.contentType
+
+        require(contentType.equals("application/pdf", ignoreCase = true)) {
+            "Vedlegg $fileName er ikke en PDF"
+        }
+
+        v
+    }
+}
+
+const val VEDLEGG_MAX_SIZE_BYTES = 10 * 1024 * 1024
+
+suspend fun receiveVedleggPart(part: PartData.FileItem): Either<List<FieldError>, Vedlegg> = either {
+    val vedlegg = Vedlegg(
+        content = Content(
+            contentType = part.contentType.toString(),
+            content = part.provider().toByteArray(),
+        ),
+        filename = part.originalFileName ?: "ukjent.pdf",
+    )
+    if (vedlegg.content.content.size > VEDLEGG_MAX_SIZE_BYTES) {
+        raise(listOf(FieldError("/vedlegg", "Vedlegg er større enn 10MB")))
+    }
+    vedlegg
+}

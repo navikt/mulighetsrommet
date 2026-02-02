@@ -43,8 +43,8 @@ paths:
     get:
       tags:
       - Arrangorflate
-      description: Hent veiviser informasjon
-      operationId: getOpprettKravVeiviser
+      description: Hent opprettkrav data
+      operationId: getOpprettKravData
       parameters:
       - name: orgnr
         in: path
@@ -62,12 +62,12 @@ paths:
           type: string
       responses:
         "200":
-          description: Veiviser metadata (steg)
+          description: Opprett krav data
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OpprettKravVeiviserMeta"
+                $ref: "#/components/schemas/OpprettKravData"
         default:
           description: Problem details
           headers: {}
@@ -119,43 +119,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/innsendingsinformasjon:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent innsendingsinformasjon
-      operationId: getOpprettKravInnsendingsinformasjon
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: gjennomforingId
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Innsendingsdetaljer
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OpprettKravInnsendingsInformasjon"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/deltakere:
     get:
       tags:
@@ -199,138 +162,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OpprettKravDeltakere"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/utbetalingsinformasjon:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent utbetalingsinformasjon
-      operationId: getOpprettKravUtbetalingsinformasjon
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: gjennomforingId
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: periodeStart
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: periodeSlutt
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Utbetalingsinformasjon
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OpprettKravUtbetalingsinformasjon"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/vedlegg:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent vedleggsinfo
-      operationId: getOpprettKravVedlegg
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: gjennomforingId
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Vedleggsinfo
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OpprettKravVedlegg"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/oppsummering:
-    post:
-      tags:
-      - Arrangorflate
-      description: Hent oppsummering
-      operationId: getOpprettKravOppsummering
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: gjennomforingId
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      requestBody:
-        description: Request for creating a payment claim
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OpprettKravOppsummeringRequest"
-        required: false
-      responses:
-        "200":
-          description: Informasjon om opprettet krav om utbetaling
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OpprettKravOppsummering"
         default:
           description: Problem details
           headers: {}
@@ -662,32 +493,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/arrangorflate/vedlegg/scan:
-    post:
-      tags:
-      - Arrangorflate
-      description: Antivirus scan av vedlegg
-      operationId: scanVedlegg
-      parameters: []
-      requestBody:
-        description: Vedleggene som skal scannes
-        content:
-          multipart/form-data:
-            schema:
-              $ref: "#/components/schemas/ScanVedleggRequest"
-        required: false
-      responses:
-        "200":
-          description: Fant ikke virus i vedleggene
-          headers: {}
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/arrangorflate/{orgnr}/features:
     get:
       tags:
@@ -865,15 +670,28 @@ components:
       - UTBETALING
       - VEDLEGG
       - OPPSUMMERING
-    OpprettKravVeiviserMeta:
+    OpprettKravInnsendingSteg:
       type: object
       properties:
-        steg:
+        guidePanel:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GuidePanelType"
+        definisjonsListe:
           type: array
           items:
-            $ref: "#/components/schemas/OpprettKravVeiviserStegDto"
+            $ref: "#/components/schemas/LabeledDataElement"
+        tilsagn:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorflateTilsagnDto"
+        datoVelger:
+          $ref: "#/components/schemas/DatoVelger"
       required:
-      - steg
+      - datoVelger
+      - definisjonsListe
+      - guidePanel
+      - tilsagn
     GuidePanelType:
       type: string
       enum:
@@ -1212,45 +1030,53 @@ components:
             $ref: "#/components/schemas/Periode"
       required:
       - periodeForslag
-    OpprettKravVeiviserNavigering:
+    OpprettKravUtbetalingSteg:
       type: object
       properties:
-        tilbake:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/OpprettKravVeiviserSteg"
-        neste:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/OpprettKravVeiviserSteg"
+        kontonummer:
+          type: string
+        valuta:
+          $ref: "#/components/schemas/Valuta"
       required:
-      - neste
-      - tilbake
-    OpprettKravInnsendingsInformasjon:
+      - kontonummer
+      - valuta
+    OpprettKravVedleggSteg:
       type: object
       properties:
         guidePanel:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/GuidePanelType"
-        definisjonsListe:
-          type: array
-          items:
-            $ref: "#/components/schemas/LabeledDataElement"
-        tilsagn:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrangorflateTilsagnDto"
-        datoVelger:
-          $ref: "#/components/schemas/DatoVelger"
-        navigering:
-          $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
+          - $ref: "#/components/schemas/OpprettKravVedleggSteg.GuidePanelType"
+        minAntallVedlegg:
+          type: integer
+          format: int32
       required:
-      - datoVelger
-      - definisjonsListe
       - guidePanel
-      - navigering
-      - tilsagn
+      - minAntallVedlegg
+    OpprettKravVedleggSteg.GuidePanelType:
+      type: string
+      enum:
+      - INVESTERING_VTA_AFT
+      - TIMESPRIS
+      - AVTALT_PRIS
+    OpprettKravData:
+      type: object
+      properties:
+        steg:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpprettKravVeiviserStegDto"
+        innsendingSteg:
+          $ref: "#/components/schemas/OpprettKravInnsendingSteg"
+        utbetalingSteg:
+          $ref: "#/components/schemas/OpprettKravUtbetalingSteg"
+        vedleggSteg:
+          $ref: "#/components/schemas/OpprettKravVedleggSteg"
+      required:
+      - innsendingSteg
+      - steg
+      - utbetalingSteg
+      - vedleggSteg
     OpprettKravDeltakere.GuidePanelType:
       type: string
       enum:
@@ -1395,113 +1221,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DataDetails"
-        navigering:
-          $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
       required:
       - guidePanel
-      - navigering
       - stengtHosArrangor
       - tabell
       - tabellFooter
-    OpprettKravUtbetalingsinformasjon:
-      type: object
-      properties:
-        kontonummer:
-          type: string
-        valuta:
-          $ref: "#/components/schemas/Valuta"
-        navigering:
-          $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
-      required:
-      - kontonummer
-      - navigering
-      - valuta
-    OpprettKravVedlegg.GuidePanelType:
-      type: string
-      enum:
-      - INVESTERING_VTA_AFT
-      - TIMESPRIS
-      - AVTALT_PRIS
-    OpprettKravVedlegg:
-      type: object
-      properties:
-        guidePanel:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/OpprettKravVedlegg.GuidePanelType"
-        minAntallVedlegg:
-          type: integer
-          format: int32
-        navigering:
-          $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
-      required:
-      - guidePanel
-      - minAntallVedlegg
-      - navigering
-    OpprettKravOppsummeringRequest:
-      type: object
-      properties:
-        periodeStart:
-          type: string
-        periodeSlutt:
-          type: string
-        periodeInklusiv:
-          type:
-          - "null"
-          - boolean
-        kidNummer:
-          type:
-          - "null"
-          - string
-        belop:
-          type: integer
-          format: int32
-      required:
-      - belop
-      - kidNummer
-      - periodeInklusiv
-      - periodeSlutt
-      - periodeStart
-    OpprettKravOppsummering.InnsendingsData:
-      type: object
-      properties:
-        periode:
-          $ref: "#/components/schemas/Periode"
-        belop:
-          type: integer
-          format: int32
-        kidNummer:
-          type:
-          - "null"
-          - string
-        minAntallVedlegg:
-          type: integer
-          format: int32
-      required:
-      - belop
-      - kidNummer
-      - minAntallVedlegg
-      - periode
-    OpprettKravOppsummering:
-      type: object
-      properties:
-        innsendingsInformasjon:
-          type: array
-          items:
-            $ref: "#/components/schemas/LabeledDataElement"
-        utbetalingInformasjon:
-          type: array
-          items:
-            $ref: "#/components/schemas/LabeledDataElement"
-        innsendingsData:
-          $ref: "#/components/schemas/OpprettKravOppsummering.InnsendingsData"
-        navigering:
-          $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
-      required:
-      - innsendingsData
-      - innsendingsInformasjon
-      - navigering
-      - utbetalingInformasjon
     OpprettKravUtbetalingRequest:
       type: object
       properties:
@@ -1873,16 +1597,6 @@ components:
           type: string
       required:
       - kontonummer
-    ScanVedleggRequest:
-      type: object
-      properties:
-        vedlegg:
-          type: array
-          items:
-            type: string
-            format: binary
-      required:
-      - vedlegg
     FeatureToggle:
       type: string
       enum:

@@ -120,15 +120,15 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
     test("Avtalt pris per time oppfølging får liste av tilgjengelige perioder") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val response =
-                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${oppfolgingGjennomforing.id}/opprett-krav/innsendingsinformasjon") {
+                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${oppfolgingGjennomforing.id}/opprett-krav") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 }
 
             response.status shouldBe HttpStatusCode.OK
-            val data = response.body<OpprettKravInnsendingsInformasjon>()
-            when (data.datoVelger) {
+            val data = response.body<OpprettKravData>()
+            when (data.innsendingSteg.datoVelger) {
                 is DatoVelger.DatoSelect ->
-                    data.datoVelger.periodeForslag.isNotEmpty()
+                    data.innsendingSteg.datoVelger.periodeForslag.isNotEmpty()
 
                 is DatoVelger.DatoRange ->
                     shouldFail { "Skal vise en liste av perioder for timespris innsending" }
@@ -140,19 +140,19 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
         val config = ArrangorflateTestUtils.appConfig(oauth)
         withTestApplication(config) {
             val response =
-                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${arrGjennomforing.id}/opprett-krav/innsendingsinformasjon") {
+                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${arrGjennomforing.id}/opprett-krav") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 }
 
             response.status shouldBe HttpStatusCode.OK
-            val data = response.body<OpprettKravInnsendingsInformasjon>()
-            when (data.datoVelger) {
+            val data = response.body<OpprettKravData>()
+            when (data.innsendingSteg.datoVelger) {
                 is DatoVelger.DatoSelect ->
                     shouldFail { "Annen avtalt pris skal ha start- og sluttdato datepicker" }
 
                 is DatoVelger.DatoRange ->
                     // skal være slutt dato for konfigurert tilsagnsperiode
-                    data.datoVelger.maksSluttdato shouldBe config.okonomi.gyldigTilsagnPeriode[Tiltakskode.ARBEIDSRETTET_REHABILITERING]!!.slutt
+                    data.innsendingSteg.datoVelger.maksSluttdato shouldBe config.okonomi.gyldigTilsagnPeriode[Tiltakskode.ARBEIDSRETTET_REHABILITERING]!!.slutt
             }
         }
     }
@@ -160,18 +160,18 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
     test("Investeringskrav skal bare kunne velge fra forrige utbetalingsperiode") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val response =
-                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${aftGjennomforing.id}/opprett-krav/innsendingsinformasjon") {
+                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${aftGjennomforing.id}/opprett-krav") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 }
 
             response.status shouldBe HttpStatusCode.OK
-            val data = response.body<OpprettKravInnsendingsInformasjon>()
-            when (data.datoVelger) {
+            val data = response.body<OpprettKravData>()
+            when (data.innsendingSteg.datoVelger) {
                 is DatoVelger.DatoSelect ->
                     shouldFail { "Investeringer skal ha start- og sluttdato datepicker" }
 
                 is DatoVelger.DatoRange ->
-                    data.datoVelger.maksSluttdato shouldBe LocalDate.now() // Eksklusiv maks dato
+                    data.innsendingSteg.datoVelger.maksSluttdato shouldBe LocalDate.now() // Eksklusiv maks dato
             }
         }
     }

@@ -12,8 +12,6 @@ import { tekster } from "~/tekster";
 import { problemDetailResponse } from "~/utils/validering";
 import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
-import { useFileStorage } from "~/hooks/useFileStorage";
-import { useEffect } from "react";
 
 type UtbetalingKvitteringData = {
   mottattDato: string;
@@ -65,11 +63,6 @@ export default function UtbetalingKvittering() {
     useLoaderData<UtbetalingKvitteringData>();
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
-  const storage = useFileStorage();
-
-  useEffect(() => {
-    storage.clear();
-  });
 
   return (
     <Box background="bg-default" padding="8" borderRadius="large" marginInline="auto">
