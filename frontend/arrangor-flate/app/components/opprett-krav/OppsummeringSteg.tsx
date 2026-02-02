@@ -24,6 +24,7 @@ interface OppsummeringStepProps {
   formState: OpprettKravFormState;
   vedleggInfo: OpprettKravVedleggSteg;
   errors: FieldError[];
+  goToPreviousStep: () => void;
 }
 
 export default function OppsummeringStep({
@@ -31,6 +32,7 @@ export default function OppsummeringStep({
   formState,
   vedleggInfo,
   errors,
+  goToPreviousStep,
 }: OppsummeringStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const acceptedFiles = formState.files.filter((f) => !f.error);
@@ -114,6 +116,9 @@ export default function OppsummeringStep({
           </CheckboxGroup>
         </Box>
         <HStack gap="4">
+          <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
+            Tilbake
+          </Button>
           <Button type="submit">Bekreft og send inn</Button>
         </HStack>
       </Form>

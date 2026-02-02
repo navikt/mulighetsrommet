@@ -401,6 +401,7 @@ export default function OpprettKravRoute() {
             formState={formState}
             vedleggInfo={vedleggSteg}
             errors={errors}
+            goToPreviousStep={goToPreviousStep}
           />
         );
       default:
