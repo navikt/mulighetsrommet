@@ -33,7 +33,7 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -80,7 +80,7 @@ fun Route.gjennomforingRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Gjennomføring ble upsertet"
-                        body<GjennomforingDto>()
+                        body<GjennomforingDetaljerDto>()
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
@@ -242,7 +242,7 @@ fun Route.gjennomforingRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Perioden ble slettet"
-                        body<GjennomforingDto>()
+                        body<GjennomforingDetaljerDto>()
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
@@ -432,7 +432,7 @@ fun Route.gjennomforingRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Gjennomføringen"
-                    body<GjennomforingDto>()
+                    body<GjennomforingDetaljerDto>()
                 }
                 default {
                     description = "Problem details"

@@ -1,11 +1,14 @@
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
+  AmoKategorisering,
   AvtaleDto,
   GjennomforingDto,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingRequest,
+  GjennomforingVeilederinfoDto,
   NavAnsattDto,
+  PrismodellDto,
   TiltakstypeDto,
   UtdanningslopDbo,
   UtdanningslopDto,
@@ -20,31 +23,6 @@ export function defaultPameldingType(
   return oppstart === GjennomforingOppstartstype.FELLES
     ? GjennomforingPameldingType.TRENGER_GODKJENNING
     : GjennomforingPameldingType.DIREKTE_VEDTAK;
-}
-
-function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: Partial<GjennomforingDto>): string[] {
-  if (gjennomforing?.kontorstruktur) {
-    return gjennomforing.kontorstruktur.map((struktur) => struktur.region.enhetsnummer);
-  }
-  if (avtale.kontorstruktur.length === 1) {
-    return avtale.kontorstruktur.map((struktur) => struktur.region.enhetsnummer);
-  }
-  return [];
-}
-
-function defaultNavEnheter(
-  avtale: AvtaleDto,
-  gjennomforing?: Partial<GjennomforingDto>,
-): TypeSplittedNavEnheter {
-  if (gjennomforing?.kontorstruktur) {
-    return splitNavEnheterByType(
-      gjennomforing.kontorstruktur.flatMap((struktur) => struktur.kontorer),
-    );
-  }
-  if (avtale.kontorstruktur.length === 1) {
-    return splitNavEnheterByType(avtale.kontorstruktur[0].kontorer);
-  }
-  return { navKontorEnheter: [], navAndreEnheter: [] };
 }
 
 function defaultArrangor(
@@ -62,15 +40,22 @@ function defaultArrangor(
   return null;
 }
 
+type GjennomforingFormDefaultValues = Partial<{
+  gjennomforing: Partial<GjennomforingDto>;
+  veilederinfo: Partial<GjennomforingVeilederinfoDto> | null;
+  prismodell: PrismodellDto | null;
+  amoKategorisering: AmoKategorisering | null;
+  utdanningslop: UtdanningslopDto | null;
+}>;
+
 export function defaultGjennomforingData(
   ansatt: NavAnsattDto,
   tiltakstype: TiltakstypeDto,
   avtale: AvtaleDto,
-  gjennomforing?: Partial<GjennomforingDto>,
+  detaljer: GjennomforingFormDefaultValues = {},
 ): DeepPartial<GjennomforingRequest> {
-  const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, gjennomforing);
-
-  const faneInnhold = gjennomforing?.faneinnhold ?? avtale.faneinnhold;
+  const { gjennomforing, veilederinfo, amoKategorisering, utdanningslop, prismodell } = detaljer;
+  const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, veilederinfo);
 
   const defaultOppstart = getDefaultOppstart(tiltakstype);
   const oppstart = gjennomforing?.oppstart || defaultOppstart;
@@ -93,29 +78,29 @@ export function defaultGjennomforingData(
         : null,
     arrangorId: defaultArrangor(avtale, gjennomforing),
     oppstart,
-    kontaktpersoner: gjennomforing?.kontaktpersoner ?? [],
+    kontaktpersoner: veilederinfo?.kontaktpersoner ?? [],
     arrangorKontaktpersoner: gjennomforing?.arrangor?.kontaktpersoner.map((p) => p.id) ?? [],
     veilederinformasjon: {
-      navRegioner: defaultNavRegion(avtale, gjennomforing),
+      navRegioner: defaultNavRegion(avtale, veilederinfo),
       navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
       navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
-      beskrivelse: gjennomforing?.beskrivelse ?? avtale.beskrivelse,
-      faneinnhold: faneInnhold,
+      beskrivelse: veilederinfo?.beskrivelse ?? avtale.beskrivelse,
+      faneinnhold: veilederinfo?.faneinnhold ?? avtale.faneinnhold,
     },
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
-    estimertVentetid: gjennomforing?.estimertVentetid || null,
+    estimertVentetid: veilederinfo?.estimertVentetid || null,
     tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
-    amoKategorisering: gjennomforing?.amoKategorisering
-      ? amoKategoriseringRequest(gjennomforing.amoKategorisering)
+    amoKategorisering: amoKategorisering
+      ? amoKategoriseringRequest(amoKategorisering)
       : amoKategoriseringRequest(avtale.amoKategorisering),
-    utdanningslop: gjennomforing?.utdanningslop
-      ? toUtdanningslopDbo(gjennomforing.utdanningslop)
+    utdanningslop: utdanningslop
+      ? toUtdanningslopDbo(utdanningslop)
       : avtale.utdanningslop
         ? toUtdanningslopDbo(avtale.utdanningslop)
         : null,
-    oppmoteSted: gjennomforing?.oppmoteSted ?? null,
+    oppmoteSted: veilederinfo?.oppmoteSted ?? null,
     pameldingType: gjennomforing?.pameldingType || defaultPameldingType(oppstart),
-    prismodellId: gjennomforing?.prismodell?.id ?? avtale.prismodeller[0]?.id,
+    prismodellId: prismodell?.id ?? avtale.prismodeller[0]?.id,
   };
 }
 
@@ -130,4 +115,32 @@ function getDefaultOppstart(tiltakstype: TiltakstypeDto): GjennomforingOppstarts
   return kanEndreOppstartOgPamelding(tiltakstype)
     ? GjennomforingOppstartstype.FELLES
     : GjennomforingOppstartstype.LOPENDE;
+}
+
+function defaultNavRegion(
+  avtale: AvtaleDto,
+  veilederinfo?: Partial<GjennomforingVeilederinfoDto> | null,
+): string[] {
+  if (veilederinfo?.kontorstruktur) {
+    return veilederinfo.kontorstruktur.map((struktur) => struktur.region.enhetsnummer);
+  }
+  if (avtale.kontorstruktur.length === 1) {
+    return avtale.kontorstruktur.map((struktur) => struktur.region.enhetsnummer);
+  }
+  return [];
+}
+
+function defaultNavEnheter(
+  avtale: AvtaleDto,
+  veilederinfo?: Partial<GjennomforingVeilederinfoDto> | null,
+): TypeSplittedNavEnheter {
+  if (veilederinfo?.kontorstruktur) {
+    return splitNavEnheterByType(
+      veilederinfo.kontorstruktur.flatMap((struktur) => struktur.kontorer),
+    );
+  }
+  if (avtale.kontorstruktur.length === 1) {
+    return splitNavEnheterByType(avtale.kontorstruktur[0].kontorer);
+  }
+  return { navKontorEnheter: [], navAndreEnheter: [] };
 }

@@ -40,7 +40,7 @@ import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/Utb
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
 
-  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
+  const { gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
   const { data: utbetalingDetaljer } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);

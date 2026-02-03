@@ -18,10 +18,19 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
+data class GjennomforingDetaljerDto(
+    val tiltakstype: Gjennomforing.Tiltakstype,
+    val gjennomforing: GjennomforingDto,
+    val veilederinfo: GjennomforingVeilederinfoDto?,
+    val prismodell: PrismodellDto?,
+    val amoKategorisering: AmoKategorisering?,
+    val utdanningslop: UtdanningslopDto?,
+)
+
+@Serializable
 data class GjennomforingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tiltakstype: Gjennomforing.Tiltakstype,
     val navn: String,
     val lopenummer: Tiltaksnummer,
     val tiltaksnummer: Tiltaksnummer?,
@@ -31,33 +40,33 @@ data class GjennomforingDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val status: Status,
-    val apentForPamelding: Boolean,
     val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
-    val prismodell: PrismodellDto?,
-    val administratorer: List<GjennomforingGruppetiltak.Administrator>,
-    val kontorstruktur: List<Kontorstruktur>,
     val oppstart: GjennomforingOppstartstype,
     val pameldingType: GjennomforingPameldingType,
     val opphav: ArenaMigrering.Opphav,
-    val kontaktpersoner: List<GjennomforingKontaktperson>,
-    val oppmoteSted: String?,
-    val faneinnhold: Faneinnhold?,
-    val beskrivelse: String?,
-    val publisert: Boolean,
     val deltidsprosent: Double,
-    val estimertVentetid: GjennomforingGruppetiltak.EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
-    val amoKategorisering: AmoKategorisering?,
-    val utdanningslop: UtdanningslopDto?,
+    val administratorer: List<GjennomforingGruppetiltak.Administrator>,
     val stengt: List<GjennomforingGruppetiltak.StengtPeriode>,
 ) {
-
     @Serializable
     data class Status(
         val type: GjennomforingStatusType,
         val status: DataElement.Status,
     )
 }
+
+@Serializable
+data class GjennomforingVeilederinfoDto(
+    val publisert: Boolean,
+    val apentForPamelding: Boolean,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+    val kontorstruktur: List<Kontorstruktur>,
+    val kontaktpersoner: List<GjennomforingKontaktperson>,
+    val oppmoteSted: String?,
+    val estimertVentetid: GjennomforingGruppetiltak.EstimertVentetid?,
+)

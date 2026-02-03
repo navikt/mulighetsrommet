@@ -1,5 +1,6 @@
 import {
   GjennomforingDto,
+  PrismodellDto,
   TilsagnBeregningType,
   TilsagnRequest,
   Valuta,
@@ -24,6 +25,7 @@ import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 
 interface Props {
   gjennomforing: GjennomforingDto;
+  prismodell: PrismodellDto;
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
@@ -34,18 +36,16 @@ export function TilsagnFormFri(props: Props) {
   return (
     <TilsagnForm
       {...props}
-      beregningInput={
-        <BeregningInputSkjema prismodellValuta={props.gjennomforing.prismodell?.valuta} />
-      }
+      beregningInput={<BeregningInputSkjema valuta={props.prismodell.valuta} />}
     />
   );
 }
 
 interface BeregningInputSkjemaProps {
-  prismodellValuta?: Valuta;
+  valuta: Valuta;
 }
 
-function BeregningInputSkjema({ prismodellValuta }: BeregningInputSkjemaProps) {
+function BeregningInputSkjema({ valuta }: BeregningInputSkjemaProps) {
   const {
     register,
     watch,
@@ -141,7 +141,7 @@ function BeregningInputSkjema({ prismodellValuta }: BeregningInputSkjemaProps) {
           append({
             id: window.crypto.randomUUID(),
             beskrivelse: "",
-            pris: { belop: 0, valuta: prismodellValuta ?? Valuta.NOK },
+            pris: { belop: 0, valuta: valuta },
             antall: 1,
           });
         }}

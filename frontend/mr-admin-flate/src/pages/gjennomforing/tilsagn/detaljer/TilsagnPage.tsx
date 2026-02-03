@@ -11,7 +11,7 @@ import { Heading, HStack, VStack } from "@navikt/ds-react";
 export function TilsagnPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { tilsagnId } = useParams();
-  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
+  const { gjennomforing } = useGjennomforing(gjennomforingId);
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {

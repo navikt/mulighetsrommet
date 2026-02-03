@@ -1,11 +1,7 @@
 import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import {
-  GjennomforingDto,
-  SetStengtHosArrangorRequest,
-  ValidationError,
-} from "@tiltaksadministrasjon/api-client";
+import { SetStengtHosArrangorRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { FloppydiskIcon } from "@navikt/aksel-icons";
@@ -14,13 +10,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 
 interface RegistrerStengtHosArrangorFormProps {
-  gjennomforing: GjennomforingDto;
+  gjennomforingId: string;
 }
 
 export function RegistrerStengtHosArrangorForm({
-  gjennomforing,
+  gjennomforingId,
 }: RegistrerStengtHosArrangorFormProps) {
-  const setStengtHosArrangor = useSetStengtHosArrangor(gjennomforing.id);
+  const setStengtHosArrangor = useSetStengtHosArrangor(gjennomforingId);
   const queryClient = useQueryClient();
 
   const form = useForm<SetStengtHosArrangorRequest>({});
@@ -32,7 +28,7 @@ export function RegistrerStengtHosArrangorForm({
       onSuccess: async () => {
         form.reset();
         await queryClient.invalidateQueries({
-          queryKey: QueryKeys.gjennomforing(gjennomforing.id),
+          queryKey: QueryKeys.gjennomforing(gjennomforingId),
           refetchType: "all",
         });
       },

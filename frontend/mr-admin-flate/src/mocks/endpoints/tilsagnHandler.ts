@@ -24,7 +24,7 @@ export const tilsagnHandlers = [
     async () => {
       return HttpResponse.json({
         id: v4(),
-        gjennomforingId: mockGjennomforinger[0].id,
+        gjennomforingId: mockGjennomforinger[0].gjennomforing.id,
         type: TilsagnType.TILSAGN,
         periodeStart: null,
         periodeSlutt: null,

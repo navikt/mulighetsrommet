@@ -903,7 +903,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GjennomforingDto"
+                $ref: "#/components/schemas/GjennomforingDetaljerDto"
         "400":
           description: Valideringsfeil
           headers: {}
@@ -1088,7 +1088,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GjennomforingDto"
+                $ref: "#/components/schemas/GjennomforingDetaljerDto"
         "400":
           description: Valideringsfeil
           headers: {}
@@ -1304,7 +1304,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GjennomforingDto"
+                $ref: "#/components/schemas/GjennomforingDetaljerDto"
         default:
           description: Problem details
           headers: {}
@@ -4551,6 +4551,80 @@ components:
       - id
       - navn
       - tiltakskode
+    GjennomforingDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        lopenummer:
+          type: string
+        tiltaksnummer:
+          type:
+          - "null"
+          - string
+        arrangor:
+          $ref: "#/components/schemas/Gjennomforing.ArrangorUnderenhet"
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        status:
+          $ref: "#/components/schemas/GjennomforingDto.Status"
+        antallPlasser:
+          type: integer
+          format: int32
+        avtaleId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        oppstart:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
+        opphav:
+          $ref: "#/components/schemas/ArenaMigrering.Opphav"
+        deltidsprosent:
+          type: number
+          format: double
+        tilgjengeligForArrangorDato:
+          type:
+          - "null"
+          - string
+          format: date
+        administratorer:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingGruppetiltak.Administrator"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingGruppetiltak.StengtPeriode"
+      required:
+      - administratorer
+      - antallPlasser
+      - arrangor
+      - avtaleId
+      - deltidsprosent
+      - id
+      - lopenummer
+      - navn
+      - opphav
+      - oppstart
+      - pameldingType
+      - sluttDato
+      - startDato
+      - status
+      - stengt
+      - tilgjengeligForArrangorDato
+      - tiltaksnummer
     Gjennomforing.ArrangorUnderenhet:
       type: object
       properties:
@@ -4624,6 +4698,65 @@ components:
       required:
       - navIdent
       - navn
+    GjennomforingGruppetiltak.StengtPeriode:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        start:
+          type: string
+          format: date
+        slutt:
+          type: string
+          format: date
+        beskrivelse:
+          type: string
+      required:
+      - beskrivelse
+      - id
+      - slutt
+      - start
+    GjennomforingVeilederinfoDto:
+      type: object
+      properties:
+        publisert:
+          type: boolean
+        apentForPamelding:
+          type: boolean
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        kontorstruktur:
+          type: array
+          items:
+            $ref: "#/components/schemas/Kontorstruktur"
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingKontaktperson"
+        oppmoteSted:
+          type:
+          - "null"
+          - string
+        estimertVentetid:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingGruppetiltak.EstimertVentetid"
+      required:
+      - apentForPamelding
+      - beskrivelse
+      - estimertVentetid
+      - faneinnhold
+      - kontaktpersoner
+      - kontorstruktur
+      - oppmoteSted
+      - publisert
     GjennomforingKontaktperson:
       type: object
       properties:
@@ -4661,111 +4794,21 @@ components:
       required:
       - enhet
       - verdi
-    GjennomforingGruppetiltak.StengtPeriode:
+    GjennomforingDetaljerDto:
       type: object
       properties:
-        id:
-          type: integer
-          format: int32
-        start:
-          type: string
-          format: date
-        slutt:
-          type: string
-          format: date
-        beskrivelse:
-          type: string
-      required:
-      - beskrivelse
-      - id
-      - slutt
-      - start
-    GjennomforingDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
         tiltakstype:
           $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
-        navn:
-          type: string
-        lopenummer:
-          type: string
-        tiltaksnummer:
-          type:
-          - "null"
-          - string
-        arrangor:
-          $ref: "#/components/schemas/Gjennomforing.ArrangorUnderenhet"
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        status:
-          $ref: "#/components/schemas/GjennomforingDto.Status"
-        apentForPamelding:
-          type: boolean
-        antallPlasser:
-          type: integer
-          format: int32
-        avtaleId:
-          type:
-          - "null"
-          - string
-          format: uuid
+        gjennomforing:
+          $ref: "#/components/schemas/GjennomforingDto"
+        veilederinfo:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingVeilederinfoDto"
         prismodell:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/PrismodellDto"
-        administratorer:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingGruppetiltak.Administrator"
-        kontorstruktur:
-          type: array
-          items:
-            $ref: "#/components/schemas/Kontorstruktur"
-        oppstart:
-          $ref: "#/components/schemas/GjennomforingOppstartstype"
-        pameldingType:
-          $ref: "#/components/schemas/GjennomforingPameldingType"
-        opphav:
-          $ref: "#/components/schemas/ArenaMigrering.Opphav"
-        kontaktpersoner:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingKontaktperson"
-        oppmoteSted:
-          type:
-          - "null"
-          - string
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
-        beskrivelse:
-          type:
-          - "null"
-          - string
-        publisert:
-          type: boolean
-        deltidsprosent:
-          type: number
-          format: double
-        estimertVentetid:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/GjennomforingGruppetiltak.EstimertVentetid"
-        tilgjengeligForArrangorDato:
-          type:
-          - "null"
-          - string
-          format: date
         amoKategorisering:
           oneOf:
           - type: "null"
@@ -4774,40 +4817,13 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/UtdanningslopDto"
-        stengt:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingGruppetiltak.StengtPeriode"
       required:
-      - administratorer
       - amoKategorisering
-      - antallPlasser
-      - apentForPamelding
-      - arrangor
-      - avtaleId
-      - beskrivelse
-      - deltidsprosent
-      - estimertVentetid
-      - faneinnhold
-      - id
-      - kontaktpersoner
-      - kontorstruktur
-      - lopenummer
-      - navn
-      - opphav
-      - oppmoteSted
-      - oppstart
-      - pameldingType
+      - gjennomforing
       - prismodell
-      - publisert
-      - sluttDato
-      - startDato
-      - status
-      - stengt
-      - tilgjengeligForArrangorDato
-      - tiltaksnummer
       - tiltakstype
       - utdanningslop
+      - veilederinfo
     AvbrytGjennomforingAarsak:
       type: string
       enum:

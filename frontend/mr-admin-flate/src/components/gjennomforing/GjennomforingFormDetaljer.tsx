@@ -10,6 +10,7 @@ import {
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingRequest,
+  GjennomforingVeilederinfoDto,
   TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
 import {
@@ -45,17 +46,15 @@ interface Props {
   tiltakstype: TiltakstypeDto;
   avtale: AvtaleDto;
   gjennomforing: GjennomforingDto | null;
+  veilederinfo: GjennomforingVeilederinfoDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
 }
 
 export function GjennomforingFormDetaljer(props: Props) {
-  const { tiltakstype, avtale, gjennomforing, deltakere } = props;
+  const { tiltakstype, avtale, gjennomforing, veilederinfo, deltakere } = props;
 
   const { data: administratorer } = useGjennomforingAdministratorer();
   const { data: ansatt } = useHentAnsatt();
-  const [visEstimertVentetid, setVisEstimertVentetid] = useState<boolean>(
-    !!gjennomforing?.estimertVentetid?.enhet,
-  );
 
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
@@ -67,16 +66,6 @@ export function GjennomforingFormDetaljer(props: Props) {
     setValue,
     watch,
   } = useFormContext<GjennomforingRequest>();
-
-  useEffect(() => {
-    const resetEstimertVentetid = () => {
-      if (!visEstimertVentetid) {
-        setValue("estimertVentetid", null);
-      }
-    };
-
-    resetEstimertVentetid();
-  }, [setValue, visEstimertVentetid]);
 
   const watchStartDato = watch("startDato");
 
@@ -239,49 +228,7 @@ export function GjennomforingFormDetaljer(props: Props) {
                 />
               )}
             </HGrid>
-            {watch("oppstart") === GjennomforingOppstartstype.LOPENDE ? (
-              <fieldset className="border-none p-0 [&>legend]:font-bold [&>legend]:mb-2">
-                <HStack gap="1">
-                  <LabelWithHelpText
-                    label="Estimert ventetid"
-                    helpTextTitle="Hva er estimert ventetid?"
-                  >
-                    Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
-                    estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir
-                    det synlig for alle ansatte i Nav.
-                  </LabelWithHelpText>
-                </HStack>
-                <Switch
-                  checked={visEstimertVentetid}
-                  onClick={() => setVisEstimertVentetid(!visEstimertVentetid)}
-                >
-                  Registrer estimert ventetid
-                </Switch>
-                {visEstimertVentetid && (
-                  <HStack align="start" justify="start" gap="10">
-                    <TextField
-                      size="small"
-                      type="number"
-                      min={0}
-                      label="Antall"
-                      error={errors.estimertVentetid?.verdi?.message as string}
-                      {...register("estimertVentetid.verdi", {
-                        valueAsNumber: true,
-                      })}
-                    />
-                    <Select
-                      size="small"
-                      label="Måleenhet"
-                      error={errors.estimertVentetid?.enhet?.message as string}
-                      {...register("estimertVentetid.enhet")}
-                    >
-                      <option value="uke">Uker</option>
-                      <option value="maned">Måneder</option>
-                    </Select>
-                  </HStack>
-                )}
-              </fieldset>
-            ) : null}
+            <EstimertVentetidForm veilederinfo={veilederinfo} />
             <VStack gap="2">
               <Textarea
                 size="small"
@@ -372,5 +319,77 @@ export function GjennomforingFormDetaljer(props: Props) {
         />
       )}
     </>
+  );
+}
+
+interface EstimertVentetidFormProps {
+  veilederinfo: GjennomforingVeilederinfoDto | null;
+}
+
+export function EstimertVentetidForm(props: EstimertVentetidFormProps) {
+  const [visEstimertVentetid, setVisEstimertVentetid] = useState<boolean>(
+    !!props.veilederinfo?.estimertVentetid?.enhet,
+  );
+
+  const {
+    register,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useFormContext<GjennomforingRequest>();
+
+  useEffect(() => {
+    const resetEstimertVentetid = () => {
+      if (!visEstimertVentetid) {
+        setValue("estimertVentetid", null);
+      }
+    };
+
+    resetEstimertVentetid();
+  }, [setValue, visEstimertVentetid]);
+
+  if (watch("oppstart") === GjennomforingOppstartstype.FELLES) {
+    return null;
+  }
+
+  return (
+    <fieldset className="border-none p-0 [&>legend]:font-bold [&>legend]:mb-2">
+      <HStack gap="1">
+        <LabelWithHelpText label="Estimert ventetid" helpTextTitle="Hva er estimert ventetid?">
+          Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om estimert
+          ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir det synlig for
+          alle ansatte i Nav.
+        </LabelWithHelpText>
+      </HStack>
+      <Switch
+        checked={visEstimertVentetid}
+        onClick={() => setVisEstimertVentetid(!visEstimertVentetid)}
+      >
+        Registrer estimert ventetid
+      </Switch>
+      {visEstimertVentetid && (
+        <HStack align="start" justify="start" gap="10">
+          <TextField
+            size="small"
+            type="number"
+            min={0}
+            label="Antall"
+            error={errors.estimertVentetid?.verdi?.message as string}
+            {...register("estimertVentetid.verdi", {
+              valueAsNumber: true,
+            })}
+          />
+          <Select
+            size="small"
+            label="Måleenhet"
+            error={errors.estimertVentetid?.enhet?.message as string}
+            {...register("estimertVentetid.enhet")}
+          >
+            <option value="uke">Uker</option>
+            <option value="maned">Måneder</option>
+          </Select>
+        </HStack>
+      )}
+    </fieldset>
   );
 }

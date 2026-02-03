@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  GjennomforingDto,
+  GjennomforingDetaljerDto,
   GjennomforingRequest,
   GjennomforingService,
   ProblemDetail,
@@ -11,7 +11,7 @@ import { useApiMutation } from "@/hooks/useApiMutation";
 export function useUpsertGjennomforing() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<{ data: GjennomforingDto }, ProblemDetail, GjennomforingRequest>({
+  return useApiMutation<{ data: GjennomforingDetaljerDto }, ProblemDetail, GjennomforingRequest>({
     mutationFn: async (body: GjennomforingRequest) => {
       return GjennomforingService.upsertGjennomforing({ body });
     },

@@ -57,7 +57,10 @@ export const arrangorHandlers = [
     () => {
       return HttpResponse.json({
         avtaler: mockAvtaler.map(({ id, navn }) => ({ id, navn })),
-        gjennomforinger: mockGjennomforinger.map(({ id, navn }) => ({ id, navn })),
+        gjennomforinger: mockGjennomforinger.map(({ gjennomforing: { id, navn } }) => ({
+          id,
+          navn,
+        })),
       });
     },
   ),
