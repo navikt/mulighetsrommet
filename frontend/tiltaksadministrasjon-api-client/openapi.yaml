@@ -3625,23 +3625,13 @@ components:
           - string
           format: date
         pris:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ValutaBelop"
+          type:
+          - "null"
+          - integer
+          format: int32
       required:
       - gjelderFra
       - pris
-    ValutaBelop:
-      type: object
-      properties:
-        belop:
-          type: integer
-          format: int32
-        valuta:
-          $ref: "#/components/schemas/Valuta"
-      required:
-      - belop
-      - valuta
     PersonvernRequest:
       type: object
       properties:
@@ -4091,6 +4081,17 @@ components:
       - gjelderFra
       - gjelderTil
       - pris
+    ValutaBelop:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        valuta:
+          $ref: "#/components/schemas/Valuta"
+      required:
+      - belop
+      - valuta
     AvtaleDto:
       type: object
       properties:

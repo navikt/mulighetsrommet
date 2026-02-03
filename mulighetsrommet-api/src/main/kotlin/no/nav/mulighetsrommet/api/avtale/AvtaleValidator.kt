@@ -45,6 +45,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.UUID
@@ -478,14 +479,8 @@ object AvtaleValidator {
         }
 
         val satser = satserRequest.mapIndexed { index, request ->
-            requireValid(request.pris != null && request.pris.belop > 0) {
+            requireValid(request.pris != null && request.pris > 0) {
                 FieldError("/prismodeller/$prismodellIndex/satser/$index/pris", "Pris må være positiv")
-            }
-            requireValid(request.pris.valuta == prismodellValuta) {
-                FieldError(
-                    "/prismodeller/$prismodellIndex/satser/$index/pris/valuta",
-                    "Satsene må ha lik valuta som prismodellen",
-                )
             }
             requireValid(request.gjelderFra != null) {
                 FieldError(
@@ -493,7 +488,7 @@ object AvtaleValidator {
                     "Gjelder fra må være satt",
                 )
             }
-            AvtaltSats(request.gjelderFra, sats = request.pris)
+            AvtaltSats(request.gjelderFra, sats = ValutaBelop(request.pris, prismodellValuta))
         }
 
         val duplicateDates = satser.map { it.gjelderFra }.groupBy { it }.filter { it.value.size > 1 }.keys
