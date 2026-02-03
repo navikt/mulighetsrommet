@@ -121,6 +121,8 @@ class TiltakshistorikkTest : FunSpec({
                                 startDato = LocalDate.of(2024, 1, 1),
                                 sluttDato = LocalDate.of(2024, 12, 31),
                                 avtaleStatus = Avtale.Status.GJENNOMFORES,
+                                stillingsprosent = 77f,
+                                antallDagerPerUke = 2.5f,
                                 opprettetTidspunkt = ZonedDateTime.of(
                                     LocalDateTime.of(2023, 1, 1, 0, 0, 0),
                                     ZoneId.of("Europe/Oslo"),
@@ -233,6 +235,8 @@ class TiltakshistorikkTest : FunSpec({
                             navn = "Arbeidstrening",
                         ),
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
+                        stillingsprosent = 77f,
+                        dagerPerUke = 2.5f,
                         arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(
                             Organisasjonsnummer("876543210"),
                             "Arbeidsgiver",
@@ -283,6 +287,8 @@ class TiltakshistorikkTest : FunSpec({
                                 startDato = LocalDate.of(2024, 1, 1),
                                 sluttDato = LocalDate.of(2024, 12, 31),
                                 avtaleStatus = Avtale.Status.GJENNOMFORES,
+                                stillingsprosent = 77f,
+                                antallDagerPerUke = 2.5f,
                                 opprettetTidspunkt = ZonedDateTime.of(
                                     LocalDateTime.of(2023, 1, 1, 0, 0, 0),
                                     ZoneId.of("Europe/Oslo"),

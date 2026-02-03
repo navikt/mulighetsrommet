@@ -74,6 +74,8 @@ class TiltakDatadelingClient(
                         startDato
                         sluttDato
                         avtaleStatus
+                        stillingprosent
+                        antallDagerPerUke
                         opprettetTidspunkt
                         endretTidspunkt
                     }
@@ -118,7 +120,7 @@ class TiltakDatadelingClient(
                 .InvalidGraphqlResponse(message = "Both errors and data are missing from response")
                 .left()
         } else {
-            return graphqlResponse.data.right()
+            graphqlResponse.data.right()
         }
     }
 }
@@ -192,6 +194,8 @@ data class Avtale(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val avtaleStatus: Status,
+    val stillingsprosent: Float?,
+    val antallDagerPerUke: Float?,
     @Serializable(with = ZonedDateTimeSerializer::class)
     val opprettetTidspunkt: ZonedDateTime,
     @Serializable(with = ZonedDateTimeSerializer::class)

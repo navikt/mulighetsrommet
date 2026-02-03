@@ -170,5 +170,7 @@ private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: TiltakstypeDbo, arbe
         Avtale.Status.GJENNOMFORES -> ArbeidsgiverAvtaleStatus.GJENNOMFORES
         Avtale.Status.AVSLUTTET -> ArbeidsgiverAvtaleStatus.AVSLUTTET
     },
+    stillingsprosent = avtale.stillingsprosent,
+    dagerPerUke = avtale.antallDagerPerUke,
     arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer(avtale.bedriftNr), arbeidsgiver?.navn),
 )
