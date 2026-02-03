@@ -1,17 +1,14 @@
-import {
-  ArrangorflateService,
-  ArrangorflateTilsagnDto,
-  ArrangorflateUtbetalingDto,
-} from "api-client";
-import { Link as ReactRouterLink, LoaderFunction, MetaFunction, useLoaderData } from "react-router";
-import { apiHeaders } from "~/auth/auth.server";
+import { Link as ReactRouterLink, MetaFunction, useParams } from "react-router";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
-import { problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import {
+  useArrangorflateUtbetaling,
+  useArrangorflateTilsagnTilUtbetaling,
+} from "~/hooks/useUtbetaling";
 
 export const meta: MetaFunction = () => {
   return [
@@ -23,42 +20,12 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-type LoaderData = {
-  utbetaling: ArrangorflateUtbetalingDto;
-  tilsagn: ArrangorflateTilsagnDto[];
-};
-
-export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const { id } = params;
-  if (!id) throw Error("Mangler orgnr");
-
-  const [{ data: utbetaling, error: utbetalingError }, { data: tilsagn, error: tilsagnError }] =
-    await Promise.all([
-      ArrangorflateService.getArrangorflateUtbetaling({
-        path: { id },
-        headers: await apiHeaders(request),
-      }),
-      ArrangorflateService.getArrangorflateTilsagnTilUtbetaling({
-        path: { id },
-        headers: await apiHeaders(request),
-      }),
-    ]);
-
-  if (utbetalingError) {
-    throw problemDetailResponse(utbetalingError);
-  }
-  if (tilsagnError) {
-    throw problemDetailResponse(tilsagnError);
-  }
-  return {
-    utbetaling,
-    tilsagn,
-  };
-};
-
 export default function TilsagnDetaljerPage() {
-  const { utbetaling, tilsagn } = useLoaderData<LoaderData>();
+  const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
+
+  const { data: utbetaling } = useArrangorflateUtbetaling(id!);
+  const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id!);
 
   const harTilsagn = tilsagn.length > 0;
 
@@ -95,13 +62,8 @@ export default function TilsagnDetaljerPage() {
           Hva som blir utbetalt avhenger imidlertid av faktisk forbruk i perioden.
         </BodyShort>
         {!harTilsagn && <UtbetalingManglendeTilsagnAlert />}
-        {tilsagn.map((tilsagn) => (
-          <TilsagnDetaljer
-            key={tilsagn.bestillingsnummer}
-            tilsagn={tilsagn}
-            headingLevel="4"
-            minimal
-          />
+        {tilsagn.map((t) => (
+          <TilsagnDetaljer key={t.bestillingsnummer} tilsagn={t} headingLevel="4" minimal />
         ))}
         {harTilsagn && (
           <HStack gap="4" className="mt-4">

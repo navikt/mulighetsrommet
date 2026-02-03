@@ -22,6 +22,7 @@ import { isDemo } from "./services/environment";
 import { Alert, Heading, Link, Page } from "@navikt/ds-react";
 import { Header } from "./components/header/Header";
 import { initializeLogs, pushError } from "~/faro";
+import { ReactQueryProvider } from "~/ReactQueryProvider";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
@@ -78,11 +79,13 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
         footer={dekorator && parse(dekorator.footer)}
         background={isLandingPage ? "bg-default" : "bg-subtle"}
       >
-        <DekoratorHeader dekorator={dekorator} />
-        <Header />
-        <Page.Block as="main" width="2xl" gutters>
-          {children}
-        </Page.Block>
+        <ReactQueryProvider>
+          <DekoratorHeader dekorator={dekorator} />
+          <Header />
+          <Page.Block as="main" width="2xl" gutters>
+            {children}
+          </Page.Block>
+        </ReactQueryProvider>
         <ScrollRestoration />
         <Scripts />
       </Page>

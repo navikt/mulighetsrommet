@@ -4,6 +4,7 @@ import express from "express";
 import expressPromBundle from "express-prom-bundle";
 import morgan from "morgan";
 import logger from "./logger.js";
+import { apiProxy } from "./api-proxy.js";
 
 const metricsMiddleware = expressPromBundle({ includeMethod: true, includePath: true });
 
@@ -50,6 +51,9 @@ app.use(express.static("build/client", { maxAge: "1h" }));
 app.get([`${basePath}/internal/isAlive`, `${basePath}/internal/isReady`], (_, res) =>
   res.sendStatus(200),
 );
+
+// API proxy for client-side React Query calls - handles OBO token exchange
+app.use("/api-proxy", apiProxy);
 
 app.use(metricsMiddleware);
 
