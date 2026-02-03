@@ -534,7 +534,6 @@ private fun tasks(config: AppConfig) = module {
                 generateUtbetaling.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
-            .registerShutdownHook()
             .build()
     }
 }

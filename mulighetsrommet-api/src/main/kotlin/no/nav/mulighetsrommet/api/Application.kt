@@ -5,7 +5,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationStarted
-import io.ktor.server.application.ApplicationStopPreparing
+import io.ktor.server.application.ApplicationStopped
+import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.log
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.connector
@@ -96,18 +97,28 @@ fun Application.configure(config: AppConfig) {
     val scheduler: Scheduler by inject()
 
     monitor.subscribe(ApplicationStarted) {
+        log.info("Starting kafka consumer & producer record processor")
         kafka.enableFailedRecordProcessor()
         producerRecordProcessor.start()
 
+        log.info("Started task scheduler")
         scheduler.start()
     }
 
-    monitor.subscribe(ApplicationStopPreparing) {
+    monitor.subscribe(ApplicationStopping) {
+        log.info("Stopping task scheduler...")
+        scheduler.stop()
+
+        log.info("Stopping kafka consumer & producer record processor...")
+        producerRecordProcessor.close()
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
-        producerRecordProcessor.close()
+        log.info("Closing Shedlock client...")
         shedLockLeaderElectionClient.close()
+    }
 
+    monitor.subscribe(ApplicationStopped) {
+        log.info("Closing db...")
         db.close()
     }
 }
