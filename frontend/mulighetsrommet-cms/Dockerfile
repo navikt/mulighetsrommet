@@ -1,4 +1,4 @@
-FROM nginxinc/nginx-unprivileged:1.29-alpine AS runtime
+FROM cgr.dev/chainguard/nginx:1.29 AS runtime
 
 LABEL org.opencontainers.image.source="https://github.com/navikt/mulighetsrommet"
 LABEL org.opencontainers.image.title="mulighetsrommet-cms"
