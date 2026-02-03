@@ -37,8 +37,6 @@
     "@react-router/express": "7.13.0",
     "@react-router/node": "7.13.0",
     "@react-router/serve": "7.13.0",
-    "@tailwindcss/postcss": "4.1.18",
-    "@tailwindcss/vite": "4.1.18",
     "compression": "1.8.1",
     "csp-header": "6.3.0",
     "express": "5.2.1",

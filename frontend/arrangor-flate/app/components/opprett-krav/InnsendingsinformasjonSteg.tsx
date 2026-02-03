@@ -7,7 +7,6 @@ import {
   Periode,
 } from "@api-client";
 import {
-  Alert,
   BodyShort,
   DatePicker,
   GuidePanel,
@@ -15,6 +14,7 @@ import {
   HStack,
   Label,
   Link,
+  LocalAlert,
   Select,
   useDatepicker,
   VStack,
@@ -88,9 +88,9 @@ export default function InnsendingsinformasjonSteg({
         Innsendingsinformasjon
       </Heading>
       <GuidePanelInformation type={data.guidePanel} />
-      <VStack gap="6" className="max-w-2xl">
+      <VStack gap="space-16" className="max-w-2xl">
         <LabeledDataElementList entries={data.definisjonsListe} />
-        <VStack gap="1">
+        <VStack gap="space-4">
           <Label size="small">Periode</Label>
           <BodyShort textColor="subtle" size="small">
             Hvilken periode gjelder kravet for?
@@ -115,9 +115,13 @@ export default function InnsendingsinformasjonSteg({
               Hva som blir utbetalt avhenger imidlertid av faktisk forbruk i perioden.
             </BodyShort>
             {relevanteTilsagn.length < 1 ? (
-              <Alert variant="warning">
-                Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
-              </Alert>
+              <LocalAlert status="warning" size="small">
+                <LocalAlert.Header>
+                  <LocalAlert.Title>
+                    Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
+                  </LocalAlert.Title>
+                </LocalAlert.Header>
+              </LocalAlert>
             ) : (
               <>
                 {relevanteTilsagn.map((tilsagn) => (
@@ -232,7 +236,7 @@ function PeriodeSelect({
   }
 
   return (
-    <HStack gap="4">
+    <HStack gap="space-4">
       <Select
         hideLabel
         label="Hvilken periode gjelder kravet for?"
@@ -302,7 +306,7 @@ function PeriodeVelger({
   }, [selectedStartDato, selectedSluttDato, onPeriodeSelected, updateFormState]);
 
   return (
-    <HStack wrap gap="4">
+    <HStack wrap gap="space-4">
       <DatePicker
         {...periodeStartPickerProps}
         showWeekNumber

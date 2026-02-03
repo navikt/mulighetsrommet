@@ -18,7 +18,7 @@ import useInjectDecoratorScript from "~/services/dekorator/useInjectScript";
 import "./tailwind.css";
 import { ErrorPage, ErrorPageNotFound } from "./components/common/ErrorPage";
 import { isDemo } from "./services/environment";
-import { Box, GlobalAlert, Link, Page } from "@navikt/ds-react";
+import { BodyShort, Box, GlobalAlert, Link, Page } from "@navikt/ds-react";
 import { Header } from "./components/header/Header";
 import { pushError } from "~/faro";
 import { Route } from "./+types/root";
@@ -92,15 +92,19 @@ function DekoratorHeader({ dekorator }: { dekorator?: DekoratorElements }) {
           <GlobalAlert.Title as="h3">Demo Arrangørflate</GlobalAlert.Title>
         </GlobalAlert.Header>
         <GlobalAlert.Content>
-          Denne demoen er ment for NAV-ansatte som vil ha et overblikk av hvilke muligheter
-          tiltaksarrangører har i våre flater.
-          <br />
-          Applikasjonsansvarlige:{" "}
-          <Link href="https://teamkatalog.nav.no/team/aa730c95-b437-497b-b1ae-0ccf69a10997">
-            Team Valp
-          </Link>
-          <br />
-          <b>OBS!</b> Demoen inneholder ikke ekte data og kan til tider være ustabil.
+          <BodyShort spacing>
+            Denne demoen er ment for NAV-ansatte som vil ha et overblikk av hvilke muligheter
+            tiltaksarrangører har i våre flater.
+          </BodyShort>
+          <BodyShort spacing>
+            Applikasjonsansvarlige:{" "}
+            <Link href="https://teamkatalog.nav.no/team/aa730c95-b437-497b-b1ae-0ccf69a10997">
+              Team Valp
+            </Link>
+          </BodyShort>
+          <BodyShort>
+            <b>OBS!</b> Demoen inneholder ikke ekte data og kan til tider være ustabil.
+          </BodyShort>
         </GlobalAlert.Content>
       </GlobalAlert>
     );

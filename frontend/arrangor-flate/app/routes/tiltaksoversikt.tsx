@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Box, Heading, Tabs, Link, VStack } from "@navikt/ds-react";
+import { BodyShort, Box, Heading, Tabs, Link, VStack, LocalAlert } from "@navikt/ds-react";
 import { ArrangorflateService, ArrangorInnsendingRadDto, TiltaksoversiktType } from "api-client";
 import {
   Link as ReactRouterLink,
@@ -74,12 +74,17 @@ export default function OpprettKravTiltaksOversikt() {
           <Tabs.Panel value={currentTab}>
             {sortedData.length === 0 ? (
               <Box marginBlock="space-16">
-                <Alert variant="info">
-                  <BodyShort>
-                    Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
-                  </BodyShort>
-                  <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
-                </Alert>
+                <LocalAlert status="warning" className="my-10">
+                  <LocalAlert.Header>
+                    <LocalAlert.Title>Fant ingen registrerte tiltak</LocalAlert.Title>
+                  </LocalAlert.Header>
+                  <LocalAlert.Content>
+                    <BodyShort spacing>
+                      Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
+                    </BodyShort>
+                    <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
+                  </LocalAlert.Content>
+                </LocalAlert>
               </Box>
             ) : (
               <Tabellvisning kolonner={kolonner} sort={sort} onSortChange={toggleSort}>

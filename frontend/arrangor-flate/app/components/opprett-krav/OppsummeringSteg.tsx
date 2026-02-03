@@ -49,79 +49,90 @@ export default function OppsummeringStep({
 
   return (
     <>
-      <Heading level="2" spacing size="large">
+      <Heading level="2" size="large">
         Oppsummering
       </Heading>
-      <LabeledDataElementList title="Innsendingsinformasjon" entries={innsendingsInformasjon} />
-      <Separator />
-      <Definisjonsliste
-        title="Utbetaling"
-        definitions={[
-          {
-            key: "Utbetalingsperiode",
-            value: formaterPeriode({
-              start: formState.periodeStart!,
-              slutt: formaterDato(
-                formState.periodeInklusiv
-                  ? addDuration(formState.periodeSlutt!, { days: 1 })!
-                  : formState.periodeSlutt!,
-              )!,
-            }),
-          },
-          { key: "Kontonummer", value: formState.kontonummer },
-          { key: "KID-nummer", value: formState.kid },
-          { key: "Beløp", value: formState.belop },
-        ]}
-      />
-      <Separator />
-      <Form method="post" encType="multipart/form-data">
-        <input name="intent" value="submit" hidden readOnly />
-        <input name="periodeStart" defaultValue={formState.periodeStart} hidden readOnly />
-        <input name="periodeSlutt" defaultValue={formState.periodeSlutt} hidden readOnly />
-        <input
-          name="periodeInklusiv"
-          defaultValue={String(formState.periodeInklusiv)}
-          hidden
-          readOnly
+      <Box>
+        <LabeledDataElementList title="Innsendingsinformasjon" entries={innsendingsInformasjon} />
+        <Separator />
+        <Definisjonsliste
+          title="Utbetaling"
+          definitions={[
+            {
+              key: "Utbetalingsperiode",
+              value: formaterPeriode({
+                start: formState.periodeStart!,
+                slutt: formaterDato(
+                  formState.periodeInklusiv
+                    ? addDuration(formState.periodeSlutt!, { days: 1 })!
+                    : formState.periodeSlutt!,
+                )!,
+              }),
+            },
+            { key: "Kontonummer", value: formState.kontonummer },
+            { key: "KID-nummer", value: formState.kid },
+            { key: "Beløp", value: formState.belop },
+          ]}
         />
-        <input name="belop" defaultValue={formState.belop} hidden readOnly />
-        <input name="kid" defaultValue={formState.kid || ""} hidden readOnly />
-        <input name="tilsagnId" defaultValue={formState.tilsagnId} hidden readOnly />
-        <input
-          name="minAntallVedlegg"
-          defaultValue={vedleggInfo.minAntallVedlegg}
-          hidden
-          readOnly
-        />
-        <input ref={fileInputRef} type="file" name="vedlegg" multiple style={{ display: "none" }} />
+        <Separator />
+        <Form method="post" encType="multipart/form-data">
+          <input name="intent" value="submit" hidden readOnly />
+          <input name="periodeStart" defaultValue={formState.periodeStart} hidden readOnly />
+          <input name="periodeSlutt" defaultValue={formState.periodeSlutt} hidden readOnly />
+          <input
+            name="periodeInklusiv"
+            defaultValue={String(formState.periodeInklusiv)}
+            hidden
+            readOnly
+          />
+          <input name="belop" defaultValue={formState.belop} hidden readOnly />
+          <input name="kid" defaultValue={formState.kid || ""} hidden readOnly />
+          <input name="tilsagnId" defaultValue={formState.tilsagnId} hidden readOnly />
+          <input
+            name="minAntallVedlegg"
+            defaultValue={vedleggInfo.minAntallVedlegg}
+            hidden
+            readOnly
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            name="vedlegg"
+            multiple
+            style={{ display: "none" }}
+          />
 
-        <Box marginBlock="0 8">
-          {acceptedFiles.length > 0 && (
-            <VStack gap="2" marginBlock="4">
-              <Heading level="4" size="xsmall">
-                {`Vedlegg (${acceptedFiles.length})`}
-              </Heading>
-              <VStack as="ul" gap="3">
-                {acceptedFiles.map((file, index) => (
-                  <FileUpload.Item as="li" key={index} file={file.file} />
-                ))}
+          <Box marginBlock="space-0 space-32">
+            <Heading level="3" size="medium" spacing>
+              Vedlegg
+            </Heading>
+            <Heading level="4" size="xsmall">
+              {`Vedlegg (${acceptedFiles.length})`}
+            </Heading>
+            {acceptedFiles.length > 0 && (
+              <VStack gap="space-8" marginBlock="space-4" align="start">
+                <VStack as="ul" gap="space-8">
+                  {acceptedFiles.map((file, index) => (
+                    <FileUpload.Item as="li" key={index} file={file.file} />
+                  ))}
+                </VStack>
               </VStack>
-            </VStack>
-          )}
-          <Separator />
-          <CheckboxGroup error={errorAt("/bekreftelse", errors)} legend="Bekreftelse">
-            <Checkbox name="bekreftelse" value="bekreftet" id="bekreftelse">
-              {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
-            </Checkbox>
-          </CheckboxGroup>
-        </Box>
-        <HStack gap="4">
-          <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
-            Tilbake
-          </Button>
-          <Button type="submit">Bekreft og send inn</Button>
-        </HStack>
-      </Form>
+            )}
+            <Separator />
+            <CheckboxGroup error={errorAt("/bekreftelse", errors)} legend="Bekreftelse">
+              <Checkbox name="bekreftelse" value="bekreftet" id="bekreftelse">
+                {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
+              </Checkbox>
+            </CheckboxGroup>
+          </Box>
+          <HStack gap="space-4">
+            <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
+              Tilbake
+            </Button>
+            <Button type="submit">Bekreft og send inn</Button>
+          </HStack>
+        </Form>
+      </Box>
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { Alert, List, Box } from "@navikt/ds-react";
+import { BodyShort, List, LocalAlert } from "@navikt/ds-react";
 import { ArrangorflateBeregning, DeltakerAdvarsel } from "api-client";
 import { tekster } from "~/tekster";
 import { DataDrivenTable } from "@mr/frontend-common";
@@ -14,16 +14,19 @@ export function DeltakelserTable({
   return (
     <>
       {advarsler.length > 0 && (
-        <Alert variant="warning">
-          {tekster.bokmal.utbetaling.beregning.advarslerFinnes}
-          <Box marginBlock="space-16" asChild>
+        <LocalAlert status="warning">
+          <LocalAlert.Header>
+            <LocalAlert.Title>Viktig informasjon om deltakere</LocalAlert.Title>
+          </LocalAlert.Header>
+          <LocalAlert.Content>
+            <BodyShort spacing>{tekster.bokmal.utbetaling.beregning.advarslerFinnes}</BodyShort>
             <List data-aksel-migrated-v8>
               {advarsler.map((advarsel) => (
                 <List.Item key={advarsel.deltakerId}>{advarsel.beskrivelse}</List.Item>
               ))}
             </List>
-          </Box>
-        </Alert>
+          </LocalAlert.Content>
+        </LocalAlert>
       )}
       {beregning.deltakelser && <DataDrivenTable data={beregning.deltakelser} />}
     </>

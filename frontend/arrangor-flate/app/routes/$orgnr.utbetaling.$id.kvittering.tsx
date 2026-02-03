@@ -1,4 +1,12 @@
-import { Alert, BodyLong, BodyShort, Box, ExpansionCard, Link, VStack } from "@navikt/ds-react";
+import {
+  BodyLong,
+  BodyShort,
+  Box,
+  ExpansionCard,
+  Link,
+  LocalAlert,
+  VStack,
+} from "@navikt/ds-react";
 import { ArrangorflateService } from "api-client";
 import {
   Link as ReactRouterLink,
@@ -74,7 +82,14 @@ export default function UtbetalingKvittering() {
             url: pathTo.utbetalinger,
           }}
         />
-        <Alert variant="success">{tekster.bokmal.utbetaling.kvittering.successMelding}</Alert>
+        <LocalAlert status="success">
+          <LocalAlert.Header>
+            <LocalAlert.Title>Innsendingen er mottatt</LocalAlert.Title>
+          </LocalAlert.Header>
+          <LocalAlert.Content>
+            <BodyShort>{tekster.bokmal.utbetaling.kvittering.successMelding}</BodyShort>
+          </LocalAlert.Content>
+        </LocalAlert>
         <ExpansionCard
           defaultOpen
           aria-label={tekster.bokmal.utbetaling.kvittering.kvitteringTitle}

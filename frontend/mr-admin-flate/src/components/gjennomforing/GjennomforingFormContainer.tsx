@@ -7,7 +7,6 @@ import {
   GjennomforingDetaljerDto,
   GjennomforingDto,
   GjennomforingRequest,
-  GjennomforingVeilederinfoDto,
   TiltakstypeDto,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";

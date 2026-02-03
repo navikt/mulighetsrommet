@@ -3,7 +3,7 @@ import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import {
-  Alert,
+  BodyShort,
   Box,
   Button,
   Heading,
@@ -11,6 +11,7 @@ import {
   HStack,
   InlineMessage,
   Link,
+  LocalAlert,
   Modal,
   Spacer,
   Textarea,
@@ -299,16 +300,23 @@ function DeltakerModal({ utbetaling, deltakerlisteUrl, open, setOpen }: Deltaker
       <Modal.Body>
         <VStack gap="space-8">
           {utbetaling.beregning.stengt.length > 0 && (
-            <Alert variant={"info"}>
-              {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
-              <ul>
-                {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
-                  <li key={periode.start + periode.slutt}>
-                    {formaterPeriode(periode)}: {beskrivelse}
-                  </li>
-                ))}
-              </ul>
-            </Alert>
+            <LocalAlert status="announcement" size="small">
+              <LocalAlert.Header>
+                <LocalAlert.Title as="h4">Stengte perioder</LocalAlert.Title>
+              </LocalAlert.Header>
+              <LocalAlert.Content>
+                <BodyShort spacing>
+                  {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
+                </BodyShort>
+                <ul>
+                  {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
+                    <li key={periode.start + periode.slutt}>
+                      {formaterPeriode(periode)}: {beskrivelse}
+                    </li>
+                  ))}
+                </ul>
+              </LocalAlert.Content>
+            </LocalAlert>
           )}
           <DeltakelserTable
             beregning={utbetaling.beregning}
@@ -358,14 +366,17 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
         <fetcher.Form method="post">
           <input type="hidden" name="_action" value="avbryt" />
           <VStack gap="space-8">
-            <Alert variant={"info"}>
+            <LocalAlert status={"announcement"}>
+              <LocalAlert.Header>
+                <LocalAlert.Title>Hva betyr det å avbryte en innsending?</LocalAlert.Title>
+              </LocalAlert.Header>
               Hvis kravet avbrytes, vil det ikke behandles av Nav og det vil ikke utbetales noe. Det
               kan være aktuelt hvis dere oppdager noe feil i innsendingen.
               <br />
               <br />
               Dere kan selv starte en ny innsending med korrekte opplysninger etter at kravet er
               avbrutt. Vær oppmerksom på at et avbrutt krav fremdeles vil være arkivert hos Nav.
-            </Alert>
+            </LocalAlert>
             <Textarea
               name="begrunnelse"
               description="Oppgi årsaken til at behandlingen av kravet skal avbrytes. Begrunnelsen blir lagret hos Nav"

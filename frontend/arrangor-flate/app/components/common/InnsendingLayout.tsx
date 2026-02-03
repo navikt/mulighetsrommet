@@ -34,7 +34,7 @@ export function InnsendingLayout({
 
   return (
     <VStack gap="space-16" justify="center">
-      <Link as={ReactRouterLink} to={path} className="max-w-max">
+      <Link as={ReactRouterLink} to={path}>
         <ChevronLeftIcon /> {text}
       </Link>
       {steps && steps.length > 0 && (
