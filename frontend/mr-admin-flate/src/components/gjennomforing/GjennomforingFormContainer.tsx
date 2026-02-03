@@ -6,7 +6,6 @@ import {
   GjennomforingDeltakerSummary,
   GjennomforingDto,
   GjennomforingRequest,
-  Tiltakskode,
   TiltakstypeDto,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
@@ -102,10 +101,7 @@ export function GjennomforingFormContainer(props: Props) {
       estimertVentetid: data.estimertVentetid ?? null,
       tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato ?? null,
       amoKategorisering: data.amoKategorisering ?? null,
-      utdanningslop:
-        avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
-          ? (data.utdanningslop ?? null)
-          : null,
+      utdanningslop: data.utdanningslop ?? null,
       pameldingType: data.pameldingType,
       prismodellId: data.prismodellId || null,
     };
