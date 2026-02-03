@@ -162,6 +162,10 @@ class UtbetalingService(
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(utbetalingKrav.gjennomforingId)
         val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
         val utbetalingInfo = resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
+        val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
+            gjennomforing.tiltakstype.tiltakskode,
+            periode,
+        )
         val dbo = UtbetalingDbo(
             id = UUID.randomUUID(),
             gjennomforingId = utbetalingKrav.gjennomforingId,
@@ -185,7 +189,7 @@ class UtbetalingService(
             } else {
                 null
             },
-            utbetalesTidligstTidspunkt = null,
+            utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
         )
         return opprettUtbetalingTransaction(dbo, utbetalingKrav.vedlegg, agent)
     }
@@ -204,8 +208,13 @@ class UtbetalingService(
         agent: Agent,
         periode: Periode,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
         val arrangor = requireNotNull(queries.arrangor.getByGjennomforingId(request.gjennomforingId))
         val betalingsinformasjon = arrangorService.getBetalingsinformasjon(arrangor.id)
+        val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
+            gjennomforing.tiltakstype.tiltakskode,
+            periode,
+        )
 
         val dbo = UtbetalingDbo(
             id = request.id,
@@ -233,7 +242,7 @@ class UtbetalingService(
             } else {
                 null
             },
-            utbetalesTidligstTidspunkt = null,
+            utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
         )
 
         return opprettUtbetalingTransaction(dbo, request.vedlegg, agent)
