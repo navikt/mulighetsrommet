@@ -194,7 +194,7 @@ data class Avtale(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val avtaleStatus: Status,
-    val stillingsprosent: Float?,
+    val stillingprosent: Float?,
     val antallDagerPerUke: Float?,
     @Serializable(with = ZonedDateTimeSerializer::class)
     val opprettetTidspunkt: ZonedDateTime,
