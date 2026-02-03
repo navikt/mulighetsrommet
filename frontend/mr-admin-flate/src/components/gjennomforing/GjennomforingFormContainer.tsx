@@ -6,7 +6,7 @@ import {
   GjennomforingDeltakerSummary,
   GjennomforingDto,
   GjennomforingRequest,
-  Tiltakskode,
+  TiltakstypeDto,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
@@ -25,6 +25,7 @@ import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
+  tiltakstype: TiltakstypeDto;
   avtale: AvtaleDto;
   gjennomforing: GjennomforingDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
@@ -32,7 +33,8 @@ interface Props {
 }
 
 export function GjennomforingFormContainer(props: Props) {
-  const { avtale, gjennomforing, deltakere, defaultValues, onClose, onSuccess } = props;
+  const { tiltakstype, avtale, gjennomforing, deltakere, defaultValues, onClose, onSuccess } =
+    props;
   const redigeringsModus = !!gjennomforing;
   const mutation = useUpsertGjennomforing();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
@@ -99,10 +101,7 @@ export function GjennomforingFormContainer(props: Props) {
       estimertVentetid: data.estimertVentetid ?? null,
       tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato ?? null,
       amoKategorisering: data.amoKategorisering ?? null,
-      utdanningslop:
-        avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
-          ? (data.utdanningslop ?? null)
-          : null,
+      utdanningslop: data.utdanningslop ?? null,
       pameldingType: data.pameldingType,
       prismodellId: data.prismodellId || null,
     };
@@ -150,6 +149,7 @@ export function GjennomforingFormContainer(props: Props) {
               <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
                 <Box marginBlock="4">
                   <GjennomforingFormDetaljer
+                    tiltakstype={tiltakstype}
                     avtale={avtale}
                     gjennomforing={gjennomforing}
                     deltakere={deltakere}

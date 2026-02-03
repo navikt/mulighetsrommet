@@ -1,44 +1,29 @@
-import { DataElement, DataElementStatusVariant, TilsagnStatus } from "api-client";
+import { StatusTag } from "@mr/frontend-common";
+import { TilsagnStatus } from "api-client";
 
-export function tilsagnStatusElement(status: TilsagnStatus): DataElement | null {
+export function TilsagnStatusTag({ status }: { status: TilsagnStatus }) {
   switch (status) {
     case TilsagnStatus.RETURNERT:
     case TilsagnStatus.TIL_GODKJENNING:
       return null;
     case TilsagnStatus.GODKJENT:
-      return {
-        variant: DataElementStatusVariant.SUCCESS,
-        value: "Godkjent",
-        type: "DATA_ELEMENT_STATUS",
-        description: null,
-      };
+      return <StatusTag variant="success">Godkjent</StatusTag>;
     case TilsagnStatus.TIL_ANNULLERING:
-      return {
-        variant: DataElementStatusVariant.WARNING,
-        value: "Til annullering",
-        type: "DATA_ELEMENT_STATUS",
-        description: null,
-      };
+      return <StatusTag variant="warning">Til annullering</StatusTag>;
     case TilsagnStatus.ANNULLERT:
-      return {
-        variant: DataElementStatusVariant.ERROR_BORDER_STRIKETHROUGH,
-        value: "Annullert",
-        type: "DATA_ELEMENT_STATUS",
-        description: null,
-      };
+      return (
+        <StatusTag
+          variant="neutral"
+          className={
+            "bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)] line-through"
+          }
+        >
+          Annullert
+        </StatusTag>
+      );
     case TilsagnStatus.TIL_OPPGJOR:
-      return {
-        type: "DATA_ELEMENT_STATUS",
-        variant: DataElementStatusVariant.WARNING,
-        value: "Til oppgjør",
-        description: null,
-      };
+      return <StatusTag variant="warning">Til oppgjør</StatusTag>;
     case TilsagnStatus.OPPGJORT:
-      return {
-        type: "DATA_ELEMENT_STATUS",
-        variant: DataElementStatusVariant.NEUTRAL,
-        value: "Oppgjort",
-        description: null,
-      };
+      return <StatusTag variant="neutral">Oppgjort</StatusTag>;
   }
 }

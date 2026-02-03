@@ -22,12 +22,15 @@ spec:
       memory: 512Mi
     limits:
       memory: 4096Mi
-  liveness:
+  startup:
     path: /internal/liveness
     initialDelay: 20
+    failureThreshold: 10
+    periodSeconds: 5
+  liveness:
+    path: /internal/liveness
   readiness:
     path: /internal/readiness
-    initialDelay: 20
   observability:
     autoInstrumentation:
       enabled: true

@@ -5,8 +5,8 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangforflateUtbetalingLinje
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnSummary
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
@@ -155,6 +155,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         begrunnelseMindreBetalt = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         avbruttBegrunnelse = null,
+        avbruttTidspunkt = null,
     )
 
     val utbetalingPrisPerTimeOppfolging = Utbetaling(
@@ -214,6 +215,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         beskrivelse = null,
         begrunnelseMindreBetalt = null,
         avbruttBegrunnelse = null,
+        avbruttTidspunkt = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     )
 

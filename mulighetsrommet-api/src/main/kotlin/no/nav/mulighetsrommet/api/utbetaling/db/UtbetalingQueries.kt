@@ -665,6 +665,7 @@ class UtbetalingQueries(private val session: Session) {
             godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
             utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
             avbruttBegrunnelse = stringOrNull("avbrutt_begrunnelse"),
+            avbruttTidspunkt = instantOrNull("avbrutt_tidspunkt"),
         )
     }
 

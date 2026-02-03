@@ -1,14 +1,13 @@
 import {
   DataElementTextFormat,
   LabeledDataElementType,
-  OpprettKravInnsendingsInformasjon,
   GuidePanelType,
-  OpprettKravVeiviserSteg,
   Periode,
   TilsagnStatus,
   TilsagnType,
   Valuta,
   Tiltakskode,
+  OpprettKravInnsendingSteg,
 } from "@api-client";
 import { formaterPeriode, subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import {
@@ -23,7 +22,7 @@ import {
 
 const today: Date = new Date();
 
-export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
+export const innsendingsInformasjonAFT: OpprettKravInnsendingSteg = {
   guidePanel: GuidePanelType.INVESTERING_VTA_AFT,
   definisjonsListe: [
     {
@@ -127,10 +126,9 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
     },
   ],
   datoVelger: { type: "DatoVelgerRange", maksSluttdato: yyyyMMddFormatting(new Date())! },
-  navigering: { tilbake: null, neste: OpprettKravVeiviserSteg.UTBETALING },
 };
 
-const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
+const innsendingsInformasjonAvklaring: OpprettKravInnsendingSteg = {
   guidePanel: GuidePanelType.AVTALT_PRIS,
   definisjonsListe: [
     {
@@ -219,10 +217,9 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
     type: "DatoVelgerRange",
     maksSluttdato: new Date(31, 12, today.getFullYear()).toISOString().slice(0, 8),
   },
-  navigering: { tilbake: null, neste: OpprettKravVeiviserSteg.UTBETALING },
 };
 
-const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
+const innsendingsInformasjonOppfolging: OpprettKravInnsendingSteg = {
   guidePanel: GuidePanelType.TIMESPRIS,
   definisjonsListe: [
     {
@@ -329,7 +326,6 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
     type: "DatoVelgerSelect",
     periodeForslag: utbetalingsPerioder(),
   },
-  navigering: { tilbake: null, neste: OpprettKravVeiviserSteg.DELTAKERLISTE },
 };
 
 function tilsagnsPeriode(): Periode {
@@ -360,7 +356,7 @@ function utbetalingsPerioder(): Periode[] {
   return periodeList.sort();
 }
 
-export const innsendingsInformasjon: Record<string, OpprettKravInnsendingsInformasjon> = {
+export const innsendingsInformasjon: Record<string, OpprettKravInnsendingSteg> = {
   [gjennomforingIdAFT]: innsendingsInformasjonAFT,
   [gjennomforingIdAvklaring]: innsendingsInformasjonAvklaring,
   [gjennomforingIdOppfolging]: innsendingsInformasjonOppfolging,

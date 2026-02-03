@@ -1,4 +1,3 @@
-import { OpprettKravVeiviserSteg } from "@api-client";
 import { Params, useParams } from "react-router";
 import { Environment } from "~/services/environment";
 
@@ -35,20 +34,11 @@ export function getOrgnrGjennomforingIdFrom(params: Params<string>): {
 }
 
 export const pathTo = {
-  utbetalinger: "/",
+  utbetalinger: "/?forside-tab=aktive",
+  tilsagnOversikt: "/?forside-tab=tilsagnsoversikt",
   tiltaksoversikt: "/tiltaksoversikt",
-  opprettKrav: {
-    innsendingsinformasjon: (orgnr: string, gjennomforingId: string) =>
-      `/${orgnr}/opprett-krav/${gjennomforingId}/innsendingsinformasjon`,
-    deltakere: (orgnr: string, gjennomforingId: string) =>
-      `/${orgnr}/opprett-krav/${gjennomforingId}/deltakere`,
-    utbetaling: (orgnr: string, gjennomforingId: string) =>
-      `/${orgnr}/opprett-krav/${gjennomforingId}/utbetaling`,
-    vedlegg: (orgnr: string, gjennomforingId: string) =>
-      `/${orgnr}/opprett-krav/${gjennomforingId}/vedlegg`,
-    oppsummering: (orgnr: string, gjennomforingId: string) =>
-      `/${orgnr}/opprett-krav/${gjennomforingId}/oppsummering`,
-  },
+  opprettKrav: (orgnr: string, gjennomforingId: string) =>
+    `/${orgnr}/opprett-krav/${gjennomforingId}`,
   innsendingsinformasjon: (orgnr: string, id: string) =>
     `/${orgnr}/utbetaling/${id}/innsendingsinformasjon`,
   beregning: (orgnr: string, id: string) => `/${orgnr}/utbetaling/${id}/beregning`,
@@ -57,21 +47,6 @@ export const pathTo = {
   detaljer: (orgnr: string, id: string) => `/${orgnr}/utbetaling/${id}/detaljer`,
   tilsagn: (orgnr: string, id: string) => `/${orgnr}/tilsagn/${id}`,
 };
-
-export function pathBySteg(steg: OpprettKravVeiviserSteg, orgnr: string, gjennomforingId: string) {
-  switch (steg) {
-    case OpprettKravVeiviserSteg.INFORMASJON:
-      return pathTo.opprettKrav.innsendingsinformasjon(orgnr, gjennomforingId);
-    case OpprettKravVeiviserSteg.DELTAKERLISTE:
-      return pathTo.opprettKrav.deltakere(orgnr, gjennomforingId);
-    case OpprettKravVeiviserSteg.UTBETALING:
-      return pathTo.opprettKrav.utbetaling(orgnr, gjennomforingId);
-    case OpprettKravVeiviserSteg.VEDLEGG:
-      return pathTo.opprettKrav.vedlegg(orgnr, gjennomforingId);
-    case OpprettKravVeiviserSteg.OPPSUMMERING:
-      return pathTo.opprettKrav.oppsummering(orgnr, gjennomforingId);
-  }
-}
 
 export function deltakerOversiktLenke(env: Environment): string {
   if (env === Environment.DevGcp) {

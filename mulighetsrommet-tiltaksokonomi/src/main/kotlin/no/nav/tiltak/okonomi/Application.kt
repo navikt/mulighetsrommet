@@ -5,8 +5,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationStarted
-import io.ktor.server.application.ApplicationStopPreparing
 import io.ktor.server.application.ApplicationStopped
+import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.log
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
@@ -172,15 +172,23 @@ private fun Application.configureKafka(
     )
 
     monitor.subscribe(ApplicationStarted) {
+        log.info("Starting kafka consumer & producer record processor")
         kafkaConsumerOrchestrator.enableFailedRecordProcessor()
         producerRecordProcessor.start()
     }
 
-    monitor.subscribe(ApplicationStopPreparing) {
+    monitor.subscribe(ApplicationStopping) {
+        log.info("Stopping kafka consumers...")
         kafkaConsumerOrchestrator.disableFailedRecordProcessor()
         kafkaConsumerOrchestrator.stopPollingTopicChanges()
         producerRecordProcessor.close()
+        log.info("Closing Shedlock client...")
         shedLockLeaderElectionClient.close()
+    }
+
+    monitor.subscribe(ApplicationStopped) {
+        log.info("Closing db...")
+        db.close()
     }
 
     return kafkaConsumerOrchestrator

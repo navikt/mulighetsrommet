@@ -6,7 +6,7 @@ import {
   ArrangorflateUtbetalingStatus,
 } from "api-client";
 import { Link as ReactRouterLink } from "react-router";
-import { Definisjonsliste } from "../common/Definisjonsliste";
+import { Definisjonsliste, Definition } from "../common/Definisjonsliste";
 import { DelUtbetalingStatusTag } from "./DelUtbetalingStatusTag";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { useOrgnrFromUrl } from "~/utils/navigation";
@@ -28,6 +28,11 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
     valuta: utbetaling.valuta,
     belop: utbetaling.linjer.reduce((acc, cur) => cur.pris.belop + acc, 0),
   };
+
+  const avbruttDato: Definition[] = utbetaling.avbruttDato
+    ? [{ key: "Avbrutt dato", value: formaterDato(utbetaling.avbruttDato) }]
+    : [];
+
   return (
     <VStack gap="4">
       <Definisjonsliste
@@ -37,6 +42,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
             key: "Status",
             value: <UtbetalingStatusTag status={utbetaling.status} size={"small"} />,
           },
+          ...avbruttDato,
         ]}
       />
 

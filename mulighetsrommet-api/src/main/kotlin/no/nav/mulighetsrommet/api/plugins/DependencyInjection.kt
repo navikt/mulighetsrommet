@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
@@ -534,7 +534,6 @@ private fun tasks(config: AppConfig) = module {
                 generateUtbetaling.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
-            .registerShutdownHook()
             .build()
     }
 }

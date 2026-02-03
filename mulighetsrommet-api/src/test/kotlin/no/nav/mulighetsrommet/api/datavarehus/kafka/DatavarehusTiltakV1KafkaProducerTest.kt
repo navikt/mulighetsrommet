@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.datavarehus.kafka
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.mockk
 import io.mockk.verify
@@ -19,7 +20,6 @@ import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
-import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -42,7 +42,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
 
         val key = UUID.randomUUID().toString()
 
-        assertThrows<UnsupportedOperationException> {
+        shouldThrow<UnsupportedOperationException> {
             producer.consume(key, JsonNull)
         }
     }

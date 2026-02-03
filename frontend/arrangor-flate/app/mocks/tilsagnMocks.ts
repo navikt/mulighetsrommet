@@ -1,10 +1,7 @@
 import {
   ArrangorflateTilsagnDto,
+  ArrangorflateTilsagnRadDto,
   DataDetails,
-  DataDrivenTableDto,
-  DataDrivenTableDtoColumnAlign,
-  DataDrivenTableDtoRow,
-  DataElementStatusVariant,
   DataElementTextFormat,
   LabeledDataElementType,
   TilsagnStatus,
@@ -13,12 +10,6 @@ import {
   Valuta,
 } from "api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
-import {
-  dataElementLink,
-  dataElementPeriode,
-  dataElementStatus,
-  dataElementText,
-} from "./dataDrivenTableHelpers";
 
 const beregningManedspris: DataDetails = {
   header: null,
@@ -195,24 +186,6 @@ const avklaringManedsprisTilsagn: ArrangorflateTilsagnDto = {
   beskrivelse: null,
 };
 
-const avklaringManedsprisTilsagnRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Avklaring (2025/10000)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({
-      start: "2025-10-01",
-      slutt: "2025-11-07",
-    }),
-    tilsagn: dataElementText("Tilsagn (A-2025/12611-1)"),
-    status: dataElementStatus("Godkjent", DataElementStatusVariant.SUCCESS),
-    action: dataElementLink(
-      "Se detaljer",
-      `${arrangorMock.organisasjonsnummer}/tilsagn/${avklaringManedsprisTilsagn.id}`,
-    ),
-  },
-};
-
 const arrUkesprisTilsagn: ArrangorflateTilsagnDto = {
   id: "a7e0df87-f37e-4f6a-92d6-a25a1cded9e7",
   tiltakstype: {
@@ -234,20 +207,7 @@ const arrUkesprisTilsagn: ArrangorflateTilsagnDto = {
   bestillingsnummer: "A-2025/4123-1",
   beskrivelse: null,
 };
-const arrUkesprisTilsagnRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Arbeidsrettet rehabilitering(2025/10001)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({ start: "2025-10-01", slutt: "2025-11-01" }),
-    tilsagn: dataElementText("Tilsagn (A-2025/4123-1)"),
-    status: dataElementStatus("Godkjent", DataElementStatusVariant.SUCCESS),
-    action: dataElementLink(
-      "Se detaljer",
-      `${arrangorMock.organisasjonsnummer}/tilsagn/${arrUkesprisTilsagn.id}`,
-    ),
-  },
-};
+
 const aftFoobarTilsagnGodkjent: ArrangorflateTilsagnDto = {
   id: "ad77762c-eebb-4623-be6d-0c64da79f2dd",
   gjennomforing: {
@@ -271,24 +231,6 @@ const aftFoobarTilsagnGodkjent: ArrangorflateTilsagnDto = {
   status: TilsagnStatus.GODKJENT,
   bestillingsnummer: "A-2025/11073-1",
   beskrivelse: null,
-};
-
-const aftFoobarTilsagnGodkjentRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Arbeidsforberedende trening (2025/10001)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({
-      start: "2025-01-01",
-      slutt: "2025-07-01",
-    }),
-    tilsagn: dataElementText("Tilsagn (A-2025/11073-1)"),
-    status: dataElementStatus("Godkjent", DataElementStatusVariant.SUCCESS),
-    action: dataElementLink(
-      "Se detaljer",
-      `${arrangorMock.organisasjonsnummer}/tilsagn/${aftFoobarTilsagnGodkjent.id}`,
-    ),
-  },
 };
 
 const aftFoobarInvesteringTilsagnGodkjent: ArrangorflateTilsagnDto = {
@@ -316,24 +258,6 @@ const aftFoobarInvesteringTilsagnGodkjent: ArrangorflateTilsagnDto = {
   beskrivelse: null,
 };
 
-const aftFoobarInvesteringTilsagnGodkjentRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Arbeidsforberedende trening (2025/10001)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({
-      start: "2025-01-01",
-      slutt: "2025-12-31",
-    }),
-    tilsagn: dataElementText("Tilsagn for investeringer (A-2025/11073-2)"),
-    status: dataElementStatus("Godkjent", DataElementStatusVariant.SUCCESS),
-    action: dataElementLink(
-      "Se detaljer",
-      `${arrangorMock.organisasjonsnummer}/tilsagn/${aftFoobarInvesteringTilsagnGodkjent.id}`,
-    ),
-  },
-};
-
 const avklaringTilsagnAnnulert: ArrangorflateTilsagnDto = {
   id: "f8fbc0f7-3280-410b-8387-20ff63896926",
   gjennomforing: {
@@ -357,24 +281,6 @@ const avklaringTilsagnAnnulert: ArrangorflateTilsagnDto = {
   status: TilsagnStatus.ANNULLERT,
   bestillingsnummer: "A-2025/11147-2",
   beskrivelse: null,
-};
-
-const avklaringTilsagnAnnulertRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Avklaring (2025/10002)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({
-      start: "2025-04-01",
-      slutt: "2025-05-01",
-    }),
-    tilsagn: dataElementText("Tilsagn (A-2025/11147-2)"),
-    status: dataElementStatus("Annullert", DataElementStatusVariant.ERROR_BORDER_STRIKETHROUGH),
-    action: dataElementLink(
-      "Se detaljer",
-      `${arrangorMock.organisasjonsnummer}/tilsagn/${avklaringTilsagnAnnulert.id}`,
-    ),
-  },
 };
 
 const aftFoobarEkstraTilsagnGodkjent: ArrangorflateTilsagnDto = {
@@ -402,24 +308,6 @@ const aftFoobarEkstraTilsagnGodkjent: ArrangorflateTilsagnDto = {
   beskrivelse: null,
 };
 
-const aftFoobarEkstraTilsagnGodkjentRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Arbeidsforberedende trening (2025/10001)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({
-      start: "2025-03-18",
-      slutt: "2025-04-02",
-    }),
-    tilsagn: dataElementText("Ekstra tilsagn (A-2025/11073-3)"),
-    status: dataElementStatus("Oppgjort", DataElementStatusVariant.NEUTRAL),
-    action: dataElementLink(
-      "Se detaljer",
-      `${arrangorMock.organisasjonsnummer}/tilsagn/${aftFoobarEkstraTilsagnGodkjent.id}`,
-    ),
-  },
-};
-
 const mayRainVTATilsagnGodkjent: ArrangorflateTilsagnDto = {
   id: "27f81471-1c6a-4f68-921e-ba9da68d4e89",
   gjennomforing: {
@@ -443,21 +331,6 @@ const mayRainVTATilsagnGodkjent: ArrangorflateTilsagnDto = {
   beskrivelse: null,
 };
 
-const mayRainVTATilsagnGodkjentRow: DataDrivenTableDtoRow = {
-  content: null,
-  cells: {
-    tiltak: dataElementText("Varig tilrettelagt arbeid i skjermet virksomhet (2025/10003)"),
-    arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
-    periode: dataElementPeriode({ start: "2025-04-01", slutt: "2025-10-01" }),
-    tilsagn: dataElementText("Tilsagn (A-2025/11398-1)"),
-    status: dataElementStatus("Godkjent", DataElementStatusVariant.SUCCESS),
-    action: dataElementLink(
-      "Se detaljer",
-      `${arrangorMock.organisasjonsnummer}/tilsagn/${mayRainVTATilsagnGodkjent.id}`,
-    ),
-  },
-};
-
 export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
   aftFoobarTilsagnGodkjent,
   aftFoobarInvesteringTilsagnGodkjent,
@@ -468,37 +341,17 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
   arrUkesprisTilsagn,
 ];
 
-export const tilsagnOversikt: DataDrivenTableDto = {
-  columns: [
-    { key: "tiltak", label: "Tiltak", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    {
-      key: "arrangor",
-      label: "Arrangør",
-      sortable: true,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-    { key: "periode", label: "Periode", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    {
-      key: "tilsagn",
-      label: "Tilsagn",
-      sortable: true,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-    { key: "status", label: "Status", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
-    {
-      key: "action",
-      label: "Handlinger",
-      sortable: false,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-  ],
-  rows: [
-    aftFoobarTilsagnGodkjentRow,
-    aftFoobarInvesteringTilsagnGodkjentRow,
-    avklaringTilsagnAnnulertRow,
-    aftFoobarEkstraTilsagnGodkjentRow,
-    mayRainVTATilsagnGodkjentRow,
-    avklaringManedsprisTilsagnRow,
-    arrUkesprisTilsagnRow,
-  ],
-};
+function tilsagnRadDto(tilsagn: ArrangorflateTilsagnDto): ArrangorflateTilsagnRadDto {
+  return {
+    id: tilsagn.id,
+    organisasjonsnummer: tilsagn.arrangor.organisasjonsnummer,
+    tiltakTypeNavn: tilsagn.tiltakstype.navn,
+    tiltakNavn: `${tilsagn.gjennomforing.navn} (${tilsagn.gjennomforing.lopenummer})`,
+    arrangorNavn: `${tilsagn.arrangor} (${tilsagn.arrangor.organisasjonsnummer})`,
+    periode: tilsagn.periode,
+    tilsagnNavn: `${tilsagn.type} (${tilsagn.bestillingsnummer})`,
+    status: tilsagn.status,
+  };
+}
+
+export const tilsagnRader = arrangorflateTilsagn.map(tilsagnRadDto);

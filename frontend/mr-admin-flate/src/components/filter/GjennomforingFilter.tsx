@@ -1,12 +1,7 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import {
-  arrangorOptions,
-  TILTAKSGJENNOMFORING_STATUS_OPTIONS,
-  tiltakstypeOptions,
-} from "@/utils/filterUtils";
+import { arrangorOptions, TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom } from "jotai";
@@ -17,6 +12,7 @@ import {
 } from "@/pages/gjennomforing/filter";
 import { ArrangorKobling, AvtaleDto } from "@tiltaksadministrasjon/api-client";
 import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
+import { GjennomforingTiltakstypeFilter } from "@/components/filter/GjennomforingTiltakstypeFilter";
 
 type Filters = "tiltakstype";
 
@@ -30,7 +26,6 @@ interface Props {
 export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
 
-  const { data: tiltakstyper } = useTiltakstyper();
   const { data: regioner } = useNavRegioner();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
@@ -169,21 +164,10 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
               />
             </Accordion.Header>
             <Accordion.Content className="ml-[-2rem]">
-              <CheckboxList
-                onSelectAll={(checked) => {
-                  selectDeselectAll(
-                    checked,
-                    "tiltakstyper",
-                    tiltakstyper.map((t) => t.id),
-                  );
-                }}
-                items={tiltakstypeOptions(tiltakstyper)}
-                isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
-                onChange={(tiltakstype) => {
-                  updateFilter({
-                    tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
-                    page: 1,
-                  });
+              <GjennomforingTiltakstypeFilter
+                value={filter.tiltakstyper}
+                onChange={(tiltakstyper) => {
+                  updateFilter({ tiltakstyper, page: 1 });
                 }}
               />
             </Accordion.Content>

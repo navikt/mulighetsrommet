@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arenaadapter
 
+import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
@@ -28,7 +29,6 @@ import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.util.UUID
 
@@ -151,7 +151,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 deltidsprosent = 100.0,
             )
 
-            val exception = assertThrows<IllegalStateException> {
+            val exception = shouldThrowExactly<IllegalStateException> {
                 service.upsertTiltaksgjennomforing(arenaGjennomforing)
             }
             exception.message shouldBe "Gjennomføring med id ${arenaGjennomforing.id} finnes ikke"

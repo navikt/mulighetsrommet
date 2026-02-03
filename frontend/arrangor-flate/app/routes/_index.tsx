@@ -1,7 +1,7 @@
 import { Box, Tabs, Button, HStack, Alert } from "@navikt/ds-react";
 import {
   ArrangorflateService,
-  ArrangorflateTilsagnOversikt,
+  ArrangorflateTilsagnRadDto,
   ArrangorInnsendingRadDto,
   UtbetalingOversiktType,
 } from "api-client";
@@ -12,10 +12,11 @@ import { PageHeading } from "~/components/common/PageHeading";
 import { getTabStateOrDefault, useTabState } from "~/hooks/useTabState";
 import { tekster } from "~/tekster";
 import { problemDetailResponse } from "~/utils/validering";
-import { DataDrivenTable, useSortableData } from "@mr/frontend-common";
+import { useSortableData } from "@mr/frontend-common";
 import { pathTo } from "~/utils/navigation";
 import { Tabellvisning } from "~/components/common/Tabellvisning";
-import { UtbetalingRow } from "~/components/common/UtbetalingRow";
+import { utbetalingKolonner, UtbetalingRow } from "~/components/common/UtbetalingRow";
+import { tilsagnKolonner, TilsagnRow } from "~/components/common/TilsagnRow";
 
 export const meta: MetaFunction = () => {
   return [
@@ -25,18 +26,23 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { data: tilsagn, error: tilsagnError } =
-    await ArrangorflateService.getArrangorflateTilsagnOversikt({
-      headers: await apiHeaders(request),
-    });
-  if (tilsagnError) {
-    throw problemDetailResponse(tilsagnError);
+  const tabState = getTabStateOrDefault(request);
+
+  if (tabState === "tilsagnsoversikt") {
+    const { data: tilsagnRader, error: tilsagnError } =
+      await ArrangorflateService.getArrangorflateTilsagnRader({
+        headers: await apiHeaders(request),
+      });
+    if (tilsagnError) {
+      throw problemDetailResponse(tilsagnError);
+    }
+    return { tilsagnRader, utbetalingRader: [] };
   }
 
-  const tabState = getTabStateOrDefault(request);
   const utbetalingType =
     tabState === "aktive" ? UtbetalingOversiktType.AKTIVE : UtbetalingOversiktType.HISTORISKE;
-  const [{ data, error: utbetalingerError }] = await Promise.all([
+
+  const [{ data: utbetalingRader, error: utbetalingerError }] = await Promise.all([
     ArrangorflateService.getArrangorflateUtbetalinger({
       query: { type: utbetalingType },
       headers: await apiHeaders(request),
@@ -46,18 +52,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
     throw problemDetailResponse(utbetalingerError);
   }
 
-  return { data, tilsagn };
+  return { utbetalingRader, tilsagnRader: [] };
 }
 
 export default function Oversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
-  const { data, tilsagn } = useLoaderData<typeof loader>();
+  const { utbetalingRader, tilsagnRader } = useLoaderData<typeof loader>();
 
   const { sortedData, sort, toggleSort } = useSortableData<
     ArrangorInnsendingRadDto,
     number | undefined,
     string
-  >(data, undefined, (item, key) => {
+  >(utbetalingRader, undefined, (item, key) => {
     if (key === "belop") {
       return item.belop?.belop;
     }
@@ -82,7 +88,7 @@ export default function Oversikt() {
         </Tabs.List>
         <Tabs.Panel value={currentTab}>
           {currentTab === "tilsagnsoversikt" ? (
-            <TilsagnTabell tilsagnOversikt={tilsagn} />
+            <TilsagnTabell tilsagnRader={tilsagnRader} />
           ) : (
             <Tabellvisning kolonner={utbetalingKolonner} sort={sort} onSortChange={toggleSort}>
               {sortedData.map((rad, i) => (
@@ -96,26 +102,33 @@ export default function Oversikt() {
   );
 }
 
-const utbetalingKolonner: Array<{ key: string; label: string }> = [
-  { key: "tiltakNavn", label: "Tiltak" },
-  { key: "arrangorNavn", label: "Arrangør" },
-  { key: "startDato", label: "Periode" },
-  { key: "belop", label: "Beløp" },
-  { key: "type", label: "Type" },
-  { key: "status", label: "Status" },
-];
-
 interface TilsagnTabellProps {
-  tilsagnOversikt: ArrangorflateTilsagnOversikt;
+  tilsagnRader: ArrangorflateTilsagnRadDto[];
 }
 
-function TilsagnTabell({ tilsagnOversikt }: TilsagnTabellProps) {
-  if (!tilsagnOversikt.tabell) {
+function TilsagnTabell({ tilsagnRader }: TilsagnTabellProps) {
+  const { sortedData, sort, toggleSort } = useSortableData<
+    ArrangorflateTilsagnRadDto,
+    number | undefined,
+    string
+  >(tilsagnRader, undefined, (item, key) => {
+    if (key === "periode") {
+      return item[key].start;
+    }
+    return (item as any)[key];
+  });
+  if (!tilsagnRader.length) {
     return (
       <Alert className="my-10" variant="info">
         Det finnes ingen tilsagn her
       </Alert>
     );
   }
-  return <DataDrivenTable data={tilsagnOversikt.tabell} zebraStripes />;
+  return (
+    <Tabellvisning kolonner={tilsagnKolonner} sort={sort} onSortChange={toggleSort}>
+      {sortedData.map((rad) => (
+        <TilsagnRow key={rad.id} row={rad} />
+      ))}
+    </Tabellvisning>
+  );
 }

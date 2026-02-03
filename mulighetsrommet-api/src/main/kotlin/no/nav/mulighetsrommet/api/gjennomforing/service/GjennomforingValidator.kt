@@ -24,7 +24,7 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Tiltakskoder
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.UUID
@@ -52,6 +52,10 @@ object GjennomforingValidator {
             val oppstart: GjennomforingOppstartstype,
             val pameldingType: GjennomforingPameldingType,
         )
+
+        fun harEgenskap(vararg egenskap: TiltakstypeEgenskap): Boolean {
+            return avtale.tiltakstype.tiltakskode.harEgenskap(*egenskap)
+        }
     }
 
     fun validate(
@@ -104,7 +108,7 @@ object GjennomforingValidator {
                 EstimertVentetid::verdi,
             )
         }
-        if (Tiltakskoder.kreverDeltidsprosent(ctx.avtale.tiltakstype.tiltakskode)) {
+        if (ctx.harEgenskap(TiltakstypeEgenskap.KREVER_DELTIDSPROSENT)) {
             validate(request.deltidsprosent > 0 && request.deltidsprosent <= 100) {
                 FieldError.of(
                     "Du må velge en deltidsprosent mellom 0 og 100",
@@ -130,7 +134,12 @@ object GjennomforingValidator {
                 GjennomforingRequest::prismodellId,
             )
         }
-        if (Tiltakskoder.kanEndreOppstartOgPamelding(ctx.avtale.tiltakstype.tiltakskode)) {
+
+        if (ctx.harEgenskap(
+                TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
+                TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+            )
+        ) {
             if (request.oppstart == GjennomforingOppstartstype.FELLES) {
                 validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
                     FieldError.of(
@@ -139,12 +148,13 @@ object GjennomforingValidator {
                     )
                 }
             }
-        } else {
-            validate(next.oppstart != GjennomforingOppstartstype.FELLES) {
-                FieldError.of(
-                    "Tiltaket må ha løpende oppstartstype",
-                    GjennomforingRequest::oppstart,
-                )
+        } else if (ctx.harEgenskap(TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART)) {
+            validate(next.oppstart == GjennomforingOppstartstype.FELLES) {
+                FieldError.of("Tiltaket må ha felles oppstart", GjennomforingRequest::oppstart)
+            }
+        } else if (ctx.harEgenskap(TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART)) {
+            validate(next.oppstart == GjennomforingOppstartstype.LOPENDE) {
+                FieldError.of("Tiltaket må ha løpende oppstart", GjennomforingRequest::oppstart)
             }
         }
 

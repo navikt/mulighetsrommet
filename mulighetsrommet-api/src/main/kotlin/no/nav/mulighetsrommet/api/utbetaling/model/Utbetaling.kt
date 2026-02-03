@@ -45,6 +45,8 @@ data class Utbetaling(
     val tilskuddstype: Tilskuddstype,
     val status: UtbetalingStatusType,
     val avbruttBegrunnelse: String?,
+    @Serializable(with = InstantSerializer::class)
+    val avbruttTidspunkt: Instant?,
 ) {
     fun arrangorInnsendtAnnenAvtaltPris(): Boolean {
         return when (beregning) {

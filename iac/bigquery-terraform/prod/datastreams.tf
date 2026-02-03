@@ -50,7 +50,9 @@ module "mr_api_datastream" {
         {
           table   = "totrinnskontroll",
           columns = ["id", "entity_id", "behandlet_tidspunkt", "behandlet_av", "besluttet_av", "besluttet_tidspunkt", "besluttelse"]
-        }
+        },
+        { table = "prismodell" },
+        { table = "avtale_prismodell" }
       ]
     }
   ]
@@ -79,10 +81,6 @@ module "mr_api_datastream" {
     {
       role          = "roles/bigquery.metadataViewer"
       user_by_email = "effekt-j6bp@knada-gcp.iam.gserviceaccount.com"
-    },
-    {
-      role          = "roles/bigquery.metadataViewer"
-      user_by_email = "brum-dev-service-bq@brum-dev-b72f.iam.gserviceaccount.com"
     },
     {
       role          = "roles/bigquery.metadataViewer"

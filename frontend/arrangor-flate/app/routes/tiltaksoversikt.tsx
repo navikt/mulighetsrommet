@@ -10,8 +10,6 @@ import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils/validering";
 import { tekster } from "~/tekster";
 import { getTabStateOrDefault, useTabState } from "~/hooks/useTabState";
-import { useFileStorage } from "~/hooks/useFileStorage";
-import { useEffect } from "react";
 import { Tabellvisning } from "~/components/common/Tabellvisning";
 import { useSortableData } from "@mr/frontend-common";
 import { UtbetalingRow } from "~/components/common/UtbetalingRow";
@@ -42,13 +40,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function OpprettKravTiltaksOversikt() {
-  const storage = useFileStorage();
   const { data } = useLoaderData<typeof loader>();
   const [currentTab, setTab] = useTabState();
-
-  useEffect(() => {
-    storage.clear();
-  }, [storage]);
 
   const { sortedData, sort, toggleSort } = useSortableData<
     ArrangorInnsendingRadDto,
