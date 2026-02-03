@@ -6,7 +6,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst } from "@/utils/Utils";
-import { Avtaletype } from "@tiltaksadministrasjon/api-client";
+import { Avtaletype, RammedetaljerDto } from "@tiltaksadministrasjon/api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   Definisjonsliste,
@@ -19,11 +19,13 @@ import { Link } from "react-router";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { MetadataHStack, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { useAvtaleRammedetaljer } from "@/api/avtaler/useAvtaleRammedetaljer";
 
 export function AvtaleDetaljer() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
+  const { data: rammedetaljer } = useAvtaleRammedetaljer(avtaleId);
   const {
     navn,
     avtalenummer,
@@ -152,6 +154,7 @@ export function AvtaleDetaljer() {
           {avtaletekster.prismodell.heading}
         </Heading>
         <PrismodellDetaljer prismodell={avtale.prismodeller} />
+        <Rammedetaljer rammedetaljer={rammedetaljer} />
       </VStack>
       <VStack>
         <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
@@ -164,4 +167,14 @@ export function AvtaleDetaljer() {
       </VStack>
     </TwoColumnGrid>
   );
+}
+
+interface RammedetaljerProps {
+  rammedetaljer: RammedetaljerDto | null;
+}
+function Rammedetaljer({ rammedetaljer }: RammedetaljerProps) {
+  if (!rammedetaljer?.totalRamme) {
+    return null;
+  }
+  return <MetadataHStack label="Total ramme" value={rammedetaljer.totalRamme.belop} />;
 }

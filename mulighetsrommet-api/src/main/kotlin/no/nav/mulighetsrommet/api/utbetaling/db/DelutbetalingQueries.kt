@@ -5,6 +5,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -198,6 +199,24 @@ class DelutbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { it.toDelutbetaling() }
+    }
+
+    fun getByAvtale(avtaleId: UUID, statuser: Set<DelutbetalingStatus> = emptySet()): List<Delutbetaling> = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_utbetaling_linje du
+              join utbetaling u on du.utbetaling_id = u.id
+              join gjennomforing g on u.gjennomforing_id = g.id
+            where g.avtale_id = :avtale_id::uuid
+              and (:statuser::delutbetaling_status[] is null or du.status = any(:statuser::delutbetaling_status[]))
+        """.trimIndent()
+        val params = mapOf(
+            "avtale_id" to avtaleId,
+            "statuser" to statuser.ifEmpty { null }?.let { createArrayOfValue(it) { it.name } },
+        )
+
+        return list(queryOf(query, params)) { it.toDelutbetaling() }
     }
 
     fun getOrError(fakturanummer: String): Delutbetaling {

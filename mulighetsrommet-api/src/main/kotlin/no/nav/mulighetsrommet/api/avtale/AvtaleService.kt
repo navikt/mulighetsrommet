@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
@@ -230,6 +231,28 @@ class AvtaleService(
             schedulePublishGjennomforingerForAvtale(dto)
             dto
         }
+    }
+
+    fun upsertRammedetaljer(
+        id: UUID,
+        request: RammedetaljerRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, Unit> = db.transaction {
+        val avtale = getOrError(id)
+
+        AvtaleValidator.validateRammedetaljer(avtale, request).map { rammedetalerDbo ->
+            queries.rammedetaljer.upsert(rammedetalerDbo)
+            logEndring("Rammedetaljer oppdatert", id, navIdent)
+            Unit
+        }
+    }
+
+    fun deleteRammedetaljer(
+        id: UUID,
+        navIdent: NavIdent,
+    ): Avtale = db.transaction {
+        queries.rammedetaljer.delete(id)
+        logEndring("Rammedetaljer slettet", id, navIdent)
     }
 
     fun get(id: UUID): Avtale? = db.session {
@@ -506,6 +529,9 @@ class AvtaleService(
             AvtaleHandling.OPPDATER_PRIS.takeIf {
                 avtale.prismodeller.any { it.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK }
             },
+            AvtaleHandling.OPPDATER_RAMMEDETALJER.takeIf {
+                avtale.prismodeller.any { it.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK }
+            },
             AvtaleHandling.REGISTRER_OPSJON.takeIf {
                 avtale.opsjonsmodell.opsjonMaksVarighet != null
             },
@@ -525,6 +551,7 @@ class AvtaleService(
 
                 AvtaleHandling.AVBRYT,
                 AvtaleHandling.OPPDATER_PRIS,
+                AvtaleHandling.OPPDATER_RAMMEDETALJER,
                 AvtaleHandling.REGISTRER_OPSJON,
                 AvtaleHandling.DUPLISER,
                 AvtaleHandling.REDIGER,

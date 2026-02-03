@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.db.ArrangorflateTiltakQueries
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellQueries
+import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
@@ -65,6 +66,7 @@ open class QueryContext(open val session: Session) {
         val tiltakstype = TiltakstypeQueries(session)
         val avtale = AvtaleQueries(session)
         val prismodell = PrismodellQueries(session)
+        val rammedetaljer = RammedetaljerQueries(session)
         val opsjoner = OpsjonLoggQueries(session)
         val gjennomforing = GjennomforingQueries(session)
         val deltaker = DeltakerQueries(session)

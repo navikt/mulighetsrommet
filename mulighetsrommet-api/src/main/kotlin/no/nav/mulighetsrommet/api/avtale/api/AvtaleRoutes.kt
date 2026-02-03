@@ -10,6 +10,7 @@ import io.ktor.http.ContentDisposition
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.MultiPartData
 import io.ktor.server.request.receive
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
@@ -18,17 +19,20 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
+import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDtoMapper
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -39,6 +43,7 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -50,6 +55,7 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
@@ -120,6 +126,43 @@ data class OpprettOpsjonLoggRequest(
         ETT_AAR,
         SKAL_IKKE_UTLOSE_OPSJON,
     }
+}
+
+@Serializable
+data class ValutaLongBelop(
+    val belop: Long,
+    val valuta: Valuta,
+)
+
+@Serializable
+data class RammedetaljerDto(
+    val totalRamme: ValutaLongBelop,
+    val utbetaltArena: ValutaLongBelop?,
+    val utbetaltFraTiltaksadmin: List<ValutaLongBelop>,
+    val gjenståendeRamme: ValutaLongBelop,
+)
+
+fun RammedetaljerDbo.toDto(utbetaltFraTiltaksadmin: List<ValutaLongBelop>): RammedetaljerDto {
+    val tiltaksAdminSum = utbetaltFraTiltaksadmin
+        .filter { it.valuta == this.valuta }
+        .sumOf { it.belop }
+    return RammedetaljerDto(
+        totalRamme = ValutaLongBelop(
+            belop = totalRamme,
+            valuta = valuta,
+        ),
+        utbetaltArena = utbetaltArena?.let {
+            ValutaLongBelop(
+                belop = it,
+                valuta = valuta,
+            )
+        },
+        utbetaltFraTiltaksadmin = utbetaltFraTiltaksadmin,
+        gjenståendeRamme = ValutaLongBelop(
+            belop = totalRamme - (utbetaltArena ?: 0) - tiltaksAdminSum,
+            valuta = valuta,
+        ),
+    )
 }
 
 fun Route.avtaleRoutes() {
@@ -396,6 +439,63 @@ fun Route.avtaleRoutes() {
 
                 call.respondWithStatusResponse(result)
             }
+            route("{id}/rammedetaljer") {
+                put({
+                    tags = setOf("Avtale")
+                    operationId = "upsertRammedetaljer"
+                    request {
+                        pathParameterUuid("id")
+                        body<RammedetaljerRequest>()
+                    }
+                    response {
+                        code(HttpStatusCode.OK) {
+                            description = "Oppdatert rammedetaljer"
+                            body<Unit>()
+                        }
+                        code(HttpStatusCode.BadRequest) {
+                            description = "Valideringsfeil"
+                            body<ValidationError>()
+                        }
+                        default {
+                            description = "Problem details"
+                            body<ProblemDetail>()
+                        }
+                    }
+                }) {
+                    val navIdent = getNavIdent()
+                    val id: UUID by call.parameters
+                    val request = call.receive<RammedetaljerRequest>()
+
+                    val result = avtaleService.upsertRammedetaljer(id, request, navIdent)
+                        .mapLeft { ValidationError(errors = it) }
+
+                    call.respondWithStatusResponse(result)
+                }
+
+                delete({
+                    tags = setOf("Avtale")
+                    operationId = "deleteRammedetaljer"
+                    request {
+                        pathParameterUuid("id")
+                    }
+                    response {
+                        code(HttpStatusCode.NoContent) {
+                            description = "Rammedetaljer er slettet"
+                        }
+                        default {
+                            description = "Problem details"
+                            body<ProblemDetail>()
+                        }
+                    }
+                }) {
+                    val navIdent = getNavIdent()
+                    val id: UUID by call.parameters
+
+                    avtaleService.deleteRammedetaljer(id, navIdent)
+
+                    call.respond(HttpStatusCode.NoContent)
+                }
+            }
 
             delete("{id}/kontaktperson/{kontaktpersonId}", {
                 tags = setOf("Avtale")
@@ -631,6 +731,56 @@ fun Route.avtaleRoutes() {
             val historikk = avtaleService.getEndringshistorikk(id)
             call.respond(historikk)
         }
+
+        get("{id}/rammedetaljer", {
+            tags = setOf("Avtale")
+            operationId = "hentRammedetaljer"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Rammedetaljer for avtale"
+                    body<RammedetaljerDto?>()
+                }
+                code(HttpStatusCode.NoContent) {
+                    description = "Avtalen har ikke rammedetaljer"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
+
+            val result = db.session {
+                val rammedetaljer = queries.rammedetaljer.get(id) ?: return@session null
+
+                val utbetaltFraTiltaksadmin = queries.delutbetaling.getByAvtale(
+                    id,
+                    statuser = setOf(
+                        DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+                        DelutbetalingStatus.UTBETALT,
+                    ),
+                )
+                    .groupBy { it.pris.valuta }
+                    .map { (valuta, delutbetalinger) ->
+                        val sum = delutbetalinger.sumOf { it.pris.belop.toLong() }
+                        ValutaLongBelop(
+                            belop = sum,
+                            valuta = valuta,
+                        )
+                    }
+                return@session rammedetaljer.toDto(utbetaltFraTiltaksadmin)
+            }
+
+            if (result != null) {
+                call.respond(result)
+            } else {
+                call.respond(HttpStatusCode.NoContent)
+            }
+        }
     }
 }
 
@@ -642,6 +792,7 @@ enum class AvtaleHandling {
     DUPLISER,
     REGISTRER_OPSJON,
     OPPDATER_PRIS,
+    OPPDATER_RAMMEDETALJER,
 }
 
 fun RoutingContext.getAvtaleFilter(): AvtaleFilter {

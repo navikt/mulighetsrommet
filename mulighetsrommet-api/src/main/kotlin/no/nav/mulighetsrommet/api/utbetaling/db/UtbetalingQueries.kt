@@ -48,6 +48,7 @@ import org.intellij.lang.annotations.Language
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.collections.ifEmpty
 
 class UtbetalingQueries(private val session: Session) {
     fun upsert(dbo: UtbetalingDbo) = withTransaction(session) {
@@ -508,7 +509,10 @@ class UtbetalingQueries(private val session: Session) {
         return session.list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetaling() }
     }
 
-    fun getByArrangorerAndStatus(arrangorer: Set<Organisasjonsnummer>, statuser: Set<UtbetalingStatusType>): List<Utbetaling> {
+    fun getByArrangorerAndStatus(
+        arrangorer: Set<Organisasjonsnummer>,
+        statuser: Set<UtbetalingStatusType>,
+    ): List<Utbetaling> {
         @Language("PostgreSQL")
         val query = """
             select *
