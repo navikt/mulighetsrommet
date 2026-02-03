@@ -2,17 +2,23 @@ import { RegistrerStengtHosArrangorForm } from "@/components/gjennomforing/steng
 import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
 import { Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject, useState } from "react";
-import { GjennomforingGruppetiltakStengtPeriode } from "@tiltaksadministrasjon/api-client";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
+import { isGruppetiltak } from "@/api/gjennomforing/utils";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
   gjennomforingId: string;
-  stengt: GjennomforingGruppetiltakStengtPeriode[];
 }
 
-export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforingId, stengt }: Props) {
+export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforingId }: Props) {
+  const { gjennomforing } = useGjennomforing(gjennomforingId);
+
   // This key is used to re-render the form when the modal is closed
   const [key, setKey] = useState(0);
+
+  if (!isGruppetiltak(gjennomforing)) {
+    return null;
+  }
 
   function handleCloseModal() {
     modalRef.current?.close();
@@ -41,7 +47,7 @@ export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforingId, ste
             </p>
           </div>
           <RegistrerStengtHosArrangorForm key={key} gjennomforingId={gjennomforingId} />
-          <StengtHosArrangorTable gjennomforingId={gjennomforingId} stengt={stengt} />
+          <StengtHosArrangorTable gjennomforingId={gjennomforingId} />
         </VStack>
       </Modal.Body>
       <Modal.Footer>

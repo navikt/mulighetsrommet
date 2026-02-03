@@ -3,6 +3,7 @@ import {
   AmoKategorisering,
   AvtaleDto,
   GjennomforingDto,
+  GjennomforingGruppeDto,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingRequest,
@@ -27,7 +28,7 @@ export function defaultPameldingType(
 
 function defaultArrangor(
   avtale: AvtaleDto,
-  gjennomforing?: Partial<GjennomforingDto>,
+  gjennomforing?: Partial<GjennomforingDto> | null,
 ): string | null {
   if (gjennomforing?.arrangor?.id) {
     return gjennomforing.arrangor.id;
@@ -40,21 +41,16 @@ function defaultArrangor(
   return null;
 }
 
-type GjennomforingFormDefaultValues = Partial<{
-  gjennomforing: Partial<GjennomforingDto>;
-  veilederinfo: Partial<GjennomforingVeilederinfoDto> | null;
-  prismodell: PrismodellDto | null;
-  amoKategorisering: AmoKategorisering | null;
-  utdanningslop: UtdanningslopDto | null;
-}>;
-
 export function defaultGjennomforingData(
   ansatt: NavAnsattDto,
   tiltakstype: TiltakstypeDto,
   avtale: AvtaleDto,
-  detaljer: GjennomforingFormDefaultValues = {},
+  gjennomforing: Partial<GjennomforingGruppeDto> | null,
+  veilederinfo: Partial<GjennomforingVeilederinfoDto> | null,
+  prismodell: PrismodellDto | null,
+  amoKategorisering: AmoKategorisering | null,
+  utdanningslop: UtdanningslopDto | null,
 ): DeepPartial<GjennomforingRequest> {
-  const { gjennomforing, veilederinfo, amoKategorisering, utdanningslop, prismodell } = detaljer;
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, veilederinfo);
 
   const defaultOppstart = getDefaultOppstart(tiltakstype);

@@ -4553,6 +4553,15 @@ components:
       - navn
       - tiltakskode
     GjennomforingDto:
+      anyOf:
+      - $ref: "#/components/schemas/GjennomforingEnkeltplassDto"
+      - $ref: "#/components/schemas/GjennomforingGruppeDto"
+      discriminator:
+        propertyName: type
+        mapping:
+          GjennomforingEnkeltplassDto: "#/components/schemas/GjennomforingEnkeltplassDto"
+          GjennomforingGruppeDto: "#/components/schemas/GjennomforingGruppeDto"
+    GjennomforingEnkeltplassDto:
       type: object
       properties:
         id:
@@ -4578,53 +4587,17 @@ components:
           format: date
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
-        antallPlasser:
-          type: integer
-          format: int32
-        avtaleId:
-          type:
-          - "null"
-          - string
-          format: uuid
-        oppstart:
-          $ref: "#/components/schemas/GjennomforingOppstartstype"
-        pameldingType:
-          $ref: "#/components/schemas/GjennomforingPameldingType"
         opphav:
           $ref: "#/components/schemas/ArenaMigrering.Opphav"
-        deltidsprosent:
-          type: number
-          format: double
-        tilgjengeligForArrangorDato:
-          type:
-          - "null"
-          - string
-          format: date
-        administratorer:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingGruppetiltak.Administrator"
-        stengt:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingGruppetiltak.StengtPeriode"
       required:
-      - administratorer
-      - antallPlasser
       - arrangor
-      - avtaleId
-      - deltidsprosent
       - id
       - lopenummer
       - navn
       - opphav
-      - oppstart
-      - pameldingType
       - sluttDato
       - startDato
       - status
-      - stengt
-      - tilgjengeligForArrangorDato
       - tiltaksnummer
     Gjennomforing.ArrangorUnderenhet:
       type: object
@@ -4689,6 +4662,83 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
+    GjennomforingGruppeDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        lopenummer:
+          type: string
+        tiltaksnummer:
+          type:
+          - "null"
+          - string
+        arrangor:
+          $ref: "#/components/schemas/Gjennomforing.ArrangorUnderenhet"
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        status:
+          $ref: "#/components/schemas/GjennomforingDto.Status"
+        antallPlasser:
+          type: integer
+          format: int32
+        avtaleId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        oppstart:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
+        opphav:
+          $ref: "#/components/schemas/ArenaMigrering.Opphav"
+        apentForPamelding:
+          type: boolean
+        deltidsprosent:
+          type: number
+          format: double
+        tilgjengeligForArrangorDato:
+          type:
+          - "null"
+          - string
+          format: date
+        administratorer:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingGruppetiltak.Administrator"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingGruppetiltak.StengtPeriode"
+      required:
+      - administratorer
+      - antallPlasser
+      - apentForPamelding
+      - arrangor
+      - avtaleId
+      - deltidsprosent
+      - id
+      - lopenummer
+      - navn
+      - opphav
+      - oppstart
+      - pameldingType
+      - sluttDato
+      - startDato
+      - status
+      - stengt
+      - tilgjengeligForArrangorDato
+      - tiltaksnummer
     GjennomforingGruppetiltak.Administrator:
       type: object
       properties:
@@ -4723,8 +4773,6 @@ components:
       properties:
         publisert:
           type: boolean
-        apentForPamelding:
-          type: boolean
         beskrivelse:
           type:
           - "null"
@@ -4750,7 +4798,6 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/GjennomforingGruppetiltak.EstimertVentetid"
       required:
-      - apentForPamelding
       - beskrivelse
       - estimertVentetid
       - faneinnhold

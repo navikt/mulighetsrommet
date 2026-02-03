@@ -1,26 +1,23 @@
 import { useDeleteStengtHosArrangor } from "@/api/gjennomforing/useDeleteStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingGruppetiltakStengtPeriode } from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Table } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
+import { isGruppetiltak } from "@/api/gjennomforing/utils";
 
 interface StengtHosArrangorTableProps {
   gjennomforingId: string;
-  stengt: GjennomforingGruppetiltakStengtPeriode[];
   readOnly?: boolean;
 }
 
-export function StengtHosArrangorTable({
-  gjennomforingId,
-  stengt,
-  readOnly,
-}: StengtHosArrangorTableProps) {
+export function StengtHosArrangorTable({ gjennomforingId, readOnly }: StengtHosArrangorTableProps) {
+  const { gjennomforing } = useGjennomforing(gjennomforingId);
   const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforingId);
   const queryClient = useQueryClient();
 
-  if (stengt.length === 0) {
+  if (!isGruppetiltak(gjennomforing) || gjennomforing.stengt.length === 0) {
     return null;
   }
 
@@ -52,7 +49,7 @@ export function StengtHosArrangorTable({
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {stengt.map((periode) => {
+          {gjennomforing.stengt.map((periode) => {
             return (
               <Table.Row key={periode.id}>
                 <Table.DataCell>{`${formaterDato(periode.start)} - ${formaterDato(periode.slutt)}`}</Table.DataCell>

@@ -6,7 +6,7 @@ import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import {
   AvtaleDto,
   GjennomforingDeltakerSummary,
-  GjennomforingDto,
+  GjennomforingGruppeDto,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingRequest,
@@ -45,7 +45,7 @@ import { kanEndreOppstartOgPamelding, kreverDeltidsprosent } from "@/utils/tilta
 interface Props {
   tiltakstype: TiltakstypeDto;
   avtale: AvtaleDto;
-  gjennomforing: GjennomforingDto | null;
+  gjennomforing: GjennomforingGruppeDto | null;
   veilederinfo: GjennomforingVeilederinfoDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
 }

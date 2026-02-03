@@ -72,7 +72,11 @@ export function OpprettGjennomforingFormPage() {
               ansatt,
               tiltakstype,
               avtale,
-              location.state?.dupliserGjennomforing,
+              location.state?.dupliserGjennomforing?.gjennomforing,
+              location.state?.dupliserGjennomforing?.veilederinfo,
+              null,
+              null,
+              null,
             )}
           />
         </Box>

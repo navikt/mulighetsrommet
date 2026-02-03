@@ -4,6 +4,7 @@ import { Button, Modal, Switch } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefObject } from "react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
+import { isGruppetiltak } from "@/api/gjennomforing/utils";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
@@ -11,9 +12,13 @@ interface Props {
 }
 
 export function SetApentForPameldingModal({ modalRef, gjennomforingId }: Props) {
-  const { veilederinfo } = useGjennomforing(gjennomforingId);
   const { mutate } = useSetApentForPamelding(gjennomforingId);
+  const { gjennomforing } = useGjennomforing(gjennomforingId);
   const queryClient = useQueryClient();
+
+  if (!isGruppetiltak(gjennomforing)) {
+    return null;
+  }
 
   const invalidateGjennomforing = async () => {
     await queryClient.invalidateQueries({
@@ -37,7 +42,7 @@ export function SetApentForPameldingModal({ modalRef, gjennomforingId }: Props) 
           </ul>
 
           <Switch
-            checked={veilederinfo?.apentForPamelding}
+            checked={gjennomforing.apentForPamelding}
             onChange={(e) =>
               mutate(e.target.checked, {
                 onSuccess: invalidateGjennomforing,

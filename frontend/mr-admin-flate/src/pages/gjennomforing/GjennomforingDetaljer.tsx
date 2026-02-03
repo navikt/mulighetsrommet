@@ -11,10 +11,6 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { formatertVentetid } from "@/utils/Utils";
-import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
-import { formaterDato, formaterPeriodeUdefinertSlutt } from "@mr/frontend-common/utils/date";
 import { BodyShort, Heading, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
@@ -25,34 +21,20 @@ import {
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { kreverDeltidsprosent } from "@/utils/tiltakstype";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
+import { isGruppetiltak } from "@/api/gjennomforing/utils";
+import { GjennomforingDetaljerAvtale } from "@/pages/gjennomforing/GjennomforingDetaljerAvtale";
+import { GjennomforingDetaljerVarighet } from "@/pages/gjennomforing/GjennomforingDetaljerVarighet";
+import { GjennomforingDetaljerAdministratorer } from "@/pages/gjennomforing/GjennomforingDetaljerAdministratorer";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const detaljer = useGjennomforing(gjennomforingId);
   const { gjennomforing, veilederinfo, utdanningslop, amoKategorisering, prismodell } = detaljer;
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
-  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-
-  const avtaleMeta: Definition[] = [
-    {
-      key: gjennomforingTekster.avtaleLabel,
-      value: avtale ? (
-        <Link to={`/avtaler/${avtale.id}`}>
-          {avtale.navn} {avtale.avtalenummer ?? null}
-        </Link>
-      ) : (
-        gjennomforingTekster.ingenAvtaleForGjennomforingenLabel
-      ),
-    },
-    {
-      key: "Avtaleperiode",
-      value: avtale
-        ? `${formaterPeriodeUdefinertSlutt({ start: avtale.startDato, slutt: avtale.sluttDato })}`
-        : "",
-    },
-  ];
+  const { data: avtale } = usePotentialAvtale(
+    isGruppetiltak(gjennomforing) ? gjennomforing.avtaleId : null,
+  );
 
   const gjennomforingMeta: Definition[] = [
     { key: gjennomforingTekster.tiltaksnavnLabel, value: gjennomforing.navn },
@@ -83,62 +65,6 @@ export function GjennomforingDetaljer() {
             </VStack>
           </HelpText>
         </HStack>
-      ),
-    },
-  ];
-
-  const varighetMeta: Definition[] = [
-    {
-      key: gjennomforingTekster.startdatoLabel,
-      value: formaterDato(gjennomforing.startDato),
-    } as Definition,
-    {
-      key: gjennomforingTekster.sluttdatoLabel,
-      value: formaterDato(gjennomforing.sluttDato) ?? "-",
-    },
-    {
-      key: gjennomforingTekster.oppstart.label,
-      value: gjennomforingTekster.oppstart.beskrivelse(gjennomforing.oppstart),
-    },
-    veilederinfo && {
-      key: gjennomforingTekster.apentForPameldingLabel,
-      value: veilederinfo.apentForPamelding ? "Ja" : "Nei",
-    },
-    { key: gjennomforingTekster.antallPlasserLabel, value: gjennomforing.antallPlasser },
-    kreverDeltidsprosent(tiltakstype) && {
-      key: gjennomforingTekster.deltidsprosentLabel,
-      value: gjennomforing.deltidsprosent,
-    },
-    veilederinfo?.estimertVentetid && {
-      key: gjennomforingTekster.estimertVentetidLabel,
-      value: formatertVentetid(
-        veilederinfo.estimertVentetid.verdi,
-        veilederinfo.estimertVentetid.enhet,
-      ),
-    },
-    {
-      key: gjennomforingTekster.pamelding.label,
-      value: gjennomforingTekster.pamelding.beskrivelse(gjennomforing.pameldingType),
-    },
-  ].filter((definition): definition is Definition => !!definition);
-
-  const administratorMeta: Definition[] = [
-    {
-      key: gjennomforingTekster.administratorerForGjennomforingenLabel,
-      value: gjennomforing.administratorer.length ? (
-        <ul>
-          {gjennomforing.administratorer.map((admin) => {
-            return (
-              <li key={admin.navIdent}>
-                <Lenke to={`${NOM_ANSATT_SIDE}${admin.navIdent}`} isExternal>
-                  {`${admin.navn} - ${admin.navIdent}`}{" "}
-                </Lenke>
-              </li>
-            );
-          })}
-        </ul>
-      ) : (
-        gjennomforingTekster.ingenAdministratorerSattForGjennomforingenLabel
       ),
     },
   ];
@@ -178,9 +104,15 @@ export function GjennomforingDetaljer() {
         <VStack justify={"space-between"}>
           <Definisjonsliste title="Gjennomføring" definitions={gjennomforingMeta} />
           <Separator />
-          <Definisjonsliste title="Avtaledetaljer" definitions={avtaleMeta} />
+          {isGruppetiltak(gjennomforing) && gjennomforing.avtaleId && (
+            <GjennomforingDetaljerAvtale avtaleId={gjennomforing.avtaleId} />
+          )}
           <Separator />
-          <Definisjonsliste title="Varighet og påmelding" definitions={varighetMeta} />
+          <GjennomforingDetaljerVarighet
+            tiltakstype={tiltakstype}
+            gjennomforing={gjennomforing}
+            veilederinfo={veilederinfo}
+          />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering && (
             <>
@@ -199,7 +131,9 @@ export function GjennomforingDetaljer() {
           )}
         </VStack>
         <VStack justify="space-between">
-          <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
+          {isGruppetiltak(gjennomforing) && (
+            <GjennomforingDetaljerAdministratorer gjennomforing={gjennomforing} />
+          )}
           <Separator />
           <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
           {veilederinfo?.oppmoteSted && (
@@ -214,20 +148,12 @@ export function GjennomforingDetaljer() {
               />
             </>
           )}
-          {gjennomforing.stengt.length !== 0 && (
-            <StengtHosArrangorTable
-              readOnly
-              gjennomforingId={gjennomforing.id}
-              stengt={gjennomforing.stengt}
-            />
-          )}
-          {new Date() < new Date(gjennomforing.startDato) && (
-            <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
-          )}
+          <StengtHosArrangorTable readOnly gjennomforingId={gjennomforing.id} />
+          <TiltakTilgjengeligForArrangor gjennomforingId={gjennomforing.id} />
         </VStack>
       </TwoColumnGrid>
       <Separator />
-      <NokkeltallDeltakere gjennomforingId={gjennomforing.id} />
+      {isGruppetiltak(gjennomforing) && <NokkeltallDeltakere gjennomforingId={gjennomforing.id} />}
     </GjennomforingPageLayout>
   );
 }

@@ -9,7 +9,6 @@ export const gjennomforingTekster = {
   lopenummerLabel: "Løpenummer",
   avtaleLabel: "Avtale",
   avtaleMedTiltakstype: (tiltakstype: string) => `Avtale (tiltakstype: ${tiltakstype})`,
-  ingenAvtaleForGjennomforingenLabel: "Ingen avtale for gjennomføringen",
   tiltakstypeLabel: "Tiltakstype",
   avtaleStartdatoLabel: "Avtalens startdato",
   avtaleSluttdatoLabel: "Avtalens sluttdato",
