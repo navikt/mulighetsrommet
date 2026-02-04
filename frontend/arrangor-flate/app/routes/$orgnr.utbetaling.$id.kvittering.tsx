@@ -1,5 +1,7 @@
 import { Alert, BodyLong, BodyShort, Box, ExpansionCard, Link, VStack } from "@navikt/ds-react";
+import { Suspense } from "react";
 import { Link as ReactRouterLink, MetaFunction, useParams } from "react-router";
+import { Laster } from "~/components/common/Laster";
 import { tekster } from "~/tekster";
 import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
@@ -14,9 +16,17 @@ export const meta: MetaFunction = () => {
 
 export default function UtbetalingKvittering() {
   const { id } = useParams();
-  const orgnr = useOrgnrFromUrl();
 
-  const { data: utbetaling } = useArrangorflateUtbetaling(id!);
+  return (
+    <Suspense fallback={<Laster tekst="Laster kvittering..." size="xlarge" />}>
+      <UtbetalingKvitteringContent id={id!} />
+    </Suspense>
+  );
+}
+
+function UtbetalingKvitteringContent({ id }: { id: string }) {
+  const orgnr = useOrgnrFromUrl();
+  const { data: utbetaling } = useArrangorflateUtbetaling(id);
 
   const mottattDato = utbetaling.innsendtAvArrangorDato;
   if (!mottattDato) {

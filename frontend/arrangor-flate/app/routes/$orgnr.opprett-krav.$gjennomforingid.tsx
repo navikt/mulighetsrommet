@@ -10,36 +10,18 @@ import {
   Hide,
 } from "@navikt/ds-react";
 import {
-  ArrangorflateService,
   FieldError,
   OpprettKravDeltakere,
   OpprettKravVeiviserSteg,
   OpprettKravVeiviserStegDto,
 } from "api-client";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  ActionFunctionArgs,
-  Form,
-  Link as ReactRouterLink,
-  MetaFunction,
-  redirect,
-  useActionData,
-  useFetcher,
-  useParams,
-  useRevalidator,
-} from "react-router";
-import { apiHeaders } from "~/auth/auth.server";
-import { isValidationError, problemDetailResponse } from "~/utils/validering";
-import { getOrgnrGjennomforingIdFrom, pathTo, deltakerOversiktLenke } from "~/utils/navigation";
+import { Link as ReactRouterLink, MetaFunction, useNavigate, useParams } from "react-router";
+import { pathTo, deltakerOversiktLenke } from "~/utils/navigation";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { isLaterOrSameDay, parseDate } from "@mr/frontend-common/utils/date";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import { getEnvironment } from "~/services/environment";
-import {
-  FileUpload as MjacksonFileUpload,
-  FileUploadHandler,
-  parseFormData,
-} from "@mjackson/form-data-parser";
 import DeltakereSteg from "~/components/opprett-krav/DeltakereSteg";
 import UtbetalingSteg from "~/components/opprett-krav/UtbetalingSteg";
 import VedleggSteg from "~/components/opprett-krav/VedleggSteg";
@@ -47,6 +29,8 @@ import OppsummeringSteg from "~/components/opprett-krav/OppsummeringSteg";
 import InnsendingsinformasjonSteg from "~/components/opprett-krav/InnsendingsinformasjonSteg";
 import { Laster } from "~/components/common/Laster";
 import { useOpprettKravData } from "~/hooks/useOpprettKravData";
+import { useOpprettKravDeltakere } from "~/hooks/useOpprettKravDeltakere";
+import { useOpprettKrav } from "~/hooks/useOpprettKrav";
 
 interface Step {
   name: string;
@@ -59,107 +43,6 @@ const defaultTitle = "Opprett krav om utbetaling";
 export const meta: MetaFunction = () => {
   return [{ title: defaultTitle }, { name: "description", content: "Opprett krav om utbetaling" }];
 };
-
-const uploadHandler: FileUploadHandler = async (fileUpload: MjacksonFileUpload) => {
-  if (fileUpload.fieldName === "vedlegg" && fileUpload.name.endsWith(".pdf")) {
-    const bytes = await fileUpload.bytes();
-    return new File([bytes], fileUpload.name, { type: fileUpload.type });
-  }
-};
-
-interface ActionData {
-  errors?: FieldError[];
-  intent?: string;
-  deltakere?: OpprettKravDeltakere;
-}
-
-export async function action({
-  request,
-  params,
-}: ActionFunctionArgs): Promise<ActionData | Response> {
-  const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
-
-  const formData = await parseFormData(request, { maxFileSize: 10 * 1024 * 1024 }, uploadHandler);
-
-  const intent = formData.get("intent")?.toString();
-
-  if (intent === "cancel") {
-    return redirect(pathTo.tiltaksoversikt);
-  }
-
-  if (intent === "fetch-deltakere") {
-    const periodeStart = formData.get("periodeStart")?.toString();
-    const periodeSlutt = formData.get("periodeSlutt")?.toString();
-
-    if (!periodeStart || !periodeSlutt) {
-      return { errors: [{ pointer: "/periode", detail: "Periode er ikke valgt" }], intent };
-    }
-
-    const { data: deltakere, error } = await ArrangorflateService.getOpprettKravDeltakere({
-      path: { orgnr, gjennomforingId },
-      query: { periodeStart, periodeSlutt },
-      headers: await apiHeaders(request),
-    });
-
-    if (error) throw problemDetailResponse(error);
-    return { deltakere, intent };
-  }
-
-  if (intent === "submit") {
-    const errors: FieldError[] = [];
-    const vedlegg = formData.getAll("vedlegg") as File[];
-    const bekreftelse = formData.get("bekreftelse");
-    const belop = Number(formData.get("belop"));
-    const periodeStart = formData.get("periodeStart")?.toString();
-    const periodeSlutt = formData.get("periodeSlutt")?.toString();
-    const kidNummer = formData.get("kid")?.toString();
-    const tilsagnId = formData.get("tilsagnId")?.toString();
-    const minAntallVedlegg = parseInt(formData.get("minAntallVedlegg")?.toString() || "0");
-
-    if (vedlegg.length < minAntallVedlegg) {
-      errors.push({ pointer: "/vedlegg", detail: "Du må legge ved vedlegg" });
-    }
-
-    if (!bekreftelse) {
-      errors.push({
-        pointer: "/bekreftelse",
-        detail: "Du må bekrefte at opplysningene er korrekte",
-      });
-    }
-
-    if (!tilsagnId) {
-      errors.push({ pointer: "/tilsagnId", detail: "Mangler tilsagn" });
-    }
-
-    if (errors.length > 0) {
-      return { errors, intent };
-    }
-
-    const { error, data } = await ArrangorflateService.postOpprettKrav({
-      path: { orgnr, gjennomforingId },
-      body: {
-        belop,
-        tilsagnId: tilsagnId!,
-        periodeStart: periodeStart!,
-        periodeSlutt: periodeSlutt!,
-        kidNummer: kidNummer || null,
-        vedlegg,
-      },
-      headers: await apiHeaders(request),
-    });
-
-    if (error) {
-      if (isValidationError(error)) {
-        return { errors: error.errors, intent };
-      }
-      throw problemDetailResponse(error);
-    }
-
-    return redirect(pathTo.kvittering(orgnr, data.id));
-  }
-
-  return { intent };
-}
 
 export interface OpprettKravFormState {
   periodeStart?: string;
@@ -188,8 +71,9 @@ interface OpprettKravContentProps {
 }
 
 function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps) {
-  const { data } = useOpprettKravData(orgnr, gjennomforingId);
+  const { data, refetch } = useOpprettKravData(orgnr, gjennomforingId);
   const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
+  const navigate = useNavigate();
 
   const steps = useMemo(
     () =>
@@ -203,9 +87,8 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
 
   const { innsendingSteg, utbetalingSteg, vedleggSteg } = data;
 
-  const actionData = useActionData<ActionData>();
-  const fetcher = useFetcher<ActionData>();
-  const revalidator = useRevalidator();
+  const fetchDeltakere = useOpprettKravDeltakere();
+  const opprettKrav = useOpprettKrav();
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [formState, setFormState] = useState<OpprettKravFormState>({
@@ -213,10 +96,8 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
     files: [],
   });
   const [clientErrors, setClientErrors] = useState<FieldError[]>([]);
-  const deltakere = fetcher.data?.deltakere ?? null;
-  const errors = clientErrors.length
-    ? clientErrors
-    : (actionData?.errors ?? fetcher.data?.errors ?? []);
+  const [deltakere, setDeltakere] = useState<OpprettKravDeltakere | null>(null);
+  const errors = clientErrors;
 
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const hasError = errors.length > 0;
@@ -308,12 +189,18 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
     if (currentStep.type === OpprettKravVeiviserSteg.INFORMASJON) {
       if (!validateInnsendingsinformasjon()) return;
 
-      // Fetch deltakere for next step
-      const formData = new FormData();
-      formData.append("intent", "fetch-deltakere");
-      formData.append("periodeStart", formState.periodeStart!);
-      formData.append("periodeSlutt", formState.periodeSlutt!);
-      fetcher.submit(formData, { method: "post" });
+      try {
+        const result = await fetchDeltakere.mutateAsync({
+          orgnr,
+          gjennomforingId,
+          periodeStart: formState.periodeStart!,
+          periodeSlutt: formState.periodeSlutt!,
+        });
+        setDeltakere(result);
+      } catch {
+        setClientErrors([{ pointer: "/periode", detail: "Kunne ikke hente deltakere" }]);
+        return;
+      }
     }
 
     if (currentStep.type === OpprettKravVeiviserSteg.UTBETALING) {
@@ -333,6 +220,49 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
     setClientErrors([]);
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1);
+    }
+  };
+
+  const handleOpprettKrav = async (bekreftelse: boolean) => {
+    setClientErrors([]);
+    const newErrors: FieldError[] = [];
+    const acceptedFiles = formState.files.filter((f) => !f.error);
+
+    if (acceptedFiles.length < vedleggSteg.minAntallVedlegg) {
+      newErrors.push({ pointer: "/vedlegg", detail: "Du må legge ved vedlegg" });
+    }
+
+    if (!bekreftelse) {
+      newErrors.push({
+        pointer: "/bekreftelse",
+        detail: "Du må bekrefte at opplysningene er korrekte",
+      });
+    }
+
+    if (!formState.tilsagnId) {
+      newErrors.push({ pointer: "/tilsagnId", detail: "Mangler tilsagn" });
+    }
+
+    if (newErrors.length > 0) {
+      setClientErrors(newErrors);
+      return;
+    }
+
+    const result = await opprettKrav.mutateAsync({
+      orgnr,
+      gjennomforingId,
+      belop: Number(formState.belop),
+      tilsagnId: formState.tilsagnId!,
+      periodeStart: formState.periodeStart!,
+      periodeSlutt: formState.periodeSlutt!,
+      kidNummer: formState.kid || null,
+      vedlegg: acceptedFiles.map((f) => f.file),
+    });
+
+    if (result.errors) {
+      setClientErrors(result.errors);
+    } else if (result.success && result.id) {
+      navigate(pathTo.kvittering(orgnr, result.id));
     }
   };
 
@@ -356,7 +286,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
             formState={formState}
             updateFormState={updateFormState}
             errors={errors}
-            onRevalidate={() => revalidator.revalidate()}
+            onRevalidate={() => refetch()}
           />
         );
       case OpprettKravVeiviserSteg.VEDLEGG:
@@ -373,9 +303,10 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
           <OppsummeringSteg
             innsendingsInformasjon={innsendingSteg.definisjonsListe}
             formState={formState}
-            vedleggInfo={vedleggSteg}
             errors={errors}
             goToPreviousStep={goToPreviousStep}
+            onSubmit={handleOpprettKrav}
+            isSubmitting={opprettKrav.isPending}
           />
         );
       default:
@@ -420,17 +351,19 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
           {!isLastStep && (
             <HStack gap="4">
               {isFirstStep ? (
-                <Form method="post">
-                  <Button type="submit" variant="tertiary" name="intent" value="cancel">
-                    Avbryt
-                  </Button>
-                </Form>
+                <Button
+                  type="button"
+                  variant="tertiary"
+                  onClick={() => navigate(pathTo.tiltaksoversikt)}
+                >
+                  Avbryt
+                </Button>
               ) : (
                 <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
                   Tilbake
                 </Button>
               )}
-              <Button type="button" onClick={goToNextStep} loading={fetcher.state === "submitting"}>
+              <Button type="button" onClick={goToNextStep} loading={fetchDeltakere.isPending}>
                 Neste
               </Button>
             </HStack>

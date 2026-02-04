@@ -10,34 +10,22 @@ import {
   TextField,
   VStack,
 } from "@navikt/ds-react";
-import { ArrangorflateService, FieldError } from "api-client";
-import { useEffect, useRef } from "react";
-import {
-  ActionFunction,
-  Form,
-  Link as ReactRouterLink,
-  MetaFunction,
-  redirect,
-  useActionData,
-  useParams,
-} from "react-router";
-import { apiHeaders } from "~/auth/auth.server";
+import { FieldError } from "api-client";
+import { useEffect, useRef, useState } from "react";
+import { Link as ReactRouterLink, MetaFunction, useNavigate, useParams } from "react-router";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
-import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
+import { errorAt } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useSyncKontonummer } from "~/hooks/useSyncKontonummer";
-
-interface ActionData {
-  errors?: FieldError[];
-}
+import { useGodkjennUtbetaling } from "~/hooks/useGodkjennUtbetaling";
 
 export const meta: MetaFunction = () => {
   return [
@@ -49,86 +37,68 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const action: ActionFunction = async ({ params, request }) => {
-  const { id } = params;
-  if (!id) {
-    throw new Response("Mangler id", { status: 400 });
-  }
-
-  const formData = await request.formData();
-
-  const utbetalingDigest = formData.get("utbetalingDigest")?.toString();
-  if (!utbetalingDigest) {
-    throw new Error(`Mangler ${utbetalingDigest}`);
-  }
-  const orgnr = formData.get("orgnr")?.toString();
-  if (!orgnr) {
-    throw new Error(`Mangler ${orgnr}`);
-  }
-
-  const errors: FieldError[] = [];
-
-  if (!formData.get("bekreftelse")) {
-    errors.push({
-      pointer: "/bekreftelse",
-      detail: "Du må bekrefte at opplysningene er korrekte",
-    });
-  }
-  if (!formData.get("kontonummer")) {
-    errors.push({
-      pointer: "/kontonummer",
-      detail: "Kontonummer eksisterer ikke",
-    });
-  }
-  const kid = formData.get("kid")?.toString() || null;
-
-  if (errors.length > 0) {
-    return { errors };
-  }
-
-  const { error } = await ArrangorflateService.godkjennUtbetaling({
-    path: { id },
-    body: {
-      digest: utbetalingDigest,
-      kid,
-    },
-    headers: await apiHeaders(request),
-  });
-  if (error) {
-    if (isValidationError(error)) {
-      return { errors: error.errors };
-    } else {
-      throw problemDetailResponse(error);
-    }
-  }
-  return redirect(pathTo.kvittering(orgnr, id));
-};
-
 export default function BekreftUtbetaling() {
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
+  const navigate = useNavigate();
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id!);
   const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id!);
   const syncKontonummer = useSyncKontonummer(id!);
+  const godkjennUtbetaling = useGodkjennUtbetaling();
 
-  const data = useActionData<ActionData>();
+  const [kid, setKid] = useState(utbetaling.betalingsinformasjon?.kid ?? "");
+  const [bekreftelse, setBekreftelse] = useState(false);
+  const [errors, setErrors] = useState<FieldError[]>([]);
+
   const errorSummaryRef = useRef<HTMLDivElement>(null);
-  const hasError = data?.errors && data.errors.length > 0;
+  const hasError = errors.length > 0;
 
   const handleHentKontonummer = () => {
     syncKontonummer.mutate();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const newErrors: FieldError[] = [];
+
+    if (!bekreftelse) {
+      newErrors.push({
+        pointer: "/bekreftelse",
+        detail: "Du må bekrefte at opplysningene er korrekte",
+      });
+    }
+    if (!utbetaling.betalingsinformasjon?.kontonummer) {
+      newErrors.push({
+        pointer: "/kontonummer",
+        detail: "Kontonummer eksisterer ikke",
+      });
+    }
+
+    if (newErrors.length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    const result = await godkjennUtbetaling.mutateAsync({
+      id: id!,
+      digest: utbetaling.beregning.digest,
+      kid: kid || null,
+    });
+
+    if (result.errors) {
+      setErrors(result.errors);
+    } else if (result.success) {
+      navigate(pathTo.kvittering(orgnr, id!));
+    }
   };
 
   useEffect(() => {
     if (hasError) {
       errorSummaryRef.current?.focus();
     }
-  }, [data, hasError]);
-
-  if (data?.errors) {
-    errorSummaryRef.current?.focus();
-  }
+  }, [hasError]);
 
   const harTilsagn = tilsagn.length > 0;
 
@@ -166,7 +136,7 @@ export default function BekreftUtbetaling() {
         satsDetaljer={utbetaling.beregning.satsDetaljer}
       />
       <Separator />
-      <Form method="post">
+      <form onSubmit={handleSubmit}>
         <Box marginBlock="0 4">
           {harTilsagn ? (
             <>
@@ -176,7 +146,7 @@ export default function BekreftUtbetaling() {
               <VStack gap="4">
                 <KontonummerInput
                   kontonummer={utbetaling.betalingsinformasjon?.kontonummer ?? undefined}
-                  error={data?.errors?.find((error) => error.pointer === "/kontonummer")?.detail}
+                  error={errors.find((error) => error.pointer === "/kontonummer")?.detail}
                   onClick={() => handleHentKontonummer()}
                 />
                 <TextField
@@ -184,28 +154,29 @@ export default function BekreftUtbetaling() {
                   size="small"
                   name="kid"
                   htmlSize={35}
-                  error={data?.errors?.find((error) => error.pointer === "/kid")?.detail}
-                  defaultValue={utbetaling.betalingsinformasjon?.kid ?? ""}
+                  error={errors.find((error) => error.pointer === "/kid")?.detail}
+                  value={kid}
+                  onChange={(e) => setKid(e.target.value)}
                   maxLength={25}
                   id="kid"
                 />
               </VStack>
               <Separator />
-              <CheckboxGroup error={errorAt("/bekreftelse", data?.errors)} legend="Bekreftelse">
+              <CheckboxGroup error={errorAt("/bekreftelse", errors)} legend="Bekreftelse">
                 <Checkbox
                   name="bekreftelse"
                   value="bekreftet"
                   id="bekreftelse"
-                  error={errorAt("/bekreftelse", data?.errors) !== undefined}
+                  checked={bekreftelse}
+                  onChange={(e) => setBekreftelse(e.target.checked)}
+                  error={errorAt("/bekreftelse", errors) !== undefined}
                 >
                   {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
                 </Checkbox>
               </CheckboxGroup>
-              <input type="hidden" name="utbetalingDigest" value={utbetaling.beregning.digest} />
-              <input type="hidden" name="orgnr" value={orgnr} />
               {hasError && (
                 <ErrorSummary ref={errorSummaryRef}>
-                  {data.errors?.map((error: FieldError) => {
+                  {errors.map((error: FieldError) => {
                     return (
                       <ErrorSummary.Item
                         href={`#${jsonPointerToFieldPath(error.pointer)}`}
@@ -231,9 +202,13 @@ export default function BekreftUtbetaling() {
           >
             Tilbake
           </Button>
-          {harTilsagn && <Button type="submit">Bekreft og send inn</Button>}
+          {harTilsagn && (
+            <Button type="submit" loading={godkjennUtbetaling.isPending}>
+              Bekreft og send inn
+            </Button>
+          )}
         </HStack>
-      </Form>
+      </form>
     </>
   );
 }

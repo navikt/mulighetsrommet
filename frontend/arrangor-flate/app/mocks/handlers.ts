@@ -35,6 +35,7 @@ export const handlers = [
         ...utbetaling,
         status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
         godkjentAvArrangorTidspunkt: new Date().toISOString(),
+        innsendtAvArrangorDato: new Date().toISOString().split("T")[0],
       });
     }
     return HttpResponse.json(utbetaling);
