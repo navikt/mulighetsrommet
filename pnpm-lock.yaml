@@ -330,14 +330,14 @@ importers:
         specifier: workspace:*
         version: link:../eslint-config-react-app
       '@navikt/aksel-icons':
-        specifier: 8.2.2
-        version: 8.2.2
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-css':
-        specifier: 8.2.2
-        version: 8.2.2
+        specifier: 7.38.0
+        version: 7.38.0
       '@navikt/ds-react':
-        specifier: 8.2.2
-        version: 8.2.2(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
+        specifier: 7.38.0
+        version: 7.38.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       '@types/react':
         specifier: 19.0.3
         version: 19.0.3
@@ -2308,9 +2308,6 @@ packages:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-react@8.2.2':
     resolution: {integrity: sha512-jnuXTt1oKFgBx6QxuDN8FyyY3iiQkjKX7qIisspI37erUrbUYJ66aqQjOsMQ41QlpZ4yeEzzknB7fv3SuMCq3Q==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/8.2.2/03f71885f10b43720f46d3cc848259de69bf769d}
@@ -2318,6 +2315,9 @@ packages:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@7.38.0':
     resolution: {integrity: sha512-S6cw95aQrsASTdZpUJww6KPYIUyil9CTk6Y2AIaxS8ALGnaIKnHCBvfH1F/lN9NttDiUwgh1UeDqTuH0PyW9Aw==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.38.0/282ddf91422cedd4b76fce089d7d4894d2cc1500}
@@ -10224,16 +10224,15 @@ snapshots:
   '@navikt/ds-react@7.38.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)':
     dependencies:
       '@floating-ui/react': 0.27.8(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
-      '@floating-ui/react-dom': 2.1.6(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
+      '@floating-ui/react-dom': 2.1.7(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       '@navikt/aksel-icons': 7.38.0
       '@navikt/ds-tokens': 7.38.0
+      '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 19.0.3
       react-day-picker: 9.7.0(react@19.0.3)
       react-dom: 19.0.3(react@19.0.3)
-    optionalDependencies:
-      '@types/react': 19.0.3
 
   '@navikt/ds-react@8.2.2(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)':
     dependencies:
@@ -10241,11 +10240,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.7(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       '@navikt/aksel-icons': 8.2.2
       '@navikt/ds-tokens': 8.2.2
-      '@types/react': 19.0.3
       date-fns: 4.1.0
       react: 19.0.3
       react-day-picker: 9.7.0(react@19.0.3)
       react-dom: 19.0.3(react@19.0.3)
+    optionalDependencies:
+      '@types/react': 19.0.3
 
   '@navikt/ds-tailwind@7.38.0': {}
 
