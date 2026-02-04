@@ -1,16 +1,14 @@
-import { useAvtale } from "@/api/avtaler/useAvtale";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { formaterPeriodeUdefinertSlutt } from "@mr/frontend-common/utils/date";
 import { Link } from "react-router";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  avtaleId: string;
+  avtale: AvtaleDto;
 }
 
-export function GjennomforingDetaljerAvtale({ avtaleId }: Props) {
-  const { data: avtale } = useAvtale(avtaleId);
-
+export function GjennomforingDetaljerAvtale({ avtale }: Props) {
   return (
     <Definisjonsliste
       title="Avtaledetaljer"

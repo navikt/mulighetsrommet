@@ -19,13 +19,14 @@ import {
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { GjennomforingDetaljerAvtale } from "@/pages/gjennomforing/GjennomforingDetaljerAvtale";
 import { GjennomforingDetaljerVarighet } from "@/pages/gjennomforing/GjennomforingDetaljerVarighet";
 import { GjennomforingDetaljerAdministratorer } from "@/pages/gjennomforing/GjennomforingDetaljerAdministratorer";
+import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
+import { GjennomforingPrismodellDetaljer } from "@/pages/gjennomforing/GjennomforingDetaljerPrismodell";
+import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -101,56 +102,39 @@ export function GjennomforingDetaljer() {
   return (
     <GjennomforingPageLayout>
       <TwoColumnGrid separator>
-        <VStack justify={"space-between"}>
+        <DetaljerLayout>
           <Definisjonsliste title="Gjennomføring" definitions={gjennomforingMeta} />
-          <Separator />
-          {isGruppetiltak(gjennomforing) && gjennomforing.avtaleId && (
-            <GjennomforingDetaljerAvtale avtaleId={gjennomforing.avtaleId} />
-          )}
-          <Separator />
+          {avtale && <GjennomforingDetaljerAvtale avtale={avtale} />}
           <GjennomforingDetaljerVarighet
             tiltakstype={tiltakstype}
             gjennomforing={gjennomforing}
             veilederinfo={veilederinfo}
           />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
-          {amoKategorisering && (
-            <>
-              <Separator />
-              <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
-            </>
-          )}
-          {prismodell && (
-            <>
-              <Separator />
-              <Heading level="3" size="small" spacing>
-                {avtaletekster.prismodell.heading}
-              </Heading>
-              <PrismodellDetaljer prismodell={[prismodell]} />
-            </>
-          )}
-        </VStack>
-        <VStack justify="space-between">
+          {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+          {prismodell && <GjennomforingPrismodellDetaljer prismodell={prismodell} />}
+        </DetaljerLayout>
+        <DetaljerLayout>
           {isGruppetiltak(gjennomforing) && (
             <GjennomforingDetaljerAdministratorer gjennomforing={gjennomforing} />
           )}
-          <Separator />
           <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
           {veilederinfo?.oppmoteSted && (
-            <>
-              <Separator />
-              <Definisjonsliste
-                title="Sted"
-                definitions={[
-                  { key: gjennomforingTekster.oppmoteStedLabel, value: veilederinfo.oppmoteSted },
-                ]}
-                columns={1}
-              />
-            </>
+            <Definisjonsliste
+              title="Sted"
+              definitions={[
+                { key: gjennomforingTekster.oppmoteStedLabel, value: veilederinfo.oppmoteSted },
+              ]}
+              columns={1}
+            />
           )}
-          <StengtHosArrangorTable readOnly gjennomforingId={gjennomforing.id} />
-          <TiltakTilgjengeligForArrangor gjennomforingId={gjennomforing.id} />
-        </VStack>
+          {isGruppetiltak(gjennomforing) && gjennomforing.stengt.length !== 0 && (
+            <StengtHosArrangorTable readOnly gjennomforing={gjennomforing} />
+          )}
+          {isGruppetiltak(gjennomforing) && !harStartet(gjennomforing) && (
+            <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
+          )}
+        </DetaljerLayout>
       </TwoColumnGrid>
       <Separator />
       {isGruppetiltak(gjennomforing) && <NokkeltallDeltakere gjennomforingId={gjennomforing.id} />}
@@ -170,4 +154,8 @@ function HentTiltaksnummer({ id }: { id: string }) {
   ) : (
     data?.tiltaksnummer
   );
+}
+
+function harStartet(gjennomforing: GjennomforingDto) {
+  return new Date() > new Date(gjennomforing.startDato);
 }

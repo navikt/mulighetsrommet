@@ -4,20 +4,18 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Table } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { isGruppetiltak } from "@/api/gjennomforing/utils";
+import { GjennomforingGruppeDto } from "@tiltaksadministrasjon/api-client";
 
 interface StengtHosArrangorTableProps {
-  gjennomforingId: string;
+  gjennomforing: GjennomforingGruppeDto;
   readOnly?: boolean;
 }
 
-export function StengtHosArrangorTable({ gjennomforingId, readOnly }: StengtHosArrangorTableProps) {
-  const { gjennomforing } = useGjennomforing(gjennomforingId);
-  const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforingId);
+export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArrangorTableProps) {
+  const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforing.id);
   const queryClient = useQueryClient();
 
-  if (!isGruppetiltak(gjennomforing) || gjennomforing.stengt.length === 0) {
+  if (gjennomforing.stengt.length === 0) {
     return null;
   }
 
@@ -25,7 +23,7 @@ export function StengtHosArrangorTable({ gjennomforingId, readOnly }: StengtHosA
     deleteStengtHosArrangor.mutate(periodeId, {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: QueryKeys.gjennomforing(gjennomforingId),
+          queryKey: QueryKeys.gjennomforing(gjennomforing.id),
           refetchType: "all",
         });
       },

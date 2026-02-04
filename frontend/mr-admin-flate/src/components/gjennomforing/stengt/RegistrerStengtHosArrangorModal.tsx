@@ -47,7 +47,7 @@ export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforingId }: P
             </p>
           </div>
           <RegistrerStengtHosArrangorForm key={key} gjennomforingId={gjennomforingId} />
-          <StengtHosArrangorTable gjennomforingId={gjennomforingId} />
+          <StengtHosArrangorTable gjennomforing={gjennomforing} />
         </VStack>
       </Modal.Body>
       <Modal.Footer>

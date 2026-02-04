@@ -2,7 +2,6 @@ import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjen
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import {
   FieldError,
-  GjennomforingDto,
   GjennomforingGruppeDto,
   GjennomforingHandling,
   SetTilgjengligForArrangorRequest,
@@ -13,36 +12,13 @@ import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { formaterDato, maxOf, subDuration } from "@mr/frontend-common/utils/date";
-import { useGjennomforing, useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
-import { isGruppetiltak } from "@/api/gjennomforing/utils";
+import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 
-interface TiltakTilgjengeligForArrangorProps {
-  gjennomforingId: string;
-}
-
-export function TiltakTilgjengeligForArrangor({
-  gjennomforingId,
-}: TiltakTilgjengeligForArrangorProps) {
-  const { gjennomforing } = useGjennomforing(gjennomforingId);
-
-  if (!isGruppetiltak(gjennomforing) || harStartet(gjennomforing)) {
-    return null;
-  }
-
-  return <TiltakTilgjengeligForArrangorForm gjennomforing={gjennomforing} />;
-}
-
-function harStartet(gjennomforing: GjennomforingDto) {
-  return new Date() > new Date(gjennomforing.startDato);
-}
-
-interface TiltakTilgjengeligForArrangorFormProps {
+interface Props {
   gjennomforing: GjennomforingGruppeDto;
 }
 
-function TiltakTilgjengeligForArrangorForm({
-  gjennomforing,
-}: TiltakTilgjengeligForArrangorFormProps) {
+export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const { data: handlinger } = useGjennomforingHandlinger(gjennomforing.id);
   const setTilgjengeligForArrangorMutation = useSetTilgjengeligForArrangor();
