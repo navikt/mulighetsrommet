@@ -10,7 +10,6 @@ import {
   HelpText,
   HStack,
   InlineMessage,
-  Link,
   Modal,
   Spacer,
   Textarea,
@@ -24,14 +23,8 @@ import {
   FieldError,
   UtbetalingTypeDto,
 } from "api-client";
-import { useEffect, useState } from "react";
-import {
-  ActionFunction,
-  LoaderFunction,
-  MetaFunction,
-  useFetcher,
-  useLoaderData,
-} from "react-router";
+import { Suspense, useEffect, useState } from "react";
+import { ActionFunction, MetaFunction, useFetcher, useParams } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { PageHeading } from "~/components/common/PageHeading";
@@ -44,41 +37,15 @@ import { isValidationError, problemDetailResponse } from "~/utils/validering";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 import { FeilmeldingMedVarselTrekant } from "../../../mr-admin-flate/src/components/skjema/FeilmeldingMedVarseltrekant";
 import { DataDetails } from "@mr/frontend-common";
-
-type UtbetalingDetaljerSideData = {
-  utbetaling: ArrangorflateUtbetalingDto;
-  deltakerlisteUrl: string;
-};
+import { Laster } from "~/components/common/Laster";
+import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
+import { useDownloadUtbetalingPdf } from "~/hooks/useDownloadUtbetalingPdf";
 
 export const meta: MetaFunction = () => {
   return [
     { title: "Utbetaling | Detaljer" },
     { name: "description", content: "Arrangørflate for detaljer om en utbetaling" },
   ];
-};
-
-export const loader: LoaderFunction = async ({
-  request,
-  params,
-}): Promise<UtbetalingDetaljerSideData> => {
-  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
-  const { id } = params;
-  if (!id) {
-    throw new Response("Mangler id", { status: 400 });
-  }
-
-  const [{ data: utbetaling, error: utbetalingError }] = await Promise.all([
-    ArrangorflateService.getArrangorflateUtbetaling({
-      path: { id },
-      headers: await apiHeaders(request),
-    }),
-  ]);
-
-  if (utbetalingError) {
-    throw problemDetailResponse(utbetalingError);
-  }
-
-  return { utbetaling, deltakerlisteUrl };
 };
 
 interface ActionData {
@@ -132,7 +99,20 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function UtbetalingDetaljerSide() {
-  const { utbetaling, deltakerlisteUrl } = useLoaderData<UtbetalingDetaljerSideData>();
+  const { id } = useParams();
+
+  return (
+    <Suspense fallback={<Laster tekst="Laster detaljer..." size="xlarge" />}>
+      <UtbetalingDetaljerContent id={id!} />
+    </Suspense>
+  );
+}
+
+function UtbetalingDetaljerContent({ id }: { id: string }) {
+  const { data: utbetaling } = useArrangorflateUtbetaling(id);
+  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
+  const downloadPdf = useDownloadUtbetalingPdf(id);
+
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [deltakerModalOpen, setDeltakerModalOpen] = useState<boolean>(false);
 
@@ -142,6 +122,12 @@ export default function UtbetalingDetaljerSide() {
     ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
     ArrangorflateUtbetalingStatus.UTBETALT,
   ].includes(utbetaling.status);
+
+  const handleDownloadPdf = () => {
+    downloadPdf.mutate({
+      filename: tekster.bokmal.utbetaling.pdfNavn(utbetaling.periode.start),
+    });
+  };
 
   return (
     <Box background="bg-default" borderRadius="large" padding="8">
@@ -156,13 +142,15 @@ export default function UtbetalingDetaljerSide() {
           />
           <Spacer />
           {visNedlastingAvKvittering && (
-            <Link
-              href={`/${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer/lastned?filename=${tekster.bokmal.utbetaling.pdfNavn(utbetaling.periode.start)}`}
-              target="_blank"
+            <Button
+              variant="tertiary"
+              size="small"
+              onClick={handleDownloadPdf}
+              loading={downloadPdf.isPending}
+              icon={<FilePdfIcon aria-hidden />}
             >
-              <FilePdfIcon />
-              Last ned som PDF (Åpner i ny fane)
-            </Link>
+              Last ned som PDF
+            </Button>
           )}
         </HStack>
         <UtbetalingHeader utbetalingType={utbetaling.type} />

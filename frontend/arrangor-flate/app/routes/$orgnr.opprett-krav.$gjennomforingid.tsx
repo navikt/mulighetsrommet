@@ -12,22 +12,20 @@ import {
 import {
   ArrangorflateService,
   FieldError,
-  OpprettKravData,
   OpprettKravDeltakere,
   OpprettKravVeiviserSteg,
   OpprettKravVeiviserStegDto,
 } from "api-client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActionFunctionArgs,
   Form,
   Link as ReactRouterLink,
-  LoaderFunction,
   MetaFunction,
   redirect,
   useActionData,
   useFetcher,
-  useLoaderData,
+  useParams,
   useRevalidator,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
@@ -47,6 +45,8 @@ import UtbetalingSteg from "~/components/opprett-krav/UtbetalingSteg";
 import VedleggSteg from "~/components/opprett-krav/VedleggSteg";
 import OppsummeringSteg from "~/components/opprett-krav/OppsummeringSteg";
 import InnsendingsinformasjonSteg from "~/components/opprett-krav/InnsendingsinformasjonSteg";
+import { Laster } from "~/components/common/Laster";
+import { useOpprettKravData } from "~/hooks/useOpprettKravData";
 
 interface Step {
   name: string;
@@ -56,61 +56,8 @@ interface Step {
 
 const defaultTitle = "Opprett krav om utbetaling";
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  const loaderData = data as LoaderData | undefined;
-  if (loaderData?.activeStep) {
-    const stepIndex = loaderData.steps.findIndex(
-      (s: Step) => s.type === loaderData.activeStep.type,
-    );
-    const numOfSteps = loaderData.steps.length;
-    return [
-      {
-        title: `Steg ${stepIndex + 1} av ${numOfSteps}: ${loaderData.activeStep.name} - ${defaultTitle}`,
-      },
-      { name: "description", content: "Opprett krav om utbetaling" },
-    ];
-  }
-  return [{ title: defaultTitle }];
-};
-
-interface LoaderData {
-  orgnr: string;
-  gjennomforingId: string;
-  steps: Step[];
-  activeStep: Step;
-  data: OpprettKravData;
-  deltakerlisteUrl: string;
-}
-
-export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
-  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
-
-  const [{ data, error: opprettKravDataError }] = await Promise.all([
-    ArrangorflateService.getOpprettKravData({
-      path: { orgnr, gjennomforingId },
-      headers: await apiHeaders(request),
-    }),
-  ]);
-
-  if (opprettKravDataError) throw problemDetailResponse(opprettKravDataError);
-
-  const steps = data.steg.map((steg: OpprettKravVeiviserStegDto) => ({
-    name: steg.navn,
-    type: steg.type,
-    order: steg.order,
-  }));
-
-  const activeStep = steps[0];
-
-  return {
-    orgnr,
-    gjennomforingId,
-    steps,
-    activeStep,
-    data,
-    deltakerlisteUrl,
-  };
+export const meta: MetaFunction = () => {
+  return [{ title: defaultTitle }, { name: "description", content: "Opprett krav om utbetaling" }];
 };
 
 const uploadHandler: FileUploadHandler = async (fileUpload: MjacksonFileUpload) => {
@@ -226,7 +173,34 @@ export interface OpprettKravFormState {
 }
 
 export default function OpprettKravRoute() {
-  const { steps, data, deltakerlisteUrl } = useLoaderData<LoaderData>();
+  const { orgnr, gjennomforingid: gjennomforingId } = useParams();
+
+  return (
+    <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
+      <OpprettKravContent orgnr={orgnr!} gjennomforingId={gjennomforingId!} />
+    </Suspense>
+  );
+}
+
+interface OpprettKravContentProps {
+  orgnr: string;
+  gjennomforingId: string;
+}
+
+function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps) {
+  const { data } = useOpprettKravData(orgnr, gjennomforingId);
+  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
+
+  const steps = useMemo(
+    () =>
+      data.steg.map((steg: OpprettKravVeiviserStegDto) => ({
+        name: steg.navn,
+        type: steg.type,
+        order: steg.order,
+      })),
+    [data.steg],
+  );
+
   const { innsendingSteg, utbetalingSteg, vedleggSteg } = data;
 
   const actionData = useActionData<ActionData>();
@@ -419,9 +393,9 @@ export default function OpprettKravRoute() {
       </Link>
       <Hide below="sm">
         <Stepper aria-label="Steg" activeStep={currentStepIndex + 1} orientation="horizontal">
-          {steps.map(({ name }, index) => (
-            <Stepper.Step key={name} interactive={false} completed={currentStepIndex > index}>
-              {name}
+          {steps.map((step: Step, index: number) => (
+            <Stepper.Step key={step.name} interactive={false} completed={currentStepIndex > index}>
+              {step.name}
             </Stepper.Step>
           ))}
         </Stepper>

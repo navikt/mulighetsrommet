@@ -1,20 +1,16 @@
 import { Alert, BodyShort, Box, Heading, Tabs, Link, VStack } from "@navikt/ds-react";
-import { ArrangorflateService, ArrangorInnsendingRadDto, TiltaksoversiktType } from "api-client";
-import {
-  Link as ReactRouterLink,
-  LoaderFunctionArgs,
-  MetaFunction,
-  useLoaderData,
-} from "react-router";
-import { apiHeaders } from "~/auth/auth.server";
-import { problemDetailResponse } from "~/utils/validering";
+import { ArrangorInnsendingRadDto, TiltaksoversiktType } from "api-client";
+import { Suspense } from "react";
+import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { tekster } from "~/tekster";
-import { getTabStateOrDefault, useTabState } from "~/hooks/useTabState";
+import { useTabState } from "~/hooks/useTabState";
 import { Tabellvisning } from "~/components/common/Tabellvisning";
 import { useSortableData } from "@mr/frontend-common";
 import { UtbetalingRow } from "~/components/common/UtbetalingRow";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import { pathTo } from "~/utils/navigation";
+import { Laster } from "~/components/common/Laster";
+import { useArrangorTiltaksoversikt } from "~/hooks/useArrangorflateTiltaksoversikt";
 
 export const meta: MetaFunction = () => {
   return [
@@ -26,28 +22,8 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const tabState = getTabStateOrDefault(request);
-  const type = tabState === "aktive" ? TiltaksoversiktType.AKTIVE : TiltaksoversiktType.HISTORISKE;
-
-  const { data, error } = await ArrangorflateService.getArrangorTiltaksoversikt({
-    query: { type },
-    headers: await apiHeaders(request),
-  });
-  if (error) throw problemDetailResponse(error);
-
-  return { data } as const;
-}
-
 export default function OpprettKravTiltaksOversikt() {
-  const { data } = useLoaderData<typeof loader>();
   const [currentTab, setTab] = useTabState();
-
-  const { sortedData, sort, toggleSort } = useSortableData<
-    ArrangorInnsendingRadDto,
-    undefined,
-    string
-  >(data);
 
   return (
     <Box background="bg-default" padding="4" borderRadius="large">
@@ -72,26 +48,46 @@ export default function OpprettKravTiltaksOversikt() {
             />
           </Tabs.List>
           <Tabs.Panel value={currentTab}>
-            {sortedData.length === 0 ? (
-              <Box marginBlock="4">
-                <Alert variant="info">
-                  <BodyShort>
-                    Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
-                  </BodyShort>
-                  <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
-                </Alert>
-              </Box>
-            ) : (
-              <Tabellvisning kolonner={kolonner} sort={sort} onSortChange={toggleSort}>
-                {sortedData.map((row: ArrangorInnsendingRadDto) => (
-                  <UtbetalingRow key={row.gjennomforingId} row={row} />
-                ))}
-              </Tabellvisning>
-            )}
+            <Suspense fallback={<Laster tekst="Laster tiltak..." size="xlarge" />}>
+              <TiltaksOversiktContent
+                type={
+                  currentTab === "aktive"
+                    ? TiltaksoversiktType.AKTIVE
+                    : TiltaksoversiktType.HISTORISKE
+                }
+              />
+            </Suspense>
           </Tabs.Panel>
         </Tabs>
       </VStack>
     </Box>
+  );
+}
+
+function TiltaksOversiktContent({ type }: { type: TiltaksoversiktType }) {
+  const { data } = useArrangorTiltaksoversikt(type);
+
+  const { sortedData, sort, toggleSort } = useSortableData(data);
+
+  if (sortedData.length === 0) {
+    return (
+      <Box marginBlock="4">
+        <Alert variant="info">
+          <BodyShort>
+            Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
+          </BodyShort>
+          <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
+        </Alert>
+      </Box>
+    );
+  }
+
+  return (
+    <Tabellvisning kolonner={kolonner} sort={sort} onSortChange={toggleSort}>
+      {sortedData.map((row: ArrangorInnsendingRadDto) => (
+        <UtbetalingRow key={row.gjennomforingId} row={row} />
+      ))}
+    </Tabellvisning>
   );
 }
 

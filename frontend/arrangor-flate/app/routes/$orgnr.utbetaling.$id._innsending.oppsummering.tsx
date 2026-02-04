@@ -10,24 +10,16 @@ import {
   TextField,
   VStack,
 } from "@navikt/ds-react";
-import {
-  ArrangorflateService,
-  ArrangorflateTilsagnDto,
-  ArrangorflateUtbetalingDto,
-  FieldError,
-} from "api-client";
+import { ArrangorflateService, FieldError } from "api-client";
 import { useEffect, useRef } from "react";
 import {
   ActionFunction,
   Form,
   Link as ReactRouterLink,
-  LoaderFunction,
   MetaFunction,
   redirect,
   useActionData,
-  useFetcher,
-  useLoaderData,
-  useRevalidator,
+  useParams,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
@@ -39,11 +31,9 @@ import { errorAt, isValidationError, problemDetailResponse } from "~/utils/valid
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-
-type BekreftUtbetalingData = {
-  utbetaling: ArrangorflateUtbetalingDto;
-  tilsagn: ArrangorflateTilsagnDto[];
-};
+import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
+import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
+import { useSyncKontonummer } from "~/hooks/useSyncKontonummer";
 
 interface ActionData {
   errors?: FieldError[];
@@ -57,40 +47,6 @@ export const meta: MetaFunction = () => {
       content: "Oppsummering av innsendingen og betalingsinformasjon",
     },
   ];
-};
-
-export const loader: LoaderFunction = async ({
-  request,
-  params,
-}): Promise<BekreftUtbetalingData> => {
-  const { id } = params;
-  if (!id) {
-    throw new Response("Mangler id", { status: 400 });
-  }
-
-  const [{ data: utbetaling, error: utbetalingError }, { data: tilsagn, error: tilsagnError }] =
-    await Promise.all([
-      ArrangorflateService.getArrangorflateUtbetaling({
-        path: { id },
-        headers: await apiHeaders(request),
-      }),
-      ArrangorflateService.getArrangorflateTilsagnTilUtbetaling({
-        path: { id },
-        headers: await apiHeaders(request),
-      }),
-    ]);
-
-  if (utbetalingError) {
-    throw problemDetailResponse(utbetalingError);
-  }
-  if (tilsagnError) {
-    throw problemDetailResponse(tilsagnError);
-  }
-
-  return {
-    utbetaling,
-    tilsagn,
-  };
 };
 
 export const action: ActionFunction = async ({ params, request }) => {
@@ -149,27 +105,20 @@ export const action: ActionFunction = async ({ params, request }) => {
 };
 
 export default function BekreftUtbetaling() {
-  const { utbetaling, tilsagn } = useLoaderData<BekreftUtbetalingData>();
-  const data = useActionData<ActionData>();
+  const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
-  const fetcher = useFetcher();
-  const revalidator = useRevalidator();
+
+  const { data: utbetaling } = useArrangorflateUtbetaling(id!);
+  const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id!);
+  const syncKontonummer = useSyncKontonummer(id!);
+
+  const data = useActionData<ActionData>();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const hasError = data?.errors && data.errors.length > 0;
 
-  const handleHentKontonummer = async () => {
-    fetcher.load(`/api/${utbetaling.id}/sync-kontonummer`);
+  const handleHentKontonummer = () => {
+    syncKontonummer.mutate();
   };
-
-  useEffect(() => {
-    if (
-      fetcher.state === "idle" &&
-      fetcher.data &&
-      fetcher.data !== utbetaling.betalingsinformasjon
-    ) {
-      revalidator.revalidate();
-    }
-  }, [fetcher.state, fetcher.data, revalidator, utbetaling.betalingsinformasjon]);
 
   useEffect(() => {
     if (hasError) {

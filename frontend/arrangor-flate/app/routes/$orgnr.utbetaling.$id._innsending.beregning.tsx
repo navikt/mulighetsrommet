@@ -8,17 +8,15 @@ import {
   Link,
   VStack,
 } from "@navikt/ds-react";
-import { ArrangorflateService, ArrangorflateUtbetalingDto } from "api-client";
-import type { LoaderFunction, MetaFunction } from "react-router";
-import { Link as ReactRouterLink, useLoaderData } from "react-router";
-import { apiHeaders } from "~/auth/auth.server";
+import type { MetaFunction } from "react-router";
+import { Link as ReactRouterLink, useParams } from "react-router";
 import { getEnvironment } from "~/services/environment";
 import { deltakerOversiktLenke, pathTo, useOrgnrFromUrl } from "~/utils/navigation";
-import { problemDetailResponse } from "~/utils/validering";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import { tekster } from "~/tekster";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
+import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 
 export const meta: MetaFunction = () => {
   return [
@@ -30,36 +28,12 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-type LoaderData = {
-  utbetaling: ArrangorflateUtbetalingDto;
-  deltakerlisteUrl: string;
-};
-
-export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
+export default function UtbetalingBeregning() {
+  const { id } = useParams();
+  const orgnr = useOrgnrFromUrl();
   const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
 
-  const { id } = params;
-  if (!id) {
-    throw new Response("Mangler id", { status: 400 });
-  }
-
-  const [{ data: utbetaling, error: utbetalingError }] = await Promise.all([
-    ArrangorflateService.getArrangorflateUtbetaling({
-      path: { id },
-      headers: await apiHeaders(request),
-    }),
-  ]);
-
-  if (utbetalingError) {
-    throw problemDetailResponse(utbetalingError);
-  }
-
-  return { utbetaling, deltakerlisteUrl };
-};
-
-export default function UtbetalingBeregning() {
-  const orgnr = useOrgnrFromUrl();
-  const { utbetaling, deltakerlisteUrl } = useLoaderData<LoaderData>();
+  const { data: utbetaling } = useArrangorflateUtbetaling(id!);
 
   return (
     <VStack gap="4">

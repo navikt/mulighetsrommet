@@ -5,10 +5,8 @@ import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
-import {
-  useArrangorflateUtbetaling,
-  useArrangorflateTilsagnTilUtbetaling,
-} from "~/hooks/useUtbetaling";
+import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
+import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
 
 export const meta: MetaFunction = () => {
   return [

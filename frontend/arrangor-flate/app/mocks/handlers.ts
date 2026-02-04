@@ -9,18 +9,13 @@ import { arrangorflateTilsagn, tilsagnRader } from "./tilsagnMocks";
 import { handlers as opprettKravHandlers } from "./opprettKrav/handlers";
 
 const API_BASE = "*/api/arrangorflate";
-const API_PROXY_BASE = "*/api-proxy/api/arrangorflate";
 
-// Lager handler for både /api-proxy og uten for å støtte client kall og server kall
 function apiHandler(
   method: "get" | "post" | "put" | "delete",
   path: string,
   handler: Parameters<typeof http.get>[1],
 ) {
-  return [
-    http[method](`${API_BASE}${path}`, handler as any),
-    http[method](`${API_PROXY_BASE}${path}`, handler as any),
-  ];
+  return [http[method](`${API_BASE}${path}`, handler as any)];
 }
 
 export const handlers = [
@@ -62,7 +57,7 @@ export const handlers = [
       arrangorflateTilsagn.filter((it) => it.gjennomforing.id === utbetaling?.gjennomforing.id),
     );
   }),
-  ...apiHandler("get", "/utbetaling/:id/utbetalingsdetaljer", () =>
+  ...apiHandler("get", "/utbetaling/:id/pdf", () =>
     HttpResponse.json(
       { type: "method-not-allowed", title: "PDF er ikke tilgjengelig i Demo", status: "405" },
       { status: 405 },
