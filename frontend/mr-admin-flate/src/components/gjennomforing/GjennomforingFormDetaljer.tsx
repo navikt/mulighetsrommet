@@ -307,7 +307,7 @@ export function GjennomforingFormDetaljer(props: Props) {
                 </option>
               ))}
             </Select>
-            {valgtPrismodell && <PrismodellDetaljer prismodell={[valgtPrismodell]} />}
+            {valgtPrismodell && <PrismodellDetaljer prismodeller={[valgtPrismodell]} />}
           </FormGroup>
         </SkjemaKolonne>
       </TwoColumnGrid>

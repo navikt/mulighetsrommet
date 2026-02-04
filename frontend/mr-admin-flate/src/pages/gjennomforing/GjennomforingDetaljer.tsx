@@ -25,8 +25,8 @@ import { GjennomforingDetaljerAvtale } from "@/pages/gjennomforing/Gjennomforing
 import { GjennomforingDetaljerVarighet } from "@/pages/gjennomforing/GjennomforingDetaljerVarighet";
 import { GjennomforingDetaljerAdministratorer } from "@/pages/gjennomforing/GjennomforingDetaljerAdministratorer";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
-import { GjennomforingPrismodellDetaljer } from "@/pages/gjennomforing/GjennomforingDetaljerPrismodell";
 import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
+import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -112,7 +112,7 @@ export function GjennomforingDetaljer() {
           />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
-          {prismodell && <GjennomforingPrismodellDetaljer prismodell={prismodell} />}
+          {prismodell && <PrismodellDetaljer prismodeller={[prismodell]} />}
         </DetaljerLayout>
         <DetaljerLayout>
           {isGruppetiltak(gjennomforing) && (
