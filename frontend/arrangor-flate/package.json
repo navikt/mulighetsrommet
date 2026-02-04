@@ -49,7 +49,9 @@
     "react": "19.0.3",
     "react-dom": "19.0.3",
     "react-router": "7.13.0",
-    "winston": "3.19.0"
+    "msw": "2.12.7",
+    "winston": "3.19.0",
+    "cross-env": "10.1.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.11.0",
@@ -70,7 +72,6 @@
     "@typescript-eslint/eslint-plugin": "8.53.0",
     "@typescript-eslint/parser": "8.53.0",
     "autoprefixer": "10.4.23",
-    "cross-env": "10.1.0",
     "eslint": "9.39.2",
     "eslint-plugin-prettier": "5.5.5",
     "eslint-plugin-promise": "7.2.1",
@@ -78,7 +79,6 @@
     "eslint-plugin-react-hooks": "7.0.1",
     "globals": "17.1.0",
     "jsdom": "27.4.0",
-    "msw": "2.12.7",
     "playwright": "1.58.0",
     "postcss": "8.5.6",
     "postcss-import": "16.1.1",
