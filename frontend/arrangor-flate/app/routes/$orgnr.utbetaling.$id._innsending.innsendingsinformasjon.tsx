@@ -67,7 +67,7 @@ export default function TilsagnDetaljerPage() {
       <Heading level="2" spacing size="large">
         Innsendingsinformasjon
       </Heading>
-      <VStack gap="4">
+      <VStack gap="space-16">
         <Definisjonsliste
           definitions={[
             {
@@ -89,7 +89,7 @@ export default function TilsagnDetaljerPage() {
         <Heading level="3" size="medium">
           Tilgjengelige tilsagn
         </Heading>
-        <BodyShort size="small" textColor="subtle">
+        <BodyShort>
           Under vises informasjon om antatt forbruk.
           <br />
           Hva som blir utbetalt avhenger imidlertid av faktisk forbruk i perioden.
@@ -104,7 +104,7 @@ export default function TilsagnDetaljerPage() {
           />
         ))}
         {harTilsagn && (
-          <HStack gap="4" className="mt-4">
+          <HStack gap="space-16">
             <Button as={ReactRouterLink} type="button" variant="tertiary" to={pathTo.utbetalinger}>
               Avbryt
             </Button>

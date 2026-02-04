@@ -35,7 +35,10 @@ export function UtbetalingRow({ row }: { row: ArrangorInnsendingRadDto }) {
       </Table.DataCell>
 
       {row.belop ? (
-        <Table.DataCell align="right">{`${row.belop.belop} ${row.belop.valuta}`}</Table.DataCell>
+        <Table.DataCell
+          align="right"
+          className="whitespace-nowrap"
+        >{`${row.belop.belop} ${row.belop.valuta}`}</Table.DataCell>
       ) : null}
       {row.type ? (
         <Table.DataCell>

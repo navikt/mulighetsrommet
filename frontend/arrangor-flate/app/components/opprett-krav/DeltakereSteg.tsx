@@ -3,7 +3,7 @@ import {
   OpprettKravDeltakereGuidePanelType,
   StengtPeriode,
 } from "@api-client";
-import { Alert, BodyShort, GuidePanel, Heading, Link, VStack } from "@navikt/ds-react";
+import { BodyShort, GuidePanel, Heading, Link, LocalAlert, VStack } from "@navikt/ds-react";
 import { LabeledDataElementList } from "../common/Definisjonsliste";
 import { DataDrivenTable } from "@mr/frontend-common";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
@@ -22,7 +22,7 @@ export default function DeltakereSteg({ deltakere, deltakerlisteUrl }: Deltakere
   }
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <Heading level="2" spacing size="large">
         Oversikt over deltakere
       </Heading>
@@ -30,27 +30,32 @@ export default function DeltakereSteg({ deltakere, deltakerlisteUrl }: Deltakere
         deltakerlisteUrl={deltakerlisteUrl}
         guidePanelType={deltakere.guidePanel}
       />
-      <VStack gap="4">
+      <VStack gap="space-16">
         {deltakere.stengtHosArrangor.length > 0 && (
-          <Alert variant="info">
-            {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
-            <ul>
-              {deltakere.stengtHosArrangor.map(({ periode, beskrivelse }: StengtPeriode) => (
-                <li key={periode.start + periode.slutt}>
-                  {formaterPeriode(periode)}: {beskrivelse}
-                </li>
-              ))}
-            </ul>
-          </Alert>
+          <LocalAlert status="announcement" size="small">
+            <LocalAlert.Header>
+              <LocalAlert.Title as="h4">Stengte perioder</LocalAlert.Title>
+            </LocalAlert.Header>
+            <LocalAlert.Content>
+              <BodyShort spacing>{tekster.bokmal.utbetaling.beregning.stengtHosArrangor}</BodyShort>
+              <ul>
+                {deltakere.stengtHosArrangor.map(({ periode, beskrivelse }: StengtPeriode) => (
+                  <li key={periode.start + periode.slutt}>
+                    {formaterPeriode(periode)}: {beskrivelse}
+                  </li>
+                ))}
+              </ul>
+            </LocalAlert.Content>
+          </LocalAlert>
         )}
         <DataDrivenTable data={deltakere.tabell} />
-        <VStack gap="2">
+        <VStack gap="space-8">
           {deltakere.tabellFooter.map((details, idx) => (
-            <VStack gap="2" key={idx}>
+            <VStack gap="space-8" key={idx}>
               {details.header && deltakere.tabellFooter.length > 2 && (
                 <Heading size="xsmall">{details.header}</Heading>
               )}
-              <LabeledDataElementList entries={details.entries} className="my-2" />
+              <LabeledDataElementList entries={details.entries} />
             </VStack>
           ))}
         </VStack>

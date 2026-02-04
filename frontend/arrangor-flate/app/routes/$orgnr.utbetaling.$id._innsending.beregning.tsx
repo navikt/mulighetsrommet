@@ -1,11 +1,11 @@
 import {
-  Alert,
   BodyShort,
   Button,
   GuidePanel,
   Heading,
   HStack,
   Link,
+  LocalAlert,
   VStack,
 } from "@navikt/ds-react";
 import { ArrangorflateService, ArrangorflateUtbetalingDto } from "api-client";
@@ -62,7 +62,7 @@ export default function UtbetalingBeregning() {
   const { utbetaling, deltakerlisteUrl } = useLoaderData<LoaderData>();
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <Heading level="2" spacing size="large">
         Beregning
       </Heading>
@@ -79,18 +79,23 @@ export default function UtbetalingBeregning() {
       <Heading level="3" size="medium">
         Deltakere
       </Heading>
-      <VStack gap="4">
+      <VStack gap="space-16">
         {utbetaling.beregning.stengt.length > 0 && (
-          <Alert variant={"info"}>
-            {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
-            <ul>
-              {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
-                <li key={periode.start + periode.slutt}>
-                  {formaterPeriode(periode)}: {beskrivelse}
-                </li>
-              ))}
-            </ul>
-          </Alert>
+          <LocalAlert status="announcement" size="small">
+            <LocalAlert.Header>
+              <LocalAlert.Title as="h4">Stengte perioder</LocalAlert.Title>
+            </LocalAlert.Header>
+            <LocalAlert.Content>
+              <BodyShort spacing>{tekster.bokmal.utbetaling.beregning.stengtHosArrangor}</BodyShort>
+              <ul>
+                {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
+                  <li key={periode.start + periode.slutt}>
+                    {formaterPeriode(periode)}: {beskrivelse}
+                  </li>
+                ))}
+              </ul>
+            </LocalAlert.Content>
+          </LocalAlert>
         )}
         <DeltakelserTable
           beregning={utbetaling.beregning}
@@ -101,7 +106,7 @@ export default function UtbetalingBeregning() {
           satsDetaljer={utbetaling.beregning.satsDetaljer}
           pris={utbetaling.beregning.pris}
         />
-        <HStack gap="4">
+        <HStack gap="space-16">
           <Button
             as={ReactRouterLink}
             type="button"

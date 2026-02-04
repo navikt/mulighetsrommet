@@ -15,6 +15,9 @@ declare global {
 }
 
 export function initializeLogs() {
+  if (typeof window === "undefined") {
+    return;
+  }
   const nais = window.nais;
   if (!nais) {
     return;
@@ -32,6 +35,9 @@ export function initializeLogs() {
 }
 
 export function pushError(err: unknown) {
+  if (typeof window === "undefined") {
+    return;
+  }
   if (window.faro && err instanceof Error) {
     window.faro.api.pushError(err);
   }

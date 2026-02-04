@@ -32,8 +32,13 @@ export default function TilsagnDetaljerPage() {
   const { tilsagn } = useLoaderData<LoaderData>();
 
   return (
-    <Box background="bg-default" paddingInline="8" paddingBlock="8 16" borderRadius="large">
-      <VStack gap="4">
+    <Box
+      background="default"
+      paddingInline="space-32"
+      paddingBlock="space-32 space-64"
+      borderRadius="8"
+    >
+      <VStack gap="space-16">
         <PageHeading
           title={tekster.bokmal.tilsagn.detaljer.headingTitle}
           tilbakeLenke={{

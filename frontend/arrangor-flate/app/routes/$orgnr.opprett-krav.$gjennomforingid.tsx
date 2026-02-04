@@ -1,14 +1,4 @@
-import {
-  Box,
-  Button,
-  ErrorSummary,
-  FileObject,
-  HStack,
-  Link,
-  Stepper,
-  VStack,
-  Hide,
-} from "@navikt/ds-react";
+import { Button, ErrorSummary, FileObject, HStack, VStack } from "@navikt/ds-react";
 import {
   ArrangorflateService,
   FieldError,
@@ -21,7 +11,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActionFunctionArgs,
   Form,
-  Link as ReactRouterLink,
   LoaderFunction,
   MetaFunction,
   redirect,
@@ -35,7 +24,6 @@ import { isValidationError, problemDetailResponse } from "~/utils/validering";
 import { getOrgnrGjennomforingIdFrom, pathTo, deltakerOversiktLenke } from "~/utils/navigation";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { isLaterOrSameDay, parseDate } from "@mr/frontend-common/utils/date";
-import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import { getEnvironment } from "~/services/environment";
 import {
   FileUpload as MjacksonFileUpload,
@@ -47,6 +35,7 @@ import UtbetalingSteg from "~/components/opprett-krav/UtbetalingSteg";
 import VedleggSteg from "~/components/opprett-krav/VedleggSteg";
 import OppsummeringSteg from "~/components/opprett-krav/OppsummeringSteg";
 import InnsendingsinformasjonSteg from "~/components/opprett-krav/InnsendingsinformasjonSteg";
+import { InnsendingLayout } from "~/components/common/InnsendingLayout";
 
 interface Step {
   name: string;
@@ -413,56 +402,47 @@ export default function OpprettKravRoute() {
   const isFirstStep = currentStepIndex === 0;
 
   return (
-    <VStack gap="4" justify="center">
-      <Link as={ReactRouterLink} to={pathTo.tiltaksoversikt} className="max-w-max">
-        <ChevronLeftIcon /> Tilbake til tiltaksoversikt
-      </Link>
-      <Hide below="sm">
-        <Stepper aria-label="Steg" activeStep={currentStepIndex + 1} orientation="horizontal">
-          {steps.map(({ name }, index) => (
-            <Stepper.Step key={name} interactive={false} completed={currentStepIndex > index}>
-              {name}
-            </Stepper.Step>
-          ))}
-        </Stepper>
-      </Hide>
-      <Box background="bg-default" borderRadius="large" padding="8">
-        <VStack gap="6">
-          {renderCurrentStep()}
+    <InnsendingLayout
+      steps={steps}
+      activeStep={currentStepIndex + 1}
+      hideStepper={false}
+      topNavigationLink={{ path: pathTo.tiltaksoversikt, text: "Tilbake til tiltaksoversikt" }}
+    >
+      <VStack gap="space-16">
+        {renderCurrentStep()}
 
-          {hasError && (
-            <ErrorSummary ref={errorSummaryRef}>
-              {errors.map((error) => (
-                <ErrorSummary.Item
-                  href={`#${jsonPointerToFieldPath(error.pointer)}`}
-                  key={jsonPointerToFieldPath(error.pointer)}
-                >
-                  {error.detail}
-                </ErrorSummary.Item>
-              ))}
-            </ErrorSummary>
-          )}
+        {hasError && (
+          <ErrorSummary ref={errorSummaryRef}>
+            {errors.map((error) => (
+              <ErrorSummary.Item
+                href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                key={jsonPointerToFieldPath(error.pointer)}
+              >
+                {error.detail}
+              </ErrorSummary.Item>
+            ))}
+          </ErrorSummary>
+        )}
 
-          {!isLastStep && (
-            <HStack gap="4">
-              {isFirstStep ? (
-                <Form method="post">
-                  <Button type="submit" variant="tertiary" name="intent" value="cancel">
-                    Avbryt
-                  </Button>
-                </Form>
-              ) : (
-                <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
-                  Tilbake
+        {!isLastStep && (
+          <HStack gap="space-8">
+            {isFirstStep ? (
+              <Form method="post">
+                <Button type="submit" variant="tertiary" name="intent" value="cancel">
+                  Avbryt
                 </Button>
-              )}
-              <Button type="button" onClick={goToNextStep} loading={fetcher.state === "submitting"}>
-                Neste
+              </Form>
+            ) : (
+              <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
+                Tilbake
               </Button>
-            </HStack>
-          )}
-        </VStack>
-      </Box>
-    </VStack>
+            )}
+            <Button type="button" onClick={goToNextStep} loading={fetcher.state === "submitting"}>
+              Neste
+            </Button>
+          </HStack>
+        )}
+      </VStack>
+    </InnsendingLayout>
   );
 }

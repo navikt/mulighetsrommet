@@ -14,7 +14,7 @@ export function SatsPerioderOgBelop({
   return (
     <Box width="50%">
       {satsDetaljer.map((s) => (
-        <Box key={s.header} marginBlock="2 0">
+        <Box key={s.header} marginBlock="space-8 space-0">
           {satsDetaljer.length > 1 && <Heading size="xsmall">{s.header}</Heading>}
           {s.entries.map((entry) => (
             <MetadataHGrid

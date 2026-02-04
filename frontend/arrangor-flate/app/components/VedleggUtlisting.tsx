@@ -8,15 +8,15 @@ interface VedleggUtlistingProps {
 
 export function VedleggUtlisting({ files, fileInputRef }: VedleggUtlistingProps) {
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <Heading level="3" size="medium">
         Vedlegg
       </Heading>
-      <VStack gap="2">
+      <VStack gap="space-8">
         <Heading level="4" size="xsmall">
           {`Vedlegg (${files.length})`}
         </Heading>
-        <VStack as="ul" gap="3">
+        <VStack as="ul" gap="space-12">
           {files.map((file, index) => (
             <FileUpload.Item as="li" key={index} file={file.file} />
           ))}

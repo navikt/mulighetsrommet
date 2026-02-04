@@ -33,8 +33,8 @@ export function InnsendingLayout({
   };
 
   return (
-    <VStack gap="4" justify="center">
-      <Link as={ReactRouterLink} to={path} className="max-w-max">
+    <VStack gap="space-16" justify="center">
+      <Link as={ReactRouterLink} to={path}>
         <ChevronLeftIcon /> {text}
       </Link>
       {steps && steps.length > 0 && (
@@ -52,7 +52,7 @@ export function InnsendingLayout({
           </Stepper>
         </Hide>
       )}
-      <Box background="bg-default" borderRadius="large" padding="8">
+      <Box background="default" borderRadius="8" padding="space-32">
         {children}
       </Box>
     </VStack>
