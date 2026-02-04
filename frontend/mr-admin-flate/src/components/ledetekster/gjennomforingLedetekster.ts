@@ -56,13 +56,13 @@ export const gjennomforingTekster = {
     },
   },
   pamelding: {
-    label: "Påmeldingstype",
+    label: "Hvor skal vedtaket om tiltaksplass fattes?",
     beskrivelse(type: GjennomforingPameldingType) {
       switch (type) {
         case GjennomforingPameldingType.DIREKTE_VEDTAK:
-          return "Veileder fatter vedtaket direkte ved påmeldingen i Modia";
+          return "Direkte ved påmeldingen i Modia";
         case GjennomforingPameldingType.TRENGER_GODKJENNING:
-          return "Vedtaket fattes i Tiltaksadministrasjon etter at deltakeren er søkt inn fra Modia";
+          return "I Tiltaksadministrasjonen etter at deltakeren er søkt inn fra Modia";
       }
     },
   },
