@@ -10,7 +10,10 @@ function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
   const { gjennomforing, prismodell, veilederinfo } = useGjennomforing(gjennomforingId);
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: defaults } = useTilsagnRequest(tilsagnId);
-  const kostnadssteder = useRelevanteKostnadssteder(veilederinfo?.kontorstruktur ?? []);
+  const kostnadssteder = useRelevanteKostnadssteder(
+    tilsagnDetaljer.tilsagn.type,
+    veilederinfo?.kontorstruktur ?? [],
+  );
   return {
     gjennomforing,
     prismodell,

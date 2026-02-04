@@ -5,7 +5,7 @@ import {
   AvtaleDto,
   GjennomforingDeltakerSummary,
   GjennomforingDetaljerDto,
-  GjennomforingDto,
+  GjennomforingGruppeDto,
   GjennomforingRequest,
   GjennomforingVeilederinfoDto,
   TiltakstypeDto,
@@ -29,7 +29,7 @@ interface Props {
   onSuccess: (id: string) => void;
   tiltakstype: TiltakstypeDto;
   avtale: AvtaleDto;
-  gjennomforing: GjennomforingDto | null;
+  gjennomforing: GjennomforingGruppeDto | null;
   veilederinfo: GjennomforingVeilederinfoDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
   defaultValues: DeepPartial<GjennomforingRequest>;

@@ -1,26 +1,21 @@
 import { useDeleteStengtHosArrangor } from "@/api/gjennomforing/useDeleteStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingGruppetiltakStengtPeriode } from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Table } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { GjennomforingGruppeDto } from "@tiltaksadministrasjon/api-client";
 
 interface StengtHosArrangorTableProps {
-  gjennomforingId: string;
-  stengt: GjennomforingGruppetiltakStengtPeriode[];
+  gjennomforing: GjennomforingGruppeDto;
   readOnly?: boolean;
 }
 
-export function StengtHosArrangorTable({
-  gjennomforingId,
-  stengt,
-  readOnly,
-}: StengtHosArrangorTableProps) {
-  const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforingId);
+export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArrangorTableProps) {
+  const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforing.id);
   const queryClient = useQueryClient();
 
-  if (stengt.length === 0) {
+  if (gjennomforing.stengt.length === 0) {
     return null;
   }
 
@@ -28,7 +23,7 @@ export function StengtHosArrangorTable({
     deleteStengtHosArrangor.mutate(periodeId, {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: QueryKeys.gjennomforing(gjennomforingId),
+          queryKey: QueryKeys.gjennomforing(gjennomforing.id),
           refetchType: "all",
         });
       },
@@ -52,7 +47,7 @@ export function StengtHosArrangorTable({
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {stengt.map((periode) => {
+          {gjennomforing.stengt.map((periode) => {
             return (
               <Table.Row key={periode.id}>
                 <Table.DataCell>{`${formaterDato(periode.start)} - ${formaterDato(periode.slutt)}`}</Table.DataCell>

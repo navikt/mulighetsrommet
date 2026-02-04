@@ -13,13 +13,13 @@ import {
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
-import { Alert, Heading, VStack } from "@navikt/ds-react";
+import { Alert } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link } from "react-router";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 
 export function AvtaleDetaljer() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
@@ -133,35 +133,23 @@ export function AvtaleDetaljer() {
 
   return (
     <TwoColumnGrid separator>
-      <VStack>
+      <DetaljerLayout>
         <Definisjonsliste title="Avtaleinformasjon" definitions={avtaleMeta} />
-        <Separator />
         <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
-        <Separator />
         <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
-        {avtale.opsjonerRegistrert.length > 0 ? <RegistrerteOpsjoner readOnly /> : null}
-        {amoKategorisering && (
-          <>
-            <Separator />
-            <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
-          </>
-        )}
-        {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
-        <Separator />
-        <Heading level="3" size="small" spacing>
-          {avtaletekster.prismodell.heading}
-        </Heading>
-        <PrismodellDetaljer prismodell={avtale.prismodeller} />
-      </VStack>
-      <VStack>
+        {avtale.opsjonerRegistrert.length > 0 && <RegistrerteOpsjoner readOnly />}
+        {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
+        {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+        <PrismodellDetaljer prismodeller={avtale.prismodeller} />
+      </DetaljerLayout>
+      <DetaljerLayout>
         <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
-        <Separator />
         {arrangor ? (
           <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
         ) : (
           <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
         )}
-      </VStack>
+      </DetaljerLayout>
     </TwoColumnGrid>
   );
 }

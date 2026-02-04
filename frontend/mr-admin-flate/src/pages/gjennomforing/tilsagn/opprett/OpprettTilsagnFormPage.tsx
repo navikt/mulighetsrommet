@@ -53,7 +53,10 @@ function useHentData(gjennomforingId: string) {
     beskrivelse: null,
   });
 
-  const kostnadssteder = useRelevanteKostnadssteder(veilederinfo?.kontorstruktur ?? []);
+  const kostnadssteder = useRelevanteKostnadssteder(
+    defaults.type,
+    veilederinfo?.kontorstruktur ?? [],
+  );
   return {
     gjennomforing,
     prismodell,

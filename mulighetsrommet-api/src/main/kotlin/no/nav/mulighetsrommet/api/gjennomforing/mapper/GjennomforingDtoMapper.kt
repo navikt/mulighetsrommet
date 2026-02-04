@@ -5,12 +5,12 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppeDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object GjennomforingDtoMapper {
@@ -21,7 +21,7 @@ object GjennomforingDtoMapper {
 
     fun fromGruppetiltak(gjennomforing: GjennomforingGruppetiltak) = GjennomforingDetaljerDto(
         tiltakstype = gjennomforing.tiltakstype,
-        gjennomforing = GjennomforingDto(
+        gjennomforing = GjennomforingGruppeDto(
             id = gjennomforing.id,
             navn = gjennomforing.navn,
             lopenummer = gjennomforing.lopenummer,
@@ -34,6 +34,7 @@ object GjennomforingDtoMapper {
             avtaleId = gjennomforing.avtaleId,
             oppstart = gjennomforing.oppstart,
             pameldingType = gjennomforing.pameldingType,
+            apentForPamelding = gjennomforing.apentForPamelding,
             opphav = gjennomforing.opphav,
             deltidsprosent = gjennomforing.deltidsprosent,
             tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
@@ -47,7 +48,6 @@ object GjennomforingDtoMapper {
             faneinnhold = gjennomforing.faneinnhold,
             beskrivelse = gjennomforing.beskrivelse,
             publisert = gjennomforing.publisert,
-            apentForPamelding = gjennomforing.apentForPamelding,
             estimertVentetid = gjennomforing.estimertVentetid,
         ),
         prismodell = gjennomforing.prismodell?.let { fromPrismodell(it) },
@@ -57,24 +57,16 @@ object GjennomforingDtoMapper {
 
     fun fromEnkeltplass(gjennomforing: GjennomforingEnkeltplass) = GjennomforingDetaljerDto(
         tiltakstype = gjennomforing.tiltakstype,
-        gjennomforing = GjennomforingDto(
+        gjennomforing = GjennomforingEnkeltplassDto(
             id = gjennomforing.id,
-            navn = gjennomforing.navn,
+            navn = gjennomforing.tiltakstype.navn,
             lopenummer = gjennomforing.lopenummer,
             tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
             arrangor = gjennomforing.arrangor,
             startDato = gjennomforing.startDato,
             sluttDato = gjennomforing.sluttDato,
             status = fromGjennomforingStatus(gjennomforing.status),
-            antallPlasser = gjennomforing.antallPlasser,
-            oppstart = GjennomforingOppstartstype.LOPENDE,
-            pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
             opphav = gjennomforing.opphav,
-            deltidsprosent = gjennomforing.deltidsprosent,
-            avtaleId = null,
-            tilgjengeligForArrangorDato = null,
-            administratorer = listOf(),
-            stengt = listOf(),
         ),
         veilederinfo = null,
         prismodell = null,
