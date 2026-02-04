@@ -42,7 +42,24 @@ export function FilterMenu() {
           accordionIsOpenValue="apen-for-pamelding"
         />
         <InnsatsgruppeFilter />
-        <TiltakstypeFilter antallValgteTiltakstyper={filter.tiltakstyper.length} />
+        <Accordion.Item open={accordionsOpen.includes("tiltakstyper")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstyper")]);
+            }}
+          >
+            <FilterAccordionHeader
+              tittel="Tiltakstype"
+              antallValgteFilter={filter.tiltakstyper.length}
+            />
+          </Accordion.Header>
+          <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
+            <TiltakstypeFilter
+              value={filter.tiltakstyper}
+              onChange={(tiltakstyper) => setFilter({ ...filter, tiltakstyper })}
+            />
+          </Accordion.Content>
+        </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("brukers-enhet")}>
           <Accordion.Header
             onClick={() => {

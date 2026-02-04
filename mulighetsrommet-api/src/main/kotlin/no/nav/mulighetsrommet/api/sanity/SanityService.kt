@@ -137,7 +137,7 @@ class SanityService(
                 if (result.result == null) {
                     throw NotFoundException("Fant ikke tiltak med id=$id")
                 } else {
-                    return result.decode<SanityTiltaksgjennomforing>()
+                    result.decode<SanityTiltaksgjennomforing>()
                         .also {
                             sanityTiltaksgjennomforingCache.put(id, it)
                         }

@@ -6,6 +6,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     sanityId: "02509279-0a0f-4bd6-b506-f40111e4ba14",
     arenakode: null,
     tiltakskode: null,
+    tiltaksgruppe: null,
     regelverkLenker: [
       {
         _id: "123",
@@ -185,6 +186,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     delingMedBruker: null,
     arenakode: null,
     tiltakskode: null,
+    tiltaksgruppe: "Opplæring",
     faneinnhold: {
       forHvem: [
         {
@@ -327,6 +329,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     beskrivelse:
       "Arbeidsrettet rehabilitering skal styrke den enkeltes arbeidsevne og bidra til mestring av helserelaterte og sosiale problemer som hindrer deltakelse i arbeidslivet. Målet med tiltaket er at deltakeren skal komme ut i eller forbli i arbeid, og passer spesielt godt for sykemeldte ",
     navn: "Arbeidsrettet rehabilitering",
+    tiltaksgruppe: null,
     faneinnhold: {
       pameldingOgVarighet: [
         {
@@ -576,6 +579,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     id: "31e72dd8-ad05-4e81-a7f9-fd4c8f295864",
     sanityId: "31e72dd8-ad05-4e81-a7f9-fd4c8f295864",
     tiltakskode: Tiltakskode.JOBBKLUBB,
+    tiltaksgruppe: null,
     delingMedBruker:
       "Jobbklubb er et kortvarig tiltak for deg som søker jobb. Når du deltar på jobbklubb, får du støtte og hjelp til å orientere deg på arbeidsmarkedet og være en aktiv jobbsøker.\n\nDu kan lese mer om kurset på www.nav.no/jobbklubb",
     regelverkLenker: [
@@ -876,6 +880,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     beskrivelse:
       "Digitat jobbsøkerkurs er et kortvarig nettbasert kurs som skal gi  karriereveiledning, jobbsøkningsbistand og personlig oppfølging med egen rådgiver. Målet er at tiltaksdeltaker gjennom veiledning og et individuelt tilpasset opplegg  skal bli selvforsørget. ",
     navn: 'Digitalt jobbsøkerkurs for arbeidsledige ("digital jobbklubb")',
+    tiltaksgruppe: null,
     faneinnhold: {
       forHvemInfoboks:
         "Avtalen med AS3 er sagt opp, så brukere fra Oslo. Øst-Viken, Vest-Viken og Innlandet har ikke lenger tilgang til Digital jobbklubb",
@@ -1380,7 +1385,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     beskrivelse:
       "Opplæringstiltak i form av fagskole (høyere yrkesfaglig utdanning - jf. tiltaksforskriften § 7-2 b) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. \n\nFagskole er yrkesfaglig utdanning på nivået over videregående opplæring.",
-    navn: "Opplæring - Fagskole (høyere yrkesfaglig utdanning)",
+    navn: "Fagskole (høyere yrkesfaglig utdanning)",
+    tiltaksgruppe: "Opplæring",
     faneinnhold: {
       forHvem: [
         {
@@ -1486,6 +1492,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   oppfolging: {
+    tiltaksgruppe: null,
     faneinnhold: {
       detaljerOgInnhold: [
         {
@@ -1818,6 +1825,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   varig_lonnstilskudd: {
+    tiltaksgruppe: null,
     delingMedBruker:
       "Vi har et tilbud som jeg tenker kan passe for deg.  \n\nDet heter varig lønnstilskudd og er for deg med en varig og vesentlig nedsatt arbeidsevne. Tiltaket skal øke mulighetene for at du kan få en vanlig jobb. Du blir ansatt med vanlig lønn i en hel- eller deltidsstilling, mens arbeidsgiveren får et tilskudd til lønnen din. \n\nDu kan lese mer om tilbudet på https://www.nav.no/varig-lonnstilskudd",
     beskrivelse:
@@ -2008,6 +2016,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   grufagyrke: {
+    tiltaksgruppe: "Opplæring",
     faneinnhold: {
       forHvem: [
         {
@@ -2089,6 +2098,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   VTAO: {
+    tiltaksgruppe: null,
     faneinnhold: {
       forHvem: [
         {
@@ -2160,6 +2170,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   midlertidig_lonnstilskudd: {
+    tiltaksgruppe: null,
     faneinnhold: {
       forHvemInfoboks:
         "Arbeidsgiver kan ikke motta lønnstilskudd for lærlinger. Dette ble stanset i juli 2017 og gjelder til annet blir bestemt.",
@@ -2378,6 +2389,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   mentor: {
+    tiltaksgruppe: null,
     arenakode: "MENTOR",
     faneinnhold: {
       pameldingOgVarighet: [
@@ -2521,6 +2533,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   enkeltplass_amo: {
+    tiltaksgruppe: "Opplæring",
     innsatsgrupper: [
       Innsatsgruppe.TRENGER_VEILEDNING,
       Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
@@ -2672,6 +2685,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   AFT: {
+    tiltaksgruppe: null,
     beskrivelse:
       "AFT er et tiltak som skal bidra til å prøve ut tiltaksdeltakerens arbeidsevne og til å styrke mulighetene for å få ordinært arbeid. Det er et tiltak med individuell tilrettelegging som kan tilbys personer med sammensatte bistandsbehov som har fått sin arbeidsevne nedsatt og som har særlig usikre yrkesmessige forutsetninger.",
 
@@ -2886,6 +2900,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   arbeidstrening: {
+    tiltaksgruppe: null,
     innsatsgrupper: [
       Innsatsgruppe.TRENGER_VEILEDNING,
       Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
@@ -2996,6 +3011,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   gruppe_amo: {
+    tiltaksgruppe: "Opplæring",
     arenakode: "GRUPPEAMO",
     tiltakskode: Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
     id: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
@@ -3120,6 +3136,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     kanKombineresMed: [],
   },
   avklaring: {
+    tiltaksgruppe: null,
     arenakode: "AVKLARAG",
     regelverkLenker: [
       {
