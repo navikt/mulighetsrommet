@@ -12,12 +12,12 @@ import {
 } from "@navikt/ds-react";
 import { FieldError } from "api-client";
 import { useEffect, useRef, useState } from "react";
-import { Link as ReactRouterLink, MetaFunction, useNavigate, useParams } from "react-router";
+import { Link as ReactRouterLink, MetaFunction, useNavigate } from "react-router";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
-import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
+import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { errorAt } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
@@ -38,13 +38,13 @@ export const meta: MetaFunction = () => {
 };
 
 export default function BekreftUtbetaling() {
-  const { id } = useParams();
+  const id = useIdFromUrl();
   const orgnr = useOrgnrFromUrl();
   const navigate = useNavigate();
 
-  const { data: utbetaling } = useArrangorflateUtbetaling(id!);
-  const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id!);
-  const syncKontonummer = useSyncKontonummer(id!);
+  const { data: utbetaling } = useArrangorflateUtbetaling(id);
+  const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id);
+  const syncKontonummer = useSyncKontonummer(id);
   const godkjennUtbetaling = useGodkjennUtbetaling();
 
   const [kid, setKid] = useState(utbetaling.betalingsinformasjon?.kid ?? "");
@@ -82,7 +82,7 @@ export default function BekreftUtbetaling() {
     }
 
     const result = await godkjennUtbetaling.mutateAsync({
-      id: id!,
+      id: id,
       digest: utbetaling.beregning.digest,
       kid: kid || null,
     });
@@ -90,7 +90,7 @@ export default function BekreftUtbetaling() {
     if (result.errors) {
       setErrors(result.errors);
     } else if (result.success) {
-      navigate(pathTo.kvittering(orgnr, id!));
+      navigate(pathTo.kvittering(orgnr, id));
     }
   };
 

@@ -16,8 +16,13 @@ import {
   OpprettKravVeiviserStegDto,
 } from "api-client";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link as ReactRouterLink, MetaFunction, useNavigate, useParams } from "react-router";
-import { pathTo, deltakerOversiktLenke } from "~/utils/navigation";
+import { Link as ReactRouterLink, MetaFunction, useNavigate } from "react-router";
+import {
+  pathTo,
+  deltakerOversiktLenke,
+  useGjennomforingIdFromUrl,
+  useOrgnrFromUrl,
+} from "~/utils/navigation";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { isLaterOrSameDay, parseDate } from "@mr/frontend-common/utils/date";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
@@ -56,11 +61,12 @@ export interface OpprettKravFormState {
 }
 
 export default function OpprettKravRoute() {
-  const { orgnr, gjennomforingid: gjennomforingId } = useParams();
+  const gjennomforingId = useGjennomforingIdFromUrl();
+  const orgnr = useOrgnrFromUrl();
 
   return (
     <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
-      <OpprettKravContent orgnr={orgnr!} gjennomforingId={gjennomforingId!} />
+      <OpprettKravContent orgnr={orgnr} gjennomforingId={gjennomforingId} />
     </Suspense>
   );
 }

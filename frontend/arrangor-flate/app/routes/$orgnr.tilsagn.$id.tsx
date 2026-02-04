@@ -1,14 +1,13 @@
-import { useParams } from "react-router";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { tekster } from "~/tekster";
 import { Box, VStack } from "@navikt/ds-react";
-import { pathTo } from "~/utils/navigation";
+import { pathTo, useIdFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
 import { useArrangorflateTilsagn } from "~/hooks/useArrangorflateTilsagn";
 
 export default function TilsagnDetaljerPage() {
-  const { id } = useParams();
-  const { data: tilsagn } = useArrangorflateTilsagn(id!);
+  const id = useIdFromUrl();
+  const { data: tilsagn } = useArrangorflateTilsagn(id);
 
   return (
     <Box background="bg-default" paddingInline="8" paddingBlock="8 16" borderRadius="large">

@@ -23,14 +23,14 @@ import {
   UtbetalingTypeDto,
 } from "api-client";
 import { Suspense, useState } from "react";
-import { MetaFunction, useParams } from "react-router";
+import { MetaFunction } from "react-router";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { PageHeading } from "~/components/common/PageHeading";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
-import { deltakerOversiktLenke, pathTo } from "~/utils/navigation";
+import { deltakerOversiktLenke, pathTo, useIdFromUrl } from "~/utils/navigation";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 import { FeilmeldingMedVarselTrekant } from "../../../mr-admin-flate/src/components/skjema/FeilmeldingMedVarseltrekant";
 import { DataDetails } from "@mr/frontend-common";
@@ -48,11 +48,11 @@ export const meta: MetaFunction = () => {
 };
 
 export default function UtbetalingDetaljerSide() {
-  const { id } = useParams();
+  const id = useIdFromUrl();
 
   return (
     <Suspense fallback={<Laster tekst="Laster detaljer..." size="xlarge" />}>
-      <UtbetalingDetaljerContent id={id!} />
+      <UtbetalingDetaljerContent id={id} />
     </Suspense>
   );
 }

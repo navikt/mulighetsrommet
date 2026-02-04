@@ -1,4 +1,4 @@
-import { Params, useParams } from "react-router";
+import { useParams } from "react-router";
 import { Environment } from "~/services/environment";
 
 export function requireOrgnr(orgnr?: string): string {
@@ -15,22 +15,26 @@ export function requireGjennomforingId(gjennomforingId?: string): string {
   throw new Error("Mangler gjennomføring id");
 }
 
+export function requireId(id?: string): string {
+  if (id) {
+    return id;
+  }
+  throw new Error("Mangler id");
+}
+
 export function useOrgnrFromUrl(): string {
   const { orgnr } = useParams();
   return requireOrgnr(orgnr);
 }
 
+export function useIdFromUrl(): string {
+  const { id } = useParams();
+  return requireId(id);
+}
+
 export function useGjennomforingIdFromUrl(): string {
   const { gjennomforingid } = useParams();
   return requireGjennomforingId(gjennomforingid);
-}
-
-export function getOrgnrGjennomforingIdFrom(params: Params<string>): {
-  orgnr: string;
-  gjennomforingId: string;
-} {
-  const { orgnr, gjennomforingid } = params;
-  return { orgnr: requireOrgnr(orgnr), gjennomforingId: requireGjennomforingId(gjennomforingid) };
 }
 
 export const pathTo = {

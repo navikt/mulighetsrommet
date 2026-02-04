@@ -1,9 +1,9 @@
-import { Link as ReactRouterLink, MetaFunction, useParams } from "react-router";
+import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
-import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
+import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
@@ -19,11 +19,11 @@ export const meta: MetaFunction = () => {
 };
 
 export default function TilsagnDetaljerPage() {
-  const { id } = useParams();
+  const id = useIdFromUrl();
   const orgnr = useOrgnrFromUrl();
 
-  const { data: utbetaling } = useArrangorflateUtbetaling(id!);
-  const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id!);
+  const { data: utbetaling } = useArrangorflateUtbetaling(id);
+  const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id);
 
   const harTilsagn = tilsagn.length > 0;
 

@@ -1,9 +1,9 @@
 import { Alert, BodyLong, BodyShort, Box, ExpansionCard, Link, VStack } from "@navikt/ds-react";
 import { Suspense } from "react";
-import { Link as ReactRouterLink, MetaFunction, useParams } from "react-router";
+import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { Laster } from "~/components/common/Laster";
 import { tekster } from "~/tekster";
-import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
+import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 
@@ -15,11 +15,11 @@ export const meta: MetaFunction = () => {
 };
 
 export default function UtbetalingKvittering() {
-  const { id } = useParams();
+  const id = useIdFromUrl();
 
   return (
     <Suspense fallback={<Laster tekst="Laster kvittering..." size="xlarge" />}>
-      <UtbetalingKvitteringContent id={id!} />
+      <UtbetalingKvitteringContent id={id} />
     </Suspense>
   );
 }

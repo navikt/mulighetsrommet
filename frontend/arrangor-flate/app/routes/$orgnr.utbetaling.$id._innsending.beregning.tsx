@@ -9,9 +9,9 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import type { MetaFunction } from "react-router";
-import { Link as ReactRouterLink, useParams } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { getEnvironment } from "~/services/environment";
-import { deltakerOversiktLenke, pathTo, useOrgnrFromUrl } from "~/utils/navigation";
+import { deltakerOversiktLenke, pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import { tekster } from "~/tekster";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
@@ -29,11 +29,11 @@ export const meta: MetaFunction = () => {
 };
 
 export default function UtbetalingBeregning() {
-  const { id } = useParams();
+  const id = useIdFromUrl();
   const orgnr = useOrgnrFromUrl();
   const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
 
-  const { data: utbetaling } = useArrangorflateUtbetaling(id!);
+  const { data: utbetaling } = useArrangorflateUtbetaling(id);
 
   return (
     <VStack gap="4">
