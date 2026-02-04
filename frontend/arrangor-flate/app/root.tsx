@@ -116,7 +116,7 @@ function DekoratorHeader({ dekorator }: { dekorator?: DekoratorElements }) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  if (isRouteErrorResponse(error)) {
+  if (isRouteErrorResponse(error) && error.status !== 200) {
     if (error.status === 401) {
       const redirectPath = typeof window !== "undefined" ? window.location.pathname : "/";
       throw redirect(`/oauth2/login?redirect=${redirectPath}`);
@@ -130,18 +130,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
           <ErrorPageNotFound errorText={error.data?.detail} />
         </Dokument>
       );
-    }
-    if (error.status === 200)
-      return (
-        <Dokument>
-          <ErrorPage
-            title="Ukjent feil"
-            statusCode={500}
-            errorText="En teknisk feil på våre servere gjør at siden er utilgjengelig. Dette skyldes ikke noe du gjorde."
-          />
-        </Dokument>
-      );
-    else {
+    } else {
       pushError(error);
       return (
         <Dokument>
@@ -161,9 +150,8 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
           title="Ukjent feil"
           statusCode={500}
           errorText={
-            "Det oppstod en uventet feil. Dette er ikke din feil, men vår. " +
-            "Vi jobber med å løse problemet. Vennligst prøv igjen senere. " +
-            (error instanceof Error ? `Feilmelding: ${error.message}` : "")
+            "En teknisk feil på våre servere gjør at siden er utilgjengelig. Dette skyldes ikke noe du gjorde." +
+            (error instanceof Error ? ` Feilmelding: ${error.message}` : "")
           }
         />
       </Dokument>

@@ -19,7 +19,7 @@ export function ErrorPage(props: Props) {
       </Heading>
       <BodyShort spacing>{props.errorText}</BodyShort>
       <BodyShort spacing>Du kan prøve å</BodyShort>
-      <VStack gap="space-8">
+      <VStack gap="space-16">
         <List>
           <List.Item>vente noen minutter og laste siden på nytt</List.Item>
           <List.Item>
@@ -28,7 +28,8 @@ export function ErrorPage(props: Props) {
             </Link>
           </List.Item>
         </List>
-        <BodyShort>Hvis problemet vedvarer, kan du kontakte oss.</BodyShort>
+        <BodyShort>Hvis problemet vedvarer, kan du ta kontakt med oss.</BodyShort>
+        <Link href="tel:55553336">Ring oss på 55 55 33 36</Link>
       </VStack>
     </Box>
   );
