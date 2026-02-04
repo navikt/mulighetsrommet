@@ -301,15 +301,6 @@ importers:
       '@hookform/resolvers':
         specifier: 5.2.2
         version: 5.2.2(react-hook-form@7.71.1(react@19.0.3))
-      '@navikt/aksel-icons':
-        specifier: 7.38.0
-        version: 7.38.0
-      '@navikt/ds-css':
-        specifier: 7.38.0
-        version: 7.38.0
-      '@navikt/ds-react':
-        specifier: 7.38.0
-        version: 7.38.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       '@tanstack/react-query':
         specifier: 5.90.19
         version: 5.90.19(react@19.0.3)
@@ -322,21 +313,12 @@ importers:
       date-fns-tz:
         specifier: ^3.2.0
         version: 3.2.0(date-fns@4.1.0)
-      react:
-        specifier: 19.0.3
-        version: 19.0.3
-      react-dom:
-        specifier: 19.0.3
-        version: 19.0.3(react@19.0.3)
       react-error-boundary:
         specifier: 6.1.0
         version: 6.1.0(react@19.0.3)
       react-hook-form:
         specifier: 7.71.1
         version: 7.71.1(react@19.0.3)
-      react-router:
-        specifier: 7.13.0
-        version: 7.13.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       react-select:
         specifier: 5.10.2
         version: 5.10.2(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
@@ -347,6 +329,15 @@ importers:
       '@mr/eslint-config-react-app':
         specifier: workspace:*
         version: link:../eslint-config-react-app
+      '@navikt/aksel-icons':
+        specifier: 7.38.0
+        version: 7.38.0
+      '@navikt/ds-css':
+        specifier: 7.38.0
+        version: 7.38.0
+      '@navikt/ds-react':
+        specifier: 7.38.0
+        version: 7.38.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       '@types/react':
         specifier: 19.0.3
         version: 19.0.3
@@ -362,6 +353,15 @@ importers:
       postcss:
         specifier: 8.5.6
         version: 8.5.6
+      react:
+        specifier: 19.0.3
+        version: 19.0.3
+      react-dom:
+        specifier: 19.0.3
+        version: 19.0.3(react@19.0.3)
+      react-router:
+        specifier: 7.13.0
+        version: 7.13.0(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       vite-tsconfig-paths:
         specifier: 6.0.4
         version: 6.0.4(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))
@@ -2308,9 +2308,6 @@ packages:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-react@8.2.2':
     resolution: {integrity: sha512-jnuXTt1oKFgBx6QxuDN8FyyY3iiQkjKX7qIisspI37erUrbUYJ66aqQjOsMQ41QlpZ4yeEzzknB7fv3SuMCq3Q==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/8.2.2/03f71885f10b43720f46d3cc848259de69bf769d}
@@ -10227,16 +10224,15 @@ snapshots:
   '@navikt/ds-react@7.38.0(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)':
     dependencies:
       '@floating-ui/react': 0.27.8(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
-      '@floating-ui/react-dom': 2.1.6(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
+      '@floating-ui/react-dom': 2.1.7(react-dom@19.0.3(react@19.0.3))(react@19.0.3)
       '@navikt/aksel-icons': 7.38.0
       '@navikt/ds-tokens': 7.38.0
+      '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 19.0.3
       react-day-picker: 9.7.0(react@19.0.3)
       react-dom: 19.0.3(react@19.0.3)
-    optionalDependencies:
-      '@types/react': 19.0.3
 
   '@navikt/ds-react@8.2.2(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)':
     dependencies:
