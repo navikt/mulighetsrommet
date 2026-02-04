@@ -3,13 +3,14 @@ import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import {
-  Alert,
+  BodyShort,
   Box,
   Button,
   Heading,
   HelpText,
   HStack,
   InlineMessage,
+  LocalAlert,
   Modal,
   Spacer,
   Textarea,
@@ -82,9 +83,9 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
   };
 
   return (
-    <Box background="bg-default" borderRadius="large" padding="8">
-      <VStack gap="4">
-        <HStack gap="2" align="end" justify="space-between">
+    <Box background="default" borderRadius="8" padding="space-32">
+      <VStack gap="space-16">
+        <HStack gap="space-8" align="end" justify="space-between">
           <PageHeading
             title="Detaljer"
             tilbakeLenke={{
@@ -125,7 +126,7 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
           satsDetaljer={utbetaling.beregning.satsDetaljer}
         />
         {utbetaling.kanViseBeregning && (
-          <HStack gap="2">
+          <HStack gap="space-8">
             <Button variant="secondary" size="small" onClick={() => setDeltakerModalOpen(true)}>
               Se deltakelser
             </Button>
@@ -147,20 +148,21 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
           ]}
         />
         <Box
-          background="bg-subtle"
-          padding="6"
-          borderRadius="medium"
-          borderColor="border-subtle"
+          background="neutral-soft"
+          padding="space-24"
+          borderRadius="4"
+          borderColor="neutral-subtle"
           borderWidth="1"
         >
           <UtbetalingStatusList utbetaling={utbetaling} />
         </Box>
         {utbetaling.kanAvbrytes !== ArrangorAvbrytStatus.HIDDEN && (
-          <HStack gap="2" justify="start" align="center">
+          <HStack gap="space-8" justify="start" align="center">
             <Button
+              data-color="danger"
               disabled={utbetaling.kanAvbrytes === ArrangorAvbrytStatus.DEACTIVATED}
               size="small"
-              variant="danger"
+              variant="primary"
               onClick={() => setAvbrytModalOpen(true)}
             >
               Avbryt
@@ -172,7 +174,7 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
           </HStack>
         )}
         {utbetaling.kanRegenereres && (
-          <HStack gap="2" justify="start" align="center">
+          <HStack gap="space-8" justify="start" align="center">
             <Button
               type="button"
               size="small"
@@ -185,7 +187,7 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
           </HStack>
         )}
         {utbetaling.regenerertId && (
-          <HStack gap="2" justify="start" align="center">
+          <HStack gap="space-8" justify="start" align="center">
             <InlineMessage status="info">
               Krav om utbetaling for denne perioden er opprettet på nytt. Du finner kravet på
               oversikten over aktive utbetalingskrav
@@ -207,7 +209,7 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
 function UtbetalingHeader({ utbetalingType }: { utbetalingType: UtbetalingTypeDto }) {
   const tekst = utbetalingType.displayNameLong ?? utbetalingType.displayName;
   return (
-    <HStack gap="2">
+    <HStack gap="space-8">
       <Heading level="3" size="medium">
         {tekst}
       </Heading>
@@ -234,18 +236,25 @@ function DeltakerModal({ utbetaling, deltakerlisteUrl, open, setOpen }: Deltaker
       closeOnBackdropClick
     >
       <Modal.Body>
-        <VStack gap="2">
+        <VStack gap="space-8">
           {utbetaling.beregning.stengt.length > 0 && (
-            <Alert variant={"info"}>
-              {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
-              <ul>
-                {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
-                  <li key={periode.start + periode.slutt}>
-                    {formaterPeriode(periode)}: {beskrivelse}
-                  </li>
-                ))}
-              </ul>
-            </Alert>
+            <LocalAlert status="announcement" size="small">
+              <LocalAlert.Header>
+                <LocalAlert.Title as="h4">Stengte perioder</LocalAlert.Title>
+              </LocalAlert.Header>
+              <LocalAlert.Content>
+                <BodyShort spacing>
+                  {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
+                </BodyShort>
+                <ul>
+                  {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
+                    <li key={periode.start + periode.slutt}>
+                      {formaterPeriode(periode)}: {beskrivelse}
+                    </li>
+                  ))}
+                </ul>
+              </LocalAlert.Content>
+            </LocalAlert>
           )}
           <DeltakelserTable
             beregning={utbetaling.beregning}
@@ -306,15 +315,18 @@ function AvbrytModal({ id, open, setOpen }: AvbrytModalProps) {
     >
       <Modal.Body>
         <form onSubmit={handleSubmit}>
-          <VStack gap="2">
-            <Alert variant={"info"}>
+          <VStack gap="space-8">
+            <LocalAlert status={"announcement"}>
+              <LocalAlert.Header>
+                <LocalAlert.Title>Hva betyr det å avbryte en innsending?</LocalAlert.Title>
+              </LocalAlert.Header>
               Hvis kravet avbrytes, vil det ikke behandles av Nav og det vil ikke utbetales noe. Det
               kan være aktuelt hvis dere oppdager noe feil i innsendingen.
               <br />
               <br />
               Dere kan selv starte en ny innsending med korrekte opplysninger etter at kravet er
               avbrutt. Vær oppmerksom på at et avbrutt krav fremdeles vil være arkivert hos Nav.
-            </Alert>
+            </LocalAlert>
             <Textarea
               name="begrunnelse"
               description="Oppgi årsaken til at behandlingen av kravet skal avbrytes. Begrunnelsen blir lagret hos Nav"
@@ -324,15 +336,16 @@ function AvbrytModal({ id, open, setOpen }: AvbrytModalProps) {
               error={errors.find((error) => error.pointer === "/begrunnelse")?.detail}
               maxLength={100}
             />
-            <HStack gap="4" justify="end">
+            <HStack gap="space-16" justify="end">
               <Button type="button" variant="tertiary" size="small" onClick={onClose}>
                 Nei, takk
               </Button>
               <Button
+                data-color="danger"
                 type="submit"
                 loading={avbrytUtbetaling.isPending}
                 size="small"
-                variant="danger"
+                variant="primary"
               >
                 Ja, jeg vil avbryte
               </Button>

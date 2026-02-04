@@ -7,6 +7,11 @@ minimumReleaseAgeExclude:
   - react@19.0.1 #CVE-2025-55182
   - react-dom@19.0.1 #CVE-2025-55182
   - react-router@7.12.0 #CVE-2026-21884, CVE-2026-22029, CVE-2026-22030
+  - "@navikt/aksel-icons@8.2.2"
+  - "@navikt/ds-css@8.2.2"
+  - "@navikt/ds-react@8.2.2"
+  - "@navikt/ds-tailwind@8.2.2"
+  - "@navikt/ds-tokens@8.2.2"
 
 # Gjør at peer dependencies ikke blir installert automatisk og at vi i stedet må ta aktiv stilling
 # til hvilke peer dependencies vi ønsker å støtte

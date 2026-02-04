@@ -130,6 +130,8 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
+        stillingsprosent = 100f,
+        dagerPerUke = 5f,
         arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(
             organisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer,
             navn = "Underenhet 2 AS",

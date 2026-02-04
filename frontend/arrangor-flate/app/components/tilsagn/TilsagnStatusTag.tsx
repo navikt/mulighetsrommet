@@ -1,29 +1,43 @@
-import { StatusTag } from "@mr/frontend-common";
+import { Tag } from "@navikt/ds-react";
+import { AkselColor } from "@navikt/ds-react/types/theme";
 import { TilsagnStatus } from "api-client";
+import { ReactNode } from "react";
 
-export function TilsagnStatusTag({ status }: { status: TilsagnStatus }) {
-  switch (status) {
-    case TilsagnStatus.RETURNERT:
-    case TilsagnStatus.TIL_GODKJENNING:
-      return null;
-    case TilsagnStatus.GODKJENT:
-      return <StatusTag variant="success">Godkjent</StatusTag>;
-    case TilsagnStatus.TIL_ANNULLERING:
-      return <StatusTag variant="warning">Til annullering</StatusTag>;
-    case TilsagnStatus.ANNULLERT:
-      return (
-        <StatusTag
-          variant="neutral"
-          className={
-            "bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)] line-through"
-          }
-        >
-          Annullert
-        </StatusTag>
-      );
-    case TilsagnStatus.TIL_OPPGJOR:
-      return <StatusTag variant="warning">Til oppgjør</StatusTag>;
-    case TilsagnStatus.OPPGJORT:
-      return <StatusTag variant="neutral">Oppgjort</StatusTag>;
+const statusConfig: Record<TilsagnStatus, { label: string; color: AkselColor } | null> = {
+  [TilsagnStatus.RETURNERT]: null,
+  [TilsagnStatus.TIL_GODKJENNING]: null,
+  [TilsagnStatus.GODKJENT]: {
+    label: "Godkjent",
+    color: "success",
+  },
+  [TilsagnStatus.TIL_ANNULLERING]: {
+    label: "Til annullering",
+    color: "warning",
+  },
+  [TilsagnStatus.ANNULLERT]: {
+    label: "Annullert",
+    color: "danger",
+  },
+  [TilsagnStatus.TIL_OPPGJOR]: {
+    label: "Til oppgjør",
+    color: "warning",
+  },
+  [TilsagnStatus.OPPGJORT]: {
+    label: "Oppgjort",
+    color: "neutral",
+  },
+};
+
+export function TilsagnStatusTag({ status }: { status: TilsagnStatus }): ReactNode {
+  const config = statusConfig[status];
+
+  if (!config) {
+    return null;
   }
+
+  return (
+    <Tag size="small" data-color={config.color} className="whitespace-nowrap">
+      {config.label}
+    </Tag>
+  );
 }

@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Box, Heading, Tabs, Link, VStack } from "@navikt/ds-react";
+import { LocalAlert, BodyShort, Box, Heading, Tabs, Link, VStack } from "@navikt/ds-react";
 import { ArrangorInnsendingRadDto, TiltaksoversiktType } from "api-client";
 import { Suspense } from "react";
 import { Link as ReactRouterLink, MetaFunction } from "react-router";
@@ -26,8 +26,8 @@ export default function OpprettKravTiltaksOversikt() {
   const [currentTab, setTab] = useTabState();
 
   return (
-    <Box background="bg-default" padding="4" borderRadius="large">
-      <VStack gap="4">
+    <Box background="default" padding="space-16" borderRadius="8">
+      <VStack gap="space-16">
         <Link as={ReactRouterLink} to={pathTo.utbetalinger} className="max-w-max">
           <ChevronLeftIcon /> Tilbake til oversikt
         </Link>
@@ -71,13 +71,18 @@ function TiltaksOversiktContent({ type }: { type: TiltaksoversiktType }) {
 
   if (sortedData.length === 0) {
     return (
-      <Box marginBlock="4">
-        <Alert variant="info">
-          <BodyShort>
-            Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
-          </BodyShort>
-          <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
-        </Alert>
+      <Box marginBlock="space-16">
+        <LocalAlert status="warning" className="my-10">
+          <LocalAlert.Header>
+            <LocalAlert.Title>Fant ingen registrerte tiltak</LocalAlert.Title>
+          </LocalAlert.Header>
+          <LocalAlert.Content>
+            <BodyShort spacing>
+              Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
+            </BodyShort>
+            <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
+          </LocalAlert.Content>
+        </LocalAlert>
       </Box>
     );
   }

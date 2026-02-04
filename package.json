@@ -5,7 +5,7 @@
     "prettier": "3.8.0",
     "turbo": "2.7.5"
   },
-  "packageManager": "pnpm@10.24.0",
+  "packageManager": "pnpm@10.28.2",
   "pnpm": {
     "overrides": {
       "follow-redirects@>=1.15.0 <1.15.9": ">=1.15.9",

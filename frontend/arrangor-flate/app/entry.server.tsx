@@ -22,8 +22,7 @@ import { isDemo } from "./services/environment";
 export const streamTimeout = 5000;
 
 if (isDemo()) {
-  // eslint-disable-next-line no-console
-  console.log("Initialiserer mock server");
+  logger.info("Initialiserer mock server");
   initializeMockServer();
 }
 
@@ -140,6 +139,11 @@ function handleBrowserRequest(
 
 export function handleError(error: unknown, { request }: LoaderFunctionArgs | ActionFunctionArgs) {
   if (!request.signal.aborted) {
-    logger.error(error);
+    logger.error("Unhandled error", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      method: request.method,
+      url: request.url,
+    });
   }
 }

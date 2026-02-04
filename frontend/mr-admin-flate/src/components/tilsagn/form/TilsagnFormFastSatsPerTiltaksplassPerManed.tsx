@@ -1,6 +1,7 @@
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import {
   GjennomforingDto,
+  PrismodellDto,
   TilsagnBeregningType,
   TilsagnRequest,
 } from "@tiltaksadministrasjon/api-client";
@@ -13,6 +14,7 @@ import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 
 interface Props {
   gjennomforing: GjennomforingDto;
+  prismodell: PrismodellDto;
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
@@ -27,12 +29,12 @@ export function TilsagnFormFastSatsPerTiltaksplassPerManed(props: Props) {
       onSuccess={props.onSuccess}
       onAvbryt={props.onAvbryt}
       defaultValues={props.defaultValues}
-      beregningInput={<BeregningInputSkjema gjennomforing={props.gjennomforing} />}
+      beregningInput={<BeregningInputSkjema prismodell={props.prismodell} />}
     />
   );
 }
 
-function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
+function BeregningInputSkjema({ prismodell }: Pick<Props, "prismodell">) {
   const {
     register,
     formState: { errors },
@@ -40,7 +42,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   } = useFormContext<TilsagnRequest>();
 
   const periodeStart = watch("periodeStart");
-  const sats = useFindAvtaltSats(gjennomforing, periodeStart);
+  const sats = useFindAvtaltSats(prismodell, periodeStart);
 
   return (
     <VStack gap="4">

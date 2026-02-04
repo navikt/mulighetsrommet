@@ -7,17 +7,21 @@ import { Suspense } from "react";
 
 export function RedaksjoneltInnholdGjennomforing() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
+  const { tiltakstype, veilederinfo } = useGjennomforing(gjennomforingId);
+
+  if (!veilederinfo) {
+    return null;
+  }
 
   return (
     <Suspense fallback={<Laster tekst="Laster innhold" />}>
       <GjennomforingPageLayout>
         <RedaksjoneltInnhold
-          tiltakstype={gjennomforing.tiltakstype}
-          kontorstruktur={gjennomforing.kontorstruktur}
-          beskrivelse={gjennomforing.beskrivelse ?? null}
-          faneinnhold={gjennomforing.faneinnhold}
-          kontaktpersoner={gjennomforing.kontaktpersoner}
+          tiltakstype={tiltakstype}
+          kontorstruktur={veilederinfo.kontorstruktur}
+          beskrivelse={veilederinfo.beskrivelse ?? null}
+          faneinnhold={veilederinfo.faneinnhold}
+          kontaktpersoner={veilederinfo.kontaktpersoner}
         />
       </GjennomforingPageLayout>
     </Suspense>

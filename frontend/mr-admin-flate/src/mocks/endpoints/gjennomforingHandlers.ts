@@ -4,7 +4,7 @@ import { mockEndringshistorikkForGjennomforing } from "../fixtures/mock_endrings
 import {
   EndringshistorikkDto,
   GjennomforingDeltakerSummary,
-  GjennomforingDto,
+  GjennomforingDetaljerDto,
   GjennomforingHandling,
   PaginatedResponseGjennomforingKompaktDto,
 } from "@tiltaksadministrasjon/api-client";
@@ -35,7 +35,7 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.put<PathParams, undefined, GjennomforingDto>(
+  http.put<PathParams, undefined, GjennomforingDetaljerDto>(
     "*/api/tiltaksadministrasjon/gjennomforinger",
     () => {
       const gjennomforing = mockGjennomforinger[0];
@@ -43,12 +43,14 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.get<{ id: string }, undefined, GjennomforingDto>(
+  http.get<{ id: string }, undefined, GjennomforingDetaljerDto>(
     "/api/tiltaksadministrasjon/gjennomforinger/:id",
     ({ params }) => {
       const { id } = params;
 
-      const gjennomforing = mockGjennomforinger.find((gj) => gj.id === id);
+      const gjennomforing = mockGjennomforinger.find(
+        ({ gjennomforing }) => gjennomforing.id === id,
+      );
       if (!gjennomforing) {
         return HttpResponse.json(undefined, { status: 404 });
       }

@@ -1,10 +1,9 @@
 import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
 import {
   AvtaleDto,
-  GjennomforingDto,
-  GjennomforingKontaktperson,
   GjennomforingRequest,
   GjennomforingService,
+  GjennomforingVeilederinfoDto,
 } from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
@@ -15,20 +14,20 @@ import { InformasjonForVeiledereForm } from "@/components/redaksjoneltInnhold/In
 
 interface Props {
   avtale: AvtaleDto;
-  lagredeKontaktpersoner: GjennomforingKontaktperson[];
+  veilederinfo: GjennomforingVeilederinfoDto | null;
 }
 
-export function GjennomforingInformasjonForVeiledereForm({
-  avtale,
-  lagredeKontaktpersoner,
-}: Props) {
+export function GjennomforingInformasjonForVeiledereForm({ avtale, veilederinfo }: Props) {
   const [key, setKey] = useState(0);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
 
   const { setValue, watch } = useFormContext<GjennomforingRequest>();
 
-  function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: GjennomforingDto | AvtaleDto) {
+  function kopierRedaksjoneltInnhold({
+    beskrivelse,
+    faneinnhold,
+  }: Partial<GjennomforingVeilederinfoDto> | Partial<AvtaleDto>) {
     setValue("veilederinformasjon.beskrivelse", beskrivelse ?? null);
     setValue("veilederinformasjon.faneinnhold", faneinnhold ?? null);
     // Ved å endre `key` så tvinger vi en update av den underliggende Portable text komponenten slik at
@@ -37,8 +36,10 @@ export function GjennomforingInformasjonForVeiledereForm({
   }
 
   async function kopierRedaksjoneltInnholdFraGjennomforing(id: string) {
-    const { data: gjennomforing } = await GjennomforingService.getGjennomforing({ path: { id } });
-    kopierRedaksjoneltInnhold(gjennomforing);
+    const {
+      data: { veilederinfo },
+    } = await GjennomforingService.getGjennomforing({ path: { id } });
+    kopierRedaksjoneltInnhold(veilederinfo || {});
   }
 
   const navRegioner = watch("veilederinformasjon.navRegioner");
@@ -95,7 +96,7 @@ export function GjennomforingInformasjonForVeiledereForm({
         kontorerOptions={kontorEnheterOptions}
         andreEnheterOptions={andreEnheterOptions}
         kontaktpersonForm
-        lagredeKontaktpersoner={lagredeKontaktpersoner}
+        lagredeKontaktpersoner={veilederinfo?.kontaktpersoner ?? []}
       />
       <Modal
         open={modalOpen}

@@ -45,67 +45,72 @@ export default function OppsummeringStep({
 
   return (
     <>
-      <Heading level="2" spacing size="large">
+      <Heading level="2" size="large">
         Oppsummering
       </Heading>
-      <LabeledDataElementList title="Innsendingsinformasjon" entries={innsendingsInformasjon} />
-      <Separator />
-      <Definisjonsliste
-        title="Utbetaling"
-        definitions={[
-          {
-            key: "Utbetalingsperiode",
-            value: formaterPeriode({
-              start: formState.periodeStart!,
-              slutt: formaterDato(
-                formState.periodeInklusiv
-                  ? addDuration(formState.periodeSlutt!, { days: 1 })!
-                  : formState.periodeSlutt!,
-              )!,
-            }),
-          },
-          { key: "Kontonummer", value: formState.kontonummer },
-          { key: "KID-nummer", value: formState.kid },
-          { key: "Beløp", value: formState.belop },
-        ]}
-      />
-      <Separator />
-      <form onSubmit={handleSubmit}>
-        <Box marginBlock="0 8">
-          {acceptedFiles.length > 0 && (
-            <VStack gap="2" marginBlock="4">
-              <Heading level="4" size="xsmall">
-                {`Vedlegg (${acceptedFiles.length})`}
-              </Heading>
-              <VStack as="ul" gap="3">
-                {acceptedFiles.map((file: FileObject, index: number) => (
-                  <FileUpload.Item as="li" key={index} file={file.file} />
-                ))}
+      <Box>
+        <LabeledDataElementList title="Innsendingsinformasjon" entries={innsendingsInformasjon} />
+        <Separator />
+        <Definisjonsliste
+          title="Utbetaling"
+          definitions={[
+            {
+              key: "Utbetalingsperiode",
+              value: formaterPeriode({
+                start: formState.periodeStart!,
+                slutt: formaterDato(
+                  formState.periodeInklusiv
+                    ? addDuration(formState.periodeSlutt!, { days: 1 })!
+                    : formState.periodeSlutt!,
+                )!,
+              }),
+            },
+            { key: "Kontonummer", value: formState.kontonummer },
+            { key: "KID-nummer", value: formState.kid },
+            { key: "Beløp", value: formState.belop },
+          ]}
+        />
+        <Separator />
+        <form onSubmit={handleSubmit}>
+          <Box marginBlock="space-0 space-32">
+            <Heading level="3" size="medium" spacing>
+              Vedlegg
+            </Heading>
+            <Heading level="4" size="xsmall">
+              {`Vedlegg (${acceptedFiles.length})`}
+            </Heading>
+            {acceptedFiles.length > 0 && (
+              <VStack gap="space-8" marginBlock="space-4" align="start">
+                <VStack as="ul" gap="space-8">
+                  {acceptedFiles.map((file, index) => (
+                    <FileUpload.Item as="li" key={index} file={file.file} />
+                  ))}
+                </VStack>
               </VStack>
-            </VStack>
-          )}
-          <Separator />
-          <CheckboxGroup error={errorAt("/bekreftelse", errors)} legend="Bekreftelse">
-            <Checkbox
-              name="bekreftelse"
-              value="bekreftet"
-              id="bekreftelse"
-              checked={bekreftelse}
-              onChange={(e) => setBekreftelse(e.target.checked)}
-            >
-              {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
-            </Checkbox>
-          </CheckboxGroup>
-        </Box>
-        <HStack gap="4">
-          <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
-            Tilbake
-          </Button>
-          <Button type="submit" loading={isSubmitting}>
-            Bekreft og send inn
-          </Button>
-        </HStack>
-      </form>
+            )}
+            <Separator />
+            <CheckboxGroup error={errorAt("/bekreftelse", errors)} legend="Bekreftelse">
+              <Checkbox
+                name="bekreftelse"
+                value="bekreftet"
+                id="bekreftelse"
+                checked={bekreftelse}
+                onChange={(e) => setBekreftelse(e.target.checked)}
+              >
+                {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
+              </Checkbox>
+            </CheckboxGroup>
+          </Box>
+          <HStack gap="space-8">
+            <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
+              Tilbake
+            </Button>
+            <Button type="submit" loading={isSubmitting}>
+              Bekreft og send inn
+            </Button>
+          </HStack>
+        </form>
+      </Box>
     </>
   );
 }

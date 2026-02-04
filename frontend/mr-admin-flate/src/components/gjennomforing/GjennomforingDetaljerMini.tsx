@@ -5,6 +5,7 @@ import { GjennomforingStatusTag } from "@/components/statuselementer/Gjennomfori
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
+import { isGruppetiltak } from "@/api/gjennomforing/utils";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -38,10 +39,12 @@ export function GjennomforingDetaljerMini({ gjennomforing, meny }: Props) {
           label={gjennomforingTekster.sluttdatoLabel}
           value={formaterDato(gjennomforing.sluttDato) || "-"}
         />
-        <MetadataVStack
-          label={gjennomforingTekster.antallPlasserLabel}
-          value={gjennomforing.antallPlasser}
-        />
+        {isGruppetiltak(gjennomforing) && (
+          <MetadataVStack
+            label={gjennomforingTekster.antallPlasserLabel}
+            value={gjennomforing.antallPlasser}
+          />
+        )}
         <MetadataVStack
           label="Status"
           value={<GjennomforingStatusTag status={gjennomforing.status} />}

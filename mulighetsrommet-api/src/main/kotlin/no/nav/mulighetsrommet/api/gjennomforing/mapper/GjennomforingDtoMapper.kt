@@ -2,13 +2,15 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppeDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object GjennomforingDtoMapper {
@@ -17,68 +19,59 @@ object GjennomforingDtoMapper {
         is GjennomforingEnkeltplass -> fromEnkeltplass(gjennomforing)
     }
 
-    fun fromGruppetiltak(gjennomforing: GjennomforingGruppetiltak) = GjennomforingDto(
-        id = gjennomforing.id,
+    fun fromGruppetiltak(gjennomforing: GjennomforingGruppetiltak) = GjennomforingDetaljerDto(
         tiltakstype = gjennomforing.tiltakstype,
-        navn = gjennomforing.navn,
-        lopenummer = gjennomforing.lopenummer,
-        tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
-        arrangor = gjennomforing.arrangor,
-        startDato = gjennomforing.startDato,
-        sluttDato = gjennomforing.sluttDato,
-        status = fromGjennomforingStatus(gjennomforing.status),
-        apentForPamelding = gjennomforing.apentForPamelding,
-        antallPlasser = gjennomforing.antallPlasser,
-        avtaleId = gjennomforing.avtaleId,
-        administratorer = gjennomforing.administratorer,
-        kontorstruktur = gjennomforing.kontorstruktur,
-        oppstart = gjennomforing.oppstart,
-        opphav = gjennomforing.opphav,
-        kontaktpersoner = gjennomforing.kontaktpersoner,
-        oppmoteSted = gjennomforing.oppmoteSted,
-        faneinnhold = gjennomforing.faneinnhold,
-        beskrivelse = gjennomforing.beskrivelse,
-        publisert = gjennomforing.publisert,
-        deltidsprosent = gjennomforing.deltidsprosent,
-        estimertVentetid = gjennomforing.estimertVentetid,
-        tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
+        gjennomforing = GjennomforingGruppeDto(
+            id = gjennomforing.id,
+            navn = gjennomforing.navn,
+            lopenummer = gjennomforing.lopenummer,
+            tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+            arrangor = gjennomforing.arrangor,
+            startDato = gjennomforing.startDato,
+            sluttDato = gjennomforing.sluttDato,
+            status = fromGjennomforingStatus(gjennomforing.status),
+            antallPlasser = gjennomforing.antallPlasser,
+            avtaleId = gjennomforing.avtaleId,
+            oppstart = gjennomforing.oppstart,
+            pameldingType = gjennomforing.pameldingType,
+            apentForPamelding = gjennomforing.apentForPamelding,
+            opphav = gjennomforing.opphav,
+            deltidsprosent = gjennomforing.deltidsprosent,
+            tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
+            administratorer = gjennomforing.administratorer,
+            stengt = gjennomforing.stengt,
+        ),
+        veilederinfo = GjennomforingVeilederinfoDto(
+            kontorstruktur = gjennomforing.kontorstruktur,
+            kontaktpersoner = gjennomforing.kontaktpersoner,
+            oppmoteSted = gjennomforing.oppmoteSted,
+            faneinnhold = gjennomforing.faneinnhold,
+            beskrivelse = gjennomforing.beskrivelse,
+            publisert = gjennomforing.publisert,
+            estimertVentetid = gjennomforing.estimertVentetid,
+        ),
+        prismodell = gjennomforing.prismodell?.let { fromPrismodell(it) },
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop,
-        stengt = gjennomforing.stengt,
-        prismodell = gjennomforing.prismodell?.let { fromPrismodell(it) },
-        pameldingType = gjennomforing.pameldingType,
     )
 
-    fun fromEnkeltplass(gjennomforing: GjennomforingEnkeltplass) = GjennomforingDto(
-        id = gjennomforing.id,
+    fun fromEnkeltplass(gjennomforing: GjennomforingEnkeltplass) = GjennomforingDetaljerDto(
         tiltakstype = gjennomforing.tiltakstype,
-        navn = gjennomforing.navn,
-        lopenummer = gjennomforing.lopenummer,
-        tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
-        arrangor = gjennomforing.arrangor,
-        startDato = gjennomforing.startDato,
-        sluttDato = gjennomforing.sluttDato,
-        status = fromGjennomforingStatus(gjennomforing.status),
-        antallPlasser = gjennomforing.antallPlasser,
-        oppstart = GjennomforingOppstartstype.LOPENDE,
-        pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
-        opphav = gjennomforing.opphav,
-        deltidsprosent = gjennomforing.deltidsprosent,
-        apentForPamelding = false,
-        avtaleId = null,
-        administratorer = listOf(),
-        kontorstruktur = listOf(),
-        kontaktpersoner = listOf(),
-        oppmoteSted = null,
-        faneinnhold = null,
-        beskrivelse = null,
-        publisert = false,
-        estimertVentetid = null,
-        tilgjengeligForArrangorDato = null,
+        gjennomforing = GjennomforingEnkeltplassDto(
+            id = gjennomforing.id,
+            navn = gjennomforing.tiltakstype.navn,
+            lopenummer = gjennomforing.lopenummer,
+            tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+            arrangor = gjennomforing.arrangor,
+            startDato = gjennomforing.startDato,
+            sluttDato = gjennomforing.sluttDato,
+            status = fromGjennomforingStatus(gjennomforing.status),
+            opphav = gjennomforing.opphav,
+        ),
+        veilederinfo = null,
+        prismodell = null,
         amoKategorisering = null,
         utdanningslop = null,
-        stengt = listOf(),
-        prismodell = null,
     )
 
     private fun fromGjennomforingStatus(status: GjennomforingStatusType): GjennomforingDto.Status {

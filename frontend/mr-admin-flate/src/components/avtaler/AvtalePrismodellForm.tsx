@@ -36,14 +36,30 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     register,
   } = useFormContext<PrismodellValues>();
   const { data: prismodellTyper = [] } = usePrismodeller(tiltakskode);
-  const enableSEK = useFeatureToggle(FeatureToggle.TILTAKSADMINISTRASJON_SVENSK_VALUTA);
+  const { data: enableSEK } = useFeatureToggle(FeatureToggle.TILTAKSADMINISTRASJON_SVENSK_VALUTA);
+  const valutaOptions = enableSEK ? [Valuta.NOK, Valuta.SEK] : [Valuta.NOK];
+
+  const prismodellerMedSatser = [
+    PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+    PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+    PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+    PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+  ];
 
   const { fields, append, remove } = useFieldArray({
     name: "prismodeller",
     control,
   });
 
-  const valutaOptions = enableSEK.data ? [Valuta.NOK, Valuta.SEK] : [Valuta.NOK];
+  const onPrismodelltypeChange = (index: number, type: PrismodellType) => {
+    setValue(`prismodeller.${index}.type`, type);
+    setValue(
+      `prismodeller.${index}.satser`,
+      type === PrismodellType.ANNEN_AVTALT_PRIS
+        ? []
+        : [{ gjelderTil: null, gjelderFra: "", pris: 0 }],
+    );
+  };
 
   return (
     <VStack gap="4">
@@ -69,9 +85,9 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                     size="small"
                     error={errors.prismodeller?.[index]?.type?.message}
                     value={type}
-                    onChange={(e) => {
-                      setValue(`prismodeller.${index}.type`, e.target.value as PrismodellType);
-                    }}
+                    onChange={(e) =>
+                      onPrismodelltypeChange(index, e.target.value as PrismodellType)
+                    }
                   >
                     <option key={undefined} value={undefined}>
                       -- Velg prismodell --
@@ -100,7 +116,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
 
                 {beskrivelse &&
                   beskrivelse.map((tekst, i) => <BodyShort key={i}>{tekst}</BodyShort>)}
-                {type !== PrismodellType.ANNEN_AVTALT_PRIS && (
+                {prismodellerMedSatser.includes(type) && (
                   <AvtalteSatserForm
                     avtaleStartDato={avtaleStartDato}
                     field={`prismodeller.${index}`}

@@ -1,13 +1,13 @@
 import { useDeleteStengtHosArrangor } from "@/api/gjennomforing/useDeleteStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Table } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { GjennomforingGruppeDto } from "@tiltaksadministrasjon/api-client";
 
 interface StengtHosArrangorTableProps {
-  gjennomforing: GjennomforingDto;
+  gjennomforing: GjennomforingGruppeDto;
   readOnly?: boolean;
 }
 
@@ -15,7 +15,20 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
   const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforing.id);
   const queryClient = useQueryClient();
 
-  if (gjennomforing.stengt.length === 0) return null;
+  if (gjennomforing.stengt.length === 0) {
+    return null;
+  }
+
+  function deleteStengtPeriode(periodeId: number) {
+    deleteStengtHosArrangor.mutate(periodeId, {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: QueryKeys.gjennomforing(gjennomforing.id),
+          refetchType: "all",
+        });
+      },
+    });
+  }
 
   return (
     <section className="bg-surface-subtle p-4 rounded-lg">
@@ -46,16 +59,7 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
                       size="small"
                       variant="secondary-neutral"
                       icon={<TrashIcon aria-hidden />}
-                      onClick={async () => {
-                        deleteStengtHosArrangor.mutate(periode.id, {
-                          onSuccess: async () => {
-                            await queryClient.invalidateQueries({
-                              queryKey: QueryKeys.gjennomforing(gjennomforing.id),
-                              refetchType: "all",
-                            });
-                          },
-                        });
-                      }}
+                      onClick={() => deleteStengtPeriode(periode.id)}
                     >
                       Slett
                     </Button>

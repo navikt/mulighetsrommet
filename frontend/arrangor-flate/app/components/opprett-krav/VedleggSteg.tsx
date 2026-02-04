@@ -52,28 +52,27 @@ export default function VedleggSteg({
       <Heading level="2" spacing size="large">
         Vedlegg
       </Heading>
-      <VStack gap="6">
+      <VStack gap="space-24">
         <GuidePanelVedlegg type={data.guidePanel} />
-        <VStack gap="4">
-          <FileUpload.Dropzone
-            label="Last opp vedlegg"
-            description={`Du kan laste opp PDF-filer. Maks ${maxFiles} filer. Maks størrelse ${maxSizeMB} MB per fil.`}
-            accept=".pdf"
-            id="vedlegg"
-            error={errorAt("/vedlegg", errors)}
-            maxSizeInBytes={maxSizeBytes}
-            fileLimit={{ max: maxFiles, current: acceptedFiles.length }}
-            onSelect={(newFiles: FileObject[]) => {
-              updateFormState({ files: [...formState.files, ...newFiles] });
-            }}
-          />
-        </VStack>
+        <FileUpload.Dropzone
+          label="Last opp vedlegg"
+          description={`Du kan laste opp PDF-filer. Maks ${maxFiles} filer. Maks størrelse ${maxSizeMB} MB per fil.`}
+          accept=".pdf"
+          id="vedlegg"
+          error={errorAt("/vedlegg", errors)}
+          maxSizeInBytes={maxSizeBytes}
+          fileLimit={{ max: maxFiles, current: acceptedFiles.length }}
+          onSelect={(newFiles: FileObject[]) => {
+            updateFormState({ files: [...formState.files, ...newFiles] });
+          }}
+        />
+
         {acceptedFiles.length > 0 && (
-          <VStack gap="2">
+          <VStack gap="space-8">
             <Heading level="4" size="xsmall">
               {`Vedlegg (${acceptedFiles.length})`}
             </Heading>
-            <VStack as="ul" gap="3">
+            <VStack as="ul" gap="space-8" align="start">
               {acceptedFiles.map((file, index) => (
                 <FileUpload.Item
                   as="li"
@@ -89,11 +88,11 @@ export default function VedleggSteg({
           </VStack>
         )}
         {rejectedFiles.length > 0 && (
-          <VStack gap="2">
+          <VStack gap="space-8">
             <Heading level="4" size="xsmall">
               Vedlegg med feil
             </Heading>
-            <VStack as="ul" gap="3">
+            <VStack as="ul" gap="space-8" align="start">
               {rejectedFiles.map((rejected, index) => (
                 <FileUpload.Item
                   as="li"

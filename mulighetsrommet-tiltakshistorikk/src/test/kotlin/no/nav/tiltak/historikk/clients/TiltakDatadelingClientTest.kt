@@ -30,6 +30,8 @@ class TiltakDatadelingClientTest : FunSpec({
                             "startDato": "2023-01-16",
                             "sluttDato": "2025-04-01",
                             "avtaleStatus": "GJENNOMFORES",
+                            "stillingprosent": 100,
+                            "antallDagerPerUke": 5,
                             "opprettetTidspunkt": "2023-01-01T11:05:40.946+02:00",
                             "endretTidspunkt": "2023-01-01T11:05:40.946+02:00"
                           },
@@ -42,6 +44,8 @@ class TiltakDatadelingClientTest : FunSpec({
                             "startDato": null,
                             "sluttDato": null,
                             "avtaleStatus": "ANNULLERT",
+                            "stillingprosent": 77,
+                            "antallDagerPerUke": 2.5,
                             "opprettetTidspunkt": "2023-02-01T11:05:40.946+02:00"
                             "endretTidspunkt": "2023-02-01T11:05:40.946+02:00"
                           },
@@ -54,6 +58,8 @@ class TiltakDatadelingClientTest : FunSpec({
                             "startDato": "2023-01-24",
                             "sluttDato": "2023-02-05",
                             "avtaleStatus": "AVSLUTTET",
+                            "stillingprosent": null,
+                            "antallDagerPerUke": null,
                             "opprettetTidspunkt": "2023-01-01T11:05:40.946+02:00"
                             "endretTidspunkt": "2023-01-01T11:05:40.946+02:00"
                           }

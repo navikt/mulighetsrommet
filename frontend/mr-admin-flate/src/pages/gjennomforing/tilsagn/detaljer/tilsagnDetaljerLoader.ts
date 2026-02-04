@@ -10,6 +10,7 @@ export function useTilsagn(id: string) {
     },
   });
 }
+
 export function useTilsagnRequest(id: string) {
   return useApiSuspenseQuery({
     queryKey: ["tilsagn", id, "request"],

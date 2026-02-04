@@ -696,7 +696,6 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
         GjennomforingType.ENKELTPLASS -> {
             GjennomforingKompaktEnkeltplass(
                 id = uuid("id"),
-                navn = string("navn"),
                 lopenummer = Tiltaksnummer(string("lopenummer")),
                 startDato = localDate("start_dato"),
                 sluttDato = localDateOrNull("slutt_dato"),

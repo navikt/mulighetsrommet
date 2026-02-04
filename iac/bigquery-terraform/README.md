@@ -180,3 +180,7 @@ Loggene finner du i [GCP Observability Monitor](https://console.cloud.google.com
     **Fiks**:
     - Drop kolonnen i truffet tabell via [BigQuery](https://console.cloud.google.com/bigquery)
     - Kjør en `Initiate Backfill` av samme tabell via [Datastream -> Objects fanen](https://console.cloud.google.com/datastream/streams)
+- **Hvorfor får jeg feilmedling BAD_CREDENTIALS når jeg prøver oppdatere datastreams.tf?**
+  - Autentisering secret har blitt rotert/utdatert
+    **Fiks**:
+    - Lag nye secrets med scriptet i **Opprette secret for datastream-bruker**

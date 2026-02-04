@@ -1,18 +1,31 @@
 import { useSetApentForPamelding } from "@/api/gjennomforing/useSetApentForPamelding";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
 import { Button, Modal, Switch } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefObject } from "react";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
+import { isGruppetiltak } from "@/api/gjennomforing/utils";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
-  gjennomforing: GjennomforingDto;
+  gjennomforingId: string;
 }
 
-export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
-  const { mutate } = useSetApentForPamelding(gjennomforing.id);
+export function SetApentForPameldingModal({ modalRef, gjennomforingId }: Props) {
+  const { mutate } = useSetApentForPamelding(gjennomforingId);
+  const { gjennomforing } = useGjennomforing(gjennomforingId);
   const queryClient = useQueryClient();
+
+  if (!isGruppetiltak(gjennomforing)) {
+    return null;
+  }
+
+  const invalidateGjennomforing = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: QueryKeys.gjennomforing(gjennomforingId),
+      refetchType: "all",
+    });
+  };
 
   return (
     <Modal ref={modalRef} header={{ heading: "Åpent for påmelding" }} width={1000}>
@@ -32,12 +45,7 @@ export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
             checked={gjennomforing.apentForPamelding}
             onChange={(e) =>
               mutate(e.target.checked, {
-                onSuccess: async () => {
-                  await queryClient.invalidateQueries({
-                    queryKey: QueryKeys.gjennomforing(gjennomforing.id),
-                    refetchType: "all",
-                  });
-                },
+                onSuccess: invalidateGjennomforing,
               })
             }
           >

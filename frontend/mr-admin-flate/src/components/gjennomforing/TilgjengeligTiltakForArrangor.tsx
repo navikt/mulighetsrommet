@@ -2,7 +2,7 @@ import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjen
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import {
   FieldError,
-  GjennomforingDto,
+  GjennomforingGruppeDto,
   GjennomforingHandling,
   SetTilgjengligForArrangorRequest,
   ValidationError,
@@ -15,7 +15,7 @@ import { formaterDato, maxOf, subDuration } from "@mr/frontend-common/utils/date
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 
 interface Props {
-  gjennomforing: GjennomforingDto;
+  gjennomforing: GjennomforingGruppeDto;
 }
 
 export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {

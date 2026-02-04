@@ -99,7 +99,12 @@ function defaultValues(prismodeller: PrismodellDto[]): PrismodellValues {
       type: prismodell.type,
       valuta: prismodell.valuta,
       prisbetingelser: prismodell.prisbetingelser,
-      satser: prismodell.satser ?? [],
+      satser:
+        prismodell.satser?.map((sats) => ({
+          gjelderFra: sats.gjelderFra,
+          gjelderTil: sats.gjelderTil,
+          pris: sats.pris.belop,
+        })) ?? [],
     })),
   };
 }

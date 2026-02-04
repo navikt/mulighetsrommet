@@ -1,13 +1,15 @@
+import {
+  GjennomforingOppstartstype,
+  GjennomforingPameldingType,
+} from "@tiltaksadministrasjon/api-client";
+
 export const gjennomforingTekster = {
   tiltaksnavnLabel: "Tiltaksnavn",
   tiltaksnummerLabel: "Tiltaksnummer i Arena",
   lopenummerLabel: "Løpenummer",
   avtaleLabel: "Avtale",
   avtaleMedTiltakstype: (tiltakstype: string) => `Avtale (tiltakstype: ${tiltakstype})`,
-  ingenAvtaleForGjennomforingenLabel: "Ingen avtale for gjennomføringen",
   tiltakstypeLabel: "Tiltakstype",
-  oppstartstypeLabel: "Oppstartstype",
-  pameldingTypeLabel: "Påmeldingstype",
   avtaleStartdatoLabel: "Avtalens startdato",
   avtaleSluttdatoLabel: "Avtalens sluttdato",
   startdatoLabel: "Startdato",
@@ -41,4 +43,26 @@ export const gjennomforingTekster = {
   norskproveLabel: "Norskprøve",
   innholdElementerLabel: "Elementer i kurset",
   amoKategoriseringMangler: "Du må velge kurstype for avtalen",
+  oppstart: {
+    label: "Oppstartstype",
+    beskrivelse(type: GjennomforingOppstartstype) {
+      switch (type) {
+        case GjennomforingOppstartstype.FELLES:
+          return "Felles";
+        case GjennomforingOppstartstype.LOPENDE:
+          return "Løpende oppstart";
+      }
+    },
+  },
+  pamelding: {
+    label: "Hvor skal vedtaket om tiltaksplass fattes?",
+    beskrivelse(type: GjennomforingPameldingType) {
+      switch (type) {
+        case GjennomforingPameldingType.DIREKTE_VEDTAK:
+          return "Direkte ved påmeldingen i Modia";
+        case GjennomforingPameldingType.TRENGER_GODKJENNING:
+          return "I Tiltaksadministrasjonen etter at deltakeren er søkt inn fra Modia";
+      }
+    },
+  },
 } as const;

@@ -1,7 +1,15 @@
-import { Alert, BodyLong, BodyShort, Box, ExpansionCard, Link, VStack } from "@navikt/ds-react";
 import { Suspense } from "react";
-import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { Laster } from "~/components/common/Laster";
+import {
+  BodyLong,
+  BodyShort,
+  Box,
+  ExpansionCard,
+  Link,
+  LocalAlert,
+  VStack,
+} from "@navikt/ds-react";
+import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { tekster } from "~/tekster";
 import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
@@ -37,8 +45,8 @@ function UtbetalingKvitteringContent({ id }: { id: string }) {
   const kontonummer = utbetaling.betalingsinformasjon?.kontonummer ?? null;
 
   return (
-    <Box background="bg-default" padding="8" borderRadius="large" marginInline="auto">
-      <VStack gap="5">
+    <Box background="default" padding="space-32" borderRadius="8" marginInline="auto">
+      <VStack gap="space-20">
         <PageHeading
           title={tekster.bokmal.utbetaling.kvittering.headingTitle}
           tilbakeLenke={{
@@ -46,7 +54,14 @@ function UtbetalingKvitteringContent({ id }: { id: string }) {
             url: pathTo.utbetalinger,
           }}
         />
-        <Alert variant="success">{tekster.bokmal.utbetaling.kvittering.successMelding}</Alert>
+        <LocalAlert status="success">
+          <LocalAlert.Header>
+            <LocalAlert.Title>Innsendingen er mottatt</LocalAlert.Title>
+          </LocalAlert.Header>
+          <LocalAlert.Content>
+            <BodyShort>{tekster.bokmal.utbetaling.kvittering.successMelding}</BodyShort>
+          </LocalAlert.Content>
+        </LocalAlert>
         <ExpansionCard
           defaultOpen
           aria-label={tekster.bokmal.utbetaling.kvittering.kvitteringTitle}
@@ -57,7 +72,7 @@ function UtbetalingKvitteringContent({ id }: { id: string }) {
             </ExpansionCard.Title>
           </ExpansionCard.Header>
           <ExpansionCard.Content>
-            <VStack gap="2">
+            <VStack gap="space-8">
               <BodyShort>{tekster.bokmal.utbetaling.kvittering.mottattAv(mottattDato)}</BodyShort>
               {utbetalesTidligstDato && (
                 <BodyShort spacing>
@@ -85,7 +100,7 @@ function UtbetalingKvitteringContent({ id }: { id: string }) {
             </ExpansionCard.Title>
           </ExpansionCard.Header>
           <ExpansionCard.Content>
-            <VStack gap="2">
+            <VStack gap="space-8">
               <BodyShort weight="semibold">
                 {tekster.bokmal.utbetaling.kvittering.kontonummerRegistrert}
               </BodyShort>

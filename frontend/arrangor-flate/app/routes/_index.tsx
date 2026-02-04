@@ -1,7 +1,7 @@
-import { Box, Tabs, Button, HStack, Alert } from "@navikt/ds-react";
+import { Link as ReactRouterLink } from "react-router";
+import { Box, Tabs, Button, HStack, LocalAlert } from "@navikt/ds-react";
 import { UtbetalingOversiktType } from "api-client";
 import type { MetaFunction } from "react-router";
-import { Link as ReactRouterLink } from "react-router";
 import { PageHeading } from "~/components/common/PageHeading";
 import { useTabState } from "~/hooks/useTabState";
 import { tekster } from "~/tekster";
@@ -97,9 +97,11 @@ function TilsagnTabellContent() {
 
   if (!tilsagnRader.length) {
     return (
-      <Alert className="my-10" variant="info">
-        Det finnes ingen tilsagn her
-      </Alert>
+      <LocalAlert status="warning" className="my-10">
+        <LocalAlert.Header>
+          <LocalAlert.Title>Det finnes ingen tilsagn her</LocalAlert.Title>
+        </LocalAlert.Header>
+      </LocalAlert>
     );
   }
 

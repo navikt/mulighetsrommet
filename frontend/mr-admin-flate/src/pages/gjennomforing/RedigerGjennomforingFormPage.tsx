@@ -12,17 +12,28 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { avtaleHarRegioner } from "@/utils/Utils";
 import { Alert, Box, Heading } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 import { DataElementStatusTag } from "@mr/frontend-common";
-import { AvtaleDto, GjennomforingDto } from "@tiltaksadministrasjon/api-client";
+import {
+  AmoKategorisering,
+  AvtaleDto,
+  GjennomforingGruppeDto,
+  GjennomforingTiltakstype,
+  GjennomforingVeilederinfoDto,
+  PrismodellDto,
+  UtdanningslopDto,
+} from "@tiltaksadministrasjon/api-client";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
+import { isEnkeltplass, isGruppetiltak } from "@/api/gjennomforing/utils";
 
 export function RedigerGjennomforingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
-  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
+  const detaljer = useGjennomforing(gjennomforingId);
+  const { data: avtale } = usePotentialAvtale(
+    isGruppetiltak(detaljer.gjennomforing) ? detaljer.gjennomforing.avtaleId : null,
+  );
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
 
@@ -33,7 +44,7 @@ export function RedigerGjennomforingFormPage() {
     },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforing.id}`,
+      lenke: `/gjennomforinger/${detaljer.gjennomforing.id}`,
     },
     {
       tittel: "Rediger gjennomføring",
@@ -48,14 +59,24 @@ export function RedigerGjennomforingFormPage() {
         <Heading size="large" level="2">
           Rediger gjennomføring
         </Heading>
-        <DataElementStatusTag {...gjennomforing.status.status} />
+        <DataElementStatusTag {...detaljer.gjennomforing.status.status} />
       </Header>
       <ContentBox>
         <Box padding="4" background="bg-default">
           {isError ? (
             <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>
+          ) : isEnkeltplass(detaljer.gjennomforing) ? (
+            <Alert variant={"error"}>Enkeltplasser kan ikke redigeres</Alert>
           ) : (
-            <RedigerGjennomforing avtale={avtale} gjennomforing={gjennomforing} />
+            <RedigerGjennomforing
+              tiltakstype={detaljer.tiltakstype}
+              avtale={avtale}
+              gjennomforing={detaljer.gjennomforing}
+              veilederinfo={detaljer.veilederinfo}
+              prismodell={detaljer.prismodell}
+              amoKategorisering={detaljer.amoKategorisering}
+              utdanningslop={detaljer.utdanningslop}
+            />
           )}
         </Box>
       </ContentBox>
@@ -65,19 +86,21 @@ export function RedigerGjennomforingFormPage() {
 
 interface RedigerGjennomforingProps {
   avtale: AvtaleDto;
-  gjennomforing: GjennomforingDto;
+  tiltakstype: GjennomforingTiltakstype;
+  gjennomforing: GjennomforingGruppeDto;
+  veilederinfo: GjennomforingVeilederinfoDto | null;
+  prismodell: PrismodellDto | null;
+  amoKategorisering: AmoKategorisering | null;
+  utdanningslop: UtdanningslopDto | null;
 }
 
 function RedigerGjennomforing(props: RedigerGjennomforingProps) {
-  const { avtale, gjennomforing } = props;
-
   const navigate = useNavigate();
-  const location = useLocation();
   const queryClient = useQueryClient();
 
-  const tiltakstype = useTiltakstype(gjennomforing.tiltakstype.id);
+  const tiltakstype = useTiltakstype(props.tiltakstype.id);
   const { data: ansatt } = useHentAnsatt();
-  const { data: deltakere } = useGjennomforingDeltakerSummary(gjennomforing.id);
+  const { data: deltakere } = useGjennomforingDeltakerSummary(props.gjennomforing.id);
 
   const navigerTilbake = () => {
     navigate(-1);
@@ -96,14 +119,19 @@ function RedigerGjennomforing(props: RedigerGjennomforingProps) {
       onClose={navigerTilbake}
       onSuccess={navigerTilGjennomforing}
       tiltakstype={tiltakstype}
-      avtale={avtale}
-      gjennomforing={gjennomforing}
+      avtale={props.avtale}
+      gjennomforing={props.gjennomforing}
+      veilederinfo={props.veilederinfo}
       deltakere={deltakere}
       defaultValues={defaultGjennomforingData(
         ansatt,
         tiltakstype,
-        avtale,
-        location.state?.dupliserGjennomforing ?? gjennomforing,
+        props.avtale,
+        props.gjennomforing,
+        props.veilederinfo,
+        props.prismodell,
+        props.amoKategorisering,
+        props.utdanningslop,
       )}
     />
   );

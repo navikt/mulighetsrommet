@@ -5,7 +5,6 @@ import { Button, HStack, Spacer, TextField, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
-import { useEffect } from "react";
 
 export function AvtalteSatserForm({
   avtaleStartDato,
@@ -29,11 +28,6 @@ export function AvtalteSatserForm({
   });
 
   const valuta = watch(`${field}.valuta`);
-  useEffect(() => {
-    fields.forEach((_satsField, index) => {
-      setValue(`${field}.satser.${index}.pris.valuta` as const, valuta);
-    });
-  }, [valuta]);
 
   // Flere aktive avtaler har start i 2001, 2010 osv, 30 år holder enn så lenge men
   // burde ha en bedre løsning her. F. eks ikke bruk datepicker, men tekstfelt
@@ -59,10 +53,9 @@ export function AvtalteSatserForm({
               size="small"
               type="number"
               error={
-                errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.pris?.belop
-                  ?.message
+                errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.pris?.message
               }
-              {...register(`${field}.satser.${index}.pris.belop` as const, {
+              {...register(`${field}.satser.${index}.pris` as const, {
                 setValueAs: (v) => (v === "" ? null : Number(v)),
               })}
             />
@@ -101,7 +94,7 @@ export function AvtalteSatserForm({
           append({
             gjelderFra: "",
             gjelderTil: null,
-            pris: { belop: 0, valuta: valuta },
+            pris: 0,
           })
         }
       >

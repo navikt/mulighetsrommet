@@ -66,12 +66,17 @@ export function OpprettGjennomforingFormPage() {
             tiltakstype={tiltakstype}
             avtale={avtale}
             gjennomforing={null}
+            veilederinfo={null}
             deltakere={null}
             defaultValues={defaultGjennomforingData(
               ansatt,
               tiltakstype,
               avtale,
-              location.state?.dupliserGjennomforing,
+              location.state?.dupliserGjennomforing?.gjennomforing,
+              location.state?.dupliserGjennomforing?.veilederinfo,
+              null,
+              null,
+              null,
             )}
           />
         </Box>

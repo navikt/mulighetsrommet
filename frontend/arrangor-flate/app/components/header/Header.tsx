@@ -8,12 +8,12 @@ export function Header() {
   return (
     <Box
       as="header"
-      marginBlock="0 8"
-      background="bg-default"
+      marginBlock="space-0 space-32"
+      background="default"
       borderWidth="0 0 4 0"
       className="border-red-100"
     >
-      <HStack gap="8" padding="8">
+      <HStack gap="space-32" padding="space-32">
         <HeaderIcon />
         <Heading size="xlarge" level="1">
           <Link to="/" className="text-text-default no-underline">

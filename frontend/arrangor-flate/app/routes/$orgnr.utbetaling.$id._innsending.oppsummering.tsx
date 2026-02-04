@@ -137,13 +137,13 @@ export default function BekreftUtbetaling() {
       />
       <Separator />
       <form onSubmit={handleSubmit}>
-        <Box marginBlock="0 4">
+        <Box marginBlock="space-0 space-16">
           {harTilsagn ? (
             <>
               <Heading size="medium" level="3" spacing>
                 Betalingsinformasjon
               </Heading>
-              <VStack gap="4">
+              <VStack gap="space-16">
                 <KontonummerInput
                   kontonummer={utbetaling.betalingsinformasjon?.kontonummer ?? undefined}
                   error={errors.find((error) => error.pointer === "/kontonummer")?.detail}
@@ -193,7 +193,7 @@ export default function BekreftUtbetaling() {
             <UtbetalingManglendeTilsagnAlert />
           )}
         </Box>
-        <HStack gap="4">
+        <HStack gap="space-16">
           <Button
             as={ReactRouterLink}
             type="button"

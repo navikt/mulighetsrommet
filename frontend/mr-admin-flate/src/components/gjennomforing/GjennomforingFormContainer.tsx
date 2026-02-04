@@ -4,8 +4,10 @@ import { Laster } from "@/components/laster/Laster";
 import {
   AvtaleDto,
   GjennomforingDeltakerSummary,
-  GjennomforingDto,
+  GjennomforingDetaljerDto,
+  GjennomforingGruppeDto,
   GjennomforingRequest,
+  GjennomforingVeilederinfoDto,
   TiltakstypeDto,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
@@ -27,14 +29,23 @@ interface Props {
   onSuccess: (id: string) => void;
   tiltakstype: TiltakstypeDto;
   avtale: AvtaleDto;
-  gjennomforing: GjennomforingDto | null;
+  gjennomforing: GjennomforingGruppeDto | null;
+  veilederinfo: GjennomforingVeilederinfoDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
   defaultValues: DeepPartial<GjennomforingRequest>;
 }
 
 export function GjennomforingFormContainer(props: Props) {
-  const { tiltakstype, avtale, gjennomforing, deltakere, defaultValues, onClose, onSuccess } =
-    props;
+  const {
+    tiltakstype,
+    avtale,
+    gjennomforing,
+    veilederinfo,
+    deltakere,
+    defaultValues,
+    onClose,
+    onSuccess,
+  } = props;
   const redigeringsModus = !!gjennomforing;
   const mutation = useUpsertGjennomforing();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
@@ -50,7 +61,7 @@ export function GjennomforingFormContainer(props: Props) {
   } = form;
 
   const handleSuccess = useCallback(
-    (dto: { data: GjennomforingDto }) => onSuccess(dto.data.id),
+    (dto: { data: GjennomforingDetaljerDto }) => onSuccess(dto.data.gjennomforing.id),
     [onSuccess],
   );
 
@@ -152,6 +163,7 @@ export function GjennomforingFormContainer(props: Props) {
                     tiltakstype={tiltakstype}
                     avtale={avtale}
                     gjennomforing={gjennomforing}
+                    veilederinfo={veilederinfo}
                     deltakere={deltakere}
                   />
                 </Box>
@@ -162,7 +174,7 @@ export function GjennomforingFormContainer(props: Props) {
             <Box marginBlock="4">
               <GjennomforingInformasjonForVeiledereForm
                 avtale={avtale}
-                lagredeKontaktpersoner={gjennomforing?.kontaktpersoner ?? []}
+                veilederinfo={veilederinfo}
               />
             </Box>
           </Tabs.Panel>

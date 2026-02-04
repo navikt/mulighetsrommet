@@ -1,11 +1,10 @@
 import {
-  Alert,
   BodyShort,
   Button,
-  Heading,
   HelpText,
   HStack,
   Link,
+  LocalAlert,
   TextField,
   VStack,
 } from "@navikt/ds-react";
@@ -18,25 +17,25 @@ interface Props {
 
 export function KontonummerInput({ kontonummer, error, onClick }: Props) {
   return (
-    <VStack gap="2">
+    <VStack gap="space-8" align="start">
       {!kontonummer ? (
-        <Alert variant="warning">
-          <VStack align="start" gap="2">
-            <Heading spacing size="xsmall" level="3">
-              Fant ikke kontonummer
-            </Heading>
-            <BodyShort>
+        <LocalAlert status="error" size="small">
+          <LocalAlert.Header>
+            <LocalAlert.Title as="h4">Fant ikke kontonummer</LocalAlert.Title>
+          </LocalAlert.Header>
+          <LocalAlert.Content>
+            <BodyShort spacing>
               Vi fant ikke noe kontonummer for din organisasjon. Her kan du lese om{" "}
               <EndreKontonummerLink />.
             </BodyShort>
-            <BodyShort className="text-balance">
+            <BodyShort>
               Når du har registrert kontonummer kan du prøve på nytt ved å trykke på knappen{" "}
-              <b>Synkroniser kontonummer</b>.
+              <b>"Synkroniser kontonummer"</b>.
             </BodyShort>
-          </VStack>
-        </Alert>
+          </LocalAlert.Content>
+        </LocalAlert>
       ) : null}
-      <HStack gap="2" align="end">
+      <HStack gap="space-8" align="end">
         <TextField
           label="Kontonummer"
           size="small"
@@ -50,7 +49,7 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
           id="kontonummer"
           readOnly
         />
-        <HStack align="center" gap="2">
+        <HStack align="center" gap="space-8">
           <Button type="button" variant="secondary" size="small" onClick={onClick}>
             Synkroniser kontonummer
           </Button>

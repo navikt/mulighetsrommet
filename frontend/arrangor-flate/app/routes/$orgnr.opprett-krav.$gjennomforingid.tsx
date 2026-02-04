@@ -1,14 +1,15 @@
 import {
-  Box,
   Button,
   ErrorSummary,
   FileObject,
   HStack,
-  Link,
   Stepper,
   VStack,
+  Link,
   Hide,
+  Box,
 } from "@navikt/ds-react";
+import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import {
   FieldError,
   OpprettKravDeltakere,
@@ -25,7 +26,6 @@ import {
 } from "~/utils/navigation";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { isLaterOrSameDay, parseDate } from "@mr/frontend-common/utils/date";
-import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import { getEnvironment } from "~/services/environment";
 import DeltakereSteg from "~/components/opprett-krav/DeltakereSteg";
 import UtbetalingSteg from "~/components/opprett-krav/UtbetalingSteg";
@@ -324,7 +324,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
   const isFirstStep = currentStepIndex === 0;
 
   return (
-    <VStack gap="4" justify="center">
+    <VStack gap="space-4" justify="center">
       <Link as={ReactRouterLink} to={pathTo.tiltaksoversikt} className="max-w-max">
         <ChevronLeftIcon /> Tilbake til tiltaksoversikt
       </Link>
@@ -337,44 +337,40 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
           ))}
         </Stepper>
       </Hide>
-      <Box background="bg-default" borderRadius="large" padding="8">
-        <VStack gap="6">
-          {renderCurrentStep()}
-
-          {hasError && (
-            <ErrorSummary ref={errorSummaryRef}>
-              {errors.map((error) => (
-                <ErrorSummary.Item
-                  href={`#${jsonPointerToFieldPath(error.pointer)}`}
-                  key={jsonPointerToFieldPath(error.pointer)}
-                >
-                  {error.detail}
-                </ErrorSummary.Item>
-              ))}
-            </ErrorSummary>
-          )}
-
-          {!isLastStep && (
-            <HStack gap="4">
-              {isFirstStep ? (
-                <Button
-                  type="button"
-                  variant="tertiary"
-                  onClick={() => navigate(pathTo.tiltaksoversikt)}
-                >
-                  Avbryt
-                </Button>
-              ) : (
-                <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
-                  Tilbake
-                </Button>
-              )}
-              <Button type="button" onClick={goToNextStep} loading={fetchDeltakere.isPending}>
-                Neste
+      <Box background="default" borderRadius="8" padding="space-32">
+        {renderCurrentStep()}
+        {hasError && (
+          <ErrorSummary ref={errorSummaryRef}>
+            {errors.map((error) => (
+              <ErrorSummary.Item
+                href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                key={jsonPointerToFieldPath(error.pointer)}
+              >
+                {error.detail}
+              </ErrorSummary.Item>
+            ))}
+          </ErrorSummary>
+        )}
+        {!isLastStep && (
+          <HStack gap="space-8">
+            {isFirstStep ? (
+              <Button
+                type="button"
+                variant="tertiary"
+                onClick={() => navigate(pathTo.tiltaksoversikt)}
+              >
+                Avbryt
               </Button>
-            </HStack>
-          )}
-        </VStack>
+            ) : (
+              <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
+                Tilbake
+              </Button>
+            )}
+            <Button type="button" onClick={goToNextStep} loading={fetchDeltakere.isPending}>
+              Neste
+            </Button>
+          </HStack>
+        )}
       </Box>
     </VStack>
   );
