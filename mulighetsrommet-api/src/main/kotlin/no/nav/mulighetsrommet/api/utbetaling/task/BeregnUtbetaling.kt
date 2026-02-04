@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
@@ -67,7 +67,7 @@ class BeregnUtbetaling(
             val gjennomforingIds: Set<UUID> = existingUtbetalinger.mapTo(mutableSetOf()) { it.gjennomforing.id } +
                 newUtbetalinger.mapTo(mutableSetOf()) { it.gjennomforing.id }
             val gjennomforinger = db.session {
-                gjennomforingIds.mapNotNull { queries.gjennomforing.getGruppetiltak(it) }
+                gjennomforingIds.mapNotNull { queries.gjennomforing.getGjennomforingAvtale(it) }
             }
 
             val report = createReport(gjennomforinger, existingUtbetalinger, newUtbetalinger)
@@ -118,7 +118,7 @@ class BeregnUtbetaling(
 }
 
 private fun createReport(
-    gjennomforinger: List<GjennomforingGruppetiltak>,
+    gjennomforinger: List<GjennomforingAvtale>,
     existingUtbetalinger: List<Utbetaling>,
     newUtbetalinger: List<Utbetaling>,
 ): XSSFWorkbook = buildExcelWorkbook {
@@ -128,7 +128,7 @@ private fun createReport(
 
 private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
     sheetName: String,
-    gjennomforinger: List<GjennomforingGruppetiltak>,
+    gjennomforinger: List<GjennomforingAvtale>,
     source: List<Utbetaling>,
     other: List<Utbetaling>,
 ) = sheet(sheetName) {

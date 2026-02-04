@@ -13,8 +13,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingEnkeltplassDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
@@ -82,7 +82,7 @@ class ArenaAdapterService(
     private fun upsertGruppetiltak(
         arenaGjennomforing: ArenaGjennomforingDbo,
     ): Unit = db.transaction {
-        val previous = queries.gjennomforing.getGruppetiltakOrError(arenaGjennomforing.id)
+        val previous = queries.gjennomforing.getGjennomforingAvtaleOrError(arenaGjennomforing.id)
         if (!hasRelevantChanges(arenaGjennomforing, previous)) {
             logger.info("Gjennomføring hadde ingen endringer")
             return@transaction
@@ -97,7 +97,7 @@ class ArenaAdapterService(
         )
         queries.gjennomforing.setFreeTextSearch(arenaGjennomforing.id, listOf(arenaGjennomforing.navn))
 
-        val next = queries.gjennomforing.getGruppetiltakOrError(arenaGjennomforing.id)
+        val next = queries.gjennomforing.getGjennomforingAvtaleOrError(arenaGjennomforing.id)
         if (previous.arena?.tiltaksnummer == null) {
             logTiltaksnummerHentetFraArena(next)
         } else {
@@ -117,7 +117,7 @@ class ArenaAdapterService(
 
         val tiltakstype = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
             ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
-        val previous = queries.gjennomforing.getEnkeltplass(arenaGjennomforing.id)
+        val previous = queries.gjennomforing.getGjennomforingEnkeltplass(arenaGjennomforing.id)
 
         val enkeltplass = GjennomforingEnkeltplassDbo(
             id = arenaGjennomforing.id,
@@ -144,7 +144,7 @@ class ArenaAdapterService(
             queries.gjennomforing.upsertEnkeltplass(enkeltplass)
             queries.gjennomforing.setArenaData(arenadata)
 
-            val next = queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id)
+            val next = queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id)
             publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromGjennomforing(next))
         }
     }
@@ -193,7 +193,7 @@ class ArenaAdapterService(
         )
     }
 
-    private fun QueryContext.logUpdateGjennomforing(gjennomforing: GjennomforingGruppetiltak) {
+    private fun QueryContext.logUpdateGjennomforing(gjennomforing: GjennomforingAvtale) {
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             "Endret i Arena",
@@ -203,7 +203,7 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(gjennomforing) }
     }
 
-    private fun QueryContext.logTiltaksnummerHentetFraArena(gjennomforing: GjennomforingGruppetiltak) {
+    private fun QueryContext.logTiltaksnummerHentetFraArena(gjennomforing: GjennomforingAvtale) {
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",

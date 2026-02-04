@@ -4752,115 +4752,14 @@ components:
       - tiltakskode
     GjennomforingDto:
       anyOf:
+      - $ref: "#/components/schemas/GjennomforingAvtaleDto"
       - $ref: "#/components/schemas/GjennomforingEnkeltplassDto"
-      - $ref: "#/components/schemas/GjennomforingGruppeDto"
       discriminator:
         propertyName: type
         mapping:
+          GjennomforingAvtaleDto: "#/components/schemas/GjennomforingAvtaleDto"
           GjennomforingEnkeltplassDto: "#/components/schemas/GjennomforingEnkeltplassDto"
-          GjennomforingGruppeDto: "#/components/schemas/GjennomforingGruppeDto"
-    GjennomforingEnkeltplassDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        lopenummer:
-          type: string
-        tiltaksnummer:
-          type:
-          - "null"
-          - string
-        arrangor:
-          $ref: "#/components/schemas/Gjennomforing.ArrangorUnderenhet"
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        status:
-          $ref: "#/components/schemas/GjennomforingDto.Status"
-        opphav:
-          $ref: "#/components/schemas/ArenaMigrering.Opphav"
-      required:
-      - arrangor
-      - id
-      - lopenummer
-      - navn
-      - opphav
-      - sluttDato
-      - startDato
-      - status
-      - tiltaksnummer
-    Gjennomforing.ArrangorUnderenhet:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        organisasjonsnummer:
-          type: string
-        navn:
-          type: string
-        kontaktpersoner:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingGruppetiltak.ArrangorKontaktperson"
-        slettet:
-          type: boolean
-      required:
-      - id
-      - kontaktpersoner
-      - navn
-      - organisasjonsnummer
-      - slettet
-    GjennomforingGruppetiltak.ArrangorKontaktperson:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        beskrivelse:
-          type:
-          - "null"
-          - string
-        telefon:
-          type:
-          - "null"
-          - string
-        epost:
-          type: string
-      required:
-      - beskrivelse
-      - epost
-      - id
-      - navn
-      - telefon
-    GjennomforingDto.Status:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/GjennomforingStatusType"
-        status:
-          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
-      required:
-      - status
-      - type
-    GjennomforingStatusType:
-      type: string
-      enum:
-      - GJENNOMFORES
-      - AVSLUTTET
-      - AVBRUTT
-      - AVLYST
-    GjennomforingGruppeDto:
+    GjennomforingAvtaleDto:
       type: object
       properties:
         id:
@@ -4913,11 +4812,11 @@ components:
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingGruppetiltak.Administrator"
+            $ref: "#/components/schemas/GjennomforingAvtale.Administrator"
         stengt:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingGruppetiltak.StengtPeriode"
+            $ref: "#/components/schemas/GjennomforingAvtale.StengtPeriode"
       required:
       - administratorer
       - antallPlasser
@@ -4937,7 +4836,70 @@ components:
       - stengt
       - tilgjengeligForArrangorDato
       - tiltaksnummer
-    GjennomforingGruppetiltak.Administrator:
+    Gjennomforing.ArrangorUnderenhet:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingAvtale.ArrangorKontaktperson"
+        slettet:
+          type: boolean
+      required:
+      - id
+      - kontaktpersoner
+      - navn
+      - organisasjonsnummer
+      - slettet
+    GjennomforingAvtale.ArrangorKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        telefon:
+          type:
+          - "null"
+          - string
+        epost:
+          type: string
+      required:
+      - beskrivelse
+      - epost
+      - id
+      - navn
+      - telefon
+    GjennomforingDto.Status:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/GjennomforingStatusType"
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+      required:
+      - status
+      - type
+    GjennomforingStatusType:
+      type: string
+      enum:
+      - GJENNOMFORES
+      - AVSLUTTET
+      - AVBRUTT
+      - AVLYST
+    GjennomforingAvtale.Administrator:
       type: object
       properties:
         navIdent:
@@ -4947,7 +4909,7 @@ components:
       required:
       - navIdent
       - navn
-    GjennomforingGruppetiltak.StengtPeriode:
+    GjennomforingAvtale.StengtPeriode:
       type: object
       properties:
         id:
@@ -4966,6 +4928,44 @@ components:
       - id
       - slutt
       - start
+    GjennomforingEnkeltplassDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        lopenummer:
+          type: string
+        tiltaksnummer:
+          type:
+          - "null"
+          - string
+        arrangor:
+          $ref: "#/components/schemas/Gjennomforing.ArrangorUnderenhet"
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        status:
+          $ref: "#/components/schemas/GjennomforingDto.Status"
+        opphav:
+          $ref: "#/components/schemas/ArenaMigrering.Opphav"
+      required:
+      - arrangor
+      - id
+      - lopenummer
+      - navn
+      - opphav
+      - sluttDato
+      - startDato
+      - status
+      - tiltaksnummer
     GjennomforingVeilederinfoDto:
       type: object
       properties:
@@ -4994,7 +4994,7 @@ components:
         estimertVentetid:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/GjennomforingGruppetiltak.EstimertVentetid"
+          - $ref: "#/components/schemas/GjennomforingAvtale.EstimertVentetid"
       required:
       - beskrivelse
       - estimertVentetid
@@ -5029,7 +5029,7 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    GjennomforingGruppetiltak.EstimertVentetid:
+    GjennomforingAvtale.EstimertVentetid:
       type: object
       properties:
         verdi:

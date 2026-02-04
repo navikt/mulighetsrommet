@@ -1,8 +1,8 @@
 -- ${flyway:timestamp}
 
-drop view if exists view_gjennomforing_gruppetiltak;
+drop view if exists view_gjennomforing_avtale;
 
-create view view_gjennomforing_gruppetiltak as
+create view view_gjennomforing_avtale as
 select gjennomforing.id,
        gjennomforing.opphav,
        gjennomforing.lopenummer,
@@ -159,4 +159,4 @@ from gjennomforing
                                    ) as stengt_perioder_json
                             from gjennomforing_stengt_hos_arrangor
                             where gjennomforing_id = gjennomforing.id) on true
-where gjennomforing.gjennomforing_type = 'GRUPPETILTAK'
+where gjennomforing.gjennomforing_type = 'AVTALE'

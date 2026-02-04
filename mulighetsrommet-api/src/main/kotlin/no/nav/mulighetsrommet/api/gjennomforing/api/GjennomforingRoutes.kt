@@ -34,7 +34,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
-import no.nav.mulighetsrommet.api.gjennomforing.service.AvtaleGjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -67,7 +67,7 @@ import java.util.UUID
 
 fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
-    val avtaleGjennomforinger: AvtaleGjennomforingService by inject()
+    val avtaleGjennomforinger: GjennomforingAvtaleService by inject()
     val gjennomforinger: GjennomforingDetaljerService by inject()
 
     route("gjennomforinger") {

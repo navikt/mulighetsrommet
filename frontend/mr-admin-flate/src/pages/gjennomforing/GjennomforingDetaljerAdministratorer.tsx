@@ -2,10 +2,10 @@ import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLede
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
-import { GjennomforingGruppeDto } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingAvtaleDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  gjennomforing: GjennomforingGruppeDto;
+  gjennomforing: GjennomforingAvtaleDto;
 }
 
 export function GjennomforingDetaljerAdministratorer({ gjennomforing }: Props) {

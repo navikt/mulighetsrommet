@@ -73,7 +73,7 @@ class TilsagnService(
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
         requireNotNull(request.id) { "id mangler" }
 
-        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(request.gjennomforingId)
         val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
         val avtalteSatser = prismodell.satser()
 
@@ -273,7 +273,7 @@ class TilsagnService(
             return null
         }
 
-        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(request.gjennomforingId)
         val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
         val avtaltSats = prismodell.satser().findAvtaltSats(request.periodeStart)
         val sats = avtaltSats?.sats ?: ValutaBelop(0, Valuta.NOK)
@@ -709,7 +709,7 @@ class TilsagnService(
             "Tilsagn id=${tilsagn.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
-        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(tilsagn.gjennomforing.id)
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(tilsagn.gjennomforing.id)
         val arrangorErUtenlandsk = queries.arrangor.getById(gjennomforing.arrangor.id).erUtenlandsk
 
         val avtale = checkNotNull(gjennomforing.avtaleId?.let { queries.avtale.get(it) }) {

@@ -7,7 +7,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.service.AvtaleGjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -15,7 +15,7 @@ import java.time.LocalDate
 class UpdateApentForPamelding(
     config: Config = Config(),
     private val db: ApiDatabase,
-    private val avtaleGjennomforingService: AvtaleGjennomforingService,
+    private val avtaleGjennomforingService: GjennomforingAvtaleService,
 ) {
     data class Config(
         val disabled: Boolean = false,
@@ -40,7 +40,7 @@ class UpdateApentForPamelding(
         @Language("PostgreSQL")
         val query = """
                 select id
-                from view_gjennomforing_gruppetiltak
+                from view_gjennomforing_avtale
                 where apent_for_pamelding = true
                   and oppstart = 'FELLES'
                   and start_dato = ?

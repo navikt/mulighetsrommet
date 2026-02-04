@@ -40,11 +40,11 @@ import java.time.LocalDateTime
 
 const val TEST_GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"
 
-class AvtaleGjennomforingServiceTest : FunSpec({
+class GjennomforingAvtaleServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    fun createService(): AvtaleGjennomforingService = AvtaleGjennomforingService(
-        config = AvtaleGjennomforingService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+    fun createService(): GjennomforingAvtaleService = GjennomforingAvtaleService(
+        config = GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         navAnsattService = mockk(relaxed = true),
     )

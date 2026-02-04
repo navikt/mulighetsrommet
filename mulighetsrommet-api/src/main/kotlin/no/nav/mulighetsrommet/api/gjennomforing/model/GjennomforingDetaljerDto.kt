@@ -42,8 +42,8 @@ sealed class GjennomforingDto {
 }
 
 @Serializable
-@SerialName("GjennomforingGruppeDto")
-data class GjennomforingGruppeDto(
+@SerialName("GjennomforingAvtaleDto")
+data class GjennomforingAvtaleDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
@@ -65,8 +65,8 @@ data class GjennomforingGruppeDto(
     val deltidsprosent: Double,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
-    val administratorer: List<GjennomforingGruppetiltak.Administrator>,
-    val stengt: List<GjennomforingGruppetiltak.StengtPeriode>,
+    val administratorer: List<GjennomforingAvtale.Administrator>,
+    val stengt: List<GjennomforingAvtale.StengtPeriode>,
 ) : GjennomforingDto()
 
 @Serializable
@@ -94,5 +94,5 @@ data class GjennomforingVeilederinfoDto(
     val kontorstruktur: List<Kontorstruktur>,
     val kontaktpersoner: List<GjennomforingKontaktperson>,
     val oppmoteSted: String?,
-    val estimertVentetid: GjennomforingGruppetiltak.EstimertVentetid?,
+    val estimertVentetid: GjennomforingAvtale.EstimertVentetid?,
 )

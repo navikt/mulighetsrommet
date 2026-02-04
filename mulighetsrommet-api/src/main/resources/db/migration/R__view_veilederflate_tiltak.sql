@@ -77,4 +77,4 @@ from gjennomforing
                             from gjennomforing_arrangor_kontaktperson
                                      left join arrangor_kontaktperson on id = arrangor_kontaktperson_id
                             where gjennomforing_id = gjennomforing.id) on true
-where gjennomforing.gjennomforing_type = 'GRUPPETILTAK'
+where gjennomforing.gjennomforing_type = 'AVTALE'

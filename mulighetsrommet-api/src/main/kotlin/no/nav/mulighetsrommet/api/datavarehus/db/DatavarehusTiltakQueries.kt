@@ -183,7 +183,7 @@ private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
 
 private fun <T> T.takeIfIsGruppetiltak(type: GjennomforingType): T? = takeIf {
     when (type) {
-        GjennomforingType.GRUPPETILTAK -> true
+        GjennomforingType.AVTALE -> true
         GjennomforingType.ENKELTPLASS -> false
     }
 }
