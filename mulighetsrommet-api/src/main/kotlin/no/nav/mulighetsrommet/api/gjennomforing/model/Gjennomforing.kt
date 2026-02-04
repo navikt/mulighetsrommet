@@ -159,3 +159,28 @@ data class EnkeltplassGjennomforing(
     @Serializable(with = InstantSerializer::class)
     val oppdatertTidspunkt: Instant,
 ) : Gjennomforing()
+
+@Serializable
+data class ArenaGjennomforing(
+    @Serializable(with = UUIDSerializer::class)
+    override val id: UUID,
+    override val lopenummer: Tiltaksnummer,
+    override val tiltakstype: Tiltakstype,
+    override val arrangor: ArrangorUnderenhet,
+    override val arena: ArenaData?,
+    override val navn: String,
+    @Serializable(with = LocalDateSerializer::class)
+    override val startDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    override val sluttDato: LocalDate?,
+    override val deltidsprosent: Double,
+    override val antallPlasser: Int,
+    override val opphav: ArenaMigrering.Opphav,
+    val status: GjennomforingStatusType,
+    @Serializable(with = InstantSerializer::class)
+    val opprettetTidspunkt: Instant,
+    @Serializable(with = InstantSerializer::class)
+    val oppdatertTidspunkt: Instant,
+    val oppstart: GjennomforingOppstartstype,
+    val pameldingType: GjennomforingPameldingType,
+) : Gjennomforing()

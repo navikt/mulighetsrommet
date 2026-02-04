@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
+import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaGjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.EnkeltplassGjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -92,8 +93,14 @@ class InitialLoadGjennomforinger(
             },
         ) {
             when (it) {
-                is AvtaleGjennomforingKompakt -> publish(queries.gjennomforing.getAvtaleGjennomforingOrError(it.id))
-                is EnkeltplassGjennomforingKompakt -> publish(queries.gjennomforing.getEnkeltplassGjennomforingOrError(it.id))
+                is AvtaleGjennomforingKompakt,
+                -> publish(queries.gjennomforing.getAvtaleGjennomforingOrError(it.id))
+
+                is EnkeltplassGjennomforingKompakt,
+                -> publish(queries.gjennomforing.getEnkeltplassGjennomforingOrError(it.id))
+
+                is ArenaGjennomforingKompakt,
+                -> publish(queries.gjennomforing.getArenaGjennomforingOrError(it.id))
             }
         }
 
@@ -111,6 +118,12 @@ class InitialLoadGjennomforinger(
             val enkeltplass = queries.gjennomforing.getEnkeltplassGjennomforing(id)
             if (enkeltplass != null) {
                 publish(enkeltplass)
+                return@forEach
+            }
+
+            val arena = queries.gjennomforing.getArenaGjennomforing(id)
+            if (arena != null) {
+                publish(arena)
                 return@forEach
             }
 
