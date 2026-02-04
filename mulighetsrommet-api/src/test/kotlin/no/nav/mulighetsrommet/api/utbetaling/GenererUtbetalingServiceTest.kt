@@ -208,7 +208,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.upsertGruppetiltak(
+                queries.gjennomforing.upsertGjennomforingAvtale(
                     AFT1.copy(
                         startDato = LocalDate.of(2024, 12, 1),
                         sluttDato = LocalDate.of(2025, 1, 31),
@@ -506,7 +506,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.upsertGruppetiltak(AFT1.copy(sluttDato = LocalDate.of(2025, 1, 31)))
+                queries.gjennomforing.upsertGjennomforingAvtale(AFT1.copy(sluttDato = LocalDate.of(2025, 1, 31)))
                 queries.gjennomforing.setStatus(
                     AFT1.id,
                     status = GjennomforingStatusType.AVBRUTT,
@@ -531,7 +531,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.upsertGruppetiltak(AFT1.copy(sluttDato = LocalDate.of(2025, 1, 31)))
+                queries.gjennomforing.upsertGjennomforingAvtale(AFT1.copy(sluttDato = LocalDate.of(2025, 1, 31)))
                 queries.gjennomforing.setStatus(
                     AFT1.id,
                     status = GjennomforingStatusType.AVSLUTTET,
@@ -556,7 +556,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.upsertGruppetiltak(
+                queries.gjennomforing.upsertGjennomforingAvtale(
                     AFT1.copy(
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = null,
@@ -745,7 +745,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.upsertGruppetiltak(gjennomforing.copy(sluttDato = LocalDate.of(2024, 12, 31)))
+                queries.gjennomforing.upsertGjennomforingAvtale(gjennomforing.copy(sluttDato = LocalDate.of(2024, 12, 31)))
             }.initialize(database.db)
 
             val utbetaling = service.genererUtbetalingerForPeriode(januar)

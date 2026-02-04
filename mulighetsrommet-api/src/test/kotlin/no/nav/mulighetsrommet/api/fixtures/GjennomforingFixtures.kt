@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingAvtaleDbo
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 object GjennomforingFixtures {
-    val Oppfolging1 = GjennomforingGruppetiltakDbo(
+    val Oppfolging1 = GjennomforingAvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging 1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -41,7 +41,7 @@ object GjennomforingFixtures {
         prismodellId = PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id,
     )
 
-    val VTA1 = GjennomforingGruppetiltakDbo(
+    val VTA1 = GjennomforingAvtaleDbo(
         id = UUID.randomUUID(),
         navn = "VTA 1",
         tiltakstypeId = TiltakstypeFixtures.VTA.id,
@@ -69,7 +69,7 @@ object GjennomforingFixtures {
         prismodellId = PrismodellFixtures.ForhandsgodkjentVta.id,
     )
 
-    val AFT1 = GjennomforingGruppetiltakDbo(
+    val AFT1 = GjennomforingAvtaleDbo(
         id = UUID.randomUUID(),
         navn = "AFT 1",
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
@@ -97,7 +97,7 @@ object GjennomforingFixtures {
         prismodellId = PrismodellFixtures.ForhandsgodkjentAft.id,
     )
 
-    val GruppeAmo1 = GjennomforingGruppetiltakDbo(
+    val GruppeAmo1 = GjennomforingAvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Amo 1",
         tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
@@ -125,7 +125,7 @@ object GjennomforingFixtures {
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
     )
 
-    val GruppeFagYrke1 = GjennomforingGruppetiltakDbo(
+    val GruppeFagYrke1 = GjennomforingAvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Fag- og yrkesopplæring 1",
         tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
@@ -153,7 +153,7 @@ object GjennomforingFixtures {
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
     )
 
-    val ArbeidsrettetRehabilitering = GjennomforingGruppetiltakDbo(
+    val ArbeidsrettetRehabilitering = GjennomforingAvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidsretter Rehabilitering 1",
         tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,

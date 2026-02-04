@@ -247,7 +247,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             val periode = getPeriodeFromQuery()
 
             val avtaltPrisPerTimeOppfolgingPerDeltaker = db.session {
-                val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(tiltak.id)
+                val gjennomforing = queries.gjennomforing.getAvtaleGjennomforingOrError(tiltak.id)
                 resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
             }
 

@@ -4,10 +4,10 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Table } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { GjennomforingGruppeDto } from "@tiltaksadministrasjon/api-client";
+import { AvtaleGjennomforingDto } from "@tiltaksadministrasjon/api-client";
 
 interface StengtHosArrangorTableProps {
-  gjennomforing: GjennomforingGruppeDto;
+  gjennomforing: AvtaleGjennomforingDto;
   readOnly?: boolean;
 }
 

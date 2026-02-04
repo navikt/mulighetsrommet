@@ -4,14 +4,14 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforingKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.EnkeltplassGjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.EnkeltplassGjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -67,13 +67,13 @@ class GjennomforingDetaljerService(
         val ansatt = navAnsattService.getNavAnsattByNavIdent(navIdent) ?: return setOf()
         val gjennomforing = getGjennomforing(id) ?: return setOf()
         return when (gjennomforing) {
-            is GjennomforingGruppetiltak -> getHandlingerGruppetiltak(gjennomforing, ansatt)
-            is GjennomforingEnkeltplass -> setOf()
+            is AvtaleGjennomforing -> getHandlingerGruppetiltak(gjennomforing, ansatt)
+            is EnkeltplassGjennomforing -> setOf()
         }
     }
 
     private fun getGjennomforing(id: UUID): Gjennomforing? = db.session {
-        queries.gjennomforing.getGruppetiltak(id) ?: queries.gjennomforing.getEnkeltplass(id)
+        queries.gjennomforing.getAvtaleGjennomforing(id) ?: queries.gjennomforing.getEnkeltplassGjennomforing(id)
     }
 
     companion object {
@@ -101,7 +101,7 @@ class GjennomforingDetaljerService(
 }
 
 private fun getHandlingerGruppetiltak(
-    gjennomforing: GjennomforingGruppetiltak,
+    gjennomforing: AvtaleGjennomforing,
     ansatt: NavAnsatt,
 ): Set<GjennomforingHandling> {
     val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
@@ -127,7 +127,7 @@ private fun getHandlingerGruppetiltak(
 }
 
 private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when (this) {
-    is GjennomforingKompaktGruppetiltak -> GjennomforingKompaktDto(
+    is AvtaleGjennomforingKompakt -> GjennomforingKompaktDto(
         id = id,
         navn = navn,
         lopenummer = lopenummer,
@@ -140,7 +140,7 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
         kontorstruktur = kontorstruktur,
     )
 
-    is GjennomforingKompaktEnkeltplass -> GjennomforingKompaktDto(
+    is EnkeltplassGjennomforingKompakt -> GjennomforingKompaktDto(
         id = id,
         navn = tiltakstype.navn,
         lopenummer = lopenummer,

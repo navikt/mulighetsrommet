@@ -325,7 +325,7 @@ class GjennomforingRoutesTest : FunSpec({
                 response.bodyAsText().shouldBeEmpty()
 
                 database.run {
-                    queries.gjennomforing.getGruppetiltakOrError(aktivGjennomforingId).should {
+                    queries.gjennomforing.getAvtaleGjennomforingOrError(aktivGjennomforingId).should {
                         it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>().should {
                             it.type shouldBe GjennomforingStatusType.AVBRUTT
                             it.aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING

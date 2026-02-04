@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.EnkeltplassGjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Arrangor
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Enkeltplass
@@ -11,7 +11,7 @@ import java.time.ZoneId.systemDefault
 
 object TiltaksgjennomforingV2Mapper {
     fun fromGjennomforing(gjennomforing: Gjennomforing): TiltaksgjennomforingV2Dto = when (gjennomforing) {
-        is GjennomforingGruppetiltak -> Gruppe(
+        is AvtaleGjennomforing -> Gruppe(
             id = gjennomforing.id,
             opprettetTidspunkt = gjennomforing.opprettetTidspunkt.atZone(systemDefault()).toInstant(),
             oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt.atZone(systemDefault()).toInstant(),
@@ -32,7 +32,7 @@ object TiltaksgjennomforingV2Mapper {
             pameldingType = gjennomforing.pameldingType,
         )
 
-        is GjennomforingEnkeltplass -> Enkeltplass(
+        is EnkeltplassGjennomforing -> Enkeltplass(
             id = gjennomforing.id,
             opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
             oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,

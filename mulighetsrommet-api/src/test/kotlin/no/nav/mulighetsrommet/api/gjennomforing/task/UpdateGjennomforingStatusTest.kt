@@ -80,13 +80,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
             task.execute(now = LocalDateTime.of(2023, 1, 31, 0, 0))
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing1.id).should {
                     it.status shouldBe GjennomforingStatus.Gjennomfores
                 }
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing2.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing2.id).should {
                     it.status shouldBe GjennomforingStatus.Gjennomfores
                 }
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing3.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing3.id).should {
                     it.status shouldBe GjennomforingStatus.Gjennomfores
                 }
 
@@ -100,13 +100,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
             task.execute(now = LocalDateTime.of(2023, 2, 1, 0, 0))
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing1.id).should {
                     it.status shouldBe GjennomforingStatus.Gjennomfores
                 }
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing2.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing2.id).should {
                     it.status shouldBe GjennomforingStatus.Avsluttet
                 }
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing3.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing3.id).should {
                     it.status shouldBe GjennomforingStatus.Avsluttet
                 }
             }
@@ -118,13 +118,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
             task.execute(now = LocalDateTime.of(2023, 3, 1, 0, 0))
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing1.id).should {
                     it.status shouldBe GjennomforingStatus.Gjennomfores
                 }
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing2.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing2.id).should {
                     it.status shouldBe GjennomforingStatus.Avsluttet
                 }
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing3.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing3.id).should {
                     it.status shouldBe GjennomforingStatus.Avsluttet
                 }
             }
@@ -162,14 +162,14 @@ class UpdateGjennomforingStatusTest : FunSpec({
             task.execute(now = LocalDateTime.of(2024, 1, 2, 0, 0))
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing1.id).should {
                     it.status.shouldBeTypeOf<GjennomforingStatus.Avsluttet>()
                 }
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing2.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing2.id).should {
                     it.status.shouldBeTypeOf<GjennomforingStatus.Avlyst>()
                         .aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING
                 }
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing3.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing3.id).should {
                     it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>()
                         .aarsaker shouldContain AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE
                 }
@@ -209,7 +209,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
             createTask().execute(now = LocalDateTime.of(2023, 2, 1, 0, 0))
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforing.id).should {
                     it.status.shouldBe(GjennomforingStatus.Avsluttet)
                     it.publisert.shouldBe(false)
                     it.apentForPamelding.shouldBe(false)

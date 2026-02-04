@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetTilgjengligForArrangorRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingAvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -61,7 +61,7 @@ object GjennomforingValidator {
     fun validate(
         request: GjennomforingRequest,
         ctx: Ctx,
-    ): Either<List<FieldError>, GjennomforingGruppetiltakDbo> = validation {
+    ): Either<List<FieldError>, GjennomforingAvtaleDbo> = validation {
         var next = request
 
         validate(ctx.avtale.tiltakstype.id == next.tiltakstypeId) {

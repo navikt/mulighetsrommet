@@ -13,11 +13,11 @@ import java.time.LocalDate
 import java.util.UUID
 
 enum class GjennomforingType {
-    GRUPPETILTAK,
+    AVTALE,
     ENKELTPLASS,
 }
 
-data class GjennomforingGruppetiltakDbo(
+data class GjennomforingAvtaleDbo(
     val id: UUID,
     val tiltakstypeId: UUID,
     val arrangorId: UUID,

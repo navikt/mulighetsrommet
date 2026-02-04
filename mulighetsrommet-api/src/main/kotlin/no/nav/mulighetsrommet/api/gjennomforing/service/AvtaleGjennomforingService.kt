@@ -17,11 +17,11 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingAvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
@@ -55,7 +55,7 @@ class AvtaleGjennomforingService(
         request: GjennomforingRequest,
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
-    ): Either<List<FieldError>, GjennomforingGruppetiltak> = either {
+    ): Either<List<FieldError>, AvtaleGjennomforing> = either {
         val previous = getGruppetiltak(request.id)
         val ctx = getValidatorCtx(request, previous, today)
 
@@ -83,7 +83,7 @@ class AvtaleGjennomforingService(
         }
 
         db.transaction {
-            queries.gjennomforing.upsertGruppetiltak(dbo)
+            queries.gjennomforing.upsertGjennomforingAvtale(dbo)
 
             dispatchNotificationToNewAdministrators(dbo, navIdent)
 
@@ -103,7 +103,7 @@ class AvtaleGjennomforingService(
 
     fun getValidatorCtx(
         request: GjennomforingRequest,
-        previous: GjennomforingGruppetiltak?,
+        previous: AvtaleGjennomforing?,
         today: LocalDate,
     ): GjennomforingValidator.Ctx = db.session {
         val avtale = queries.avtale.getOrError(request.avtaleId)
@@ -132,8 +132,8 @@ class AvtaleGjennomforingService(
         )
     }
 
-    fun getGruppetiltak(id: UUID): GjennomforingGruppetiltak? = db.session {
-        queries.gjennomforing.getGruppetiltak(id)
+    fun getGruppetiltak(id: UUID): AvtaleGjennomforing? = db.session {
+        queries.gjennomforing.getAvtaleGjennomforing(id)
     }
 
     fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent): Unit = db.transaction {
@@ -170,7 +170,7 @@ class AvtaleGjennomforingService(
         id: UUID,
         avsluttetTidspunkt: LocalDateTime,
         endretAv: Agent,
-    ): GjennomforingGruppetiltak = db.transaction {
+    ): AvtaleGjennomforing = db.transaction {
         val gjennomforing = getOrError(id)
 
         check(gjennomforing.status is GjennomforingStatus.Gjennomfores) {
@@ -202,7 +202,7 @@ class AvtaleGjennomforingService(
         avbruttAv: Agent,
         tidspunkt: LocalDateTime,
         aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>,
-    ): Either<List<FieldError>, GjennomforingGruppetiltak> = db.transaction {
+    ): Either<List<FieldError>, AvtaleGjennomforing> = db.transaction {
         val gjennomforing = getOrError(id)
 
         when (gjennomforing.status) {
@@ -257,7 +257,7 @@ class AvtaleGjennomforingService(
         periode: Periode,
         beskrivelse: String,
         navIdent: NavIdent,
-    ): Either<NonEmptyList<FieldError>, GjennomforingGruppetiltak> = db.transaction {
+    ): Either<NonEmptyList<FieldError>, AvtaleGjennomforing> = db.transaction {
         return query {
             queries.gjennomforing.setStengtHosArrangor(id, periode, beskrivelse)
         }.mapLeft {
@@ -322,12 +322,12 @@ class AvtaleGjennomforingService(
         }
     }
 
-    private fun QueryContext.getOrError(id: UUID): GjennomforingGruppetiltak {
-        return queries.gjennomforing.getGruppetiltakOrError(id)
+    private fun QueryContext.getOrError(id: UUID): AvtaleGjennomforing {
+        return queries.gjennomforing.getAvtaleGjennomforingOrError(id)
     }
 
     private fun QueryContext.dispatchNotificationToNewAdministrators(
-        dbo: GjennomforingGruppetiltakDbo,
+        dbo: GjennomforingAvtaleDbo,
         navIdent: NavIdent,
     ) {
         val currentAdministratorer = getGruppetiltak(dbo.id)?.administratorer?.map { it.navIdent }?.toSet()
@@ -348,7 +348,7 @@ class AvtaleGjennomforingService(
         operation: String,
         gjennomforingId: UUID,
         endretAv: Agent,
-    ): GjennomforingGruppetiltak {
+    ): AvtaleGjennomforing {
         val gjennomforing = getOrError(gjennomforingId)
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
@@ -362,7 +362,7 @@ class AvtaleGjennomforingService(
         return gjennomforing
     }
 
-    private fun QueryContext.publishToKafka(gjennomforing: GjennomforingGruppetiltak) {
+    private fun QueryContext.publishToKafka(gjennomforing: AvtaleGjennomforing) {
         val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGjennomforing(gjennomforing)
         val recordV2 = StoredProducerRecord(
             config.gjennomforingV2Topic,
@@ -386,9 +386,9 @@ class AvtaleGjennomforingService(
 }
 
 private fun isEqual(
-    previous: GjennomforingGruppetiltak,
-    dbo: GjennomforingGruppetiltakDbo,
-): Boolean = dbo == GjennomforingGruppetiltakDbo(
+    previous: AvtaleGjennomforing,
+    dbo: GjennomforingAvtaleDbo,
+): Boolean = dbo == GjennomforingAvtaleDbo(
     id = previous.id,
     navn = previous.navn,
     tiltakstypeId = previous.tiltakstype.id,

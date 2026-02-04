@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.DeltakerStatus
@@ -25,9 +25,9 @@ object BeregningTestHelpers {
         id: UUID = UUID.randomUUID(),
         periode: Periode,
         satser: List<AvtaltSatsDto>,
-        stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
+        stengt: List<AvtaleGjennomforing.StengtPeriode> = emptyList(),
         valuta: Valuta = Valuta.NOK,
-    ): GjennomforingGruppetiltak = createGjennomforing(
+    ): AvtaleGjennomforing = createGjennomforing(
         id = id,
         periode = periode,
         prismodell = Prismodell.AvtaltPrisPerManedsverk(
@@ -43,9 +43,9 @@ object BeregningTestHelpers {
         id: UUID = UUID.randomUUID(),
         periode: Periode,
         satser: List<AvtaltSatsDto>,
-        stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
+        stengt: List<AvtaleGjennomforing.StengtPeriode> = emptyList(),
         valuta: Valuta = Valuta.NOK,
-    ): GjennomforingGruppetiltak = createGjennomforing(
+    ): AvtaleGjennomforing = createGjennomforing(
         id = id,
         periode = periode,
         prismodell = Prismodell.AvtaltPrisPerUkesverk(
@@ -61,9 +61,9 @@ object BeregningTestHelpers {
         id: UUID = UUID.randomUUID(),
         periode: Periode,
         satser: List<AvtaltSatsDto>,
-        stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
+        stengt: List<AvtaleGjennomforing.StengtPeriode> = emptyList(),
         valuta: Valuta = Valuta.NOK,
-    ): GjennomforingGruppetiltak = createGjennomforing(
+    ): AvtaleGjennomforing = createGjennomforing(
         id = id,
         periode = periode,
         prismodell = Prismodell.AvtaltPrisPerHeleUkesverk(
@@ -79,9 +79,9 @@ object BeregningTestHelpers {
         id: UUID = UUID.randomUUID(),
         periode: Periode,
         sats: ValutaBelop,
-        stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
+        stengt: List<AvtaleGjennomforing.StengtPeriode> = emptyList(),
         valuta: Valuta = Valuta.NOK,
-    ): GjennomforingGruppetiltak = createGjennomforing(
+    ): AvtaleGjennomforing = createGjennomforing(
         id = id,
         periode = periode,
         prismodell = Prismodell.ForhandsgodkjentPrisPerManedsverk(
@@ -98,10 +98,10 @@ object BeregningTestHelpers {
         periode: Periode,
         prismodell: Prismodell,
         tiltakskode: Tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-        stengt: List<GjennomforingGruppetiltak.StengtPeriode>,
-    ): GjennomforingGruppetiltak {
+        stengt: List<AvtaleGjennomforing.StengtPeriode>,
+    ): AvtaleGjennomforing {
         val now = LocalDateTime.now()
-        return GjennomforingGruppetiltak(
+        return AvtaleGjennomforing(
             id = id,
             tiltakstype = no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.Tiltakstype(
                 id = UUID.randomUUID(),
@@ -113,7 +113,7 @@ object BeregningTestHelpers {
                 id = UUID.randomUUID(),
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "Test arrangør",
-                kontaktpersoner = emptyList<GjennomforingGruppetiltak.ArrangorKontaktperson>(),
+                kontaktpersoner = emptyList<AvtaleGjennomforing.ArrangorKontaktperson>(),
                 slettet = false,
             ),
             arena = null,
@@ -165,8 +165,8 @@ object BeregningTestHelpers {
         deltakelsesmengder = deltakelsesmengder,
     )
 
-    fun toStengtPeriode(periode: Periode, beskrivelse: String = "Stengt"): GjennomforingGruppetiltak.StengtPeriode {
-        return GjennomforingGruppetiltak.StengtPeriode(
+    fun toStengtPeriode(periode: Periode, beskrivelse: String = "Stengt"): AvtaleGjennomforing.StengtPeriode {
+        return AvtaleGjennomforing.StengtPeriode(
             id = 1,
             start = periode.start,
             slutt = periode.getLastInclusiveDate(),

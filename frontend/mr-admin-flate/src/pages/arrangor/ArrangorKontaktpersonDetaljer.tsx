@@ -2,11 +2,11 @@ import { MetadataHGrid } from "@mr/frontend-common/components/datadriven/Metadat
 import { Box } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
-  GjennomforingGruppetiltakArrangorKontaktperson,
+  AvtaleGjennomforingArrangorKontaktperson,
 } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  kontaktperson: ArrangorKontaktperson | GjennomforingGruppetiltakArrangorKontaktperson;
+  kontaktperson: ArrangorKontaktperson | AvtaleGjennomforingArrangorKontaktperson;
 }
 
 export function ArrangorKontaktpersonDetaljer({ kontaktperson }: Props) {

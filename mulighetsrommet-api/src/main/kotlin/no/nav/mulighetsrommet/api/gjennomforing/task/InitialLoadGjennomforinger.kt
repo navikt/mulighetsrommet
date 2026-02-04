@@ -8,9 +8,9 @@ import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforingKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.EnkeltplassGjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktGruppetiltak
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -92,8 +92,8 @@ class InitialLoadGjennomforinger(
             },
         ) {
             when (it) {
-                is GjennomforingKompaktGruppetiltak -> publish(queries.gjennomforing.getGruppetiltakOrError(it.id))
-                is GjennomforingKompaktEnkeltplass -> publish(queries.gjennomforing.getEnkeltplassOrError(it.id))
+                is AvtaleGjennomforingKompakt -> publish(queries.gjennomforing.getAvtaleGjennomforingOrError(it.id))
+                is EnkeltplassGjennomforingKompakt -> publish(queries.gjennomforing.getEnkeltplassGjennomforingOrError(it.id))
             }
         }
 
@@ -102,13 +102,13 @@ class InitialLoadGjennomforinger(
 
     private fun initialLoadGjennomforingerById(ids: List<UUID>) = db.session {
         ids.forEach { id ->
-            val gruppetiltak = queries.gjennomforing.getGruppetiltak(id)
+            val gruppetiltak = queries.gjennomforing.getAvtaleGjennomforing(id)
             if (gruppetiltak != null) {
                 publish(gruppetiltak)
                 return@forEach
             }
 
-            val enkeltplass = queries.gjennomforing.getEnkeltplass(id)
+            val enkeltplass = queries.gjennomforing.getEnkeltplassGjennomforing(id)
             if (enkeltplass != null) {
                 publish(enkeltplass)
                 return@forEach

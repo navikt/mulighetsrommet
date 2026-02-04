@@ -14,8 +14,8 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.SystemgenerertPrismodell
@@ -81,7 +81,7 @@ class GenererUtbetalingService(
     suspend fun genererUtbetalingerForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
         getContextForGenereringAvUtbetalinger(periode)
             .mapNotNull { context ->
-                val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(context.gjennomforingId)
+                val gjennomforing = queries.gjennomforing.getAvtaleGjennomforingOrError(context.gjennomforingId)
                 genererUtbetaling(
                     utbetalingId = UUID.randomUUID(),
                     gjennomforing = gjennomforing,
@@ -99,7 +99,7 @@ class GenererUtbetalingService(
     suspend fun beregnUtbetalingerForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
         getContextForBeregningAvUtbetalinger(periode)
             .mapNotNull { context ->
-                val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(context.gjennomforingId)
+                val gjennomforing = queries.gjennomforing.getAvtaleGjennomforingOrError(context.gjennomforingId)
                 val utbetaling = genererUtbetaling(
                     utbetalingId = UUID.randomUUID(),
                     gjennomforing = gjennomforing,
@@ -125,7 +125,7 @@ class GenererUtbetalingService(
     //  Hvis vi skal støtte dette så må vi sørge for det ikke genereres opp utbetalinger lengre tilbake i tid enn f.eks.
     //  gyldige tilsagnsperioder.
     suspend fun oppdaterUtbetalingerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(gjennomforingId)
+        val gjennomforing = queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforingId)
 
         if (gjennomforing.prismodell == null) {
             log.info("Prismodell er ikke satt for gjennomføring med id=$gjennomforingId")
@@ -157,7 +157,7 @@ class GenererUtbetalingService(
     }
 
     suspend fun regenererUtbetaling(utbetaling: Utbetaling): Utbetaling = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(utbetaling.gjennomforing.id)
+        val gjennomforing = queries.gjennomforing.getAvtaleGjennomforingOrError(utbetaling.gjennomforing.id)
 
         val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(gjennomforing.id)
             .filter { it.periode == utbetaling.periode }
@@ -205,7 +205,7 @@ class GenererUtbetalingService(
 
     private suspend fun QueryContext.genererUtbetaling(
         utbetalingId: UUID,
-        gjennomforing: GjennomforingGruppetiltak,
+        gjennomforing: AvtaleGjennomforing,
         periode: Periode,
     ): UtbetalingDbo? {
         if (!isValidUtbetalingPeriode(gjennomforing.tiltakstype.tiltakskode, periode)) {

@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.service.AvtaleGjennomforingService
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -198,7 +198,7 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
 
 fun resolveTilsagnDefaults(
     config: OkonomiConfig,
-    gjennomforing: GjennomforingGruppetiltak,
+    gjennomforing: AvtaleGjennomforing,
     tilsagn: Tilsagn?,
 ): TilsagnRequest {
     if (gjennomforing.prismodell == null) {
@@ -299,7 +299,7 @@ private fun getAnskaffetTiltakPeriode(
 
 private fun resolveEkstraTilsagnInvesteringDefaults(
     request: TilsagnRequest,
-    gjennomforing: GjennomforingGruppetiltak,
+    gjennomforing: AvtaleGjennomforing,
 ): TilsagnRequest {
     if (gjennomforing.prismodell == null) {
         throw StatusException(

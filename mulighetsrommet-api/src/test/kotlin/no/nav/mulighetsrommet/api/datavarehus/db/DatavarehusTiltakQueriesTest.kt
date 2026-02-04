@@ -205,7 +205,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.gjennomforing.upsertGruppetiltak(GruppeFagYrke1.copy(utdanningslop = utdanningslop))
+                queries.gjennomforing.upsertGjennomforingAvtale(GruppeFagYrke1.copy(utdanningslop = utdanningslop))
             }
 
             database.runAndRollback { session ->

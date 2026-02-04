@@ -66,10 +66,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = startDato.minusDays(1))
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe true
                 }
             }
@@ -79,10 +79,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now())
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe false
                 }
             }
@@ -92,10 +92,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now().plusDays(1))
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
+                queries.gjennomforing.getAvtaleGjennomforingOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe true
                 }
             }

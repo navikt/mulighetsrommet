@@ -1,17 +1,17 @@
 import {
   GjennomforingDto,
-  GjennomforingEnkeltplassDto,
-  GjennomforingGruppeDto,
+  EnkeltplassGjennomforingDto,
+  AvtaleGjennomforingDto,
 } from "@tiltaksadministrasjon/api-client";
 
 export function isGruppetiltak(
   gjennomforing: GjennomforingDto,
-): gjennomforing is GjennomforingGruppeDto {
-  return gjennomforing.type === "GjennomforingGruppeDto";
+): gjennomforing is AvtaleGjennomforingDto {
+  return gjennomforing.type === "AvtaleGjennomforingDto";
 }
 
 export function isEnkeltplass(
   gjennomforing: GjennomforingDto,
-): gjennomforing is GjennomforingEnkeltplassDto {
-  return gjennomforing.type === "GjennomforingEnkeltplassDto";
+): gjennomforing is EnkeltplassGjennomforingDto {
+  return gjennomforing.type === "EnkeltplassGjennomforingDto";
 }

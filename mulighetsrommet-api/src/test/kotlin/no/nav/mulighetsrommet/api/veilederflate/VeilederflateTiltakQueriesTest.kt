@@ -98,12 +98,12 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                queries.gjennomforing.upsertGruppetiltak(
+                queries.gjennomforing.upsertGjennomforingAvtale(
                     Oppfolging1.copy(
                         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
                     ),
                 )
-                queries.gjennomforing.upsertGruppetiltak(
+                queries.gjennomforing.upsertGjennomforingAvtale(
                     AFT1.copy(
                         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300")),
                     ),
@@ -167,10 +167,10 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
+                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1)
                 queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("Oppfølging hos Erik"))
 
-                queries.gjennomforing.upsertGruppetiltak(AFT1)
+                queries.gjennomforing.upsertGjennomforingAvtale(AFT1)
                 queries.gjennomforing.setFreeTextSearch(AFT1.id, listOf("AFT hos Frank"))
 
                 queries.veilderTiltak.getAll(
@@ -278,7 +278,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             gjennomforinger = listOf(Oppfolging1),
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
-            queries.gjennomforing.upsertGruppetiltak(
+            queries.gjennomforing.upsertGjennomforingAvtale(
                 Oppfolging1.copy(
                     navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
                     kontaktpersoner = listOf(

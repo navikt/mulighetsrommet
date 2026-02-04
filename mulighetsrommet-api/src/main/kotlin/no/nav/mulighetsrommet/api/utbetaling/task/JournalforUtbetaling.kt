@@ -60,7 +60,7 @@ class JournalforUtbetaling(
         logger.info("Journalfører utbetaling med id: $id")
 
         val utbetaling = queries.utbetaling.getOrError(id)
-        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(utbetaling.gjennomforing.id)
+        val gjennomforing = queries.gjennomforing.getAvtaleGjennomforingOrError(utbetaling.gjennomforing.id)
         val fagsakId = gjennomforing.arena?.tiltaksnummer?.value ?: gjennomforing.lopenummer.value
 
         generatePdf(utbetaling)

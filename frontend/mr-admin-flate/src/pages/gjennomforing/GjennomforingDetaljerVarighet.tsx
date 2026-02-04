@@ -9,8 +9,8 @@ import { kreverDeltidsprosent } from "@/utils/tiltakstype";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import {
   GjennomforingDto,
-  GjennomforingEnkeltplassDto,
-  GjennomforingGruppeDto,
+  EnkeltplassGjennomforingDto,
+  AvtaleGjennomforingDto,
   GjennomforingVeilederinfoDto,
   TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
@@ -31,7 +31,7 @@ export function GjennomforingDetaljerVarighet({ tiltakstype, gjennomforing, veil
 
 function getVarighetOgPameldingGruppe(
   tiltakstype: TiltakstypeDto,
-  gjennomforing: GjennomforingGruppeDto,
+  gjennomforing: AvtaleGjennomforingDto,
   veilederinfo: GjennomforingVeilederinfoDto | null,
 ): Definition[] {
   return [
@@ -74,7 +74,7 @@ function getVarighetOgPameldingGruppe(
 }
 
 function getVarighetOgPameldingEnkeltplass(
-  gjennomforing: GjennomforingEnkeltplassDto,
+  gjennomforing: EnkeltplassGjennomforingDto,
 ): Definition[] {
   return [
     {

@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforing
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -39,7 +39,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
         ).initialize(database.db)
 
         val gjennomforing = database.run {
-            queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.Oppfolging1.id)
+            queries.gjennomforing.getAvtaleGjennomforingOrError(GjennomforingFixtures.Oppfolging1.id)
         }
 
         val migrert = TiltakstypeService.Config(
@@ -126,7 +126,7 @@ private fun expectKafkaMessage(
 
 private suspend fun consumeGjennomforing(
     consumer: ArenaMigreringGjennomforingKafkaProducer,
-    gjennomforing: GjennomforingGruppetiltak,
+    gjennomforing: AvtaleGjennomforing,
 ) {
     val message: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGjennomforing(gjennomforing)
     consumer.consume(gjennomforing.id.toString(), Json.encodeToJsonElement(message))

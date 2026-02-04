@@ -1,13 +1,13 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvtaleGjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.EnkeltplassGjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.EnkeltplassGjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppeDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
 import no.nav.mulighetsrommet.model.DataElement
@@ -15,13 +15,13 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object GjennomforingDtoMapper {
     fun fromGjennomforing(gjennomforing: Gjennomforing) = when (gjennomforing) {
-        is GjennomforingGruppetiltak -> fromGruppetiltak(gjennomforing)
-        is GjennomforingEnkeltplass -> fromEnkeltplass(gjennomforing)
+        is AvtaleGjennomforing -> fromGruppetiltak(gjennomforing)
+        is EnkeltplassGjennomforing -> fromEnkeltplass(gjennomforing)
     }
 
-    fun fromGruppetiltak(gjennomforing: GjennomforingGruppetiltak) = GjennomforingDetaljerDto(
+    fun fromGruppetiltak(gjennomforing: AvtaleGjennomforing) = GjennomforingDetaljerDto(
         tiltakstype = gjennomforing.tiltakstype,
-        gjennomforing = GjennomforingGruppeDto(
+        gjennomforing = AvtaleGjennomforingDto(
             id = gjennomforing.id,
             navn = gjennomforing.navn,
             lopenummer = gjennomforing.lopenummer,
@@ -55,9 +55,9 @@ object GjennomforingDtoMapper {
         utdanningslop = gjennomforing.utdanningslop,
     )
 
-    fun fromEnkeltplass(gjennomforing: GjennomforingEnkeltplass) = GjennomforingDetaljerDto(
+    fun fromEnkeltplass(gjennomforing: EnkeltplassGjennomforing) = GjennomforingDetaljerDto(
         tiltakstype = gjennomforing.tiltakstype,
-        gjennomforing = GjennomforingEnkeltplassDto(
+        gjennomforing = EnkeltplassGjennomforingDto(
             id = gjennomforing.id,
             navn = gjennomforing.tiltakstype.navn,
             lopenummer = gjennomforing.lopenummer,
