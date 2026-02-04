@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import org.intellij.lang.annotations.Language
 import java.util.UUID
@@ -150,8 +151,9 @@ private fun Row.toAmoKategorisering(
 
 private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
     val type = GjennomforingType.valueOf(string("gjennomforing_type"))
+    val tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode"))
     return DatavarehusTiltakV1Dto(
-        tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        tiltakskode = tiltakskode,
         avtale = uuidOrNull("avtale_id")?.let {
             DatavarehusTiltakV1.Avtale(
                 id = it,
@@ -170,20 +172,21 @@ private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
             arena = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) }?.let {
                 DatavarehusTiltakV1.ArenaData(aar = it.aar, lopenummer = it.lopenummer)
             },
-            navn = string("navn").takeIfIsGruppetiltak(type),
+            navn = string("navn").takeIfIsGruppetiltak(type, tiltakskode),
             oppstartstype = GjennomforingOppstartstype.valueOf(string("oppstart_type")),
             pameldingstype = GjennomforingPameldingType.valueOf(string("pamelding_type")),
-            startDato = localDate("start_dato").takeIfIsGruppetiltak(type),
-            sluttDato = localDateOrNull("slutt_dato")?.takeIfIsGruppetiltak(type),
-            status = GjennomforingStatusType.valueOf(string("status")).takeIfIsGruppetiltak(type),
-            deltidsprosent = double("deltidsprosent").takeIfIsGruppetiltak(type),
+            startDato = localDate("start_dato").takeIfIsGruppetiltak(type, tiltakskode),
+            sluttDato = localDateOrNull("slutt_dato")?.takeIfIsGruppetiltak(type, tiltakskode),
+            status = GjennomforingStatusType.valueOf(string("status")).takeIfIsGruppetiltak(type, tiltakskode),
+            deltidsprosent = double("deltidsprosent").takeIfIsGruppetiltak(type, tiltakskode),
         ),
     )
 }
 
-private fun <T> T.takeIfIsGruppetiltak(type: GjennomforingType): T? = takeIf {
+private fun <T> T.takeIfIsGruppetiltak(type: GjennomforingType, tiltakskode: Tiltakskode): T? = takeIf {
     when (type) {
         GjennomforingType.AVTALE -> true
         GjennomforingType.ENKELTPLASS -> false
+        GjennomforingType.ARENA -> Tiltakskoder.isGruppetiltak(tiltakskode)
     }
 }

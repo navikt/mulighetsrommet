@@ -5,6 +5,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFil
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
@@ -69,6 +71,7 @@ class GjennomforingDetaljerService(
         return when (gjennomforing) {
             is GjennomforingAvtale -> getHandlingerGruppetiltak(gjennomforing, ansatt)
             is GjennomforingEnkeltplass -> setOf()
+            is GjennomforingArena -> setOf()
         }
     }
 
@@ -152,4 +155,6 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
         publisert = false,
         kontorstruktur = listOf(),
     )
+
+    is GjennomforingArenaKompakt -> throw IllegalStateException("Visning av gamle gjennomføringer fra Arena er ikke støttet")
 }

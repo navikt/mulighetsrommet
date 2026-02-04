@@ -16,9 +16,10 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.EnkeltplassFixtures
-import no.nav.mulighetsrommet.api.fixtures.EnkeltplassFixtures.EnkelAmo1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.ArenaEnkelAmo
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -44,6 +45,7 @@ import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -69,7 +71,7 @@ class GjennomforingQueriesTest : FunSpec({
         domain.initialize(database.db)
     }
 
-    context("gruppetiltak") {
+    context("avtale") {
         test("lagre gjennomføring") {
             database.runAndRollback {
                 queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1)
@@ -478,14 +480,62 @@ class GjennomforingQueriesTest : FunSpec({
         }
     }
 
-    context("enkeltplasser") {
-        val enkelAmo1 = EnkelAmo1.copy(
+    context("arena") {
+        val arenaEnkelAmo1 = GjennomforingFixtures.ArenaEnkelAmo.copy(
+            navn = "Arenanavn",
+            startDato = LocalDate.of(2025, 1, 1),
+            sluttDato = LocalDate.of(2025, 2, 1),
+            status = GjennomforingStatusType.GJENNOMFORES,
+            deltidsprosent = 100.0,
+            antallPlasser = 10,
+            tiltaksnummer = Tiltaksnummer("2021#1234"),
+            arenaAnsvarligEnhet = "1234",
+        )
+
+        test("lagre arenatiltak") {
+            database.runAndRollback {
+                queries.gjennomforing.upsertGjennomforingArena(arenaEnkelAmo1)
+
+                queries.gjennomforing.getGjennomforingArenaOrError(arenaEnkelAmo1.id).should {
+                    it.id shouldBe arenaEnkelAmo1.id
+                    it.tiltakstype shouldBe Gjennomforing.Tiltakstype(
+                        id = TiltakstypeFixtures.EnkelAmo.id,
+                        navn = TiltakstypeFixtures.EnkelAmo.navn,
+                        tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+                    )
+                    it.arrangor shouldBe Gjennomforing.ArrangorUnderenhet(
+                        id = ArrangorFixtures.underenhet1.id,
+                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                        navn = ArrangorFixtures.underenhet1.navn,
+                        slettet = false,
+                        kontaktpersoner = listOf(),
+                    )
+                    it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2021#1234")
+                    it.arena?.ansvarligNavEnhet shouldBe "1234"
+                    it.navn shouldBe "Arenanavn"
+                    it.startDato shouldBe LocalDate.of(2025, 1, 1)
+                    it.sluttDato shouldBe LocalDate.of(2025, 2, 1)
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.deltidsprosent shouldBe 100.0
+                    it.antallPlasser shouldBe 10
+                    it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
+                    it.pameldingType shouldBe GjennomforingPameldingType.DIREKTE_VEDTAK
+                }
+
+                queries.gjennomforing.delete(arenaEnkelAmo1.id)
+
+                queries.gjennomforing.getGjennomforingArena(arenaEnkelAmo1.id) shouldBe null
+            }
+        }
+    }
+
+    context("enkeltplass") {
+        val enkelAmo1 = EnkelAmo.copy(
             navn = "Arena-navn",
             startDato = LocalDate.of(2025, 1, 1),
             sluttDato = null,
             status = GjennomforingStatusType.GJENNOMFORES,
         )
-        val enkelAmo2 = EnkeltplassFixtures.EnkelAmo2
 
         test("lagre enkeltplass") {
             database.runAndRollback {
@@ -529,17 +579,6 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.gjennomforing.delete(enkelAmo1.id)
 
                 queries.gjennomforing.getGjennomforingEnkeltplass(enkelAmo1.id) shouldBe null
-            }
-        }
-
-        test("hent alle enkeltplasser") {
-            database.runAndRollback {
-                queries.gjennomforing.upsertEnkeltplass(enkelAmo1)
-                queries.gjennomforing.upsertEnkeltplass(enkelAmo2)
-
-                queries.gjennomforing.getAll().totalCount shouldBe 2
-                queries.gjennomforing.getAll(tiltakstypeIder = listOf(TiltakstypeFixtures.EnkelAmo.id)).totalCount shouldBe 2
-                queries.gjennomforing.getAll(tiltakstypeIder = listOf(TiltakstypeFixtures.AFT.id)).totalCount shouldBe 0
             }
         }
     }
@@ -745,26 +784,35 @@ class GjennomforingQueriesTest : FunSpec({
         test("filtrering på type gjennomføring") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    gjennomforinger = listOf(Oppfolging1, AFT1),
-                    enkeltplasser = listOf(EnkelAmo1),
+                    gjennomforinger = listOf(Oppfolging1, AFT1, EnkelAmo, ArenaEnkelAmo),
                 ).setup(session)
 
-                queries.gjennomforing.getAll().should { (totalCount, gjennomforinger) ->
-                    totalCount shouldBe 3
-                    gjennomforinger shouldContainExactlyIds listOf(Oppfolging1.id, AFT1.id, EnkelAmo1.id)
+                queries.gjennomforing.getAll().should {
+                    it.totalCount shouldBe 4
+                    it.items shouldContainExactlyIds listOf(Oppfolging1.id, AFT1.id, EnkelAmo.id, ArenaEnkelAmo.id)
                 }
 
-                queries.gjennomforing.getAll(type = GjennomforingType.AVTALE)
-                    .should { (totalCount, gjennomforinger) ->
-                        totalCount shouldBe 2
-                        gjennomforinger shouldContainExactlyIds listOf(Oppfolging1.id, AFT1.id)
-                    }
+                queries.gjennomforing.getAll(
+                    typer = listOf(GjennomforingType.ENKELTPLASS, GjennomforingType.AVTALE, GjennomforingType.ARENA),
+                ).should {
+                    it.totalCount shouldBe 4
+                    it.items shouldContainExactlyIds listOf(Oppfolging1.id, AFT1.id, EnkelAmo.id, ArenaEnkelAmo.id)
+                }
 
-                queries.gjennomforing.getAll(type = GjennomforingType.ENKELTPLASS)
-                    .should { (totalCount, gjennomforinger) ->
-                        totalCount shouldBe 1
-                        gjennomforinger shouldContainExactlyIds listOf(EnkelAmo1.id)
-                    }
+                queries.gjennomforing.getAll(typer = listOf(GjennomforingType.AVTALE)).should {
+                    it.totalCount shouldBe 2
+                    it.items shouldContainExactlyIds listOf(Oppfolging1.id, AFT1.id)
+                }
+
+                queries.gjennomforing.getAll(typer = listOf(GjennomforingType.ENKELTPLASS)).should {
+                    it.totalCount shouldBe 1
+                    it.items shouldContainExactlyIds listOf(EnkelAmo.id)
+                }
+
+                queries.gjennomforing.getAll(typer = listOf(GjennomforingType.ARENA)).should {
+                    it.totalCount shouldBe 1
+                    it.items shouldContainExactlyIds listOf(ArenaEnkelAmo.id)
+                }
             }
         }
     }

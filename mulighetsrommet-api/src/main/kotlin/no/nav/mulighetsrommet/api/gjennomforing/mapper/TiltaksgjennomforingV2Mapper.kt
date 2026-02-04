@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -40,6 +41,27 @@ object TiltaksgjennomforingV2Mapper {
             arrangor = Arrangor(
                 organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
             ),
+        )
+
+        is GjennomforingArena -> Gruppe(
+            id = gjennomforing.id,
+            opprettetTidspunkt = gjennomforing.opprettetTidspunkt.atZone(systemDefault()).toInstant(),
+            oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt.atZone(systemDefault()).toInstant(),
+            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+            arrangor = Arrangor(
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+            ),
+            navn = gjennomforing.navn,
+            startDato = gjennomforing.startDato,
+            sluttDato = gjennomforing.sluttDato,
+            status = gjennomforing.status,
+            oppstart = gjennomforing.oppstart,
+            antallPlasser = gjennomforing.antallPlasser,
+            deltidsprosent = gjennomforing.deltidsprosent,
+            pameldingType = gjennomforing.pameldingType,
+            tilgjengeligForArrangorFraOgMedDato = null,
+            apentForPamelding = false,
+            oppmoteSted = null,
         )
     }
 }

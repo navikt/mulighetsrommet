@@ -57,3 +57,14 @@ data class GjennomforingEnkeltplassKompakt(
     override val sluttDato: LocalDate?,
     override val status: GjennomforingStatus,
 ) : GjennomforingKompakt()
+
+data class GjennomforingArenaKompakt(
+    override val id: UUID,
+    override val lopenummer: Tiltaksnummer,
+    override val tiltakstype: Tiltakstype,
+    override val arrangor: ArrangorUnderenhet,
+    override val startDato: LocalDate,
+    override val sluttDato: LocalDate?,
+    override val status: GjennomforingStatus,
+    val navn: String,
+) : GjennomforingKompakt()

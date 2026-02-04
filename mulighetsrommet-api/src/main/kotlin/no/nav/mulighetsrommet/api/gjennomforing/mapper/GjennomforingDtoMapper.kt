@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
@@ -17,6 +18,7 @@ object GjennomforingDtoMapper {
     fun fromGjennomforing(gjennomforing: Gjennomforing) = when (gjennomforing) {
         is GjennomforingAvtale -> fromGruppetiltak(gjennomforing)
         is GjennomforingEnkeltplass -> fromEnkeltplass(gjennomforing)
+        is GjennomforingArena -> throw IllegalStateException("Visning av gamle gjennomføringer fra Arena er ikke støttet")
     }
 
     fun fromGruppetiltak(gjennomforing: GjennomforingAvtale) = GjennomforingDetaljerDto(

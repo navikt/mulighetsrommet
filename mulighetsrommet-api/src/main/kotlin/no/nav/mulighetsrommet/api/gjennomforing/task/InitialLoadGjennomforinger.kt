@@ -9,6 +9,7 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
@@ -92,8 +93,14 @@ class InitialLoadGjennomforinger(
             },
         ) {
             when (it) {
-                is GjennomforingAvtaleKompakt -> publish(queries.gjennomforing.getGjennomforingAvtaleOrError(it.id))
-                is GjennomforingEnkeltplassKompakt -> publish(queries.gjennomforing.getGjennomforingEnkeltplassOrError(it.id))
+                is GjennomforingAvtaleKompakt,
+                -> publish(queries.gjennomforing.getGjennomforingAvtaleOrError(it.id))
+
+                is GjennomforingEnkeltplassKompakt,
+                -> publish(queries.gjennomforing.getGjennomforingEnkeltplassOrError(it.id))
+
+                is GjennomforingArenaKompakt,
+                -> publish(queries.gjennomforing.getGjennomforingArenaOrError(it.id))
             }
         }
 
@@ -111,6 +118,12 @@ class InitialLoadGjennomforinger(
             val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplass(id)
             if (enkeltplass != null) {
                 publish(enkeltplass)
+                return@forEach
+            }
+
+            val arena = queries.gjennomforing.getGjennomforingArena(id)
+            if (arena != null) {
+                publish(arena)
                 return@forEach
             }
 

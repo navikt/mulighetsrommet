@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.datavarehus.db
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.data.forAll
-import io.kotest.data.toTable
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -15,7 +13,7 @@ import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.EnkeltplassFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeAmo1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeFagYrke1
@@ -97,63 +95,63 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
 
         test("henter Gruppe AMO med amo-kategorisering") {
+            val studiespesialisering = AmoKategorisering.Studiespesialisering
+            val fov = AmoKategorisering.ForberedendeOpplaeringForVoksne(
+                innholdElementer = listOf(
+                    AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING,
+                ),
+            )
+            val grunnleggende = AmoKategorisering.GrunnleggendeFerdigheter(
+                innholdElementer = listOf(
+                    AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
+                ),
+            )
+            val norskopplaering = AmoKategorisering.Norskopplaering(
+                norskprove = true,
+                innholdElementer = listOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING),
+            )
+            val bransje = AmoKategorisering.BransjeOgYrkesrettet(
+                bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID,
+                innholdElementer = listOf(AmoKategorisering.InnholdElement.PRAKSIS),
+                forerkort = listOf(AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A),
+                sertifiseringer = listOf(
+                    AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(konseptId = 1, label = "Jobb"),
+                ),
+            )
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeAmo),
                 avtaler = listOf(AvtaleFixtures.gruppeAmo),
                 gjennomforinger = listOf(
-                    GruppeAmo1.copy(
-                        id = UUID.randomUUID(),
-                        amoKategorisering = AmoKategorisering.Studiespesialisering,
-                    ),
-                    GruppeAmo1.copy(
-                        id = UUID.randomUUID(),
-                        amoKategorisering = AmoKategorisering.ForberedendeOpplaeringForVoksne(
-                            innholdElementer = listOf(
-                                AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING,
-                            ),
-                        ),
-                    ),
-                    GruppeAmo1.copy(
-                        id = UUID.randomUUID(),
-                        amoKategorisering = AmoKategorisering.GrunnleggendeFerdigheter(
-                            innholdElementer = listOf(
-                                AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
-                            ),
-                        ),
-                    ),
-                    GruppeAmo1.copy(
-                        id = UUID.randomUUID(),
-                        amoKategorisering = AmoKategorisering.Norskopplaering(
-                            norskprove = true,
-                            innholdElementer = listOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING),
-                        ),
-                    ),
-                    GruppeAmo1.copy(
-                        id = UUID.randomUUID(),
-                        amoKategorisering = AmoKategorisering.BransjeOgYrkesrettet(
-                            bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID,
-                            innholdElementer = listOf(AmoKategorisering.InnholdElement.PRAKSIS),
-                            forerkort = listOf(AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A),
-                            sertifiseringer = listOf(
-                                AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(konseptId = 1, label = "Jobb"),
-                            ),
-                        ),
-                    ),
+                    GruppeAmo1.copy(id = UUID.randomUUID(), amoKategorisering = studiespesialisering),
+                    GruppeAmo1.copy(id = UUID.randomUUID(), amoKategorisering = fov),
+                    GruppeAmo1.copy(id = UUID.randomUUID(), amoKategorisering = grunnleggende),
+                    GruppeAmo1.copy(id = UUID.randomUUID(), amoKategorisering = norskopplaering),
+                    GruppeAmo1.copy(id = UUID.randomUUID(), amoKategorisering = bransje),
                 ),
             )
-
-            val table = domain.gjennomforinger.associate { it.id to it.amoKategorisering }.toTable()
 
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                table.forAll { id, expectedAmoKategorisering ->
-                    val tiltak = queries.dvh.getDatavarehusTiltak(id)
+                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[0].id)
+                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                    .amoKategorisering.shouldNotBeNull().shouldBe(studiespesialisering)
 
-                    tiltak.shouldBeTypeOf<DatavarehusTiltakV1AmoDto>().amoKategorisering.shouldNotBeNull().shouldBe(
-                        expectedAmoKategorisering,
-                    )
-                }
+                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[1].id)
+                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                    .amoKategorisering.shouldNotBeNull().shouldBe(fov)
+
+                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[2].id)
+                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                    .amoKategorisering.shouldNotBeNull().shouldBe(grunnleggende)
+
+                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[3].id)
+                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                    .amoKategorisering.shouldNotBeNull().shouldBe(norskopplaering)
+
+                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[4].id)
+                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                    .amoKategorisering.shouldNotBeNull().shouldBe(bransje)
             }
         }
 
@@ -244,18 +242,18 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         test("henter relevant data om tiltakstype og gjennomføring") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-                enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo1),
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             )
 
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
 
-                DatavarehusTiltakQueries(session).getDatavarehusTiltak(EnkeltplassFixtures.EnkelAmo1.id)
+                DatavarehusTiltakQueries(session).getDatavarehusTiltak(GjennomforingFixtures.EnkelAmo.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
                 it.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-                it.gjennomforing.id shouldBe EnkeltplassFixtures.EnkelAmo1.id
+                it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
                 it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
                 it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
                 it.gjennomforing.arrangor shouldBe DatavarehusTiltakV1.Arrangor(
@@ -275,24 +273,24 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         test("henter bare tiltaksnummer fra Arena-data") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-                enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo1),
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             )
 
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
                 queries.gjennomforing.setArenaData(
                     GjennomforingArenaDataDbo(
-                        id = EnkeltplassFixtures.EnkelAmo1.id,
+                        id = GjennomforingFixtures.EnkelAmo.id,
                         tiltaksnummer = Tiltaksnummer("2024#456"),
                         arenaAnsvarligEnhet = "0400",
                     ),
                 )
 
-                DatavarehusTiltakQueries(session).getDatavarehusTiltak(EnkeltplassFixtures.EnkelAmo1.id)
+                DatavarehusTiltakQueries(session).getDatavarehusTiltak(GjennomforingFixtures.EnkelAmo.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
-                it.gjennomforing.id shouldBe EnkeltplassFixtures.EnkelAmo1.id
+                it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
                 it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
                 it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
                 it.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(
