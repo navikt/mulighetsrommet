@@ -109,7 +109,7 @@ export function RedigerUtbetalingLinjeView({
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(submitHandler)}>
-        <VStack gap="2">
+        <VStack gap="space-8">
           {!formLinjer.length && (
             <Alert variant="info">{utbetalingTekster.delutbetaling.alert.ingenTilsagn}</Alert>
           )}
@@ -177,7 +177,7 @@ export function RedigerUtbetalingLinjeView({
           />
         </VStack>
 
-        <VStack gap="2" className="mt-2">
+        <VStack gap="space-8" className="mt-2">
           {!!formLinjer.length && (
             <HStack justify="end">
               {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
@@ -187,7 +187,7 @@ export function RedigerUtbetalingLinjeView({
               )}
             </HStack>
           )}
-          <VStack gap="2" align="end">
+          <VStack gap="space-8" align="end">
             {errors.map((error) => (
               <Alert variant="error" size="small">
                 {error.detail}
@@ -246,13 +246,13 @@ function FjernUtbetalingLinje({ index }: { index: number }) {
   const { remove } = useFieldArray<RedigerUtbetalingLinjeFormValues>({ name: "formLinjer" });
   return (
     <Button
+      data-color="neutral"
       size="small"
-      variant="secondary-neutral"
+      variant="secondary"
       type="button"
       onClick={() => {
         remove(index);
-      }}
-    >
+      }}>
       {utbetalingTekster.delutbetaling.handlinger.fjern}
     </Button>
   );
@@ -293,11 +293,15 @@ function SlettUtbetalingModal({
         </BodyShort>
       </Modal.Body>
       <Modal.Footer>
-        <HStack gap="4">
+        <HStack gap="space-16">
           <Button type="button" variant="secondary" onClick={onClose}>
             Nei, takk
           </Button>
-          <Button title="Slett utbetaling" variant="danger" onClick={slettKorreksjon}>
+          <Button
+            data-color="danger"
+            title="Slett utbetaling"
+            variant="primary"
+            onClick={slettKorreksjon}>
             Ja, jeg vil slette utbetalingen
           </Button>
         </HStack>

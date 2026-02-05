@@ -75,7 +75,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(postData)}>
           <Modal.Body>
-            <VStack gap="5">
+            <VStack gap="space-20">
               <BodyLong as="div">
                 {!avtaleSkalIkkeUtloseOpsjoner && <RegistrerOpsjonForm avtale={avtale} />}
               </BodyLong>
@@ -114,7 +114,7 @@ function SluttDatoErLikEllerPassererMaksVarighetModal({ modalRef }: ModalProps) 
       modalRef={modalRef}
       primaryButton={<Button onClick={() => modalRef.current?.close()}>Ok</Button>}
       body={
-        <VStack gap="5">
+        <VStack gap="space-20">
           <BodyShort>
             Du kan ikke registrere flere opsjoner for avtalen. Avtalens sluttdato er samme som maks
             varighet for avtalen.

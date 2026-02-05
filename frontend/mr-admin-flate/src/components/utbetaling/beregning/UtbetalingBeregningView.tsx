@@ -13,7 +13,7 @@ export default function UtbetalingBeregningView({ beregning, utbetalingId }: Pro
   const [beregningModalOpen, setBeregningModalOpen] = useState<boolean>(false);
 
   return (
-    <VStack gap="2">
+    <VStack gap="space-8">
       <div className="max-h-[30rem] overflow-y-scroll">
         <UtbetalingBeregning beregning={beregning} />
       </div>

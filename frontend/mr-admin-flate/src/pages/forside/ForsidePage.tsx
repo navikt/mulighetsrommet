@@ -8,7 +8,7 @@ export function ForsidePage() {
     <>
       <title>Nav Tiltaksadministrasjon</title>
       <HeroBanner />
-      <VStack gap="4" justify="center" className="mx-auto ax-lg:w-5xl max-w-[1280px] px-4">
+      <VStack gap="space-16" justify="center" className="mx-auto ax-lg:w-5xl max-w-[1280px] px-4">
         <BrukerNotifikasjoner />
         <ForsidekortListe />
       </VStack>

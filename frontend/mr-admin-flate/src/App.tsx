@@ -86,7 +86,7 @@ function AppLayout() {
           data-website-id="182ed73a-eaa9-4ea0-9e30-7a0a74c5c396"
         />
       </Head>
-      <Page background="bg-subtle">
+      <Page>
         <Page.Block as="header" className="max-w-[1920px]">
           <AdministratorHeader />
           <UtdatertKlientBanner />

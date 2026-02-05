@@ -133,7 +133,6 @@ export function GjennomforingTable({
                           </VStack>
                         </Table.DataCell>
                       </SkjulKolonne>
-
                       <SkjulKolonne skjul={!!skjulKolonner?.enhet}>
                         <Table.DataCell
                           aria-label={`Enheter: ${gjennomforing.kontorstruktur
@@ -153,13 +152,11 @@ export function GjennomforingTable({
                           )}
                         </Table.DataCell>
                       </SkjulKolonne>
-
                       <SkjulKolonne skjul={!!skjulKolonner?.lopenummer}>
                         <Table.DataCell aria-label={`Løpenummer: ${gjennomforing.lopenummer}`}>
                           {gjennomforing.lopenummer}
                         </Table.DataCell>
                       </SkjulKolonne>
-
                       <SkjulKolonne skjul={!!skjulKolonner?.arrangor}>
                         <Table.DataCell
                           aria-label={`Virksomhetsnavn: ${gjennomforing.arrangor.navn}`}
@@ -167,7 +164,6 @@ export function GjennomforingTable({
                           <BodyShort size="small">{gjennomforing.arrangor.navn}</BodyShort>
                         </Table.DataCell>
                       </SkjulKolonne>
-
                       <SkjulKolonne skjul={!!skjulKolonner?.startdato}>
                         <Table.DataCell
                           title={`Startdato ${formattertStartDato}`}
@@ -176,7 +172,6 @@ export function GjennomforingTable({
                           {formattertStartDato}
                         </Table.DataCell>
                       </SkjulKolonne>
-
                       <SkjulKolonne skjul={!!skjulKolonner?.sluttdato}>
                         <Table.DataCell
                           title={`Sluttdato ${formattertSluttDato}`}
@@ -187,7 +182,6 @@ export function GjennomforingTable({
                           {formattertSluttDato}
                         </Table.DataCell>
                       </SkjulKolonne>
-
                       <SkjulKolonne skjul={!!skjulKolonner?.status}>
                         <Table.DataCell>
                           <GjennomforingStatusTag status={gjennomforing.status} />
@@ -197,10 +191,10 @@ export function GjennomforingTable({
                         <VStack align={"center"}>
                           {gjennomforing.publisert && (
                             <Tag
+                              data-color="success"
                               title="Tiltaket er publisert og synlig for veileder i Modia"
-                              variant="success-filled"
-                              size="small"
-                            >
+                              variant="strong"
+                              size="small">
                               Publisert
                             </Tag>
                           )}

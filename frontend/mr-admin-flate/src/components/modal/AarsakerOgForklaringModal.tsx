@@ -35,13 +35,13 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
     <Modal width={1000} aria-label={header} open={open} onClose={onClose} portal={true}>
       <form>
         <Modal.Header>
-          <VStack gap="4">
+          <VStack gap="space-16">
             <Heading size="medium">{header}</Heading>
             {ingress}
           </VStack>
         </Modal.Header>
         <Modal.Body>
-          <HGrid columns={2} gap="6" align="start">
+          <HGrid columns={2} gap="space-24" align="start">
             <CheckboxGroup
               onChange={setValgteAarsaker}
               value={valgteAarsaker}
@@ -63,7 +63,7 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
           </HGrid>
         </Modal.Body>
         <Modal.Footer>
-          <VStack gap="2">
+          <VStack gap="space-8">
             <HStack justify="end">
               <Button
                 type="submit"

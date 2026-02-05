@@ -29,7 +29,7 @@ export function PortableTextEditorToolbar() {
 
   return (
     <>
-      <HStack gap="2" className="border-t border-l border-r rounded-t-md">
+      <HStack gap="space-8" className="border-t border-l border-r rounded-t-md">
         {decoratorButtons}
         {annotationButtons}
         {listButtons}

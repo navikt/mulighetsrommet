@@ -19,17 +19,17 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
     <li className="m-2 ax-md:w-auto w-[95%]">
       <Box
         background={lest ? "surface-subtle" : "bg-default"}
-        borderColor="border-subtle"
-        borderRadius="large"
+        borderColor="neutral-subtle"
+        borderRadius="8"
         borderWidth="1"
-        padding="4"
+        padding="space-16"
       >
         <HStack justify="space-between">
-          <HStack gap="2">
+          <HStack gap="space-8">
             <div className="inline-flex items-center self-start justify-center p-2 bg-ax-neutral-300 rounded-xl">
               <PaperplaneIcon fontSize="2rem" />
             </div>
-            <VStack gap="4" className="max-w-[75ch]">
+            <VStack gap="space-16" className="max-w-[75ch]">
               <Heading
                 level="2"
                 size="small"

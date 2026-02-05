@@ -102,7 +102,7 @@ function OppgaveStatus({ variant, label, icon }: OppgaveStatusProps) {
 
 function OppgaveEnhetTag({ enhet }: { enhet: OppgaveEnhet }) {
   return (
-    <Tag size="small" variant="neutral-moderate">
+    <Tag data-color="neutral" size="small" variant="moderate">
       {enhet.navn}
     </Tag>
   );

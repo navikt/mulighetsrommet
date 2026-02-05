@@ -17,13 +17,13 @@ export function UtdatertKlientBanner() {
   if (!visible || ignored) return null;
 
   return (
-    <Box className="bg-ax-warning-200" borderColor="border-warning" padding="4">
-      <HStack align="center" justify="space-between" gap="2">
+    <Box className="bg-ax-warning-200" borderColor="warning" padding="space-16">
+      <HStack align="center" justify="space-between" gap="space-8">
         <p className="text-m text-ax-danger-800">
           Appen er utdatert. Dette kan medføre feil. Last siden på nytt hvis mulig
         </p>
 
-        <HStack gap="2">
+        <HStack gap="space-8">
           <Button
             onClick={() => window.location.reload()}
             className="px-3 py-1 rounded bg-ax-warning-300 text-ax-danger-800 hover:bg-ax-warning-400 transition"

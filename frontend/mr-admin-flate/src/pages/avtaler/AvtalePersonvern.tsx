@@ -2,7 +2,7 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { PersonopplysningData } from "@tiltaksadministrasjon/api-client";
-import { Alert, BodyShort, HelpText, HStack, List, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, HelpText, HStack, List, VStack, Box } from "@navikt/ds-react";
 
 export function AvtalePersonvern() {
   const { data: personopplysninger } = usePersonopplysninger();
@@ -33,13 +33,13 @@ export function AvtalePersonvern() {
     <VStack gap="space-4" className="p-6 bg-white max-w-360">
       <BodyShort>Følgende personopplysninger om deltager kan behandles i denne avtalen</BodyShort>
       {checkedPersonopplysninger && (
-        <List size="small" as="ul">
-          {checkedPersonopplysninger.map((p: PersonopplysningData) => (
-            <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
-              {p.tittel}
-            </ListWithHelpText>
-          ))}
-        </List>
+        <Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 size="small" as="ul">
+            {checkedPersonopplysninger.map((p: PersonopplysningData) => (
+              <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
+                {p.tittel}
+              </ListWithHelpText>
+            ))}
+          </List></Box>
       )}
     </VStack>
   );

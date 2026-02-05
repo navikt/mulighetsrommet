@@ -100,7 +100,7 @@ export function ArrangorKontaktpersonForm({
   }
 
   return (
-    <HGrid gap="2" columns={1}>
+    <HGrid gap="space-8" columns={1}>
       <TextField
         size="small"
         label={"Navn"}
@@ -115,7 +115,7 @@ export function ArrangorKontaktpersonForm({
           });
         }}
       />
-      <HGrid columns={2} gap="2">
+      <HGrid columns={2} gap="space-8">
         <div>
           <TextField
             size="small"
@@ -184,12 +184,17 @@ export function ArrangorKontaktpersonForm({
           });
         }}
       />
-      <HGrid columns={2} gap="1">
+      <HGrid columns={2} gap="space-4">
         <Button size="small" type="button" onClick={opprettEllerLagreKontaktperson}>
           {person ? "Lagre" : "Opprett"}
         </Button>
         {person && (
-          <Button size="small" type="button" variant="danger" onClick={deleteKontaktperson}>
+          <Button
+            data-color="danger"
+            size="small"
+            type="button"
+            variant="primary"
+            onClick={deleteKontaktperson}>
             Slett
           </Button>
         )}

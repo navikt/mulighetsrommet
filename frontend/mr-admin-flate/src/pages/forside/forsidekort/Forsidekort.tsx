@@ -15,7 +15,7 @@ export function Forsidekort({ navn, ikon, url, tekst, apneINyTab = false }: Fors
   return (
     <Box
       as={Link}
-      background="bg-default"
+      background="default"
       borderRadius="4"
       key={url}
       className="text-ax-text-neutral shadow-md hover:shadow-lg transition-all duration-150 ease-in-out"
@@ -23,7 +23,7 @@ export function Forsidekort({ navn, ikon, url, tekst, apneINyTab = false }: Fors
       {...(apneINyTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       data-testid={`forsidekort-${kebabCase(navn)}`}
     >
-      <VStack align="center" gap="4" padding="12">
+      <VStack align="center" gap="space-16" padding="space-48">
         <span className="flex justify-center items-center w-[100px] h-[100px] rounded-full mx-auto">
           <div className="[&>svg]:w-16 [&>svg]:h-16">{ikon}</div>
         </span>

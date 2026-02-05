@@ -59,7 +59,7 @@ export function OpprettGjennomforingFormPage() {
         </Heading>
       </Header>
       <ContentBox>
-        <Box padding="4" background="bg-default">
+        <Box padding="space-16" background="default">
           <GjennomforingFormContainer
             onClose={navigerTilbake}
             onSuccess={navigerTilGjennomforing}

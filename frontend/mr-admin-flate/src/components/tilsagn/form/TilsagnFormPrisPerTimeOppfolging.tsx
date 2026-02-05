@@ -41,7 +41,7 @@ function BeregningInputSkjema({ prismodell }: Pick<Props, "prismodell">) {
   const prisbetingelser = watch("beregning.prisbetingelser");
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <MetadataVStack
         label={tilsagnTekster.prismodell.label}
         value={tilsagnTekster.prismodell.sats.label(type)}
@@ -72,7 +72,7 @@ function BeregningInputSkjema({ prismodell }: Pick<Props, "prismodell">) {
           value={sats?.pris.belop ?? 0}
         />
       </HGrid>
-      <HStack gap="2" align="start">
+      <HStack gap="space-8" align="start">
         <TextField
           size="small"
           type="number"

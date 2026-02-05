@@ -48,7 +48,11 @@ export function NotifikasjonerList({ lest }: Props) {
     <ReloadAppErrorBoundary>
       <div className="max-w-[1440px] mt-5">
         <HStack align={"end"} justify={"end"}>
-          <Button variant="tertiary-neutral" size="small" onClick={toggleMarkertSomlestUlest}>
+          <Button
+            data-color="neutral"
+            variant="tertiary"
+            size="small"
+            onClick={toggleMarkertSomlestUlest}>
             Merk alle som {lest ? "ulest" : "lest"}
           </Button>
         </HStack>

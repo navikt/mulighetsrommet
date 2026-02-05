@@ -1,5 +1,5 @@
 import { Lenke as LenkeComponent } from "@mr/frontend-common/components/lenke/Lenke";
-import { List, VStack } from "@navikt/ds-react";
+import { List, VStack, Box } from "@navikt/ds-react";
 import { FaneinnholdLenke } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
@@ -8,23 +8,23 @@ interface Props {
 
 export function LenkerList({ lenker }: Props) {
   return (
-    <List as="ul">
-      {lenker.map((lenke, index) => (
-        <List.Item key={index} className="break-words">
-          <VStack className="max-w-full overflow-hidden">
-            <LenkeComponent
-              to={lenke.lenke}
-              target={lenke.apneINyFane ? "_blank" : "_self"}
-              rel={lenke.apneINyFane ? "noopener noreferrer" : undefined}
-              isExternal={lenke.apneINyFane}
-              className="break-all"
-            >
-              {lenke.lenkenavn} ({lenke.lenke})
-            </LenkeComponent>
-            {lenke.visKunForVeileder ? <small>Vises kun i Modia</small> : null}
-          </VStack>
-        </List.Item>
-      ))}
-    </List>
+    <Box marginBlock="space-16" asChild><List data-aksel-migrated-v8 as="ul">
+        {lenker.map((lenke, index) => (
+          <List.Item key={index} className="break-words">
+            <VStack className="max-w-full overflow-hidden">
+              <LenkeComponent
+                to={lenke.lenke}
+                target={lenke.apneINyFane ? "_blank" : "_self"}
+                rel={lenke.apneINyFane ? "noopener noreferrer" : undefined}
+                isExternal={lenke.apneINyFane}
+                className="break-all"
+              >
+                {lenke.lenkenavn} ({lenke.lenke})
+              </LenkeComponent>
+              {lenke.visKunForVeileder ? <small>Vises kun i Modia</small> : null}
+            </VStack>
+          </List.Item>
+        ))}
+      </List></Box>
   );
 }

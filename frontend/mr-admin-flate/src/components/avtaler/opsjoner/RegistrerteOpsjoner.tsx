@@ -64,12 +64,12 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
                   {kanSletteOpsjon(log) && !readOnly ? (
                     <>
                       <Button
+                        data-color="neutral"
                         type="button"
                         size="small"
-                        variant="secondary-neutral"
+                        variant="secondary"
                         icon={<TrashIcon aria-hidden />}
-                        onClick={() => fjernOpsjon(log.id)}
-                      >
+                        onClick={() => fjernOpsjon(log.id)}>
                         Fjern
                       </Button>
                     </>

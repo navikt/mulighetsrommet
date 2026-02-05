@@ -46,7 +46,7 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
 
   return (
     <VStack>
-      <HStack justify={"end"} gap="5">
+      <HStack justify={"end"} gap="space-20">
         <Button
           style={{ marginTop: "1rem" }}
           variant="primary"
@@ -108,7 +108,6 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
             )}
         </Table.Body>
       </Table>
-
       {slettKontaktperson ? (
         <SlettKontaktpersonModal
           onClose={() => {
@@ -158,7 +157,7 @@ function LeseRad({
         >
           {kontaktperson.ansvarligFor.map((ansvar, index) => (
             <li key={index}>
-              <Tag variant="info" size="small">
+              <Tag data-color="info" variant="outline" size="small">
                 {navnForAnsvar(ansvar)}
               </Tag>
             </li>
@@ -167,7 +166,7 @@ function LeseRad({
       </Table.DataCell>
       <Table.DataCell>{kontaktperson.beskrivelse}</Table.DataCell>
       <Table.DataCell>
-        <HStack gap="5" justify={"end"}>
+        <HStack gap="space-20" justify={"end"}>
           <Button
             onClick={() => setRedigerKontaktperson(kontaktperson)}
             variant="primary"
@@ -176,13 +175,13 @@ function LeseRad({
             Rediger
           </Button>
           <Button
-            variant="danger"
+            data-color="danger"
+            variant="primary"
             size="small"
             onClick={() => {
               setSlettKontaktperson(kontaktperson);
               modalRef.current?.showModal();
-            }}
-          >
+            }}>
             Slett
           </Button>
         </HStack>
@@ -337,15 +336,15 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
         />
       </Table.DataCell>
       <Table.DataCell>
-        <HStack gap="5" justify={"end"}>
+        <HStack gap="space-20" justify={"end"}>
           <Button onClick={lagre} variant="primary" size="small">
             Lagre
           </Button>
           <Button
+            data-color="neutral"
             onClick={() => setRedigerKontaktperson(undefined)}
-            variant="secondary-neutral"
-            size="small"
-          >
+            variant="secondary"
+            size="small">
             Avbryt
           </Button>
         </HStack>

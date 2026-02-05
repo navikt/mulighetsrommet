@@ -50,7 +50,7 @@ export default function OppgaverList({ filter, tagsHeight, filterOpen }: Props) 
           </Select>
         </ToolbarMeny>
       </ToolbarContainer>
-      <VStack gap="2">
+      <VStack gap="space-8">
         {sortedOppgaver.map((o) => {
           return <Oppgave key={o.id} oppgave={o} />;
         })}

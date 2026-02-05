@@ -14,7 +14,7 @@ interface Props {
 
 export function GjennomforingDetaljerMini({ gjennomforing, meny }: Props) {
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <HStack justify={"space-between"}>
         <Heading size="medium" level="2">
           Gjennomføring

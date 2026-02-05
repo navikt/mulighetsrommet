@@ -25,7 +25,7 @@ export function GjorOppTilsagnCheckbox({ linje }: DisplayVariant) {
 
 function BaseGjorOppTilsagnCheckbox(props: Omit<CheckboxProps, "children">) {
   return (
-    <HStack gap="2">
+    <HStack gap="space-8">
       <Checkbox hideLabel {...props}>
         {utbetalingTekster.delutbetaling.gjorOpp.checkbox.label}
       </Checkbox>

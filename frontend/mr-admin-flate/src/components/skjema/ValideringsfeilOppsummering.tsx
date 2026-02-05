@@ -32,7 +32,8 @@ export function ValideringsfeilOppsummering() {
   return (
     <>
       <Button
-        variant="tertiary-neutral"
+        data-color="neutral"
+        variant="tertiary"
         type="button"
         size="small"
         aria-live="assertive"
@@ -40,8 +41,7 @@ export function ValideringsfeilOppsummering() {
         className="cursor-pointer"
         onClick={() => setVisValideringsfeil(true)}
         ref={visValideringsFeilTrekantRef}
-        title="Det er valideringsfeil i skjema. Trykk for å få oversikt over valideringsfeilene."
-      >
+        title="Det er valideringsfeil i skjema. Trykk for å få oversikt over valideringsfeilene.">
         <ExclamationmarkTriangleFillIcon height={25} width={25} color="#C30000" />
       </Button>
       <Popover

@@ -66,10 +66,10 @@ export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
             Status
           </TableColumnHeader>
           <TableColumnHeader align="right" className="max-w-6" hidden={!harUtbetalingsTypeTag}>
-            <HStack gap="2">
+            <HStack gap="space-8">
               Type
               <HelpText title="Hva betyr forkortelsene?">
-                <VStack gap="1" className="text-left">
+                <VStack gap="space-4" className="text-left">
                   <div>
                     <b>KOR:</b> Korreksjon på utbetaling
                   </div>

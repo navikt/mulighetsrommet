@@ -14,17 +14,16 @@ export function EndringshistorikkPopover({ children }: EndringshistorikkPopoverP
   return (
     <>
       <Button
+        data-color="neutral"
         ref={buttonRef}
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        variant="tertiary-neutral"
+        variant="tertiary"
         type="button"
         size="small"
-        title="Trykk for å se endringshistorikk"
-      >
+        title="Trykk for å se endringshistorikk">
         <ClockDashedIcon height={25} width={25} title="Endringshistorikk" />
       </Button>
-
       <Popover
         open={open}
         onClose={() => setOpen(false)}

@@ -37,17 +37,17 @@ export function AvtalteSatserForm({
   const fromDate = subDuration(avtaleStartDato, { months: 1 });
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       {fields.map((satsField, index) => (
         <HStack
           key={satsField.id}
-          padding="4"
-          gap="4"
+          padding="space-16"
+          gap="space-16"
           wrap={false}
           align="center"
           className="border-ax-border-neutral-subtle border rounded-lg"
         >
-          <HStack key={satsField.id} gap="4" align="start">
+          <HStack key={satsField.id} gap="space-16" align="start">
             <TextField
               label={avtaletekster.prismodell.pris.label + " (" + valuta + ")"}
               size="small"
@@ -74,12 +74,12 @@ export function AvtalteSatserForm({
           </HStack>
           <Spacer />
           <Button
-            variant="secondary-neutral"
+            data-color="neutral"
+            variant="secondary"
             size="small"
             type="button"
             icon={<TrashIcon aria-hidden />}
-            onClick={() => remove(index)}
-          >
+            onClick={() => remove(index)}>
             Fjern
           </Button>
         </HStack>

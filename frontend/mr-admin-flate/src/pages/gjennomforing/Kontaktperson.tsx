@@ -9,7 +9,7 @@ interface Props {
 
 export function Kontaktperson({ kontaktperson }: Props) {
   return (
-    <VStack gap="05">
+    <VStack gap="space-2">
       <BodyShort>
         <b>{kontaktperson.navn}</b>
       </BodyShort>

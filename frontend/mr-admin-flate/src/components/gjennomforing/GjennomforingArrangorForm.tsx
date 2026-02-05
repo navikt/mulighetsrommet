@@ -33,7 +33,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
   const kontaktpersonOptions = getKontaktpersonOptions(arrangorKontaktpersoner ?? []);
   return (
     <>
-      <VStack gap="4">
+      <VStack gap="space-16">
         <TextField
           size="small"
           label={gjennomforingTekster.tiltaksarrangorHovedenhetLabel}
@@ -100,7 +100,6 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
           />
         </VStack>
       </VStack>
-
       <ArrangorKontaktpersonerModal
         arrangorId={arrangor.id}
         modalRef={arrangorKontaktpersonerModalRef}

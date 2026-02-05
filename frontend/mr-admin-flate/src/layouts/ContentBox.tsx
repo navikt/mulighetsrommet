@@ -6,5 +6,5 @@ interface Props {
 }
 
 export function ContentBox({ children }: Props) {
-  return <Box marginBlock="4">{children}</Box>;
+  return <Box marginBlock="space-16">{children}</Box>;
 }

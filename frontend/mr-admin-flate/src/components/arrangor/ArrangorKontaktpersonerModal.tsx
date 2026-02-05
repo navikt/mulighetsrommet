@@ -59,7 +59,7 @@ export function ArrangorKontaktpersonerModal(props: Props) {
                     onOpprettSuccess={() => {}}
                   />
                 ) : (
-                  <VStack gap="2">
+                  <VStack gap="space-8">
                     <div>
                       <Label size="small">Navn</Label>
                       <BodyShort size="small">{person.navn}</BodyShort>
@@ -84,11 +84,11 @@ export function ArrangorKontaktpersonerModal(props: Props) {
                       <HGrid columns={2}>
                         <div>
                           <Label size="small">Ansvarlig for</Label>
-                          <HStack gap="5">
+                          <HStack gap="space-20">
                             <ul className="list-none flex gap-2 p-0 m-0">
                               {person.ansvarligFor.map((ansvar) => (
                                 <li key={ansvar}>
-                                  <Tag variant="info" size="xsmall">
+                                  <Tag data-color="info" variant="outline" size="xsmall">
                                     {navnForAnsvar(ansvar)}
                                   </Tag>
                                 </li>

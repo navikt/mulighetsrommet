@@ -271,7 +271,7 @@ const Kontaktinfo = () => {
 
   return (
     <VStack className="mt-4">
-      <VStack gap="5">
+      <VStack gap="space-20">
         <Textarea
           {...register("veilederinformasjon.faneinnhold.kontaktinfoInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Kontaktinfo»"
@@ -344,7 +344,7 @@ function RegionerOgEnheterOgKontaktpersoner({
       <Heading size="medium" spacing level="3">
         Geografisk tilgjengelighet
       </Heading>
-      <VStack gap="2">
+      <VStack gap="space-8">
         <ControlledMultiSelect
           inputId={"navRegioner"}
           size="small"
@@ -377,7 +377,7 @@ function RegionerOgEnheterOgKontaktpersoner({
         {kontaktpersonForm && (
           <>
             <Separator />
-            <HStack gap="2" align="center">
+            <HStack gap="space-8" align="center">
               <Label size="small">{gjennomforingTekster.kontaktpersonNav.mainLabel}</Label>
               <HelpText>
                 Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om

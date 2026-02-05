@@ -62,7 +62,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
   };
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       {fields.map((field, index) => {
         const type = watch(`prismodeller.${index}.type`);
         const selectedValuta = watch(`prismodeller.${index}.valuta`);
@@ -71,14 +71,14 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
           <Box
             key={field.id}
             borderWidth="1"
-            borderColor="border-subtle"
-            borderRadius="large"
-            padding="4"
-            background="surface-subtle"
+            borderColor="neutral-subtle"
+            borderRadius="8"
+            padding="space-16"
+            background="neutral-soft"
           >
             <HStack justify="space-between" align="start">
-              <VStack gap="4" style={{ flex: 1 }}>
-                <HStack gap="2">
+              <VStack gap="space-16" style={{ flex: 1 }}>
+                <HStack gap="space-8">
                   <Select
                     className="flex-1"
                     label={avtaletekster.prismodell.label}
@@ -130,13 +130,13 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                 />
                 <HStack>
                   <Button
-                    variant="secondary-neutral"
+                    data-color="neutral"
+                    variant="secondary"
                     size="small"
                     type="button"
                     icon={<TrashIcon aria-hidden />}
                     onClick={() => remove(index)}
-                    aria-label="Fjern prismodell"
-                  >
+                    aria-label="Fjern prismodell">
                     Fjern prismodell
                   </Button>
                 </HStack>

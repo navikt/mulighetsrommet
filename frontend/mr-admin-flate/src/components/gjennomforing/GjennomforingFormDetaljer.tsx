@@ -260,7 +260,7 @@ export function GjennomforingFormDetaljer(props: Props) {
               )}
             </HGrid>
             <EstimertVentetidForm veilederinfo={veilederinfo} />
-            <VStack gap="2">
+            <VStack gap="space-8">
               <Textarea
                 size="small"
                 resize
@@ -385,7 +385,7 @@ export function EstimertVentetidForm(props: EstimertVentetidFormProps) {
 
   return (
     <fieldset className="border-none p-0 [&>legend]:font-ax-bold [&>legend]:mb-2">
-      <HStack gap="1">
+      <HStack gap="space-4">
         <LabelWithHelpText label="Estimert ventetid" helpTextTitle="Hva er estimert ventetid?">
           Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om estimert
           ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir det synlig for
@@ -399,7 +399,7 @@ export function EstimertVentetidForm(props: EstimertVentetidFormProps) {
         Registrer estimert ventetid
       </Switch>
       {visEstimertVentetid && (
-        <HStack align="start" justify="start" gap="10">
+        <HStack align="start" justify="start" gap="space-40">
           <TextField
             size="small"
             type="number"

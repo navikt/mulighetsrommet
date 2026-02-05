@@ -158,7 +158,7 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
             <MetadataVStack
               label={gjennomforingTekster.kontaktpersonNav.mainLabel}
               value={
-                <VStack gap="2">
+                <VStack gap="space-8">
                   {kontaktpersoner.map((kp, index) => (
                     <Kontaktperson key={index} kontaktperson={kp} />
                   ))}

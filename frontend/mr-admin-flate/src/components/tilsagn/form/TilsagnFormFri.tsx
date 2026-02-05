@@ -57,7 +57,7 @@ function BeregningInputSkjema({ valuta }: BeregningInputSkjemaProps) {
   const prisbetingelser = watch("beregning.prisbetingelser");
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <MetadataVStack
         label={tilsagnTekster.prismodell.label}
         value={tilsagnTekster.prismodell.sats.label(TilsagnBeregningType.FRI)}
@@ -71,10 +71,10 @@ function BeregningInputSkjema({ valuta }: BeregningInputSkjemaProps) {
       <Label size="small">Avtalte priser</Label>
       {fields.map((item, index) => (
         <HStack
-          gap="4"
+          gap="space-16"
           align="start"
           key={item.id}
-          padding="4"
+          padding="space-16"
           className="border-ax-border-neutral-subtle border-1 rounded-lg"
         >
           <Textarea
@@ -115,12 +115,12 @@ function BeregningInputSkjema({ valuta }: BeregningInputSkjemaProps) {
           />
           <Spacer />
           <Button
+            data-color="neutral"
             size="small"
-            variant="secondary-neutral"
+            variant="secondary"
             icon={<TrashIcon aria-hidden />}
             className="max-h-min mt-7"
-            onClick={() => remove(index)}
-          >
+            onClick={() => remove(index)}>
             Fjern
           </Button>
         </HStack>

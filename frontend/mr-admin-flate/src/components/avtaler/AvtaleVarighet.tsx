@@ -72,7 +72,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
   }, [opsjonUtlost, opsjonsmodell, startDato, sluttDatoFraDato, setValue]);
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       {!forhandsgodkjent && (
         <HGrid columns={2}>
           <Select
@@ -101,7 +101,6 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
           </Select>
         </HGrid>
       )}
-
       {opsjonsmodell?.type === "ANNET" && (
         <TextField
           label="Opsjonsnavn"
@@ -114,7 +113,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
         />
       )}
       {opsjonsmodell?.kreverMaksVarighet ? (
-        <HGrid columns={3} gap="5" align="end">
+        <HGrid columns={3} gap="space-20" align="end">
           <ControlledDateInput
             label={avtaletekster.startdatoLabel}
             readOnly={opsjonUtlost}
@@ -147,7 +146,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
           />
         </HGrid>
       ) : (
-        <HGrid columns={3} gap="10">
+        <HGrid columns={3} gap="space-40">
           <ControlledDateInput
             label={avtaletekster.startdatoLabel}
             fromDate={minStartDato}

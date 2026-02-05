@@ -55,12 +55,12 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
                 {!readOnly && (
                   <Table.DataCell>
                     <Button
+                      data-color="neutral"
                       type="button"
                       size="small"
-                      variant="secondary-neutral"
+                      variant="secondary"
                       icon={<TrashIcon aria-hidden />}
-                      onClick={() => deleteStengtPeriode(periode.id)}
-                    >
+                      onClick={() => deleteStengtPeriode(periode.id)}>
                       Slett
                     </Button>
                   </Table.DataCell>

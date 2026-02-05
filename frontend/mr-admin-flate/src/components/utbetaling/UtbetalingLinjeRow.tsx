@@ -5,7 +5,7 @@ import {
   UtbetalingLinje,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
-import { Alert, BodyShort, Heading, HStack, List, Table, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Heading, HStack, List, Table, VStack, Box } from "@navikt/ds-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
@@ -59,7 +59,7 @@ export function UtbetalingLinjeRow({
       key={`${linje.id}-${linje.status?.type}`}
       className={`${grayBackground ? "[&>td:first-child]:bg-ax-neutral-200" : ""}`}
       content={
-        <VStack gap="4">
+        <VStack gap="space-16">
           {isBesluttet(linje.opprettelse) && linje.opprettelse.besluttelse === "AVVIST" ? (
             <VStack>
               {linje.opprettelse.aarsaker.includes(DelutbetalingReturnertAarsak.PROPAGERT_RETUR) ? (
@@ -83,15 +83,15 @@ export function UtbetalingLinjeRow({
             <VStack className="bg-[var(--ax-bg-danger-soft)]">
               <Alert size="small" variant="error">
                 <BodyShort>Følgende feil må fikses:</BodyShort>
-                <List>
-                  {errors.map((error) => (
-                    <List.Item>{error.detail}</List.Item>
-                  ))}
-                </List>
+                <Box marginBlock="space-16" asChild><List data-aksel-migrated-v8>
+                    {errors.map((error) => (
+                      <List.Item>{error.detail}</List.Item>
+                    ))}
+                  </List></Box>
               </Alert>
             </VStack>
           )}
-          <HStack gap="4" justify="space-between">
+          <HStack gap="space-16" justify="space-between">
             <TilsagnInformasjon tilsagn={linje.tilsagn} />
             {linje.opprettelse && <BehandlerInformasjon opprettelse={linje.opprettelse} />}
           </HStack>

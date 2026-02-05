@@ -53,7 +53,7 @@ const forsidekortData: ForsideKortProps[] = [
 
 export function ForsidekortListe() {
   return (
-    <HGrid gap="6" columns={{ xs: 2, lg: 3 }}>
+    <HGrid gap="space-24" columns={{ xs: 2, lg: 3 }}>
       {forsidekortData.map((kort) => {
         return <Forsidekort key={kort.navn} {...kort} />;
       })}

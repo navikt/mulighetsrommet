@@ -59,7 +59,7 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(postData)}>
           <Modal.Body className="max-h-[70vh] overflow-y-auto">
-            <VStack gap="4">
+            <VStack gap="space-16">
               <InfoCard data-color="warning">
                 <InfoCard.Header>
                   <InfoCard.Title>Endring av prismodell</InfoCard.Title>
@@ -76,7 +76,7 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
             </VStack>
           </Modal.Body>
           <Modal.Footer>
-            <HStack gap="1" className="flex-row-reverse">
+            <HStack gap="space-4" className="flex-row-reverse">
               <Button type="submit" disabled={mutation.isPending}>
                 {mutation.isPending ? "Lagrer..." : "Bekreft"}
               </Button>
