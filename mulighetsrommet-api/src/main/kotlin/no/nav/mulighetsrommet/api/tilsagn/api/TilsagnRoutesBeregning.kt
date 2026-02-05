@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.AvtaleGjennomforingService
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
@@ -43,7 +43,7 @@ fun Route.tilsagnRoutesBeregning() {
     val config: AppConfig by inject()
     val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
-    val gjennomforinger: GjennomforingService by inject()
+    val gjennomforinger: AvtaleGjennomforingService by inject()
 
     get("/{id}/defaults", {
         description = "Hent standardverdier for tilsagn utledet fra gitt tilsagn"
@@ -99,6 +99,7 @@ fun Route.tilsagnRoutesBeregning() {
     }) {
         val request = call.receive<TilsagnRequest>()
 
+        // TODO: må også gjelde enkeltplasser
         val gjennomforing = gjennomforinger.getGruppetiltak(request.gjennomforingId)
             ?: return@post call.respond(HttpStatusCode.NotFound)
 

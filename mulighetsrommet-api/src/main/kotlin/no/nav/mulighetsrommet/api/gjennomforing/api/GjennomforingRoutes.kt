@@ -27,7 +27,6 @@ import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
@@ -35,7 +34,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.AvtaleGjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
@@ -67,7 +67,8 @@ import java.util.UUID
 
 fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
-    val gjennomforinger: GjennomforingService by inject()
+    val avtaleGjennomforinger: AvtaleGjennomforingService by inject()
+    val gjennomforinger: GjennomforingDetaljerService by inject()
 
     route("gjennomforinger") {
         authorize(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) {
@@ -95,7 +96,7 @@ fun Route.gjennomforingRoutes() {
                 val request = call.receive<GjennomforingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = gjennomforinger.upsert(request, navIdent)
+                val result = avtaleGjennomforinger.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { GjennomforingDtoMapper.fromGruppetiltak(it) }
 
@@ -129,7 +130,7 @@ fun Route.gjennomforingRoutes() {
 
                 request.validate()
                     .flatMap {
-                        gjennomforinger.avbrytGjennomforing(
+                        avtaleGjennomforinger.avbrytGjennomforing(
                             id,
                             tidspunkt = LocalDateTime.now(),
                             aarsakerOgForklaring = it,
@@ -164,7 +165,7 @@ fun Route.gjennomforingRoutes() {
                 val id: UUID by call.parameters
                 val navIdent = getNavIdent()
                 val request = call.receive<PublisertRequest>()
-                gjennomforinger.setPublisert(id, request.publisert, navIdent)
+                avtaleGjennomforinger.setPublisert(id, request.publisert, navIdent)
                 call.respond(HttpStatusCode.OK)
             }
         }
@@ -190,7 +191,7 @@ fun Route.gjennomforingRoutes() {
                 val id: UUID by call.parameters
                 val navIdent = getNavIdent()
                 val request = call.receive<SetApentForPameldingRequest>()
-                gjennomforinger.setApentForPamelding(id, request.apentForPamelding, navIdent)
+                avtaleGjennomforinger.setApentForPamelding(id, request.apentForPamelding, navIdent)
                 call.respond(HttpStatusCode.OK)
             }
 
@@ -219,7 +220,7 @@ fun Route.gjennomforingRoutes() {
                 val request = call.receive<SetTilgjengligForArrangorRequest>()
                 val navIdent = getNavIdent()
 
-                val response = gjennomforinger
+                val response = avtaleGjennomforinger
                     .setTilgjengeligForArrangorDato(
                         id,
                         request.tilgjengeligForArrangorDato,
@@ -260,7 +261,7 @@ fun Route.gjennomforingRoutes() {
 
                 val result = request.validate()
                     .flatMap { (periode, beskrivelse) ->
-                        gjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
+                        avtaleGjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
                     .map { GjennomforingDtoMapper.fromGruppetiltak(it) }
@@ -289,7 +290,7 @@ fun Route.gjennomforingRoutes() {
                 val periodeId: Int by call.pathParameters
                 val navIdent = getNavIdent()
 
-                gjennomforinger.deleteStengtHosArrangor(id, periodeId, navIdent)
+                avtaleGjennomforinger.deleteStengtHosArrangor(id, periodeId, navIdent)
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -315,7 +316,7 @@ fun Route.gjennomforingRoutes() {
                 val kontaktpersonId: UUID by call.parameters
                 val navIdent = getNavIdent()
 
-                gjennomforinger.frikobleKontaktpersonFraGjennomforing(
+                avtaleGjennomforinger.frikobleKontaktpersonFraGjennomforing(
                     kontaktpersonId = kontaktpersonId,
                     gjennomforingId = id,
                     navIdent = navIdent,
@@ -443,7 +444,7 @@ fun Route.gjennomforingRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
 
             gjennomforinger.get(id)
-                ?.let { call.respond(GjennomforingDtoMapper.fromGjennomforing(it)) }
+                ?.let { call.respond(it) }
                 ?: call.respondUkjentGjennomforing(id)
         }
 
@@ -466,7 +467,7 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            gjennomforinger.get(id)
+            avtaleGjennomforinger.getGruppetiltak(id)
                 ?.let { gjennomforing ->
                     gjennomforing.arena?.tiltaksnummer
                         ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it.value)) }
@@ -493,7 +494,7 @@ fun Route.gjennomforingRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-            val historikk = gjennomforinger.getEndringshistorikk(id)
+            val historikk = avtaleGjennomforinger.getEndringshistorikk(id)
             call.respond(historikk)
         }
 
@@ -553,13 +554,10 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
-            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
-                ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
-            gjennomforinger.get(id)
-                ?.let { gjennomforinger.handlinger(it, ansatt) }
-                ?.let { call.respond(it) }
-                ?: call.respondUkjentGjennomforing(id)
+            val handlinger = gjennomforinger.handlinger(id, navIdent)
+
+            call.respond(handlinger)
         }
     }
 }

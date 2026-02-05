@@ -28,13 +28,10 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
-import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -43,14 +40,13 @@ import java.time.LocalDateTime
 
 const val TEST_GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"
 
-class GjennomforingServiceTest : FunSpec({
+class AvtaleGjennomforingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    fun createService(): GjennomforingService = GjennomforingService(
-        config = GjennomforingService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+    fun createService(): AvtaleGjennomforingService = AvtaleGjennomforingService(
+        config = AvtaleGjennomforingService.Config(TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         navAnsattService = mockk(relaxed = true),
-        tiltakstypeService = TiltakstypeService(db = database.db),
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -113,23 +109,12 @@ class GjennomforingServiceTest : FunSpec({
 
             service.upsert(gjennomforing, bertilNavIdent).shouldBeRight()
 
-            service.getAll(
-                Pagination.all(),
-                AdminTiltaksgjennomforingFilter(search = "merkelig"),
-            ).data.shouldBeEmpty()
-            service.getAll(
-                Pagination.all(),
-                AdminTiltaksgjennomforingFilter(search = "rart"),
-            ).data.shouldHaveSize(1)
-
-            service.getAll(
-                Pagination.all(),
-                AdminTiltaksgjennomforingFilter(search = ArrangorFixtures.hovedenhet.navn),
-            ).data.shouldBeEmpty()
-            service.getAll(
-                Pagination.all(),
-                AdminTiltaksgjennomforingFilter(search = ArrangorFixtures.underenhet1.navn),
-            ).data.shouldHaveSize(1)
+            database.db.session {
+                queries.gjennomforing.getAll(search = "merkelig").items.shouldBeEmpty()
+                queries.gjennomforing.getAll(search = "rart").items.shouldHaveSize(1)
+                queries.gjennomforing.getAll(search = ArrangorFixtures.hovedenhet.navn).items.shouldBeEmpty()
+                queries.gjennomforing.getAll(search = ArrangorFixtures.underenhet1.navn).items.shouldHaveSize(1)
+            }
         }
 
         test("navEnheter uten fylke blir filtrert vekk") {

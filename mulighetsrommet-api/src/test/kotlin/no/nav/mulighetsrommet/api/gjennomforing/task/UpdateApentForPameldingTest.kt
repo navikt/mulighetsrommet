@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.AvtaleGjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -42,17 +42,16 @@ class UpdateApentForPameldingTest : FunSpec({
             queries.gjennomforing.setApentForPamelding(GjennomforingFixtures.GruppeAmo1.id, true)
         }
 
-        val service = GjennomforingService(
-            config = GjennomforingService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+        val service = AvtaleGjennomforingService(
+            config = AvtaleGjennomforingService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             db = database.db,
             navAnsattService = mockk(),
-            tiltakstypeService = mockk(),
         )
 
         val updateApentForPamelding = UpdateApentForPamelding(
             config = UpdateApentForPamelding.Config(disabled = true),
             db = database.db,
-            gjennomforingService = service,
+            avtaleGjennomforingService = service,
         )
 
         beforeEach {
