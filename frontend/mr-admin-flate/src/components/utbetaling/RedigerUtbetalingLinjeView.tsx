@@ -252,7 +252,8 @@ function FjernUtbetalingLinje({ index }: { index: number }) {
       type="button"
       onClick={() => {
         remove(index);
-      }}>
+      }}
+    >
       {utbetalingTekster.delutbetaling.handlinger.fjern}
     </Button>
   );
@@ -301,7 +302,8 @@ function SlettUtbetalingModal({
             data-color="danger"
             title="Slett utbetaling"
             variant="primary"
-            onClick={slettKorreksjon}>
+            onClick={slettKorreksjon}
+          >
             Ja, jeg vil slette utbetalingen
           </Button>
         </HStack>

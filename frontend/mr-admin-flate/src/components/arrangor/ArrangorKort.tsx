@@ -26,13 +26,15 @@ export function ArrangorKort({ arrangor }: Props) {
         </Tabs.Panel>
         <Tabs.Panel value="underenheter">
           <div>
-            <Box marginBlock="space-16" asChild><List data-aksel-migrated-v8>
+            <Box marginBlock="space-16" asChild>
+              <List data-aksel-migrated-v8>
                 {arrangor.underenheter?.map((underenhet) => (
                   <List.Item key={underenhet.id}>
                     {underenhet.navn} ({underenhet.organisasjonsnummer})
                   </List.Item>
                 ))}
-              </List></Box>
+              </List>
+            </Box>
           </div>
         </Tabs.Panel>
       </Tabs>

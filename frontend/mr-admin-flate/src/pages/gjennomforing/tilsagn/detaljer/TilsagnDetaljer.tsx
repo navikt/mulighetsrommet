@@ -253,7 +253,11 @@ export function TilsagnDetaljer() {
           forklaring={tilOppgjor.forklaring}
         />
       )}
-      <VStack gap="space-24" padding="space-16" className="rounded-lg border-ax-neutral-400 border-1">
+      <VStack
+        gap="space-24"
+        padding="space-16"
+        className="rounded-lg border-ax-neutral-400 border-1"
+      >
         <>
           <HStack className="mb-2">
             <Heading size="medium" level="3">
@@ -385,7 +389,8 @@ export function TilsagnDetaljer() {
               size="small"
               variant="primary"
               type="button"
-              onClick={godkjennTilsagn}>
+              onClick={godkjennTilsagn}
+            >
               Bekreft annullering
             </Button>
           )}
@@ -405,7 +410,8 @@ export function TilsagnDetaljer() {
               size="small"
               variant="primary"
               type="button"
-              onClick={godkjennTilsagn}>
+              onClick={godkjennTilsagn}
+            >
               Bekreft oppgjør
             </Button>
           )}
@@ -491,7 +497,8 @@ export function TilsagnDetaljer() {
               data-color="danger"
               variant="primary"
               onClick={slettTilsagn}
-              icon={<TrashFillIcon />}>
+              icon={<TrashFillIcon />}
+            >
               Ja, jeg vil slette tilsagnet
             </Button>
           }

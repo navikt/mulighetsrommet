@@ -69,7 +69,8 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
                         size="small"
                         variant="secondary"
                         icon={<TrashIcon aria-hidden />}
-                        onClick={() => fjernOpsjon(log.id)}>
+                        onClick={() => fjernOpsjon(log.id)}
+                      >
                         Fjern
                       </Button>
                     </>

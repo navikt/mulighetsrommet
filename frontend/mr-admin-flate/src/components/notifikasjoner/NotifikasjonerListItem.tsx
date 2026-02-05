@@ -18,7 +18,7 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
   return (
     <li className="m-2 ax-md:w-auto w-[95%]">
       <Box
-        background={lest ? "surface-subtle" : "bg-default"}
+        background={lest ? "sunken" : "default"}
         borderColor="neutral-subtle"
         borderRadius="8"
         borderWidth="1"

@@ -103,7 +103,8 @@ export function AvtaleDetaljerForm() {
                   helpTextTitle={avtaletekster.sakarkivNummerHelpTextTitle}
                 >
                   I Public 360 skal det opprettes tre typer arkivsaker med egne saksnummer:
-                  <Box marginBlock="space-16" asChild><List data-aksel-migrated-v8>
+                  <Box marginBlock="space-16" asChild>
+                    <List data-aksel-migrated-v8>
                       <List.Item>En sak for hver anskaffelse.</List.Item>
                       <List.Item>
                         En sak for kontrakt/avtale med hver leverandør (Avtalesaken).
@@ -111,7 +112,8 @@ export function AvtaleDetaljerForm() {
                       <List.Item>
                         En sak for oppfølging og forvaltning av avtale (Avtaleforvaltningssaken).
                       </List.Item>
-                    </List></Box>
+                    </List>
+                  </Box>
                   Det er <b>2. Saksnummeret til Avtalesaken</b> som skal refereres til herfra.
                 </LabelWithHelpText>
               }

@@ -194,7 +194,8 @@ export function ArrangorKontaktpersonForm({
             size="small"
             type="button"
             variant="primary"
-            onClick={deleteKontaktperson}>
+            onClick={deleteKontaktperson}
+          >
             Slett
           </Button>
         )}

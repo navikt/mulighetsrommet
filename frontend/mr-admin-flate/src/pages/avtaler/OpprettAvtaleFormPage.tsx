@@ -149,7 +149,13 @@ export function OpprettAvtaleFormPage() {
           Opprett ny avtale
         </Heading>
       </Header>
-      <Box borderRadius="4" marginBlock="space-16" marginInline="space-8" padding="space-16" background="default">
+      <Box
+        borderRadius="4"
+        marginBlock="space-16"
+        marginInline="space-8"
+        padding="space-16"
+        background="default"
+      >
         <Heading size="medium" spacing level="2" id="stepper-heading">
           Steg
         </Heading>

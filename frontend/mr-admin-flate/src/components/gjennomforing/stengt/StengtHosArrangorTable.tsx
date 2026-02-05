@@ -60,7 +60,8 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
                       size="small"
                       variant="secondary"
                       icon={<TrashIcon aria-hidden />}
-                      onClick={() => deleteStengtPeriode(periode.id)}>
+                      onClick={() => deleteStengtPeriode(periode.id)}
+                    >
                       Slett
                     </Button>
                   </Table.DataCell>

@@ -181,7 +181,8 @@ function LeseRad({
             onClick={() => {
               setSlettKontaktperson(kontaktperson);
               modalRef.current?.showModal();
-            }}>
+            }}
+          >
             Slett
           </Button>
         </HStack>
@@ -344,7 +345,8 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
             data-color="neutral"
             onClick={() => setRedigerKontaktperson(undefined)}
             variant="secondary"
-            size="small">
+            size="small"
+          >
             Avbryt
           </Button>
         </HStack>

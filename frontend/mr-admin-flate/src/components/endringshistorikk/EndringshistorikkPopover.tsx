@@ -21,7 +21,8 @@ export function EndringshistorikkPopover({ children }: EndringshistorikkPopoverP
         variant="tertiary"
         type="button"
         size="small"
-        title="Trykk for å se endringshistorikk">
+        title="Trykk for å se endringshistorikk"
+      >
         <ClockDashedIcon height={25} width={25} title="Endringshistorikk" />
       </Button>
       <Popover

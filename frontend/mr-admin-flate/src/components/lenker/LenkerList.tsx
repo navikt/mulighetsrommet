@@ -8,7 +8,8 @@ interface Props {
 
 export function LenkerList({ lenker }: Props) {
   return (
-    <Box marginBlock="space-16" asChild><List data-aksel-migrated-v8 as="ul">
+    <Box marginBlock="space-16" asChild>
+      <List data-aksel-migrated-v8 as="ul">
         {lenker.map((lenke, index) => (
           <List.Item key={index} className="break-words">
             <VStack className="max-w-full overflow-hidden">
@@ -25,6 +26,7 @@ export function LenkerList({ lenker }: Props) {
             </VStack>
           </List.Item>
         ))}
-      </List></Box>
+      </List>
+    </Box>
   );
 }

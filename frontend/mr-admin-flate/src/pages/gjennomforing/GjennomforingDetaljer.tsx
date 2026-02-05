@@ -145,7 +145,9 @@ export function GjennomforingDetaljer() {
 function HentTiltaksnummer({ id }: { id: string }) {
   const { isError, isLoading, data } = usePollTiltaksnummer(id);
   return isError ? (
-    <Tag data-color="danger" variant="outline">Klarte ikke hente tiltaksnummer</Tag>
+    <Tag data-color="danger" variant="outline">
+      Klarte ikke hente tiltaksnummer
+    </Tag>
   ) : isLoading ? (
     <HStack align={"center"} gap="space-4">
       <Laster />

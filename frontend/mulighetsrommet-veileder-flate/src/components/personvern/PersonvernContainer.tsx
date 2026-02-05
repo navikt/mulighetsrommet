@@ -111,19 +111,26 @@ function ListeOverPersonopplysninger({
   }
 
   return (
-    <div><Heading as="h3" size="xsmall">{title}</Heading><Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 size="small">
-            {personopplysninger.map((personopplysning) => (
-              <List.Item key={personopplysning.personopplysning} className="max-w-[75ch]">
-                <HStack align={"end"} gap="space-4">
-                  <div className="flex items-baseline gap-2">
-                    {personopplysning.tittel}{" "}
-                    {personopplysning.hjelpetekst ? (
-                      <HelpText>{personopplysning.hjelpetekst}</HelpText>
-                    ) : null}
-                  </div>
-                </HStack>
-              </List.Item>
-            ))}
-          </List></Box></div>
+    <div>
+      <Heading as="h3" size="xsmall">
+        {title}
+      </Heading>
+      <Box marginBlock="space-12" asChild>
+        <List data-aksel-migrated-v8 size="small">
+          {personopplysninger.map((personopplysning) => (
+            <List.Item key={personopplysning.personopplysning} className="max-w-[75ch]">
+              <HStack align={"end"} gap="space-4">
+                <div className="flex items-baseline gap-2">
+                  {personopplysning.tittel}{" "}
+                  {personopplysning.hjelpetekst ? (
+                    <HelpText>{personopplysning.hjelpetekst}</HelpText>
+                  ) : null}
+                </div>
+              </HStack>
+            </List.Item>
+          ))}
+        </List>
+      </Box>
+    </div>
   );
 }

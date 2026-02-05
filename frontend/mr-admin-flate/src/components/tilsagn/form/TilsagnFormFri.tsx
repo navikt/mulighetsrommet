@@ -120,7 +120,8 @@ function BeregningInputSkjema({ valuta }: BeregningInputSkjemaProps) {
             variant="secondary"
             icon={<TrashIcon aria-hidden />}
             className="max-h-min mt-7"
-            onClick={() => remove(index)}>
+            onClick={() => remove(index)}
+          >
             Fjern
           </Button>
         </HStack>

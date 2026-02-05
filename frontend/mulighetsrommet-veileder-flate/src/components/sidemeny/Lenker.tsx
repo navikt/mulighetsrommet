@@ -21,7 +21,8 @@ export function LenkeListe({ lenker }: Props) {
       <Heading level="4" size="small">
         Lenker
       </Heading>
-      <Box marginBlock="space-16" asChild><List data-aksel-migrated-v8 as="ul">
+      <Box marginBlock="space-16" asChild>
+        <List data-aksel-migrated-v8 as="ul">
           {lenker.map(({ lenke, apneINyFane, lenkenavn }, index) => (
             <List.Item key={index}>
               <LenkeComponent
@@ -34,7 +35,8 @@ export function LenkeListe({ lenker }: Props) {
               </LenkeComponent>
             </List.Item>
           ))}
-        </List></Box>
+        </List>
+      </Box>
     </GuidePanel>
   );
 }

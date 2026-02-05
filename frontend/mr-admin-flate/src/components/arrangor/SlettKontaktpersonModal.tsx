@@ -76,7 +76,8 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Pr
           }
           disabled={erKobletTilDokumenter}
           variant="primary"
-          onClick={slettKontaktperson}>
+          onClick={slettKontaktperson}
+        >
           Ja, jeg vil slette kontaktpersonen
         </Button>
       }
@@ -176,7 +177,8 @@ function DokumentKoblinger({
                         kontaktpersonId: kontaktperson.id,
                         dokumentId: dokument.id,
                       })
-                    }>
+                    }
+                  >
                     Fjern
                   </Button>
                 </Table.DataCell>

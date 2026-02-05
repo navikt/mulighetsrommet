@@ -79,7 +79,8 @@ export function AvtalteSatserForm({
             size="small"
             type="button"
             icon={<TrashIcon aria-hidden />}
-            onClick={() => remove(index)}>
+            onClick={() => remove(index)}
+          >
             Fjern
           </Button>
         </HStack>

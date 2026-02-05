@@ -27,11 +27,13 @@ export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, fork
       <Heading level="5" size="xsmall">
         {aarsakHeading}
       </Heading>
-      <Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 as="ul" size="small">
+      <Box marginBlock="space-12" asChild>
+        <List data-aksel-migrated-v8 as="ul" size="small">
           {aarsaker.map((aarsak) => (
             <List.Item key={aarsak}>{aarsak}</List.Item>
           ))}
-        </List></Box>
+        </List>
+      </Box>
       {forklaring && <MetadataFritekstfelt label={forklaringHeading} value={forklaring} />}
     </Alert>
   );

@@ -194,7 +194,8 @@ export function GjennomforingTable({
                               data-color="success"
                               title="Tiltaket er publisert og synlig for veileder i Modia"
                               variant="strong"
-                              size="small">
+                              size="small"
+                            >
                               Publisert
                             </Tag>
                           )}

@@ -87,33 +87,73 @@ function BransjeHelpText() {
         overflow: "auto",
       }}
     >
-      <div><Heading as="h3" size="xsmall">Ingeniør- og ikt-fag</Heading><Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 as="ul" size="small">
+      <div>
+        <Heading as="h3" size="xsmall">
+          Ingeniør- og ikt-fag
+        </Heading>
+        <Box marginBlock="space-12" asChild>
+          <List data-aksel-migrated-v8 as="ul" size="small">
             <List.Item>Andre naturvitenskapelige yrker</List.Item>
             <List.Item>Ikt-yrker</List.Item>
             <List.Item>Ingeniører og teknikere</List.Item>
-          </List></Box></div>
-      <div><Heading as="h3" size="xsmall">Helse, pleie og omsorg</Heading><Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 as="ul" size="small">
+          </List>
+        </Box>
+      </div>
+      <div>
+        <Heading as="h3" size="xsmall">
+          Helse, pleie og omsorg
+        </Heading>
+        <Box marginBlock="space-12" asChild>
+          <List data-aksel-migrated-v8 as="ul" size="small">
             <List.Item>Omsorgs- og pleiearbeidere</List.Item>
             <List.Item>Annet helsepersonell</List.Item>
             <List.Item>Mellomledere innen helse, pleie og omsorg</List.Item>
-          </List></Box></div>
-      <div><Heading as="h3" size="xsmall">Barne- og ungdomsarbeid</Heading><Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 as="ul" size="small">
+          </List>
+        </Box>
+      </div>
+      <div>
+        <Heading as="h3" size="xsmall">
+          Barne- og ungdomsarbeid
+        </Heading>
+        <Box marginBlock="space-12" asChild>
+          <List data-aksel-migrated-v8 as="ul" size="small">
             <List.Item>Skoleassistenter</List.Item>
             <List.Item>Barnehage- og skolefritidsassistenter</List.Item>
-          </List></Box></div>
-      <div><Heading as="h3" size="xsmall">Kontorarbeid</Heading><Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 as="ul" size="small">
+          </List>
+        </Box>
+      </div>
+      <div>
+        <Heading as="h3" size="xsmall">
+          Kontorarbeid
+        </Heading>
+        <Box marginBlock="space-12" asChild>
+          <List data-aksel-migrated-v8 as="ul" size="small">
             <List.Item>Lavere saksbehandlere innen offentlig administrasjon</List.Item>
             <List.Item>Sekretærer</List.Item>
             <List.Item>Økonomi- og kontormedarbeidere</List.Item>
             <List.Item>Lager- og transportmedarbeidere</List.Item>
             <List.Item>Resepsjonister og sentralbordoperatører</List.Item>
             <List.Item>Andre funksjonærer</List.Item>
-          </List></Box></div>
-      <div><Heading as="h3" size="xsmall">Butikk- og salgsarbeid</Heading><Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 as="ul" size="small">
+          </List>
+        </Box>
+      </div>
+      <div>
+        <Heading as="h3" size="xsmall">
+          Butikk- og salgsarbeid
+        </Heading>
+        <Box marginBlock="space-12" asChild>
+          <List data-aksel-migrated-v8 as="ul" size="small">
             <List.Item>Butikkarbeid</List.Item>
             <List.Item>Annet salgsarbeid</List.Item>
-          </List></Box></div>
-      <div><Heading as="h3" size="xsmall">Bygg og anlegg</Heading><Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 as="ul" size="small">
+          </List>
+        </Box>
+      </div>
+      <div>
+        <Heading as="h3" size="xsmall">
+          Bygg og anlegg
+        </Heading>
+        <Box marginBlock="space-12" asChild>
+          <List data-aksel-migrated-v8 as="ul" size="small">
             <List.Item>Rørleggere</List.Item>
             <List.Item>Snekkere og tømrere</List.Item>
             <List.Item>Elektrikere</List.Item>
@@ -121,8 +161,15 @@ function BransjeHelpText() {
             <List.Item>Anleggsarbeidere</List.Item>
             <List.Item>Hjelpearbeidere innen bygg og anlegg</List.Item>
             <List.Item>Mellomledere innen bygg og anlegg</List.Item>
-          </List></Box></div>
-      <div><Heading as="h3" size="xsmall">Industriarbeid</Heading><Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 as="ul" size="small">
+          </List>
+        </Box>
+      </div>
+      <div>
+        <Heading as="h3" size="xsmall">
+          Industriarbeid
+        </Heading>
+        <Box marginBlock="space-12" asChild>
+          <List data-aksel-migrated-v8 as="ul" size="small">
             <List.Item>Mekanikere</List.Item>
             <List.Item>Prosess- og maskinoperatører</List.Item>
             <List.Item>Næringsmiddelarbeid</List.Item>
@@ -130,8 +177,15 @@ function BransjeHelpText() {
             <List.Item>Andre håndverkere</List.Item>
             <List.Item>Hjelpearbeid innen industrien</List.Item>
             <List.Item>Mellomledere innen industriarbeid</List.Item>
-          </List></Box></div>
-      <div><Heading as="h3" size="xsmall">Reiseliv, servering og transport</Heading><Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 as="ul" size="small">
+          </List>
+        </Box>
+      </div>
+      <div>
+        <Heading as="h3" size="xsmall">
+          Reiseliv, servering og transport
+        </Heading>
+        <Box marginBlock="space-12" asChild>
+          <List data-aksel-migrated-v8 as="ul" size="small">
             <List.Item>Maritime yrker</List.Item>
             <List.Item>Førere av transportmidler</List.Item>
             <List.Item>Reiseledere, guider og reisebyråmedarbeidere</List.Item>
@@ -139,15 +193,24 @@ function BransjeHelpText() {
             <List.Item>Kokker</List.Item>
             <List.Item>Hovmestere, servitører og hjelpepersonell</List.Item>
             <List.Item>Mellomledere innen reiseliv og transport</List.Item>
-          </List></Box></div>
-      <div><Heading as="h3" size="xsmall">Serviceyrker og annet arbeid</Heading><Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 as="ul" size="small">
+          </List>
+        </Box>
+      </div>
+      <div>
+        <Heading as="h3" size="xsmall">
+          Serviceyrker og annet arbeid
+        </Heading>
+        <Box marginBlock="space-12" asChild>
+          <List data-aksel-migrated-v8 as="ul" size="small">
             <List.Item>Yrker innen politi, brannvesen, toll og forsvar</List.Item>
             <List.Item>Velvære</List.Item>
             <List.Item>Rengjøring</List.Item>
             <List.Item>Vakthold og vaktmestere</List.Item>
             <List.Item>Annet arbeid</List.Item>
             <List.Item>Yrker innen kunst, sport og kultur</List.Item>
-          </List></Box></div>
+          </List>
+        </Box>
+      </div>
     </div>
   );
 }

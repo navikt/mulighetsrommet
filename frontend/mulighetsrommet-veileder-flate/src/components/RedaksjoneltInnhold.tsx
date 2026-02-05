@@ -25,14 +25,18 @@ const portableTextComponent: Partial<PortableTextReactComponents> = {
   },
   list: {
     bullet: ({ children }) => (
-      <Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 size="small" as="ul">
+      <Box marginBlock="space-12" asChild>
+        <List data-aksel-migrated-v8 size="small" as="ul">
           {children}
-        </List></Box>
+        </List>
+      </Box>
     ),
     number: ({ children }) => (
-      <Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 size="small" as="ol">
+      <Box marginBlock="space-12" asChild>
+        <List data-aksel-migrated-v8 size="small" as="ol">
           {children}
-        </List></Box>
+        </List>
+      </Box>
     ),
   },
   listItem: {

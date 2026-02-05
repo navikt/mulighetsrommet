@@ -83,7 +83,8 @@ function LenkerSkjema() {
                   size="small"
                   variant="primary"
                   type="button"
-                  onClick={() => remove(index)}>
+                  onClick={() => remove(index)}
+                >
                   Slett lenke
                 </Button>
               </HStack>

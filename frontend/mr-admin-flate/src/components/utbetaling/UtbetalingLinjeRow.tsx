@@ -83,11 +83,13 @@ export function UtbetalingLinjeRow({
             <VStack className="bg-[var(--ax-bg-danger-soft)]">
               <Alert size="small" variant="error">
                 <BodyShort>Følgende feil må fikses:</BodyShort>
-                <Box marginBlock="space-16" asChild><List data-aksel-migrated-v8>
+                <Box marginBlock="space-16" asChild>
+                  <List data-aksel-migrated-v8>
                     {errors.map((error) => (
                       <List.Item>{error.detail}</List.Item>
                     ))}
-                  </List></Box>
+                  </List>
+                </Box>
               </Alert>
             </VStack>
           )}

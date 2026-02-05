@@ -136,7 +136,8 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                     type="button"
                     icon={<TrashIcon aria-hidden />}
                     onClick={() => remove(index)}
-                    aria-label="Fjern prismodell">
+                    aria-label="Fjern prismodell"
+                  >
                     Fjern prismodell
                   </Button>
                 </HStack>

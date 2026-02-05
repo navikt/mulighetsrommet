@@ -75,18 +75,29 @@ function contentForRow(delinger: TiltakDeltMedBrukerDto[]): ReactNode {
   const tidligereDelinger = delinger.slice(1);
 
   return (
-    <div><Heading as="h3" size="small">Tidligere delinger</Heading><Box marginBlock="space-16" asChild><List data-aksel-migrated-v8>
-            {tidligereDelinger.map(({ deling, tiltak, tiltakstype }) => {
-              return (
-                <List.Item key={deling.dialogId}>
-                  <HStack gap="space-20" align="start">
-                    <VisningsnavnForTiltak noLink tiltakstypeNavn={tiltakstype.navn} navn={tiltak.navn} />
-                    <BodyShort size="small">Delt {formaterDato(deling.tidspunkt)}</BodyShort>
-                  </HStack>
-                </List.Item>
-              );
-            })}
-          </List></Box></div>
+    <div>
+      <Heading as="h3" size="small">
+        Tidligere delinger
+      </Heading>
+      <Box marginBlock="space-16" asChild>
+        <List data-aksel-migrated-v8>
+          {tidligereDelinger.map(({ deling, tiltak, tiltakstype }) => {
+            return (
+              <List.Item key={deling.dialogId}>
+                <HStack gap="space-20" align="start">
+                  <VisningsnavnForTiltak
+                    noLink
+                    tiltakstypeNavn={tiltakstype.navn}
+                    navn={tiltak.navn}
+                  />
+                  <BodyShort size="small">Delt {formaterDato(deling.tidspunkt)}</BodyShort>
+                </HStack>
+              </List.Item>
+            );
+          })}
+        </List>
+      </Box>
+    </div>
   );
 }
 

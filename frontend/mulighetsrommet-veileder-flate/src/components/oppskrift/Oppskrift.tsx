@@ -44,10 +44,7 @@ export function Oppskrift({ oppskriftId, tiltakstypeId, setOppskriftId }: Props)
 
   return (
     <>
-      <Button
-        data-color="neutral"
-        variant="tertiary"
-        onClick={() => setOppskriftId(undefined)}>
+      <Button data-color="neutral" variant="tertiary" onClick={() => setOppskriftId(undefined)}>
         Lukk oppskriften
       </Button>
       <div className="flex bg-white p-4">
