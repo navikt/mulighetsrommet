@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TOPIC
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
@@ -25,7 +24,6 @@ import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -38,7 +36,7 @@ class ArenaAdapterServiceTest : FunSpec({
     fun createArenaAdapterService(
         sanityService: SanityService = mockk(relaxed = true),
     ) = ArenaAdapterService(
-        config = ArenaAdapterService.Config(TEST_GJENNOMFORING_V1_TOPIC, TEST_GJENNOMFORING_V2_TOPIC),
+        config = ArenaAdapterService.Config(TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         sanityService = sanityService,
         arrangorService = ArrangorService(database.db, mockk(relaxed = true), mockk(relaxed = true)),
@@ -252,14 +250,10 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
 
             database.run {
-                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(2).should { (first, second) ->
-                    first.topic shouldBe TEST_GJENNOMFORING_V1_TOPIC
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).should { (first) ->
+                    first.topic shouldBe TEST_GJENNOMFORING_V2_TOPIC
                     first.key shouldBe gjennomforing1.id.toString().toByteArray()
-                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(first.value.decodeToString()).id shouldBe gjennomforing1.id
-
-                    second.topic shouldBe TEST_GJENNOMFORING_V2_TOPIC
-                    second.key shouldBe gjennomforing1.id.toString().toByteArray()
-                    Json.decodeFromString<TiltaksgjennomforingV2Dto>(second.value.decodeToString()).id shouldBe gjennomforing1.id
+                    Json.decodeFromString<TiltaksgjennomforingV2Dto>(first.value.decodeToString()).id shouldBe gjennomforing1.id
                 }
             }
 
@@ -268,7 +262,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             // Verifiser at ny upsert ikke produserer meldinger når payload er den samme
             database.run {
-                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(2)
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1)
             }
         }
     }

@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -67,7 +66,6 @@ class GjennomforingService(
     private val tiltakstypeService: TiltakstypeService,
 ) {
     data class Config(
-        val gjennomforingV1Topic: String,
         val gjennomforingV2Topic: String,
     )
 
@@ -443,15 +441,6 @@ class GjennomforingService(
     }
 
     private fun QueryContext.publishToKafka(gjennomforing: GjennomforingGruppetiltak) {
-        val gjennomforingV1 = TiltaksgjennomforingV1Mapper.fromGjennomforing(gjennomforing)
-        val recordV1 = StoredProducerRecord(
-            config.gjennomforingV1Topic,
-            gjennomforingV1.id.toString().toByteArray(),
-            Json.encodeToString(gjennomforingV1).toByteArray(),
-            null,
-        )
-        queries.kafkaProducerRecord.storeRecord(recordV1)
-
         val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGjennomforing(gjennomforing)
         val recordV2 = StoredProducerRecord(
             config.gjennomforingV2Topic,

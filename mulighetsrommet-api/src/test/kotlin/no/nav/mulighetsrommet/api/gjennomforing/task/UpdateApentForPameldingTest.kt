@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
-import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TOPIC
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -44,7 +43,7 @@ class UpdateApentForPameldingTest : FunSpec({
         }
 
         val service = GjennomforingService(
-            config = GjennomforingService.Config(TEST_GJENNOMFORING_V1_TOPIC, TEST_GJENNOMFORING_V2_TOPIC),
+            config = GjennomforingService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             db = database.db,
             navAnsattService = mockk(),
             tiltakstypeService = mockk(),
