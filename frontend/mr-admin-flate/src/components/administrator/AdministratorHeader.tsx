@@ -25,7 +25,7 @@ export function AdministratorHeader() {
   return (
     <InternalHeader>
       <InternalHeader.Title as="h1">
-        <Link className="no-underline text-white" to="/">
+        <Link className="no-underline to-ax-text-accent-contrast" to="/">
           Nav Tiltaksadministrasjon
         </Link>
       </InternalHeader.Title>

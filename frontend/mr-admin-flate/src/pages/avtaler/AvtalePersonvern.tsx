@@ -30,16 +30,18 @@ export function AvtalePersonvern() {
   );
 
   return (
-    <VStack gap="space-4" className="p-6 bg-white max-w-360">
+    <VStack gap="space-4" className="p-6 bg-ax-bg-default max-w-360">
       <BodyShort>Følgende personopplysninger om deltager kan behandles i denne avtalen</BodyShort>
       {checkedPersonopplysninger && (
-        <Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 size="small" as="ul">
+        <Box marginBlock="space-12" asChild>
+          <List data-aksel-migrated-v8 size="small" as="ul">
             {checkedPersonopplysninger.map((p: PersonopplysningData) => (
               <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
                 {p.tittel}
               </ListWithHelpText>
             ))}
-          </List></Box>
+          </List>
+        </Box>
       )}
     </VStack>
   );

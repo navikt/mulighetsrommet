@@ -6,7 +6,9 @@ interface Props {
 
 export function TabellWrapper({ filterOpen = false, children, className }: Props) {
   return (
-    <div className={`bg-white mb-8 ${filterOpen ? "ml-2" : "ml-0"} ax-xl:ml-0 ${className ?? ""}`}>
+    <div
+      className={`bg-ax-bg-default mb-8 ${filterOpen ? "ml-2" : "ml-0"} ax-xl:ml-0 ${className ?? ""}`}
+    >
       {children}
     </div>
   );
