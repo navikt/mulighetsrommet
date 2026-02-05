@@ -26,6 +26,7 @@ data class AppConfig(
         Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
         Avtale.Tiltakstype.VARIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
         Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2025, 1, 24),
+        Avtale.Tiltakstype.VTAO to LocalDate.of(2025, 5, 13),
     ),
 )
 
