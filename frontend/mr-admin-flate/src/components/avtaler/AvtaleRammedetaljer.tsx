@@ -1,6 +1,6 @@
 import { MetadataHStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { VStack } from "@navikt/ds-react";
+import { Heading, VStack } from "@navikt/ds-react";
 import { RammedetaljerDto } from "@tiltaksadministrasjon/api-client";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
@@ -12,28 +12,33 @@ export function AvtaleRammedetaljer({ rammedetaljer }: RammedetaljerProps) {
     return null;
   }
   return (
-    <VStack gap="2" width="30rem">
-      <MetadataHStack
-        label={avtaletekster.rammedetaljer.totalRamme}
-        value={formaterValutaBelop(rammedetaljer.totalRamme)}
-      />
-      {rammedetaljer.utbetaltArena && (
+    <>
+      <Heading level="3" size="small" spacing>
+        {avtaletekster.rammedetaljer.heading}
+      </Heading>
+      <VStack gap="2" width="30rem">
         <MetadataHStack
-          label={avtaletekster.rammedetaljer.utbetaltArena}
-          value={formaterValutaBelop(rammedetaljer.utbetaltArena)}
+          label={avtaletekster.rammedetaljer.totalRamme}
+          value={formaterValutaBelop(rammedetaljer.totalRamme)}
         />
-      )}
-      {rammedetaljer.utbetaltTiltaksadmin.map((utbetalt) => (
+        {rammedetaljer.utbetaltArena && (
+          <MetadataHStack
+            label={avtaletekster.rammedetaljer.utbetaltArena}
+            value={formaterValutaBelop(rammedetaljer.utbetaltArena)}
+          />
+        )}
+        {rammedetaljer.utbetaltTiltaksadmin.map((utbetalt) => (
+          <MetadataHStack
+            key={utbetalt.valuta}
+            label={avtaletekster.rammedetaljer.utbetaltTiltaksadmin}
+            value={formaterValutaBelop(utbetalt)}
+          />
+        ))}
         <MetadataHStack
-          key={utbetalt.valuta}
-          label={avtaletekster.rammedetaljer.utbetaltTiltaksadmin}
-          value={formaterValutaBelop(utbetalt)}
+          label={avtaletekster.rammedetaljer.gjenstaendeRamme}
+          value={formaterValutaBelop(rammedetaljer.gjenstaendeRamme)}
         />
-      ))}
-      <MetadataHStack
-        label={avtaletekster.rammedetaljer.gjenstaendeRamme}
-        value={formaterValutaBelop(rammedetaljer.gjenstaendeRamme)}
-      />
-    </VStack>
+      </VStack>
+    </>
   );
 }

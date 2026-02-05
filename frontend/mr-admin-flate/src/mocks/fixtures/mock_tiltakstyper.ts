@@ -174,6 +174,7 @@ export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
   id: "59a64a02-efdd-471d-9529-356ff5553a5d",
   sanityId: "d03363e0-7d46-411b-aec4-fb9449e30eb8",
   navn: "AFT - Arbeidsforberedende trening",
+  tiltaksgruppe: null,
   faneinnhold: {
     kontaktinfo: null,
     kontaktinfoInfoboks: null,

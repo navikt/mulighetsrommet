@@ -1,37 +1,60 @@
-import { BodyShort, Box, Heading, Button, Alert, Page } from "@navikt/ds-react";
-import { NavigateFunction } from "react-router";
+import { BodyShort, Box, Heading, Link, List, VStack } from "@navikt/ds-react";
+import { Link as ReactRouterLink, useLocation } from "react-router";
 
 type Props = {
-  heading: string;
-  body: string[];
-  navigate: NavigateFunction;
+  statusCode: number;
+  title?: string;
+  errorText?: string;
 };
 
 export function ErrorPage(props: Props) {
+  const location = useLocation();
   return (
-    <Page className="min-h-[calc(100vh-200px)] flex items-center justify-center">
-      <Box padding="8" className="max-w-[600px] w-full mx-auto text-center">
-        <Alert variant="error" className="mb-[2rem]">
-          <Heading spacing size="large" level="2">
-            {props.heading}
-          </Heading>
-          {props.body.map((b, i) => (
-            <BodyShort key={b + i.toString()} spacing>
-              {b}
-            </BodyShort>
-          ))}
-        </Alert>
-        <Box padding="4" className="flex justify-center gap-[1rem]">
-          <Button
-            onClick={() => {
-              props.navigate("/");
-            }}
-            variant="primary"
-          >
-            Gå til forsiden
-          </Button>
-        </Box>
-      </Box>
-    </Page>
+    <Box background="default" borderRadius="8" padding="space-32">
+      <BodyShort textColor="subtle" size="small">
+        Statuskode {props.statusCode}
+      </BodyShort>
+      <Heading level="1" size="large" spacing>
+        Beklager, noe gikk galt.
+      </Heading>
+      <BodyShort spacing>{props.errorText}</BodyShort>
+      <BodyShort spacing>Du kan prøve å</BodyShort>
+      <VStack gap="space-16">
+        <List>
+          <List.Item>vente noen minutter og laste siden på nytt</List.Item>
+          <List.Item>
+            <Link as={ReactRouterLink} to={location.state?.from || "/"}>
+              gå tilbake til forrige side
+            </Link>
+          </List.Item>
+        </List>
+        <BodyShort>Hvis problemet vedvarer, kan du ta kontakt med oss.</BodyShort>
+        <Link href="tel:55553336">Ring oss på 55 55 33 36</Link>
+      </VStack>
+    </Box>
+  );
+}
+
+export function ErrorPageNotFound({ errorText }: { errorText?: string }) {
+  return (
+    <Box background="default" borderRadius="8" padding="space-32">
+      <BodyShort textColor="subtle" size="small">
+        Statuskode 404
+      </BodyShort>
+      <Heading level="1" size="large" spacing>
+        Beklager, vi fant ikke siden
+      </Heading>
+      <BodyShort spacing>
+        Denne siden kan være slettet eller flyttet, eller det er en feil i lenken.
+      </BodyShort>
+      {errorText && (
+        <BodyShort spacing>
+          <b>Feilmelding:</b> {errorText}
+        </BodyShort>
+      )}
+      <Link as={ReactRouterLink} to="/">
+        Gå til forsiden
+      </Link>
+    </Box>
   );
 }

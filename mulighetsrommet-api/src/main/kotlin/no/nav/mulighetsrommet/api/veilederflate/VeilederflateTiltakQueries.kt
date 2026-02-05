@@ -101,13 +101,22 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
 
     val status = GjennomforingStatusType.valueOf(string("status"))
 
+    val tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) }
     return VeilederflateTiltakGruppe(
         id = uuid("id"),
         tiltakstype = VeilederflateTiltakstype(
             id = uuid("tiltakstype_id"),
             sanityId = uuid("tiltakstype_sanity_id").toString(),
             navn = string("tiltakstype_navn"),
-            tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
+            tiltakskode = tiltakskode,
+            tiltaksgruppe = tiltakskode?.gruppe?.tittel,
+            arenakode = tiltakskode?.arenakode,
+            kanKombineresMed = listOf(),
+            beskrivelse = null,
+            innsatsgrupper = null,
+            regelverkLenker = null,
+            faneinnhold = null,
+            delingMedBruker = null,
         ),
         navn = string("navn"),
         apentForPamelding = boolean("apent_for_pamelding"),

@@ -28,7 +28,6 @@ export const ArbeidsmarkedstiltakFilterSchema = z.object({
     .object({
       id: z.string(),
       tittel: z.string(),
-      nokkel: z.string().optional(),
     })
     .array(),
   apentForPamelding: z.custom<ApentForPamelding>(),

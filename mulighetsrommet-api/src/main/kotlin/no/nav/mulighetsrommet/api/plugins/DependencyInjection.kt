@@ -358,7 +358,6 @@ private fun services(appConfig: AppConfig) = module {
     single {
         ArenaAdapterService(
             ArenaAdapterService.Config(
-                gjennomforingV1Topic = appConfig.kafka.topics.sisteTiltaksgjennomforingerV1Topic,
                 gjennomforingV2Topic = appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic,
             ),
             get(),
@@ -385,7 +384,6 @@ private fun services(appConfig: AppConfig) = module {
     single {
         GjennomforingService(
             GjennomforingService.Config(
-                gjennomforingV1Topic = appConfig.kafka.topics.sisteTiltaksgjennomforingerV1Topic,
                 gjennomforingV2Topic = appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic,
             ),
             get(),
@@ -456,7 +454,6 @@ private fun tasks(config: AppConfig) = module {
     single {
         InitialLoadGjennomforinger(
             InitialLoadGjennomforinger.Config(
-                gjennomforinvV1Topic = config.kafka.topics.sisteTiltaksgjennomforingerV1Topic,
                 gjennomforinvV2Topic = config.kafka.topics.sisteTiltaksgjennomforingerV2Topic,
             ),
             get(),

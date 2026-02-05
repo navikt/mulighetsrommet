@@ -7,10 +7,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktGruppetiltak
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
@@ -31,7 +29,6 @@ class InitialLoadGjennomforinger(
     private val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,
 ) {
     data class Config(
-        val gjennomforinvV1Topic: String,
         val gjennomforinvV2Topic: String,
     )
 
@@ -127,26 +124,8 @@ class InitialLoadGjennomforinger(
         }
     }
 
-    private fun publish(gjennomforing: GjennomforingGruppetiltak) {
-        val gjennomforingV1 = TiltaksgjennomforingV1Mapper.fromGjennomforing(gjennomforing)
-        val recordV1: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
-            config.gjennomforinvV1Topic,
-            gjennomforingV1.id.toString().toByteArray(),
-            Json.encodeToString(gjennomforingV1).toByteArray(),
-        )
-        kafkaProducerClient.sendSync(recordV1)
-
+    private fun publish(gjennomforing: Gjennomforing) {
         val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGjennomforing(gjennomforing)
-        val recordV2: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
-            config.gjennomforinvV2Topic,
-            gjennomforingV2.id.toString().toByteArray(),
-            Json.encodeToString(gjennomforingV2).toByteArray(),
-        )
-        kafkaProducerClient.sendSync(recordV2)
-    }
-
-    private fun publish(enkeltplass: GjennomforingEnkeltplass) {
-        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGjennomforing(enkeltplass)
         val recordV2: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.gjennomforinvV2Topic,
             gjennomforingV2.id.toString().toByteArray(),

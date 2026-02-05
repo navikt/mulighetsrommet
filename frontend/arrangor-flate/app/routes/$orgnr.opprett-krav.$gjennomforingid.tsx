@@ -1,52 +1,41 @@
 import {
-  Box,
   Button,
   ErrorSummary,
   FileObject,
   HStack,
-  Link,
   Stepper,
   VStack,
+  Link,
   Hide,
+  Box,
 } from "@navikt/ds-react";
+import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import {
-  ArrangorflateService,
   FieldError,
-  OpprettKravData,
   OpprettKravDeltakere,
   OpprettKravVeiviserSteg,
   OpprettKravVeiviserStegDto,
 } from "api-client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link as ReactRouterLink, MetaFunction, useNavigate } from "react-router";
 import {
-  ActionFunctionArgs,
-  Form,
-  Link as ReactRouterLink,
-  LoaderFunction,
-  MetaFunction,
-  redirect,
-  useActionData,
-  useFetcher,
-  useLoaderData,
-  useRevalidator,
-} from "react-router";
-import { apiHeaders } from "~/auth/auth.server";
-import { isValidationError, problemDetailResponse } from "~/utils/validering";
-import { getOrgnrGjennomforingIdFrom, pathTo, deltakerOversiktLenke } from "~/utils/navigation";
+  pathTo,
+  deltakerOversiktLenke,
+  useGjennomforingIdFromUrl,
+  useOrgnrFromUrl,
+} from "~/utils/navigation";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { isLaterOrSameDay, parseDate } from "@mr/frontend-common/utils/date";
-import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import { getEnvironment } from "~/services/environment";
-import {
-  FileUpload as MjacksonFileUpload,
-  FileUploadHandler,
-  parseFormData,
-} from "@mjackson/form-data-parser";
 import DeltakereSteg from "~/components/opprett-krav/DeltakereSteg";
 import UtbetalingSteg from "~/components/opprett-krav/UtbetalingSteg";
 import VedleggSteg from "~/components/opprett-krav/VedleggSteg";
 import OppsummeringSteg from "~/components/opprett-krav/OppsummeringSteg";
 import InnsendingsinformasjonSteg from "~/components/opprett-krav/InnsendingsinformasjonSteg";
+import { Laster } from "~/components/common/Laster";
+import { useOpprettKravData } from "~/hooks/useOpprettKravData";
+import { useOpprettKravDeltakere } from "~/hooks/useOpprettKravDeltakere";
+import { useOpprettKrav } from "~/hooks/useOpprettKrav";
 
 interface Step {
   name: string;
@@ -56,163 +45,9 @@ interface Step {
 
 const defaultTitle = "Opprett krav om utbetaling";
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  const loaderData = data as LoaderData | undefined;
-  if (loaderData?.activeStep) {
-    const stepIndex = loaderData.steps.findIndex(
-      (s: Step) => s.type === loaderData.activeStep.type,
-    );
-    const numOfSteps = loaderData.steps.length;
-    return [
-      {
-        title: `Steg ${stepIndex + 1} av ${numOfSteps}: ${loaderData.activeStep.name} - ${defaultTitle}`,
-      },
-      { name: "description", content: "Opprett krav om utbetaling" },
-    ];
-  }
-  return [{ title: defaultTitle }];
+export const meta: MetaFunction = () => {
+  return [{ title: defaultTitle }, { name: "description", content: "Opprett krav om utbetaling" }];
 };
-
-interface LoaderData {
-  orgnr: string;
-  gjennomforingId: string;
-  steps: Step[];
-  activeStep: Step;
-  data: OpprettKravData;
-  deltakerlisteUrl: string;
-}
-
-export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
-  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
-
-  const [{ data, error: opprettKravDataError }] = await Promise.all([
-    ArrangorflateService.getOpprettKravData({
-      path: { orgnr, gjennomforingId },
-      headers: await apiHeaders(request),
-    }),
-  ]);
-
-  if (opprettKravDataError) throw problemDetailResponse(opprettKravDataError);
-
-  const steps = data.steg.map((steg: OpprettKravVeiviserStegDto) => ({
-    name: steg.navn,
-    type: steg.type,
-    order: steg.order,
-  }));
-
-  const activeStep = steps[0];
-
-  return {
-    orgnr,
-    gjennomforingId,
-    steps,
-    activeStep,
-    data,
-    deltakerlisteUrl,
-  };
-};
-
-const uploadHandler: FileUploadHandler = async (fileUpload: MjacksonFileUpload) => {
-  if (fileUpload.fieldName === "vedlegg" && fileUpload.name.endsWith(".pdf")) {
-    const bytes = await fileUpload.bytes();
-    return new File([bytes], fileUpload.name, { type: fileUpload.type });
-  }
-};
-
-interface ActionData {
-  errors?: FieldError[];
-  intent?: string;
-  deltakere?: OpprettKravDeltakere;
-}
-
-export async function action({
-  request,
-  params,
-}: ActionFunctionArgs): Promise<ActionData | Response> {
-  const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
-
-  const formData = await parseFormData(request, { maxFileSize: 10 * 1024 * 1024 }, uploadHandler);
-
-  const intent = formData.get("intent")?.toString();
-
-  if (intent === "cancel") {
-    return redirect(pathTo.tiltaksoversikt);
-  }
-
-  if (intent === "fetch-deltakere") {
-    const periodeStart = formData.get("periodeStart")?.toString();
-    const periodeSlutt = formData.get("periodeSlutt")?.toString();
-
-    if (!periodeStart || !periodeSlutt) {
-      return { errors: [{ pointer: "/periode", detail: "Periode er ikke valgt" }], intent };
-    }
-
-    const { data: deltakere, error } = await ArrangorflateService.getOpprettKravDeltakere({
-      path: { orgnr, gjennomforingId },
-      query: { periodeStart, periodeSlutt },
-      headers: await apiHeaders(request),
-    });
-
-    if (error) throw problemDetailResponse(error);
-    return { deltakere, intent };
-  }
-
-  if (intent === "submit") {
-    const errors: FieldError[] = [];
-    const vedlegg = formData.getAll("vedlegg") as File[];
-    const bekreftelse = formData.get("bekreftelse");
-    const belop = Number(formData.get("belop"));
-    const periodeStart = formData.get("periodeStart")?.toString();
-    const periodeSlutt = formData.get("periodeSlutt")?.toString();
-    const kidNummer = formData.get("kid")?.toString();
-    const tilsagnId = formData.get("tilsagnId")?.toString();
-    const minAntallVedlegg = parseInt(formData.get("minAntallVedlegg")?.toString() || "0");
-
-    if (vedlegg.length < minAntallVedlegg) {
-      errors.push({ pointer: "/vedlegg", detail: "Du må legge ved vedlegg" });
-    }
-
-    if (!bekreftelse) {
-      errors.push({
-        pointer: "/bekreftelse",
-        detail: "Du må bekrefte at opplysningene er korrekte",
-      });
-    }
-
-    if (!tilsagnId) {
-      errors.push({ pointer: "/tilsagnId", detail: "Mangler tilsagn" });
-    }
-
-    if (errors.length > 0) {
-      return { errors, intent };
-    }
-
-    const { error, data } = await ArrangorflateService.postOpprettKrav({
-      path: { orgnr, gjennomforingId },
-      body: {
-        belop,
-        tilsagnId: tilsagnId!,
-        periodeStart: periodeStart!,
-        periodeSlutt: periodeSlutt!,
-        kidNummer: kidNummer || null,
-        vedlegg,
-      },
-      headers: await apiHeaders(request),
-    });
-
-    if (error) {
-      if (isValidationError(error)) {
-        return { errors: error.errors, intent };
-      }
-      throw problemDetailResponse(error);
-    }
-
-    return redirect(pathTo.kvittering(orgnr, data.id));
-  }
-
-  return { intent };
-}
 
 export interface OpprettKravFormState {
   periodeStart?: string;
@@ -226,12 +61,40 @@ export interface OpprettKravFormState {
 }
 
 export default function OpprettKravRoute() {
-  const { steps, data, deltakerlisteUrl } = useLoaderData<LoaderData>();
+  const gjennomforingId = useGjennomforingIdFromUrl();
+  const orgnr = useOrgnrFromUrl();
+
+  return (
+    <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
+      <OpprettKravContent orgnr={orgnr} gjennomforingId={gjennomforingId} />
+    </Suspense>
+  );
+}
+
+interface OpprettKravContentProps {
+  orgnr: string;
+  gjennomforingId: string;
+}
+
+function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps) {
+  const { data, refetch } = useOpprettKravData(orgnr, gjennomforingId);
+  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
+  const navigate = useNavigate();
+
+  const steps = useMemo(
+    () =>
+      data.steg.map((steg: OpprettKravVeiviserStegDto) => ({
+        name: steg.navn,
+        type: steg.type,
+        order: steg.order,
+      })),
+    [data.steg],
+  );
+
   const { innsendingSteg, utbetalingSteg, vedleggSteg } = data;
 
-  const actionData = useActionData<ActionData>();
-  const fetcher = useFetcher<ActionData>();
-  const revalidator = useRevalidator();
+  const fetchDeltakere = useOpprettKravDeltakere();
+  const opprettKrav = useOpprettKrav();
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [formState, setFormState] = useState<OpprettKravFormState>({
@@ -239,10 +102,8 @@ export default function OpprettKravRoute() {
     files: [],
   });
   const [clientErrors, setClientErrors] = useState<FieldError[]>([]);
-  const deltakere = fetcher.data?.deltakere ?? null;
-  const errors = clientErrors.length
-    ? clientErrors
-    : (actionData?.errors ?? fetcher.data?.errors ?? []);
+  const [deltakere, setDeltakere] = useState<OpprettKravDeltakere | null>(null);
+  const errors = clientErrors;
 
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const hasError = errors.length > 0;
@@ -334,12 +195,18 @@ export default function OpprettKravRoute() {
     if (currentStep.type === OpprettKravVeiviserSteg.INFORMASJON) {
       if (!validateInnsendingsinformasjon()) return;
 
-      // Fetch deltakere for next step
-      const formData = new FormData();
-      formData.append("intent", "fetch-deltakere");
-      formData.append("periodeStart", formState.periodeStart!);
-      formData.append("periodeSlutt", formState.periodeSlutt!);
-      fetcher.submit(formData, { method: "post" });
+      try {
+        const result = await fetchDeltakere.mutateAsync({
+          orgnr,
+          gjennomforingId,
+          periodeStart: formState.periodeStart!,
+          periodeSlutt: formState.periodeSlutt!,
+        });
+        setDeltakere(result);
+      } catch {
+        setClientErrors([{ pointer: "/periode", detail: "Kunne ikke hente deltakere" }]);
+        return;
+      }
     }
 
     if (currentStep.type === OpprettKravVeiviserSteg.UTBETALING) {
@@ -359,6 +226,49 @@ export default function OpprettKravRoute() {
     setClientErrors([]);
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1);
+    }
+  };
+
+  const handleOpprettKrav = async (bekreftelse: boolean) => {
+    setClientErrors([]);
+    const newErrors: FieldError[] = [];
+    const acceptedFiles = formState.files.filter((f) => !f.error);
+
+    if (acceptedFiles.length < vedleggSteg.minAntallVedlegg) {
+      newErrors.push({ pointer: "/vedlegg", detail: "Du må legge ved vedlegg" });
+    }
+
+    if (!bekreftelse) {
+      newErrors.push({
+        pointer: "/bekreftelse",
+        detail: "Du må bekrefte at opplysningene er korrekte",
+      });
+    }
+
+    if (!formState.tilsagnId) {
+      newErrors.push({ pointer: "/tilsagnId", detail: "Mangler tilsagn" });
+    }
+
+    if (newErrors.length > 0) {
+      setClientErrors(newErrors);
+      return;
+    }
+
+    const result = await opprettKrav.mutateAsync({
+      orgnr,
+      gjennomforingId,
+      belop: Number(formState.belop),
+      tilsagnId: formState.tilsagnId!,
+      periodeStart: formState.periodeStart!,
+      periodeSlutt: formState.periodeSlutt!,
+      kidNummer: formState.kid || null,
+      vedlegg: acceptedFiles.map((f) => f.file),
+    });
+
+    if (result.errors) {
+      setClientErrors(result.errors);
+    } else if (result.success && result.id) {
+      navigate(pathTo.kvittering(orgnr, result.id));
     }
   };
 
@@ -382,7 +292,7 @@ export default function OpprettKravRoute() {
             formState={formState}
             updateFormState={updateFormState}
             errors={errors}
-            onRevalidate={() => revalidator.revalidate()}
+            onRevalidate={() => refetch()}
           />
         );
       case OpprettKravVeiviserSteg.VEDLEGG:
@@ -399,9 +309,10 @@ export default function OpprettKravRoute() {
           <OppsummeringSteg
             innsendingsInformasjon={innsendingSteg.definisjonsListe}
             formState={formState}
-            vedleggInfo={vedleggSteg}
             errors={errors}
             goToPreviousStep={goToPreviousStep}
+            onSubmit={handleOpprettKrav}
+            isSubmitting={opprettKrav.isPending}
           />
         );
       default:
@@ -413,55 +324,53 @@ export default function OpprettKravRoute() {
   const isFirstStep = currentStepIndex === 0;
 
   return (
-    <VStack gap="4" justify="center">
+    <VStack gap="space-4" justify="center">
       <Link as={ReactRouterLink} to={pathTo.tiltaksoversikt} className="max-w-max">
         <ChevronLeftIcon /> Tilbake til tiltaksoversikt
       </Link>
       <Hide below="sm">
         <Stepper aria-label="Steg" activeStep={currentStepIndex + 1} orientation="horizontal">
-          {steps.map(({ name }, index) => (
-            <Stepper.Step key={name} interactive={false} completed={currentStepIndex > index}>
-              {name}
+          {steps.map((step: Step, index: number) => (
+            <Stepper.Step key={step.name} interactive={false} completed={currentStepIndex > index}>
+              {step.name}
             </Stepper.Step>
           ))}
         </Stepper>
       </Hide>
-      <Box background="bg-default" borderRadius="large" padding="8">
-        <VStack gap="6">
-          {renderCurrentStep()}
-
-          {hasError && (
-            <ErrorSummary ref={errorSummaryRef}>
-              {errors.map((error) => (
-                <ErrorSummary.Item
-                  href={`#${jsonPointerToFieldPath(error.pointer)}`}
-                  key={jsonPointerToFieldPath(error.pointer)}
-                >
-                  {error.detail}
-                </ErrorSummary.Item>
-              ))}
-            </ErrorSummary>
-          )}
-
-          {!isLastStep && (
-            <HStack gap="4">
-              {isFirstStep ? (
-                <Form method="post">
-                  <Button type="submit" variant="tertiary" name="intent" value="cancel">
-                    Avbryt
-                  </Button>
-                </Form>
-              ) : (
-                <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
-                  Tilbake
-                </Button>
-              )}
-              <Button type="button" onClick={goToNextStep} loading={fetcher.state === "submitting"}>
-                Neste
+      <Box background="default" borderRadius="8" padding="space-32">
+        {renderCurrentStep()}
+        {hasError && (
+          <ErrorSummary ref={errorSummaryRef}>
+            {errors.map((error) => (
+              <ErrorSummary.Item
+                href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                key={jsonPointerToFieldPath(error.pointer)}
+              >
+                {error.detail}
+              </ErrorSummary.Item>
+            ))}
+          </ErrorSummary>
+        )}
+        {!isLastStep && (
+          <HStack gap="space-8">
+            {isFirstStep ? (
+              <Button
+                type="button"
+                variant="tertiary"
+                onClick={() => navigate(pathTo.tiltaksoversikt)}
+              >
+                Avbryt
               </Button>
-            </HStack>
-          )}
-        </VStack>
+            ) : (
+              <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
+                Tilbake
+              </Button>
+            )}
+            <Button type="button" onClick={goToNextStep} loading={fetchDeltakere.isPending}>
+              Neste
+            </Button>
+          </HStack>
+        )}
       </Box>
     </VStack>
   );

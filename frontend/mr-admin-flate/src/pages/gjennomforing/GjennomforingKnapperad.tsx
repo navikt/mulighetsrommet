@@ -15,12 +15,14 @@ import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import {
   GjennomforingDetaljerDto,
   GjennomforingDto,
+  GjennomforingGruppeDto,
   GjennomforingHandling,
   GjennomforingVeilederinfoDto,
   NavAnsattDto,
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 import { AvbrytGjennomforingModal } from "@/components/gjennomforing/AvbrytGjennomforingModal";
+import { isGruppetiltak } from "@/api/gjennomforing/utils";
 
 interface Props {
   ansatt: NavAnsattDto;
@@ -43,7 +45,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
     setPublisert({ publisert: e.currentTarget.checked });
   }
 
-  function dupliserGjennomforing() {
+  function dupliserGjennomforing(gjennomforing: GjennomforingGruppeDto) {
     const duplisert: DeepPartial<GjennomforingDetaljerDto> = {
       gjennomforing: {
         avtaleId: gjennomforing.avtaleId,
@@ -76,28 +78,31 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
         </Button>
         <Dropdown.Menu>
           <Dropdown.Menu.GroupedList>
-            {handlinger.includes(GjennomforingHandling.REDIGER) && (
-              <Dropdown.Menu.GroupedList.Item
-                onClick={() => {
-                  if (
-                    gjennomforing.administratorer.length > 0 &&
-                    !gjennomforing.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
-                  ) {
-                    advarselModal.current?.showModal();
-                  } else {
-                    navigate("skjema");
-                  }
-                }}
-              >
-                Rediger gjennomføring
-              </Dropdown.Menu.GroupedList.Item>
-            )}
-            {veilederinfo &&
+            {isGruppetiltak(gjennomforing) &&
+              handlinger.includes(GjennomforingHandling.REDIGER) && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    if (
+                      gjennomforing.administratorer.length > 0 &&
+                      !gjennomforing.administratorer
+                        .map((a) => a.navIdent)
+                        .includes(ansatt.navIdent)
+                    ) {
+                      advarselModal.current?.showModal();
+                    } else {
+                      navigate("skjema");
+                    }
+                  }}
+                >
+                  Rediger gjennomføring
+                </Dropdown.Menu.GroupedList.Item>
+              )}
+            {isGruppetiltak(gjennomforing) &&
               handlinger.includes(GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING) && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => apentForPameldingModalRef.current?.showModal()}
                 >
-                  {veilederinfo.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
+                  {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
                 </Dropdown.Menu.GroupedList.Item>
               )}
             {handlinger.includes(GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR) && (
@@ -113,11 +118,11 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
               </Dropdown.Menu.GroupedList.Item>
             )}
           </Dropdown.Menu.GroupedList>
-          {handlinger.includes(GjennomforingHandling.DUPLISER) && (
+          {isGruppetiltak(gjennomforing) && handlinger.includes(GjennomforingHandling.DUPLISER) && (
             <>
               <Dropdown.Menu.Divider />
               <Dropdown.Menu.List>
-                <Dropdown.Menu.List.Item onClick={dupliserGjennomforing}>
+                <Dropdown.Menu.List.Item onClick={() => dupliserGjennomforing(gjennomforing)}>
                   <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
                   Dupliser
                 </Dropdown.Menu.List.Item>
@@ -142,7 +147,6 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
       <RegistrerStengtHosArrangorModal
         modalRef={registrerStengtModalRef}
         gjennomforingId={gjennomforing.id}
-        stengt={gjennomforing.stengt}
       />
       <SetApentForPameldingModal
         modalRef={apentForPameldingModalRef}

@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingEnkeltplassDbo
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
@@ -25,7 +24,6 @@ import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -42,7 +40,6 @@ class ArenaAdapterService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
-        val gjennomforingV1Topic: String,
         val gjennomforingV2Topic: String,
     )
 
@@ -107,7 +104,6 @@ class ArenaAdapterService(
             logUpdateGjennomforing(next)
         }
 
-        publishTiltaksgjennomforingV1ToKafka(TiltaksgjennomforingV1Mapper.fromGjennomforing(next))
         publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromGjennomforing(next))
     }
 
@@ -215,16 +211,6 @@ class ArenaAdapterService(
             gjennomforing.id,
             LocalDateTime.now(),
         ) { Json.encodeToJsonElement(gjennomforing) }
-    }
-
-    private fun QueryContext.publishTiltaksgjennomforingV1ToKafka(dto: TiltaksgjennomforingV1Dto) {
-        val record = StoredProducerRecord(
-            config.gjennomforingV1Topic,
-            dto.id.toString().toByteArray(),
-            Json.encodeToString(dto).toByteArray(),
-            null,
-        )
-        queries.kafkaProducerRecord.storeRecord(record)
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(dto: TiltaksgjennomforingV2Dto) {

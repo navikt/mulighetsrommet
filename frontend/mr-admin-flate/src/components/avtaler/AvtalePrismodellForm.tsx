@@ -36,8 +36,8 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     register,
   } = useFormContext<PrismodellValues>();
   const { data: prismodellTyper = [] } = usePrismodeller(tiltakskode);
-  const enableSEK = useFeatureToggle(FeatureToggle.TILTAKSADMINISTRASJON_SVENSK_VALUTA);
-  const valutaOptions = enableSEK.data ? [Valuta.NOK, Valuta.SEK] : [Valuta.NOK];
+  const { data: enableSEK } = useFeatureToggle(FeatureToggle.TILTAKSADMINISTRASJON_SVENSK_VALUTA);
+  const valutaOptions = enableSEK ? [Valuta.NOK, Valuta.SEK] : [Valuta.NOK];
 
   const prismodellerMedSatser = [
     PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,

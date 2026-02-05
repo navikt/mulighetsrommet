@@ -27,7 +27,7 @@ export default function UtbetalingSteg({
   }, [data.kontonummer, formState.kontonummer, updateFormState]);
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <Heading size="large" level="3">
         Utbetalingsinformasjon
       </Heading>
@@ -43,7 +43,7 @@ export default function UtbetalingSteg({
         name="belop"
         id="belop"
       />
-      <VStack gap="4">
+      <VStack gap="space-16">
         <KontonummerInput
           error={errorAt("/kontonummer", errors)}
           kontonummer={data.kontonummer}

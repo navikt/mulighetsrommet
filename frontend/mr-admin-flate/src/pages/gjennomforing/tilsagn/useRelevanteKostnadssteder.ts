@@ -3,8 +3,8 @@ import { useKostnadsstedFilter } from "@/api/enhet/useKostnadsstedFilter";
 import { Kontorstruktur, TilsagnType } from "@tiltaksadministrasjon/api-client";
 
 export function useRelevanteKostnadssteder(
+  type: TilsagnType,
   kontorstruktur: Kontorstruktur[],
-  type?: TilsagnType,
 ): KostnadsstedOption[] {
   const { data: kostnadssteder } = useKostnadsstedFilter();
 

@@ -16,13 +16,24 @@ import { useNavigate } from "react-router";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 import { DataElementStatusTag } from "@mr/frontend-common";
-import { AvtaleDto, GjennomforingDetaljerDto } from "@tiltaksadministrasjon/api-client";
+import {
+  AmoKategorisering,
+  AvtaleDto,
+  GjennomforingGruppeDto,
+  GjennomforingTiltakstype,
+  GjennomforingVeilederinfoDto,
+  PrismodellDto,
+  UtdanningslopDto,
+} from "@tiltaksadministrasjon/api-client";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
+import { isEnkeltplass, isGruppetiltak } from "@/api/gjennomforing/utils";
 
 export function RedigerGjennomforingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const detaljer = useGjennomforing(gjennomforingId);
-  const { data: avtale } = usePotentialAvtale(detaljer.gjennomforing.avtaleId);
+  const { data: avtale } = usePotentialAvtale(
+    isGruppetiltak(detaljer.gjennomforing) ? detaljer.gjennomforing.avtaleId : null,
+  );
 
   const isError = !avtale || !avtaleHarRegioner(avtale);
 
@@ -54,8 +65,18 @@ export function RedigerGjennomforingFormPage() {
         <Box padding="4" background="bg-default">
           {isError ? (
             <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>
+          ) : isEnkeltplass(detaljer.gjennomforing) ? (
+            <Alert variant={"error"}>Enkeltplasser kan ikke redigeres</Alert>
           ) : (
-            <RedigerGjennomforing avtale={avtale} detaljer={detaljer} />
+            <RedigerGjennomforing
+              tiltakstype={detaljer.tiltakstype}
+              avtale={avtale}
+              gjennomforing={detaljer.gjennomforing}
+              veilederinfo={detaljer.veilederinfo}
+              prismodell={detaljer.prismodell}
+              amoKategorisering={detaljer.amoKategorisering}
+              utdanningslop={detaljer.utdanningslop}
+            />
           )}
         </Box>
       </ContentBox>
@@ -65,18 +86,21 @@ export function RedigerGjennomforingFormPage() {
 
 interface RedigerGjennomforingProps {
   avtale: AvtaleDto;
-  detaljer: GjennomforingDetaljerDto;
+  tiltakstype: GjennomforingTiltakstype;
+  gjennomforing: GjennomforingGruppeDto;
+  veilederinfo: GjennomforingVeilederinfoDto | null;
+  prismodell: PrismodellDto | null;
+  amoKategorisering: AmoKategorisering | null;
+  utdanningslop: UtdanningslopDto | null;
 }
 
 function RedigerGjennomforing(props: RedigerGjennomforingProps) {
-  const { avtale, detaljer } = props;
-
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
+  const tiltakstype = useTiltakstype(props.tiltakstype.id);
   const { data: ansatt } = useHentAnsatt();
-  const { data: deltakere } = useGjennomforingDeltakerSummary(detaljer.gjennomforing.id);
+  const { data: deltakere } = useGjennomforingDeltakerSummary(props.gjennomforing.id);
 
   const navigerTilbake = () => {
     navigate(-1);
@@ -95,11 +119,20 @@ function RedigerGjennomforing(props: RedigerGjennomforingProps) {
       onClose={navigerTilbake}
       onSuccess={navigerTilGjennomforing}
       tiltakstype={tiltakstype}
-      avtale={avtale}
-      gjennomforing={detaljer.gjennomforing}
-      veilederinfo={detaljer.veilederinfo}
+      avtale={props.avtale}
+      gjennomforing={props.gjennomforing}
+      veilederinfo={props.veilederinfo}
       deltakere={deltakere}
-      defaultValues={defaultGjennomforingData(ansatt, tiltakstype, avtale, detaljer)}
+      defaultValues={defaultGjennomforingData(
+        ansatt,
+        tiltakstype,
+        props.avtale,
+        props.gjennomforing,
+        props.veilederinfo,
+        props.prismodell,
+        props.amoKategorisering,
+        props.utdanningslop,
+      )}
     />
   );
 }

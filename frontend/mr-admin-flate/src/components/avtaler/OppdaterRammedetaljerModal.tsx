@@ -7,6 +7,7 @@ import { useUpsertRammedetaljer } from "@/api/avtaler/useUpsertRammedetaljer";
 import AvtaleRammeDetaljerForm from "./AvtaleRammeDetaljerForm";
 import { useAvtaleRammedetaljerDefaults } from "@/api/avtaler/useAvtaleRammedetaljerDefaults";
 import { useDeleteRammedetaljer } from "@/api/avtaler/useDeleteAvtaleRammedetaljer";
+import { TrashFillIcon } from "@navikt/aksel-icons";
 
 interface Props {
   avtaleId: string;
@@ -84,6 +85,7 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
                 variant="tertiary-neutral"
                 disabled={deletion.isPending}
                 onClick={deleteRammedetaljer}
+                icon={<TrashFillIcon />}
               >
                 {deletion.isPending ? "Sletter..." : "Slett"}
               </Button>

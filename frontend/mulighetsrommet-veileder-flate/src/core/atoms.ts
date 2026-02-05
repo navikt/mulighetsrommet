@@ -9,7 +9,11 @@ export const paginationAtom = atomWithHash(
   },
 );
 
-export type FilterAccordionTypes = "apen-for-pamelding" | "innsatsgruppe" | "brukers-enhet";
+export type FilterAccordionTypes =
+  | "apen-for-pamelding"
+  | "innsatsgruppe"
+  | "brukers-enhet"
+  | "tiltakstyper";
 
 export const filterAccordionAtom = atom<FilterAccordionTypes[]>([
   "apen-for-pamelding",

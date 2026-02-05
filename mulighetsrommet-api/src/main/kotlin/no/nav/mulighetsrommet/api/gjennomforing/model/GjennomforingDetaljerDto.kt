@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.gjennomforing.model
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
@@ -27,8 +30,20 @@ data class GjennomforingDetaljerDto(
     val utdanningslop: UtdanningslopDto?,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class GjennomforingDto(
+@JsonClassDiscriminator("type")
+sealed class GjennomforingDto {
+    @Serializable
+    data class Status(
+        val type: GjennomforingStatusType,
+        val status: DataElement.Status,
+    )
+}
+
+@Serializable
+@SerialName("GjennomforingGruppeDto")
+data class GjennomforingGruppeDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
@@ -46,23 +61,34 @@ data class GjennomforingDto(
     val oppstart: GjennomforingOppstartstype,
     val pameldingType: GjennomforingPameldingType,
     val opphav: ArenaMigrering.Opphav,
+    val apentForPamelding: Boolean,
     val deltidsprosent: Double,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val administratorer: List<GjennomforingGruppetiltak.Administrator>,
     val stengt: List<GjennomforingGruppetiltak.StengtPeriode>,
-) {
-    @Serializable
-    data class Status(
-        val type: GjennomforingStatusType,
-        val status: DataElement.Status,
-    )
-}
+) : GjennomforingDto()
+
+@Serializable
+@SerialName("GjennomforingEnkeltplassDto")
+data class GjennomforingEnkeltplassDto(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val navn: String,
+    val lopenummer: Tiltaksnummer,
+    val tiltaksnummer: Tiltaksnummer?,
+    val arrangor: Gjennomforing.ArrangorUnderenhet,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
+    val status: Status,
+    val opphav: ArenaMigrering.Opphav,
+) : GjennomforingDto()
 
 @Serializable
 data class GjennomforingVeilederinfoDto(
     val publisert: Boolean,
-    val apentForPamelding: Boolean,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
     val kontorstruktur: List<Kontorstruktur>,

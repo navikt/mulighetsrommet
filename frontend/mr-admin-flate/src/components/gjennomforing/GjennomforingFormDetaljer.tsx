@@ -5,8 +5,9 @@ import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import {
   AvtaleDto,
+  FeatureToggle,
   GjennomforingDeltakerSummary,
-  GjennomforingDto,
+  GjennomforingGruppeDto,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingRequest,
@@ -41,11 +42,12 @@ import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
 import { kanEndreOppstartOgPamelding, kreverDeltidsprosent } from "@/utils/tiltakstype";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
   avtale: AvtaleDto;
-  gjennomforing: GjennomforingDto | null;
+  gjennomforing: GjennomforingGruppeDto | null;
   veilederinfo: GjennomforingVeilederinfoDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
 }
@@ -57,6 +59,9 @@ export function GjennomforingFormDetaljer(props: Props) {
   const { data: ansatt } = useHentAnsatt();
 
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
+  const { data: enablePameldingType } = useFeatureToggle(
+    FeatureToggle.TILTAKSADMINISTRASJON_PAMELDING_TYPE,
+  );
 
   const {
     register,
@@ -157,6 +162,32 @@ export function GjennomforingFormDetaljer(props: Props) {
                 },
               ]}
             />
+            {enablePameldingType && (
+              <ControlledSokeSelect
+                size="small"
+                label={gjennomforingTekster.pamelding.label}
+                placeholder="Velg påmeldingstype"
+                name="pameldingType"
+                readOnly={
+                  !kanEndreOppstartOgPamelding(tiltakstype) ||
+                  watch("oppstart") === GjennomforingOppstartstype.FELLES
+                }
+                options={[
+                  {
+                    label: gjennomforingTekster.pamelding.beskrivelse(
+                      GjennomforingPameldingType.TRENGER_GODKJENNING,
+                    ),
+                    value: GjennomforingPameldingType.TRENGER_GODKJENNING,
+                  },
+                  {
+                    label: gjennomforingTekster.pamelding.beskrivelse(
+                      GjennomforingPameldingType.DIREKTE_VEDTAK,
+                    ),
+                    value: GjennomforingPameldingType.DIREKTE_VEDTAK,
+                  },
+                ]}
+              />
+            )}
             <HGrid columns={2}>
               <DatePicker>
                 <DatePicker.Input
@@ -307,7 +338,7 @@ export function GjennomforingFormDetaljer(props: Props) {
                 </option>
               ))}
             </Select>
-            {valgtPrismodell && <PrismodellDetaljer prismodell={[valgtPrismodell]} />}
+            {valgtPrismodell && <PrismodellDetaljer prismodeller={[valgtPrismodell]} />}
           </FormGroup>
         </SkjemaKolonne>
       </TwoColumnGrid>

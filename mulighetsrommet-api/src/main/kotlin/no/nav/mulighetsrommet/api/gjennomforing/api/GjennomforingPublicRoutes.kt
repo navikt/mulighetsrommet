@@ -12,13 +12,10 @@ import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.model.ExchangeArenaIdForIdResponse
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingArenaDataDto
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import org.koin.ktor.ext.inject
 import java.util.UUID
@@ -29,7 +26,6 @@ fun Route.gjennomforingPublicRoutes() {
     }
 
     route("/v1/tiltaksgjennomforinger") {
-        getGjennomforingV1Route()
         getGjennomforingIdRoute()
         getGjennomforingArenaDataRoute()
     }
@@ -72,35 +68,6 @@ private fun Route.getGjennomforingV2Route() {
             ?: return@get call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
 
         call.respond(tiltaksgjennomforing)
-    }
-}
-
-private fun Route.getGjennomforingV1Route() {
-    val gjennomforingService: GjennomforingService by inject()
-
-    get("{id}", {
-        tags = setOf("Tiltaksgjennomforing")
-        operationId = "getTiltaksgjennomforingV1"
-        request {
-            pathParameterUuid("id")
-        }
-        response {
-            code(HttpStatusCode.OK) {
-                description = "Gjennomføringen"
-                body<TiltaksgjennomforingV1Dto>()
-            }
-            code(HttpStatusCode.NotFound) {
-                description = "Gjennomføringen ble ikke funnet"
-            }
-        }
-    }) {
-        val id: UUID by call.parameters
-
-        val result = gjennomforingService.getGruppetiltak(id)
-            ?.let { TiltaksgjennomforingV1Mapper.fromGjennomforing(it) }
-            ?: return@get call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
-
-        call.respond(result)
     }
 }
 
