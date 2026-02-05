@@ -384,7 +384,7 @@ export function EstimertVentetidForm(props: EstimertVentetidFormProps) {
   }
 
   return (
-    <fieldset className="border-none p-0 [&>legend]:font-bold [&>legend]:mb-2">
+    <fieldset className="border-none p-0 [&>legend]:font-ax-bold [&>legend]:mb-2">
       <HStack gap="1">
         <LabelWithHelpText label="Estimert ventetid" helpTextTitle="Hva er estimert ventetid?">
           Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om estimert

@@ -245,7 +245,7 @@ function RegionOgUnderenheter({ kontorstruktur }: { kontorstruktur: Kontorstrukt
     <ul>
       {kontorstruktur.map((kontor) => {
         return (
-          <li className="font-bold my-2 ml-3" key={kontor.region.enhetsnummer}>
+          <li className="font-ax-bold my-2 ml-3" key={kontor.region.enhetsnummer}>
             <button
               className="hover:cursor-pointer flex"
               onClick={() => toggleRegion(kontor.region.enhetsnummer)}

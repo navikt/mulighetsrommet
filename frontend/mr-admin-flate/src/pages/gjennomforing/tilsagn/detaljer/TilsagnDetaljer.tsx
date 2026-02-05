@@ -253,7 +253,7 @@ export function TilsagnDetaljer() {
           forklaring={tilOppgjor.forklaring}
         />
       )}
-      <VStack gap="6" padding="4" className="rounded-lg border-gray-300 border-1">
+      <VStack gap="6" padding="4" className="rounded-lg border-ax-neutral-400 border-1">
         <>
           <HStack className="mb-2">
             <Heading size="medium" level="3">

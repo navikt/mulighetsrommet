@@ -17,16 +17,16 @@ export function UtdatertKlientBanner() {
   if (!visible || ignored) return null;
 
   return (
-    <Box className="bg-orange-100" borderColor="border-warning" padding="4">
+    <Box className="bg-ax-warning-200" borderColor="border-warning" padding="4">
       <HStack align="center" justify="space-between" gap="2">
-        <p className="text-m text-red-700">
+        <p className="text-m text-ax-danger-800">
           Appen er utdatert. Dette kan medføre feil. Last siden på nytt hvis mulig
         </p>
 
         <HStack gap="2">
           <Button
             onClick={() => window.location.reload()}
-            className="px-3 py-1 rounded bg-orange-200 text-red-700 hover:bg-orange-300 transition"
+            className="px-3 py-1 rounded bg-ax-warning-300 text-ax-danger-800 hover:bg-ax-warning-400 transition"
           >
             Relast siden
           </Button>
@@ -36,7 +36,7 @@ export function UtdatertKlientBanner() {
               setIgnored(true);
               setVisible(false);
             }}
-            className="px-3 py-1 rounded bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition"
+            className="px-3 py-1 rounded bg-ax-neutral-300 text-ax-neutral-800 text-sm hover:bg-ax-neutral-400 transition"
           >
             Ignorer
           </button>

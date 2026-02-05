@@ -24,7 +24,7 @@ export function ArrangorPage() {
       <Brodsmuler brodsmuler={brodsmuler} />
       <HeaderBanner heading={arrangor.navn} ikon={<ArrangorIkon />} />
       <ContentBox>
-        <Accordion className="bg-white">
+        <Accordion className="bg-ax-bg-default">
           {!arrangor.overordnetEnhet ? (
             <Accordion.Item open={openHovedenhet}>
               <Accordion.Header onClick={() => setOpenHovedenhet(!openHovedenhet)}>

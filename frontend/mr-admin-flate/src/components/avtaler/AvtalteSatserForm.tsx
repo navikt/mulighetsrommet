@@ -45,7 +45,7 @@ export function AvtalteSatserForm({
           gap="4"
           wrap={false}
           align="center"
-          className="border-border-subtle border rounded-lg"
+          className="border-ax-border-neutral-subtle border rounded-lg"
         >
           <HStack key={satsField.id} gap="4" align="start">
             <TextField

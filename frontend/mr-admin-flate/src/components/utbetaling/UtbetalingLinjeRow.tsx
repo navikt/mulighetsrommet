@@ -39,7 +39,7 @@ export function UtbetalingLinjeRow({
 }: Props) {
   const [belopError, setBelopError] = useState<string | undefined>();
   const [openRow, setOpenRow] = useState(rowOpen);
-  const grayBgClass = grayBackground ? "bg-gray-100" : "";
+  const grayBgClass = grayBackground ? "bg-ax-neutral-200" : "";
 
   useEffect(() => {
     if (rowOpen) {
@@ -57,7 +57,7 @@ export function UtbetalingLinjeRow({
       open={openRow}
       onOpenChange={() => setOpenRow(!openRow)}
       key={`${linje.id}-${linje.status?.type}`}
-      className={`${grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}`}
+      className={`${grayBackground ? "[&>td:first-child]:bg-ax-neutral-200" : ""}`}
       content={
         <VStack gap="4">
           {isBesluttet(linje.opprettelse) && linje.opprettelse.besluttelse === "AVVIST" ? (

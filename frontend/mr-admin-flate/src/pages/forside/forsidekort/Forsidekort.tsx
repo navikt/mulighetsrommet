@@ -18,7 +18,7 @@ export function Forsidekort({ navn, ikon, url, tekst, apneINyTab = false }: Fors
       background="bg-default"
       borderRadius="4"
       key={url}
-      className="text-text-default shadow-md hover:shadow-lg transition-all duration-150 ease-in-out"
+      className="text-ax-text-neutral shadow-md hover:shadow-lg transition-all duration-150 ease-in-out"
       to={url}
       {...(apneINyTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       data-testid={`forsidekort-${kebabCase(navn)}`}
@@ -31,7 +31,7 @@ export function Forsidekort({ navn, ikon, url, tekst, apneINyTab = false }: Fors
           {navn}
         </Heading>
         {tekst ? (
-          <BodyShort align="center" className="text-gray-600">
+          <BodyShort align="center" className="text-ax-neutral-700">
             {tekst}
           </BodyShort>
         ) : null}

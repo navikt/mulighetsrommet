@@ -11,13 +11,13 @@ export function Notifikasjon({ tittel, melding, href }: NotifikasjonProps) {
   return (
     <LinkPanel
       href={href}
-      className="flex items-center justify-between bg-[var(--ax-warning-200)] p-4"
+      className="flex items-center justify-between bg-(--ax-warning-200) p-4"
       border={false}
       data-testid="notifikasjoner"
     >
       <div className="flex items-center gap-4">
         <div>
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--ax-warning-300)]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-(--ax-warning-300)">
             <BellIcon
               className="inline-block text-2xl text-[#b86b00]"
               aria-label="Notifikasjoner"

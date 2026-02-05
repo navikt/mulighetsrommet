@@ -49,7 +49,7 @@ export function ArrangorKontaktpersonerModal(props: Props) {
             .map((person) => (
               <div
                 key={person.id}
-                className="p-4 border border-border-divider bg-gray-100 rounded-l"
+                className="p-4 border border-ax-border-neutral-subtle bg-ax-neutral-200 rounded-l"
               >
                 {redigerId === person.id ? (
                   <ArrangorKontaktpersonForm
@@ -127,7 +127,7 @@ export function ArrangorKontaktpersonerModal(props: Props) {
               </div>
             ))}
           {opprett ? (
-            <div className="p-4 border border-border-divider bg-gray-100 rounded-l">
+            <div className="p-4 border border-ax-border-neutral-subtle bg-ax-neutral-200 rounded-l">
               <ArrangorKontaktpersonForm
                 arrangorId={arrangorId}
                 onSubmit={reset}

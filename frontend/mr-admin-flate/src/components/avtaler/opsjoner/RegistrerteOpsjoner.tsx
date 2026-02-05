@@ -36,7 +36,7 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
     .at(0)?.forrigeSluttDato;
 
   return (
-    <section className="bg-surface-subtle p-4 rounded-lg">
+    <section className="bg-ax-bg-neutral-soft p-4 rounded-lg">
       <HStack justify={"space-between"} align={"center"}>
         <Heading level="4" size="xsmall">
           Opsjoner
@@ -45,7 +45,7 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
           <BodyShort>* Opprinnelig sluttdato: {formaterDato(opprinneligSluttDato)}</BodyShort>
         )}
       </HStack>
-      <hr className="h-[0.2rem] bg-border-strong border-none" />
+      <hr className="h-[0.2rem] bg-ax-border-neutral-strong border-none" />
       <Table>
         <Table.Header>
           <Table.Row>

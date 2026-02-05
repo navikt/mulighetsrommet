@@ -74,15 +74,15 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
           <Table
             sort={sort}
             onSortChange={(sortKey) => handleSort(sortKey)}
-            className="bg-white border-separate border-spacing-0 border-t border-gray-200"
+            className="bg-ax-bg-default border-separate border-spacing-0 border-t border-ax-neutral-300"
           >
             <Table.Header
               style={{
                 top: `calc(${tagsHeight}px + 7.8rem)`,
               }}
-              className="sticky bg-white"
+              className="sticky bg-ax-bg-default"
             >
-              <Table.Row className="hover:bg-gray-50">
+              <Table.Row className="hover:bg-ax-neutral-100">
                 {headers.map((header) => (
                   <Table.ColumnHeader
                     key={header.sortKey}
@@ -100,7 +100,7 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
             <Table.Body>
               {avtaler.map((avtale, index) => {
                 return (
-                  <Table.Row key={index} className="hover:bg-gray-50">
+                  <Table.Row key={index} className="hover:bg-ax-neutral-100">
                     <Table.DataCell aria-label={`Avtalenavn: ${avtale.navn}`} className="underline">
                       <VStack>
                         <Lenke to={`/avtaler/${avtale.id}`} data-testid="avtaletabell_tittel">

@@ -79,7 +79,7 @@ export function UtbetalingPage() {
     <>
       <title>{utbetalingTekster.title}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <HStack gap="2" className="bg-white border-b-2 border-gray-200 p-2">
+      <HStack gap="space-8" className="bg-ax-bg-default border-b-2 border-ax-neutral-300 p-2">
         <BankNoteFillIcon color="#2AA758" className="w-10 h-10" />
         <Heading size="large" level="1">
           {utbetalingTekster.header(gjennomforing.navn)}
@@ -87,20 +87,20 @@ export function UtbetalingPage() {
       </HStack>
       <ContentBox>
         <WhitePaddedBox>
-          <VStack gap="4">
+          <VStack gap="space-8">
             <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
             <VStack
-              gap="4"
+              gap="space-8"
               id="kostnadsfordeling"
-              padding="4"
-              className="border-gray-300 border-1 rounded-lg"
+              padding="space-8"
+              className="border-ax-neutral-400 border rounded-lg"
             >
               <HGrid columns="1fr 1fr 0.25fr">
                 <VStack>
                   <Heading size="medium" level="2" spacing data-testid="utbetaling-til-utbetaling">
                     {utbetalingTekster.metadata.header}
                   </Heading>
-                  <VStack gap="2">
+                  <VStack gap="space-4">
                     <MetadataHGrid
                       label={utbetalingTekster.metadata.status}
                       value={<UtbetalingStatusTag status={utbetaling.status} />}
@@ -123,7 +123,7 @@ export function UtbetalingPage() {
                       <MetadataHGrid
                         label={utbetalingTekster.metadata.type}
                         value={
-                          <HStack gap="2">
+                          <HStack gap="space-4">
                             {utbetaling.type.displayName}
                             <UtbetalingTypeTag type={utbetaling.type.displayName} />
                           </HStack>
@@ -156,11 +156,11 @@ export function UtbetalingPage() {
                     )}
                   </VStack>
                 </VStack>
-                <VStack gap="4">
+                <VStack gap="space-16">
                   <Heading size="medium" level="2">
                     Betalingsinformasjon
                   </Heading>
-                  <VStack gap="2">
+                  <VStack gap="space-8">
                     {utbetaling.betalingsinformasjon && (
                       <BetalingsinformasjonDetaljer
                         betalingsinformasjon={utbetaling.betalingsinformasjon}
@@ -172,14 +172,13 @@ export function UtbetalingPage() {
                       <Heading size="medium" level="2">
                         Journalføring
                       </Heading>
-                      <VStack gap="2">
+                      <VStack gap="space-8">
                         <MetadataHGrid
                           label="Journalpost-ID i Gosys"
                           value={
                             <HStack align="center">
                               <CopyButton
                                 size="small"
-                                variant="action"
                                 copyText={utbetaling.journalpostId}
                                 title="Kopier journalpost-ID"
                               />
@@ -259,14 +258,14 @@ function BetalingsinformasjonDetaljer({
   switch (betalingsinformasjon.type) {
     case "BBan":
       return (
-        <VStack gap="2">
+        <VStack gap="space-8">
           <MetadataHGrid label="Kontonummer" value={betalingsinformasjon.kontonummer} />
           <MetadataHGrid label="KID (valgfritt)" value={betalingsinformasjon.kid} />
         </VStack>
       );
     case "IBan":
       return (
-        <VStack gap="2">
+        <VStack gap="space-8">
           <MetadataHGrid label="IBan" value={betalingsinformasjon.iban} />
           <MetadataHGrid label="BIC/SWIFT" value={betalingsinformasjon.bic} />
           <MetadataHGrid label="Banknavn" value={betalingsinformasjon.bankNavn} />

@@ -27,7 +27,7 @@ export function PrismodellDetaljer({ prismodeller }: Props) {
                   key={prismodell.navn}
                   gap="4"
                   padding="2"
-                  className="border-border-subtle border rounded-md"
+                  className="border-ax-border-neutral-subtle border rounded-md"
                 >
                   <PrismodellTypenavn type={prismodell.navn} />
                   <PrismodellSatser satser={prismodell.satser} />
@@ -42,7 +42,7 @@ export function PrismodellDetaljer({ prismodeller }: Props) {
                   key={prismodell.navn}
                   gap="4"
                   padding="2"
-                  className="border-border-subtle border rounded-md"
+                  className="border-ax-border-neutral-subtle border rounded-md"
                 >
                   <PrismodellTypenavn type={prismodell.navn} />
                   <PrismodellSatser satser={prismodell.satser} />
@@ -57,7 +57,7 @@ export function PrismodellDetaljer({ prismodeller }: Props) {
                   key={prismodell.navn}
                   gap="4"
                   padding="2"
-                  className="border-border-subtle border rounded-md"
+                  className="border-ax-border-neutral-subtle border rounded-md"
                 >
                   <PrismodellTypenavn type={prismodell.navn} />
                   <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />

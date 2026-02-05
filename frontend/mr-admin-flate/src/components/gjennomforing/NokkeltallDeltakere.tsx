@@ -71,7 +71,7 @@ export function NokkeltallDeltakere({ gjennomforingId }: Props) {
   };
 
   return (
-    <div className="bg-bg-subtle p-[0.5rem] rounded-[0.5rem] mt-8">
+    <div className="bg-ax-bg-neutral-soft p-[0.5rem] rounded-[0.5rem] mt-8">
       <Heading size="small" level="2">
         <span className="font-light pr-4">Deltakerinformasjon</span>{" "}
         <b>

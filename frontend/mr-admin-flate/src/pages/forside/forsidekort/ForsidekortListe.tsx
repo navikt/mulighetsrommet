@@ -11,7 +11,7 @@ const forsidekortData: ForsideKortProps[] = [
   {
     navn: "Oppgaver",
     ikon: (
-      <div className="w-16 h-16 flex items-center justify-center bg-orange-300 rounded-full">
+      <div className="w-16 h-16 flex items-center justify-center bg-ax-warning-400 rounded-full">
         <BellDotFillIcon title="Oppgaveoversikt" className="text-white w-12 h-12" />
       </div>
     ),

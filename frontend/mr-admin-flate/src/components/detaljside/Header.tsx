@@ -7,7 +7,7 @@ interface Props {
 
 export function Header({ children }: Props) {
   return (
-    <HStack className="bg-white m-auto px-4 pb-4 gap-6" align="center">
+    <HStack gap="space-6" className="bg-ax-bg-default m-auto px-4 pb-4" align="center">
       {children}
     </HStack>
   );

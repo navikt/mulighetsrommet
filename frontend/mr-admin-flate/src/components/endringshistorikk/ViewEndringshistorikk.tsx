@@ -25,7 +25,7 @@ export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
 
         return (
           <li
-            className={!isNavAnsatt(editedBy) ? "italic font-thin text-text-subtle" : undefined}
+            className={!isNavAnsatt(editedBy) ? "italic font-thin text-ax-text-neutral-subtle" : undefined}
             key={editedAt}
           >
             {formaterDatoTid(editedAt)} - <b>{operation}</b> - {user}

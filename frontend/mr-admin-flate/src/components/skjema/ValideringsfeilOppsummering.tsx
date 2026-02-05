@@ -51,7 +51,7 @@ export function ValideringsfeilOppsummering() {
       >
         <Popover.Content>
           <ErrorSummary
-            className="[&>li]:cursor-default [&>li]:text-gray-900"
+            className="[&>li]:cursor-default [&>li]:text-ax-neutral-1000"
             heading="Det er valideringsfeil i skjema"
           >
             {messages.map((value, key) => {

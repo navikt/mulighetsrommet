@@ -387,7 +387,7 @@ function RegionerOgEnheterOgKontaktpersoner({
             {kontaktpersonFields.map((field, index) => {
               return (
                 <div
-                  className="bg-surface-subtle mt-4 p-2 relative border border-border-divider rounded"
+                  className="bg-ax-bg-neutral-soft mt-4 p-2 relative border border-ax-border-neutral-subtle rounded"
                   key={field.id}
                 >
                   <Button

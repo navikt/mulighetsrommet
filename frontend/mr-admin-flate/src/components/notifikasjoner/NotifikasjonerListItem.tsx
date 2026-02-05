@@ -16,7 +16,7 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
   const [error, setError] = useState("");
 
   return (
-    <li className="m-2 md:w-auto w-[95%]">
+    <li className="m-2 ax-md:w-auto w-[95%]">
       <Box
         background={lest ? "surface-subtle" : "bg-default"}
         borderColor="border-subtle"
@@ -26,7 +26,7 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
       >
         <HStack justify="space-between">
           <HStack gap="2">
-            <div className="inline-flex items-center self-start justify-center p-2 bg-gray-200 rounded-xl">
+            <div className="inline-flex items-center self-start justify-center p-2 bg-ax-neutral-300 rounded-xl">
               <PaperplaneIcon fontSize="2rem" />
             </div>
             <VStack gap="4" className="max-w-[75ch]">

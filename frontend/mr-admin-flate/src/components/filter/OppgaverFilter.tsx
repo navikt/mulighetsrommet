@@ -23,7 +23,7 @@ export function OppgaverFilter({ filter, updateFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
 
   return (
-    <div className="bg-white self-start w-80">
+    <div className="bg-ax-bg-default self-start w-80">
       <Accordion>
         <Accordion.Item open={accordionsOpen.includes("type")}>
           <Accordion.Header

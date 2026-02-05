@@ -75,7 +75,7 @@ function BeregningInputSkjema({ valuta }: BeregningInputSkjemaProps) {
           align="start"
           key={item.id}
           padding="4"
-          className="border-border-subtle border-1 rounded-lg"
+          className="border-ax-border-neutral-subtle border-1 rounded-lg"
         >
           <Textarea
             size="small"
