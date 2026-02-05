@@ -3342,6 +3342,10 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Tiltakskode"
+        tiltaksgruppe:
+          type:
+          - "null"
+          - string
         kanKombineresMed:
           type: array
           items:
@@ -3357,6 +3361,7 @@ components:
       - navn
       - regelverkLenker
       - sanityId
+      - tiltaksgruppe
       - tiltakskode
     DetaljerRequest:
       type: object

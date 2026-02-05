@@ -61,6 +61,7 @@ class VeilederflateService(
                     delingMedBruker = it.delingMedBruker,
                     arenakode = tiltakstype.arenakode,
                     tiltakskode = tiltakstype.tiltakskode,
+                    tiltaksgruppe = tiltakstype.tiltakskode?.gruppe?.tittel,
                     kanKombineresMed = it.kanKombineresMed,
                 )
             }
@@ -181,6 +182,7 @@ class VeilederflateService(
                 delingMedBruker = delingMedBruker,
                 arenakode = tiltakstypeDto.arenakode,
                 tiltakskode = tiltakstypeDto.tiltakskode,
+                tiltaksgruppe = tiltakstypeDto.tiltakskode?.gruppe?.tittel,
                 kanKombineresMed = kanKombineresMed,
             )
         }
