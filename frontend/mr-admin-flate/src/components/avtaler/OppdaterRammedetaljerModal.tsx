@@ -1,15 +1,12 @@
-import {
-  RammedetaljerDto,
-  RammedetaljerRequest,
-  ValidationError,
-} from "@tiltaksadministrasjon/api-client";
+import { RammedetaljerRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { Button, HStack, Modal } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { useUpsertRammedetaljer } from "@/api/avtaler/useUpsertRammedetaljer";
 import AvtaleRammeDetaljerForm from "./AvtaleRammeDetaljerForm";
-import { useAvtaleRammedetaljer } from "@/api/avtaler/useAvtaleRammedetaljer";
+import { useAvtaleRammedetaljerDefaults } from "@/api/avtaler/useAvtaleRammedetaljerDefaults";
+import { useDeleteRammedetaljer } from "@/api/avtaler/useDeleteAvtaleRammedetaljer";
 
 interface Props {
   avtaleId: string;
@@ -17,10 +14,14 @@ interface Props {
 }
 
 export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
-  const { data: rammeDetaljer } = useAvtaleRammedetaljer(avtaleId);
+  const { data: rammeDetaljerDefaults } = useAvtaleRammedetaljerDefaults(avtaleId);
+  const deletion = useDeleteRammedetaljer(avtaleId);
   const mutation = useUpsertRammedetaljer(avtaleId);
   const form = useForm<RammedetaljerRequest>({
-    defaultValues: defaultValues(rammeDetaljer),
+    defaultValues: {
+      totalRamme: rammeDetaljerDefaults.totalRamme,
+      utbetaltArena: rammeDetaljerDefaults.utbetaltArena,
+    },
   });
 
   const postData: SubmitHandler<RammedetaljerRequest> = async (
@@ -42,6 +43,12 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
     });
   };
 
+  async function deleteRammedetaljer() {
+    return deletion.mutate(undefined, {
+      onSuccess: closeAndResetForm,
+    });
+  }
+
   function closeAndResetForm() {
     form.reset();
     mutation.reset();
@@ -50,8 +57,7 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
 
   return (
     <Modal
-      width={450}
-      size="small"
+      width={500}
       closeOnBackdropClick
       onClose={closeAndResetForm}
       header={{ heading: "Oppdater rammedetaljer" }}
@@ -60,34 +66,31 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(postData)}>
           <Modal.Body>
-            <AvtaleRammeDetaljerForm />
+            <AvtaleRammeDetaljerForm valuta={rammeDetaljerDefaults.valuta} />
           </Modal.Body>
           <Modal.Footer>
-            <HStack gap="1" className="flex-row-reverse">
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Lagrer..." : "Bekreft"}
+            <HStack justify="space-between" className="flex-row-reverse" width="100%">
+              <HStack gap="2" className="flex-row-reverse">
+                <Button type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? "Lagrer..." : "Bekreft"}
+                </Button>
+                <Button type="button" variant="tertiary" onClick={closeAndResetForm}>
+                  Avbryt
+                </Button>
+                <ValideringsfeilOppsummering />
+              </HStack>
+              <Button
+                type="button"
+                variant="tertiary-neutral"
+                disabled={deletion.isPending}
+                onClick={deleteRammedetaljer}
+              >
+                {deletion.isPending ? "Sletter..." : "Slett"}
               </Button>
-              <Button type="button" variant="tertiary" onClick={closeAndResetForm}>
-                Avbryt
-              </Button>
-              <ValideringsfeilOppsummering />
             </HStack>
           </Modal.Footer>
         </form>
       </FormProvider>
     </Modal>
   );
-}
-
-function defaultValues(rammeDetaljer: RammedetaljerDto | null): RammedetaljerRequest {
-  if (!rammeDetaljer) {
-    return {
-      totalRamme: 0,
-      utbetaltArena: null,
-    };
-  }
-  return {
-    totalRamme: rammeDetaljer.totalRamme.belop,
-    utbetaltArena: rammeDetaljer.utbetaltArena?.belop ?? null,
-  };
 }

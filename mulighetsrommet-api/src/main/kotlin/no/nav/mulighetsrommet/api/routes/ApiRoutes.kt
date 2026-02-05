@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorflateRoutes
 import no.nav.mulighetsrommet.api.avtale.api.avtaleRoutes
 import no.nav.mulighetsrommet.api.avtale.api.personopplysningRoutes
 import no.nav.mulighetsrommet.api.avtale.api.prismodellRoutes
+import no.nav.mulighetsrommet.api.avtale.api.rammedetaljerRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingPublicRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingRoutes
 import no.nav.mulighetsrommet.api.janzz.api.janzzRoutes
@@ -115,6 +116,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     avtaleRoutes()
     gjennomforingRoutes()
     prismodellRoutes()
+    rammedetaljerRoutes()
     personopplysningRoutes()
     tilsagnRoutes()
     utbetalingRoutes()

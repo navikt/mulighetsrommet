@@ -1,9 +1,13 @@
 import { Box, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
-import { RammedetaljerRequest } from "@tiltaksadministrasjon/api-client";
+import { RammedetaljerRequest, Valuta } from "@tiltaksadministrasjon/api-client";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
-export default function AvtaleRammeDetaljerForm() {
+interface Props {
+  valuta: Valuta;
+}
+
+export default function AvtaleRammeDetaljerForm({ valuta }: Props) {
   const {
     formState: { errors },
     register,
@@ -19,14 +23,14 @@ export default function AvtaleRammeDetaljerForm() {
     >
       <VStack gap="2">
         <TextField
-          label={avtaletekster.rammedetaljer.totalRamme}
+          label={withValuta(avtaletekster.rammedetaljer.totalRamme, valuta)}
           size="small"
           type="number"
           error={errors.totalRamme?.message}
           {...register("totalRamme", { required: true })}
         />
         <TextField
-          label={avtaletekster.rammedetaljer.utbetaltArena}
+          label={withValuta(avtaletekster.rammedetaljer.utbetaltArena, valuta)}
           size="small"
           type="number"
           error={errors.utbetaltArena?.message}
@@ -37,4 +41,8 @@ export default function AvtaleRammeDetaljerForm() {
       </VStack>
     </Box>
   );
+}
+
+function withValuta(text: string, valuta: Valuta) {
+  return `${text} (${valuta})`;
 }

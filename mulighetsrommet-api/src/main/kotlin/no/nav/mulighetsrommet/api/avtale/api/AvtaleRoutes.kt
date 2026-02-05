@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerDefaults
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -126,42 +127,6 @@ data class OpprettOpsjonLoggRequest(
     }
 }
 
-@Serializable
-data class ValutaLongBelop(
-    val belop: Long,
-    val valuta: Valuta,
-)
-
-@Serializable
-data class RammedetaljerDto(
-    val totalRamme: ValutaLongBelop,
-    val utbetaltArena: ValutaLongBelop?,
-    val utbetaltTiltaksadmin: List<ValutaLongBelop>,
-    val gjenstaendeRamme: ValutaLongBelop,
-)
-
-fun RammedetaljerDbo.toDto(utbetaltFraTiltaksadmin: List<ValutaLongBelop>): RammedetaljerDto {
-    val tiltaksAdminSum = utbetaltFraTiltaksadmin
-        .filter { it.valuta == this.valuta }
-        .sumOf { it.belop }
-    return RammedetaljerDto(
-        totalRamme = ValutaLongBelop(
-            belop = totalRamme,
-            valuta = valuta,
-        ),
-        utbetaltArena = utbetaltArena?.let {
-            ValutaLongBelop(
-                belop = it,
-                valuta = valuta,
-            )
-        },
-        utbetaltTiltaksadmin = utbetaltFraTiltaksadmin,
-        gjenstaendeRamme = ValutaLongBelop(
-            belop = totalRamme - (utbetaltArena ?: 0) - tiltaksAdminSum,
-            valuta = valuta,
-        ),
-    )
-}
 
 fun Route.avtaleRoutes() {
     val avtaleService: AvtaleService by inject()
@@ -437,63 +402,6 @@ fun Route.avtaleRoutes() {
 
                 call.respondWithStatusResponse(result)
             }
-            route("{id}/rammedetaljer") {
-                put({
-                    tags = setOf("Avtale")
-                    operationId = "upsertRammedetaljer"
-                    request {
-                        pathParameterUuid("id")
-                        body<RammedetaljerRequest>()
-                    }
-                    response {
-                        code(HttpStatusCode.OK) {
-                            description = "Oppdatert rammedetaljer"
-                            body<Unit>()
-                        }
-                        code(HttpStatusCode.BadRequest) {
-                            description = "Valideringsfeil"
-                            body<ValidationError>()
-                        }
-                        default {
-                            description = "Problem details"
-                            body<ProblemDetail>()
-                        }
-                    }
-                }) {
-                    val navIdent = getNavIdent()
-                    val id: UUID by call.parameters
-                    val request = call.receive<RammedetaljerRequest>()
-
-                    val result = avtaleService.upsertRammedetaljer(id, request, navIdent)
-                        .mapLeft { ValidationError(errors = it) }
-
-                    call.respondWithStatusResponse(result)
-                }
-
-                delete({
-                    tags = setOf("Avtale")
-                    operationId = "deleteRammedetaljer"
-                    request {
-                        pathParameterUuid("id")
-                    }
-                    response {
-                        code(HttpStatusCode.NoContent) {
-                            description = "Rammedetaljer er slettet"
-                        }
-                        default {
-                            description = "Problem details"
-                            body<ProblemDetail>()
-                        }
-                    }
-                }) {
-                    val navIdent = getNavIdent()
-                    val id: UUID by call.parameters
-
-                    avtaleService.deleteRammedetaljer(id, navIdent)
-
-                    call.respond(HttpStatusCode.NoContent)
-                }
-            }
 
             delete("{id}/kontaktperson/{kontaktpersonId}", {
                 tags = setOf("Avtale")
@@ -730,55 +638,6 @@ fun Route.avtaleRoutes() {
             call.respond(historikk)
         }
 
-        get("{id}/rammedetaljer", {
-            tags = setOf("Avtale")
-            operationId = "hentRammedetaljer"
-            request {
-                pathParameterUuid("id")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Rammedetaljer for avtale"
-                    body<RammedetaljerDto?>()
-                }
-                code(HttpStatusCode.NoContent) {
-                    description = "Avtalen har ikke rammedetaljer"
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-
-            val result = db.session {
-                val rammedetaljer = queries.rammedetaljer.get(id) ?: return@session null
-
-                val utbetaltFraTiltaksadmin = queries.delutbetaling.getByAvtale(
-                    id,
-                    statuser = setOf(
-                        DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-                        DelutbetalingStatus.UTBETALT,
-                    ),
-                )
-                    .groupBy { it.pris.valuta }
-                    .map { (valuta, delutbetalinger) ->
-                        val sum = delutbetalinger.sumOf { it.pris.belop.toLong() }
-                        ValutaLongBelop(
-                            belop = sum,
-                            valuta = valuta,
-                        )
-                    }
-                return@session rammedetaljer.toDto(utbetaltFraTiltaksadmin)
-            }
-
-            if (result != null) {
-                call.respond(result)
-            } else {
-                call.respond(HttpStatusCode.NoContent)
-            }
-        }
     }
 }
 

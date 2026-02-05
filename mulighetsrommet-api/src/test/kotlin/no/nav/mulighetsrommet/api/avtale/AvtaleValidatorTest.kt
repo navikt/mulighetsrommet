@@ -1149,4 +1149,15 @@ class AvtaleValidatorTest : FunSpec({
                 }
         }
     }
+    context("rammedetaljer") {
+        test("totalramme må være positiv") {
+            // TODO
+            AvtaleValidator.validateCreateAvtale(
+                gruppeAmo.copy(detaljer = gruppeAmo.detaljer.copy(amoKategorisering = null)),
+                ctx,
+            ).shouldBeLeft(
+                listOf(FieldError("/detaljer/amoKategorisering/kurstype", "Du må velge en kurstype")),
+            )
+        }
+    }
 })
