@@ -21,6 +21,7 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { MetadataHStack, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useAvtaleRammedetaljer } from "@/api/avtaler/useAvtaleRammedetaljer";
+import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 
 export function AvtaleDetaljer() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
@@ -154,6 +155,10 @@ export function AvtaleDetaljer() {
           {avtaletekster.prismodell.heading}
         </Heading>
         <PrismodellDetaljer prismodell={avtale.prismodeller} />
+        <Separator />
+        <Heading level="3" size="small" spacing>
+          {avtaletekster.rammedetaljer.heading}
+        </Heading>
         <Rammedetaljer rammedetaljer={rammedetaljer} />
       </VStack>
       <VStack>
@@ -176,5 +181,26 @@ function Rammedetaljer({ rammedetaljer }: RammedetaljerProps) {
   if (!rammedetaljer?.totalRamme) {
     return null;
   }
-  return <MetadataHStack label="Total ramme" value={rammedetaljer.totalRamme.belop} />;
+  return (
+    <VStack gap="2" width="30rem">
+      <MetadataHStack label="Total ramme" value={formaterValutaBelop(rammedetaljer.totalRamme)} />
+      {rammedetaljer.utbetaltArena && (
+        <MetadataHStack
+          label="Utbetalt fra Arena"
+          value={formaterValutaBelop(rammedetaljer.utbetaltArena)}
+        />
+      )}
+      {rammedetaljer.utbetaltTiltaksadmin.map((utbetalt) => (
+        <MetadataHStack
+          key={utbetalt.valuta}
+          label="Utbetalt fra Tiltaksadministrasjon"
+          value={formaterValutaBelop(utbetalt)}
+        />
+      ))}
+      <MetadataHStack
+        label="Gjenstående"
+        value={formaterValutaBelop(rammedetaljer.gjenstaendeRamme)}
+      />
+    </VStack>
+  );
 }

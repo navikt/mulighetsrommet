@@ -61,6 +61,9 @@ export const avtaletekster = {
       label: "Gjelder til",
     },
   },
+  rammedetaljer: {
+    heading: "Rammedetaljer",
+  },
   tilsagn: {
     type: (type: TilsagnType): string => {
       switch (type) {

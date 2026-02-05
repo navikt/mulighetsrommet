@@ -1,4 +1,4 @@
-import { Box, TextField } from "@navikt/ds-react";
+import { Box, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { RammedetaljerRequest } from "@tiltaksadministrasjon/api-client";
 import { isNumber } from "@grafana/faro-web-sdk";
@@ -17,20 +17,24 @@ export default function AvtaleRammeDetaljerForm() {
       padding="4"
       background="surface-subtle"
     >
-      <TextField
-        label="Total ramme"
-        size="small"
-        type="number"
-        error={errors.totalRamme?.message}
-        {...register("totalRamme", { required: true })}
-      />
-      <TextField
-        label="Utbetalt fra Arena"
-        size="small"
-        type="number"
-        error={errors.utbetaltArena?.message}
-        {...register("utbetaltArena", { setValueAs: (value) => (isNumber(value) ? value : null) })}
-      />
+      <VStack gap="2">
+        <TextField
+          label="Total ramme"
+          size="small"
+          type="number"
+          error={errors.totalRamme?.message}
+          {...register("totalRamme", { required: true })}
+        />
+        <TextField
+          label="Utbetalt fra Arena"
+          size="small"
+          type="number"
+          error={errors.utbetaltArena?.message}
+          {...register("utbetaltArena", {
+            setValueAs: (value) => (isNumber(value) ? value : null),
+          })}
+        />
+      </VStack>
     </Box>
   );
 }

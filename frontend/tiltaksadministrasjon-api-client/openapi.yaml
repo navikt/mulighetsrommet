@@ -4499,17 +4499,17 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/ValutaLongBelop"
-        utbetaltFraTiltaksadmin:
+        utbetaltTiltaksadmin:
           type: array
           items:
             $ref: "#/components/schemas/ValutaLongBelop"
-        gjenståendeRamme:
+        gjenstaendeRamme:
           $ref: "#/components/schemas/ValutaLongBelop"
       required:
-      - gjenståendeRamme
+      - gjenstaendeRamme
       - totalRamme
       - utbetaltArena
-      - utbetaltFraTiltaksadmin
+      - utbetaltTiltaksadmin
     GjennomforingVeilederinfoRequest:
       type: object
       properties:

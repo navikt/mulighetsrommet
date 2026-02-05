@@ -3,7 +3,7 @@ import {
   RammedetaljerRequest,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { Button, HStack, InfoCard, Modal, VStack } from "@navikt/ds-react";
+import { Button, HStack, Modal } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
@@ -49,7 +49,7 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId, rammeDetaljer }:
 
   return (
     <Modal
-      width={900}
+      width={450}
       closeOnBackdropClick
       onClose={closeAndResetForm}
       open={true}
@@ -58,18 +58,7 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId, rammeDetaljer }:
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(postData)}>
           <Modal.Body className="max-h-[70vh] overflow-y-auto">
-            <VStack gap="4">
-              <InfoCard data-color="warning">
-                <InfoCard.Header>
-                  <InfoCard.Title>Endring av prismodell</InfoCard.Title>
-                </InfoCard.Header>
-                <InfoCard.Content>
-                  Vær oppmerksom på at hvis du gjør endringer i en prismodell som er i bruk, kan det
-                  påvirke beregningen i krav arrangøren ikke har sendt inn ennå.
-                </InfoCard.Content>
-              </InfoCard>
-              <AvtaleRammeDetaljerForm />
-            </VStack>
+            <AvtaleRammeDetaljerForm />
           </Modal.Body>
           <Modal.Footer>
             <HStack gap="1" className="flex-row-reverse">

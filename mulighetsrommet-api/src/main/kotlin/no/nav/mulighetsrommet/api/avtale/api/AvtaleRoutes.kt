@@ -10,7 +10,6 @@ import io.ktor.http.ContentDisposition
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.MultiPartData
 import io.ktor.server.request.receive
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
@@ -19,7 +18,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
@@ -138,8 +136,8 @@ data class ValutaLongBelop(
 data class RammedetaljerDto(
     val totalRamme: ValutaLongBelop,
     val utbetaltArena: ValutaLongBelop?,
-    val utbetaltFraTiltaksadmin: List<ValutaLongBelop>,
-    val gjenståendeRamme: ValutaLongBelop,
+    val utbetaltTiltaksadmin: List<ValutaLongBelop>,
+    val gjenstaendeRamme: ValutaLongBelop,
 )
 
 fun RammedetaljerDbo.toDto(utbetaltFraTiltaksadmin: List<ValutaLongBelop>): RammedetaljerDto {
@@ -157,8 +155,8 @@ fun RammedetaljerDbo.toDto(utbetaltFraTiltaksadmin: List<ValutaLongBelop>): Ramm
                 valuta = valuta,
             )
         },
-        utbetaltFraTiltaksadmin = utbetaltFraTiltaksadmin,
-        gjenståendeRamme = ValutaLongBelop(
+        utbetaltTiltaksadmin = utbetaltFraTiltaksadmin,
+        gjenstaendeRamme = ValutaLongBelop(
             belop = totalRamme - (utbetaltArena ?: 0) - tiltaksAdminSum,
             valuta = valuta,
         ),
