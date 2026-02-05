@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
-import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
 import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.fromValidatedAvtaleRequest
@@ -26,7 +25,6 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodeller
-import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
@@ -289,56 +287,6 @@ object AvtaleValidator {
                 valuta = prismodell.valuta,
             )
         }
-    }
-
-    fun validateRammedetaljer(
-        avtale: Avtale,
-        request: RammedetaljerRequest,
-    ): Either<List<FieldError>, RammedetaljerDbo> = validation {
-        validate(avtale.prismodeller.all { kanHaRammedetaljer(it.type) }) {
-            FieldError.of(
-                "Rammedetaljer kan kun legges til anskaffet avtaler",
-                RammedetaljerRequest::totalRamme,
-            )
-        }
-        validate(avtale.prismodeller.distinctBy { it.valuta }.count() == 1) {
-            FieldError.of(
-                "Rammedetaljer kan kun legges til avtaler med én type valuta på prismodellene",
-                RammedetaljerRequest::totalRamme,
-            )
-        }
-        validate(request.totalRamme > 0) {
-            FieldError.of(
-                "Total ramme må være et positivt beløp",
-                RammedetaljerRequest::totalRamme,
-            )
-        }
-        request.utbetaltArena?.let { utbetaltArena ->
-            validate(utbetaltArena >= 0) {
-                FieldError.of(
-                    "Utbetalt beløp fra Arena må være et positivt beløp",
-                    RammedetaljerRequest::utbetaltArena,
-                )
-            }
-        }
-
-        RammedetaljerDbo(
-            avtaleId = avtale.id,
-            valuta = avtale.prismodeller.first().valuta,
-            totalRamme = request.totalRamme,
-            utbetaltArena = request.utbetaltArena,
-        )
-    }
-
-    private fun kanHaRammedetaljer(prismodellType: PrismodellType) = when (prismodellType) {
-        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> false
-
-        PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-        PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-        PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-        PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-        PrismodellType.ANNEN_AVTALT_PRIS,
-        -> true
     }
 
     data class ValidateOpprettOpsjonContext(

@@ -70,7 +70,6 @@ fun Route.rammedetaljerRoutes() {
     val db: ApiDatabase by inject()
 
     route("avtaler/{id}/rammedetaljer") {
-
         get({
             tags = setOf("Avtale")
             operationId = "hentRammedetaljer"
@@ -152,7 +151,6 @@ fun Route.rammedetaljerRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
-
             delete({
                 tags = setOf("Avtale")
                 operationId = "deleteRammedetaljer"
@@ -194,7 +192,8 @@ fun Route.rammedetaljerRoutes() {
                             body<ProblemDetail>()
                         }
                     }
-                }) {
+                },
+            ) {
                 val id: UUID by call.parameters
                 val result = db.session {
                     val prismodeller = queries.avtale.getOrError(id).prismodeller
@@ -203,7 +202,7 @@ fun Route.rammedetaljerRoutes() {
                     RammedetaljerDefaults(
                         valuta,
                         totalRamme = rammedetaljer?.totalRamme ?: 0,
-                        utbetaltArena = rammedetaljer?.utbetaltArena
+                        utbetaltArena = rammedetaljer?.utbetaltArena,
                     )
                 }
                 call.respond(result)

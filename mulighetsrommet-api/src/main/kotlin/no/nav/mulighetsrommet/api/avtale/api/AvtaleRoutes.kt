@@ -24,14 +24,11 @@ import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
-import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDtoMapper
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerDefaults
-import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -42,7 +39,6 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -54,7 +50,6 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
@@ -126,7 +121,6 @@ data class OpprettOpsjonLoggRequest(
         SKAL_IKKE_UTLOSE_OPSJON,
     }
 }
-
 
 fun Route.avtaleRoutes() {
     val avtaleService: AvtaleService by inject()
@@ -637,7 +631,6 @@ fun Route.avtaleRoutes() {
             val historikk = avtaleService.getEndringshistorikk(id)
             call.respond(historikk)
         }
-
     }
 }
 
