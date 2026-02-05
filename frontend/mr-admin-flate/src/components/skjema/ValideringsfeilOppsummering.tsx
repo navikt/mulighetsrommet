@@ -58,7 +58,7 @@ export function ValideringsfeilOppsummering() {
               return (
                 <ErrorSummary.Item
                   as="span"
-                  className="no-underline text-[var(--a-text-default)]"
+                  className="no-underline text-[var(--ax-text-neutral)]"
                   key={key}
                 >
                   {value.message}

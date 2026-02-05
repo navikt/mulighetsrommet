@@ -80,7 +80,7 @@ export function UtbetalingLinjeRow({
             </VStack>
           ) : null}
           {errors.filter((e) => !e.pointer.includes("belop")).length > 0 && (
-            <VStack className="bg-[var(--a-surface-danger-subtle)]">
+            <VStack className="bg-[var(--ax-bg-danger-soft)]">
               <Alert size="small" variant="error">
                 <BodyShort>Følgende feil må fikses:</BodyShort>
                 <List>

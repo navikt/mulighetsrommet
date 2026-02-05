@@ -43,7 +43,7 @@ function SatsPerioderOgBelop({
               ))}
             </VStack>
           ))}
-          <hr className="w-[500px] bg-[var(--a-border-divider)] h-px border-0" />
+          <hr className="w-[500px] bg-[var(--ax-border-neutral-subtle)] h-px border-0" />
         </>
       )}
       <MetadataHStack

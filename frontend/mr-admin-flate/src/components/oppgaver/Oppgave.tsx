@@ -22,7 +22,7 @@ export function Oppgave({ oppgave }: OppgaveProps) {
         asChild
         borderRadius="12"
         padding="space-8"
-        style={{ backgroundColor: "var(--a-grayalpha-100)" }}
+        style={{ backgroundColor: "var(--ax-neutral-200A)" }}
       >
         <LinkCard.Icon>
           <OppgaveIcon type={type} fontSize="2rem" />

@@ -3,7 +3,7 @@
 @import "@navikt/ds-css" layer(components);
 
 html {
-  background-color: var(--a-bg-subtle);
+  background-color: var(--ax-bg-neutral-soft);
 }
 
 .error {
