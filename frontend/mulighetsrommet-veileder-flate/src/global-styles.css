@@ -7,27 +7,27 @@
 
 /* From PameldingKometApnerSnart.module.scss */
 .overwritten_poster .navds-guide {
-  background-color: var(--a-surface-success-subtle);
-  border-color: var(--a-border-success);
+  background-color: var(--ax-bg-success-soft);
+  border-color: var(--ax-border-success);
   padding: 10px;
 }
 
 .overwritten_poster .navds-guide-panel__content {
-  border-color: var(--a-border-success);
+  border-color: var(--ax-border-success);
 }
 
 /* From ViewTiltakDetaljer.module.scss */
 .sidemeny .navds-tabs__tab[aria-selected="true"] {
-  background-color: var(--a-gray-100);
+  background-color: var(--ax-neutral-200);
 }
 
 .sidemeny .navds-tabs__tabpanel {
-  border-top: 1px solid var(--a-gray-300);
+  border-top: 1px solid var(--ax-neutral-400);
 }
 
 .navds-panel {
   padding: 1.5rem;
-  background-color: var(--a-gray-100);
+  background-color: var(--ax-neutral-200);
 }
 
 .navds-tabs__tablist-wrapper {

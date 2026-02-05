@@ -1,5 +1,5 @@
 import { TiltakDeltMedBrukerDto } from "@api-client";
-import { BodyShort, Box, Button, HStack, List, Table, VStack } from "@navikt/ds-react";
+import { BodyShort, Box, Button, HStack, List, Table, VStack, Heading } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { Link } from "react-router";
 import { VisningsnavnForTiltak } from "@/components/oversikt/VisningsnavnForTiltak";
@@ -32,8 +32,8 @@ export function DelMedBrukerHistorikk() {
   });
 
   return (
-    <Box padding="2" background="bg-default">
-      <VStack gap="2">
+    <Box padding="space-8" background="default">
+      <VStack gap="space-8">
         <Table>
           <Table.Header>
             <Table.Row>
@@ -75,18 +75,18 @@ function contentForRow(delinger: TiltakDeltMedBrukerDto[]): ReactNode {
   const tidligereDelinger = delinger.slice(1);
 
   return (
-    <List title="Tidligere delinger">
-      {tidligereDelinger.map(({ deling, tiltak, tiltakstype }) => {
-        return (
-          <List.Item key={deling.dialogId}>
-            <HStack gap="5" align="start">
-              <VisningsnavnForTiltak noLink tiltakstypeNavn={tiltakstype.navn} navn={tiltak.navn} />
-              <BodyShort size="small">Delt {formaterDato(deling.tidspunkt)}</BodyShort>
-            </HStack>
-          </List.Item>
-        );
-      })}
-    </List>
+    <div><Heading as="h3" size="small">Tidligere delinger</Heading><Box marginBlock="space-16" asChild><List data-aksel-migrated-v8>
+            {tidligereDelinger.map(({ deling, tiltak, tiltakstype }) => {
+              return (
+                <List.Item key={deling.dialogId}>
+                  <HStack gap="space-20" align="start">
+                    <VisningsnavnForTiltak noLink tiltakstypeNavn={tiltakstype.navn} navn={tiltak.navn} />
+                    <BodyShort size="small">Delt {formaterDato(deling.tidspunkt)}</BodyShort>
+                  </HStack>
+                </List.Item>
+              );
+            })}
+          </List></Box></div>
   );
 }
 
@@ -103,7 +103,7 @@ function createCells(antallTiltakDelt: number, deltMedBruker: TiltakDeltMedBruke
       </Table.DataCell>
       <Table.DataCell>{formaterDato(deltMedBruker.deling.tidspunkt)}</Table.DataCell>
       <Table.DataCell>
-        <VStack align="center" gap="2">
+        <VStack align="center" gap="space-8">
           <Button
             variant="secondary"
             size="small"

@@ -50,7 +50,7 @@ export function Landingsside() {
           xs: "1fr",
           lg: "25% minmax(500px, 1000px)",
         }}
-        gap="4"
+        gap="space-16"
       >
         <VStack align={{ xs: "start", lg: "end" }} className="mt-0 ml-0 md:mt-[4rem] md:ml-[1rem]">
           <Link
@@ -61,7 +61,7 @@ export function Landingsside() {
             <PlusIcon color="white" fontSize={30} aria-hidden /> Finn nytt arbeidsmarkedstiltak
           </Link>
         </VStack>
-        <VStack gap="4">
+        <VStack gap="space-16">
           <FeedbackFraUrl />
           <Heading size="large">Oversikt over brukerens tiltak</Heading>
           <Tabs defaultValue={activeTab}>
@@ -69,7 +69,7 @@ export function Landingsside() {
               <Tabs.Tab
                 data-testid="aktive-tab"
                 label={
-                  <HStack gap="1">
+                  <HStack gap="space-4">
                     <LocationPinIcon aria-hidden />
                     Aktive tiltak
                   </HStack>
@@ -80,7 +80,7 @@ export function Landingsside() {
               <Tabs.Tab
                 data-testid="historikk-tab"
                 label={
-                  <HStack gap="1">
+                  <HStack gap="space-4">
                     <HourglassBottomFilledIcon aria-hidden />
                     Tiltakshistorikk
                   </HStack>
@@ -91,7 +91,7 @@ export function Landingsside() {
               <Tabs.Tab
                 data-testid="delt-i-dialogen-tab"
                 label={
-                  <HStack gap="1">
+                  <HStack gap="space-4">
                     <ArrowForwardIcon aria-hidden />
                     Delt i dialogen
                   </HStack>
@@ -134,7 +134,7 @@ export function Landingsside() {
               >
                 <Suspense
                   fallback={
-                    <VStack gap="5" className="mt-[1rem]">
+                    <VStack gap="space-20" className="mt-[1rem]">
                       <Skeleton variant="rounded" height="10rem" width="40rem" />
                       <Skeleton variant="rounded" height="10rem" width="40rem" />
                     </VStack>
@@ -156,7 +156,7 @@ export function Landingsside() {
                 >
                   <Suspense
                     fallback={
-                      <VStack gap="2">
+                      <VStack gap="space-8">
                         <Skeleton height="3rem" />
                         <Skeleton height="3rem" />
                         <Skeleton height="3rem" />
@@ -177,7 +177,7 @@ export function Landingsside() {
 
 function Container(props: { children: ReactNode }) {
   return (
-    <VStack padding="2" gap="4" width={"100%"}>
+    <VStack padding="space-8" gap="space-16" width={"100%"}>
       {props.children}
     </VStack>
   );
@@ -344,7 +344,7 @@ function TeamTiltakTiltaksgjennomforingAvtalerLink() {
 
 export function IngenFunnetBox(props: { title: string }) {
   return (
-    <Box background="bg-default" borderRadius="medium" padding="5">
+    <Box background="default" borderRadius="4" padding="space-20">
       <VStack align="center">
         <img
           src={ingenFunnImg}

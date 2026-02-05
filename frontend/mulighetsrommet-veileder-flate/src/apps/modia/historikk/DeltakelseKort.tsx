@@ -14,9 +14,9 @@ interface Props {
 export function DeltakelseKort({ deltakelse }: Props) {
   return (
     <Box
-      background="bg-default"
-      borderRadius="medium"
-      padding="5"
+      background="default"
+      borderRadius="4"
+      padding="space-20"
       className={getDeltakelseKortBorder(deltakelse.tilstand)}
     >
       <HGrid columns="1fr 20%" align="center">
@@ -37,7 +37,7 @@ function Knapper({ deltakelse }: Props) {
         deltakerId: deltakelse.id,
       });
       return (
-        <VStack gap="2">
+        <VStack gap="space-8">
           <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
             Gå til deltakelse
           </Button>
@@ -79,8 +79,8 @@ function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
   const { tiltakstype, status, periode, tittel, innsoktDato } = deltakelse;
   const aarsak = "aarsak" in status ? status.aarsak : null;
   return (
-    <VStack gap="2">
-      <HStack gap="10">
+    <VStack gap="space-8">
+      <HStack gap="space-40">
         <small>{tiltakstype.navn.toUpperCase()}</small>
         {innsoktDato ? <small>Søkt inn: {formaterDato(innsoktDato)}</small> : null}
       </HStack>
@@ -89,7 +89,7 @@ function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
           {tittel}
         </Heading>
       ) : null}
-      <HStack align={"end"} gap="5">
+      <HStack align={"end"} gap="space-20">
         <DataElementStatusTag {...status.type} />
         {aarsak ? <BodyShort size="small">Årsak: {aarsak}</BodyShort> : null}
         {periode.startDato ? (

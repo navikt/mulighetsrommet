@@ -8,6 +8,7 @@ import {
   List,
   Modal,
   VStack,
+  Box,
 } from "@navikt/ds-react";
 import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
 import { PersonopplysningData, VeilederflateTiltakGruppe } from "@api-client";
@@ -30,7 +31,7 @@ export function PersonvernContainer({ tiltak }: Props) {
         illustration={<PersonvernIkon aria-label="Ikon som illustrerer personvern" />}
         aria-label="Personvern"
       >
-        <VStack gap="5">
+        <VStack gap="space-20">
           <Heading level="4" size="small">
             Personvern og databehandling
           </Heading>
@@ -51,7 +52,7 @@ export function PersonvernContainer({ tiltak }: Props) {
         onClose={() => setModalOpen(false)}
       >
         <ModalHeader>
-          <VStack gap="5">
+          <VStack gap="space-20">
             <PersonvernIkon aria-label="Ikon som illustrerer personvern" />
             <Heading level="2" size="medium">
               {tiltak.tiltakstype.navn}
@@ -84,7 +85,7 @@ export function PersonvernContainer({ tiltak }: Props) {
               </HelpText>
             </div>
           </BodyLong>
-          <VStack gap="5">
+          <VStack gap="space-20">
             <ListeOverPersonopplysninger
               title="Opplysninger om deltaker som kan behandles"
               personopplysninger={tiltak.personopplysningerSomKanBehandles}
@@ -110,19 +111,19 @@ function ListeOverPersonopplysninger({
   }
 
   return (
-    <List title={title} size="small">
-      {personopplysninger.map((personopplysning) => (
-        <List.Item key={personopplysning.personopplysning} className="max-w-[75ch]">
-          <HStack align={"end"} gap="1">
-            <div className="flex items-baseline gap-2">
-              {personopplysning.tittel}{" "}
-              {personopplysning.hjelpetekst ? (
-                <HelpText>{personopplysning.hjelpetekst}</HelpText>
-              ) : null}
-            </div>
-          </HStack>
-        </List.Item>
-      ))}
-    </List>
+    <div><Heading as="h3" size="xsmall">{title}</Heading><Box marginBlock="space-12" asChild><List data-aksel-migrated-v8 size="small">
+            {personopplysninger.map((personopplysning) => (
+              <List.Item key={personopplysning.personopplysning} className="max-w-[75ch]">
+                <HStack align={"end"} gap="space-4">
+                  <div className="flex items-baseline gap-2">
+                    {personopplysning.tittel}{" "}
+                    {personopplysning.hjelpetekst ? (
+                      <HelpText>{personopplysning.hjelpetekst}</HelpText>
+                    ) : null}
+                  </div>
+                </HStack>
+              </List.Item>
+            ))}
+          </List></Box></div>
   );
 }

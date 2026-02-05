@@ -131,7 +131,7 @@ export function Delemodal({
             Kandidatene vil få et varsel fra Nav, og kan logge inn på nav.no for å lese meldingen.
           </BodyShort>
           <Separator />
-          <HStack gap="4">
+          <HStack gap="space-16">
             <Button
               size="small"
               variant="tertiary"
@@ -156,7 +156,6 @@ export function Delemodal({
           </HStack>
         </Modal.Footer>
       </Modal>
-
       {sendtStatus === "SENDING_FEILET" && (
         <StatusModal
           modalOpen={state.statusmodalOpen}
@@ -176,7 +175,6 @@ export function Delemodal({
           secondaryButtonText="Avbryt"
         />
       )}
-
       {sendtStatus === "SENDT_OK" && dialogId !== null && (
         <StatusModal
           modalOpen={state.statusmodalOpen}

@@ -11,13 +11,13 @@ export function TiltakHeader({ tiltak }: Props) {
   const { beskrivelse, tiltakstype } = tiltak;
   return (
     <>
-      <VStack gap="2">
+      <VStack gap="space-8">
         <Heading level="2" size="xlarge">
           <BodyShort spacing size="small">
             {tiltak.tiltakstype.navn}
           </BodyShort>
         </Heading>
-        <HStack gap={"2"} align="center">
+        <HStack gap={"space-8"} align="center">
           <Heading size="large">{tiltak.navn}</Heading>
           {isTiltakGruppe(tiltak) && !isTiltakAktivt(tiltak) && (
             <StatusTag variant={"neutral"}>{tiltak.status.beskrivelse}</StatusTag>
@@ -30,7 +30,7 @@ export function TiltakHeader({ tiltak }: Props) {
         </BodyLong>
       )}
       {tiltakstype.beskrivelse && (
-        <VStack gap={"0"} style={{ marginTop: "1rem" }}>
+        <VStack gap={"space-0"} style={{ marginTop: "1rem" }}>
           <Heading level="2" size="small">
             Generell informasjon
           </Heading>
