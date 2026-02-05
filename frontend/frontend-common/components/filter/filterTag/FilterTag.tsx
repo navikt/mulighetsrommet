@@ -13,8 +13,9 @@ export function FilterTag({ label, testId, onClose }: FiltertagsProps) {
   const actualTestId = testId ?? label;
   return (
     <Tag
+      data-color="info"
       size="small"
-      variant="info"
+      variant="outline"
       data-testid={`filtertag_${actualTestId}`}
       className={styles.filtertag}
       title={label}

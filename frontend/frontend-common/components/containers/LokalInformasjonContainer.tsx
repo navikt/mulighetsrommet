@@ -3,7 +3,7 @@ import { Box } from "@navikt/ds-react";
 
 export function LokalInformasjonContainer(props: PropsWithChildren) {
   return (
-    <Box background="bg-subtle" padding={"5"}>
+    <Box background="neutral-soft" padding={"space-20"}>
       {props.children}
     </Box>
   );

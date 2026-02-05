@@ -9,7 +9,7 @@ export interface DataElementProps {
 
 export function DataDetails({ entries }: DataElementProps) {
   return (
-    <VStack gap="1">
+    <VStack gap="space-4">
       {entries.map((entry) => (
         <LabeledDataElement key={entry.label} {...entry} />
       ))}

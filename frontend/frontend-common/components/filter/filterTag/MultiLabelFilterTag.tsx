@@ -15,7 +15,13 @@ export function MultiLabelFilterTag({ labels, onClose }: Props) {
   }
 
   return (
-    <Tag size="small" variant="info" className={styles.filtertag} title={labels.join(", ")}>
+    <Tag
+      data-color="info"
+      size="small"
+      variant="outline"
+      className={styles.filtertag}
+      title={labels.join(", ")}
+    >
       {tagLabel(labels)}
       {onClose ? (
         <Ikonknapp

@@ -18,15 +18,15 @@ export function Definisjonsliste({
   headingLevel?: HeadingProps["level"];
 }) {
   return (
-    <VStack gap="3">
+    <VStack gap="space-12">
       {title && (
         <Heading size="small" level={headingLevel}>
           {title}
         </Heading>
       )}
-      <HGrid as="dl" columns={columns} gap="6">
+      <HGrid as="dl" columns={columns} gap="space-24">
         {definitions.map((definition, index) => (
-          <VStack gap="2" key={index}>
+          <VStack gap="space-8" key={index}>
             <Label as="dt">{definition.key}</Label>
             <BodyShort as="dd">{definition.value}</BodyShort>
           </VStack>
