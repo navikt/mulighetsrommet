@@ -7,7 +7,7 @@ export function useAvtaleRammedetaljer(id: string) {
     queryKey: QueryKeys.avtaleRammeDetaljer(id),
     queryFn: async () => AvtaleService.hentRammedetaljer({ path: { id } }),
     select: (data) => {
-      if (data !== null && typeof data === "object") {
+      if (typeof data === "object") {
         return data;
       }
       return null;

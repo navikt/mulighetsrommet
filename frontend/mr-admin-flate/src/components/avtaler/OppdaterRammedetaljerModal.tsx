@@ -9,14 +9,15 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { useUpsertRammedetaljer } from "@/api/avtaler/useUpsertRammedetaljer";
 import AvtaleRammeDetaljerForm from "./AvtaleRammeDetaljerForm";
+import { useAvtaleRammedetaljer } from "@/api/avtaler/useAvtaleRammedetaljer";
 
 interface Props {
   avtaleId: string;
-  rammeDetaljer?: RammedetaljerDto;
   onClose: () => void;
 }
 
-export function OppdaterRammedetaljerModal({ onClose, avtaleId, rammeDetaljer }: Props) {
+export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
+  const { data: rammeDetaljer } = useAvtaleRammedetaljer(avtaleId);
   const mutation = useUpsertRammedetaljer(avtaleId);
   const form = useForm<RammedetaljerRequest>({
     defaultValues: defaultValues(rammeDetaljer),
@@ -50,14 +51,15 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId, rammeDetaljer }:
   return (
     <Modal
       width={450}
+      size="small"
       closeOnBackdropClick
       onClose={closeAndResetForm}
-      open={true}
       header={{ heading: "Oppdater rammedetaljer" }}
+      open
     >
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(postData)}>
-          <Modal.Body className="max-h-[70vh] overflow-y-auto">
+          <Modal.Body>
             <AvtaleRammeDetaljerForm />
           </Modal.Body>
           <Modal.Footer>
@@ -68,7 +70,7 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId, rammeDetaljer }:
               <Button type="button" variant="tertiary" onClick={closeAndResetForm}>
                 Avbryt
               </Button>
-              {form.formState.errors.root && <ValideringsfeilOppsummering />}
+              <ValideringsfeilOppsummering />
             </HStack>
           </Modal.Footer>
         </form>
@@ -77,7 +79,7 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId, rammeDetaljer }:
   );
 }
 
-function defaultValues(rammeDetaljer?: RammedetaljerDto): RammedetaljerRequest {
+function defaultValues(rammeDetaljer: RammedetaljerDto | null): RammedetaljerRequest {
   if (!rammeDetaljer) {
     return {
       totalRamme: 0,

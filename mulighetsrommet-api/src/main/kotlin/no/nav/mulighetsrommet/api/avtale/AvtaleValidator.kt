@@ -310,6 +310,7 @@ object AvtaleValidator {
         validate(request.totalRamme > 0) {
             FieldError.of(
                 "Total ramme må være et positivt beløp",
+                RammedetaljerRequest::totalRamme,
             )
         }
         request.utbetaltArena?.let { utbetaltArena ->
