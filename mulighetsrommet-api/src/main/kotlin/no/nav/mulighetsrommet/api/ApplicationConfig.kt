@@ -99,8 +99,6 @@ data class KafkaConfig(
 
 data class KafkaTopics(
     val okonomiBestillingTopic: String = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
-    // TODO: fjern når alle konsumenter er over på v2
-    val sisteTiltaksgjennomforingerV1Topic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
     val sisteTiltaksgjennomforingerV2Topic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
     val sisteTiltakstyperTopic: String = "team-mulighetsrommet.siste-tiltakstyper-v3",
     val arenaMigreringGjennomforingTopic: String = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",

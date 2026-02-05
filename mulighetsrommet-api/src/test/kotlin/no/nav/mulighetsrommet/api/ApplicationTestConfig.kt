@@ -46,7 +46,6 @@ fun kafkaTestConfig(kafkaConfig: KafkaConfig): KafkaConfig {
     return kafkaConfig.copy(
         topics = KafkaTopics(
             okonomiBestillingTopic = testification(kafkaConfig.topics.okonomiBestillingTopic),
-            sisteTiltaksgjennomforingerV1Topic = testification(kafkaConfig.topics.sisteTiltaksgjennomforingerV1Topic),
             sisteTiltaksgjennomforingerV2Topic = testification(kafkaConfig.topics.sisteTiltaksgjennomforingerV2Topic),
             sisteTiltakstyperTopic = testification(kafkaConfig.topics.sisteTiltakstyperTopic),
             arenaMigreringGjennomforingTopic = testification(kafkaConfig.topics.arenaMigreringGjennomforingTopic),
