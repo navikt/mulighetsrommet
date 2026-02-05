@@ -1,22 +1,19 @@
+import { Link as ReactRouterLink } from "react-router";
 import { Box, Tabs, Button, HStack, LocalAlert } from "@navikt/ds-react";
-import {
-  ArrangorflateService,
-  ArrangorflateTilsagnRadDto,
-  ArrangorInnsendingRadDto,
-  UtbetalingOversiktType,
-} from "api-client";
-import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { Link as ReactRouterLink, useLoaderData } from "react-router";
-import { apiHeaders } from "~/auth/auth.server";
+import { UtbetalingOversiktType } from "api-client";
+import type { MetaFunction } from "react-router";
 import { PageHeading } from "~/components/common/PageHeading";
-import { getTabStateOrDefault, useTabState } from "~/hooks/useTabState";
+import { useTabState } from "~/hooks/useTabState";
 import { tekster } from "~/tekster";
-import { problemDetailResponse } from "~/utils/validering";
 import { useSortableData } from "@mr/frontend-common";
 import { pathTo } from "~/utils/navigation";
 import { Tabellvisning } from "~/components/common/Tabellvisning";
 import { utbetalingKolonner, UtbetalingRow } from "~/components/common/UtbetalingRow";
 import { tilsagnKolonner, TilsagnRow } from "~/components/common/TilsagnRow";
+import { Suspense } from "react";
+import { Laster } from "~/components/common/Laster";
+import { useArrangorflateTilsagnRader } from "~/hooks/useArrangorflateTilsagnRader";
+import { useArrangorflateUtbetalinger } from "~/hooks/useArrangorflateUtbetalinger";
 
 export const meta: MetaFunction = () => {
   return [
@@ -25,50 +22,9 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const tabState = getTabStateOrDefault(request);
-
-  if (tabState === "tilsagnsoversikt") {
-    const { data: tilsagnRader, error: tilsagnError } =
-      await ArrangorflateService.getArrangorflateTilsagnRader({
-        headers: await apiHeaders(request),
-      });
-    if (tilsagnError) {
-      throw problemDetailResponse(tilsagnError);
-    }
-    return { tilsagnRader, utbetalingRader: [] };
-  }
-
-  const utbetalingType =
-    tabState === "aktive" ? UtbetalingOversiktType.AKTIVE : UtbetalingOversiktType.HISTORISKE;
-
-  const [{ data: utbetalingRader, error: utbetalingerError }] = await Promise.all([
-    ArrangorflateService.getArrangorflateUtbetalinger({
-      query: { type: utbetalingType },
-      headers: await apiHeaders(request),
-    }),
-  ]);
-  if (utbetalingerError) {
-    throw problemDetailResponse(utbetalingerError);
-  }
-
-  return { utbetalingRader, tilsagnRader: [] };
-}
-
 export default function Oversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
-  const { utbetalingRader, tilsagnRader } = useLoaderData<typeof loader>();
 
-  const { sortedData, sort, toggleSort } = useSortableData<
-    ArrangorInnsendingRadDto,
-    number | undefined,
-    string
-  >(utbetalingRader, undefined, (item, key) => {
-    if (key === "belop") {
-      return item.belop?.belop;
-    }
-    return (item as any)[key];
-  });
   return (
     <Box>
       <HStack justify="space-between" align="center">
@@ -87,36 +43,58 @@ export default function Oversikt() {
           />
         </Tabs.List>
         <Tabs.Panel value={currentTab}>
-          {currentTab === "tilsagnsoversikt" ? (
-            <TilsagnTabell tilsagnRader={tilsagnRader} />
-          ) : (
-            <Tabellvisning kolonner={utbetalingKolonner} sort={sort} onSortChange={toggleSort}>
-              {sortedData.map((rad, i) => (
-                <UtbetalingRow key={rad.gjennomforingId + i} row={rad} />
-              ))}
-            </Tabellvisning>
-          )}
+          <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
+            {currentTab === "tilsagnsoversikt" ? (
+              <TilsagnTabellContent />
+            ) : (
+              <UtbetalingTabellContent
+                type={
+                  currentTab === "aktive"
+                    ? UtbetalingOversiktType.AKTIVE
+                    : UtbetalingOversiktType.HISTORISKE
+                }
+              />
+            )}
+          </Suspense>
         </Tabs.Panel>
       </Tabs>
     </Box>
   );
 }
 
-interface TilsagnTabellProps {
-  tilsagnRader: ArrangorflateTilsagnRadDto[];
+function UtbetalingTabellContent({ type }: { type: UtbetalingOversiktType }) {
+  const { data: utbetalingRader } = useArrangorflateUtbetalinger(type);
+
+  const { sortedData, sort, toggleSort } = useSortableData(
+    utbetalingRader,
+    undefined,
+    (item, key) => {
+      if (key === "belop") {
+        return item.belop?.belop;
+      }
+      return (item as Record<string, unknown>)[key];
+    },
+  );
+
+  return (
+    <Tabellvisning kolonner={utbetalingKolonner} sort={sort} onSortChange={toggleSort}>
+      {sortedData.map((rad, i) => (
+        <UtbetalingRow key={rad.gjennomforingId + i} row={rad} />
+      ))}
+    </Tabellvisning>
+  );
 }
 
-function TilsagnTabell({ tilsagnRader }: TilsagnTabellProps) {
-  const { sortedData, sort, toggleSort } = useSortableData<
-    ArrangorflateTilsagnRadDto,
-    number | undefined,
-    string
-  >(tilsagnRader, undefined, (item, key) => {
+function TilsagnTabellContent() {
+  const { data: tilsagnRader } = useArrangorflateTilsagnRader();
+
+  const { sortedData, sort, toggleSort } = useSortableData(tilsagnRader, undefined, (item, key) => {
     if (key === "periode") {
       return item[key].start;
     }
-    return (item as any)[key];
+    return (item as Record<string, unknown>)[key];
   });
+
   if (!tilsagnRader.length) {
     return (
       <LocalAlert status="warning" className="my-10">
@@ -126,6 +104,7 @@ function TilsagnTabell({ tilsagnRader }: TilsagnTabellProps) {
       </LocalAlert>
     );
   }
+
   return (
     <Tabellvisning kolonner={tilsagnKolonner} sort={sort} onSortChange={toggleSort}>
       {sortedData.map((rad) => (

@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { Laster } from "~/components/common/Laster";
 import {
   BodyLong,
   BodyShort,
@@ -7,25 +9,11 @@ import {
   LocalAlert,
   VStack,
 } from "@navikt/ds-react";
-import { ArrangorflateService } from "api-client";
-import {
-  Link as ReactRouterLink,
-  LoaderFunction,
-  MetaFunction,
-  useLoaderData,
-  useParams,
-} from "react-router";
-import { apiHeaders } from "~/auth/auth.server";
+import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { tekster } from "~/tekster";
-import { problemDetailResponse } from "~/utils/validering";
-import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
+import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
-
-type UtbetalingKvitteringData = {
-  mottattDato: string;
-  utbetalesTidligstDato: string | null;
-  kontonummer: string | null;
-};
+import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 
 export const meta: MetaFunction = () => {
   return [
@@ -34,43 +22,27 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader: LoaderFunction = async ({
-  request,
-  params,
-}): Promise<UtbetalingKvitteringData> => {
-  const { id } = params;
-  if (!id) {
-    throw new Response("Mangler id", { status: 400 });
-  }
+export default function UtbetalingKvittering() {
+  const id = useIdFromUrl();
 
-  const [{ data: utbetaling, error: utbetalingError }] = await Promise.all([
-    ArrangorflateService.getArrangorflateUtbetaling({
-      path: { id },
-      headers: await apiHeaders(request),
-    }),
-  ]);
+  return (
+    <Suspense fallback={<Laster tekst="Laster kvittering..." size="xlarge" />}>
+      <UtbetalingKvitteringContent id={id} />
+    </Suspense>
+  );
+}
 
-  if (utbetalingError) {
-    throw problemDetailResponse(utbetalingError);
-  }
+function UtbetalingKvitteringContent({ id }: { id: string }) {
+  const orgnr = useOrgnrFromUrl();
+  const { data: utbetaling } = useArrangorflateUtbetaling(id);
 
   const mottattDato = utbetaling.innsendtAvArrangorDato;
   if (!mottattDato) {
     throw new Response("Mangler dato for innsending", { status: 400 });
   }
 
-  return {
-    mottattDato,
-    utbetalesTidligstDato: utbetaling.utbetalesTidligstDato,
-    kontonummer: utbetaling.betalingsinformasjon?.kontonummer ?? null,
-  };
-};
-
-export default function UtbetalingKvittering() {
-  const { mottattDato, utbetalesTidligstDato, kontonummer } =
-    useLoaderData<UtbetalingKvitteringData>();
-  const { id } = useParams();
-  const orgnr = useOrgnrFromUrl();
+  const utbetalesTidligstDato = utbetaling.utbetalesTidligstDato;
+  const kontonummer = utbetaling.betalingsinformasjon?.kontonummer ?? null;
 
   return (
     <Box background="default" padding="space-32" borderRadius="8" marginInline="auto">

@@ -10,7 +10,6 @@ import {
   HelpText,
   HStack,
   InlineMessage,
-  Link,
   LocalAlert,
   Modal,
   Spacer,
@@ -19,37 +18,28 @@ import {
 } from "@navikt/ds-react";
 import {
   ArrangorAvbrytStatus,
-  ArrangorflateService,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
   FieldError,
   UtbetalingTypeDto,
 } from "api-client";
-import { useEffect, useState } from "react";
-import {
-  ActionFunction,
-  LoaderFunction,
-  MetaFunction,
-  useFetcher,
-  useLoaderData,
-} from "react-router";
-import { apiHeaders } from "~/auth/auth.server";
+import { Suspense, useState } from "react";
+import { MetaFunction } from "react-router";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { PageHeading } from "~/components/common/PageHeading";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
-import { deltakerOversiktLenke, pathTo } from "~/utils/navigation";
-import { isValidationError, problemDetailResponse } from "~/utils/validering";
+import { deltakerOversiktLenke, pathTo, useIdFromUrl } from "~/utils/navigation";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 import { FeilmeldingMedVarselTrekant } from "../../../mr-admin-flate/src/components/skjema/FeilmeldingMedVarseltrekant";
 import { DataDetails } from "@mr/frontend-common";
-
-type UtbetalingDetaljerSideData = {
-  utbetaling: ArrangorflateUtbetalingDto;
-  deltakerlisteUrl: string;
-};
+import { Laster } from "~/components/common/Laster";
+import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
+import { useDownloadUtbetalingPdf } from "~/hooks/useDownloadUtbetalingPdf";
+import { useAvbrytUtbetaling } from "~/hooks/useAvbrytUtbetaling";
+import { useRegenerUtbetaling } from "~/hooks/useRegenerUtbetaling";
 
 export const meta: MetaFunction = () => {
   return [
@@ -58,91 +48,39 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader: LoaderFunction = async ({
-  request,
-  params,
-}): Promise<UtbetalingDetaljerSideData> => {
-  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
-  const { id } = params;
-  if (!id) {
-    throw new Response("Mangler id", { status: 400 });
-  }
+export default function UtbetalingDetaljerSide() {
+  const id = useIdFromUrl();
 
-  const [{ data: utbetaling, error: utbetalingError }] = await Promise.all([
-    ArrangorflateService.getArrangorflateUtbetaling({
-      path: { id },
-      headers: await apiHeaders(request),
-    }),
-  ]);
-
-  if (utbetalingError) {
-    throw problemDetailResponse(utbetalingError);
-  }
-
-  return { utbetaling, deltakerlisteUrl };
-};
-
-interface ActionData {
-  errors?: FieldError[];
-  ok: boolean;
+  return (
+    <Suspense fallback={<Laster tekst="Laster detaljer..." size="xlarge" />}>
+      <UtbetalingDetaljerContent id={id} />
+    </Suspense>
+  );
 }
 
-export const action: ActionFunction = async ({ request, params }) => {
-  const { id } = params;
-  if (!id) throw new Response("Mangler id", { status: 400 });
+function UtbetalingDetaljerContent({ id }: { id: string }) {
+  const { data: utbetaling } = useArrangorflateUtbetaling(id);
+  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
+  const downloadPdf = useDownloadUtbetalingPdf(id);
+  const regenererUtbetaling = useRegenerUtbetaling(id);
 
-  const formData = await request.formData();
-  const intent = formData.get("_action");
-
-  if (intent === "avbryt") {
-    const begrunnelse = formData.get("begrunnelse")?.toString();
-
-    const [{ error }] = await Promise.all([
-      ArrangorflateService.avbrytUtbetaling({
-        path: { id },
-        body: { begrunnelse: begrunnelse ?? null },
-        headers: await apiHeaders(request),
-      }),
-    ]);
-
-    if (error) {
-      if (isValidationError(error)) return { ok: false, errors: error.errors };
-      throw problemDetailResponse(error);
-    }
-
-    return { ok: true };
-  }
-
-  if (intent === "regenerer") {
-    const [{ error }] = await Promise.all([
-      ArrangorflateService.regenererUtbetaling({
-        path: { id },
-        headers: await apiHeaders(request),
-      }),
-    ]);
-
-    if (error) {
-      if (isValidationError(error)) return { ok: false, errors: error.errors };
-      throw problemDetailResponse(error);
-    }
-
-    return { ok: true };
-  }
-
-  throw new Response("Ukjent handling", { status: 400 });
-};
-
-export default function UtbetalingDetaljerSide() {
-  const { utbetaling, deltakerlisteUrl } = useLoaderData<UtbetalingDetaljerSideData>();
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [deltakerModalOpen, setDeltakerModalOpen] = useState<boolean>(false);
-
-  const regenererFetcher = useFetcher<ActionData>();
 
   const visNedlastingAvKvittering = [
     ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
     ArrangorflateUtbetalingStatus.UTBETALT,
   ].includes(utbetaling.status);
+
+  const handleDownloadPdf = () => {
+    downloadPdf.mutate({
+      filename: tekster.bokmal.utbetaling.pdfNavn(utbetaling.periode.start),
+    });
+  };
+
+  const handleRegenerer = () => {
+    regenererUtbetaling.mutate();
+  };
 
   return (
     <Box background="default" borderRadius="8" padding="space-32">
@@ -157,13 +95,15 @@ export default function UtbetalingDetaljerSide() {
           />
           <Spacer />
           {visNedlastingAvKvittering && (
-            <Link
-              href={`/${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer/lastned?filename=${tekster.bokmal.utbetaling.pdfNavn(utbetaling.periode.start)}`}
-              target="_blank"
+            <Button
+              variant="tertiary"
+              size="small"
+              onClick={handleDownloadPdf}
+              loading={downloadPdf.isPending}
+              icon={<FilePdfIcon aria-hidden />}
             >
-              <FilePdfIcon />
-              Last ned som PDF (Åpner i ny fane)
-            </Link>
+              Last ned som PDF
+            </Button>
           )}
         </HStack>
         <UtbetalingHeader utbetalingType={utbetaling.type} />
@@ -234,19 +174,17 @@ export default function UtbetalingDetaljerSide() {
           </HStack>
         )}
         {utbetaling.kanRegenereres && (
-          <regenererFetcher.Form method="post">
-            <input type="hidden" name="_action" value="regenerer" />
-            <HStack gap="space-8" justify="start" align="center">
-              <Button
-                type="submit"
-                size="small"
-                variant="primary"
-                loading={regenererFetcher.state !== "idle"}
-              >
-                Opprett krav på nytt
-              </Button>
-            </HStack>
-          </regenererFetcher.Form>
+          <HStack gap="space-8" justify="start" align="center">
+            <Button
+              type="button"
+              size="small"
+              variant="primary"
+              loading={regenererUtbetaling.isPending}
+              onClick={handleRegenerer}
+            >
+              Opprett krav på nytt
+            </Button>
+          </HStack>
         )}
         {utbetaling.regenerertId && (
           <HStack gap="space-8" justify="start" align="center">
@@ -256,7 +194,7 @@ export default function UtbetalingDetaljerSide() {
             </InlineMessage>
           </HStack>
         )}
-        <AvbrytModal open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
+        <AvbrytModal id={id} open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
         <DeltakerModal
           utbetaling={utbetaling}
           deltakerlisteUrl={deltakerlisteUrl}
@@ -334,24 +272,37 @@ function DeltakerModal({ utbetaling, deltakerlisteUrl, open, setOpen }: Deltaker
 }
 
 interface AvbrytModalProps {
+  id: string;
   open: boolean;
   setOpen: (a: boolean) => void;
 }
 
-function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
-  const fetcher = useFetcher<ActionData>();
-  const errors = fetcher.data?.errors || [];
+function AvbrytModal({ id, open, setOpen }: AvbrytModalProps) {
+  const avbrytUtbetaling = useAvbrytUtbetaling(id);
+  const [begrunnelse, setBegrunnelse] = useState("");
+  const [errors, setErrors] = useState<FieldError[]>([]);
+
   const rootError = errors.find((error) => error.pointer === "/")?.detail;
 
   function onClose() {
     setOpen(false);
+    setErrors([]);
+    setBegrunnelse("");
   }
 
-  useEffect(() => {
-    if (fetcher.data?.ok) {
-      setOpen(false);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const result = await avbrytUtbetaling.mutateAsync({
+      begrunnelse: begrunnelse || null,
+    });
+
+    if (result.errors) {
+      setErrors(result.errors);
+    } else if (result.success) {
+      onClose();
     }
-  }, [fetcher.data, setOpen]);
+  };
 
   return (
     <Modal
@@ -363,8 +314,7 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
       closeOnBackdropClick
     >
       <Modal.Body>
-        <fetcher.Form method="post">
-          <input type="hidden" name="_action" value="avbryt" />
+        <form onSubmit={handleSubmit}>
           <VStack gap="space-8">
             <LocalAlert status={"announcement"}>
               <LocalAlert.Header>
@@ -381,6 +331,8 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
               name="begrunnelse"
               description="Oppgi årsaken til at behandlingen av kravet skal avbrytes. Begrunnelsen blir lagret hos Nav"
               label="Begrunnelse"
+              value={begrunnelse}
+              onChange={(e) => setBegrunnelse(e.target.value)}
               error={errors.find((error) => error.pointer === "/begrunnelse")?.detail}
               maxLength={100}
             />
@@ -391,7 +343,7 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
               <Button
                 data-color="danger"
                 type="submit"
-                loading={fetcher.state !== "idle"}
+                loading={avbrytUtbetaling.isPending}
                 size="small"
                 variant="primary"
               >
@@ -400,7 +352,7 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
             </HStack>
             {rootError && <FeilmeldingMedVarselTrekant>{rootError}</FeilmeldingMedVarselTrekant>}
           </VStack>
-        </fetcher.Form>
+        </form>
       </Modal.Body>
     </Modal>
   );

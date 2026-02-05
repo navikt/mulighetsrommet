@@ -1,35 +1,13 @@
-import { ArrangorflateService, ArrangorflateTilsagnDto } from "api-client";
-import { LoaderFunction, useLoaderData } from "react-router";
-import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { tekster } from "~/tekster";
 import { Box, VStack } from "@navikt/ds-react";
-import { pathTo } from "~/utils/navigation";
-import { problemDetailResponse } from "~/utils/validering";
+import { pathTo, useIdFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
-
-type LoaderData = {
-  tilsagn: ArrangorflateTilsagnDto;
-};
-
-export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const { id } = params;
-
-  if (!id) throw Error("Mangler id");
-
-  const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
-    path: { id },
-    headers: await apiHeaders(request),
-  });
-
-  if (error) {
-    throw problemDetailResponse(error);
-  }
-  return { tilsagn };
-};
+import { useArrangorflateTilsagn } from "~/hooks/useArrangorflateTilsagn";
 
 export default function TilsagnDetaljerPage() {
-  const { tilsagn } = useLoaderData<LoaderData>();
+  const id = useIdFromUrl();
+  const { data: tilsagn } = useArrangorflateTilsagn(id);
 
   return (
     <Box

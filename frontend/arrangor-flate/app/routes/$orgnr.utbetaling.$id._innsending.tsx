@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { InnsendingLayout } from "~/components/common/InnsendingLayout";
+import { Laster } from "~/components/common/Laster";
 
 const steps = [
   { name: "Innsendingsinformasjon", path: "innsendingsinformasjon", order: 1 },
@@ -24,7 +25,9 @@ export default function UtbetalingLayout() {
 
   return (
     <InnsendingLayout steps={steps} activeStep={activeStep}>
-      <Outlet />
+      <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
+        <Outlet />
+      </Suspense>
     </InnsendingLayout>
   );
 }

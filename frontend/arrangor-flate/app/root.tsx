@@ -20,6 +20,7 @@ import { ErrorPage, ErrorPageNotFound } from "./components/common/ErrorPage";
 import { isDemo } from "./services/environment";
 import { BodyShort, Box, GlobalAlert, Link, Page } from "@navikt/ds-react";
 import { Header } from "./components/header/Header";
+import { ReactQueryProvider } from "~/ReactQueryProvider";
 import { pushError } from "~/faro";
 import { Route } from "./+types/root";
 
@@ -64,12 +65,18 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
         {dekorator && parse(dekorator.head)}
       </head>
       <Box asChild background={isLandingPage ? "default" : "sunken"}>
-        <Page as="body" footer={dekorator && parse(dekorator.footer)}>
-          <DekoratorHeader dekorator={dekorator} />
-          <Header />
-          <Page.Block as="main" width="2xl" gutters>
-            {children}
-          </Page.Block>
+        <Page
+          as="body"
+          footer={dekorator && parse(dekorator.footer)}
+          background={isLandingPage ? "bg-default" : "bg-subtle"}
+        >
+          <ReactQueryProvider>
+            <DekoratorHeader dekorator={dekorator} />
+            <Header />
+            <Page.Block as="main" width="2xl" gutters>
+              {children}
+            </Page.Block>
+          </ReactQueryProvider>
           <ScrollRestoration />
           <script
             dangerouslySetInnerHTML={{
