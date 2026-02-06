@@ -1,7 +1,7 @@
-import navPreset from "@navikt/ds-tailwind";
+import type { Config } from "tailwindcss";
+import dsTailwind from "@navikt/ds-tailwind";
 import path from "path";
 
-/** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
@@ -10,5 +10,5 @@ export default {
       "**/*.{js,jsx,ts,tsx}",
     ),
   ],
-  presets: [navPreset],
-};
+  presets: [dsTailwind],
+} satisfies Config;

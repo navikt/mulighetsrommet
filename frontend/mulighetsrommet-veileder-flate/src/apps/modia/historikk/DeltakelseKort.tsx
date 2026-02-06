@@ -1,10 +1,9 @@
 import { Deltakelse, DeltakelseEierskap, DeltakelseTilstand } from "@api-client";
-import { BodyShort, Box, Button, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
+import { BodyShort, Box, Button, Heading, HGrid, HStack, VStack, Link } from "@navikt/ds-react";
 import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
-import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { DataElementStatusTag } from "@mr/frontend-common";
 
 interface Props {
@@ -37,16 +36,16 @@ function Knapper({ deltakelse }: Props) {
         deltakerId: deltakelse.id,
       });
       return (
-        <VStack gap="space-8">
+        <VStack gap="space-12" align="center">
           <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
             Gå til deltakelse
           </Button>
           {deltakelse.pamelding && (
             <Link
+              as={ReactRouterLink}
               to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.pamelding.gjennomforingId}`}
-              className="text-center no-underline text-[16px] hover:underline"
             >
-              Gå til tiltak
+              <BodyShort size="small">Gå til tiltak</BodyShort>
             </Link>
           )}
         </VStack>
@@ -55,9 +54,9 @@ function Knapper({ deltakelse }: Props) {
     case DeltakelseEierskap.TEAM_TILTAK: {
       const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/avtale/${deltakelse.id}?part=VEILEDER`;
       return (
-        <Lenkeknapp variant="secondary" to={link} size="small">
+        <Button as={Link} variant="secondary" to={link} size="small">
           Gå til avtale
-        </Lenkeknapp>
+        </Button>
       );
     }
   }
@@ -66,9 +65,9 @@ function Knapper({ deltakelse }: Props) {
 function getDeltakelseKortBorder(tilstand: DeltakelseTilstand) {
   switch (tilstand) {
     case DeltakelseTilstand.UTKAST:
-      return "border-2 border-dashed border-border-info";
+      return "border-2 border-dashed border-ax-border-accent-strong";
     case DeltakelseTilstand.KLADD:
-      return "border-2 border-dashed border-border-warning";
+      return "border-2 border-dashed border-ax-border-warning";
     case DeltakelseTilstand.AKTIV:
     case DeltakelseTilstand.AVSLUTTET:
       return "";

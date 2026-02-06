@@ -45,7 +45,7 @@ const portableTextComponent: Partial<PortableTextReactComponents> = {
   },
   block: {
     normal: ({ children }) => (
-      <BodyLong size="small" className="mb-1 min-h-[0.75rem]">
+      <BodyLong size="small" className="mb-1 min-h-3">
         {children}
       </BodyLong>
     ),

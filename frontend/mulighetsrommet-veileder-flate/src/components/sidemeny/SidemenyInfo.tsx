@@ -71,27 +71,25 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
           <BodyShort size="small" className="font-bold text-left">
             Regelverk og rutiner
           </BodyShort>
-          <div className="space-y-4 last:mb-0">
-            <RegelverkInfo
-              regelverkLenker={[
-                ...tiltakstype.regelverkLenker,
-                {
-                  _id: "klage",
-                  regelverkLenkeNavn: "Avslag og klage",
-                  regelverkUrl:
-                    "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
-                  beskrivelse: null,
-                },
-                {
-                  _id: "vurdering",
-                  regelverkLenkeNavn: "Tiltak hos familie/nærstående",
-                  regelverkUrl:
-                    "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
-                  beskrivelse: null,
-                },
-              ]}
-            />
-          </div>
+          <RegelverkInfo
+            regelverkLenker={[
+              ...tiltakstype.regelverkLenker,
+              {
+                _id: "klage",
+                regelverkLenkeNavn: "Avslag og klage",
+                regelverkUrl:
+                  "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
+                beskrivelse: null,
+              },
+              {
+                _id: "vurdering",
+                regelverkLenkeNavn: "Tiltak hos familie/nærstående",
+                regelverkUrl:
+                  "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
+                beskrivelse: null,
+              },
+            ]}
+          />
         </div>
       )}
     </Box>

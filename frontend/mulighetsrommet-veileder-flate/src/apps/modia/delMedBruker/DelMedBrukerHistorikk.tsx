@@ -1,7 +1,17 @@
 import { TiltakDeltMedBrukerDto } from "@api-client";
-import { BodyShort, Box, Button, HStack, List, Table, VStack, Heading } from "@navikt/ds-react";
+import {
+  BodyShort,
+  Box,
+  Button,
+  HStack,
+  List,
+  Table,
+  VStack,
+  Heading,
+  Link,
+} from "@navikt/ds-react";
 import { ReactNode } from "react";
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { VisningsnavnForTiltak } from "@/components/oversikt/VisningsnavnForTiltak";
 import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
@@ -75,7 +85,7 @@ function contentForRow(delinger: TiltakDeltMedBrukerDto[]): ReactNode {
   const tidligereDelinger = delinger.slice(1);
 
   return (
-    <div>
+    <>
       <Heading as="h3" size="small">
         Tidligere delinger
       </Heading>
@@ -97,7 +107,7 @@ function contentForRow(delinger: TiltakDeltMedBrukerDto[]): ReactNode {
           })}
         </List>
       </Box>
-    </div>
+    </>
   );
 }
 
@@ -114,7 +124,7 @@ function createCells(antallTiltakDelt: number, deltMedBruker: TiltakDeltMedBruke
       </Table.DataCell>
       <Table.DataCell>{formaterDato(deltMedBruker.deling.tidspunkt)}</Table.DataCell>
       <Table.DataCell>
-        <VStack align="center" gap="space-8">
+        <VStack align="center" gap="space-12">
           <Button
             variant="secondary"
             size="small"
@@ -128,11 +138,8 @@ function createCells(antallTiltakDelt: number, deltMedBruker: TiltakDeltMedBruke
           >
             Gå til dialogen
           </Button>
-          <Link
-            to={`/arbeidsmarkedstiltak/tiltak/${deltMedBruker.tiltak.id}`}
-            className="text-center text-base no-underline hover:underline"
-          >
-            Gå til tiltak
+          <Link as={ReactRouterLink} to={`/arbeidsmarkedstiltak/tiltak/${deltMedBruker.tiltak.id}`}>
+            <BodyShort size="small">Gå til tiltak</BodyShort>
           </Link>
         </VStack>
       </Table.DataCell>

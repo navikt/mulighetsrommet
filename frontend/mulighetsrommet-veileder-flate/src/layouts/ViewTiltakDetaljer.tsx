@@ -38,7 +38,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
       <Suspense fallback={<DetaljerSkeleton />}>
         <>
           <div
-            className="grid grid-rows-[auto_1fr] grid-cols-[auto] xl:grid-cols-[65%_35%] gap-8 p-8 bg-white"
+            className="grid grid-rows-[auto_1fr] grid-cols-[auto] xl:grid-cols-[65%_35%] gap-8 p-8 bg-ax-bg-default"
             id="gjennomforing_detaljer"
           >
             <div className="max-w-none xl:max-w-190">

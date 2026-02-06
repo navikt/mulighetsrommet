@@ -53,13 +53,14 @@ export function Landingsside() {
         gap="space-16"
       >
         <VStack align={{ xs: "start", lg: "end" }} className="mt-0 ml-0 md:mt-[4rem] md:ml-[1rem]">
-          <Link
+          <Button
+            as={Link}
+            icon={<PlusIcon color="white" fontSize={30} aria-hidden />}
             data-testid="finn-nytt-arbeidsmarkedstiltak-btn"
-            className="bg-surface-action text-white no-underline inline-flex py-5 px-3 rounded-[0.2rem] items-center h-[48px] focus-visible:outline focus-visible:outline-[1px] focus-visible:outline-border-focus focus-visible:shadow-focus focus-visible:outline-offset-0"
             to="/arbeidsmarkedstiltak/oversikt"
           >
-            <PlusIcon color="white" fontSize={30} aria-hidden /> Finn nytt arbeidsmarkedstiltak
-          </Link>
+            Finn nytt arbeidsmarkedstiltak
+          </Button>
         </VStack>
         <VStack gap="space-16">
           <FeedbackFraUrl />

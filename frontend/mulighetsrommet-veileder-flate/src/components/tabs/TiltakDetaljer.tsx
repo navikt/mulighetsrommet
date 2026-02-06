@@ -35,7 +35,7 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
       defaultValue="tab1"
       size="small"
       selectionFollowsFocus
-      className={`row-start-3 max-w-none xl:row-start-[auto] xl:max-w-[auto] mb-8`}
+      className={`row-start-3 max-w-none xl:row-start-auto xl:max-w-[auto] mb-8`}
       onChange={(value) => {
         if (value !== "tab5") {
           setOppskriftId(undefined);

@@ -1,6 +1,6 @@
-import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { BodyShort } from "@navikt/ds-react";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
+import { BodyShort, Link } from "@navikt/ds-react";
+import { Link as ReactRouterLink } from "react-router";
 
 interface TilbakeknappProps {
   tilbakelenke: string;
@@ -9,9 +9,9 @@ interface TilbakeknappProps {
 
 export function Tilbakeknapp({ tilbakelenke, tekst = "Tilbake" }: TilbakeknappProps) {
   return (
-    <Lenke className="flex items-center gap-0.5 my-2" to={tilbakelenke}>
+    <Link as={ReactRouterLink} to={tilbakelenke}>
       <ChevronLeftIcon aria-label="Tilbakeknapp" />
       <BodyShort size="small">{tekst}</BodyShort>
-    </Lenke>
+    </Link>
   );
 }
