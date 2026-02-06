@@ -72,19 +72,17 @@ suspend fun RoutingContext.respondWithManglerTilgangHosArrangor() = call.respond
 suspend inline fun RoutingContext.orgnrTilganger(
     altinnRettigheterService: AltinnRettigheterService,
 ): List<Organisasjonsnummer> {
-    return call.principal<ArrangorflatePrincipal>()?.norskIdent?.let {
-        altinnRettigheterService.getRettigheter(it)
-            .getOrElse {
-                when (it) {
-                    AltinnError.Error ->
-                        call.respondWithProblemDetail(
-                            InternalServerError("Klarte ikke få kontakt med Altinn. Vennligst prøv igjen senere"),
-                        )
+    return call.principal<ArrangorflatePrincipal>()?.norskIdent?.let { ident ->
+        altinnRettigheterService.getRettigheter(ident)
+            .getOrElse { error ->
+                when (error) {
+                    AltinnError.Error -> call.respondWithProblemDetail(
+                        InternalServerError("Klarte ikke få kontakt med Altinn. Vennligst prøv igjen senere"),
+                    )
 
-                    AltinnError.ForMangeTilganger ->
-                        call.respondWithProblemDetail(
-                            InternalServerError("For mange Altinn tilganger. Vennligst ta kontakt med Nav"),
-                        )
+                    AltinnError.ForMangeTilganger -> call.respondWithProblemDetail(
+                        InternalServerError("For mange Altinn tilganger. Vennligst ta kontakt med Nav"),
+                    )
                 }
                 emptyList()
             }
