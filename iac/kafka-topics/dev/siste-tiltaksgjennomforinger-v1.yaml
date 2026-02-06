@@ -16,9 +16,6 @@ spec:
     segmentHours: 1
   acl:
     - team: team-mulighetsrommet
-      application: mulighetsrommet-api
-      access: readwrite
-    - team: team-mulighetsrommet
       application: mulighetsrommet-kafka-manager
       access: read
 
