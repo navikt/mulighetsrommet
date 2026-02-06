@@ -5,6 +5,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.install
+import io.ktor.server.application.log
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.CannotTransformContentToTypeException
 import io.ktor.server.plugins.ContentTransformationException
@@ -112,9 +113,14 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
 }
 
 suspend fun ApplicationCall.respondWithProblemDetail(problem: ProblemDetail) {
+    val status = HttpStatusCode.fromValue(problem.status)
+    val text = Json.encodeToString(problem)
+
+    application.log.info("ProblemDetails: Status=$status, Details=$text")
+
     respondText(
-        text = Json.encodeToString(problem),
-        status = HttpStatusCode.fromValue(problem.status),
+        text = text,
+        status = status,
         contentType = ContentType.Application.ProblemJson,
     )
 }
