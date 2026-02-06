@@ -39,7 +39,8 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.AvtaleGjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
@@ -381,12 +382,12 @@ private fun services(appConfig: AppConfig) = module {
     single { NavAnsattPrincipalService(get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
+    single { GjennomforingDetaljerService(get(), get(), get()) }
     single {
-        GjennomforingService(
-            GjennomforingService.Config(
+        AvtaleGjennomforingService(
+            AvtaleGjennomforingService.Config(
                 gjennomforingV2Topic = appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic,
             ),
-            get(),
             get(),
             get(),
         )

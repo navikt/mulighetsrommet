@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
@@ -405,7 +405,7 @@ private fun GjennomforingManglerAdministratorOppgaveData.toOppgave(ansatt: NavAn
     ),
     createdAt = oppdatertTidspunkt,
 ).takeIf {
-    GjennomforingService.tilgangTilHandling(GjennomforingHandling.REDIGER, ansatt)
+    GjennomforingDetaljerService.tilgangTilHandling(GjennomforingHandling.REDIGER, ansatt)
 }
 
 private fun getOkonomiOppgaveTitle(tiltakstype: OppgaveTiltakstype, gjennomforing: OppgaveGjennomforing): String {

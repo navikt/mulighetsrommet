@@ -10,7 +10,7 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: handlinger } = useGjennomforingHandlinger(gjennomforingId);
+  const handlinger = useGjennomforingHandlinger(gjennomforingId);
   const { data: tilsagn } = useTilsagnTableData(gjennomforingId);
   const navigate = useNavigate();
 

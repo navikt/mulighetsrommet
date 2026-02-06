@@ -9,7 +9,7 @@ import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 function useGjennomforingInfoData() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { gjennomforing, veilederinfo } = useGjennomforing(gjennomforingId);
-  const { data: handlinger } = useGjennomforingHandlinger(gjennomforing.id);
+  const handlinger = useGjennomforingHandlinger(gjennomforing.id);
   const { data: ansatt } = useHentAnsatt();
 
   return {
