@@ -10,6 +10,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+            TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
     ),
     ARBEIDSRETTET_REHABILITERING(
@@ -54,6 +55,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+            TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
     ),
 
@@ -160,6 +162,7 @@ enum class TiltakstypeEgenskap {
     KREVER_DELTIDSPROSENT,
     STOTTER_FELLES_OPPSTART,
     STOTTER_LOPENDE_OPPSTART,
+    STOTTER_TILSKUDD_FOR_INVESTERINGER,
 }
 
 enum class Tiltaksgruppe(val tittel: String) {

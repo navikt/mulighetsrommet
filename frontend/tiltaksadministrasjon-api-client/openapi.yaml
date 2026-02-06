@@ -3152,6 +3152,7 @@ components:
       - KREVER_DELTIDSPROSENT
       - STOTTER_FELLES_OPPSTART
       - STOTTER_LOPENDE_OPPSTART
+      - STOTTER_TILSKUDD_FOR_INVESTERINGER
     ProblemDetail:
       type: object
       additionalProperties: {}

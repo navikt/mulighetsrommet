@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import java.util.UUID
 
 class GjennomforingDetaljerService(
@@ -67,13 +67,8 @@ class GjennomforingDetaljerService(
         val ansatt = navAnsattService.getNavAnsattByNavIdent(navIdent) ?: return setOf()
         val gjennomforing = getGjennomforing(id) ?: return setOf()
         return when (gjennomforing) {
+            is GjennomforingGruppetiltak -> getHandlingerGruppetiltak(gjennomforing, ansatt)
             is GjennomforingEnkeltplass -> setOf()
-
-            is GjennomforingGruppetiltak -> {
-                val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
-
-                getHandlingerGruppetiltak(statusGjennomfores, ansatt, gjennomforing.tiltakstype.tiltakskode)
-            }
         }
     }
 
@@ -105,28 +100,29 @@ class GjennomforingDetaljerService(
 }
 
 private fun getHandlingerGruppetiltak(
-    statusGjennomfores: Boolean,
+    gjennomforing: GjennomforingGruppetiltak,
     ansatt: NavAnsatt,
-    tiltakskode: Tiltakskode,
-): Set<GjennomforingHandling> = setOfNotNull(
-    GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
-    GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
-    GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
-    GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
-    GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
-    GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
-    GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
-        // TODO: refaktorer til egenskap
-        tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
-    },
+): Set<GjennomforingHandling> {
+    val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
+    return setOfNotNull(
+        GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
+        GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
+        GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
+        GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
+        GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
+        GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
+        GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
+            gjennomforing.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER)
+        },
 
-    GjennomforingHandling.DUPLISER,
-    GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
-    GjennomforingHandling.OPPRETT_TILSAGN,
-    GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
-)
-    .filter { GjennomforingDetaljerService.tilgangTilHandling(it, ansatt) }
-    .toSet()
+        GjennomforingHandling.DUPLISER,
+        GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
+        GjennomforingHandling.OPPRETT_TILSAGN,
+        GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
+    )
+        .filter { GjennomforingDetaljerService.tilgangTilHandling(it, ansatt) }
+        .toSet()
+}
 
 private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when (this) {
     is GjennomforingKompaktGruppetiltak -> GjennomforingKompaktDto(
