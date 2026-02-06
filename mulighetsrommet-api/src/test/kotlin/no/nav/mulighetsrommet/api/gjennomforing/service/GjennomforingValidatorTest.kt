@@ -407,13 +407,29 @@ class GjennomforingValidatorTest : FunSpec({
                 ctx.copy(previous = gjennomforing.copy(sluttDato = avtale.sluttDato!!.minusDays(1))),
             )
                 .shouldBeRight()
+        }
 
+        test("godtar ikke endringer for sluttdato tilbake i tid når gjennomføringen er aktiv") {
             GjennomforingValidator.validate(
                 request.copy(
                     startDato = LocalDate.now().minusDays(2),
                     sluttDato = LocalDate.now().minusDays(1),
                 ),
                 ctx.copy(previous = gjennomforing, avtale = ctx.avtale.copy(startDato = LocalDate.now().minusDays(2))),
+            ).shouldBeLeft(
+                listOf(
+                    FieldError(
+                        "/sluttDato",
+                        "Du kan ikke sette en sluttdato bakover i tid når gjennomføringen er aktiv",
+                    ),
+                ),
+            )
+            GjennomforingValidator.validate(
+                request.copy(
+                    startDato = LocalDate.now().minusDays(2),
+                    sluttDato = LocalDate.now().minusDays(1),
+                ),
+                ctx.copy(previous = gjennomforing.copy(sluttDato = null), avtale = ctx.avtale.copy(startDato = LocalDate.now().minusDays(2))),
             ).shouldBeLeft(
                 listOf(
                     FieldError(

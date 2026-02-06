@@ -420,11 +420,7 @@ object GjennomforingValidator {
                     GjennomforingRequest::startDato,
                 )
             }
-            validate(
-                gjennomforing.sluttDato == null ||
-                    previous.sluttDato == null ||
-                    !gjennomforing.sluttDato.isBefore(LocalDate.now()),
-            ) {
+            validate(gjennomforing.sluttDato == null || !gjennomforing.sluttDato.isBefore(LocalDate.now())) {
                 FieldError.of(
                     "Du kan ikke sette en sluttdato bakover i tid når gjennomføringen er aktiv",
                     GjennomforingRequest::sluttDato,
