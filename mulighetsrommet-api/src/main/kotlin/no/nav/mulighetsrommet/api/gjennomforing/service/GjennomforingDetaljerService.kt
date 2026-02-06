@@ -94,6 +94,7 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.OPPRETT_EKSTRATILSAGN -> saksbehandlerOkonomi
                 GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER -> saksbehandlerOkonomi
                 GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING -> saksbehandlerOkonomi
+                GjennomforingHandling.FORHANDSVIS_I_MODIA -> true
             }
         }
     }
@@ -106,6 +107,7 @@ private fun getHandlingerGruppetiltak(
     val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
     return setOfNotNull(
         GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
+        GjennomforingHandling.FORHANDSVIS_I_MODIA.takeIf { statusGjennomfores },
         GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
         GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
         GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },

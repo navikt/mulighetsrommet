@@ -20,7 +20,7 @@ interface Props {
 
 export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
   const modalRef = useRef<HTMLDialogElement>(null);
-  const { data: handlinger } = useGjennomforingHandlinger(gjennomforing.id);
+  const handlinger = useGjennomforingHandlinger(gjennomforing.id);
   const setTilgjengeligForArrangorMutation = useSetTilgjengeligForArrangor();
 
   const form = useForm<SetTilgjengligForArrangorRequest>({
