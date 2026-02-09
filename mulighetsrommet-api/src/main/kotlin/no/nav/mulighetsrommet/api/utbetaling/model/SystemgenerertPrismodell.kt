@@ -38,6 +38,7 @@ object FastSatsPerTiltaksplassPerManedBeregning :
         val manedsverk = deltakelser
             .map { deltakelse ->
                 UtbetalingBeregningHelpers.calculateDeltakelseManedsverkForDeltakelsesprosent(
+                    gjennomforing.tiltakstype.tiltakskode,
                     deltakelse,
                     satser,
                     stengt.map { it.periode },
