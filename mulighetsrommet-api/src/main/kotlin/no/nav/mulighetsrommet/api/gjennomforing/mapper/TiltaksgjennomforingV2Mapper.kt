@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Arrangor
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Enkeltplass
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Gruppe
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import java.time.ZoneId.systemDefault
 
 object TiltaksgjennomforingV2Mapper {
@@ -43,25 +44,37 @@ object TiltaksgjennomforingV2Mapper {
             ),
         )
 
-        is GjennomforingArena -> Gruppe(
-            id = gjennomforing.id,
-            opprettetTidspunkt = gjennomforing.opprettetTidspunkt.atZone(systemDefault()).toInstant(),
-            oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt.atZone(systemDefault()).toInstant(),
-            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-            arrangor = Arrangor(
-                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-            ),
-            navn = gjennomforing.navn,
-            startDato = gjennomforing.startDato,
-            sluttDato = gjennomforing.sluttDato,
-            status = gjennomforing.status,
-            oppstart = gjennomforing.oppstart,
-            antallPlasser = gjennomforing.antallPlasser,
-            deltidsprosent = gjennomforing.deltidsprosent,
-            pameldingType = gjennomforing.pameldingType,
-            tilgjengeligForArrangorFraOgMedDato = null,
-            apentForPamelding = false,
-            oppmoteSted = null,
-        )
+        is GjennomforingArena -> if (Tiltakskoder.isEnkeltplassTiltak(gjennomforing.tiltakstype.tiltakskode)) {
+            Enkeltplass(
+                id = gjennomforing.id,
+                opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
+                oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
+                tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+                arrangor = Arrangor(
+                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                ),
+            )
+        } else {
+            Gruppe(
+                id = gjennomforing.id,
+                opprettetTidspunkt = gjennomforing.opprettetTidspunkt.atZone(systemDefault()).toInstant(),
+                oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt.atZone(systemDefault()).toInstant(),
+                tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+                arrangor = Arrangor(
+                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                ),
+                navn = gjennomforing.navn,
+                startDato = gjennomforing.startDato,
+                sluttDato = gjennomforing.sluttDato,
+                status = gjennomforing.status,
+                oppstart = gjennomforing.oppstart,
+                antallPlasser = gjennomforing.antallPlasser,
+                deltidsprosent = gjennomforing.deltidsprosent,
+                pameldingType = gjennomforing.pameldingType,
+                tilgjengeligForArrangorFraOgMedDato = null,
+                apentForPamelding = false,
+                oppmoteSted = null,
+            )
+        }
     }
 }
