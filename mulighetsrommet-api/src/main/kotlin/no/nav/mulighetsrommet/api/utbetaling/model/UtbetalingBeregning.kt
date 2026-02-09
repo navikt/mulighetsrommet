@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
@@ -120,14 +121,17 @@ object UtbetalingBeregningHelpers {
      * Fra og med denne datoen:
      * - Deltakelsesmengder på 50% eller mindre regnes som et halvt månedsverk.
      * - Deltakelsesmengder på mer enn 50% regnes som et fullt månedsverk.
+     * - Gjelder bare for AFT-deltakelser, VTA-deltakelser har samme beregning som før denne datoen.
      *
      * Før denne datoen:
      * - Deltakelsesmengder på 50% eller mer regnes som et fullt månedsverk.
      * - Deltakelsesmengder på mindre enn 50% regnes som et halvt månedsverk.
+     * - Gjelder både AFT- og VTA-deltakelser.
      */
     private val DELTAKELSE_MONTHS_FRACTION_VERSION_3_DATE: LocalDate = LocalDate.of(2026, 1, 1)
 
     fun calculateDeltakelseManedsverkForDeltakelsesprosent(
+        tiltakskode: Tiltakskode,
         deltakelse: DeltakelseDeltakelsesprosentPerioder,
         satser: Set<SatsPeriode>,
         stengtHosArrangor: List<Periode>,
@@ -140,7 +144,7 @@ object UtbetalingBeregningHelpers {
         return calculateDeltakelseOutput(deltakelse.deltakelseId, perioder.map { it.periode }, satser) { periode ->
             val fraction = getMonthsFraction(periode)
             val prosent = perioder.first { it.periode == periode }.deltakelsesprosent
-            applyDeltakelsesprosent(periode, fraction, prosent)
+            applyDeltakelsesprosent(tiltakskode, periode, fraction, prosent)
         }
     }
 
@@ -292,11 +296,19 @@ object UtbetalingBeregningHelpers {
         return UtbetalingBeregningOutputDeltakelse(deltakelseId, perioderOutput)
     }
 
-    private fun applyDeltakelsesprosent(periode: Periode, fraction: BigDecimal, prosent: Double): BigDecimal {
-        return if (periode.getLastInclusiveDate().isBefore(DELTAKELSE_MONTHS_FRACTION_VERSION_3_DATE)) {
-            applyDeltakelsesprosentV1(fraction, prosent)
-        } else {
+    private fun applyDeltakelsesprosent(
+        tiltakskode: Tiltakskode,
+        periode: Periode,
+        fraction: BigDecimal,
+        prosent: Double,
+    ): BigDecimal {
+        return if (
+            tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING &&
+            periode.start >= DELTAKELSE_MONTHS_FRACTION_VERSION_3_DATE
+        ) {
             applyDeltakelsesprosentV2(fraction, prosent)
+        } else {
+            applyDeltakelsesprosentV1(fraction, prosent)
         }
     }
 

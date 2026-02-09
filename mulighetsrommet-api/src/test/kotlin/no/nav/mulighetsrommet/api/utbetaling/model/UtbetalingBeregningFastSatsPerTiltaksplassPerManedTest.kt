@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createGj
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toStengtPeriode
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
@@ -524,15 +525,55 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
     }
 
     context("beregning av månedsverk etter 1. januar 2026") {
-        test("50% deltakelse tilsvarer halvt månedsverk") {
+        test("50% deltakelse tilsvarer halvt månedsverk for AFT") {
             val periode = Periode.forMonthOf(LocalDate.of(2026, 1, 1))
 
-            val gjennomforing =
-                createGjennomforingForForhandsgodkjentPris(periode = periode, sats = 100.withValuta(Valuta.NOK))
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(
+                tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                periode = periode,
+                sats = sats,
+            )
             val deltakere = listOf(
                 createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 20.0))),
                 createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 50.0))),
                 createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 51.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 80.0))),
+            )
+
+            val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, deltakere, periode)
+
+            result.output.deltakelser shouldBe setOf(
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakere[0].id,
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 0.5, sats)),
+                ),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakere[1].id,
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 0.5, sats)),
+                ),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakere[2].id,
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, sats)),
+                ),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakere[3].id,
+                    setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, sats)),
+                ),
+            )
+        }
+
+        test("50% deltakelse tilsvarer fullt månedsverk for VTA") {
+            val periode = Periode.forMonthOf(LocalDate.of(2026, 1, 1))
+
+            val gjennomforing = createGjennomforingForForhandsgodkjentPris(
+                tiltakskode = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+                periode = periode,
+                sats = sats,
+            )
+            val deltakere = listOf(
+                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 20.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 49.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 50.0))),
                 createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 80.0))),
             )
 

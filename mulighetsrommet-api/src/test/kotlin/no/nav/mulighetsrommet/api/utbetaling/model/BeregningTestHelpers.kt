@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -26,7 +25,6 @@ object BeregningTestHelpers {
         periode: Periode,
         satser: List<AvtaltSatsDto>,
         stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
-        valuta: Valuta = Valuta.NOK,
     ): GjennomforingGruppetiltak = createGjennomforing(
         id = id,
         periode = periode,
@@ -34,7 +32,7 @@ object BeregningTestHelpers {
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
-            valuta = valuta,
+            valuta = satser.first().pris.valuta,
         ),
         stengt = stengt,
     )
@@ -44,7 +42,6 @@ object BeregningTestHelpers {
         periode: Periode,
         satser: List<AvtaltSatsDto>,
         stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
-        valuta: Valuta = Valuta.NOK,
     ): GjennomforingGruppetiltak = createGjennomforing(
         id = id,
         periode = periode,
@@ -52,7 +49,7 @@ object BeregningTestHelpers {
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
-            valuta = valuta,
+            valuta = satser.first().pris.valuta,
         ),
         stengt = stengt,
     )
@@ -62,7 +59,6 @@ object BeregningTestHelpers {
         periode: Periode,
         satser: List<AvtaltSatsDto>,
         stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
-        valuta: Valuta = Valuta.NOK,
     ): GjennomforingGruppetiltak = createGjennomforing(
         id = id,
         periode = periode,
@@ -70,26 +66,26 @@ object BeregningTestHelpers {
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
-            valuta = valuta,
+            valuta = satser.first().pris.valuta,
         ),
         stengt = stengt,
     )
 
     fun createGjennomforingForForhandsgodkjentPris(
         id: UUID = UUID.randomUUID(),
+        tiltakskode: Tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         periode: Periode,
         sats: ValutaBelop,
         stengt: List<GjennomforingGruppetiltak.StengtPeriode> = emptyList(),
-        valuta: Valuta = Valuta.NOK,
     ): GjennomforingGruppetiltak = createGjennomforing(
         id = id,
         periode = periode,
         prismodell = Prismodell.ForhandsgodkjentPrisPerManedsverk(
             id = UUID.randomUUID(),
             satser = listOf(AvtaltSatsDto(periode.start, sats)),
-            valuta = valuta,
+            valuta = sats.valuta,
         ),
-        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        tiltakskode = tiltakskode,
         stengt = stengt,
     )
 
