@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.service
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
@@ -22,7 +23,6 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
@@ -58,7 +58,7 @@ class GjennomforingDetaljerService(
             administratorNavIdent = filter.administratorNavIdent,
             koordinatorNavIdent = filter.koordinatorNavIdent,
             publisert = filter.publisert,
-            sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
+            typer = listOf(GjennomforingType.AVTALE, GjennomforingType.ENKELTPLASS),
         ).let { (totalCount, items) ->
             val data = items.map { it.toKompaktDto() }
             PaginatedResponse.of(pagination, totalCount, data)

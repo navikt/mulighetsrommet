@@ -126,19 +126,6 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val upsertEnhet = """
-             insert into gjennomforing_nav_enhet (gjennomforing_id, enhetsnummer)
-             values (:id::uuid, :enhet_id)
-             on conflict (gjennomforing_id, enhetsnummer) do nothing
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val deleteEnheter = """
-             delete from gjennomforing_nav_enhet
-             where gjennomforing_id = ?::uuid and not (enhetsnummer = any (?))
-        """.trimIndent()
-
-        @Language("PostgreSQL")
         val upsertAdministrator = """
              insert into gjennomforing_administrator (gjennomforing_id, nav_ident)
              values (:id::uuid, :nav_ident)
@@ -229,18 +216,7 @@ class GjennomforingQueries(private val session: Session) {
             ),
         )
 
-        batchPreparedNamedStatement(
-            upsertEnhet,
-            gjennomforing.navEnheter.map { mapOf("id" to gjennomforing.id, "enhet_id" to it.value) },
-        )
-
-        execute(
-            queryOf(
-                deleteEnheter,
-                gjennomforing.id,
-                createArrayOfValue(gjennomforing.navEnheter) { it.value },
-            ),
-        )
+        setNavEnheter(gjennomforing.id, gjennomforing.navEnheter)
 
         val kontaktpersoner = gjennomforing.kontaktpersoner.map { kontakt ->
             mapOf(
@@ -293,6 +269,23 @@ class GjennomforingQueries(private val session: Session) {
             }
             batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
         }
+    }
+
+    fun setNavEnheter(id: UUID, navEnheter: Set<NavEnhetNummer>) = with(session) {
+        @Language("PostgreSQL")
+        val upsertEnhet = """
+             insert into gjennomforing_nav_enhet (gjennomforing_id, enhetsnummer)
+             values (:id::uuid, :enhet_id)
+             on conflict (gjennomforing_id, enhetsnummer) do nothing
+        """.trimIndent()
+        batchPreparedNamedStatement(upsertEnhet, navEnheter.map { mapOf("id" to id, "enhet_id" to it.value) })
+
+        @Language("PostgreSQL")
+        val deleteEnheter = """
+             delete from gjennomforing_nav_enhet
+             where gjennomforing_id = ?::uuid and not (enhetsnummer = any (?))
+        """.trimIndent()
+        execute(queryOf(deleteEnheter, id, createArrayOfValue(navEnheter) { it.value }))
     }
 
     private fun upsert(gjennomforing: GjennomforingBaseDbo) {

@@ -670,7 +670,7 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                queries.gjennomforing.getAll(sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate)
+                queries.gjennomforing.getAll(sluttDatoGreaterThanOrEqualTo = LocalDate.of(2023, 1, 1))
                     .should { (totalCount, gjennomforinger) ->
                         totalCount shouldBe 3
                         gjennomforinger.map { it.sluttDato } shouldContainExactlyInAnyOrder listOf(
