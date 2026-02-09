@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import no.nav.mulighetsrommet.model.ValutaBelop
 import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.HorizontalAlignment
@@ -67,6 +68,11 @@ class ExcelSheetBuilder(
                 is Boolean -> {
                     cell.setCellValue(value)
                     cell.setCellType(CellType.BOOLEAN)
+                }
+
+                is ValutaBelop -> {
+                    cell.setCellValue(value.belop.toDouble())
+                    cell.setCellType(CellType.NUMERIC)
                 }
 
                 else -> {
