@@ -14,14 +14,15 @@ class ArenaEventConsumer(
     private val arenaEventService: ArenaEventService,
 ) : KafkaTopicConsumer<String, JsonElement>(stringDeserializer(), ArenaJsonElementDeserializer()) {
     override suspend fun consume(key: String, message: JsonElement) {
-        MDC.put("correlationId", key)
-
+        MDC.put("arenaId", key)
         try {
             val data = decodeArenaEvent(message)
             arenaEventService.processEvent(data)
         } finally {
-            MDC.remove("correlationId")
+            MDC.remove("arenaId")
         }
+        val data = decodeArenaEvent(message)
+        arenaEventService.processEvent(data)
     }
 }
 

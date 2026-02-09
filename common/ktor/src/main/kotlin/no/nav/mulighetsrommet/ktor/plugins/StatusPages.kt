@@ -13,40 +13,34 @@ import io.ktor.server.plugins.PayloadTooLargeException
 import io.ktor.server.plugins.UnsupportedMediaTypeException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respondText
+import io.opentelemetry.api.trace.Span
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.ktor.exception.Unathorized
 import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
-import org.slf4j.MDC
 
 fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, ApplicationCall) -> Unit) {
     install(StatusPages) {
-        status(HttpStatusCode.Unauthorized) { status ->
-            val requestId = MDC.get("correlationId")
-
-            call.respondWithProblemDetail(
-                object : ProblemDetail() {
-                    override val type = "unauthorized"
-                    override val title = "Unauthorized"
-                    override val status = status.value
-                    override val detail =
-                        "Du har ikke tilgang til denne tjenesten. Logg inn på nytt hvis du nylig har fått tilgang."
-                    override val instance = null
-                    override val extensions = mapOf("requestId" to requestId)
-                },
+        status(HttpStatusCode.Unauthorized) {
+            val traceId = Span.current().spanContext.traceId
+            val problemDetail = Unathorized(
+                detail = "Du har ikke tilgang til denne tjenesten. Logg inn på nytt hvis du nylig har fått tilgang.",
+                extensions = mapOf("traceId" to traceId),
             )
+            call.respondWithProblemDetail(problemDetail)
         }
 
         exception<IllegalArgumentException> { call, cause ->
             logException(HttpStatusCode.BadRequest, cause, call)
 
-            val requestId = MDC.get("correlationId")
+            val traceId = Span.current().spanContext.traceId
             val problemDetail = BadRequest(
                 detail = cause.message ?: "IllegalArgumentException",
-                extensions = mapOf("requestId" to requestId),
+                extensions = mapOf("traceId" to traceId),
             )
             call.respondWithProblemDetail(problemDetail)
         }
@@ -54,17 +48,17 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
         exception<StatusException> { call, cause ->
             logException(cause.status, cause, call)
 
-            val requestId = MDC.get("correlationId")
-            call.respondWithProblemDetail(cause.toProblemDetail(requestId))
+            val traceId = Span.current().spanContext.traceId
+            call.respondWithProblemDetail(cause.toProblemDetail(traceId))
         }
 
         exception<BadRequestException> { call, cause ->
             logException(HttpStatusCode.BadRequest, cause, call)
 
-            val requestId = MDC.get("correlationId")
+            val traceId = Span.current().spanContext.traceId
             val problemDetail = BadRequest(
                 detail = cause.message ?: "BadRequestException",
-                extensions = mapOf("requestId" to requestId),
+                extensions = mapOf("traceId" to traceId),
             )
             call.respondWithProblemDetail(problemDetail)
         }
@@ -72,10 +66,10 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
         exception<NotFoundException> { call, cause ->
             logException(HttpStatusCode.NotFound, cause, call)
 
-            val requestId = MDC.get("correlationId")
+            val traceId = Span.current().spanContext.traceId
             val problemDetail = NotFound(
                 detail = cause.message ?: "NotFoundException",
-                extensions = mapOf("requestId" to requestId),
+                extensions = mapOf("traceId" to traceId),
             )
             call.respondWithProblemDetail(problemDetail)
         }
@@ -89,11 +83,11 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
             }
             logException(statusCode, cause, call)
 
-            val requestId = MDC.get("correlationId")
+            val traceId = Span.current().spanContext.traceId
             val problemDetail = statusCode.toProblemDetail(
                 type = "content-transformation-error",
                 detail = cause.message ?: "ContentTransformationException",
-                extensions = mapOf("requestId" to requestId),
+                extensions = mapOf("traceId" to traceId),
             )
             call.respondWithProblemDetail(problemDetail)
         }
@@ -101,10 +95,10 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
         exception<Throwable> { call, cause ->
             logException(HttpStatusCode.InternalServerError, cause, call)
 
-            val requestId = MDC.get("correlationId")
+            val traceId = Span.current().spanContext.traceId
             val problemDetail = InternalServerError(
                 detail = "Internal Server Error",
-                extensions = mapOf("requestId" to requestId),
+                extensions = mapOf("traceId" to traceId),
             )
             call.respondWithProblemDetail(problemDetail)
         }

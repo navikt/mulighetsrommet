@@ -16,12 +16,12 @@ export function ErrorFallback({ error }: FallbackProps) {
             </Heading>
             <code>{error.detail}</code>
           </BodyShort>
-          {"requestId" in error && (
+          {"traceId" in error && (
             <BodyShort as="div" size="small" spacing={true}>
               <Heading level="5" size="small">
                 Sporingsnøkkel
               </Heading>
-              <code>{String(error.requestId)}</code>
+              <code>{String(error.traceId)}</code>
             </BodyShort>
           )}
           <BodyShort>

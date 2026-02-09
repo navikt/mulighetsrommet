@@ -16,7 +16,6 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.metrics.Metrics
 import org.slf4j.LoggerFactory
-import org.slf4j.MDC
 
 val ClientResponseMetricPlugin = createClientPlugin("ClientResponseMetricPlugin") {
     onResponse { response ->
@@ -58,10 +57,6 @@ fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClient(engine)
 
         System.getenv("NAIS_APP_NAME")?.let {
             header("Nav-Consumer-Id", it)
-        }
-
-        MDC.get("correlationId")?.let {
-            header("Nav-Call-Id", it)
         }
     }
 }

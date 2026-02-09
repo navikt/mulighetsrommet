@@ -24,7 +24,6 @@ fun Application.configureHTTP() {
         allowHeader(HttpHeaders.AccessControlAllowOrigin)
 
         allowHeader(HttpHeaders.XRequestId)
-        allowHeader(HttpHeaders.XCorrelationId)
         allowHeadersPrefixed("nav-")
     }
 }

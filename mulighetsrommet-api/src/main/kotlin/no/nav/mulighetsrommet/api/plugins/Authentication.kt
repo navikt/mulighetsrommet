@@ -17,7 +17,6 @@ import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.auth.principal
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
-import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.AuthConfig
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -102,8 +101,6 @@ fun Application.configureAuthentication(
 ) {
     val azureJwkProvider = JwkProviderBuilder(URI(auth.azure.jwksUri).toURL()).cached(5, 12, TimeUnit.HOURS).build()
     val tokenxJwkProvider = JwkProviderBuilder(URI(auth.tokenx.jwksUri).toURL()).cached(5, 12, TimeUnit.HOURS).build()
-
-    val altinnRettigheterService: AltinnRettigheterService by inject()
 
     val navAnsattPrincipalService: NavAnsattPrincipalService by inject()
 

@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 open class StatusException(val status: HttpStatusCode, val detail: String) :
     Exception("Request failed with status: $status. Description: $detail")
 
-fun StatusException.toProblemDetail(requestId: String): ProblemDetail {
+fun StatusException.toProblemDetail(traceId: String): ProblemDetail {
     val description = status.description
     val detail = detail
     val statusInt = status.value
@@ -31,7 +31,7 @@ fun StatusException.toProblemDetail(requestId: String): ProblemDetail {
                 override val status = statusInt
                 override val detail = detail
                 override val instance = null
-                override val extensions = mapOf("requestId" to requestId)
+                override val extensions = mapOf("traceId" to traceId)
             }
         }
     }
@@ -83,5 +83,15 @@ data class Forbidden(
     override val type = "forbidden"
     override val title = HttpStatusCode.Forbidden.description
     override val status: Int = HttpStatusCode.Forbidden.value
+    override val instance = null
+}
+
+data class Unathorized(
+    override val detail: String,
+    override val extensions: Map<String, Any?>? = null,
+) : ProblemDetail() {
+    override val type = "unauthorized"
+    override val title = HttpStatusCode.Unauthorized.description
+    override val status: Int = HttpStatusCode.Unauthorized.value
     override val instance = null
 }
