@@ -72,23 +72,26 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
           <Modal.Footer>
             <HStack justify="space-between" className="flex-row-reverse" width="100%">
               <HStack gap="2" className="flex-row-reverse">
-                <Button type="submit" disabled={mutation.isPending}>
+                <Button type="submit" size="small" disabled={mutation.isPending}>
                   {mutation.isPending ? "Lagrer..." : "Bekreft"}
                 </Button>
-                <Button type="button" variant="tertiary" onClick={closeAndResetForm}>
+                <Button type="button" size="small" variant="tertiary" onClick={closeAndResetForm}>
                   Avbryt
                 </Button>
                 <ValideringsfeilOppsummering />
               </HStack>
-              <Button
-                type="button"
-                variant="tertiary-neutral"
-                disabled={deletion.isPending}
-                onClick={deleteRammedetaljer}
-                icon={<TrashFillIcon />}
-              >
-                {deletion.isPending ? "Sletter..." : "Slett"}
-              </Button>
+              {rammeDetaljerDefaults.totalRamme > 0 && (
+                <Button
+                  type="button"
+                  size="small"
+                  variant="secondary-neutral"
+                  disabled={deletion.isPending}
+                  onClick={deleteRammedetaljer}
+                  icon={<TrashFillIcon />}
+                >
+                  {deletion.isPending ? "Sletter..." : "Slett"}
+                </Button>
+              )}
             </HStack>
           </Modal.Footer>
         </form>
