@@ -19,11 +19,14 @@ import { Link } from "react-router";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
+import { useAvtaleRammedetaljer } from "@/api/avtaler/useAvtaleRammedetaljer";
+import { AvtaleRammedetaljer } from "@/components/avtaler/AvtaleRammedetaljer";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 
 export function AvtaleDetaljer() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
+  const { data: rammedetaljer } = useAvtaleRammedetaljer(avtaleId);
   const {
     navn,
     avtalenummer,
@@ -141,6 +144,7 @@ export function AvtaleDetaljer() {
         {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
         {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         <PrismodellDetaljer prismodeller={avtale.prismodeller} />
+        {rammedetaljer?.totalRamme && <AvtaleRammedetaljer rammedetaljer={rammedetaljer} />}
       </DetaljerLayout>
       <DetaljerLayout>
         <Definisjonsliste title="Administratorer" definitions={administratorMeta} />

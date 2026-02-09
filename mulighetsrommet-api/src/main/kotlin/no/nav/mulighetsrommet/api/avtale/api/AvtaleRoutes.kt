@@ -642,6 +642,7 @@ enum class AvtaleHandling {
     DUPLISER,
     REGISTRER_OPSJON,
     OPPDATER_PRIS,
+    OPPDATER_RAMMEDETALJER,
 }
 
 fun RoutingContext.getAvtaleFilter(): AvtaleFilter {

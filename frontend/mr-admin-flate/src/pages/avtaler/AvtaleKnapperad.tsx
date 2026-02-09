@@ -21,6 +21,7 @@ import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { OppdaterPrisModal } from "@/components/avtaler/OppdaterPrisModal";
 import { useAvtaleHandlinger } from "@/api/avtaler/useAvtale";
+import { OppdaterRammedetaljerModal } from "@/components/avtaler/OppdaterRammedetaljerModal";
 
 interface Props {
   avtale: AvtaleDto;
@@ -36,6 +37,8 @@ function skjemaPath(pathname: string): string {
   }
 }
 
+type AvtaleModal = "Prismodell" | "Avbryt" | "Rammedetaljer";
+
 export function AvtaleKnapperad({ avtale }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,6 +48,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
   const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
   const [oppdaterPrisModalOpen, setOppdaterPrisModalOpen] = useState<boolean>(false);
+  const [avtaleModalOpen, setAvtaleModalOpen] = useState<AvtaleModal | null>(null);
   const { data: ansatt } = useHentAnsatt();
   const avbrytMutation = useAvbrytAvtale();
   const path = `/avtaler/${avtale.id}/${skjemaPath(location.pathname)}`;
@@ -123,6 +127,11 @@ export function AvtaleKnapperad({ avtale }: Props) {
                 Oppdater pris
               </Dropdown.Menu.GroupedList.Item>
             )}
+            {handlinger.includes(AvtaleHandling.OPPDATER_RAMMEDETALJER) && (
+              <Dropdown.Menu.GroupedList.Item onClick={() => setAvtaleModalOpen("Rammedetaljer")}>
+                Oppdater rammedetaljer
+              </Dropdown.Menu.GroupedList.Item>
+            )}
             {handlinger.includes(AvtaleHandling.AVBRYT) && (
               <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
                 Avbryt avtale
@@ -187,6 +196,9 @@ export function AvtaleKnapperad({ avtale }: Props) {
           open={oppdaterPrisModalOpen}
           onClose={() => setOppdaterPrisModalOpen(false)}
         />
+      )}
+      {avtaleModalOpen === "Rammedetaljer" && (
+        <OppdaterRammedetaljerModal avtaleId={avtale.id} onClose={() => setAvtaleModalOpen(null)} />
       )}
     </KnapperadContainer>
   );
