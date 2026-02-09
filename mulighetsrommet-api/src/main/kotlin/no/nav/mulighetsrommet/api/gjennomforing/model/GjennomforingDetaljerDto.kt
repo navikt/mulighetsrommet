@@ -57,7 +57,7 @@ data class AvtaleGjennomforingDto(
     val status: Status,
     val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID?,
+    val avtaleId: UUID,
     val oppstart: GjennomforingOppstartstype,
     val pameldingType: GjennomforingPameldingType,
     val opphav: ArenaMigrering.Opphav,

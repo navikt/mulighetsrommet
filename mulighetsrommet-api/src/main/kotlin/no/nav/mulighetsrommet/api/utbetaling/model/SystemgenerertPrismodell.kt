@@ -28,8 +28,6 @@ object FastSatsPerTiltaksplassPerManedBeregning :
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed {
-        requireNotNull(gjennomforing.prismodell)
-
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(deltakere, periode)
@@ -60,8 +58,6 @@ object PrisPerManedBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisP
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningPrisPerManedsverk {
-        requireNotNull(gjennomforing.prismodell)
-
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
@@ -106,8 +102,6 @@ object PrisPerHeleUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPri
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningPrisPerHeleUkesverk {
-        requireNotNull(gjennomforing.prismodell)
-
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(deltakere, periode)
@@ -138,8 +132,6 @@ object PrisPerUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPer
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningPrisPerUkesverk {
-        requireNotNull(gjennomforing.prismodell)
-
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(deltakere, periode)

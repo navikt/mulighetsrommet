@@ -43,7 +43,7 @@ object UtbetalingInputHelper {
         }
         val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
 
-        return requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
+        return gjennomforing.prismodell
             .satser()
             .sortedBy { it.gjelderFra }
             .windowed(size = 2, partialWindows = true)

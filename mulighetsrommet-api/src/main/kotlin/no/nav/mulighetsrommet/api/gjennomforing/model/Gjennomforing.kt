@@ -81,7 +81,7 @@ data class AvtaleGjennomforing(
     val status: GjennomforingStatus,
     val apentForPamelding: Boolean,
     @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID?,
+    val avtaleId: UUID,
     val administratorer: List<Administrator>,
     val kontorstruktur: List<Kontorstruktur>,
     val oppstart: GjennomforingOppstartstype,
@@ -101,7 +101,7 @@ data class AvtaleGjennomforing(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<StengtPeriode>,
-    val prismodell: Prismodell?,
+    val prismodell: Prismodell,
 ) : Gjennomforing() {
 
     @Serializable

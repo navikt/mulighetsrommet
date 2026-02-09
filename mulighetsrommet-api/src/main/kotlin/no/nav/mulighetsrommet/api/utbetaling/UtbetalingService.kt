@@ -171,7 +171,7 @@ class UtbetalingService(
             gjennomforingId = utbetalingKrav.gjennomforingId,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = Betalingsinformasjon.BBan(utbetalingKrav.kontonummer, utbetalingKrav.kidNummer),
-            valuta = checkNotNull(gjennomforing.prismodell).valuta,
+            valuta = gjennomforing.prismodell.valuta,
             beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
                 input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
                     satser = utbetalingInfo.satser,

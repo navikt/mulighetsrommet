@@ -127,11 +127,6 @@ class GenererUtbetalingService(
     suspend fun oppdaterUtbetalingerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> = db.transaction {
         val gjennomforing = queries.gjennomforing.getAvtaleGjennomforingOrError(gjennomforingId)
 
-        if (gjennomforing.prismodell == null) {
-            log.info("Prismodell er ikke satt for gjennomføring med id=$gjennomforingId")
-            return listOf()
-        }
-
         hentGenererteUtbetalinger(gjennomforing.id)
             .mapNotNull { utbetaling ->
                 val oppdatertUtbetaling = genererUtbetaling(
@@ -213,9 +208,7 @@ class GenererUtbetalingService(
             return null
         }
 
-        val type = gjennomforing.prismodell?.type
-            ?: throw IllegalStateException("Gjennomføring med id=${gjennomforing.id} mangler prismodell")
-
+        val type = gjennomforing.prismodell.type
         val prismodell = prismodeller.singleOrNull { it.type == type } ?: run {
             log.info("Genererer ikke utbetaling for gjennomføring=${gjennomforing.id} fordi prismodellen ikke er støttet type=$type")
             return null

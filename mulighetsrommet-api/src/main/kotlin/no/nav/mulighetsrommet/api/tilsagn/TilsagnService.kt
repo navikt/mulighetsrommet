@@ -74,8 +74,6 @@ class TilsagnService(
         requireNotNull(request.id) { "id mangler" }
 
         val gjennomforing = queries.gjennomforing.getAvtaleGjennomforingOrError(request.gjennomforingId)
-        val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
-        val avtalteSatser = prismodell.satser()
 
         val totrinnskontroll = Totrinnskontroll(
             id = UUID.randomUUID(),
@@ -100,8 +98,7 @@ class TilsagnService(
                 arrangorSlettet = gjennomforing.arrangor.slettet,
                 gyldigTilsagnPeriode = config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
                 gjennomforingSluttDato = gjennomforing.sluttDato,
-                avtalteSatser = avtalteSatser,
-                prismodellValuta = prismodell.valuta,
+                prismodell = gjennomforing.prismodell,
             )
             .map { validated ->
                 val lopenummer = previous?.lopenummer
@@ -119,7 +116,7 @@ class TilsagnService(
                     kostnadssted = validated.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
-                    belopBrukt = 0.withValuta(prismodell.valuta),
+                    belopBrukt = 0.withValuta(gjennomforing.prismodell.valuta),
                     beregning = validated.beregning,
                     kommentar = request.kommentar?.trim(),
                     beskrivelse = request.beskrivelse?.trim(),
@@ -274,16 +271,14 @@ class TilsagnService(
         }
 
         val gjennomforing = queries.gjennomforing.getAvtaleGjennomforingOrError(request.gjennomforingId)
-        val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
-        val avtaltSats = prismodell.satser().findAvtaltSats(request.periodeStart)
-        val sats = avtaltSats?.sats ?: ValutaBelop(0, Valuta.NOK)
+        val avtaltSats = gjennomforing.prismodell.satser().findAvtaltSats(request.periodeStart)
 
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
         val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
 
         return TilsagnBeregningFallbackResolver(
-            sats = sats,
+            sats = avtaltSats?.sats ?: ValutaBelop(0, Valuta.NOK),
             periode = periode,
             antallPlasser = antallPlasserFallback,
             antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltakerFallback,
@@ -712,9 +707,8 @@ class TilsagnService(
         val gjennomforing = queries.gjennomforing.getAvtaleGjennomforingOrError(tilsagn.gjennomforing.id)
         val arrangorErUtenlandsk = queries.arrangor.getById(gjennomforing.arrangor.id).erUtenlandsk
 
-        val avtale = checkNotNull(gjennomforing.avtaleId?.let { queries.avtale.get(it) }) {
-            "Gjennomføring ${gjennomforing.id} mangler avtale"
-        }
+        // TODO: støtte enkeltplasser
+        val avtale = queries.avtale.getOrError(gjennomforing.avtaleId)
 
         val arrangor = if (arrangorErUtenlandsk) {
             val utenlandskArrangor = requireNotNull(queries.arrangor.getUtenlandskArrangor(gjennomforing.arrangor.id)) {

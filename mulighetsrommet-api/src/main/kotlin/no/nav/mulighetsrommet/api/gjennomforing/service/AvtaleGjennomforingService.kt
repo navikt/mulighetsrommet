@@ -398,7 +398,7 @@ private fun isEqual(
     sluttDato = previous.sluttDato,
     status = previous.status.type,
     antallPlasser = previous.antallPlasser,
-    avtaleId = checkNotNull(previous.avtaleId) { "Forventet at avtale var definert!" },
+    avtaleId = previous.avtaleId,
     administratorer = previous.administratorer.map { it.navIdent },
     navEnheter = previous.kontorstruktur
         .flatMap { (region, kontorer) ->
@@ -422,5 +422,5 @@ private fun isEqual(
     amoKategorisering = previous.amoKategorisering,
     utdanningslop = previous.utdanningslop?.toDbo(),
     pameldingType = previous.pameldingType,
-    prismodellId = checkNotNull(previous.prismodell?.id) { "Forventet at prismodell var definert!" },
+    prismodellId = previous.prismodell.id,
 )

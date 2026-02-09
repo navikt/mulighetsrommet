@@ -1,7 +1,8 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.mapper.satser
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.findAvtaltSats
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -43,8 +44,7 @@ object TilsagnValidator {
         arrangorSlettet: Boolean,
         gyldigTilsagnPeriode: Periode?,
         gjennomforingSluttDato: LocalDate?,
-        avtalteSatser: List<AvtaltSats>,
-        prismodellValuta: Valuta,
+        prismodell: Prismodell,
     ): Either<List<FieldError>, Validated> = validation {
         validateNotNull(next.periodeStart) {
             FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart)
@@ -102,9 +102,8 @@ object TilsagnValidator {
 
         val beregning = validateBeregning(
             request = next.beregning,
-            prismodellValuta,
             periode = periode,
-            avtalteSatser = avtalteSatser,
+            prismodell = prismodell,
         )
 
         validate(beregning.output.pris.belop > 0) {
@@ -120,11 +119,10 @@ object TilsagnValidator {
 
     fun FieldValidator.validateAvtaltSats(
         beregningType: TilsagnBeregningType,
-        valuta: Valuta,
-        avtalteSatser: List<AvtaltSats>,
         periode: Periode,
+        prismodell: Prismodell,
     ): ValutaBelop = when (beregningType) {
-        TilsagnBeregningType.FRI -> ValutaBelop(0, valuta)
+        TilsagnBeregningType.FRI -> ValutaBelop(0, prismodell.valuta)
 
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,
@@ -132,7 +130,9 @@ object TilsagnValidator {
         TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
         TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
         -> {
-            val satsPeriodeStart = avtalteSatser.findAvtaltSats(periode.start)
+            val satser = prismodell.satser()
+
+            val satsPeriodeStart = satser.findAvtaltSats(periode.start)
             requireValid(satsPeriodeStart != null) {
                 FieldError.of(
                     "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
@@ -140,7 +140,7 @@ object TilsagnValidator {
                 )
             }
 
-            val satsPeriodeSlutt = avtalteSatser.findAvtaltSats(periode.getLastInclusiveDate())
+            val satsPeriodeSlutt = satser.findAvtaltSats(periode.getLastInclusiveDate())
             validate(satsPeriodeSlutt != null) {
                 FieldError.of(
                     "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
@@ -160,16 +160,15 @@ object TilsagnValidator {
 
     fun FieldValidator.validateBeregning(
         request: TilsagnBeregningRequest,
-        valuta: Valuta,
         periode: Periode,
-        avtalteSatser: List<AvtaltSats>,
+        prismodell: Prismodell,
     ): TilsagnBeregning {
-        val sats = validateAvtaltSats(request.type, valuta, avtalteSatser, periode)
+        val sats = validateAvtaltSats(request.type, periode, prismodell)
         val antallPlasser = validateAntallPlasser(request.type, request.antallPlasser)
 
         return when (request.type) {
             TilsagnBeregningType.FRI ->
-                validateBeregningFriInput(valuta, request).bind()
+                validateBeregningFriInput(prismodell.valuta, request).bind()
 
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
                 TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
@@ -269,7 +268,10 @@ object TilsagnValidator {
         }
     }
 
-    fun validateBeregningFriInput(prismodellValuta: Valuta, request: TilsagnBeregningRequest): Either<List<FieldError>, TilsagnBeregning> = validation {
+    fun validateBeregningFriInput(
+        prismodellValuta: Valuta,
+        request: TilsagnBeregningRequest,
+    ): Either<List<FieldError>, TilsagnBeregning> = validation {
         requireValid(!request.linjer.isNullOrEmpty()) {
             FieldError.of(
                 "Du må legge til en linje",
