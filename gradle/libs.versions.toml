@@ -1,6 +1,6 @@
 [versions]
 common-java-modules = "3.2025.11.10_14.07-a9f44944d7bc"
-flyway = "11.20.2"
+flyway = "12.0.0"
 koin-bom = "4.1.1"
 kotest = "6.1.1"
 kotest-testcontainers = "2.0.2"
