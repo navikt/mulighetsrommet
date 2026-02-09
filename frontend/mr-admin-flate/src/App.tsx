@@ -51,9 +51,9 @@ const basename = import.meta.env.BASE_URL;
 
 const head = createHead();
 
-if (import.meta.env.PROD) {
+if (import.meta.env.VITE_FARO_URL) {
   initializeFaro({
-    url: import.meta.env.VITE_FARO_URL || "http://localhost:12347/collect",
+    url: import.meta.env.VITE_FARO_URL,
     app: {
       name: "mr-admin-flate",
     },
