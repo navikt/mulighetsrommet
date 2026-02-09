@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
@@ -58,9 +59,17 @@ class BeregnUtbetaling(
         .oneTime(javaClass.simpleName, Input::class.java)
         .executeSuspend { instance, _ ->
             val input = instance.data
+
             val existingUtbetalinger = db.session { queries.utbetaling.getByPeriode(input.periode) }
             val newUtbetalinger = genererUtbetalingService.beregnUtbetalingerForPeriode(input.periode)
-            val report = createReport(existingUtbetalinger, newUtbetalinger)
+
+            val gjennomforingIds: Set<UUID> = existingUtbetalinger.mapTo(mutableSetOf()) { it.gjennomforing.id } +
+                newUtbetalinger.mapTo(mutableSetOf()) { it.gjennomforing.id }
+            val gjennomforinger = db.session {
+                gjennomforingIds.mapNotNull { queries.gjennomforing.getGruppetiltak(it) }
+            }
+
+            val report = createReport(gjennomforinger, existingUtbetalinger, newUtbetalinger)
             upload(report)
         }
 
@@ -108,15 +117,17 @@ class BeregnUtbetaling(
 }
 
 private fun createReport(
+    gjennomforinger: List<GjennomforingGruppetiltak>,
     existingUtbetalinger: List<Utbetaling>,
     newUtbetalinger: List<Utbetaling>,
 ): XSSFWorkbook = buildExcelWorkbook {
-    createUtbetalingerSheet("Utbetaling", existingUtbetalinger, newUtbetalinger)
-    createUtbetalingerSheet("Ny beregning", newUtbetalinger, existingUtbetalinger)
+    createUtbetalingerSheet("Utbetaling", gjennomforinger, existingUtbetalinger, newUtbetalinger)
+    createUtbetalingerSheet("Ny beregning", gjennomforinger, newUtbetalinger, existingUtbetalinger)
 }
 
 private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
     sheetName: String,
+    gjennomforinger: List<GjennomforingGruppetiltak>,
     source: List<Utbetaling>,
     other: List<Utbetaling>,
 ) = sheet(sheetName) {
@@ -124,8 +135,11 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
         "Tiltakskode",
         "Gjennomføring - Id",
         "Gjennomføring - Løpenummer",
+        "Gjennomføring - Navn",
+        "Gjennomføring - Fylke",
         "Utbetaling - Beregning",
         "Utbetaling - Periode",
+        "Utbetaling - Valuta",
         "Utbetaling - Beløp",
         "Utbetaling - Beløp - Differanse",
         "Deltakelse - Id",
@@ -138,17 +152,26 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
     )
 
     getDifference(source, other).sortedWith(utbetalingComparator).forEach { utbetaling ->
+        val gjennomforing = gjennomforinger.first { it.id == utbetaling.gjennomforing.id }
+
         val otherUtbetaling = other.find { it.gjennomforing.id == utbetaling.gjennomforing.id }
         val otherDeltakelser = otherUtbetaling?.beregning?.let { getDeltakelser(it) } ?: setOf()
+        val otherPris = otherUtbetaling?.beregning?.output?.pris
+            ?: 0.withValuta(utbetaling.beregning.output.pris.valuta)
+
         val deltakelser = getDeltakelser(utbetaling.beregning).subtract(otherDeltakelser)
-        val otherPris = otherUtbetaling?.beregning?.output?.pris ?: 0.withValuta(utbetaling.beregning.output.pris.valuta)
         deltakelser.sortedBy { it.deltakelseId }.forEach { deltakelse ->
             row(
                 utbetaling.tiltakstype.tiltakskode,
                 utbetaling.gjennomforing.id,
-                utbetaling.gjennomforing.lopenummer,
+                gjennomforing.lopenummer,
+                gjennomforing.navn,
+                gjennomforing.kontorstruktur
+                    .sortedBy { it.region.navn }
+                    .joinToString(separator = ", ") { it.region.navn },
                 utbetaling.beregning::class.simpleName!!,
                 utbetaling.periode.formatPeriode(),
+                utbetaling.valuta,
                 utbetaling.beregning.output.pris,
                 utbetaling.beregning.output.pris - otherPris,
                 deltakelse.deltakelseId,
