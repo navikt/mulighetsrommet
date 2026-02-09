@@ -9,14 +9,13 @@ import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Arrangor
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Enkeltplass
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Gruppe
 import no.nav.mulighetsrommet.model.Tiltakskoder
-import java.time.ZoneId.systemDefault
 
 object TiltaksgjennomforingV2Mapper {
     fun fromGjennomforing(gjennomforing: Gjennomforing): TiltaksgjennomforingV2Dto = when (gjennomforing) {
         is GjennomforingAvtale -> Gruppe(
             id = gjennomforing.id,
-            opprettetTidspunkt = gjennomforing.opprettetTidspunkt.atZone(systemDefault()).toInstant(),
-            oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt.atZone(systemDefault()).toInstant(),
+            opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
+            oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
             arrangor = Arrangor(
                 organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
@@ -57,8 +56,8 @@ object TiltaksgjennomforingV2Mapper {
         } else {
             Gruppe(
                 id = gjennomforing.id,
-                opprettetTidspunkt = gjennomforing.opprettetTidspunkt.atZone(systemDefault()).toInstant(),
-                oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt.atZone(systemDefault()).toInstant(),
+                opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
+                oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
                 tiltakskode = gjennomforing.tiltakstype.tiltakskode,
                 arrangor = Arrangor(
                     organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,

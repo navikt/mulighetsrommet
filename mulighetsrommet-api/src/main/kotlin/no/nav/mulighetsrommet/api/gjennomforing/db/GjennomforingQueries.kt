@@ -810,8 +810,8 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingAvtale {
         oppmoteSted = stringOrNull("oppmote_sted"),
         faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
         beskrivelse = stringOrNull("beskrivelse"),
-        opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
-        oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
+        opprettetTidspunkt = instant("opprettet_tidspunkt"),
+        oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
         publisert = boolean("publisert"),
         deltidsprosent = double("deltidsprosent"),
         estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
