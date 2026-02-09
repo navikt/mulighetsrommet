@@ -15,36 +15,20 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
-import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeFilter
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -52,18 +36,16 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-class GjennomforingService(
+class AvtaleGjennomforingService(
     private val config: Config,
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
-    private val tiltakstypeService: TiltakstypeService,
 ) {
     data class Config(
         val gjennomforingV2Topic: String,
@@ -150,68 +132,8 @@ class GjennomforingService(
         )
     }
 
-    fun get(id: UUID): Gjennomforing? = db.session {
-        getGruppetiltak(id) ?: queries.gjennomforing.getEnkeltplass(id)
-    }
-
     fun getGruppetiltak(id: UUID): GjennomforingGruppetiltak? = db.session {
         queries.gjennomforing.getGruppetiltak(id)
-    }
-
-    fun getAll(
-        pagination: Pagination,
-        filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
-        val tiltakstyper = filter.tiltakstypeIder.ifEmpty {
-            tiltakstypeService
-                .getAll(TiltakstypeFilter(features = setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)))
-                .map { it.id }
-        }
-        queries.gjennomforing.getAll(
-            pagination,
-            search = filter.search,
-            navEnheter = filter.navEnheter,
-            tiltakstypeIder = tiltakstyper,
-            statuser = filter.statuser,
-            sortering = filter.sortering,
-            avtaleId = filter.avtaleId,
-            arrangorIds = filter.arrangorIds,
-            administratorNavIdent = filter.administratorNavIdent,
-            koordinatorNavIdent = filter.koordinatorNavIdent,
-            publisert = filter.publisert,
-            sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
-        ).let { (totalCount, items) ->
-            val data = items.map {
-                when (it) {
-                    is GjennomforingKompaktGruppetiltak -> GjennomforingKompaktDto(
-                        id = it.id,
-                        navn = it.navn,
-                        lopenummer = it.lopenummer,
-                        startDato = it.startDato,
-                        sluttDato = it.sluttDato,
-                        status = GjennomforingDtoMapper.fromGjennomforingStatus(it.status),
-                        arrangor = it.arrangor,
-                        tiltakstype = it.tiltakstype,
-                        publisert = it.publisert,
-                        kontorstruktur = it.kontorstruktur,
-                    )
-
-                    is GjennomforingKompaktEnkeltplass -> GjennomforingKompaktDto(
-                        id = it.id,
-                        navn = it.tiltakstype.navn,
-                        lopenummer = it.lopenummer,
-                        startDato = it.startDato,
-                        sluttDato = it.sluttDato,
-                        status = GjennomforingDtoMapper.fromGjennomforingStatus(it.status),
-                        arrangor = it.arrangor,
-                        tiltakstype = it.tiltakstype,
-                        publisert = false,
-                        kontorstruktur = listOf(),
-                    )
-                }
-            }
-            PaginatedResponse.of(pagination, totalCount, data)
-        }
     }
 
     fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent): Unit = db.transaction {
@@ -452,7 +374,7 @@ class GjennomforingService(
     }
 
     // Filtrer vekk underenheter uten fylke
-    fun sanitizeNavEnheter(
+    private fun sanitizeNavEnheter(
         navRegioner: List<NavEnhetNummer>,
         navKontorer: List<NavEnhetNummer>,
     ): List<NavEnhetNummer> = db.session {
@@ -460,55 +382,6 @@ class GjennomforingService(
             (navRegioner + navKontorer).mapNotNull { queries.enhet.get(it)?.toDto() },
         )
             .flatMap { it.enheter.map { it.enhetsnummer } }
-    }
-
-    fun handlinger(gjennomforing: Gjennomforing, ansatt: NavAnsatt): Set<GjennomforingHandling> = when (gjennomforing) {
-        is GjennomforingEnkeltplass -> setOf()
-
-        is GjennomforingGruppetiltak -> {
-            val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
-
-            return setOfNotNull(
-                GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
-                GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
-                GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
-                GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
-                GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
-                GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
-                GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
-                    gjennomforing.tiltakstype.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
-                },
-
-                GjennomforingHandling.DUPLISER,
-                GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
-                GjennomforingHandling.OPPRETT_TILSAGN,
-                GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
-            )
-                .filter { tilgangTilHandling(it, ansatt) }
-                .toSet()
-        }
-    }
-
-    companion object {
-        fun tilgangTilHandling(handling: GjennomforingHandling, ansatt: NavAnsatt): Boolean {
-            val skrivGjennomforing = ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
-            val oppfolgerGjennomforing = ansatt.hasGenerellRolle(Rolle.OPPFOLGER_GJENNOMFORING)
-            val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-
-            return when (handling) {
-                GjennomforingHandling.PUBLISER -> skrivGjennomforing
-                GjennomforingHandling.AVBRYT -> skrivGjennomforing
-                GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING -> skrivGjennomforing || oppfolgerGjennomforing
-                GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR -> skrivGjennomforing || oppfolgerGjennomforing
-                GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR -> skrivGjennomforing
-                GjennomforingHandling.DUPLISER -> skrivGjennomforing
-                GjennomforingHandling.REDIGER -> skrivGjennomforing
-                GjennomforingHandling.OPPRETT_TILSAGN -> saksbehandlerOkonomi
-                GjennomforingHandling.OPPRETT_EKSTRATILSAGN -> saksbehandlerOkonomi
-                GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER -> saksbehandlerOkonomi
-                GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING -> saksbehandlerOkonomi
-            }
-        }
     }
 }
 

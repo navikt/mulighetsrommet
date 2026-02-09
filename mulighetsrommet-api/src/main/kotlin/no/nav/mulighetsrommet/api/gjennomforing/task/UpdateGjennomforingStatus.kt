@@ -5,7 +5,7 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.Daily
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.AvtaleGjennomforingService
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -16,7 +16,7 @@ import java.util.UUID
 
 class UpdateGjennomforingStatus(
     private val db: ApiDatabase,
-    private val gjennomforingService: GjennomforingService,
+    private val avtaleGjennomforingService: AvtaleGjennomforingService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -35,7 +35,7 @@ class UpdateGjennomforingStatus(
 
         gjennomforinger.forEach { id ->
             logger.info("Avslutter gjennomføring id=$id")
-            gjennomforingService.avsluttGjennomforing(
+            avtaleGjennomforingService.avsluttGjennomforing(
                 id = id,
                 avsluttetTidspunkt = now,
                 endretAv = Tiltaksadministrasjon,

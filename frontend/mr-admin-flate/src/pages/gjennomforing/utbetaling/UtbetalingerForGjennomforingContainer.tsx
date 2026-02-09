@@ -9,7 +9,7 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export function UtbetalingerForGjennomforingContainer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: handlinger } = useGjennomforingHandlinger(gjennomforingId);
+  const handlinger = useGjennomforingHandlinger(gjennomforingId);
   const { data: utbetalinger } = useUtbetalingerByGjennomforing(gjennomforingId);
 
   const navigate = useNavigate();

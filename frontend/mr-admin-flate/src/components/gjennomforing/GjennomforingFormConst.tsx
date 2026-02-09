@@ -62,12 +62,12 @@ export function defaultGjennomforingData(
       ansatt.navIdent,
     ],
     antallPlasser: gjennomforing?.antallPlasser ?? null,
-    startDato: gjennomforing?.startDato
+    startDato: gjennomforing
       ? gjennomforing.startDato
       : defaultOppstart === GjennomforingOppstartstype.LOPENDE
         ? avtale.startDato
         : null,
-    sluttDato: gjennomforing?.sluttDato
+    sluttDato: gjennomforing
       ? gjennomforing.sluttDato
       : defaultOppstart === GjennomforingOppstartstype.LOPENDE
         ? avtale.sluttDato

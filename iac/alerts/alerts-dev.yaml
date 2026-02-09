@@ -45,7 +45,7 @@ spec:
           for: 6m
           annotations:
             consequence: Klienter kan oppleve ustabilitet mot tjenesten.
-            action: "Sjekk <https://logs.adeo.no/app/discover#/view/a6a558c0-e657-11ec-a21b-2f67f808c51c?_g=()|loggene> til '{{ $labels.app }}' i namespace '{{ $labels.namespace }}' for å se hvorfor det er så mye feil"
+            action: "Sjekk <https://logs.az.nav.no/goto/6c85b6b4e210241da33bf75bfa9f59b7?security_tenant=navlogs|loggene> til '{{ $labels.app }}' i namespace '{{ $labels.namespace }}' for å se hvorfor det er så mye feil"
             summary: |
               Det er mange feilmeldinger i loggene til '{{ $labels.app }}'.
 

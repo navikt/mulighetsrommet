@@ -7,7 +7,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.AvtaleGjennomforingService
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -15,7 +15,7 @@ import java.time.LocalDate
 class UpdateApentForPamelding(
     config: Config = Config(),
     private val db: ApiDatabase,
-    private val gjennomforingService: GjennomforingService,
+    private val avtaleGjennomforingService: AvtaleGjennomforingService,
 ) {
     data class Config(
         val disabled: Boolean = false,
@@ -49,7 +49,7 @@ class UpdateApentForPamelding(
         val ids = session.list(queryOf(query, startDato)) { it.uuid("id") }
 
         ids.forEach { id ->
-            gjennomforingService.setApentForPamelding(id, apentForPamelding = false, Tiltaksadministrasjon)
+            avtaleGjennomforingService.setApentForPamelding(id, apentForPamelding = false, Tiltaksadministrasjon)
         }
     }
 }

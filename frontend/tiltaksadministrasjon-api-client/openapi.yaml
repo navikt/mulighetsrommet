@@ -3281,6 +3281,7 @@ components:
       - KREVER_DELTIDSPROSENT
       - STOTTER_FELLES_OPPSTART
       - STOTTER_LOPENDE_OPPSTART
+      - STOTTER_TILSKUDD_FOR_INVESTERINGER
     ProblemDetail:
       type: object
       additionalProperties: {}
@@ -5256,6 +5257,7 @@ components:
       - REDIGER
       - AVBRYT
       - DUPLISER
+      - FORHANDSVIS_I_MODIA
       - ENDRE_APEN_FOR_PAMELDING
       - ENDRE_TILGJENGELIG_FOR_ARRANGOR
       - REGISTRER_STENGT_HOS_ARRANGOR
