@@ -12,17 +12,18 @@ import {
   useLocation,
 } from "react-router";
 import parse from "html-react-parser";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import { DekoratorElements, fetchSsrDekorator } from "~/services/dekorator/dekorator.server";
 import useInjectDecoratorScript from "~/services/dekorator/useInjectScript";
 import "./tailwind.css";
 import { ErrorPage, ErrorPageNotFound } from "./components/common/ErrorPage";
 import { isDemo } from "./services/environment";
-import { BodyShort, Box, GlobalAlert, Link, Page } from "@navikt/ds-react";
+import { BodyShort, Box, GlobalAlert, Link, Loader, Page } from "@navikt/ds-react";
 import { Header } from "./components/header/Header";
 import { ReactQueryProvider } from "~/ReactQueryProvider";
 import { pushError } from "~/faro";
 import { Route } from "./+types/root";
+import { ClientOnly } from "./components/ClientOnly";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
@@ -45,7 +46,23 @@ function App() {
 
   return (
     <Dokument dekorator={dekorator || undefined}>
-      <Outlet />
+      <ClientOnly
+        fallback={
+          <div className="flex justify-center items-center p-8">
+            <Loader size="xlarge" />
+          </div>
+        }
+      >
+        <Suspense
+          fallback={
+            <div className="flex justify-center items-center p-8">
+              <Loader size="xlarge" />
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
+      </ClientOnly>
     </Dokument>
   );
 }
