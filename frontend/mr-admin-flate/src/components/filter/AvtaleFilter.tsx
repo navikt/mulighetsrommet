@@ -83,7 +83,7 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
               antallValgteFilter={filter.navEnheter.length}
             />
           </Accordion.Header>
-          <Accordion.Content className="ml-[-2rem]">
+          <Accordion.Content>
             <NavEnhetFilter
               value={filter.navEnheter}
               onChange={(navEnheter) => {
@@ -101,7 +101,7 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
           >
             <FilterAccordionHeader tittel="Status" antallValgteFilter={filter.statuser.length} />
           </Accordion.Header>
-          <Accordion.Content className="ml-[-2rem]">
+          <Accordion.Content>
             <CheckboxList
               onSelectAll={(checked) => {
                 selectDeselectAll(
@@ -134,7 +134,7 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
                 antallValgteFilter={filter.tiltakstyper.length}
               />
             </Accordion.Header>
-            <Accordion.Content className="ml-[-2rem]">
+            <Accordion.Content>
               <AvtaleTiltakstypeFilter
                 value={filter.tiltakstyper}
                 onChange={(tiltakstyper) => {
@@ -155,7 +155,7 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
               antallValgteFilter={filter.avtaletyper.length}
             />
           </Accordion.Header>
-          <Accordion.Content className="ml-[-2rem]">
+          <Accordion.Content>
             <CheckboxList
               onSelectAll={(checked) => {
                 selectDeselectAll(
@@ -186,7 +186,7 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
               antallValgteFilter={filter.arrangorer.length}
             />
           </Accordion.Header>
-          <Accordion.Content className="ml-[-2rem]">
+          <Accordion.Content>
             <CheckboxList
               searchable
               items={arrangorOptions(arrangorData.data)}
@@ -211,7 +211,7 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
               antallValgteFilter={filter.personvernBekreftet ? 1 : 0}
             />
           </Accordion.Header>
-          <Accordion.Content className="ml-[-2rem]">
+          <Accordion.Content>
             <CheckboxList
               items={[
                 {

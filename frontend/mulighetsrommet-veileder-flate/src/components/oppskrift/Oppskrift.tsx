@@ -47,7 +47,7 @@ export function Oppskrift({ oppskriftId, tiltakstypeId, setOppskriftId }: Props)
       <Button data-color="neutral" variant="tertiary" onClick={() => setOppskriftId(undefined)}>
         Lukk oppskriften
       </Button>
-      <div className="flex bg-white p-4">
+      <div className="flex bg-ax-bg-default p-4">
         <aside className="mx-4">
           <nav>
             <ol className="m-0 p-0">
@@ -68,14 +68,14 @@ export function Oppskrift({ oppskriftId, tiltakstypeId, setOppskriftId }: Props)
             </ol>
           </nav>
         </aside>
-        <section ref={ref} className="overflow-y-scroll max-h-[50rem]">
+        <section ref={ref} className="overflow-y-scroll max-h-200">
           <h3>{oppskrift.navn}</h3>
           <p>{oppskrift.beskrivelse}</p>
           {oppskrift.steg.map((st, index) => {
             return (
               <div
                 key={st.navn}
-                className="bg-gray-50 p-4 my-4 mx-0 rounded-[0.2rem] [&_img]:w-full"
+                className="bg-ax-bg-neutral-soft p-4 my-4 mx-0 rounded-[0.2rem] [&_img]:w-full"
               >
                 <h4 id={`steg-${index + 1}`}>{`${index + 1}. ${st.navn}`}</h4>
                 <RedaksjoneltInnhold value={st.innhold} />

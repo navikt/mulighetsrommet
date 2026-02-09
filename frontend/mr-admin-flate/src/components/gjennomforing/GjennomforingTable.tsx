@@ -2,10 +2,9 @@ import { useGjennomforinger } from "@/api/gjennomforing/useGjennomforinger";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { formaterNavEnheter } from "@/utils/Utils";
-import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
-import { Alert, BodyShort, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Link, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import React from "react";
 import { PagineringsOversikt } from "@/components/paginering/PagineringOversikt";
 import { PagineringContainer } from "@/components/paginering/PagineringContainer";
@@ -13,6 +12,7 @@ import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { useDownloadGjennomforingerAsExcel } from "@/api/gjennomforing/useDownloadGjennomforingerAsExcel";
 import { GjennomforingStatusTag } from "@/components/statuselementer/GjennomforingStatusTag";
 import { formaterDato } from "@mr/frontend-common/utils/date";
+import { Link as ReactRouterLink } from "react-router";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -91,6 +91,7 @@ export function GjennomforingTable({
               style={{
                 top: `calc(${tagsHeight}px + 6.9rem)`,
               }}
+              className="sticky bg-ax-bg-default"
             >
               <Table.Row>
                 {headers
@@ -123,14 +124,13 @@ export function GjennomforingTable({
                     <Table.Row key={index}>
                       <SkjulKolonne skjul={!!skjulKolonner?.navn}>
                         <Table.DataCell aria-label={`Navn på gjennomforing: ${gjennomforing.navn}`}>
-                          <VStack>
-                            <Lenke
-                              to={`/gjennomforinger/${gjennomforing.id}`}
-                              data-testid="gjennomforing-tabell_tittel"
-                            >
-                              {gjennomforing.navn}
-                            </Lenke>
-                          </VStack>
+                          <Link
+                            as={ReactRouterLink}
+                            to={`/gjennomforinger/${gjennomforing.id}`}
+                            data-testid="gjennomforing-tabell_tittel"
+                          >
+                            {gjennomforing.navn}
+                          </Link>
                         </Table.DataCell>
                       </SkjulKolonne>
                       <SkjulKolonne skjul={!!skjulKolonner?.enhet}>

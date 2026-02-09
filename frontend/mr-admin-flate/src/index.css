@@ -1,9 +1,9 @@
-@config "../tailwind.config.js";
 @import "tailwindcss";
 @import "@navikt/ds-css" layer(components);
+@config "../tailwind.config.ts";
 
 html {
-  background-color: var(--ax-bg-neutral-soft);
+  background-color: var(--ax-bg-sunken);
 }
 
 .error {
@@ -17,9 +17,4 @@ html {
 
 :root {
   --filter-width: 320px;
-}
-
-.navds-tabs__tablist-wrapper {
-  background-color: var(--a-white);
-  width: 100%;
 }

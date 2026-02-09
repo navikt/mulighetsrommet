@@ -83,11 +83,7 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
         {dekorator && parse(dekorator.head)}
       </head>
       <Box asChild background={isLandingPage ? "default" : "sunken"}>
-        <Page
-          as="body"
-          footer={dekorator && parse(dekorator.footer)}
-          background={isLandingPage ? "bg-default" : "bg-subtle"}
-        >
+        <Page as="body" footer={dekorator && parse(dekorator.footer)}>
           <ReactQueryProvider>
             <DekoratorHeader dekorator={dekorator} />
             <Header />

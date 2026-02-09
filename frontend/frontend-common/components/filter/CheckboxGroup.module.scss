@@ -25,7 +25,7 @@
 
 .caret_container:hover {
   .accordion_down {
-    background-color: var(--a-gray-300);
+    background-color: var(--ax-bg-neutral-moderate);
     border-radius: 0.25rem;
 
     transform: translateY(-0.05rem);
@@ -39,7 +39,7 @@
 }
 
 .checkbox_and_caret:hover {
-  background-color: var(--a-gray-100);
+  background-color: var(--ax-bg-neutral-soft);
 }
 
 .checkbox:hover .accordion_down {

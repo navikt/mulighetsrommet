@@ -12,7 +12,7 @@ const forsidekortData: ForsideKortProps[] = [
     navn: "Oppgaver",
     ikon: (
       <div className="w-16 h-16 flex items-center justify-center bg-ax-warning-400 rounded-full">
-        <BellDotFillIcon title="Oppgaveoversikt" className="bg-ax-bg-default w-12 h-12" />
+        <BellDotFillIcon color="white" title="Oppgaveoversikt" className=" w-12 h-12" />
       </div>
     ),
     url: "/oppgaveoversikt/oppgaver",

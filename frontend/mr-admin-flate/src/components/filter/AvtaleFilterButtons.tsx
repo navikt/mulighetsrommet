@@ -1,13 +1,14 @@
 import { HarTilgang } from "@/components/auth/HarTilgang";
-import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
+import { Button } from "@navikt/ds-react";
 import { Rolle } from "@tiltaksadministrasjon/api-client";
+import { Link } from "react-router";
 
 export function AvtaleFilterButtons() {
   return (
     <HarTilgang rolle={Rolle.AVTALER_SKRIV}>
-      <Lenkeknapp to="/avtaler/opprett-avtale" size="small" variant="primary">
+      <Button as={Link} to="/avtaler/opprett-avtale" size="small" variant="primary">
         Opprett ny avtale
-      </Lenkeknapp>
+      </Button>
     </HarTilgang>
   );
 }

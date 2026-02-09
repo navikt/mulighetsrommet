@@ -95,7 +95,7 @@ export function SokeSelect<T>(props: SelectProps<T> & { childRef?: Ref<Select<Se
             fontSize: size === "small" ? "16px" : "18px",
             marginBottom: "8px",
             display: "inline-block",
-            color: "var(--ac-form-description, var(--a-text-subtle))",
+            color: "var(--ac-form-description, var(--ax-text-neutral-subtle))",
           }}
         >
           {description}

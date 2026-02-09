@@ -1,10 +1,9 @@
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { capitalizeEveryWord, formaterNavEnheter } from "@/utils/Utils";
-import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
-import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
+import { Alert, Link, Pagination, Table } from "@navikt/ds-react";
 import { useAvtaler } from "@/api/avtaler/useAvtaler";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
@@ -12,6 +11,7 @@ import { AvtaleStatusTag } from "../statuselementer/AvtaleStatusTag";
 import { AvtaleFilterType } from "@/pages/avtaler/filter";
 import { useDownloadAvtalerAsExcel } from "@/api/avtaler/useDownloadAvtalerAsExcel";
 import { formaterDato } from "@mr/frontend-common/utils/date";
+import { Link as ReactRouterLink } from "react-router";
 
 interface Props {
   filter: AvtaleFilterType;
@@ -71,18 +71,14 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
         {avtaler.length === 0 ? (
           <Alert variant="info">Fant ingen avtaler</Alert>
         ) : (
-          <Table
-            sort={sort}
-            onSortChange={(sortKey) => handleSort(sortKey)}
-            className="bg-ax-bg-default border-separate border-spacing-0 border-t border-ax-neutral-300"
-          >
+          <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)}>
             <Table.Header
               style={{
                 top: `calc(${tagsHeight}px + 7.8rem)`,
               }}
               className="sticky bg-ax-bg-default"
             >
-              <Table.Row className="hover:bg-ax-neutral-100">
+              <Table.Row>
                 {headers.map((header) => (
                   <Table.ColumnHeader
                     key={header.sortKey}
@@ -100,13 +96,15 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
             <Table.Body>
               {avtaler.map((avtale, index) => {
                 return (
-                  <Table.Row key={index} className="hover:bg-ax-neutral-100">
-                    <Table.DataCell aria-label={`Avtalenavn: ${avtale.navn}`} className="underline">
-                      <VStack>
-                        <Lenke to={`/avtaler/${avtale.id}`} data-testid="avtaletabell_tittel">
-                          {avtale.navn}
-                        </Lenke>
-                      </VStack>
+                  <Table.Row key={index}>
+                    <Table.DataCell aria-label={`Avtalenavn: ${avtale.navn}`}>
+                      <Link
+                        as={ReactRouterLink}
+                        to={`/avtaler/${avtale.id}`}
+                        data-testid="avtaletabell_tittel"
+                      >
+                        {avtale.navn}
+                      </Link>
                     </Table.DataCell>
                     <Table.DataCell aria-label={`Avtalenummer: ${avtale.avtalenummer}`}>
                       {avtale.avtalenummer}
