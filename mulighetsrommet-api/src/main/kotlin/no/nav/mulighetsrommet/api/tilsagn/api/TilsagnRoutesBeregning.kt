@@ -206,13 +206,6 @@ fun resolveTilsagnDefaults(
     gjennomforing: GjennomforingAvtale,
     tilsagn: Tilsagn?,
 ): TilsagnRequest {
-    if (gjennomforing.prismodell == null) {
-        throw StatusException(
-            HttpStatusCode.BadRequest,
-            "Tilsagn kan ikke opprettes fordi gjennomføringen mangler prismodell",
-        )
-    }
-
     val periode = when (gjennomforing.prismodell) {
         is Prismodell.AnnenAvtaltPris -> null
 
@@ -306,13 +299,6 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
     request: TilsagnRequest,
     gjennomforing: GjennomforingAvtale,
 ): TilsagnRequest {
-    if (gjennomforing.prismodell == null) {
-        throw StatusException(
-            HttpStatusCode.BadRequest,
-            "Tilsagn kan ikke opprettes fordi gjennomføringen mangler prismodell",
-        )
-    }
-
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
     val valuta = gjennomforing.prismodell.valuta
     return TilsagnRequest(

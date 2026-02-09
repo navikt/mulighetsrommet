@@ -4789,9 +4789,7 @@ components:
           type: integer
           format: int32
         avtaleId:
-          type:
-          - "null"
-          - string
+          type: string
           format: uuid
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"

@@ -127,7 +127,7 @@ class AvtaleService(
                         startDato = it.startDato,
                         utdanningslop = it.utdanningslop,
                         status = it.status.type,
-                        prismodellId = it.prismodell?.id ?: avtale.prismodeller.first().id,
+                        prismodellId = it.prismodell.id,
                     )
                 },
                 prismodeller = avtale.prismodeller,
@@ -213,7 +213,7 @@ class AvtaleService(
             tiltakstypeNavn = avtale.tiltakstype.navn,
             avtaleStartDato = avtale.startDato,
             gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
-            bruktePrismodeller = gjennomforinger.mapNotNull { it.prismodell?.id }.toSet(),
+            bruktePrismodeller = gjennomforinger.map { it.prismodell.id }.toSet(),
         )
         AvtaleValidator.validatePrismodeller(request, context).map { prismodeller ->
             prismodeller.forEach { prismodell ->

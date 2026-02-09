@@ -52,7 +52,7 @@ object GjennomforingDtoMapper {
             publisert = gjennomforing.publisert,
             estimertVentetid = gjennomforing.estimertVentetid,
         ),
-        prismodell = gjennomforing.prismodell?.let { fromPrismodell(it) },
+        prismodell = fromPrismodell(gjennomforing.prismodell),
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop,
     )
