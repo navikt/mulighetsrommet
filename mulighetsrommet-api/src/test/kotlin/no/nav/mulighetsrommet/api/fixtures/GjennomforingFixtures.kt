@@ -210,6 +210,20 @@ object GjennomforingFixtures {
         arenaAnsvarligEnhet = "1234",
     )
 
+    val ArenaArbeidsrettetRehabilitering = GjennomforingArenaDbo(
+        id = UUID.randomUUID(),
+        tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        navn = "Arena ARR",
+        startDato = LocalDate.of(2022, 1, 1),
+        sluttDato = LocalDate.of(2023, 12, 31),
+        status = GjennomforingStatusType.AVSLUTTET,
+        deltidsprosent = 100.0,
+        antallPlasser = 10,
+        tiltaksnummer = Tiltaksnummer("2022#1"),
+        arenaAnsvarligEnhet = "1234",
+    )
+
     fun createGjennomforingRequest(
         avtale: AvtaleDbo,
         id: UUID = UUID.randomUUID(),
