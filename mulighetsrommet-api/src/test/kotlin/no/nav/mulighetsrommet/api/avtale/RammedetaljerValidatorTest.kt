@@ -17,12 +17,12 @@ class RammedetaljerValidatorTest : FunSpec({
 
     context("rammedetaljer") {
         test("må være anskaffet tiltak") {
-            val ikkeAnskaffetCtx = RammeDetaljerValidator.Ctx(
+            val ikkeAnskaffetCtx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.AFT.id,
                 prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft.toPrismodell()),
             )
 
-            RammeDetaljerValidator.validateRammedetaljer(
+            RammedetaljerValidator.validateRammedetaljer(
                 ikkeAnskaffetCtx,
                 RammedetaljerRequest(
                     totalRamme = 1000,
@@ -36,7 +36,7 @@ class RammedetaljerValidatorTest : FunSpec({
         }
 
         test("må være lik valuta på alle prismodeller") {
-            val ctx = RammeDetaljerValidator.Ctx(
+            val ctx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
                 prismodeller = listOf(
                     PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
@@ -44,7 +44,7 @@ class RammedetaljerValidatorTest : FunSpec({
                 ),
             )
 
-            RammeDetaljerValidator.validateRammedetaljer(
+            RammedetaljerValidator.validateRammedetaljer(
                 ctx,
                 RammedetaljerRequest(
                     totalRamme = 1000,
@@ -58,14 +58,14 @@ class RammedetaljerValidatorTest : FunSpec({
         }
 
         test("total ramme må være positivt beløp") {
-            val ikkeAnskaffetCtx = RammeDetaljerValidator.Ctx(
+            val ikkeAnskaffetCtx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
                 prismodeller = listOf(
                     PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
                 ),
             )
 
-            RammeDetaljerValidator.validateRammedetaljer(
+            RammedetaljerValidator.validateRammedetaljer(
                 ikkeAnskaffetCtx,
                 RammedetaljerRequest(
                     totalRamme = -1,
@@ -79,14 +79,14 @@ class RammedetaljerValidatorTest : FunSpec({
         }
 
         test("utetalt fra Arena må være positivt beløp") {
-            val ctx = RammeDetaljerValidator.Ctx(
+            val ctx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
                 prismodeller = listOf(
                     PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
                 ),
             )
 
-            RammeDetaljerValidator.validateRammedetaljer(
+            RammedetaljerValidator.validateRammedetaljer(
                 ctx,
                 RammedetaljerRequest(
                     totalRamme = 1000,
@@ -100,14 +100,14 @@ class RammedetaljerValidatorTest : FunSpec({
         }
 
         test("Skal kunne validere korrekt") {
-            val ctx = RammeDetaljerValidator.Ctx(
+            val ctx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
                 prismodeller = listOf(
                     PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
                 ),
             )
 
-            RammeDetaljerValidator.validateRammedetaljer(
+            RammedetaljerValidator.validateRammedetaljer(
                 ctx,
                 RammedetaljerRequest(
                     totalRamme = 1000,
@@ -115,7 +115,7 @@ class RammedetaljerValidatorTest : FunSpec({
                 ),
             ).isRight() shouldBe true
 
-            RammeDetaljerValidator.validateRammedetaljer(
+            RammedetaljerValidator.validateRammedetaljer(
                 ctx,
                 RammedetaljerRequest(
                     totalRamme = 1000,

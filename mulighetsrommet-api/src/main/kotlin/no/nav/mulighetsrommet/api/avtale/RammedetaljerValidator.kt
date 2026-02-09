@@ -11,7 +11,7 @@ import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
-object RammeDetaljerValidator {
+object RammedetaljerValidator {
     data class Ctx(
         val avtaleId: UUID,
         val prismodeller: List<Prismodell>,

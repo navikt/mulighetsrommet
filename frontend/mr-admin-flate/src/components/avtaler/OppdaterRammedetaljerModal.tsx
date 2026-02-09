@@ -4,7 +4,7 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { useUpsertRammedetaljer } from "@/api/avtaler/useUpsertRammedetaljer";
-import AvtaleRammeDetaljerForm from "./AvtaleRammeDetaljerForm";
+import AvtaleRammedetaljerForm from "./AvtaleRammedetaljerForm";
 import { useAvtaleRammedetaljerDefaults } from "@/api/avtaler/useAvtaleRammedetaljerDefaults";
 import { useDeleteRammedetaljer } from "@/api/avtaler/useDeleteAvtaleRammedetaljer";
 import { TrashFillIcon } from "@navikt/aksel-icons";
@@ -67,7 +67,7 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(postData)}>
           <Modal.Body>
-            <AvtaleRammeDetaljerForm valuta={rammeDetaljerDefaults.valuta} />
+            <AvtaleRammedetaljerForm valuta={rammeDetaljerDefaults.valuta} />
           </Modal.Body>
           <Modal.Footer>
             <HStack justify="space-between" className="flex-row-reverse" width="100%">

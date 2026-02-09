@@ -240,8 +240,8 @@ class AvtaleService(
     ): Either<List<FieldError>, Unit> = db.transaction {
         val avtale = getOrError(id)
 
-        RammeDetaljerValidator.validateRammedetaljer(
-            context = RammeDetaljerValidator.Ctx(avtale.id, avtale.prismodeller),
+        RammedetaljerValidator.validateRammedetaljer(
+            context = RammedetaljerValidator.Ctx(avtale.id, avtale.prismodeller),
             request,
         ).map { rammedetalerDbo ->
             queries.rammedetaljer.upsert(rammedetalerDbo)

@@ -7,7 +7,7 @@ interface Props {
   valuta: Valuta;
 }
 
-export default function AvtaleRammeDetaljerForm({ valuta }: Props) {
+export default function AvtaleRammedetaljerForm({ valuta }: Props) {
   const {
     formState: { errors },
     register,
