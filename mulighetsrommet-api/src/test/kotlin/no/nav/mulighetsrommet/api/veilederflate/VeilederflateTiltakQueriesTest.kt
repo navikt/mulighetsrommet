@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.veilederflate
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -8,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.ArbeidsrettetRehabilitering
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
@@ -313,33 +315,47 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
     }
 
-    context("tiltak uten avtale") {
+    context("visning av Arena-tiltak") {
         val domain = MulighetsrommetTestDomain(
             navEnheter = listOf(Innlandet, Gjovik),
             tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering),
-            avtaler = listOf(AvtaleFixtures.ARR),
-            gjennomforinger = listOf(ArbeidsrettetRehabilitering),
+            avtaler = listOf(),
+            gjennomforinger = listOf(GjennomforingFixtures.ArenaArbeidsrettetRehabilitering),
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))
             session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE}'::innsatsgruppe]"))
-            session.execute(Query("update gjennomforing set avtale_id = null"))
-
-            queries.gjennomforing.setPublisert(ArbeidsrettetRehabilitering.id, true)
         }
 
-        test("er ikke avhengig av å være koblet til en avtale for å kunne hentes") {
+        test("hentes ikke fra getAll-spørring selv om tiltaket er publisert") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val res = queries.veilderTiltak.getAll(
+                queries.gjennomforing.setNavEnheter(
+                    GjennomforingFixtures.ArenaArbeidsrettetRehabilitering.id,
+                    setOf(NavEnhetNummer("0502")),
+                )
+
+                queries.gjennomforing.setPublisert(
+                    GjennomforingFixtures.ArenaArbeidsrettetRehabilitering.id,
+                    true,
+                )
+
+                queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
-                )
-                res.size shouldBe 1
+                ).shouldBeEmpty()
+            }
+        }
 
-                val tiltak = res[0]
-                tiltak.personopplysningerSomKanBehandles shouldBe emptyList()
-                tiltak.personvernBekreftet shouldBe false
+        test("hentes fra get-spørring") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val tiltak = queries.veilderTiltak
+                    .get(GjennomforingFixtures.ArenaArbeidsrettetRehabilitering.id)
+                    .shouldNotBeNull()
+
+                tiltak.navn shouldBe "Arena ARR"
             }
         }
     }
