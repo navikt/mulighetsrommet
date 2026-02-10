@@ -30,13 +30,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-class ReplicateDeltakerKafkaConsumerTest : FunSpec({
+class ReplikerDeltakerKafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createConsumer(
         oppdaterUtbetaling: GenererUtbetalingService = mockk(relaxed = true),
-    ): ReplicateDeltakerKafkaConsumer {
-        return ReplicateDeltakerKafkaConsumer(
+    ): ReplikerDeltakerKafkaConsumer {
+        return ReplikerDeltakerKafkaConsumer(
             db = database.db,
             genererUtbetalingService = oppdaterUtbetaling,
         )

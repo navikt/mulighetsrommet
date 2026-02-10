@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.UUID
 
-class ReplicateDeltakerKafkaConsumer(
+class ReplikerDeltakerKafkaConsumer(
     private val db: ApiDatabase,
     private val genererUtbetalingService: GenererUtbetalingService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
