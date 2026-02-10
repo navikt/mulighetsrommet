@@ -2,11 +2,11 @@
 common-java-modules = "3.2025.11.10_14.07-a9f44944d7bc"
 flyway = "11.20.2"
 koin-bom = "4.1.1"
-kotest = "6.1.1"
+kotest = "6.1.2"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.3.0"
 ktor = "3.4.0"
-logback = "1.5.26"
+logback = "1.5.27"
 metrics = "4.2.38"
 arrow = "2.2.1.1"
 micrometer = "1.16.2"
@@ -38,22 +38,22 @@ arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", ve
 
 ktor-openapi = "io.github.smiley4:ktor-openapi:5.4.0"
 ktor-swagger-ui = "io.github.smiley4:ktor-swagger-ui:5.4.0"
-schema-kenerator-core = "io.github.smiley4:schema-kenerator-core:2.5.0"
-schema-kenerator-reflection = "io.github.smiley4:schema-kenerator-reflection:2.5.0"
-schema-kenerator-serialization = "io.github.smiley4:schema-kenerator-serialization:2.5.0"
-schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.5.0"
+schema-kenerator-core = "io.github.smiley4:schema-kenerator-core:2.6.0"
+schema-kenerator-reflection = "io.github.smiley4:schema-kenerator-reflection:2.6.0"
+schema-kenerator-serialization = "io.github.smiley4:schema-kenerator-serialization:2.6.0"
+schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.6.0"
 
 assertj-db = "org.assertj:assertj-db:3.0.1"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.3"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:16.7.0"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:16.7.1"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.28.0"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.62.0"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.62.1"
 
 hikaricp = "com.zaxxer:HikariCP:7.0.2"
 
@@ -111,7 +111,7 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 micrometer-core = { module = "io.micrometer:micrometer-core", version.ref = "micrometer" }
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }
 
-mockk = "io.mockk:mockk:1.14.7"
+mockk = "io.mockk:mockk:1.14.9"
 
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
@@ -124,7 +124,7 @@ postgresql = "org.postgresql:postgresql:42.7.9"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:7.5.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:7.6.0"
 
 slack-client = "com.slack.api:slack-api-client:1.46.0"
 
@@ -133,4 +133,4 @@ slf4j = "org.slf4j:slf4j-api:2.0.17"
 apache-poi = "org.apache.poi:poi:5.5.1"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.5.1"
 
-unleash = "io.getunleash:unleash-client-java:12.1.0"
+unleash = "io.getunleash:unleash-client-java:12.1.1"
