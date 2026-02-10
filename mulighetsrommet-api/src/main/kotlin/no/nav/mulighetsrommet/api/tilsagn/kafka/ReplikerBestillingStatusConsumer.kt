@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.okonomi.BestillingStatus
 import org.slf4j.LoggerFactory
 
-class ReplicateBestillingStatusConsumer(
+class ReplikerBestillingStatusConsumer(
     private val db: ApiDatabase,
 ) : KafkaTopicConsumer<String, JsonElement>(
     stringDeserializer(),

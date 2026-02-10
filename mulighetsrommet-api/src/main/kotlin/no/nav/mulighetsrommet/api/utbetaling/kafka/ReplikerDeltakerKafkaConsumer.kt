@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.UUID
 
-class ReplicateDeltakerKafkaConsumer(
+class ReplikerDeltakerKafkaConsumer(
     private val db: ApiDatabase,
     private val genererUtbetalingService: GenererUtbetalingService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
@@ -59,7 +59,13 @@ class ReplicateDeltakerKafkaConsumer(
     }
 
     private fun QueryContext.harEndringer(amtDeltaker: AmtDeltakerV1Dto): Boolean {
-        return queries.deltaker.get(amtDeltaker.id) != Deltaker(
+        val deltaker = queries.deltaker.get(amtDeltaker.id) ?: return true
+
+        if (deltaker.endretTidspunkt > amtDeltaker.endretDato) {
+            return false
+        }
+
+        return deltaker != Deltaker(
             id = amtDeltaker.id,
             gjennomforingId = amtDeltaker.gjennomforingId,
             startDato = amtDeltaker.startDato,

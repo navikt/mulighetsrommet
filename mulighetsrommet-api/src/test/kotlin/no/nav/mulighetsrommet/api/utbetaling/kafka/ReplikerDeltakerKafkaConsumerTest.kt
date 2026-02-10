@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
@@ -30,13 +31,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-class ReplicateDeltakerKafkaConsumerTest : FunSpec({
+class ReplikerDeltakerKafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createConsumer(
         oppdaterUtbetaling: GenererUtbetalingService = mockk(relaxed = true),
-    ): ReplicateDeltakerKafkaConsumer {
-        return ReplicateDeltakerKafkaConsumer(
+    ): ReplikerDeltakerKafkaConsumer {
+        return ReplikerDeltakerKafkaConsumer(
             db = database.db,
             genererUtbetalingService = oppdaterUtbetaling,
         )
@@ -161,6 +162,89 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
                 queries.deltaker.getAll().shouldBeEmpty()
             }
         }
+
+        test("overskriver ikke deltakelser når tidspunkt for endring er eldre enn det som er lagret i databasen") {
+            val deltakerConsumer = createConsumer()
+
+            val id = UUID.randomUUID()
+
+            val deltarTidspunkt = LocalDateTime.of(2023, 2, 1, 0, 0, 0)
+            val amtDeltakerDeltar = createAmtDeltakerV1Dto(
+                id = id,
+                gjennomforingId = AFT1.id,
+                personIdent = "12345678910",
+                status = DeltakerStatusType.DELTAR,
+                opprettetDato = deltarTidspunkt,
+            )
+
+            val avbruttTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+            val amtDeltakerAvbrutt = createAmtDeltakerV1Dto(
+                id = id,
+                gjennomforingId = AFT1.id,
+                personIdent = "12345678910",
+                status = DeltakerStatusType.AVBRUTT,
+                opprettetDato = avbruttTidspunkt,
+            )
+
+            deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerAvbrutt))
+
+            database.run {
+                queries.deltaker.get(id).shouldNotBeNull().should {
+                    it.status.type shouldBe DeltakerStatusType.AVBRUTT
+                    it.endretTidspunkt shouldBe avbruttTidspunkt
+                }
+            }
+
+            deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerDeltar))
+
+            database.run {
+                queries.deltaker.get(id).shouldNotBeNull().should {
+                    it.status.type shouldBe DeltakerStatusType.AVBRUTT
+                    it.endretTidspunkt shouldBe avbruttTidspunkt
+                }
+            }
+        }
+
+        test("overskriver deltakelser når tidspunkt for endring er det samme som det som er lagret i databasen") {
+            val deltakerConsumer = createConsumer()
+
+            val id = UUID.randomUUID()
+
+            val tidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+            val amtDeltakerDeltar = createAmtDeltakerV1Dto(
+                id = id,
+                gjennomforingId = AFT1.id,
+                personIdent = "12345678910",
+                status = DeltakerStatusType.DELTAR,
+                opprettetDato = tidspunkt,
+            )
+
+            val amtDeltakerAvbrutt = createAmtDeltakerV1Dto(
+                id = id,
+                gjennomforingId = AFT1.id,
+                personIdent = "12345678910",
+                status = DeltakerStatusType.AVBRUTT,
+                opprettetDato = tidspunkt,
+            )
+
+            deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerDeltar))
+
+            database.run {
+                queries.deltaker.get(id).shouldNotBeNull().should {
+                    it.status.type shouldBe DeltakerStatusType.DELTAR
+                    it.endretTidspunkt shouldBe tidspunkt
+                }
+            }
+
+            deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerAvbrutt))
+
+            database.run {
+                queries.deltaker.get(id).shouldNotBeNull().should {
+                    it.status.type shouldBe DeltakerStatusType.AVBRUTT
+                    it.endretTidspunkt shouldBe tidspunkt
+                }
+            }
+        }
     }
 
     context("deltakelser for utbetaling") {
@@ -250,12 +334,13 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
 })
 
 private fun createAmtDeltakerV1Dto(
+    id: UUID = UUID.randomUUID(),
     gjennomforingId: UUID,
     status: DeltakerStatusType,
     personIdent: String,
     opprettetDato: LocalDateTime = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
 ) = AmtDeltakerV1Dto(
-    id = UUID.randomUUID(),
+    id = id,
     gjennomforingId = gjennomforingId,
     personIdent = personIdent,
     startDato = null,

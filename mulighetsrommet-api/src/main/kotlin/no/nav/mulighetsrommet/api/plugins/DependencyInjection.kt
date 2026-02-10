@@ -59,7 +59,7 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateBestillingStatusConsumer
+import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
@@ -67,8 +67,8 @@ import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
-import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateDeltakerKafkaConsumer
-import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateFakturaStatusConsumer
+import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerDeltakerKafkaConsumer
+import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerFakturaStatusConsumer
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
@@ -170,15 +170,15 @@ private fun kafka(appConfig: AppConfig) = module {
                 get(),
                 get(),
             ),
-            config.clients.amtDeltakerV1 to ReplicateDeltakerKafkaConsumer(
+            config.clients.amtDeltakerV1 to ReplikerDeltakerKafkaConsumer(
                 db = get(),
                 genererUtbetalingService = get(),
             ),
             config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
             config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get()),
             config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
-            config.clients.replicateBestillingStatus to ReplicateBestillingStatusConsumer(get()),
-            config.clients.replicateFakturaStatus to ReplicateFakturaStatusConsumer(get()),
+            config.clients.replicateBestillingStatus to ReplikerBestillingStatusConsumer(get()),
+            config.clients.replicateFakturaStatus to ReplikerFakturaStatusConsumer(get()),
             config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(get()),
         )
         KafkaConsumerOrchestrator(
