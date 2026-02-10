@@ -60,6 +60,11 @@ export function ErrorPage() {
                 Status: <i>{error.status}</i>
               </BodyShort>
             )}
+            {error && "traceId" in error && (
+              <BodyShort>
+                TraceId: <i>{error.traceId as string}</i>
+              </BodyShort>
+            )}
           </VStack>
         </Box>
         <BodyShort>
