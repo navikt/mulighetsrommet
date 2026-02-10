@@ -59,7 +59,13 @@ class ReplikerDeltakerKafkaConsumer(
     }
 
     private fun QueryContext.harEndringer(amtDeltaker: AmtDeltakerV1Dto): Boolean {
-        return queries.deltaker.get(amtDeltaker.id) != Deltaker(
+        val deltaker = queries.deltaker.get(amtDeltaker.id) ?: return true
+
+        if (deltaker.endretTidspunkt > amtDeltaker.endretDato) {
+            return false
+        }
+
+        return deltaker != Deltaker(
             id = amtDeltaker.id,
             gjennomforingId = amtDeltaker.gjennomforingId,
             startDato = amtDeltaker.startDato,
