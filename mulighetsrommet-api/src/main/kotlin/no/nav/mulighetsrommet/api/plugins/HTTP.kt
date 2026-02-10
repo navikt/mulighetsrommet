@@ -35,7 +35,6 @@ fun Application.configureHTTP() {
         allowHeader(HttpHeaders.AccessControlAllowOrigin)
 
         allowHeader(HttpHeaders.XRequestId)
-        allowHeader(HttpHeaders.XCorrelationId)
         allowHeadersPrefixed("nav-")
         exposeHeader("X-OpenAPI-Version")
     }

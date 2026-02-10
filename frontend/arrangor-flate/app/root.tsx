@@ -16,7 +16,7 @@ import { ReactNode, Suspense } from "react";
 import { DekoratorElements, fetchSsrDekorator } from "~/services/dekorator/dekorator.server";
 import useInjectDecoratorScript from "~/services/dekorator/useInjectScript";
 import "./tailwind.css";
-import { ErrorPage, ErrorPageNotFound } from "./components/common/ErrorPage";
+import { ErrorPage, ErrorPageNotFound, ProblemDetailPage } from "./components/common/ErrorPage";
 import { isDemo } from "./services/environment";
 import { BodyShort, Box, GlobalAlert, Link, Loader, Page } from "@navikt/ds-react";
 import { Header } from "./components/header/Header";
@@ -24,6 +24,7 @@ import { ReactQueryProvider } from "~/ReactQueryProvider";
 import { pushError } from "~/faro";
 import { Route } from "./+types/root";
 import { ClientOnly } from "./components/ClientOnly";
+import { isProblemDetail } from "./utils/validering";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
@@ -168,18 +169,26 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     }
   } else {
     pushError(error);
-    return (
-      <Dokument>
-        <ErrorPage
-          title="Ukjent feil"
-          statusCode={500}
-          errorText={
-            "En teknisk feil på våre servere gjør at siden er utilgjengelig. Dette skyldes ikke noe du gjorde." +
-            (error instanceof Error ? ` Feilmelding: ${error.message}` : "")
-          }
-        />
-      </Dokument>
-    );
+    if (isProblemDetail(error)) {
+      return (
+        <Dokument>
+          <ProblemDetailPage error={error} />
+        </Dokument>
+      );
+    } else {
+      return (
+        <Dokument>
+          <ErrorPage
+            title="Ukjent feil"
+            statusCode={500}
+            errorText={
+              "En teknisk feil på våre servere gjør at siden er utilgjengelig. Dette skyldes ikke noe du gjorde." +
+              (error instanceof Error ? ` Feilmelding: ${error.message}` : "")
+            }
+          />
+        </Dokument>
+      );
+    }
   }
 }
 

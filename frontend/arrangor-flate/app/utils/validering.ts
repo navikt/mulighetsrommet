@@ -8,6 +8,10 @@ export function isValidationError(error: unknown): error is ValidationError {
   return typeof error === "object" && error !== null && "errors" in error;
 }
 
+export function isProblemDetail(error: unknown): error is ProblemDetail {
+  return typeof error === "object" && error !== null && "detail" in error && "type" in error;
+}
+
 export function problemDetailResponse(error: ProblemDetail): Response {
   return new Response(JSON.stringify(error), {
     status: error.status,

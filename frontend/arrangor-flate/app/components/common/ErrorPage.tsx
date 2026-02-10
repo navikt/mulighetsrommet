@@ -1,5 +1,53 @@
+import { ProblemDetail } from "@api-client";
 import { BodyShort, Box, Heading, Link, List, VStack } from "@navikt/ds-react";
 import { Link as ReactRouterLink, useLocation } from "react-router";
+
+interface ProblemDetailPageProps {
+  error: ProblemDetail;
+}
+
+export function ProblemDetailPage({ error }: ProblemDetailPageProps) {
+  const location = useLocation();
+  return (
+    <Box background="default" borderRadius="8" padding="space-32">
+      <BodyShort textColor="subtle" size="small">
+        Statuskode {error.status}
+      </BodyShort>
+      <Heading level="1" size="large" spacing>
+        Beklager, noe gikk galt.
+      </Heading>
+      <Box padding="space-4" borderRadius="8" marginInline="auto">
+        <VStack padding="space-4">
+          <BodyShort>
+            Tittel: <i>{error.title}</i>
+          </BodyShort>
+          <BodyShort>
+            Feilmelding: <i>{error.detail}</i>
+          </BodyShort>
+          <BodyShort>
+            Status: <i>{error.status}</i>
+          </BodyShort>
+          <BodyShort>
+            TraceId: <i>{error.traceId as string}</i>
+          </BodyShort>
+        </VStack>
+      </Box>
+      <BodyShort spacing>Du kan prøve å</BodyShort>
+      <VStack gap="space-16">
+        <List>
+          <List.Item>vente noen minutter og laste siden på nytt</List.Item>
+          <List.Item>
+            <Link as={ReactRouterLink} to={location.state?.from || "/"}>
+              gå tilbake til forrige side
+            </Link>
+          </List.Item>
+        </List>
+        <BodyShort>Hvis problemet vedvarer, kan du ta kontakt med oss.</BodyShort>
+        <Link href="tel:55553336">Ring oss på 55 55 33 36</Link>
+      </VStack>
+    </Box>
+  );
+}
 
 type Props = {
   statusCode: number;

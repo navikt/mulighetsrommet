@@ -1,7 +1,6 @@
 import { Topic } from "../domain";
 import toast from "react-hot-toast";
 import { ErrorToast } from "../components/Toast";
-import { v4 as uuidv4 } from "uuid";
 
 export class ApiError extends Error {
   constructor(
@@ -145,7 +144,6 @@ function getDefaultHeaders(): Record<string, string> {
   return {
     Accept: "application/json",
     "Nav-Consumer-Id": "MAAM",
-    "Nav-Call-Id": uuidv4(),
   };
 }
 

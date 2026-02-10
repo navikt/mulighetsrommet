@@ -19,13 +19,13 @@ dependencies {
     testFixturesImplementation(libs.ktor.client.core)
     testFixturesImplementation(libs.ktor.client.mock)
     testFixturesImplementation(libs.ktor.serialization.json)
-    implementation(libs.ktor.server.callId)
     implementation(libs.ktor.server.callLogging)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.metricsMicrometer)
     implementation(libs.ktor.server.statusPages)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.authJwt)
+    implementation(libs.opentelemetry)
 
     // Audit-logging
     implementation(libs.nav.common.auditLog)
