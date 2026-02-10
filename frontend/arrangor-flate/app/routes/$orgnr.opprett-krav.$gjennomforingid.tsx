@@ -338,39 +338,41 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
         </Stepper>
       </Hide>
       <Box background="default" borderRadius="8" padding="space-32">
-        {renderCurrentStep()}
-        {hasError && (
-          <ErrorSummary ref={errorSummaryRef}>
-            {errors.map((error) => (
-              <ErrorSummary.Item
-                href={`#${jsonPointerToFieldPath(error.pointer)}`}
-                key={jsonPointerToFieldPath(error.pointer)}
-              >
-                {error.detail}
-              </ErrorSummary.Item>
-            ))}
-          </ErrorSummary>
-        )}
-        {!isLastStep && (
-          <HStack gap="space-8">
-            {isFirstStep ? (
-              <Button
-                type="button"
-                variant="tertiary"
-                onClick={() => navigate(pathTo.tiltaksoversikt)}
-              >
-                Avbryt
+        <VStack gap="space-8">
+          {renderCurrentStep()}
+          {hasError && (
+            <ErrorSummary ref={errorSummaryRef}>
+              {errors.map((error) => (
+                <ErrorSummary.Item
+                  href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                  key={jsonPointerToFieldPath(error.pointer)}
+                >
+                  {error.detail}
+                </ErrorSummary.Item>
+              ))}
+            </ErrorSummary>
+          )}
+          {!isLastStep && (
+            <HStack gap="space-8">
+              {isFirstStep ? (
+                <Button
+                  type="button"
+                  variant="tertiary"
+                  onClick={() => navigate(pathTo.tiltaksoversikt)}
+                >
+                  Avbryt
+                </Button>
+              ) : (
+                <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
+                  Tilbake
+                </Button>
+              )}
+              <Button type="button" onClick={goToNextStep} loading={fetchDeltakere.isPending}>
+                Neste
               </Button>
-            ) : (
-              <Button type="button" variant="tertiary" onClick={goToPreviousStep}>
-                Tilbake
-              </Button>
-            )}
-            <Button type="button" onClick={goToNextStep} loading={fetchDeltakere.isPending}>
-              Neste
-            </Button>
-          </HStack>
-        )}
+            </HStack>
+          )}
+        </VStack>
       </Box>
     </VStack>
   );
