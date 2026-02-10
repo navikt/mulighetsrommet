@@ -167,8 +167,8 @@ importers:
         specifier: 9.39.2
         version: 9.39.2
       '@hey-api/openapi-ts':
-        specifier: 0.90.10
-        version: 0.90.10(typescript@5.9.3)
+        specifier: 0.91.1
+        version: 0.91.1(typescript@5.9.3)
       '@playwright/test':
         specifier: 1.58.0
         version: 1.58.0
@@ -657,8 +657,8 @@ importers:
         specifier: 4.11.0
         version: 4.11.0(playwright-core@1.58.0)
       '@hey-api/openapi-ts':
-        specifier: 0.90.10
-        version: 0.90.10(typescript@5.9.3)
+        specifier: 0.91.1
+        version: 0.91.1(typescript@5.9.3)
       '@mr/eslint-config-react-app':
         specifier: workspace:*
         version: link:../eslint-config-react-app
@@ -717,8 +717,8 @@ importers:
   frontend/tiltaksadministrasjon-api-client:
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.90.10
-        version: 0.90.10(typescript@5.9.3)
+        specifier: 0.91.1
+        version: 0.91.1(typescript@5.9.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -2044,25 +2044,33 @@ packages:
   '@grafana/faro-web-tracing@2.2.0':
     resolution: {integrity: sha512-DTI3S6ki/vClZ2LwalykNHcyuaU7mY5QvDPrSMjfQqd3U92p0UDe7PBPQ7enawlHh5LYIsZfp6YXFrV4zY+DKg==}
 
-  '@hey-api/codegen-core@0.5.5':
-    resolution: {integrity: sha512-f2ZHucnA2wBGAY8ipB4wn/mrEYW+WUxU2huJmUvfDO6AE2vfILSHeF3wCO39Pz4wUYPoAWZByaauftLrOfC12Q==}
+  '@hey-api/codegen-core@0.6.1':
+    resolution: {integrity: sha512-khTIpxhKEAqmRmeLUnAFJQs4Sbg9RPokovJk9rRcC8B5MWH1j3/BRSqfpAIiJUBDU1+nbVg2RVCV+eQ174cdvw==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
       typescript: '>=5.5.3'
 
-  '@hey-api/json-schema-ref-parser@1.2.2':
-    resolution: {integrity: sha512-oS+5yAdwnK20lSeFO1d53Ku+yaGCsY8PcrmSq2GtSs3bsBfRnHAbpPKSVzQcaxAOrzj5NB+f34WhZglVrNayBA==}
+  '@hey-api/json-schema-ref-parser@1.2.3':
+    resolution: {integrity: sha512-gRbyyTjzpFVNmbD+Upn3w4dWV+bCXGJbff3A7leDO/tfNxSz1xIb6Ad/5UKtvEW9kDt/2Uyc3XkFZ6rpafvbfQ==}
     engines: {node: '>= 16'}
 
-  '@hey-api/openapi-ts@0.90.10':
-    resolution: {integrity: sha512-o0wlFxuLt1bcyIV/ZH8DQ1wrgODTnUYj/VfCHOOYgXUQlLp9Dm2PjihOz+WYrZLowhqUhSKeJRArOGzvLuOTsg==}
+  '@hey-api/openapi-ts@0.91.1':
+    resolution: {integrity: sha512-d16WR35UtthK/ihAIwJaKxrj/zvb5LbYwtVJCyZFFMin2qzDU8Y3Lpk78ensAykrLoaDLzpd0iIyt9JCP5Qmww==}
     engines: {node: '>=20.19.0'}
     hasBin: true
     peerDependencies:
       typescript: '>=5.5.3'
 
-  '@hey-api/types@0.1.2':
-    resolution: {integrity: sha512-uNNtiVAWL7XNrV/tFXx7GLY9lwaaDazx1173cGW3+UEaw4RUPsHEmiB4DSpcjNxMIcrctfz2sGKLnVx5PBG2RA==}
+  '@hey-api/shared@0.1.1':
+    resolution: {integrity: sha512-/irgNGXw9TL5aKB3S7jCLgh07vgDFkYjSjz7vEWO9xEe6MUhx76zSFzkPspk2UrLghYayvmaKPf1ky4XjNI9ZQ==}
+    engines: {node: '>=20.19.0'}
+    peerDependencies:
+      typescript: '>=5.5.3'
+
+  '@hey-api/types@0.1.3':
+    resolution: {integrity: sha512-mZaiPOWH761yD4GjDQvtjS2ZYLu5o5pI1TVSvV/u7cmbybv51/FVtinFBeaE1kFQCKZ8OQpn2ezjLBJrKsGATw==}
+    peerDependencies:
+      typescript: '>=5.5.3'
 
   '@hookform/resolvers@5.2.2':
     resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
@@ -4540,8 +4548,8 @@ packages:
     resolution: {integrity: sha512-x1VCxdX4t+8wVfd1so/9w+vQ4vx7lKd2Qp5tDRutErwmR85OgmfX7RlLRMWafRMY7hbEiXIbudNrjOAPa/hL8Q==}
     engines: {node: '>=18'}
 
-  default-browser@5.4.0:
-    resolution: {integrity: sha512-XDuvSq38Hr1MdN47EDvYtx3U0MTqpCEn+F6ft8z2vYDzMrvQhVp0ui9oQdqW3MvK3vqUETglt1tVGgjLuJ5izg==}
+  default-browser@5.5.0:
+    resolution: {integrity: sha512-H9LMLr5zwIbSxrmvikGuI/5KGhZ8E2zH3stkMgM5LpOWDutGM2JZaj460Udnf1a+946zc7YBgrqEWwbk7zHvGw==}
     engines: {node: '>=18'}
 
   defaults@1.0.4:
@@ -10090,9 +10098,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@hey-api/codegen-core@0.5.5(typescript@5.9.3)':
+  '@hey-api/codegen-core@0.6.1(typescript@5.9.3)':
     dependencies:
-      '@hey-api/types': 0.1.2
+      '@hey-api/types': 0.1.3(typescript@5.9.3)
       ansi-colors: 4.1.3
       c12: 3.3.3
       color-support: 1.1.3
@@ -10100,28 +10108,42 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  '@hey-api/json-schema-ref-parser@1.2.2':
+  '@hey-api/json-schema-ref-parser@1.2.3':
     dependencies:
       '@jsdevtools/ono': 7.1.3
       '@types/json-schema': 7.0.15
       js-yaml: 4.1.1
       lodash: 4.17.23
 
-  '@hey-api/openapi-ts@0.90.10(typescript@5.9.3)':
+  '@hey-api/openapi-ts@0.91.1(typescript@5.9.3)':
     dependencies:
-      '@hey-api/codegen-core': 0.5.5(typescript@5.9.3)
-      '@hey-api/json-schema-ref-parser': 1.2.2
-      '@hey-api/types': 0.1.2
+      '@hey-api/codegen-core': 0.6.1(typescript@5.9.3)
+      '@hey-api/json-schema-ref-parser': 1.2.3
+      '@hey-api/shared': 0.1.1(typescript@5.9.3)
+      '@hey-api/types': 0.1.3(typescript@5.9.3)
       ansi-colors: 4.1.3
       color-support: 1.1.3
       commander: 14.0.2
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - magicast
+
+  '@hey-api/shared@0.1.1(typescript@5.9.3)':
+    dependencies:
+      '@hey-api/codegen-core': 0.6.1(typescript@5.9.3)
+      '@hey-api/json-schema-ref-parser': 1.2.3
+      '@hey-api/types': 0.1.3(typescript@5.9.3)
+      ansi-colors: 4.1.3
+      cross-spawn: 7.0.6
       open: 11.0.0
       semver: 7.7.3
       typescript: 5.9.3
     transitivePeerDependencies:
       - magicast
 
-  '@hey-api/types@0.1.2': {}
+  '@hey-api/types@0.1.3(typescript@5.9.3)':
+    dependencies:
+      typescript: 5.9.3
 
   '@hookform/resolvers@5.2.2(react-hook-form@7.71.1(react@19.0.3))':
     dependencies:
@@ -13020,7 +13042,7 @@ snapshots:
 
   default-browser-id@5.0.1: {}
 
-  default-browser@5.4.0:
+  default-browser@5.5.0:
     dependencies:
       bundle-name: 4.1.0
       default-browser-id: 5.0.1
@@ -15287,7 +15309,7 @@ snapshots:
 
   open@11.0.0:
     dependencies:
-      default-browser: 5.4.0
+      default-browser: 5.5.0
       define-lazy-prop: 3.0.0
       is-in-ssh: 1.0.0
       is-inside-container: 1.0.0
