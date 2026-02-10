@@ -23,7 +23,7 @@ function opprettKravData(id: string): OpprettKravData {
 
 export const handlers = [
   http.get<PathParams, ArrangorInnsendingRadDto[]>(
-    "*/api/arrangorflate/tiltaksoversikt",
+    "*/api-proxy/api/arrangorflate/tiltaksoversikt",
     ({ request }) => {
       const type = new URL(request.url).searchParams.get("type");
       if (type === TiltaksoversiktType.AKTIVE) {
@@ -33,14 +33,14 @@ export const handlers = [
     },
   ),
   http.get<PathParams, OpprettKravData>(
-    "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav",
+    "*/api-proxy/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav",
     ({ params }) => {
       const { gjennomforingId } = params;
       return HttpResponse.json<OpprettKravData>(opprettKravData(gjennomforingId as string));
     },
   ),
   http.get<PathParams, OpprettKravDeltakere>(
-    "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav/deltakere",
+    "*/api-proxy/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav/deltakere",
     ({ params }) => {
       const { gjennomforingId } = params;
       return HttpResponse.json<OpprettKravDeltakere>(deltakere[gjennomforingId as string]);
