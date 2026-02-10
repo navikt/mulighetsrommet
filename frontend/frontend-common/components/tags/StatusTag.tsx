@@ -3,12 +3,12 @@ import classNames from "classnames";
 import { PropsWithChildren } from "react";
 
 interface StatusTagProps extends PropsWithChildren {
-  variant: TagProps["variant"];
+  variant?: TagProps["variant"];
   dataColor: TagProps["data-color"];
   className?: string;
 }
 
-export function StatusTag({ variant, dataColor, children, className }: StatusTagProps) {
+export function StatusTag({ variant = "outline", dataColor, children, className }: StatusTagProps) {
   return (
     <Tag
       className={classNames("text-center whitespace-nowrap", className)}

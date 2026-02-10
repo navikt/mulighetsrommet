@@ -16,7 +16,7 @@ export function AvtaleRammedetaljer({ rammedetaljer }: RammedetaljerProps) {
       <Heading level="3" size="small" spacing>
         {avtaletekster.rammedetaljer.heading}
       </Heading>
-      <VStack gap="2" width="30rem">
+      <VStack gap="space-8" width="30rem">
         <MetadataHStack
           label={avtaletekster.rammedetaljer.totalRamme}
           value={formaterValutaBelop(rammedetaljer.totalRamme)}

@@ -20,7 +20,7 @@ export function TiltakHeader({ tiltak }: Props) {
         <HStack gap={"space-8"} align="center">
           <Heading size="large">{tiltak.navn}</Heading>
           {isTiltakGruppe(tiltak) && !isTiltakAktivt(tiltak) && (
-            <StatusTag variant={"neutral"}>{tiltak.status.beskrivelse}</StatusTag>
+            <StatusTag dataColor="neutral">{tiltak.status.beskrivelse}</StatusTag>
           )}
         </HStack>
       </VStack>

@@ -16,12 +16,12 @@ export default function AvtaleRammedetaljerForm({ valuta }: Props) {
   return (
     <Box
       borderWidth="1"
-      borderColor="border-subtle"
-      borderRadius="large"
-      padding="4"
-      background="surface-subtle"
+      borderColor="neutral-subtle"
+      borderRadius="16"
+      padding="space-16"
+      background="sunken"
     >
-      <VStack gap="2">
+      <VStack gap="space-8">
         <TextField
           label={withValuta(avtaletekster.rammedetaljer.totalRamme, valuta)}
           size="small"
