@@ -4,22 +4,25 @@ import { ArbeidsmarkedstiltakHeader } from "@/components/ArbeidsmarkedstiltakHea
 import { PreviewArbeidsmarkedstiltakDetaljer } from "./views/PreviewArbeidsmarkedstiltakDetaljer";
 import { NavArbeidsmarkedstiltakOversikt } from "@/apps/nav/views/NavArbeidsmarkedstiltakOversikt";
 import { ArbeidsmarkedstiltakDetaljerSuspense } from "@/components/suspense/ArbeidsmarkedstiltakDetaljerSuspense";
+import { Theme } from "@navikt/ds-react";
 
 export function PreviewArbeidsmarkedstiltak() {
   return (
-    <AppContainer header={<ArbeidsmarkedstiltakHeader href={"/preview"} />}>
-      <Routes>
-        <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt preview />} />
-        <Route
-          path="tiltak/:id/*"
-          element={
-            <ArbeidsmarkedstiltakDetaljerSuspense>
-              <PreviewArbeidsmarkedstiltakDetaljer />
-            </ArbeidsmarkedstiltakDetaljerSuspense>
-          }
-        />
-        <Route path="*" element={<Navigate replace to="./oversikt" />} />
-      </Routes>
-    </AppContainer>
+    <Theme theme="light" data-color="accent" hasBackground={false}>
+      <AppContainer header={<ArbeidsmarkedstiltakHeader href={"/preview"} />}>
+        <Routes>
+          <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt preview />} />
+          <Route
+            path="tiltak/:id/*"
+            element={
+              <ArbeidsmarkedstiltakDetaljerSuspense>
+                <PreviewArbeidsmarkedstiltakDetaljer />
+              </ArbeidsmarkedstiltakDetaljerSuspense>
+            }
+          />
+          <Route path="*" element={<Navigate replace to="./oversikt" />} />
+        </Routes>
+      </AppContainer>
+    </Theme>
   );
 }

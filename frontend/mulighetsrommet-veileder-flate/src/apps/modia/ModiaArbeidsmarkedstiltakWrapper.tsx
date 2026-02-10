@@ -6,7 +6,6 @@ import { createRoot, Root } from "react-dom/client";
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
 import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
-import { Theme } from "@navikt/ds-react";
 
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";
@@ -123,24 +122,20 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
       prepend: true,
     });
     this.reactRoot.render(
-      <Theme theme="light" hasBackground={false}>
-        <CustomEmotionCacheProvider cache={shadowrootCache}>
-          <ModiaContext
-            contextData={{ enhet, fnr }}
-            updateContextDataRef={(updateContextData) =>
-              (this.updateContextData = updateContextData)
-            }
-          >
-            <Router>
-              <Routes>
-                <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
-                <Route path="preview/*" element={<PreviewArbeidsmarkedstiltak />} />
-                <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
-              </Routes>
-            </Router>
-          </ModiaContext>
-        </CustomEmotionCacheProvider>
-      </Theme>,
+      <CustomEmotionCacheProvider cache={shadowrootCache}>
+        <ModiaContext
+          contextData={{ enhet, fnr }}
+          updateContextDataRef={(updateContextData) => (this.updateContextData = updateContextData)}
+        >
+          <Router>
+            <Routes>
+              <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
+              <Route path="preview/*" element={<PreviewArbeidsmarkedstiltak />} />
+              <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
+            </Routes>
+          </Router>
+        </ModiaContext>
+      </CustomEmotionCacheProvider>,
     );
   }
 

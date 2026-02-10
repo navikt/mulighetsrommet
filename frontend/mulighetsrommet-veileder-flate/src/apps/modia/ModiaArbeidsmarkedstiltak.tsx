@@ -7,12 +7,15 @@ import "./polyfill";
 import { Landingsside } from "./views/Landingsside";
 import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";
 import { ModiaArbeidsmarkedstiltakOversikt } from "./views/ModiaArbeidsmarkedstiltakOversikt";
+import { Theme } from "@navikt/ds-react";
 
 export function ModiaArbeidsmarkedstiltak() {
   return (
-    <AppContainer header={<DemoImageHeader />}>
-      <ModiaArbeidsmarkedstiltakRoutes />
-    </AppContainer>
+    <Theme theme="light" data-color="accent" hasBackground={false}>
+      <AppContainer header={<DemoImageHeader />}>
+        <ModiaArbeidsmarkedstiltakRoutes />
+      </AppContainer>
+    </Theme>
   );
 }
 
