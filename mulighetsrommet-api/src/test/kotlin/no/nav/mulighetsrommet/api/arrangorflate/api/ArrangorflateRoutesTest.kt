@@ -17,8 +17,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.headersOf
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import kotliquery.Query
 import no.nav.amt.model.EndringAarsak
 import no.nav.amt.model.Melding
@@ -27,6 +25,8 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
+import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -154,22 +154,11 @@ class ArrangorflateRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.BadRequest
-
-            response.body<JsonElement>() shouldBe Json.parseToJsonElement(
-                """
-                {
-                  "type": "validation-error",
-                  "status": 400,
-                  "title": "Validation error",
-                  "detail": "Unknown Validation Error",
-                  "errors": [
-                    {
-                      "pointer": "/info",
-                      "detail": "Informasjonen i kravet har endret seg. Vennligst se over på nytt."
-                    }
-                  ]
-                }
-                """,
+            response.body<ValidationError>().errors shouldBe listOf(
+                FieldError(
+                    "/info",
+                    "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
+                ),
             )
         }
     }
@@ -255,21 +244,11 @@ class ArrangorflateRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.BadRequest
-            response.body<JsonElement>() shouldBe Json.parseToJsonElement(
-                """
-                {
-                  "type": "validation-error",
-                  "status": 400,
-                  "title": "Validation error",
-                  "detail": "Unknown Validation Error",
-                  "errors": [
-                    {
-                      "pointer": "/info",
-                      "detail": "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn."
-                    }
-                  ]
-                }
-                """,
+            response.body<ValidationError>().errors shouldBe listOf(
+                FieldError(
+                    "/info",
+                    "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.",
+                ),
             )
         }
     }

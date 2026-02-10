@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 open class StatusException(val status: HttpStatusCode, val detail: String) :
     Exception("Request failed with status: $status. Description: $detail")
 
-fun StatusException.toProblemDetail(traceId: String): ProblemDetail {
+fun StatusException.toProblemDetail(): ProblemDetail {
     val description = status.description
     val detail = detail
     val statusInt = status.value
@@ -31,7 +31,7 @@ fun StatusException.toProblemDetail(traceId: String): ProblemDetail {
                 override val status = statusInt
                 override val detail = detail
                 override val instance = null
-                override val extensions = mapOf("traceId" to traceId)
+                override val extensions = null
             }
         }
     }
