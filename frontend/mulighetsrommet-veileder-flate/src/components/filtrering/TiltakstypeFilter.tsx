@@ -46,7 +46,7 @@ function useTiltakstyperFilter(tiltakstyper: VeilederflateTiltakstype[]) {
           return {
             id: gruppe,
             navn: gruppe,
-            items: entries.map((entry) => ({
+            items: entries.toSorted(compareByNavn).map((entry) => ({
               id: entry.sanityId,
               navn: entry.navn,
               erStandardvalg: true,
@@ -54,6 +54,10 @@ function useTiltakstyperFilter(tiltakstyper: VeilederflateTiltakstype[]) {
           };
         }
       })
-      .toSorted((a, b) => a.navn.localeCompare(b.navn));
+      .toSorted(compareByNavn);
   }, [tiltakstyper]);
+}
+
+function compareByNavn(a: { navn: string }, b: { navn: string }) {
+  return a.navn.localeCompare(b.navn);
 }
