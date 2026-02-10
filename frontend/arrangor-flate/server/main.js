@@ -20,6 +20,13 @@ const viteDevServer =
         }),
       );
 
+// Initialize MSW mock server early if in demo mode (before any requests)
+if (process.env.VITE_MULIGHETSROMMET_API_MOCK === "true" && viteDevServer) {
+  const { initializeMockServer } = await viteDevServer.ssrLoadModule("./app/mocks/node.ts");
+  logger.info("Initialiserer mock server");
+  initializeMockServer();
+}
+
 const remixHandler = createRequestHandler({
   build: viteDevServer
     ? () => viteDevServer.ssrLoadModule("virtual:react-router/server-build")
@@ -52,8 +59,36 @@ app.get([`${basePath}/internal/isAlive`, `${basePath}/internal/isReady`], (_, re
   res.sendStatus(200),
 );
 
-// API proxy for client-side React Query calls - handles OBO token exchange
-app.use("/api-proxy", apiProxy);
+if (process.env.VITE_MULIGHETSROMMET_API_MOCK !== "true") {
+  // API proxy for client-side React Query calls - handles OBO token exchange
+  app.use("/api-proxy", apiProxy);
+} else {
+  // Mock proxy that uses fetch() so MSW can intercept requests
+  app.use("/api-proxy", async (req, res) => {
+    const apiPath = req.url; // e.g., /api/arrangorflate/tilsagn
+    const mockUrl = `http://localhost:${port}/api-proxy${apiPath}`;
+    try {
+      const response = await fetch(mockUrl, {
+        method: req.method,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+      const contentType = response.headers.get("content-type");
+      if (contentType?.includes("application/json")) {
+        const data = await response.json();
+        res.status(response.status).json(data);
+      } else {
+        const text = await response.text();
+        res.status(response.status).send(text);
+      }
+    } catch (error) {
+      logger.error("Mock proxy error:", error);
+      res.status(500).json({ error: "Mock proxy error" });
+    }
+  });
+}
 
 app.use(metricsMiddleware);
 
