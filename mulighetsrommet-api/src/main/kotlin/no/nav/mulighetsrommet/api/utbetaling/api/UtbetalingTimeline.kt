@@ -9,12 +9,15 @@ import no.nav.mulighetsrommet.model.TimelineDto
 import no.nav.mulighetsrommet.model.TimelineDto.Row.Period
 import no.nav.mulighetsrommet.model.TimelineDto.Row.Period.Variant
 import no.nav.mulighetsrommet.model.ValutaBelop
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.text.NumberFormat
 import java.util.Locale
 
 object UtbetalingTimeline {
     val formatter: NumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("no-NO"))
     val formatCurrency = { pris: ValutaBelop -> "${formatter.format(pris.belop)} ${pris.valuta.name}" }
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     fun deltakelseTimeline(
         periode: Periode,
@@ -98,15 +101,20 @@ object UtbetalingTimeline {
     ) = TimelineDto.Row(
         label = "Beregning",
         periods = beregningOutput.perioder.mapIndexed { index, beregnetPeriode ->
-            val prosentPeriode = deltakelsesprosenter.find { it.periode.contains(beregnetPeriode.periode) }
+            val deltakelsesprosent = deltakelsesprosenter
+                .find { it.periode.contains(beregnetPeriode.periode) }
+                ?.deltakelsesprosent
+            if (deltakelsesprosent == null) {
+                log.warn("Deltakesesprosent var null! deltakerId: ${beregningOutput.deltakelseId}, beregnetPeriode: $beregnetPeriode")
+            }
             Period(
                 start = beregnetPeriode.periode.start,
                 key = index.toString(),
                 end = beregnetPeriode.periode.getLastInclusiveDate(),
                 status = Variant.INFO,
-                content = "Deltakesesprosent: ${formatter.format(prosentPeriode?.deltakelsesprosent)}, Månedsverk: ${formatter.format(beregnetPeriode.faktor)}",
+                content = "Deltakesesprosent: ${deltakelsesprosent?.let { formatter.format(it) } ?: "null" }, Månedsverk: ${formatter.format(beregnetPeriode.faktor)}",
                 hover = """
-                    Deltakesesprosent: ${formatter.format(prosentPeriode?.deltakelsesprosent)},
+                    Deltakesesprosent: ${deltakelsesprosent?.let { formatter.format(it) } ?: "null" },
                     Månedsverk: ${formatter.format(beregnetPeriode.faktor)},
                     Periode: ${beregnetPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} -
                         ${beregnetPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}
