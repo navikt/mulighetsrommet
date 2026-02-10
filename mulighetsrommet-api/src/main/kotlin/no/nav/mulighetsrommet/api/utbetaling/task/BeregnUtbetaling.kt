@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.model.minus
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
+import org.apache.poi.ss.usermodel.IndexedColors
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -151,7 +152,7 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
         { it.gjennomforing.lopenummer.value },
     )
 
-    getDifference(source, other).sortedWith(utbetalingComparator).forEach { utbetaling ->
+    getDifference(source, other).sortedWith(utbetalingComparator).forEachIndexed { index, utbetaling ->
         val gjennomforing = gjennomforinger.first { it.id == utbetaling.gjennomforing.id }
 
         val otherUtbetaling = other.find { it.gjennomforing.id == utbetaling.gjennomforing.id }
@@ -160,8 +161,10 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
             ?: 0.withValuta(utbetaling.beregning.output.pris.valuta)
 
         val deltakelser = getDeltakelser(utbetaling.beregning).subtract(otherDeltakelser)
-        deltakelser.sortedBy { it.deltakelseId }.forEach { deltakelse ->
-            row(
+
+        val color = IndexedColors.GREY_25_PERCENT.takeIf { index.mod(2) == 0 }
+        row(color = color) {
+            listOf(
                 utbetaling.tiltakstype.tiltakskode,
                 utbetaling.gjennomforing.id,
                 gjennomforing.lopenummer,
@@ -174,24 +177,42 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
                 utbetaling.valuta,
                 utbetaling.beregning.output.pris,
                 utbetaling.beregning.output.pris - otherPris,
-                deltakelse.deltakelseId,
-                deltakelse.perioder.sumOf { it.faktor },
+                null,
+                null,
             )
+        }
+
+        deltakelser.sortedBy { it.deltakelseId }.forEach { deltakelse ->
+            row(color = color) {
+                listOf(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    deltakelse.deltakelseId,
+                    deltakelse.perioder.sumOf { it.faktor },
+                )
+            }
         }
     }
 }
 
 private fun getDeltakelser(beregning: UtbetalingBeregning): Set<UtbetalingBeregningOutputDeltakelse> = when (beregning) {
-    is UtbetalingBeregningPrisPerTimeOppfolging ->
-        getDeltakelseOutputPrisPerTimeOppfolging(beregning)
+    is UtbetalingBeregningPrisPerTimeOppfolging,
+    -> getDeltakelseOutputPrisPerTimeOppfolging(beregning)
 
     is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
     is UtbetalingBeregningPrisPerHeleUkesverk,
     is UtbetalingBeregningPrisPerManedsverk,
     is UtbetalingBeregningPrisPerUkesverk,
     is UtbetalingBeregningFri,
-    ->
-        beregning.output.deltakelser()
+    -> beregning.output.deltakelser()
 }
 
 private fun getDeltakelseOutputPrisPerTimeOppfolging(beregning: UtbetalingBeregningPrisPerTimeOppfolging): Set<UtbetalingBeregningOutputDeltakelse> = beregning.deltakelsePerioder().map {
