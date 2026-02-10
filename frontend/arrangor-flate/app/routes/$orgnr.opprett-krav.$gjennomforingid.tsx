@@ -131,12 +131,6 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
         if (!formState.periodeSlutt) {
           newErrors.push({ pointer: "/periodeSlutt", detail: "Du må fylle ut til dato" });
         }
-        break;
-      }
-      case "DatoVelgerSelect": {
-        if (!formState.periodeStart) {
-          newErrors.push({ pointer: "/periodeStart", detail: "Du må velge en periode" });
-        }
         if (
           formState.periodeStart &&
           isLaterOrSameDay(parseDate(formState.periodeStart), parseDate(formState.periodeSlutt))
@@ -145,6 +139,12 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
             pointer: "/periodeSlutt",
             detail: "Periodeslutt må være etter periodestart",
           });
+        }
+        break;
+      }
+      case "DatoVelgerSelect": {
+        if (!formState.periodeStart) {
+          newErrors.push({ pointer: "/periodeStart", detail: "Du må velge en periode" });
         }
         break;
       }
