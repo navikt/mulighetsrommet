@@ -21,7 +21,7 @@ const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
       </BodyShort>
 
       {kontaktpersoner.map((person) => (
-        <div key={person.id} className="prose bg-bg-subtle p-2 mt-2 rounded-md">
+        <div key={person.id} className="prose bg-ax-bg-sunken p-2 mt-2 rounded-md">
           <Heading level="4" size="xsmall" className="font-bold mt-5">
             {person.navn}
           </Heading>

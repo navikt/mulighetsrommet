@@ -31,13 +31,13 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
   }
 
   return (
-    <section className="bg-surface-subtle p-4 rounded-lg">
+    <section className="bg-ax-bg-neutral-soft p-4 rounded-lg">
       <HStack justify={"space-between"} align={"center"}>
         <Heading level="4" size="xsmall">
           Perioder hvor tiltakstilbudet er stengt hos arrangør
         </Heading>
       </HStack>
-      <hr className="h-[0.2rem] bg-border-strong border-none" />
+      <hr className="h-[0.2rem] bg-ax-border-neutral-strong border-none" />
       <Table>
         <Table.Header>
           <Table.Row>
@@ -55,9 +55,10 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
                 {!readOnly && (
                   <Table.DataCell>
                     <Button
+                      data-color="neutral"
                       type="button"
                       size="small"
-                      variant="secondary-neutral"
+                      variant="secondary"
                       icon={<TrashIcon aria-hidden />}
                       onClick={() => deleteStengtPeriode(periode.id)}
                     >

@@ -45,7 +45,7 @@ function BeregningInputSkjema({ prismodell }: Pick<Props, "prismodell">) {
   const sats = useFindAvtaltSats(prismodell, periodeStart);
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <MetadataVStack
         label={tilsagnTekster.prismodell.label}
         value={tilsagnTekster.prismodell.sats.label(
@@ -63,7 +63,7 @@ function BeregningInputSkjema({ prismodell }: Pick<Props, "prismodell">) {
             setValueAs: (v) => (v === "" ? null : Number(v)),
           })}
         />
-        <VStack gap="2">
+        <VStack gap="space-8">
           <TextField
             size="small"
             type="number"

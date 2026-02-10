@@ -86,13 +86,13 @@ export function TilsagnForm(props: Props) {
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
-        <VStack gap="2">
-          <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="large">
+        <VStack gap="space-8">
+          <Box borderColor="neutral-subtle" padding="space-16" borderWidth="1" borderRadius="8">
             <Heading className="my-3" size="medium" level="3">
               Tilsagn
             </Heading>
             <TwoColumnGrid separator>
-              <VStack gap="6">
+              <VStack gap="space-24">
                 <TextField
                   size="small"
                   label="Tilsagnstype"
@@ -139,8 +139,8 @@ export function TilsagnForm(props: Props) {
               <TilsagnBeregningPreview />
             </TwoColumnGrid>
           </Box>
-          <VStack gap="2">
-            <HStack gap="2" justify={"end"}>
+          <VStack gap="space-8">
+            <HStack gap="space-8" justify={"end"}>
               <ValideringsfeilOppsummering />
               <Button onClick={onAvbryt} size="small" type="button" variant="tertiary">
                 Avbryt

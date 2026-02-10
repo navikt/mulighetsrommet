@@ -86,7 +86,7 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
               antallValgteFilter={filter.navEnheter.length}
             />
           </Accordion.Header>
-          <Accordion.Content className="ml-[-2rem]">
+          <Accordion.Content>
             <NavEnhetFilter
               value={filter.navEnheter}
               onChange={(navEnheter) => {
@@ -104,7 +104,7 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
           >
             <FilterAccordionHeader tittel="Status" antallValgteFilter={filter.statuser.length} />
           </Accordion.Header>
-          <Accordion.Content className="ml-[-2rem]">
+          <Accordion.Content>
             <CheckboxList
               onSelectAll={(checked) => {
                 selectDeselectAll(
@@ -136,7 +136,7 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
               antallValgteFilter={filter.arrangorer.length}
             />
           </Accordion.Header>
-          <Accordion.Content className="ml-[-2rem]">
+          <Accordion.Content>
             <CheckboxList
               searchable
               items={arrangorOptions(arrangorer.data)}
@@ -163,7 +163,7 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
                 antallValgteFilter={filter.tiltakstyper.length}
               />
             </Accordion.Header>
-            <Accordion.Content className="ml-[-2rem]">
+            <Accordion.Content>
               <GjennomforingTiltakstypeFilter
                 value={filter.tiltakstyper}
                 onChange={(tiltakstyper) => {
@@ -185,7 +185,7 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
               antallValgteFilter={filter.publisert.length}
             />
           </Accordion.Header>
-          <Accordion.Content className="ml-[-2rem]">
+          <Accordion.Content>
             <CheckboxList
               items={[
                 { value: "publisert", label: "Publisert" },

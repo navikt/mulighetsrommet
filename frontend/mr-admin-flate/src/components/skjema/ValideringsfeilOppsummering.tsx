@@ -32,7 +32,8 @@ export function ValideringsfeilOppsummering() {
   return (
     <>
       <Button
-        variant="tertiary-neutral"
+        data-color="neutral"
+        variant="tertiary"
         type="button"
         size="small"
         aria-live="assertive"
@@ -51,14 +52,14 @@ export function ValideringsfeilOppsummering() {
       >
         <Popover.Content>
           <ErrorSummary
-            className="[&>li]:cursor-default [&>li]:text-gray-900"
+            className="[&>li]:cursor-default [&>li]:text-ax-neutral-1000"
             heading="Det er valideringsfeil i skjema"
           >
             {messages.map((value, key) => {
               return (
                 <ErrorSummary.Item
                   as="span"
-                  className="no-underline text-[var(--a-text-default)]"
+                  className="no-underline text-[var(--ax-text-neutral)]"
                   key={key}
                 >
                   {value.message}

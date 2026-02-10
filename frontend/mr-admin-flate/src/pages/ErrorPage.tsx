@@ -47,8 +47,8 @@ export function ErrorPage() {
         <img className="rounded-md size-56" src="/sorry-puppy.webp" alt="En valp som er lei seg" />
         <Heading size="large">Oops!</Heading>
         <BodyShort>Her har det skjedd en feil</BodyShort>
-        <Box borderColor="border-subtle" borderRadius="large" borderWidth="1">
-          <VStack padding="2">
+        <Box borderColor="neutral-subtle" borderRadius="8" borderWidth="1">
+          <VStack padding="space-8">
             <BodyShort>
               Tittel: <i>{getErrorTitle()}</i>
             </BodyShort>

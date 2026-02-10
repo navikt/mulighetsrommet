@@ -51,16 +51,16 @@ export function RegistrerStengtHosArrangorForm({
           onSubmit(values);
         })}
       >
-        <VStack gap="2">
+        <VStack gap="space-8">
           <Box
-            background="surface-subtle"
-            borderColor="border-subtle"
-            borderRadius="medium"
+            background="neutral-soft"
+            borderColor="neutral-subtle"
+            borderRadius="4"
             borderWidth="1"
-            padding="4"
+            padding="space-16"
           >
-            <VStack gap="2">
-              <HStack gap="4">
+            <VStack gap="space-8">
+              <HStack gap="space-16">
                 <ControlledDateInput
                   label="Periode start"
                   defaultSelected={getValues("periodeStart")}

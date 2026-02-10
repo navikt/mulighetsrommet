@@ -8,7 +8,7 @@ interface Props {
 
 export function TilsagnRegnestykke({ regnestykke }: Props) {
   const expression = regnestykke.expression ? (
-    <HStack gap="2">
+    <HStack gap="space-8">
       {regnestykke.expression.map((entry, idx) => (
         <span key={idx}>{getDataElement(entry)} </span>
       ))}

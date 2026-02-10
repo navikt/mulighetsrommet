@@ -60,7 +60,7 @@ export function GjennomforingPage() {
         )}
       </Header>
       <Tabs value={currentTab}>
-        <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
+        <Tabs.List className="bg-ax-bg-default">
           {tabs.map((tab) => (
             <Tabs.Tab key={tab.key} value={tab.key} label={tab.label} onClick={tab.onClick} />
           ))}

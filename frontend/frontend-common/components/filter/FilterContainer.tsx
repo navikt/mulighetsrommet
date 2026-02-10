@@ -14,7 +14,7 @@ export function FilterContainer({ title, children, onClose }: Props) {
     <>
       <HStack className={styles.container} align={"center"} justify={"space-between"}>
         <BodyShort className={styles.bold}>{title}</BodyShort>
-        <Button className={styles.button} variant="tertiary-neutral" onClick={onClose}>
+        <Button data-color="neutral" className={styles.button} variant="tertiary" onClick={onClose}>
           <XMarkIcon aria-label="Kryss for å lukke filter" />
         </Button>
       </HStack>

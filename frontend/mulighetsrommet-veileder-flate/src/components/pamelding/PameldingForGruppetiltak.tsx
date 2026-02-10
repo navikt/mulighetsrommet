@@ -30,7 +30,7 @@ export function PameldingForGruppetiltak({
         <Heading level={"2"} size="small">
           {tekster.overskrift}
         </Heading>
-        <VStack gap="2">
+        <VStack gap="space-8">
           <BodyShort>
             <Button
               role="link"
@@ -50,7 +50,7 @@ export function PameldingForGruppetiltak({
   if (!tiltak.apentForPamelding) {
     return (
       <Alert variant="info">
-        <HStack align="center" gap="1">
+        <HStack align="center" gap="space-4">
           Tiltaket er stengt for påmelding <PadlockLockedFillIcon />
         </HStack>
       </Alert>

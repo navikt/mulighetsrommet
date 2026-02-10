@@ -51,7 +51,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
         tags={<NavFilterTags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         nullstillFilterButton={
           filterHasChanged && (
-            <HStack gap="2">
+            <HStack gap="space-8">
               <NullstillFilterKnapp onClick={resetFilterToDefaults} />
               <LagreFilterButton onLagre={saveFilter} filter={filter} />
             </HStack>

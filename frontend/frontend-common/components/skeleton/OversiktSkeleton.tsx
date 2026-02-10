@@ -13,9 +13,8 @@ export function OversiktSkeleton() {
       <div>
         <Skeleton height={600} variant="rounded" />
       </div>
-
       <div>
-        <VStack gap="2">
+        <VStack gap="space-8">
           <Skeleton height={40} variant="rounded" />
           <Skeleton height={50} variant="rounded" />
           <Skeleton height={30} variant="rounded" />

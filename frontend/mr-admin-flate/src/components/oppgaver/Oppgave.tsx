@@ -22,7 +22,7 @@ export function Oppgave({ oppgave }: OppgaveProps) {
         asChild
         borderRadius="12"
         padding="space-8"
-        style={{ backgroundColor: "var(--a-grayalpha-100)" }}
+        style={{ backgroundColor: "var(--ax-neutral-200A)" }}
       >
         <LinkCard.Icon>
           <OppgaveIcon type={type} fontSize="2rem" />
@@ -102,7 +102,7 @@ function OppgaveStatus({ variant, label, icon }: OppgaveStatusProps) {
 
 function OppgaveEnhetTag({ enhet }: { enhet: OppgaveEnhet }) {
   return (
-    <Tag size="small" variant="neutral-moderate">
+    <Tag data-color="neutral" size="small" variant="moderate">
       {enhet.navn}
     </Tag>
   );

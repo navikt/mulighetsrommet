@@ -43,7 +43,7 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
               antallValgteFilter={filter.navEnheter.length}
             />
           </Accordion.Header>
-          <Accordion.Content className="ml-[-2rem]">
+          <Accordion.Content>
             <NavEnhetFilter
               value={filter.navEnheter}
               onChange={(navEnheter) => {
@@ -65,7 +65,7 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
                 antallValgteFilter={filter.tiltakstyper.length}
               />
             </Accordion.Header>
-            <Accordion.Content className="ml-[-2rem]">
+            <Accordion.Content>
               <GjennomforingTiltakstypeFilter
                 value={filter.tiltakstyper}
                 onChange={(tiltakstyper) => {

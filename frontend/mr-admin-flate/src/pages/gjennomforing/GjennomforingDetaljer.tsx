@@ -50,10 +50,10 @@ export function GjennomforingDetaljer() {
     {
       key: gjennomforingTekster.lopenummerLabel,
       value: (
-        <HStack gap="2">
+        <HStack gap="space-8">
           {gjennomforing.lopenummer}
           <HelpText title="Hva betyr feltet 'Løpenummer'?">
-            <VStack gap="2">
+            <VStack gap="space-8">
               <Heading level="3" size="xsmall">
                 Hva betyr feltet 'Løpenummer'?
               </Heading>
@@ -145,9 +145,11 @@ export function GjennomforingDetaljer() {
 function HentTiltaksnummer({ id }: { id: string }) {
   const { isError, isLoading, data } = usePollTiltaksnummer(id);
   return isError ? (
-    <Tag variant="error">Klarte ikke hente tiltaksnummer</Tag>
+    <Tag data-color="danger" variant="outline">
+      Klarte ikke hente tiltaksnummer
+    </Tag>
   ) : isLoading ? (
-    <HStack align={"center"} gap="1">
+    <HStack align={"center"} gap="space-4">
       <Laster />
       <span>Henter tiltaksnummer i Arena</span>
     </HStack>

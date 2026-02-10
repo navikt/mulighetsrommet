@@ -1,11 +1,12 @@
 import { formaterDato } from "../../utils/date";
-import { Lenke } from "../lenke/Lenke";
 import { DataElementMoneyAmount } from "./DataElementMoneyAmount";
 import { DataElementMathOperator } from "./DataElementMathOperator";
 import { DataElementMultiLinkModal } from "./DataElementMultiLinkModal";
 import { DataElementStatusTag } from "./DataElementStatusTag";
 import { DataElement } from "./types";
 import { formatText } from "./util";
+import { Link } from "@navikt/ds-react/Link";
+import { Link as ReactRouterLink } from "react-router";
 
 export function getDataElement(element: DataElement) {
   switch (element.type) {
@@ -17,9 +18,9 @@ export function getDataElement(element: DataElement) {
       return `${formaterDato(element.start)} - ${formaterDato(element.slutt)}`;
     case "DATA_ELEMENT_LINK":
       return (
-        <Lenke to={element.href} className="whitespace-nowrap">
+        <Link as={ReactRouterLink} to={element.href} className="whitespace-nowrap">
           {element.text}
-        </Lenke>
+        </Link>
       );
     case "DATA_ELEMENT_MATH_OPERATOR":
       return <DataElementMathOperator operator={element.operator} />;

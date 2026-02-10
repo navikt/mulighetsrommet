@@ -9,7 +9,7 @@ interface BehandlerInformasjonProps {
 
 export function BehandlerInformasjon({ opprettelse }: BehandlerInformasjonProps) {
   return (
-    <HStack gap="4">
+    <HStack gap="space-16">
       <MetadataVStack label="Behandlet av" value={opprettelse.behandletAv.navn} />
       {isBesluttet(opprettelse) && opprettelse.besluttelse === Besluttelse.AVVIST ? (
         <MetadataVStack label="Returnert av" value={opprettelse.besluttetAv.navn} />

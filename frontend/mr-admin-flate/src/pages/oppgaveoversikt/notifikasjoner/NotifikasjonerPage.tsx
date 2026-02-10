@@ -1,4 +1,4 @@
-import { Tabs } from "@navikt/ds-react";
+import { Box, Tabs } from "@navikt/ds-react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useNotificationSummary } from "@/api/notifikasjoner/useNotifications";
 
@@ -11,9 +11,9 @@ export function NotifikasjonerPage() {
 
   return (
     <>
-      <div className="flex justify-start">
+      <Box background="default" width="max-content">
         <Tabs value={pathname.includes("tidligere") ? "tidligere" : "nye"} selectionFollowsFocus>
-          <Tabs.List id="fane_liste" className="flex flex-row justify-between">
+          <Tabs.List id="fane_liste">
             <Tabs.Tab
               value="nye"
               label={`Nye notifikasjoner (${unreadCount})`}
@@ -28,7 +28,7 @@ export function NotifikasjonerPage() {
             />
           </Tabs.List>
         </Tabs>
-      </div>
+      </Box>
       <div id="panel">
         <Outlet />
       </div>

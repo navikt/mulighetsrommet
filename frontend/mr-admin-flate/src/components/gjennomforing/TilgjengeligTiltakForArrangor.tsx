@@ -78,13 +78,11 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
         Arrangør har tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
         <b>{formaterDato(tilgjengeligForArrangorDato)}</b>.
       </p>
-
       {handlinger.includes(GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR) && (
         <Button size="small" variant="secondary" onClick={() => modalRef.current?.showModal()}>
           Endre dato
         </Button>
       )}
-
       <Modal
         ref={modalRef}
         header={{ heading: "Når skal arrangør ha tilgang til tiltaket?", closeButton: false }}
@@ -93,7 +91,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
         <Modal.Body>
           <FormProvider {...form}>
             <form>
-              <HStack gap="2" align={"end"} justify={"center"}>
+              <HStack gap="space-8" align={"end"} justify={"center"}>
                 <ControlledDateInput
                   label="Når skal arrangør ha tilgang?"
                   size="small"

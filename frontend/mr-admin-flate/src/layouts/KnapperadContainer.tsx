@@ -3,7 +3,7 @@ import { PropsWithChildren } from "react";
 
 export function KnapperadContainer(props: PropsWithChildren) {
   return (
-    <HStack justify="end" align="center" gap="2">
+    <HStack justify="end" align="center" gap="space-8">
       {props.children}
     </HStack>
   );

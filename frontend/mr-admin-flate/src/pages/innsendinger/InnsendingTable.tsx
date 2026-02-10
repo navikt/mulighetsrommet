@@ -1,11 +1,11 @@
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import { Alert, BodyShort, Table, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Table, VStack, Link } from "@navikt/ds-react";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useGetInnsendinger } from "@/api/utbetaling/useFiltrerteInnsendinger";
 import { InnsendingFilterStateAtom, InnsendingFilterType } from "./filter";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 
 interface Props {
@@ -36,7 +36,7 @@ export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
   };
 
   return (
-    <VStack gap="6" paddingInline="2">
+    <VStack gap="space-24" paddingInline="space-8">
       <Alert variant="info">
         Under ser du en oversikt over manglende innsendinger for tiltak med fast sats, avtalt
         månedspris eller avtalt ukespris. Tiltak med avtalt timespris eller annen avtalt pris
@@ -74,9 +74,12 @@ export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
             <Table.Body>
               {innsendinger.map((innsending, index) => (
                 <Table.Row key={index}>
-                  <Table.DataCell aria-label={`Virksomhetsnavn: ${innsending.arrangor}`}>
+                  <Table.HeaderCell
+                    aria-label={`Virksomhetsnavn: ${innsending.arrangor}`}
+                    scope="row"
+                  >
                     <BodyShort size="small">{innsending.arrangor}</BodyShort>
-                  </Table.DataCell>
+                  </Table.HeaderCell>
                   <Table.DataCell aria-label={`Tiltakstype: ${innsending.tiltakstype}`}>
                     {innsending.tiltakstype.navn}
                   </Table.DataCell>
@@ -103,6 +106,7 @@ export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
                   </Table.DataCell>
                   <Table.DataCell aria-label={`Beløp: ${innsending.pris?.belop}`}>
                     <Link
+                      as={ReactRouterLink}
                       to={`/gjennomforinger/${innsending.gjennomforingId}/utbetalinger/${innsending.id}`}
                     >
                       Detaljer

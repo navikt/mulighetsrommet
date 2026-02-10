@@ -84,7 +84,7 @@ export function OpprettUtbetalingForm({ gjennomforing, prismodell, betalingsinfo
               <Heading size="medium" level="2">
                 Utbetalingsinformasjon
               </Heading>
-              <HStack gap="2">
+              <HStack gap="space-8">
                 <ControlledDateInput
                   label="Periodestart"
                   fromDate={new Date(gjennomforing.startDato)}
@@ -134,7 +134,7 @@ export function OpprettUtbetalingForm({ gjennomforing, prismodell, betalingsinfo
               )}
               {!betalingsinformasjon ? (
                 <Alert variant="warning" className="my-5">
-                  <VStack align="start" gap="2">
+                  <VStack align="start" gap="space-8">
                     <Heading spacing size="xsmall" level="3">
                       Kontonummer mangler for arrangør
                     </Heading>
@@ -146,7 +146,7 @@ export function OpprettUtbetalingForm({ gjennomforing, prismodell, betalingsinfo
                   </VStack>
                 </Alert>
               ) : null}
-              <HStack align={"start"} justify={"end"} gap="2">
+              <HStack align={"start"} justify={"end"} gap="space-8">
                 <Button
                   size="small"
                   variant="tertiary"
@@ -191,7 +191,7 @@ function BetalingsinformasjonView({
   switch (betalingsinformasjon.type) {
     case "BBan":
       return (
-        <VStack gap="2">
+        <VStack gap="space-8">
           <TextField
             size="small"
             label="Kontonummer til arrangør"
@@ -213,7 +213,7 @@ function BetalingsinformasjonView({
       );
     case "IBan":
       return (
-        <VStack gap="2" align="start">
+        <VStack gap="space-8" align="start">
           <Heading size="small">Bank</Heading>
           <TextField size="small" label="IBan" readOnly value={betalingsinformasjon.iban} />
           <TextField size="small" label="BIC/SWIFT" readOnly value={betalingsinformasjon.bic} />

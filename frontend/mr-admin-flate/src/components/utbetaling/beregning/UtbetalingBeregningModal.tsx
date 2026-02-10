@@ -44,7 +44,7 @@ function ModalBody({ utbetalingId }: BodyProps) {
 
   return (
     <VStack>
-      <HGrid columns="20% 1fr" gap="2" align="start">
+      <HGrid columns="20% 1fr" gap="space-8" align="start">
         <VStack>
           <Heading size="xsmall" level="3" spacing>
             Oppfølgingsenhet

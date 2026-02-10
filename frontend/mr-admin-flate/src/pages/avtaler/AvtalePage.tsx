@@ -128,7 +128,7 @@ export function AvtalePage() {
         <DataElementStatusTag {...avtale.status.status} />
       </Header>
       <Tabs value={currentTab}>
-        <Tabs.List>
+        <Tabs.List className="bg-ax-bg-default">
           {getTabLinks(avtale.id).map(({ label, value, href, testId }) => (
             <Tabs.Tab
               key={value}

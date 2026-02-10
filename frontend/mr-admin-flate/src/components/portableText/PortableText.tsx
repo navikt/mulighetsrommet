@@ -1,4 +1,4 @@
-import { BodyLong, List } from "@navikt/ds-react";
+import { BodyLong, List, Box } from "@navikt/ds-react";
 import {
   PortableText as PortableTextLib,
   PortableTextProps,
@@ -12,14 +12,18 @@ export function PortableText({ value }: { value: PortableTextProps["value"] }) {
 const components: Partial<PortableTextReactComponents> = {
   list: {
     bullet: ({ children }) => (
-      <List size="small" as="ul">
-        {children}
-      </List>
+      <Box marginBlock="space-12" asChild>
+        <List data-aksel-migrated-v8 size="small" as="ul">
+          {children}
+        </List>
+      </Box>
     ),
     number: ({ children }) => (
-      <List size="small" as="ol">
-        {children}
-      </List>
+      <Box marginBlock="space-12" asChild>
+        <List data-aksel-migrated-v8 size="small" as="ol">
+          {children}
+        </List>
+      </Box>
     ),
   },
   listItem: {

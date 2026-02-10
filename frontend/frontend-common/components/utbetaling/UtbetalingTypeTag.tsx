@@ -9,7 +9,7 @@ export function UtbetalingTypeTag({ type }: UtbetalingsTypeTagProps) {
     return null;
   }
   return (
-    <Tag variant="neutral" title={type} size="small">
+    <Tag data-color="neutral" variant="outline" title={type} size="small">
       {type === "Investering" ? "INV" : "KOR"}
     </Tag>
   );

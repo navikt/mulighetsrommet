@@ -17,14 +17,25 @@ export function Feilmelding({ header, children, ikonvariant, utenMargin }: Feilm
   const ikon = () => {
     if (ikonvariant === "info") {
       return (
-        <InformationSquareFillIcon aria-label="Informasjons-ikon" className="text-lightblue-700" />
+        <InformationSquareFillIcon
+          aria-label="Informasjons-ikon"
+          className="bg-ax-text-accent-decoration"
+        />
       );
     } else if (ikonvariant === "warning") {
       return (
-        <ExclamationmarkTriangleFillIcon aria-label="Varsel-ikon" className="text-orange-600" />
+        <ExclamationmarkTriangleFillIcon
+          aria-label="Varsel-ikon"
+          className="bg-ax-text-warning-decoration"
+        />
       );
     } else if (ikonvariant === "error") {
-      return <XMarkOctagonFillIcon aria-label="Feilmelding-ikon" className="text-nav-red" />;
+      return (
+        <XMarkOctagonFillIcon
+          aria-label="Feilmelding-ikon"
+          className="bg-ax-text-danger-decoration"
+        />
+      );
     }
   };
 
@@ -32,7 +43,7 @@ export function Feilmelding({ header, children, ikonvariant, utenMargin }: Feilm
     <div
       data-testid="feilmelding-container"
       aria-live="assertive"
-      className={`flex flex-col items-center justify-center bg-white w-[40rem] text-center gap-[0.5rem] px-[5rem] ${utenMargin ? "" : "mt-[2rem] mx-auto pt-[2rem] pb-[2rem] px-[5rem] min-h-[180px]"}`}
+      className={`flex flex-col items-center justify-center bg-ax-bg-default w-160 text-center gap-2 px-20 ${utenMargin ? "" : "mt-8 mx-auto pt-8 pb-8 px-20 min-h-45"}`}
     >
       {ikon()}
       <Heading level="4" size={"small"}>

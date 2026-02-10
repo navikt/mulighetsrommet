@@ -33,7 +33,7 @@ export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforingId }: P
       width={1000}
     >
       <Modal.Body>
-        <VStack gap="4">
+        <VStack gap="space-16">
           <div className="prose">
             <p>
               Her kan du legge inn perioder der tiltakstilbudet er stengt hos arrangør, for eksempel

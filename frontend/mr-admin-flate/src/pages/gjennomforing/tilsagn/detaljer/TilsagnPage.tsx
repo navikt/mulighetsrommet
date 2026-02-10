@@ -34,19 +34,19 @@ export function TilsagnPage() {
   return (
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <HStack gap="2" className="bg-white border-b-2 border-gray-200 p-2">
+      <HStack gap="space-8" className="bg-ax-bg-default border-b-2 border-ax-neutral-300 p-2">
         <PiggybankFillIcon color="#FFAA33" className="w-10 h-10" />
         <Heading size="large" level="2">
           {tilsagnId ? `Tilsagn for ${gjennomforing.navn}` : "Opprett tilsagn"}
         </Heading>
       </HStack>
       <ContentBox>
-        <VStack gap="6" padding="4" className="bg-white">
+        <VStack gap="space-16" padding="space-8" className="bg-ax-bg-default">
           <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
           <Outlet />
         </VStack>
       </ContentBox>
-      <VStack padding="4" className="bg-white overflow-x-scroll">
+      <VStack padding="space-8" className="bg-ax-bg-default overflow-x-scroll">
         <AktiveTilsagnTable gjennomforingId={gjennomforingId} />
       </VStack>
     </>

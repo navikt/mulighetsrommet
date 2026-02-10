@@ -9,7 +9,7 @@ interface TilsagnInformasjonProps {
 
 export function TilsagnInformasjon({ tilsagn }: TilsagnInformasjonProps) {
   return (
-    <HStack gap="4">
+    <HStack gap="space-16">
       <MetadataVStack label="Totalbeløp på tilsagn" value={formaterValutaBelop(tilsagn.pris)} />
     </HStack>
   );

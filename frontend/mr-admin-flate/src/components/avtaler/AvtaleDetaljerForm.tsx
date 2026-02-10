@@ -4,7 +4,7 @@ import { AvtaleFormValues } from "@/schemas/avtale";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import { HGrid, List, Select, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
+import { HGrid, List, Select, TextField, UNSAFE_Combobox, VStack, Box } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -92,7 +92,7 @@ export function AvtaleDetaljerForm() {
           />
         </FormGroup>
         <FormGroup>
-          <HGrid align="start" gap="4" columns={2}>
+          <HGrid align="start" gap="space-16" columns={2}>
             <TextField
               size="small"
               placeholder="åå/12345"
@@ -103,15 +103,17 @@ export function AvtaleDetaljerForm() {
                   helpTextTitle={avtaletekster.sakarkivNummerHelpTextTitle}
                 >
                   I Public 360 skal det opprettes tre typer arkivsaker med egne saksnummer:
-                  <List>
-                    <List.Item>En sak for hver anskaffelse.</List.Item>
-                    <List.Item>
-                      En sak for kontrakt/avtale med hver leverandør (Avtalesaken).
-                    </List.Item>
-                    <List.Item>
-                      En sak for oppfølging og forvaltning av avtale (Avtaleforvaltningssaken).
-                    </List.Item>
-                  </List>
+                  <Box marginBlock="space-16" asChild>
+                    <List data-aksel-migrated-v8>
+                      <List.Item>En sak for hver anskaffelse.</List.Item>
+                      <List.Item>
+                        En sak for kontrakt/avtale med hver leverandør (Avtalesaken).
+                      </List.Item>
+                      <List.Item>
+                        En sak for oppfølging og forvaltning av avtale (Avtaleforvaltningssaken).
+                      </List.Item>
+                    </List>
+                  </Box>
                   Det er <b>2. Saksnummeret til Avtalesaken</b> som skal refereres til herfra.
                 </LabelWithHelpText>
               }
@@ -120,7 +122,7 @@ export function AvtaleDetaljerForm() {
           </HGrid>
         </FormGroup>
         <FormGroup>
-          <HGrid gap="4" columns={2} align="start">
+          <HGrid gap="space-16" columns={2} align="start">
             <Select
               size="small"
               label={avtaletekster.tiltakstypeLabel}

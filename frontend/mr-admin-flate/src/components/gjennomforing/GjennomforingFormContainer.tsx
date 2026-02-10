@@ -158,7 +158,7 @@ export function GjennomforingFormContainer(props: Props) {
           <Tabs.Panel value="detaljer">
             <InlineErrorBoundary>
               <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
-                <Box marginBlock="4">
+                <Box marginBlock="space-16">
                   <GjennomforingFormDetaljer
                     tiltakstype={tiltakstype}
                     avtale={avtale}
@@ -171,7 +171,7 @@ export function GjennomforingFormContainer(props: Props) {
             </InlineErrorBoundary>
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
-            <Box marginBlock="4">
+            <Box marginBlock="space-16">
               <GjennomforingInformasjonForVeiledereForm
                 avtale={avtale}
                 veilederinfo={veilederinfo}

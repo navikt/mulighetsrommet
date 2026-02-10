@@ -10,17 +10,17 @@ interface DataElementStatusTagProps {
 }
 
 export function DataElementStatusTag(props: DataElementStatusTagProps) {
-  const { variant, className } = getStatusTagStyles(props.variant);
+  const { dataColor, className } = getStatusTagStyles(props.variant);
   if (props.description) {
     const label = `${props.value} - ${props.description}`;
     return (
-      <ExpandableStatusTag variant={variant} className={className}>
+      <ExpandableStatusTag data-color={dataColor} className={className}>
         {label}
       </ExpandableStatusTag>
     );
   } else {
     return (
-      <StatusTag variant={variant} className={className}>
+      <StatusTag dataColor={dataColor} variant="outline" className={className}>
         {props.value}
       </StatusTag>
     );
@@ -28,42 +28,41 @@ export function DataElementStatusTag(props: DataElementStatusTagProps) {
 }
 
 function getStatusTagStyles(variant: DataElementStatusVariant): {
-  variant: TagProps["variant"];
+  dataColor: TagProps["data-color"];
   className?: string;
 } {
   switch (variant) {
     case DataElementStatusVariant.BLANK:
       return {
-        variant: "neutral",
-        className: "bg-white border-[color:var(--a-border-default)]",
+        dataColor: "neutral",
+        className: "bg-ax-bg-default border-[color:var(--ax-border-neutral)]",
       };
     case DataElementStatusVariant.NEUTRAL:
-      return { variant: "neutral" };
+      return { dataColor: "neutral" };
     case DataElementStatusVariant.ALT:
     case DataElementStatusVariant.ALT_1:
-      return { variant: "alt1" };
+      return { dataColor: "meta-purple" };
     case DataElementStatusVariant.ALT_2:
-      return { variant: "alt2" };
     case DataElementStatusVariant.ALT_3:
-      return { variant: "alt3" };
+      return { dataColor: "meta-lime" };
     case DataElementStatusVariant.INFO:
-      return { variant: "info" };
+      return { dataColor: "info" };
     case DataElementStatusVariant.SUCCESS:
-      return { variant: "success" };
+      return { dataColor: "success" };
     case DataElementStatusVariant.WARNING:
-      return { variant: "warning" };
+      return { dataColor: "warning" };
     case DataElementStatusVariant.ERROR:
-      return { variant: "error" };
+      return { dataColor: "danger" };
     case DataElementStatusVariant.ERROR_BORDER:
       return {
-        variant: "neutral",
-        className: "bg-white border-[color:var(--a-text-danger)]",
+        dataColor: "neutral",
+        className: "bg-ax-bg-default border-[color:var(--ax-border-danger)]",
       };
     case DataElementStatusVariant.ERROR_BORDER_STRIKETHROUGH:
       return {
-        variant: "neutral",
+        dataColor: "neutral",
         className:
-          "bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)] line-through",
+          "bg-ax-bg-default text-[color:var(--ax-text-danger-subtle)] border-[color:var(--ax-border-danger)] line-through",
       };
   }
 }

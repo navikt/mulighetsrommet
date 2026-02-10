@@ -2,7 +2,7 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { PersonopplysningData } from "@tiltaksadministrasjon/api-client";
-import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, HelpText, HStack, List, VStack, Box } from "@navikt/ds-react";
 
 export function AvtalePersonvern() {
   const { data: personopplysninger } = usePersonopplysninger();
@@ -30,19 +30,18 @@ export function AvtalePersonvern() {
   );
 
   return (
-    <VStack gap="4" className="p-[1.5rem] bg-white mw-[1440px]">
+    <VStack gap="space-4" className="p-6 bg-ax-bg-default max-w-360">
+      <BodyShort>Følgende personopplysninger om deltager kan behandles i denne avtalen</BodyShort>
       {checkedPersonopplysninger && (
-        <List
-          size="small"
-          as="ul"
-          title="Følgende personopplysninger om deltager kan behandles i denne avtalen"
-        >
-          {checkedPersonopplysninger.map((p: PersonopplysningData) => (
-            <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
-              {p.tittel}
-            </ListWithHelpText>
-          ))}
-        </List>
+        <Box marginBlock="space-12" asChild>
+          <List data-aksel-migrated-v8 size="small" as="ul">
+            {checkedPersonopplysninger.map((p: PersonopplysningData) => (
+              <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
+                {p.tittel}
+              </ListWithHelpText>
+            ))}
+          </List>
+        </Box>
       )}
     </VStack>
   );
@@ -57,7 +56,7 @@ function ListWithHelpText({
 }) {
   return (
     <List.Item>
-      <HStack align="center" gap="1">
+      <HStack align="center" gap="space-4">
         {children}
         {hjelpetekst && <HelpText>{hjelpetekst}</HelpText>}
       </HStack>

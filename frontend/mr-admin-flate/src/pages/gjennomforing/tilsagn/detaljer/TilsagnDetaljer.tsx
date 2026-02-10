@@ -138,7 +138,7 @@ export function TilsagnDetaljer() {
   }
 
   const handlingsMeny = (
-    <HStack gap="2" justify={"end"}>
+    <HStack gap="space-8" justify={"end"}>
       <EndringshistorikkPopover>
         <ViewEndringshistorikk historikk={historikk} />
       </EndringshistorikkPopover>
@@ -253,7 +253,11 @@ export function TilsagnDetaljer() {
           forklaring={tilOppgjor.forklaring}
         />
       )}
-      <VStack gap="6" padding="4" className="rounded-lg border-gray-300 border-1">
+      <VStack
+        gap="space-24"
+        padding="space-16"
+        className="rounded-lg border-ax-neutral-400 border-1"
+      >
         <>
           <HStack className="mb-2">
             <Heading size="medium" level="3">
@@ -263,9 +267,9 @@ export function TilsagnDetaljer() {
             {handlingsMeny}
           </HStack>
           <TwoColumnGrid separator>
-            <HGrid columns={1} gap="2">
-              <HGrid columns={{ xl: 2 }} gap="4">
-                <VStack gap="4" className="flex-1">
+            <HGrid columns={1} gap="space-8">
+              <HGrid columns={{ xl: 2 }} gap="space-16">
+                <VStack gap="space-16" className="flex-1">
                   <MetadataHGrid
                     label={tilsagnTekster.bestillingsnummer.label}
                     value={bestillingsnummer}
@@ -279,7 +283,7 @@ export function TilsagnDetaljer() {
                     value={formaterPeriode(periode)}
                   />
                 </VStack>
-                <VStack gap="4" className="flex-1">
+                <VStack gap="space-16" className="flex-1">
                   <MetadataHGrid
                     label={tilsagnTekster.status.label}
                     value={<TilsagnTag status={status} />}
@@ -291,7 +295,7 @@ export function TilsagnDetaljer() {
                 </VStack>
               </HGrid>
               <Separator />
-              <VStack gap="4" className="flex-1">
+              <VStack gap="space-16" className="flex-1">
                 <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
 
                 <MetadataFritekstfelt
@@ -303,10 +307,10 @@ export function TilsagnDetaljer() {
                 <Separator />
               </Show>
             </HGrid>
-            <HGrid columns={1} gap="2" align="center">
+            <HGrid columns={1} gap="space-8" align="center">
               <DataDetails {...beregning.prismodell} />
               <Separator />
-              <VStack gap="4">
+              <VStack gap="space-16">
                 <MetadataHGrid
                   label={tilsagnTekster.beregning.belop.label}
                   value={formaterValuta(beregning.pris.belop, beregning.pris.valuta)}
@@ -353,7 +357,7 @@ export function TilsagnDetaljer() {
             </HGrid>
           </TwoColumnGrid>
         </>
-        <HStack gap="2" justify={"end"}>
+        <HStack gap="space-8" justify={"end"}>
           {handlinger.includes(TilsagnHandling.RETURNER) && (
             <Button
               variant="secondary"
@@ -380,7 +384,13 @@ export function TilsagnDetaljer() {
             </Button>
           )}
           {handlinger.includes(TilsagnHandling.GODKJENN_ANNULLERING) && (
-            <Button size="small" variant="danger" type="button" onClick={godkjennTilsagn}>
+            <Button
+              data-color="danger"
+              size="small"
+              variant="primary"
+              type="button"
+              onClick={godkjennTilsagn}
+            >
               Bekreft annullering
             </Button>
           )}
@@ -395,7 +405,13 @@ export function TilsagnDetaljer() {
             </Button>
           )}
           {handlinger.includes(TilsagnHandling.GODKJENN_OPPGJOR) && (
-            <Button size="small" variant="danger" type="button" onClick={godkjennTilsagn}>
+            <Button
+              data-color="danger"
+              size="small"
+              variant="primary"
+              type="button"
+              onClick={godkjennTilsagn}
+            >
               Bekreft oppgjør
             </Button>
           )}
@@ -477,7 +493,12 @@ export function TilsagnDetaljer() {
             </p>
           }
           primaryButton={
-            <Button variant="danger" onClick={slettTilsagn} icon={<TrashFillIcon />}>
+            <Button
+              data-color="danger"
+              variant="primary"
+              onClick={slettTilsagn}
+              icon={<TrashFillIcon />}
+            >
               Ja, jeg vil slette tilsagnet
             </Button>
           }

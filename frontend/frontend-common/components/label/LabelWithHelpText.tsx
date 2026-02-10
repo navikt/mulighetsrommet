@@ -23,7 +23,7 @@ export interface LabelWithHelpTextProps {
 export function LabelWithHelpText(props: LabelWithHelpTextProps) {
   const { label, helpTextTitle, placement = "top", children } = props;
   return (
-    <HStack align="center" gap="2">
+    <HStack align="center" gap="space-8">
       <Label size="small">{label}</Label>
       <HelpText placement={placement} title={helpTextTitle}>
         {children}

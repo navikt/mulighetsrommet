@@ -11,14 +11,13 @@ export function DetaljerSkeleton() {
       }}
     >
       <div>
-        <VStack gap="2">
+        <VStack gap="space-8">
           <Skeleton height={200} variant="rounded" />
           <Skeleton height={500} variant="rounded" />
         </VStack>
       </div>
-
       <div>
-        <VStack gap="2">
+        <VStack gap="space-8">
           <Skeleton height={600} variant="rounded" />
           <Skeleton height={100} variant="rounded" />
         </VStack>

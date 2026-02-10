@@ -1,3 +1,9 @@
+/*
+TODO: Aksel Box migration:
+Could not migrate the following:
+  - background=moderate
+*/
+
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { BodyLong, BodyShort, Box, Tabs } from "@navikt/ds-react";
@@ -27,15 +33,15 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
   const harKombinasjon = tiltak.tiltakstype.kanKombineresMed.length > 0;
 
   return (
-    <div className="max-w-[1252px] mx-auto my-0">
+    <div className="max-w-313 mx-auto my-0">
       <div className="items-baseline flex justify-between">{knapperad}</div>
       <Suspense fallback={<DetaljerSkeleton />}>
         <>
           <div
-            className="grid grid-rows-[auto_1fr] grid-cols-[auto] xl:grid-cols-[65%_35%] gap-[2rem] p-[2rem] bg-white"
+            className="grid grid-rows-[auto_1fr] grid-cols-[auto] xl:grid-cols-[65%_35%] gap-8 p-8 bg-ax-bg-default"
             id="gjennomforing_detaljer"
           >
-            <div className="max-w-none xl:max-w-[760px]">
+            <div className="max-w-none xl:max-w-190">
               <TiltakHeader tiltak={tiltak} />
             </div>
             {isTiltakGruppe(tiltak) && !tiltak.apentForPamelding && (
@@ -44,7 +50,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
               </div>
             )}
             <div
-              className={`${styles.sidemeny} mt-0 row-start max-w-none px-[3rem] [grid-row-start:initial] [grid-row-end:initial] [grid-column:initial] xl:h-fit xl:row-start-1 xl:row-end-3 xl:col-start-2 xl:col-span-1 xl:px-0 xl:max-w-[380px] text-text-default flex flex-col gap-[1rem]`}
+              className={`${styles.sidemeny} mt-0 row-start max-w-none px-12 row-start-[initial] row-end-[initial] col-[initial] xl:h-fit xl:row-start-1 xl:row-end-3 xl:col-start-2 xl:col-span-1 xl:px-0 xl:max-w-95 text-text-default flex flex-col gap-4`}
             >
               {isTiltakGruppe(tiltak) && tiltak.estimertVentetid && (
                 <EstimertVentetid estimertVentetid={tiltak.estimertVentetid} />
@@ -66,12 +72,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                 ) : null}
               </Tabs>
               {tiltak.oppmoteSted && (
-                <Box
-                  padding="4"
-                  borderColor="border-action"
-                  borderWidth="1"
-                  background="surface-action-subtle"
-                >
+                <Box padding="space-16" borderColor="accent" borderWidth="1" background="moderate">
                   <BodyShort size="small" className="font-bold text-left">
                     Oppmøtested
                   </BodyShort>
@@ -80,11 +81,11 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                   </BodyLong>
                 </Box>
               )}
-              <div className="flex flex-col gap-[1rem] mt-[1rem]">{brukerActions}</div>
+              <div className="flex flex-col gap-4 mt-4">{brukerActions}</div>
             </div>
             <TiltakDetaljer tiltak={tiltak} setOppskriftId={setOppskriftId} />
           </div>
-          <div className="bg-white px-4 xl:px-8">
+          <div className="bg-ax-bg-default px-4 xl:px-8">
             {oppskriftId && (
               <div className="border border-border-subtle">
                 <Oppskrift

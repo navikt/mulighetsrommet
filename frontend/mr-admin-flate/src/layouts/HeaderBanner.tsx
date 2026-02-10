@@ -9,8 +9,8 @@ interface HeaderBannerProps {
 
 export function HeaderBanner({ heading, ikon }: HeaderBannerProps) {
   return (
-    <div className="bg-white p-2">
-      <HStack align="center" justify="start" gap="2" wrap>
+    <div className="bg-ax-bg-default p-2">
+      <HStack align="center" justify="start" gap="space-8" wrap>
         {ikon ? <span>{ikon}</span> : null}
         <Heading level="2" size="large" data-testid={`header_${kebabCase(heading)}`}>
           {heading}

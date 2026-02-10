@@ -31,6 +31,6 @@
       "@api-client": ["./api-client"]
     },
   },
-  "include": ["src", "tests"],
+  "include": ["src", "tests", "tailwind.config.ts"],
   "references": [{ "path": "./tsconfig.node.json" }],
 }

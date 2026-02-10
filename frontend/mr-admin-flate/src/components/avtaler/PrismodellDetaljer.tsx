@@ -18,16 +18,16 @@ export function PrismodellDetaljer({ prismodeller }: Props) {
       <Heading level="3" size="small" spacing>
         {avtaletekster.prismodell.heading}
       </Heading>
-      <VStack gap="4">
+      <VStack gap="space-16">
         {prismodeller.map((prismodell) => {
           switch (prismodell.type) {
             case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
               return (
                 <VStack
                   key={prismodell.navn}
-                  gap="4"
-                  padding="2"
-                  className="border-border-subtle border rounded-md"
+                  gap="space-16"
+                  padding="space-8"
+                  className="border-ax-border-neutral-subtle border rounded-md"
                 >
                   <PrismodellTypenavn type={prismodell.navn} />
                   <PrismodellSatser satser={prismodell.satser} />
@@ -40,9 +40,9 @@ export function PrismodellDetaljer({ prismodeller }: Props) {
               return (
                 <VStack
                   key={prismodell.navn}
-                  gap="4"
-                  padding="2"
-                  className="border-border-subtle border rounded-md"
+                  gap="space-16"
+                  padding="space-8"
+                  className="border-ax-border-neutral-subtle border rounded-md"
                 >
                   <PrismodellTypenavn type={prismodell.navn} />
                   <PrismodellSatser satser={prismodell.satser} />
@@ -55,9 +55,9 @@ export function PrismodellDetaljer({ prismodeller }: Props) {
               return (
                 <VStack
                   key={prismodell.navn}
-                  gap="4"
-                  padding="2"
-                  className="border-border-subtle border rounded-md"
+                  gap="space-16"
+                  padding="space-8"
+                  className="border-ax-border-neutral-subtle border rounded-md"
                 >
                   <PrismodellTypenavn type={prismodell.navn} />
                   <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
@@ -78,12 +78,12 @@ function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {
   return (satser ?? []).map((sats) => (
     <Box
       key={sats.gjelderFra}
-      borderColor="border-subtle"
-      padding="2"
+      borderColor="neutral-subtle"
+      padding="space-8"
       borderWidth="1"
-      borderRadius="medium"
+      borderRadius="4"
     >
-      <HStack gap="4" key={sats.gjelderFra}>
+      <HStack gap="space-16" key={sats.gjelderFra}>
         <MetadataVStack label={avtaletekster.prismodell.valuta.label} value={sats.pris.valuta} />
         <MetadataVStack
           label={avtaletekster.prismodell.sats.label}

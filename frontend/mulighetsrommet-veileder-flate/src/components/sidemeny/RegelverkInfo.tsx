@@ -1,6 +1,5 @@
 import { RegelverkLenke } from "@api-client";
-import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-
+import { Link, VStack } from "@navikt/ds-react";
 interface RegelverkInfoProps {
   regelverkLenker?: RegelverkLenke[];
 }
@@ -9,16 +8,18 @@ const RegelverkInfo = ({ regelverkLenker }: RegelverkInfoProps) => {
   const regelverkLenkeComponent = (regelverkLenke: RegelverkLenke) => {
     return (
       regelverkLenke.regelverkUrl && (
-        <div key={regelverkLenke._id}>
-          <Lenke target="_blank" to={regelverkLenke.regelverkUrl}>
-            {regelverkLenke.regelverkLenkeNavn}{" "}
-          </Lenke>
-        </div>
+        <Link target="_blank" href={regelverkLenke.regelverkUrl} key={regelverkLenke._id}>
+          {regelverkLenke.regelverkLenkeNavn}{" "}
+        </Link>
       )
     );
   };
 
-  return <div>{regelverkLenker && regelverkLenker.map(regelverkLenkeComponent)}</div>;
+  return (
+    <VStack gap="space-1" align="end">
+      {regelverkLenker && regelverkLenker.map(regelverkLenkeComponent)}
+    </VStack>
+  );
 };
 
 export default RegelverkInfo;

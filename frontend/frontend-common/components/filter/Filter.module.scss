@@ -10,7 +10,7 @@
   }
 
   :global(.navds-tabs__tablist-wrapper) {
-    margin-bottom: 5px; //samme som i oversikten
+    margin-bottom: 5px;
   }
 
   .filtertab {
@@ -27,7 +27,7 @@
     gap: 0;
     background-color: white;
     align-self: start;
-    box-shadow: var(--a-shadow-medium);
+    box-shadow: var(--ax-shadow-dialog);
     padding: 0.25rem;
     height: fit-content;
     position: sticky;

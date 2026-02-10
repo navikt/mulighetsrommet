@@ -30,7 +30,7 @@ export default function MindreBelopModal({
       }}
     >
       <Modal.Body>
-        <VStack gap="2">
+        <VStack gap="space-8">
           <VStack>
             <BodyShort>
               Beløpet du er i ferd med å sende til attestering er mindre en beløpet på utbetalingen.

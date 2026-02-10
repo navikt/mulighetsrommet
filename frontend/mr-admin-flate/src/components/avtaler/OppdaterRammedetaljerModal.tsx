@@ -71,7 +71,7 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
           </Modal.Body>
           <Modal.Footer>
             <HStack justify="space-between" className="flex-row-reverse" width="100%">
-              <HStack gap="2" className="flex-row-reverse">
+              <HStack gap="space-8" className="flex-row-reverse">
                 <Button type="submit" size="small" disabled={mutation.isPending}>
                   {mutation.isPending ? "Lagrer..." : "Bekreft"}
                 </Button>
@@ -84,7 +84,8 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
                 <Button
                   type="button"
                   size="small"
-                  variant="secondary-neutral"
+                  variant="secondary"
+                  data-color="neutral"
                   disabled={deletion.isPending}
                   onClick={deleteRammedetaljer}
                   icon={<TrashFillIcon />}

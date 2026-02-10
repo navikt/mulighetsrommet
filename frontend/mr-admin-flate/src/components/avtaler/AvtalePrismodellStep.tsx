@@ -15,10 +15,10 @@ export default function AvtalePrismodellStep() {
     return (
       <Box
         borderWidth="1"
-        borderColor="border-subtle"
-        borderRadius="large"
-        padding="4"
-        background="surface-subtle"
+        borderColor="neutral-subtle"
+        borderRadius="8"
+        padding="space-16"
+        background="neutral-soft"
       >
         <Select
           label={avtaletekster.prismodell.label}

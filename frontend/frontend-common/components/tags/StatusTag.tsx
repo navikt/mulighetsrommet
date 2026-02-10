@@ -1,12 +1,20 @@
 import { Tag, TagProps } from "@navikt/ds-react";
 import classNames from "classnames";
+import { PropsWithChildren } from "react";
 
-export function StatusTag({ children, className, ...rest }: TagProps) {
+interface StatusTagProps extends PropsWithChildren {
+  variant?: TagProps["variant"];
+  dataColor: TagProps["data-color"];
+  className?: string;
+}
+
+export function StatusTag({ variant = "outline", dataColor, children, className }: StatusTagProps) {
   return (
     <Tag
-      className={classNames("min-w-[140px] text-center whitespace-nowrap", className)}
+      className={classNames("text-center whitespace-nowrap", className)}
       size="small"
-      {...rest}
+      data-color={dataColor}
+      variant={variant}
     >
       {children}
     </Tag>

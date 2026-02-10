@@ -48,7 +48,7 @@ function NorskopplaeringGrunnleggendeGerdigheterFOVForm() {
   const amoKategorisering = watch("detaljer.amoKategorisering");
 
   return (
-    <HGrid gap="4" columns={1}>
+    <HGrid gap="space-16" columns={1}>
       <Select
         size="small"
         label={gjennomforingTekster.kurstypeLabel}
@@ -100,7 +100,7 @@ function GruppeAmoForm() {
   const amoKategorisering = watch("detaljer.amoKategorisering");
 
   return (
-    <HGrid gap="4" columns={1}>
+    <HGrid gap="space-16" columns={1}>
       <Select
         size="small"
         label={gjennomforingTekster.kurstypeLabel}

@@ -24,7 +24,7 @@ export function AvtalePersonvernForm() {
   if (!personopplysninger) return <Loader />;
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <GuidePanel poster>
         Huk av de personopplysningene som er avtalt i databehandleravtalen. Nav tiltaksenhet/fylke
         er ansvarlig for at listen er i samsvar med gjeldende databehandleravtale.
@@ -41,7 +41,7 @@ export function AvtalePersonvernForm() {
           >
             {personopplysninger.map((p) => (
               <Checkbox key={p.personopplysning} value={p.personopplysning} size="small">
-                <HStack gap="2" align="center">
+                <HStack gap="space-8" align="center">
                   {p.tittel}
                   {p.hjelpetekst && <HelpText>{p.hjelpetekst}</HelpText>}
                 </HStack>
@@ -86,7 +86,7 @@ export function AvtalePersonvernForm() {
         legend="Kan personopplysningene som kan behandles vises til veileder?"
         {...register("personvern.personvernBekreftet")}
       >
-        <VStack align="start" justify="start" gap="2">
+        <VStack align="start" justify="start" gap="space-8">
           <Radio size="small" value={false}>
             Hvilke personopplysninger som kan behandles er uavklart og kan ikke vises til veileder
           </Radio>

@@ -62,7 +62,7 @@ export function RedigerGjennomforingFormPage() {
         <DataElementStatusTag {...detaljer.gjennomforing.status.status} />
       </Header>
       <ContentBox>
-        <Box padding="4" background="bg-default">
+        <Box padding="space-16" background="default">
           {isError ? (
             <Alert variant="error">{ErrorMeldinger(avtale)}</Alert>
           ) : isEnkeltplass(detaljer.gjennomforing) ? (

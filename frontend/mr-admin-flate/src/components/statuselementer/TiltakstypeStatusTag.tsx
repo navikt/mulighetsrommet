@@ -9,7 +9,7 @@ interface Props {
 export function TiltakstypeStatusTag({ status }: Props) {
   const { variant, name } = getTiltakstypeStatusTagProps(status);
   return (
-    <StatusTag aria-label={`Status for tiltakstype: ${name}`} variant={variant}>
+    <StatusTag aria-label={`Status for tiltakstype: ${name}`} dataColor={variant}>
       {name}
     </StatusTag>
   );

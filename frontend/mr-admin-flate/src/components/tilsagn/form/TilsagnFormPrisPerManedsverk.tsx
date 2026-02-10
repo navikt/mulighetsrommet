@@ -41,7 +41,7 @@ function BeregningInputSkjema({ prismodell }: Pick<Props, "prismodell">) {
   const prisbetingelser = watch("beregning.prisbetingelser");
 
   return (
-    <VStack gap="4">
+    <VStack gap="space-16">
       <MetadataVStack
         label={tilsagnTekster.prismodell.label}
         value={tilsagnTekster.prismodell.sats.label(type)}

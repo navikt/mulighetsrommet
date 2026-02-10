@@ -1,5 +1,5 @@
 import { PortableText, PortableTextReactComponents } from "@portabletext/react";
-import { Alert, BodyLong, GuidePanel, List } from "@navikt/ds-react";
+import { Alert, BodyLong, GuidePanel, List, Box } from "@navikt/ds-react";
 
 interface ImageProp {
   value: { asset: { url: string }; altText: string };
@@ -25,14 +25,18 @@ const portableTextComponent: Partial<PortableTextReactComponents> = {
   },
   list: {
     bullet: ({ children }) => (
-      <List size="small" as="ul">
-        {children}
-      </List>
+      <Box marginBlock="space-12" asChild>
+        <List data-aksel-migrated-v8 size="small" as="ul">
+          {children}
+        </List>
+      </Box>
     ),
     number: ({ children }) => (
-      <List size="small" as="ol">
-        {children}
-      </List>
+      <Box marginBlock="space-12" asChild>
+        <List data-aksel-migrated-v8 size="small" as="ol">
+          {children}
+        </List>
+      </Box>
     ),
   },
   listItem: {
@@ -41,7 +45,7 @@ const portableTextComponent: Partial<PortableTextReactComponents> = {
   },
   block: {
     normal: ({ children }) => (
-      <BodyLong size="small" className="mb-1 min-h-[0.75rem]">
+      <BodyLong size="small" className="mb-1 min-h-3">
         {children}
       </BodyLong>
     ),

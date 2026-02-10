@@ -68,13 +68,14 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Pr
       secondaryButton
       primaryButton={
         <Button
+          data-color="danger"
           title={
             erKobletTilDokumenter
               ? "Du må fjerne kontaktpersonen fra avtaler og/eller gjennomføringer før du kan slette hen"
               : ""
           }
           disabled={erKobletTilDokumenter}
-          variant="danger"
+          variant="primary"
           onClick={slettKontaktperson}
         >
           Ja, jeg vil slette kontaktpersonen
@@ -96,7 +97,7 @@ function Koblingsoversikt({ avtaler, gjennomforinger, kontaktperson }: Koblingso
   return (
     <div>
       <p>{kontaktperson.navn} er koblet til følgende og må fjernes før hen kan slettes.</p>
-      <VStack gap="5">
+      <VStack gap="space-20">
         <DokumentKoblinger
           baseUrl="avtaler"
           dokumenter={avtaler}
@@ -168,8 +169,9 @@ function DokumentKoblinger({
                 </Table.DataCell>
                 <Table.DataCell>
                   <Button
+                    data-color="danger"
                     size="small"
-                    variant="danger"
+                    variant="primary"
                     onClick={() =>
                       frikobleMutation.mutate({
                         kontaktpersonId: kontaktperson.id,

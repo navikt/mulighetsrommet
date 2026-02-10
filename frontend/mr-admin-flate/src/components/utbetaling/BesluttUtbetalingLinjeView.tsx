@@ -76,7 +76,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
   });
 
   return (
-    <VStack gap="2">
+    <VStack gap="space-8">
       <Heading spacing size="medium">
         {utbetalingTekster.delutbetaling.header}
       </Heading>
@@ -104,7 +104,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
                 />
               }
               knappeColumn={
-                <HStack gap="4">
+                <HStack gap="space-16">
                   {linje.handlinger.includes(UtbetalingLinjeHandling.RETURNER) && (
                     <Button
                       variant="secondary"

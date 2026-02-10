@@ -1,4 +1,4 @@
-import { BodyShort, Heading, List } from "@navikt/ds-react";
+import { BodyShort, Heading, List, Box } from "@navikt/ds-react";
 import { PadlockLockedIcon } from "@navikt/aksel-icons";
 import { TILGANGER_DOKUMENTASJON_URL } from "@/constants";
 import { ProblemDetail } from "@tiltaksadministrasjon/api-client";
@@ -17,18 +17,22 @@ interface IngenTilgangProps {
 export function IngenTilgang({ error }: IngenTilgangProps) {
   return (
     <main className="w-1/2 m-auto mt-16 flex justify-center text-center prose">
-      <div className="bg-white p-4 rounded-md flex flex-col items-center">
+      <div className="bg-ax-bg-default p-4 rounded-md flex flex-col items-center">
         <PadlockLockedIcon fontSize={50} />
         <Heading size="medium">Ingen tilgang</Heading>
         <BodyShort spacing>Du har ikke tilgang til denne siden</BodyShort>
         <BodyShort>{error.detail}</BodyShort>
-        <List className="text-left">
-          {error.extensions.missingRoles.map((rolle) => (
-            <List.Item key={rolle}>
-              <strong>{rolle}</strong>
-            </List.Item>
-          ))}
-        </List>
+        <div className="text-left">
+          <Box marginBlock="space-16" asChild>
+            <List data-aksel-migrated-v8>
+              {error.extensions.missingRoles.map((rolle) => (
+                <List.Item key={rolle}>
+                  <strong>{rolle}</strong>
+                </List.Item>
+              ))}
+            </List>
+          </Box>
+        </div>
         <BodyShort>Hvis du nettopp har fått tilgang, forsøk å logge ut og inn igjen.</BodyShort>
         <BodyShort spacing>
           Hvis det fortsatt ikke fungerer,{" "}

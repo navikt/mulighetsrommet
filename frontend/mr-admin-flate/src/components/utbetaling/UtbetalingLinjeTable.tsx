@@ -23,24 +23,24 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
       <Table data-testid="linje-table">
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell colSpan={6} className="bg-gray-100">
+            <Table.HeaderCell colSpan={6} className="bg-ax-neutral-200">
               Tilgjengelige tilsagn
             </Table.HeaderCell>
             <Table.HeaderCell colSpan={4}>Utbetalingdetaljer</Table.HeaderCell>
           </Table.Row>
           <Table.Row>
-            <Table.HeaderCell className="bg-gray-100" />
-            <Table.HeaderCell className="bg-gray-100">Tilsagnsnummer</Table.HeaderCell>
-            <Table.HeaderCell scope="col" className="bg-gray-100">
+            <Table.HeaderCell className="bg-ax-neutral-200" />
+            <Table.HeaderCell className="bg-ax-neutral-200">Tilsagnsnummer</Table.HeaderCell>
+            <Table.HeaderCell scope="col" className="bg-ax-neutral-200">
               Type
             </Table.HeaderCell>
-            <Table.HeaderCell scope="col" className="bg-gray-100">
+            <Table.HeaderCell scope="col" className="bg-ax-neutral-200">
               Periode
             </Table.HeaderCell>
-            <Table.HeaderCell scope="col" className="bg-gray-100">
+            <Table.HeaderCell scope="col" className="bg-ax-neutral-200">
               Kostnadssted
             </Table.HeaderCell>
-            <Table.HeaderCell scope="col" className="bg-gray-100">
+            <Table.HeaderCell scope="col" className="bg-ax-neutral-200">
               Gjenstående beløp
             </Table.HeaderCell>
             <Table.HeaderCell scope="col">Gjør opp tilsagn</Table.HeaderCell>
@@ -54,16 +54,16 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
         <Table.Body>
           {linjer.map((linje, i) => renderRow(linje, i))}
           <Table.Row shadeOnHover={false}>
-            <Table.DataCell colSpan={5} className="font-bold">
+            <Table.DataCell colSpan={5} className="font-ax-bold">
               {`${utbetalingTekster.beregning.belop.label}: ${formaterValutaBelop(utbetaling.pris)}`}
             </Table.DataCell>
-            <Table.DataCell className="font-bold" colSpan={2}>
+            <Table.DataCell className="font-ax-bold" colSpan={2}>
               {formaterValuta(totalGjenstaendeBelop, utbetaling.pris.valuta)}
             </Table.DataCell>
-            <Table.DataCell className="font-bold">
+            <Table.DataCell className="font-ax-bold">
               {formaterValuta(utbetalesTotal, utbetaling.pris.valuta)}
             </Table.DataCell>
-            <Table.DataCell className="font-bold" align="right" colSpan={2}>
+            <Table.DataCell className="font-ax-bold" align="right" colSpan={2}>
               <HStack align="center">
                 <CopyButton
                   variant="action"

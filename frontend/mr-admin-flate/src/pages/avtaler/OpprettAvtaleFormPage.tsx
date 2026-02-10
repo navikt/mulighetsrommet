@@ -149,7 +149,13 @@ export function OpprettAvtaleFormPage() {
           Opprett ny avtale
         </Heading>
       </Header>
-      <Box borderRadius="4" marginBlock="4" marginInline="2" padding="4" background="bg-default">
+      <Box
+        borderRadius="4"
+        marginBlock="space-16"
+        marginInline="space-8"
+        padding="space-16"
+        background="default"
+      >
         <Heading size="medium" spacing level="2" id="stepper-heading">
           Steg
         </Heading>
@@ -166,10 +172,10 @@ export function OpprettAvtaleFormPage() {
         <Separator />
         <FormProvider {...methods}>
           <form onSubmit={handleForwardStep}>
-            <VStack gap="2">
+            <VStack gap="space-8">
               {currentStep.Component}
               <Separator />
-              <HStack gap="2" justify="end">
+              <HStack gap="space-8" justify="end">
                 <ValideringsfeilOppsummering />
                 <Button
                   size="small"

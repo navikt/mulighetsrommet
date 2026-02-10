@@ -1,4 +1,4 @@
-import { BodyShort, CopyButton, List, Tabs } from "@navikt/ds-react";
+import { BodyShort, CopyButton, List, Tabs, Box } from "@navikt/ds-react";
 import { ArrangorDto } from "@tiltaksadministrasjon/api-client";
 import { ArrangorKontaktpersonOversikt } from "./ArrangorKontaktpersonerOversikt";
 
@@ -26,13 +26,15 @@ export function ArrangorKort({ arrangor }: Props) {
         </Tabs.Panel>
         <Tabs.Panel value="underenheter">
           <div>
-            <List>
-              {arrangor.underenheter?.map((underenhet) => (
-                <List.Item key={underenhet.id}>
-                  {underenhet.navn} ({underenhet.organisasjonsnummer})
-                </List.Item>
-              ))}
-            </List>
+            <Box marginBlock="space-16" asChild>
+              <List data-aksel-migrated-v8>
+                {arrangor.underenheter?.map((underenhet) => (
+                  <List.Item key={underenhet.id}>
+                    {underenhet.navn} ({underenhet.organisasjonsnummer})
+                  </List.Item>
+                ))}
+              </List>
+            </Box>
           </div>
         </Tabs.Panel>
       </Tabs>

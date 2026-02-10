@@ -33,7 +33,7 @@ export function TiltakstypeTabell() {
       <Table
         sort={sort}
         onSortChange={(sortKey) => handleSort(sortKey)}
-        className="bg-white border-separate border-spacing-0 border-t border-gray-200"
+        className="bg-ax-bg-default border-separate border-spacing-0 border-t border-ax-neutral-300"
       >
         <Table.Header>
           <Table.Row>

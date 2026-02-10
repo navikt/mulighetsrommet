@@ -14,17 +14,17 @@ export function GjennomforingList(props: Props) {
   const { data: gjennomforinger } = useGjennomforinger(props.filter);
   return (
     <div>
-      <div className="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-border-divider p-4 items-center gap-2">
-        <BodyShort className="font-bold">Tittel</BodyShort>
-        <BodyShort className="font-bold">Løpenr.</BodyShort>
-        <BodyShort className="font-bold">Status</BodyShort>
+      <div className="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-ax-border-neutral-subtle p-4 items-center gap-2">
+        <BodyShort className="font-ax-bold">Tittel</BodyShort>
+        <BodyShort className="font-ax-bold">Løpenr.</BodyShort>
+        <BodyShort className="font-ax-bold">Status</BodyShort>
       </div>
 
       <ul className="overflow-y-auto list-none m-0 p-0 max-h-[30rem]">
         {gjennomforinger.data.map((gjennomforing) => (
           <li
             key={gjennomforing.id}
-            className="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-border-divider p-4 items-center gap-2"
+            className="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-ax-border-neutral-subtle p-4 items-center gap-2"
           >
             <BodyShort>{gjennomforing.navn}</BodyShort>
             <BodyShort>{gjennomforing.lopenummer}</BodyShort>

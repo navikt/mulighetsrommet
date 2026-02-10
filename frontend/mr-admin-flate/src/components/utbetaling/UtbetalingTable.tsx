@@ -6,10 +6,10 @@ import {
   UtbetalingStatusDtoType,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { HelpText, HStack, Table, VStack } from "@navikt/ds-react";
+import { HelpText, HStack, Table, VStack, Link } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useMemo } from "react";
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
@@ -62,23 +62,25 @@ export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
           <TableColumnHeader sortKey="belopUtbetalt" sortable align="right">
             {utbetalingTekster.beregning.belop.label}
           </TableColumnHeader>
-          <TableColumnHeader sortKey="status" sortable align="right">
+          {harUtbetalingsTypeTag && (
+            <TableColumnHeader>
+              <HStack gap="space-8" justify="center" wrap={false}>
+                Type
+                <HelpText title="Hva betyr forkortelsene?">
+                  <VStack gap="space-4" className="text-left">
+                    <div>
+                      <b>KOR:</b> Korreksjon på utbetaling
+                    </div>
+                    <div>
+                      <b>INV:</b> Utbetaling for investering
+                    </div>
+                  </VStack>
+                </HelpText>
+              </HStack>
+            </TableColumnHeader>
+          )}
+          <TableColumnHeader sortKey="status" sortable>
             Status
-          </TableColumnHeader>
-          <TableColumnHeader align="right" className="max-w-6" hidden={!harUtbetalingsTypeTag}>
-            <HStack gap="2">
-              Type
-              <HelpText title="Hva betyr forkortelsene?">
-                <VStack gap="1" className="text-left">
-                  <div>
-                    <b>KOR:</b> Korreksjon på utbetaling
-                  </div>
-                  <div>
-                    <b>INV:</b> Utbetaling for investering
-                  </div>
-                </VStack>
-              </HelpText>
-            </HStack>
           </TableColumnHeader>
           <TableColumnHeader></TableColumnHeader>
         </Table.Row>
@@ -107,16 +109,19 @@ export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
               <Table.DataCell align="right">
                 {belopUtbetalt ? formaterValutaBelop(belopUtbetalt) : ""}
               </Table.DataCell>
-              <Table.DataCell align="right">
-                <UtbetalingStatusTag status={status} />
-              </Table.DataCell>
               {harUtbetalingsTypeTag && (
-                <Table.DataCell align="left">
+                <Table.DataCell align="center">
                   <UtbetalingTypeTag type={type.displayName} />
                 </Table.DataCell>
               )}
+              <Table.DataCell width="min-content">
+                <UtbetalingStatusTag status={status} />
+              </Table.DataCell>
               <Table.DataCell>
-                <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>
+                <Link
+                  as={ReactRouterLink}
+                  to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}
+                >
                   {utbetalingLenkeText(status.type)}
                 </Link>
               </Table.DataCell>

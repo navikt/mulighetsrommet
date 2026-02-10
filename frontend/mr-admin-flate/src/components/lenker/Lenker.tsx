@@ -13,12 +13,12 @@ type Lenke = {
 
 export function Lenker() {
   return (
-    <Box padding={"2"}>
+    <Box padding={"space-8"}>
       <VStack>
         <Heading style={{ marginBottom: "1rem" }} level="4" size="small">
           Legg til lenker
         </Heading>
-        <HStack gap="20">
+        <HStack gap="space-80">
           <LenkerSkjema />
         </HStack>
       </VStack>
@@ -38,7 +38,7 @@ function LenkerSkjema() {
   });
 
   return (
-    <VStack gap="5">
+    <VStack gap="space-20">
       <Button
         type="button"
         size="small"
@@ -49,10 +49,10 @@ function LenkerSkjema() {
       >
         Registrer ny lenke
       </Button>
-      <VStack gap="5" className="max-h-[50rem] overflow-auto p-4">
+      <VStack gap="space-20" className="max-h-[50rem] overflow-auto p-4">
         {fields.map((lenke, index) => {
           return (
-            <VStack gap="2" key={lenke.id}>
+            <VStack gap="space-8" key={lenke.id}>
               <TextField
                 size="small"
                 label="Lenkenavn"
@@ -65,7 +65,7 @@ function LenkerSkjema() {
                 {...register(`veilederinformasjon.faneinnhold.lenker.${index}.lenke`)}
                 error={errors.veilederinformasjon?.faneinnhold?.lenker?.[index]?.lenke?.message}
               />
-              <HStack gap="2">
+              <HStack gap="space-8">
                 <Switch
                   {...register(`veilederinformasjon.faneinnhold.lenker.${index}.apneINyFane`)}
                 >
@@ -78,7 +78,13 @@ function LenkerSkjema() {
                 </Switch>
               </HStack>
               <HStack justify="end">
-                <Button size="small" variant="danger" type="button" onClick={() => remove(index)}>
+                <Button
+                  data-color="danger"
+                  size="small"
+                  variant="primary"
+                  type="button"
+                  onClick={() => remove(index)}
+                >
                   Slett lenke
                 </Button>
               </HStack>

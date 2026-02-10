@@ -1,16 +1,16 @@
 .sidemeny {
   :global(.navds-tabs__tab[aria-selected="true"]) {
-    background-color: var(--a-gray-100);
+    background-color: var(--ax-neutral-200);
   }
 
   :global(.navds-tabs__tabpanel) {
-    border-top: 1px solid var(--a-gray-300);
+    border-top: 1px solid var(--ax-neutral-400);
   }
 }
 
 :global(.navds-panel) {
   padding: 1.5rem;
-  background-color: var(--a-gray-100);
+  background-color: var(--ax-neutral-200);
 }
 
 :global(.navds-tabs__tablist-wrapper) {

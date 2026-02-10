@@ -63,7 +63,7 @@ export function ArrangorerTabell({ filter, updateFilter, tagsHeight, filterOpen 
           />
         ) : null}
       </ToolbarContainer>
-      <TabellWrapper filterOpen={filterOpen}>
+      <TabellWrapper>
         {arrangorer.length === 0 ? (
           <Alert variant="info">Ingen arrangører funnet</Alert>
         ) : (

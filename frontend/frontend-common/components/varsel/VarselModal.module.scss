@@ -11,13 +11,13 @@
       height: auto;
       align-self: center;
       &_warning {
-        color: var(--a-orange-500);
+        color: var(--ax-text-warning-subtle);
       }
       &_error {
-        color: var(--a-nav-red);
+        color: var(--ax-text-danger-subtle);
       }
       &_info {
-        color: var(--a-icon-info);
+        color: var(--ax-text-info-subtle);
       }
     }
   }
@@ -30,7 +30,7 @@
   }
 
   .error {
-    color: var(--a-nav-red);
+    color: var(--ax-text-danger-subtle);
     font-size: 16px;
   }
 

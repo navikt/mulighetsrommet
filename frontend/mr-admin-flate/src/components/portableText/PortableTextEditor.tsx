@@ -55,7 +55,9 @@ export function PortableTextFormEditor({ name, label, description }: PortableTex
             <b>{label}</b>
           </label>
           {description && (
-            <label className={"mb-[8px] inline-block text-text-subtle"}>{description}</label>
+            <label className={"mb-[8px] inline-block text-ax-text-neutral-subtle"}>
+              {description}
+            </label>
           )}
           <PortableTextEditor value={field.value} onChange={field.onChange} />
           {error && <span>{error.message}</span>}

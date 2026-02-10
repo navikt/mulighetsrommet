@@ -25,7 +25,12 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
   const arrangor = "arrangor" in tiltak ? tiltak.arrangor : null;
 
   return (
-    <Box padding="5" background="bg-subtle" id="sidemeny" className="max-w-[360px] xl:max-w-none">
+    <Box
+      padding="space-20"
+      background="neutral-soft"
+      id="sidemeny"
+      className="max-w-[360px] xl:max-w-none"
+    >
       {tiltaksnummer && (
         <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
           <BodyShort size="small" className="font-bold text-left">
@@ -40,14 +45,12 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
           </div>
         </div>
       )}
-
       <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
         <BodyShort size="small" className="font-bold text-left">
           Tiltakstype
         </BodyShort>
         <BodyShort size="small">{tiltakstype.navn} </BodyShort>
       </div>
-
       {arrangor && (
         <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
           <BodyShort size="small" className="font-bold text-left">
@@ -56,42 +59,37 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
           <BodyShort size="small">{arrangor.selskapsnavn}</BodyShort>
         </div>
       )}
-
       <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
         <BodyShort title="Minimum krav innsatsgruppe" size="small" className="font-bold text-left">
           <abbr title="Minimum">Min</abbr>. innsatsgruppe
         </BodyShort>
         <BodyShort size="small">{minimumInnsatsgruppe.tittel}</BodyShort>
       </div>
-
       <TiltakVarighetInfo tiltak={tiltak} />
-
       {tiltakstype.regelverkLenker && (
         <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
           <BodyShort size="small" className="font-bold text-left">
             Regelverk og rutiner
           </BodyShort>
-          <div className="space-y-4 last:mb-0">
-            <RegelverkInfo
-              regelverkLenker={[
-                ...tiltakstype.regelverkLenker,
-                {
-                  _id: "klage",
-                  regelverkLenkeNavn: "Avslag og klage",
-                  regelverkUrl:
-                    "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
-                  beskrivelse: null,
-                },
-                {
-                  _id: "vurdering",
-                  regelverkLenkeNavn: "Tiltak hos familie/nærstående",
-                  regelverkUrl:
-                    "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
-                  beskrivelse: null,
-                },
-              ]}
-            />
-          </div>
+          <RegelverkInfo
+            regelverkLenker={[
+              ...tiltakstype.regelverkLenker,
+              {
+                _id: "klage",
+                regelverkLenkeNavn: "Avslag og klage",
+                regelverkUrl:
+                  "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
+                beskrivelse: null,
+              },
+              {
+                _id: "vurdering",
+                regelverkLenkeNavn: "Tiltak hos familie/nærstående",
+                regelverkUrl:
+                  "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
+                beskrivelse: null,
+              },
+            ]}
+          />
         </div>
       )}
     </Box>

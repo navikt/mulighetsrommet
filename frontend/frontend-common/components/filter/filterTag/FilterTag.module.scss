@@ -9,11 +9,11 @@
   }
 
   :global(.navds-button).overstyrt_ikon_knapp {
-    padding: var(--a-spacing-1) 0;
+    padding: var(--ax-space-1) 0;
     margin-left: 0.4rem;
 
     &:hover {
-      background-color: var(--a-surface-action-subtle-hover);
+      background-color: var(--ax-bg-action-subtle-hover);
       height: 1.7rem;
     }
   }
@@ -26,7 +26,7 @@
   height: fit-content;
   flex-wrap: wrap;
   padding: 0.5rem 0.5rem 1rem;
-  background-color: var(--a-gray-100);
+        background-color: var(--ax-bg-sunken);
   top: 3rem;
   position: sticky;
   &_filter_hidden {

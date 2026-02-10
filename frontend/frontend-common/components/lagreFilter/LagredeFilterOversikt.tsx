@@ -66,7 +66,12 @@ export function LagredeFilterOversikt({
 
   const sletteKnapp = (id: string) => {
     return (
-      <Button variant="danger" onClick={() => slettFilter(id)} icon={<TrashFillIcon />}>
+      <Button
+        data-color="danger"
+        variant="primary"
+        onClick={() => slettFilter(id)}
+        icon={<TrashFillIcon />}
+      >
         Ja, jeg vil slette
       </Button>
     );
@@ -96,7 +101,7 @@ export function LagredeFilterOversikt({
                   key={lagretFilter.id}
                   justify="space-between"
                   wrap={false}
-                  gap="2"
+                  gap="space-8"
                   align="center"
                 >
                   <Radio size="small" value={lagretFilter.id}>
@@ -117,10 +122,11 @@ export function LagredeFilterOversikt({
                     </Tooltip>
                     <Tooltip content={deleteFilterLabel}>
                       <Button
+                        data-color="neutral"
                         icon={<TrashFillIcon />}
                         iconPosition="right"
                         aria-label={deleteFilterLabel}
-                        variant="tertiary-neutral"
+                        variant="tertiary"
                         size="medium"
                         onClick={() => {
                           setFilterForSletting(lagretFilter);
@@ -134,7 +140,6 @@ export function LagredeFilterOversikt({
           </div>
         </RadioGroup>
       )}
-
       {filterForSletting ? (
         <VarselModal
           open={!!filterForSletting}
@@ -151,7 +156,6 @@ export function LagredeFilterOversikt({
           secondaryButtonHandleAction={() => sletteFilterModalRef.current?.close()}
         />
       ) : null}
-
       {filterHarUgyldigStruktur ? (
         <VarselModal
           open={!!filterHarUgyldigStruktur}

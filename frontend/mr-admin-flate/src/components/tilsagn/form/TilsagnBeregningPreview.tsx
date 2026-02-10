@@ -25,8 +25,8 @@ export function TilsagnBeregningPreview() {
 
   return (
     <>
-      <VStack gap="4">
-        <HStack gap="2" justify="space-between">
+      <VStack gap="space-16">
+        <HStack gap="space-8" justify="space-between">
           <Label size="medium">Totalbeløp</Label>
           <Label size="medium">
             {formaterValuta(data.beregning.pris.belop, data.beregning.pris.valuta)}
