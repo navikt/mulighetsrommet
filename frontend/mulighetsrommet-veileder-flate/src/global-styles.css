@@ -1,45 +1,40 @@
 /* Global styles extracted from modules */
 
 /* From FilterToggle.module.scss */
-.navds-accordion__content {
+.aksel-accordion__content {
   padding: 0 0.5rem 0.5rem 0.5rem;
 }
 
 /* From PameldingKometApnerSnart.module.scss */
-.overwritten_poster .navds-guide {
+.overwritten_poster .aksel-guide {
   background-color: var(--ax-bg-success-soft);
   border-color: var(--ax-border-success);
   padding: 10px;
 }
 
-.overwritten_poster .navds-guide-panel__content {
+.overwritten_poster .aksel-guide-panel__content {
   border-color: var(--ax-border-success);
 }
 
 /* From ViewTiltakDetaljer.module.scss */
-.sidemeny .navds-tabs__tab[aria-selected="true"] {
+.sidemeny .aksel-tabs__tab[aria-selected="true"] {
   background-color: var(--ax-neutral-200);
 }
 
-.sidemeny .navds-tabs__tabpanel {
+.sidemeny .aksel-tabs__tabpanel {
   border-top: 1px solid var(--ax-neutral-400);
 }
 
-.navds-panel {
+.aksel-panel {
   padding: 1.5rem;
   background-color: var(--ax-neutral-200);
 }
 
-.navds-tabs__tablist-wrapper {
+.aksel-tabs__tablist-wrapper {
   box-shadow: unset;
 }
 
 /* From Kopiknapp.module.scss */
-.navds-button.kopiknapp .navds-button--tertiary:hover {
+.aksel-button.kopiknapp .aksel-button--tertiary:hover {
   background-color: transparent;
-}
-
-/* From TiltakDetaljer.module.scss */
-.fane_liste {
-  /* Any styles for the TiltakDetaljer.module.scss */
 }

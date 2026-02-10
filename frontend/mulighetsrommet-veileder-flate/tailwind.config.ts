@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import dsTailwind from "@navikt/ds-tailwind";
+import typography from "@tailwindcss/typography";
 import path from "path";
 
 export default {
@@ -14,6 +15,6 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [typography],
   presets: [dsTailwind],
 } satisfies Config;
