@@ -111,19 +111,6 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
     });
 
     await Promise.all(loadedCss);
-
-    // Inject all CSS variables from :root into the Shadow DOM
-    const rootStyles = getComputedStyle(document.documentElement);
-    const cssVars: string[] = [];
-    for (let i = 0; i < rootStyles.length; i++) {
-      const name = rootStyles[i];
-      if (name.startsWith("--")) {
-        cssVars.push(`${name}: ${rootStyles.getPropertyValue(name)};`);
-      }
-    }
-    const style = document.createElement("style");
-    style.textContent = `:host, :root { ${cssVars.join(" ")} }`;
-    shadowRoot.appendChild(style);
   }
 
   renderApp(fnr?: string, enhet?: string) {
