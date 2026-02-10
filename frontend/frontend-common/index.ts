@@ -29,6 +29,8 @@ import { DataDrivenTable } from "./components/datadriven/DataDrivenTable";
 import { DataElementStatusTag } from "./components/datadriven/DataElementStatusTag";
 import { DataDetails } from "./components/datadriven/DataDetails";
 import { getDataElement } from "./components/datadriven/DataElement";
+import { Lenkeknapp } from "./components/lenkeknapp/Lenkeknapp";
+import { Lenke } from "./components/lenke/Lenke";
 
 export {
   useDebounce,
@@ -49,6 +51,8 @@ export {
   LokalInformasjonContainer,
   LagreFilterButton,
   LagredeFilterOversikt,
+  Lenkeknapp,
+  Lenke,
   TilbakemeldingsLenke,
   StatusTag,
   ExpandableStatusTag,

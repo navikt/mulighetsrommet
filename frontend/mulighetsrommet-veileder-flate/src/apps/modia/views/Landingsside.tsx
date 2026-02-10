@@ -28,9 +28,10 @@ import {
 import ingenFunnImg from "public/ingen-funn.svg";
 import { ReactNode, Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { Link, useLocation } from "react-router";
+import { useLocation } from "react-router";
 import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
+import { Lenkeknapp } from "@mr/frontend-common";
 
 function Feilmelding({ message }: { message: string }) {
   return (
@@ -53,14 +54,15 @@ export function Landingsside() {
         gap="space-16"
       >
         <VStack align={{ xs: "start", lg: "end" }} className="mt-0 ml-0 md:mt-[4rem] md:ml-[1rem]">
-          <Button
-            as={Link}
+          <Lenkeknapp
             icon={<PlusIcon color="white" fontSize={30} aria-hidden />}
             data-testid="finn-nytt-arbeidsmarkedstiltak-btn"
             to="/arbeidsmarkedstiltak/oversikt"
+            variant="primary"
+            size="medium"
           >
             Finn nytt arbeidsmarkedstiltak
-          </Button>
+          </Lenkeknapp>
         </VStack>
         <VStack gap="space-16">
           <FeedbackFraUrl />

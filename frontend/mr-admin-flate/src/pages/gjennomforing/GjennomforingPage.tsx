@@ -4,8 +4,7 @@ import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
-import { Heading, Spacer, Tabs } from "@navikt/ds-react";
+import { Heading, Link, Spacer, Tabs } from "@navikt/ds-react";
 import React from "react";
 import { useGjennomforing, useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -49,14 +48,9 @@ export function GjennomforingPage() {
         <DataElementStatusTag {...gjennomforing.status.status} />
         <Spacer />
         {handlinger.includes(GjennomforingHandling.FORHANDSVIS_I_MODIA) && (
-          <Lenkeknapp
-            size="small"
-            isExternal={true}
-            variant="secondary"
-            to={`${previewArbeidsmarkedstiltakUrl()}/tiltak/${gjennomforing.id}`}
-          >
+          <Link href={`${previewArbeidsmarkedstiltakUrl()}/tiltak/${gjennomforing.id}`}>
             Forhåndsvis i Modia
-          </Lenkeknapp>
+          </Link>
         )}
       </Header>
       <Tabs value={currentTab}>

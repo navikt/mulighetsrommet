@@ -16,8 +16,8 @@ export function Lenke({ children, isExternal = false, to, className, onClick }: 
       <ExternalLinkIcon aria-label="Ekstern lenke" />
     </Link>
   ) : (
-    <RouterLink to={to} className={className} onClick={onClick}>
+    <Link as={RouterLink} to={to} className={className} onClick={onClick}>
       {children}
-    </RouterLink>
+    </Link>
   );
 }

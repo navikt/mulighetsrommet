@@ -1,10 +1,9 @@
 import { Deltakelse, DeltakelseEierskap, DeltakelseTilstand } from "@api-client";
-import { BodyShort, Box, Button, Heading, HGrid, HStack, VStack, Link } from "@navikt/ds-react";
+import { BodyShort, Box, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
 import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
-import { Link as ReactRouterLink } from "react-router";
-import { DataElementStatusTag } from "@mr/frontend-common";
+import { DataElementStatusTag, Lenke, Lenkeknapp } from "@mr/frontend-common";
 
 interface Props {
   deltakelse: Deltakelse;
@@ -37,16 +36,13 @@ function Knapper({ deltakelse }: Props) {
       });
       return (
         <VStack gap="space-12" align="center">
-          <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
+          <Lenkeknapp to={deltakelseRoute.href} variant="secondary">
             Gå til deltakelse
-          </Button>
+          </Lenkeknapp>
           {deltakelse.pamelding && (
-            <Link
-              as={ReactRouterLink}
-              to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.pamelding.gjennomforingId}`}
-            >
+            <Lenke to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.pamelding.gjennomforingId}`}>
               <BodyShort size="small">Gå til tiltak</BodyShort>
-            </Link>
+            </Lenke>
           )}
         </VStack>
       );
@@ -54,9 +50,9 @@ function Knapper({ deltakelse }: Props) {
     case DeltakelseEierskap.TEAM_TILTAK: {
       const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/avtale/${deltakelse.id}?part=VEILEDER`;
       return (
-        <Button as={Link} variant="secondary" to={link} size="small">
+        <Lenkeknapp to={link} variant="secondary" size="small">
           Gå til avtale
-        </Button>
+        </Lenkeknapp>
       );
     }
   }

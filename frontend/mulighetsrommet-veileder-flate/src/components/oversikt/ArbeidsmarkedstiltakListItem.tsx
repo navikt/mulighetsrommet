@@ -4,11 +4,11 @@ import { ChevronRightIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtomValue } from "jotai";
-import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
 import { DeltMedBrukerDto, VeilederflateTiltak } from "@api-client";
 import { isTiltakGruppe, isTiltakMedArrangor } from "@/api/queries/useArbeidsmarkedstiltakById";
+import { Link } from "react-router";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -35,7 +35,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, deltMedBruker }: P
       id={`list_element_${index}`}
       data-testid={`gjennomforing_${kebabCase(tiltak.tiltakstype.navn)}`}
     >
-      <Lenke className={`text-[#000000]`} to={`../tiltak/${id}${paginationUrl}`}>
+      <Link to={`../tiltak/${id}${paginationUrl}`}>
         {deltMedBruker && <TiltakDeltMedBrukerInfo deltMedBruker={deltMedBruker} />}
         <div className="grid grid-cols-[0_40%_1fr_2%] [grid-template-areas:'status_navn_metadata_ikon'] lg:grid-areas-[status_navn_navn_ikon_metadata_metadata_metadata]  items-start justify-start grid-rows-[auto] lg:items-center min-h-16 gap-8 p-3">
           {isTiltakGruppe(tiltak) && !tiltak.apentForPamelding && (
@@ -67,7 +67,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, deltMedBruker }: P
 
           <ChevronRightIcon className="[grid-area:ikon] w-6 h-auto" title="Detaljer om tiltaket" />
         </div>
-      </Lenke>
+      </Link>
     </li>
   );
 }

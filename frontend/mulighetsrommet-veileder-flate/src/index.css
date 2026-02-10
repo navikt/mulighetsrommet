@@ -2,22 +2,6 @@
 @import "@navikt/ds-css" layer(components);
 @config "../tailwind.config.ts";
 
-/* Globale stiler fra Aksel */
-@import "@navikt/ds-css/dist/global/fonts.css";
-@import "@navikt/ds-css/dist/global/tokens.css";
-@import "@navikt/ds-css/dist/global/reset.css";
-@import "@navikt/ds-css/dist/global/baseline.css";
-@import "@navikt/ds-css/dist/global/print.css";
-
-/* Komponent stiler - kun de som brukes */
-@import "@navikt/ds-css/dist/component/typography.css";
-@import "@navikt/ds-css/dist/component/accordion.css";
-@import "@navikt/ds-css/dist/component/button.css";
-@import "@navikt/ds-css/dist/component/dropdown.css";
-@import "@navikt/ds-css/dist/component/link.css";
-@import "@navikt/ds-css/dist/component/loader.css";
-@import "@navikt/ds-css/dist/component/tabs.css";
-
 /* Modia appen bruker shadow dom da funker ikke :root så
  * vi dupliserer variablene her og legger de rett på div'en
  * som wrapper appen.
@@ -29,6 +13,12 @@
 :root {
   --filter-width: 320px;
 }
+/* Globale stiler fra Aksel */
+@import "@navikt/ds-css/dist/global/fonts.css";
+@import "@navikt/ds-css/dist/global/tokens.css";
+@import "@navikt/ds-css/dist/global/reset.css";
+@import "@navikt/ds-css/dist/global/baseline.css";
+@import "@navikt/ds-css/dist/global/print.css";
 
 /* Import global styles directly */
 @import "./global-styles.css";

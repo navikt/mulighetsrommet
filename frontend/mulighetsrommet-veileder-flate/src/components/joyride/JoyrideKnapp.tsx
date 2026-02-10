@@ -13,6 +13,7 @@ export function JoyrideKnapp({ handleClick }: Props) {
       onClick={handleClick}
       icon={<HikingTrailSignIcon title="Veiviser" />}
       id="joyride_knapp"
+      data-color="accent"
     >
       Veiviser
     </Button>
