@@ -204,29 +204,16 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
 }
 
 private fun getDeltakelser(beregning: UtbetalingBeregning): Set<UtbetalingBeregningOutputDeltakelse> = when (beregning) {
-    is UtbetalingBeregningPrisPerTimeOppfolging,
-    -> getDeltakelseOutputPrisPerTimeOppfolging(beregning)
-
     is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
     is UtbetalingBeregningPrisPerHeleUkesverk,
     is UtbetalingBeregningPrisPerManedsverk,
     is UtbetalingBeregningPrisPerUkesverk,
-    is UtbetalingBeregningFri,
     -> beregning.output.deltakelser()
-}
 
-private fun getDeltakelseOutputPrisPerTimeOppfolging(beregning: UtbetalingBeregningPrisPerTimeOppfolging): Set<UtbetalingBeregningOutputDeltakelse> = beregning.deltakelsePerioder().map {
-    UtbetalingBeregningOutputDeltakelse(
-        it.deltakelseId,
-        setOf(
-            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                it.periode,
-                faktor = 0.0,
-                sats = 0.withValuta(beregning.output.pris.valuta),
-            ),
-        ),
-    )
-}.toSet()
+    is UtbetalingBeregningFri,
+    is UtbetalingBeregningPrisPerTimeOppfolging,
+    -> setOf()
+}
 
 private fun getDifference(
     source: List<Utbetaling>,
