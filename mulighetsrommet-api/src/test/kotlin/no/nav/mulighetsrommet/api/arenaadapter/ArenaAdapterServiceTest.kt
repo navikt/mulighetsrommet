@@ -329,6 +329,27 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
+        test("oppretter enkeltplass som Arena-gjennomføring når sluttdato er før EnkeltplassSluttDatoCutoffDate") {
+            val service = createArenaAdapterService()
+
+            service.upsertTiltaksgjennomforing(
+                arenaGjennomforing.copy(
+                    startDato = LocalDate.of(2023, 1, 1),
+                    sluttDato = LocalDate.of(2024, 1, 1),
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                ),
+            )
+
+            database.run {
+                queries.gjennomforing.getGjennomforingArenaOrError(arenaGjennomforing.id).should {
+                    it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
+                    it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
+                    it.navn shouldBe "En enkeltplass"
+                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
+                }
+            }
+        }
+
         test("skal publisere til kafka kun når det er endringer fra Arena") {
             val service = createArenaAdapterService()
 
