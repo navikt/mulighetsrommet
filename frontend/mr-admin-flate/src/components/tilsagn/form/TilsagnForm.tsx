@@ -50,7 +50,6 @@ export function TilsagnForm(props: Props) {
   const forhandsvalgKostnadssted =
     kostnadssteder.length === 1 ? kostnadssteder[0].enhetsnummer : defaultValues.kostnadssted;
   const form = useForm<TilsagnRequest>({
-    resolver: async (values) => ({ values, errors: {} }),
     defaultValues: {
       ...defaultValues,
       kostnadssted: forhandsvalgKostnadssted,
