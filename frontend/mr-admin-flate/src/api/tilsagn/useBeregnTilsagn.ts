@@ -9,5 +9,6 @@ export function useBeregnTilsagn(request: BeregnTilsagnRequest) {
     queryKey: QueryKeys.beregnTilsagn(debouncedSerialized),
     queryFn: () => TilsagnService.beregnTilsagn({ body: JSON.parse(debouncedSerialized) }),
     placeholderData: (prev) => prev,
+    throwOnError: false,
   });
 }
