@@ -35,10 +35,18 @@ export function initializeLogs() {
 }
 
 export function pushError(err: unknown) {
+  // eslint-disable-next-line no-console
+  console.error(err);
   if (typeof window === "undefined") {
     return;
   }
-  if (window.faro && err instanceof Error) {
-    window.faro.api.pushError(err);
+
+  if (window.faro) {
+    if (err instanceof Error) {
+      window.faro.api.pushError(err);
+    } else {
+      const message = typeof err === "string" ? err : JSON.stringify(err, null, 2);
+      window.faro.api.pushError(new Error(message));
+    }
   }
 }
