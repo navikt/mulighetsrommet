@@ -7,7 +7,7 @@ import {
   AvtaleDto,
   FeatureToggle,
   GjennomforingDeltakerSummary,
-  GjennomforingGruppeDto,
+  GjennomforingAvtaleDto,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingRequest,
@@ -47,7 +47,7 @@ import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 interface Props {
   tiltakstype: TiltakstypeDto;
   avtale: AvtaleDto;
-  gjennomforing: GjennomforingGruppeDto | null;
+  gjennomforing: GjennomforingAvtaleDto | null;
   veilederinfo: GjennomforingVeilederinfoDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
 }

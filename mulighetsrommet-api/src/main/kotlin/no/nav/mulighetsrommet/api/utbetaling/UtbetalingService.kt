@@ -159,7 +159,7 @@ class UtbetalingService(
         utbetalingKrav: OpprettUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(utbetalingKrav.gjennomforingId)
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetalingKrav.gjennomforingId)
         val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
         val utbetalingInfo = resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
         val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
@@ -208,7 +208,7 @@ class UtbetalingService(
         agent: Agent,
         periode: Periode,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(request.gjennomforingId)
         val arrangor = requireNotNull(queries.arrangor.getByGjennomforingId(request.gjennomforingId))
         val betalingsinformasjon = arrangorService.getBetalingsinformasjon(arrangor.id)
         val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(

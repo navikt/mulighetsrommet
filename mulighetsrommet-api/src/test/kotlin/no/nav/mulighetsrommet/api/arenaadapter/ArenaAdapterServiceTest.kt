@@ -200,7 +200,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaDbo)
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing1.id).should {
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2024#2024")
                     it.arena?.ansvarligNavEnhet shouldBe "0387"
                     it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
@@ -302,7 +302,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
 
             database.run {
-                queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id).should {
+                queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
                     it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
                     it.navn shouldBe "En enkeltplass"
@@ -318,7 +318,7 @@ class ArenaAdapterServiceTest : FunSpec({
             )
 
             database.run {
-                queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id).should {
+                queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
                     it.arena?.ansvarligNavEnhet shouldBe "1000"
                 }

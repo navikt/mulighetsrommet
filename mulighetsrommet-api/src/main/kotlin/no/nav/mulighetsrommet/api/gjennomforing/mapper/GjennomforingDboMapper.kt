@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingAvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -21,7 +21,7 @@ object GjennomforingDboMapper {
         oppstartstype: GjennomforingOppstartstype,
         pameldingType: GjennomforingPameldingType,
         amoKategorisering: AmoKategorisering?,
-    ) = GjennomforingGruppetiltakDbo(
+    ) = GjennomforingAvtaleDbo(
         id = request.id,
         navn = request.navn,
         tiltakstypeId = request.tiltakstypeId,

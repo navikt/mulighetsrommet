@@ -35,7 +35,7 @@ sealed class GjennomforingKompakt {
     )
 }
 
-data class GjennomforingKompaktGruppetiltak(
+data class GjennomforingAvtaleKompakt(
     override val id: UUID,
     override val lopenummer: Tiltaksnummer,
     override val tiltakstype: Tiltakstype,
@@ -48,7 +48,7 @@ data class GjennomforingKompaktGruppetiltak(
     val publisert: Boolean,
 ) : GjennomforingKompakt()
 
-data class GjennomforingKompaktEnkeltplass(
+data class GjennomforingEnkeltplassKompakt(
     override val id: UUID,
     override val lopenummer: Tiltaksnummer,
     override val tiltakstype: Tiltakstype,

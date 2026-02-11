@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -15,7 +15,7 @@ interface SystemgenerertPrismodell<B : UtbetalingBeregning> {
 
     fun justerPeriodeForBeregning(periode: Periode): Periode = periode
 
-    fun beregn(gjennomforing: GjennomforingGruppetiltak, deltakere: List<Deltaker>, periode: Periode): B
+    fun beregn(gjennomforing: GjennomforingAvtale, deltakere: List<Deltaker>, periode: Periode): B
 }
 
 object FastSatsPerTiltaksplassPerManedBeregning :
@@ -24,7 +24,7 @@ object FastSatsPerTiltaksplassPerManedBeregning :
     override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
     override fun beregn(
-        gjennomforing: GjennomforingGruppetiltak,
+        gjennomforing: GjennomforingAvtale,
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed {
@@ -57,7 +57,7 @@ object PrisPerManedBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisP
     override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
     override fun beregn(
-        gjennomforing: GjennomforingGruppetiltak,
+        gjennomforing: GjennomforingAvtale,
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningPrisPerManedsverk {
@@ -103,7 +103,7 @@ object PrisPerHeleUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPri
     }
 
     override fun beregn(
-        gjennomforing: GjennomforingGruppetiltak,
+        gjennomforing: GjennomforingAvtale,
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningPrisPerHeleUkesverk {
@@ -135,7 +135,7 @@ object PrisPerUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPer
     override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
     override fun beregn(
-        gjennomforing: GjennomforingGruppetiltak,
+        gjennomforing: GjennomforingAvtale,
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningPrisPerUkesverk {
@@ -164,7 +164,7 @@ object PrisPerUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPer
 
 private fun resolveStengtHosArrangor(
     periode: Periode,
-    stengtPerioder: List<GjennomforingGruppetiltak.StengtPeriode>,
+    stengtPerioder: List<GjennomforingAvtale.StengtPeriode>,
 ): Set<StengtPeriode> {
     return stengtPerioder
         .mapNotNull { stengt ->

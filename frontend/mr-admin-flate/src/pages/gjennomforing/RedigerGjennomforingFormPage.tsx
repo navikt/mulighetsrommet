@@ -19,7 +19,7 @@ import { DataElementStatusTag } from "@mr/frontend-common";
 import {
   AmoKategorisering,
   AvtaleDto,
-  GjennomforingGruppeDto,
+  GjennomforingAvtaleDto,
   GjennomforingTiltakstype,
   GjennomforingVeilederinfoDto,
   PrismodellDto,
@@ -87,7 +87,7 @@ export function RedigerGjennomforingFormPage() {
 interface RedigerGjennomforingProps {
   avtale: AvtaleDto;
   tiltakstype: GjennomforingTiltakstype;
-  gjennomforing: GjennomforingGruppeDto;
+  gjennomforing: GjennomforingAvtaleDto;
   veilederinfo: GjennomforingVeilederinfoDto | null;
   prismodell: PrismodellDto | null;
   amoKategorisering: AmoKategorisering | null;

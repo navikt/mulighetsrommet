@@ -10,7 +10,7 @@ import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import {
   GjennomforingDto,
   GjennomforingEnkeltplassDto,
-  GjennomforingGruppeDto,
+  GjennomforingAvtaleDto,
   GjennomforingVeilederinfoDto,
   TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
@@ -31,7 +31,7 @@ export function GjennomforingDetaljerVarighet({ tiltakstype, gjennomforing, veil
 
 function getVarighetOgPameldingGruppe(
   tiltakstype: TiltakstypeDto,
-  gjennomforing: GjennomforingGruppeDto,
+  gjennomforing: GjennomforingAvtaleDto,
   veilederinfo: GjennomforingVeilederinfoDto | null,
 ): Definition[] {
   return [

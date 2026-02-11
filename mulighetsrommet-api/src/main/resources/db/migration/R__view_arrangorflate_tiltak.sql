@@ -28,4 +28,4 @@ from gjennomforing
          join arrangor on arrangor.id = gjennomforing.arrangor_id
          join prismodell on prismodell.id = gjennomforing.prismodell_id
 where gjennomforing.avtale_id is not null
-  and gjennomforing.gjennomforing_type = 'GRUPPETILTAK'
+  and gjennomforing.gjennomforing_type = 'AVTALE'

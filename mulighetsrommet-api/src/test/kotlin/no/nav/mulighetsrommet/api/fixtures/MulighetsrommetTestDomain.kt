@@ -7,8 +7,8 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingAvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingEnkeltplassDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
@@ -45,7 +45,7 @@ data class MulighetsrommetTestDomain(
         PrismodellFixtures.ForhandsgodkjentVta,
     ),
     val avtaler: List<AvtaleDbo> = listOf(),
-    val gjennomforinger: List<GjennomforingGruppetiltakDbo> = listOf(),
+    val gjennomforinger: List<GjennomforingAvtaleDbo> = listOf(),
     val enkeltplasser: List<GjennomforingEnkeltplassDbo> = listOf(),
     val deltakere: List<DeltakerDbo> = listOf(),
     val tilsagn: List<TilsagnDbo> = listOf(),
@@ -68,7 +68,7 @@ data class MulighetsrommetTestDomain(
             tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
             prismodeller.forEach { queries.prismodell.upsert(it) }
             avtaler.forEach { queries.avtale.create(it) }
-            gjennomforinger.forEach { queries.gjennomforing.upsertGruppetiltak(it) }
+            gjennomforinger.forEach { queries.gjennomforing.upsertGjennomforingAvtale(it) }
             enkeltplasser.forEach { queries.gjennomforing.upsertEnkeltplass(it) }
             deltakere.forEach { queries.deltaker.upsert(it) }
             tilsagn.forEach { queries.tilsagn.upsert(it) }

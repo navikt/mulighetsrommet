@@ -15,7 +15,7 @@ import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import {
   GjennomforingDetaljerDto,
   GjennomforingDto,
-  GjennomforingGruppeDto,
+  GjennomforingAvtaleDto,
   GjennomforingHandling,
   GjennomforingVeilederinfoDto,
   NavAnsattDto,
@@ -45,7 +45,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
     setPublisert({ publisert: e.currentTarget.checked });
   }
 
-  function dupliserGjennomforing(gjennomforing: GjennomforingGruppeDto) {
+  function dupliserGjennomforing(gjennomforing: GjennomforingAvtaleDto) {
     const duplisert: DeepPartial<GjennomforingDetaljerDto> = {
       gjennomforing: {
         avtaleId: gjennomforing.avtaleId,

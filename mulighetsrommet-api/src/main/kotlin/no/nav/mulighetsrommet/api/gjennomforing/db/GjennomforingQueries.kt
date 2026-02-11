@@ -11,11 +11,11 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
@@ -65,13 +65,13 @@ class GjennomforingQueries(private val session: Session) {
         )
     }
 
-    fun upsertGruppetiltak(gjennomforing: GjennomforingGruppetiltakDbo) = withTransaction(session) {
+    fun upsertGjennomforingAvtale(gjennomforing: GjennomforingAvtaleDbo) = withTransaction(session) {
         upsert(
             GjennomforingDbo(
                 id = gjennomforing.id,
                 tiltakstypeId = gjennomforing.tiltakstypeId,
                 arrangorId = gjennomforing.arrangorId,
-                type = GjennomforingType.GRUPPETILTAK,
+                type = GjennomforingType.AVTALE,
                 oppstart = gjennomforing.oppstart,
                 pameldingType = gjennomforing.pameldingType,
                 navn = gjennomforing.navn,
@@ -341,15 +341,15 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun getGruppetiltakOrError(id: UUID): GjennomforingGruppetiltak {
-        return checkNotNull(getGruppetiltak(id)) { "Gjennomføring med id $id finnes ikke" }
+    fun getGjennomforingAvtaleOrError(id: UUID): GjennomforingAvtale {
+        return checkNotNull(getGjennomforingAvtale(id)) { "Gjennomføring med id $id finnes ikke" }
     }
 
-    fun getGruppetiltak(id: UUID): GjennomforingGruppetiltak? {
+    fun getGjennomforingAvtale(id: UUID): GjennomforingAvtale? {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_gjennomforing_gruppetiltak
+            from view_gjennomforing_avtale
             where id = ?::uuid
         """.trimIndent()
 
@@ -454,22 +454,22 @@ class GjennomforingQueries(private val session: Session) {
             .runWithSession(this)
     }
 
-    fun getByAvtale(avtaleId: UUID): List<GjennomforingGruppetiltak> {
+    fun getByAvtale(avtaleId: UUID): List<GjennomforingAvtale> {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_gjennomforing_gruppetiltak
+            from view_gjennomforing_avtale
             where avtale_id = ?
         """.trimIndent()
 
         return session.list(queryOf(query, avtaleId)) { it.toGjennomforingGruppetiltak() }
     }
 
-    fun getEnkeltplassOrError(id: UUID): GjennomforingEnkeltplass {
-        return checkNotNull(getEnkeltplass(id)) { "Enkeltplass med id=$id finnes ikke" }
+    fun getGjennomforingEnkeltplassOrError(id: UUID): GjennomforingEnkeltplass {
+        return checkNotNull(getGjennomforingEnkeltplass(id)) { "Gjennomføring med id=$id finnes ikke" }
     }
 
-    fun getEnkeltplass(id: UUID): GjennomforingEnkeltplass? {
+    fun getGjennomforingEnkeltplass(id: UUID): GjennomforingEnkeltplass? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -675,11 +675,11 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
         tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
     )
     return when (GjennomforingType.valueOf(string("gjennomforing_type"))) {
-        GjennomforingType.GRUPPETILTAK -> {
+        GjennomforingType.AVTALE -> {
             val navEnheter = stringOrNull("nav_enheter_json")
                 ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
                 ?: emptyList()
-            GjennomforingKompaktGruppetiltak(
+            GjennomforingAvtaleKompakt(
                 id = uuid("id"),
                 navn = string("navn"),
                 lopenummer = Tiltaksnummer(string("lopenummer")),
@@ -694,7 +694,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
         }
 
         GjennomforingType.ENKELTPLASS -> {
-            GjennomforingKompaktEnkeltplass(
+            GjennomforingEnkeltplassKompakt(
                 id = uuid("id"),
                 lopenummer = Tiltaksnummer(string("lopenummer")),
                 startDato = localDate("start_dato"),
@@ -707,9 +707,9 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
     }
 }
 
-private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
+private fun Row.toGjennomforingGruppetiltak(): GjennomforingAvtale {
     val administratorer = stringOrNull("administratorer_json")
-        ?.let { Json.decodeFromString<List<GjennomforingGruppetiltak.Administrator>>(it) }
+        ?.let { Json.decodeFromString<List<GjennomforingAvtale.Administrator>>(it) }
         ?: emptyList()
     val navEnheter = stringOrNull("nav_enheter_json")
         ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
@@ -719,10 +719,10 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
         ?.let { Json.decodeFromString<List<GjennomforingKontaktperson>>(it) }
         ?: emptyList()
     val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-        ?.let { Json.decodeFromString<List<GjennomforingGruppetiltak.ArrangorKontaktperson>>(it) }
+        ?.let { Json.decodeFromString<List<GjennomforingAvtale.ArrangorKontaktperson>>(it) }
         ?: emptyList()
     val stengt = stringOrNull("stengt_perioder_json")
-        ?.let { Json.decodeFromString<List<GjennomforingGruppetiltak.StengtPeriode>>(it) }
+        ?.let { Json.decodeFromString<List<GjennomforingAvtale.StengtPeriode>>(it) }
         ?: emptyList()
     val startDato = localDate("start_dato")
     val sluttDato = localDateOrNull("slutt_dato")
@@ -730,7 +730,7 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
     val utdanningslop = stringOrNull("utdanningslop_json")?.let {
         Json.decodeFromString<UtdanningslopDto>(it)
     }
-    return GjennomforingGruppetiltak(
+    return GjennomforingAvtale(
         id = uuid("id"),
         tiltakstype = Gjennomforing.Tiltakstype(
             id = uuid("tiltakstype_id"),
@@ -766,7 +766,7 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
         publisert = boolean("publisert"),
         deltidsprosent = double("deltidsprosent"),
         estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
-            GjennomforingGruppetiltak.EstimertVentetid(
+            GjennomforingAvtale.EstimertVentetid(
                 verdi = int("estimert_ventetid_verdi"),
                 enhet = string("estimert_ventetid_enhet"),
             )

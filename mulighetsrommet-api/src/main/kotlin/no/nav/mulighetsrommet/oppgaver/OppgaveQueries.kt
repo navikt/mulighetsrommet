@@ -41,7 +41,7 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype_tiltakskode,
                 tiltakstype_navn,
                 nav_enheter_json
-            from view_gjennomforing_gruppetiltak
+            from view_gjennomforing_avtale
             where (:tiltakskoder::tiltakskode[] is null or tiltakstype_tiltakskode = any(:tiltakskoder::tiltakskode[]))
                 and status = 'GJENNOMFORES'
                 and (:nav_enheter::text[] is null or
@@ -351,7 +351,7 @@ data class AvtaleManglerAdministratorOppgaveData(
 )
 
 private fun Row.toOppgaveGjennomforing(): OppgaveGjennomforing = when (GjennomforingType.valueOf(string("gjennomforing_type"))) {
-    GjennomforingType.GRUPPETILTAK -> OppgaveGjennomforing.Gruppetiltak(
+    GjennomforingType.AVTALE -> OppgaveGjennomforing.Gruppetiltak(
         id = uuid("gjennomforing_id"),
         lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
         navn = string("gjennomforing_navn"),

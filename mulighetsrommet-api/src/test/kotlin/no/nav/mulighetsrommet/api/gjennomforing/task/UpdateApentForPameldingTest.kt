@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.service.AvtaleGjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -42,8 +42,8 @@ class UpdateApentForPameldingTest : FunSpec({
             queries.gjennomforing.setApentForPamelding(GjennomforingFixtures.GruppeAmo1.id, true)
         }
 
-        val service = AvtaleGjennomforingService(
-            config = AvtaleGjennomforingService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+        val service = GjennomforingAvtaleService(
+            config = GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             db = database.db,
             navAnsattService = mockk(),
         )
@@ -66,10 +66,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = startDato.minusDays(1))
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe true
                 }
             }
@@ -79,10 +79,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now())
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe false
                 }
             }
@@ -92,10 +92,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now().plusDays(1))
 
             database.run {
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe true
                 }
             }
