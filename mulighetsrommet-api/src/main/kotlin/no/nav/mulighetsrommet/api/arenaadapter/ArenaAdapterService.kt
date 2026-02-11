@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
@@ -36,6 +37,7 @@ class ArenaAdapterService(
     private val db: ApiDatabase,
     private val sanityService: SanityService,
     private val arrangorService: ArrangorService,
+    private val tiltakstypeService: TiltakstypeService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -67,9 +69,8 @@ class ArenaAdapterService(
             "Gjennomføring for tiltakstype ${arenaGjennomforing.arenaKode} skal ikke skrives til Sanity"
         }
 
-        val tiltakstype = db.session {
-            queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
-        } ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
+        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
+            ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
 
         val sluttDato = arenaGjennomforing.sluttDato
         return if (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate)) {
@@ -82,19 +83,21 @@ class ArenaAdapterService(
     private fun upsertGruppetiltak(
         arenaGjennomforing: ArenaGjennomforingDbo,
     ): Unit = db.transaction {
+        val arenadata = GjennomforingArenaDataDbo(
+            id = arenaGjennomforing.id,
+            tiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
+            arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
+        )
+
         val previous = queries.gjennomforing.getGjennomforingAvtaleOrError(arenaGjennomforing.id)
-        if (!hasRelevantChanges(arenaGjennomforing, previous)) {
+
+        if (!harEndringer(arenadata, previous)) {
             logger.info("Gjennomføring hadde ingen endringer")
             return@transaction
         }
 
-        queries.gjennomforing.setArenaData(
-            GjennomforingArenaDataDbo(
-                id = arenaGjennomforing.id,
-                tiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
-                arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
-            ),
-        )
+        queries.gjennomforing.setArenaData(arenadata)
+        // FIXME: Denne kalles her fordi tiltaksnummeret blir satt under panseret. Kanskje bedre om dette settes eksplisitt i stedet
         queries.gjennomforing.setFreeTextSearch(arenaGjennomforing.id, listOf(arenaGjennomforing.navn))
 
         val next = queries.gjennomforing.getGjennomforingAvtaleOrError(arenaGjennomforing.id)
@@ -115,9 +118,30 @@ class ArenaAdapterService(
             "Enkeltplasser er ikke støttet for tiltakstype ${arenaGjennomforing.arenaKode}"
         }
 
-        val tiltakstype = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
+        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
             ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
+
+        val arenadata = GjennomforingArenaDataDbo(
+            id = arenaGjennomforing.id,
+            tiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
+            arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
+        )
+
         val previous = queries.gjennomforing.getGjennomforingEnkeltplass(arenaGjennomforing.id)
+
+        if (tiltakstypeService.erMigrert(tiltakstype.tiltakskode!!)) {
+            if (previous == null) {
+                throw IllegalStateException("Tiltakstype tiltakskode=${tiltakstype.tiltakskode} er migrert, men gjennomføring fra Arena er ukjent")
+            }
+
+            if (harEndringer(arenadata, previous)) {
+                queries.gjennomforing.setArenaData(arenadata)
+                // FIXME: Denne kalles her fordi tiltaksnummeret blir satt under panseret. Kanskje bedre om dette settes eksplisitt i stedet
+                queries.gjennomforing.setFreeTextSearch(arenaGjennomforing.id, listOf())
+            }
+
+            return
+        }
 
         val enkeltplass = GjennomforingEnkeltplassDbo(
             id = arenaGjennomforing.id,
@@ -135,12 +159,7 @@ class ArenaAdapterService(
             deltidsprosent = arenaGjennomforing.deltidsprosent,
             antallPlasser = arenaGjennomforing.antallPlasser ?: 1,
         )
-        val arenadata = GjennomforingArenaDataDbo(
-            id = arenaGjennomforing.id,
-            tiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
-            arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
-        )
-        if (previous == null || hasRelevantChanges(enkeltplass, previous) || hasRelevantChanges(arenadata, previous)) {
+        if (previous == null || harEndringer(enkeltplass, previous) || harEndringer(arenadata, previous)) {
             queries.gjennomforing.upsertEnkeltplass(enkeltplass)
             queries.gjennomforing.setArenaData(arenadata)
 
@@ -158,14 +177,14 @@ class ArenaAdapterService(
         }
     }
 
-    private fun hasRelevantChanges(
-        arenaGjennomforing: ArenaGjennomforingDbo,
+    private fun harEndringer(
+        arenadata: GjennomforingArenaDataDbo,
         current: Gjennomforing,
     ): Boolean {
-        return arenaGjennomforing.tiltaksnummer != current.arena?.tiltaksnummer?.value || arenaGjennomforing.arenaAnsvarligEnhet != current.arena?.ansvarligNavEnhet
+        return arenadata.tiltaksnummer != current.arena?.tiltaksnummer || arenadata.arenaAnsvarligEnhet != current.arena?.ansvarligNavEnhet
     }
 
-    private fun hasRelevantChanges(
+    private fun harEndringer(
         enkeltplass: GjennomforingEnkeltplassDbo,
         current: GjennomforingEnkeltplass,
     ): Boolean {
@@ -179,17 +198,6 @@ class ArenaAdapterService(
             status = current.status,
             deltidsprosent = current.deltidsprosent,
             antallPlasser = current.antallPlasser,
-        )
-    }
-
-    private fun hasRelevantChanges(
-        arenadata: GjennomforingArenaDataDbo,
-        current: GjennomforingEnkeltplass,
-    ): Boolean {
-        return arenadata != GjennomforingArenaDataDbo(
-            id = current.id,
-            tiltaksnummer = current.arena?.tiltaksnummer,
-            arenaAnsvarligEnhet = current.arena?.ansvarligNavEnhet,
         )
     }
 
