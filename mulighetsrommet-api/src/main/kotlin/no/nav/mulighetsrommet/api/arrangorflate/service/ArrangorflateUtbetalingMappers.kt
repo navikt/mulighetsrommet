@@ -57,7 +57,6 @@ fun mapUtbetalingToArrangorflateUtbetaling(
 ): ArrangorflateUtbetalingDto {
     val beregning = ArrangorflateBeregning(
         pris = utbetaling.beregning.output.pris,
-        digest = utbetaling.beregning.getDigest(),
         deltakelser = beregningDeltakerTable(utbetaling, deltakereById, personaliaById),
         stengt = beregningStengt(utbetaling.beregning),
         displayName = beregningDisplayName(utbetaling.beregning),
@@ -74,6 +73,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
         kanViseBeregning = kanViseBeregningMedDeltakelse,
         createdAt = utbetaling.createdAt,
+        updatedAt = utbetaling.updatedAt,
         tiltakstype = ArrangorflateTiltakstypeDto(
             navn = utbetaling.tiltakstype.navn,
             tiltakskode = utbetaling.tiltakstype.tiltakskode,

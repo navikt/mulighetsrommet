@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
+import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -145,12 +146,12 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("400 ved feil sjekksum ved godkjenning av utbetaling") {
+    test("400 ved feil updatedAt ved godkjenning av utbetaling") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(digest = "d3b07384d113edec49eaa6238ad5ff00", kid = null))
+                setBody(GodkjennUtbetaling(updatedAt = "2026-01-01T12:00:00.000000", kid = null))
             }
 
             response.status shouldBe HttpStatusCode.BadRequest
@@ -166,10 +167,13 @@ class ArrangorflateRoutesTest : FunSpec({
     // TODO: flytt resten av godkjenning-testene til egen testklasse for ArrangorflateService
     test("riktig sjekksum ved godkjenning av utbetaling gir 200, og spawner journalforing task") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
+            val updatedAt = database.run {
+                UtbetalingQueries(session).getOrError(utbetaling.id).updatedAt
+            }
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
+                setBody(GodkjennUtbetaling(updatedAt = updatedAt.toString(), kid = null))
             }
             response.status shouldBe HttpStatusCode.OK
 
@@ -184,17 +188,20 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("kan ikke godkjenne allerede godkjent") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
+            val updatedAt = database.run {
+                UtbetalingQueries(session).getOrError(utbetaling.id).updatedAt
+            }
             var response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
+                setBody(GodkjennUtbetaling(updatedAt = updatedAt.toString(), kid = null))
             }
             response.status shouldBe HttpStatusCode.OK
 
             response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
+                setBody(GodkjennUtbetaling(updatedAt = updatedAt.toString(), kid = null))
             }
             response.status shouldBe HttpStatusCode.BadRequest
         }
@@ -212,10 +219,13 @@ class ArrangorflateRoutesTest : FunSpec({
         val errorConfig = ArrangorflateTestUtils.appConfig(oauth, engine = clientEngine)
 
         withTestApplication(errorConfig) {
+            val updatedAt = database.run {
+                UtbetalingQueries(session).getOrError(utbetaling.id).updatedAt
+            }
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
+                setBody(GodkjennUtbetaling(updatedAt = updatedAt.toString(), kid = null))
             }
             response.status shouldBe HttpStatusCode.OK
         }
@@ -237,10 +247,13 @@ class ArrangorflateRoutesTest : FunSpec({
         }
 
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
+            val updatedAt = database.run {
+                UtbetalingQueries(session).getOrError(utbetaling.id).updatedAt
+            }
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
+                setBody(GodkjennUtbetaling(updatedAt = updatedAt.toString(), kid = null))
             }
 
             response.status shouldBe HttpStatusCode.BadRequest

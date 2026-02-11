@@ -78,6 +78,7 @@ object UtbetalingFixtures {
         journalpostId = null,
         begrunnelseMindreBetalt = null,
         createdAt = LocalDateTime.now(),
+        updatedAt = LocalDateTime.now(),
         avbruttBegrunnelse = null,
         avbruttTidspunkt = null,
     )

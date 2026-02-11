@@ -105,7 +105,7 @@ class GenererUtbetalingService(
                     gjennomforing = gjennomforing,
                     periode = context.periode,
                 )
-                utbetaling?.let { UtbetalingMapper.toUtbetaling(it, gjennomforing) }
+                utbetaling?.let { UtbetalingMapper.toNewUtbetaling(it, gjennomforing) }
             }
     }
 

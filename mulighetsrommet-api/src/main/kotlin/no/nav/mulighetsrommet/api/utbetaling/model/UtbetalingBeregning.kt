@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.security.MessageDigest
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -20,11 +19,6 @@ import java.util.UUID
 sealed class UtbetalingBeregning {
     abstract val input: UtbetalingBeregningInput
     abstract val output: UtbetalingBeregningOutput
-
-    fun getDigest(): String = MessageDigest
-        .getInstance("SHA-256")
-        .digest(this.toString().toByteArray())
-        .fold("") { str, it -> str + "%02x".format(it) }
 
     open fun deltakelsePerioder(): Set<DeltakelsePeriode> {
         return output.deltakelser().map {

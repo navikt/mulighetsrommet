@@ -459,7 +459,7 @@ data class KontonummerResponse(
 
 @Serializable
 data class GodkjennUtbetaling(
-    val digest: String,
+    val updatedAt: String,
     val kid: String?,
 )
 

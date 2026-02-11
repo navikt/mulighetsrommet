@@ -4,7 +4,7 @@ import { queryClient } from "~/api/client";
 
 interface GodkjennUtbetalingParams {
   id: string;
-  digest: string;
+  updatedAt: string;
   kid: string | null;
 }
 
@@ -17,12 +17,12 @@ export function useGodkjennUtbetaling() {
   return useMutation({
     mutationFn: async ({
       id,
-      digest,
+      updatedAt,
       kid,
     }: GodkjennUtbetalingParams): Promise<GodkjennUtbetalingResult> => {
       const result = await ArrangorflateService.godkjennUtbetaling({
         path: { id },
-        body: { digest, kid },
+        body: { updatedAt, kid },
         client: queryClient,
       });
 

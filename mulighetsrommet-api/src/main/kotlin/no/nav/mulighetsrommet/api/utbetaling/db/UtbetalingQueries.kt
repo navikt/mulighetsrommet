@@ -663,6 +663,7 @@ class UtbetalingQueries(private val session: Session) {
             periode = periode("periode"),
             innsender = innsender,
             createdAt = localDateTime("created_at"),
+            updatedAt = localDateTime("updated_at"),
             beskrivelse = stringOrNull("beskrivelse"),
             begrunnelseMindreBetalt = stringOrNull("begrunnelse_mindre_betalt"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),

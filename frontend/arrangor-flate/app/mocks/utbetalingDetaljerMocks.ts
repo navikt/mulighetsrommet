@@ -98,6 +98,7 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
   innsendtAvArrangorDato: "2025-05-15",
   utbetalesTidligstDato: "2025-04-01",
   createdAt: "2025-03-17T12:27:55.465944",
+  updatedAt: "2025-03-17T12:27:55.465944",
   tiltakstype: {
     navn: "Arbeidsforberedende trening",
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -114,7 +115,6 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
     displayName: "Sats per tiltaksplass per måned",
     satsDetaljer: satsDetaljerForhondsgodkjent,
     pris: { belop: 10149, valuta: Valuta.NOK },
-    digest: "b3602d2a",
     deltakelser: toSatserUkesverkDeltakelse,
     stengt: [],
   },
@@ -182,6 +182,7 @@ export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   kanViseBeregning: true,
   utbetalesTidligstDato: "2025-12-01",
   createdAt: "2025-11-07T10:02:43.989186",
+  updatedAt: "2025-11-07T10:02:43.989186",
   tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
   gjennomforing: {
     id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
@@ -193,7 +194,6 @@ export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   valuta: Valuta.NOK,
   beregning: {
     pris: { belop: 20000, valuta: Valuta.NOK },
-    digest: "ca0a6c20",
     satsDetaljer: satsDetaljerManedspris,
     deltakelser: avklaringManedDeltakelse,
     stengt: [],
@@ -236,6 +236,7 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
   innsendtAvArrangorDato: null,
   utbetalesTidligstDato: null,
   createdAt: "2025-06-17T13:58:12.405867",
+  updatedAt: "2025-06-17T13:58:12.405867",
   tiltakstype: {
     navn: "Arbeidsforberedende trening",
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -253,7 +254,6 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
     displayName: "Sats per tiltaksplass per måned",
     satsDetaljer: satsDetaljerForhondsgodkjent,
     pris: { belop: 242904, valuta: Valuta.NOK },
-    digest: "db0c7c6e",
     deltakelser: toSatserUkesverkDeltakelse,
     stengt: [],
   },
@@ -294,6 +294,7 @@ export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   innsendtAvArrangorDato: "2025-06-05",
   utbetalesTidligstDato: null,
   createdAt: "2025-06-05T09:36:11.510957",
+  updatedAt: "2025-06-05T09:36:11.510957",
   tiltakstype: {
     navn: "Arbeidsforberedende trening",
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -313,7 +314,6 @@ export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
     displayName: "Annen avtalt pris",
     satsDetaljer: [],
     pris: { belop: 234, valuta: Valuta.NOK },
-    digest: "000001d4",
   },
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   periode: { start: "2025-05-01", slutt: "2025-08-02" },
@@ -361,6 +361,7 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
   innsendtAvArrangorDato: null,
   utbetalesTidligstDato: "2025-05-01",
   createdAt: "2025-04-01T12:03:49.756508",
+  updatedAt: "2025-04-01T12:03:49.756508",
   tiltakstype: {
     navn: "Avklaring",
     tiltakskode: Tiltakskode.AVKLARING,
@@ -379,7 +380,6 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
     displayName: "Annen avtalt pris",
     satsDetaljer: [],
     pris: { belop: 500, valuta: Valuta.NOK },
-    digest: "000003e8",
   },
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
@@ -439,6 +439,7 @@ export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   innsendtAvArrangorDato: null,
   utbetalesTidligstDato: null,
   createdAt: "2025-07-07T05:00:06.924181",
+  updatedAt: "2025-07-07T05:00:06.924181",
   tiltakstype: {
     navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
     tiltakskode: Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
@@ -455,7 +456,6 @@ export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
     displayName: "Sats per tiltaksplass per måned",
     satsDetaljer: satsDetaljerForhondsgodkjent,
     pris: { belop: 16848, valuta: Valuta.NOK },
-    digest: "38c07a43",
     deltakelser: vtaManedDeltakelse,
     stengt: [],
   },
@@ -502,6 +502,7 @@ export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   utbetalesTidligstDato: "2025-12-01",
   kanViseBeregning: true,
   createdAt: "2025-10-31T14:41:03.835624",
+  updatedAt: "2025-10-31T14:41:03.835624",
   tiltakstype: {
     navn: "Arbeidsrettet rehabilitering",
     tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
@@ -516,7 +517,6 @@ export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   valuta: Valuta.NOK,
   beregning: {
     pris: { belop: 53100, valuta: Valuta.NOK },
-    digest: "28172363",
     satsDetaljer: satsDetaljerUkespris,
     deltakelser: arrUkesverkDeltakelse,
     stengt: [],

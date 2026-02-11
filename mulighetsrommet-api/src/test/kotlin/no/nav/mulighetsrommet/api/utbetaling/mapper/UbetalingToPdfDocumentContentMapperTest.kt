@@ -53,6 +53,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         godkjentAvArrangorTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         utbetalesTidligstTidspunkt = null,
         createdAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+        updatedAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         tiltakstype = Utbetaling.Tiltakstype("Avklaring", Tiltakskode.AVKLARING),
         gjennomforing = Utbetaling.Gjennomforing(
             id = UUID.randomUUID(),
@@ -164,6 +165,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         godkjentAvArrangorTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         utbetalesTidligstTidspunkt = null,
         createdAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+        updatedAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         tiltakstype = Utbetaling.Tiltakstype("Oppfolging", Tiltakskode.OPPFOLGING),
         gjennomforing = Utbetaling.Gjennomforing(
             id = UUID.randomUUID(),

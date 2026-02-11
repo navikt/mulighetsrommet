@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import java.time.LocalDateTime
 
 object UtbetalingMapper {
-    fun toUtbetaling(dbo: UtbetalingDbo, gjennomforing: Gjennomforing): Utbetaling {
+    fun toNewUtbetaling(dbo: UtbetalingDbo, gjennomforing: Gjennomforing): Utbetaling {
         return Utbetaling(
             id = dbo.id,
             status = dbo.status,
@@ -14,6 +14,7 @@ object UtbetalingMapper {
             godkjentAvArrangorTidspunkt = null,
             utbetalesTidligstTidspunkt = dbo.utbetalesTidligstTidspunkt,
             createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now(),
             betalingsinformasjon = dbo.betalingsinformasjon,
             beskrivelse = dbo.beskrivelse,
             begrunnelseMindreBetalt = null,

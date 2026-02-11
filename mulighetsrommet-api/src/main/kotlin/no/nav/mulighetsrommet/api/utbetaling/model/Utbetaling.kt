@@ -40,6 +40,8 @@ data class Utbetaling(
     val utbetalesTidligstTidspunkt: Instant?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val updatedAt: LocalDateTime,
     val beskrivelse: String?,
     val begrunnelseMindreBetalt: String?,
     val tilskuddstype: Tilskuddstype,
