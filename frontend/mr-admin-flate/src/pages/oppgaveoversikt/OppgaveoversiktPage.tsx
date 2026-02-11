@@ -12,15 +12,14 @@ export function OppgaveoversiktPage() {
   const summary = useNotificationSummary();
   const { unreadCount } = summary.data;
 
+  const currentTab = pathname.split("/").pop() || "oppgaver";
+
   return (
     <>
       <title>Oppgaveoversikt</title>
       <HeaderBanner heading="Oppgaveoversikt" ikon={<OppgaveoversiktIkon />} />
       <Box background="default">
-        <Tabs
-          value={pathname.includes("notifikasjoner") ? "notifikasjoner" : "oppgaver"}
-          selectionFollowsFocus
-        >
+        <Tabs value={currentTab} selectionFollowsFocus>
           <Tabs.List id="fane_liste">
             <Tabs.Tab
               value="oppgaver"
@@ -34,6 +33,13 @@ export function OppgaveoversiktPage() {
               onClick={() => navigate("/oppgaveoversikt/notifikasjoner")}
               aria-controls="panel"
               data-testid="notifikasjoner"
+            />
+            <Tabs.Tab
+              value="tidligere-notifikasjoner"
+              label={"Tidligere notifikasjoner"}
+              onClick={() => navigate("/oppgaveoversikt/tidligere-notifikasjoner")}
+              aria-controls="panel"
+              data-testid="tidligere-notifikasjoner"
             />
           </Tabs.List>
         </Tabs>

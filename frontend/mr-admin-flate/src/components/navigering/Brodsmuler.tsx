@@ -1,5 +1,6 @@
-import { ArrowRightIcon } from "@navikt/aksel-icons";
-import { Link } from "react-router";
+import { ChevronRightIcon } from "@navikt/aksel-icons";
+import { HStack, Link } from "@navikt/ds-react";
+import { Link as ReactRouterLink } from "react-router";
 
 type Id = string;
 
@@ -25,23 +26,23 @@ export function Brodsmuler({ brodsmuler }: Props) {
   const filtrerteBrodsmuler = brodsmuler.filter((b) => b !== undefined);
 
   return (
-    <nav aria-label="Brødsmulesti" className={"bg-ax-bg-default pl-2"}>
-      <ol className="flex list-none p-2 m-0 gap-2 flex-row">
+    <nav aria-label="Brødsmulesti" className={"bg-ax-bg-default p-3"}>
+      <HStack as="ol" gap="space-4">
         {filtrerteBrodsmuler.map((item, index) => {
           return (
             <li key={index}>
               {item.lenke ? (
-                <div className="flex justify-center items-center gap-2">
-                  <Link to={item.lenke}>{item.tittel}</Link>
-                  <ArrowRightIcon aria-hidden="true" aria-label="Ikon for pil til høyre" />
-                </div>
+                <Link as={ReactRouterLink} to={item.lenke}>
+                  {item.tittel}
+                  <ChevronRightIcon aria-hidden="true" />
+                </Link>
               ) : (
                 <span aria-current="page">{item.tittel}</span>
               )}
             </li>
           );
         })}
-      </ol>
+      </HStack>
     </nav>
   );
 }

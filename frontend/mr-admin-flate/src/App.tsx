@@ -3,7 +3,7 @@ import { OppgaverPage } from "@/pages/oppgaveoversikt/oppgaver/OppgaverPage";
 import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
 import { TilsagnForGjennomforingPage } from "@/pages/gjennomforing/tilsagn/TilsagnForGjennomforingPage";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
-import { Page } from "@navikt/ds-react";
+import { Page, Theme } from "@navikt/ds-react";
 import { createBrowserRouter, Outlet, RouteObject, RouterProvider } from "react-router";
 import { ForsidePage } from "./pages/forside/ForsidePage";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
@@ -86,19 +86,21 @@ function AppLayout() {
           data-website-id="182ed73a-eaa9-4ea0-9e30-7a0a74c5c396"
         />
       </Head>
-      <Page>
-        <Page.Block as="header" className="max-w-[1920px]">
-          <AdministratorHeader />
-          <UtdatertKlientBanner />
-        </Page.Block>
-        <Page.Block as="main" className="max-w-[1920px]">
-          <Suspense fallback={<Laster tekst="Laster..." />}>
-            <InlineErrorBoundary>
-              <Outlet />
-            </InlineErrorBoundary>
-          </Suspense>
-        </Page.Block>
-      </Page>
+      <Theme theme="light" hasBackground={false}>
+        <Page>
+          <Page.Block as="header">
+            <AdministratorHeader />
+            <UtdatertKlientBanner />
+          </Page.Block>
+          <Page.Block as="main">
+            <Suspense fallback={<Laster tekst="Laster..." />}>
+              <InlineErrorBoundary>
+                <Outlet />
+              </InlineErrorBoundary>
+            </Suspense>
+          </Page.Block>
+        </Page>
+      </Theme>
     </UnheadProvider>
   );
 }
@@ -269,17 +271,11 @@ const routes: RouteObject[] = [
         children: [
           {
             path: "notifikasjoner",
-            element: <NotifikasjonerPage />,
-            children: [
-              {
-                index: true,
-                element: <NotifikasjonerList lest={false} />,
-              },
-              {
-                path: "tidligere",
-                element: <NotifikasjonerList lest={true} />,
-              },
-            ],
+            element: <NotifikasjonerList lest={false} />,
+          },
+          {
+            path: "tidligere-notifikasjoner",
+            element: <NotifikasjonerList lest={true} />,
           },
           {
             path: "oppgaver",

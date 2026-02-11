@@ -1,5 +1,15 @@
 import { UserNotification } from "@tiltaksadministrasjon/api-client";
-import { Alert, BodyLong, BodyShort, Box, Heading, HStack, Link, VStack } from "@navikt/ds-react";
+import {
+  Alert,
+  BodyLong,
+  BodyShort,
+  Box,
+  Heading,
+  HStack,
+  Link,
+  Spacer,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
 import { ReadNotificationButton } from "./ReadNotificationButton";
 import { PaperplaneIcon } from "@navikt/aksel-icons";
@@ -16,39 +26,49 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
   const [error, setError] = useState("");
 
   return (
-    <li className="m-2 ax-md:w-auto w-[95%]">
+    <li>
       <Box
-        background={lest ? "sunken" : "default"}
+        background={lest ? "sunken" : "soft"}
         borderColor="neutral-subtle"
         borderRadius="8"
         borderWidth="1"
         padding="space-16"
       >
-        <HStack justify="space-between">
-          <HStack gap="space-8">
-            <div className="inline-flex items-center self-start justify-center p-2 bg-ax-neutral-300 rounded-xl">
+        <VStack gap="space-16">
+          <HStack gap="space-16" align="end">
+            <Box
+              padding="space-2"
+              background="default"
+              borderColor="neutral"
+              borderRadius="8"
+              borderWidth="1"
+            >
               <PaperplaneIcon fontSize="2rem" />
-            </div>
-            <VStack gap="space-16" className="max-w-[75ch]">
-              <Heading
-                level="2"
-                size="small"
-                title={title}
-                className={`overflow-hidden overflow-wrap-normal ${lest ? "line-through" : ""}`}
-              >
-                {title}
-              </Heading>
-              <BodyLong size="small">{description}</BodyLong>
-              {metadata?.link && metadata.linkText ? (
-                <BodyShort size="small">
-                  <Link href={metadata.link}>{metadata.linkText}</Link>
-                </BodyShort>
-              ) : null}
-            </VStack>
-          </HStack>
-          <VStack className="flex items-end justify-between gap-4">
+            </Box>
+            <Heading
+              level="3"
+              size="small"
+              title={title}
+              className={`${lest ? "line-through" : ""}`}
+            >
+              {title}
+            </Heading>
+            <Spacer />
             <ReadNotificationButton id={notifikasjon.id} read={lest} setError={setError} />
-            <BodyShort size="small" title={createdAt} className="text-subtle text-sm">
+          </HStack>
+          {description && (
+            <BodyLong size="small" spacing>
+              {description}
+            </BodyLong>
+          )}
+          <HStack gap="space-8" align="start">
+            {metadata?.link && metadata.linkText ? (
+              <BodyShort size="small">
+                <Link href={metadata.link}>{metadata.linkText}</Link>
+              </BodyShort>
+            ) : null}
+            <Spacer />
+            <BodyShort size="small" title={createdAt}>
               {formaterDatoTid(createdAt)}
             </BodyShort>
             {error && (
@@ -56,8 +76,8 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
                 {error}
               </Alert>
             )}
-          </VStack>
-        </HStack>
+          </HStack>
+        </VStack>
       </Box>
     </li>
   );
