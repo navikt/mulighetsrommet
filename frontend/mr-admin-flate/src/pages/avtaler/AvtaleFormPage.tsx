@@ -14,18 +14,19 @@ import { useUpsertDetaljer } from "@/api/avtaler/useUpsertDetaljer";
 import { useUpsertPersonvern } from "@/api/avtaler/useUpsertPersonvern";
 import { useUpsertVeilederinformasjon } from "@/api/avtaler/useUpsertVeilederinformasjon";
 import {
-  AvtaleFormInput,
-  avtaleFormSchema,
-  AvtaleFormValues,
   defaultAvtaleData,
+  PersonopplysningerSchema,
+  PersonvernValues,
+  VeilederinformasjonStepSchema,
+  VeilederinformasjonValues,
 } from "@/schemas/avtale";
 import {
-  toVeilederinfoRequest,
-  toPersonvernRequest,
-  toDetaljerRequest,
   mapNameToSchemaPropertyName,
+  toDetaljerRequest,
+  toPersonvernRequest,
+  toVeilederinfoRequest,
 } from "./avtaleFormUtils";
-import { FormProvider, useForm } from "react-hook-form";
+import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +34,8 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useCallback } from "react";
 import { QueryKeys } from "@/api/QueryKeys";
+import { avtaleDetaljerSchema, AvtaleDetaljerValues } from "@/schemas/avtaledetaljer";
+import { ZodObject } from "zod";
 
 function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   return [
@@ -68,8 +71,8 @@ export function AvtaleFormPage() {
   const queryClient = useQueryClient();
   const { data: ansatt } = useHentAnsatt();
 
-  const methods = useForm<AvtaleFormInput, any, AvtaleFormValues>({
-    resolver: zodResolver(avtaleFormSchema),
+  const methods = useForm<FieldValues, unknown, unknown>({
+    resolver: zodResolver(getZodSchema(pathname)),
     defaultValues: defaultAvtaleData(ansatt, avtale),
   });
 
@@ -87,19 +90,19 @@ export function AvtaleFormPage() {
   const personvernMutation = useUpsertPersonvern(avtaleId);
   const veilederinfoMutation = useUpsertVeilederinformasjon(avtaleId);
 
-  const onSubmit = async (data: AvtaleFormValues) => {
+  const onSubmit = async (data: unknown) => {
     let mutation;
     let request;
 
     if (pathname.includes("veilederinformasjon")) {
       mutation = veilederinfoMutation;
-      request = toVeilederinfoRequest({ data });
+      request = toVeilederinfoRequest({ data: data as VeilederinformasjonValues });
     } else if (pathname.includes("personvern")) {
       mutation = personvernMutation;
-      request = toPersonvernRequest({ data });
+      request = toPersonvernRequest({ data: data as PersonvernValues });
     } else {
       mutation = detaljerMutation;
-      request = toDetaljerRequest({ data });
+      request = toDetaljerRequest({ data: data as AvtaleDetaljerValues });
     }
 
     (mutation as { mutate: (request: unknown, options: any) => void }).mutate(request, {
@@ -137,4 +140,14 @@ export function AvtaleFormPage() {
       </ContentBox>
     </div>
   );
+}
+
+function getZodSchema(pathname: string): ZodObject {
+  if (pathname.includes("veilederinformasjon")) {
+    return VeilederinformasjonStepSchema;
+  } else if (pathname.includes("personvern")) {
+    return PersonopplysningerSchema;
+  } else {
+    return avtaleDetaljerSchema;
+  }
 }
