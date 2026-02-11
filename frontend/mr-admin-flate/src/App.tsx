@@ -9,7 +9,6 @@ import { ForsidePage } from "./pages/forside/ForsidePage";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { NotifikasjonerList } from "./components/notifikasjoner/NotifikasjonerList";
 import { ErrorPage } from "./pages/ErrorPage";
-import { NotifikasjonerPage } from "./pages/oppgaveoversikt/notifikasjoner/NotifikasjonerPage";
 import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
