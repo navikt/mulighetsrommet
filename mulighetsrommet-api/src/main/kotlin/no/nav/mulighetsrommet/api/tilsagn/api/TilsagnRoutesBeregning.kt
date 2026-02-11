@@ -138,7 +138,12 @@ fun Route.tilsagnRoutesBeregning() {
             }
         }
     }) {
-        val request = call.receive<BeregnTilsagnRequest>()
+        val request = try {
+            call.receive<BeregnTilsagnRequest>()
+        } catch (_: Throwable) {
+            call.respond(BeregnTilsagnResponse(beregning = null))
+            return@post
+        }
         val beregning = service.beregnTilsagnUnvalidated(request)?.let {
             TilsagnBeregningDto.from(it)
         }
