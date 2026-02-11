@@ -19,7 +19,7 @@
     "playwright:codegen": "playwright codegen playwright.dev"
   },
   "dependencies": {
-    "@grafana/faro-web-sdk": "2.2.0",
+    "@grafana/faro-web-sdk": "2.2.2",
     "@hookform/resolvers": "5.2.2",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "8.2.2",

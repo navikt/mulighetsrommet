@@ -29,7 +29,7 @@
   "dependencies": {
     "@emotion/cache": "11.14.0",
     "@emotion/react": "11.14.0",
-    "@grafana/faro-web-sdk": "2.2.0",
+    "@grafana/faro-web-sdk": "2.2.2",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "8.2.2",
     "@navikt/ds-css": "8.2.2",

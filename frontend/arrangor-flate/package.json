@@ -25,7 +25,7 @@
     "api-client:build": "openapi-ts"
   },
   "dependencies": {
-    "@grafana/faro-react": "2.2.0",
+    "@grafana/faro-react": "2.2.2",
     "@mjackson/form-data-parser": "0.9.1",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "8.2.2",
