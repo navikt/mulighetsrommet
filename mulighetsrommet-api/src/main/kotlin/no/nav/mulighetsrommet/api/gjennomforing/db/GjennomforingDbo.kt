@@ -13,12 +13,17 @@ import java.time.LocalDate
 import java.util.UUID
 
 enum class GjennomforingType {
+    ARENA,
     AVTALE,
     ENKELTPLASS,
 }
 
+sealed class GjennomforingDbo {
+    abstract val id: UUID
+}
+
 data class GjennomforingAvtaleDbo(
-    val id: UUID,
+    override val id: UUID,
     val tiltakstypeId: UUID,
     val arrangorId: UUID,
     val navn: String,
@@ -43,10 +48,10 @@ data class GjennomforingAvtaleDbo(
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
-)
+) : GjennomforingDbo()
 
 data class GjennomforingEnkeltplassDbo(
-    val id: UUID,
+    override val id: UUID,
     val tiltakstypeId: UUID,
     val arrangorId: UUID,
     val navn: String,
@@ -55,9 +60,23 @@ data class GjennomforingEnkeltplassDbo(
     val status: GjennomforingStatusType,
     val deltidsprosent: Double,
     val antallPlasser: Int,
-)
+) : GjennomforingDbo()
 
-data class GjennomforingDbo(
+data class GjennomforingArenaDbo(
+    override val id: UUID,
+    val tiltakstypeId: UUID,
+    val arrangorId: UUID,
+    val navn: String,
+    val startDato: LocalDate,
+    val sluttDato: LocalDate?,
+    val status: GjennomforingStatusType,
+    val deltidsprosent: Double,
+    val antallPlasser: Int,
+    val tiltaksnummer: Tiltaksnummer,
+    val arenaAnsvarligEnhet: String?,
+) : GjennomforingDbo()
+
+data class GjennomforingBaseDbo(
     val id: UUID,
     val tiltakstypeId: UUID,
     val arrangorId: UUID,

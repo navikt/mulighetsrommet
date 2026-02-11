@@ -3,12 +3,15 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingAvtaleDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingEnkeltplassDbo
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDate
 import java.util.UUID
 
@@ -179,6 +182,46 @@ object GjennomforingFixtures {
         amoKategorisering = null,
         utdanningslop = null,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
+    )
+
+    val EnkelAmo = GjennomforingEnkeltplassDbo(
+        id = UUID.randomUUID(),
+        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        navn = "Enkelamo 1",
+        startDato = LocalDate.of(2025, 1, 1),
+        sluttDato = LocalDate.of(2025, 2, 1),
+        status = GjennomforingStatusType.AVSLUTTET,
+        deltidsprosent = 100.0,
+        antallPlasser = 1,
+    )
+
+    val ArenaEnkelAmo = GjennomforingArenaDbo(
+        id = UUID.randomUUID(),
+        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        navn = "Arena Enkelamo 1",
+        startDato = LocalDate.of(2025, 1, 1),
+        sluttDato = LocalDate.of(2025, 2, 1),
+        status = GjennomforingStatusType.AVSLUTTET,
+        deltidsprosent = 100.0,
+        antallPlasser = 10,
+        tiltaksnummer = Tiltaksnummer("2021#1234"),
+        arenaAnsvarligEnhet = "1234",
+    )
+
+    val ArenaArbeidsrettetRehabilitering = GjennomforingArenaDbo(
+        id = UUID.randomUUID(),
+        tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        navn = "Arena ARR",
+        startDato = LocalDate.of(2022, 1, 1),
+        sluttDato = LocalDate.of(2023, 12, 31),
+        status = GjennomforingStatusType.AVSLUTTET,
+        deltidsprosent = 100.0,
+        antallPlasser = 10,
+        tiltaksnummer = Tiltaksnummer("2022#1"),
+        arenaAnsvarligEnhet = "1234",
     )
 
     fun createGjennomforingRequest(

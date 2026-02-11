@@ -3,8 +3,11 @@ package no.nav.mulighetsrommet.api.gjennomforing.service
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
@@ -20,7 +23,6 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
@@ -56,7 +58,7 @@ class GjennomforingDetaljerService(
             administratorNavIdent = filter.administratorNavIdent,
             koordinatorNavIdent = filter.koordinatorNavIdent,
             publisert = filter.publisert,
-            sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
+            typer = listOf(GjennomforingType.AVTALE, GjennomforingType.ENKELTPLASS),
         ).let { (totalCount, items) ->
             val data = items.map { it.toKompaktDto() }
             PaginatedResponse.of(pagination, totalCount, data)
@@ -69,6 +71,7 @@ class GjennomforingDetaljerService(
         return when (gjennomforing) {
             is GjennomforingAvtale -> getHandlingerGruppetiltak(gjennomforing, ansatt)
             is GjennomforingEnkeltplass -> setOf()
+            is GjennomforingArena -> setOf()
         }
     }
 
@@ -152,4 +155,6 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
         publisert = false,
         kontorstruktur = listOf(),
     )
+
+    is GjennomforingArenaKompakt -> throw IllegalStateException("Visning av gamle gjennomføringer fra Arena er ikke støttet")
 }

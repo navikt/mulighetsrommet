@@ -9,6 +9,7 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
@@ -76,7 +77,7 @@ class InitialLoadGjennomforinger(
         return id
     }
 
-    private suspend fun initialLoadByTiltakskode(
+    suspend fun initialLoadByTiltakskode(
         tiltakskode: Tiltakskode,
     ): Unit = db.session {
         val tiltakstypeId = queries.tiltakstype.getByTiltakskode(tiltakskode).id
@@ -92,26 +93,35 @@ class InitialLoadGjennomforinger(
             },
         ) {
             when (it) {
-                is GjennomforingAvtaleKompakt -> publish(queries.gjennomforing.getGjennomforingAvtaleOrError(it.id))
-                is GjennomforingEnkeltplassKompakt -> publish(queries.gjennomforing.getGjennomforingEnkeltplassOrError(it.id))
+                is GjennomforingAvtaleKompakt,
+                -> publish(queries.gjennomforing.getGjennomforingAvtaleOrError(it.id))
+
+                is GjennomforingEnkeltplassKompakt,
+                -> publish(queries.gjennomforing.getGjennomforingEnkeltplassOrError(it.id))
+
+                is GjennomforingArenaKompakt,
+                -> publish(queries.gjennomforing.getGjennomforingArenaOrError(it.id))
             }
         }
 
         logger.info("Gjennomføringer relastet på topic, tiltakskode=$tiltakskode, antall=$total")
     }
 
-    private fun initialLoadGjennomforingerById(ids: List<UUID>) = db.session {
+    fun initialLoadGjennomforingerById(ids: List<UUID>) = db.session {
         ids.forEach { id ->
             val gruppetiltak = queries.gjennomforing.getGjennomforingAvtale(id)
             if (gruppetiltak != null) {
-                publish(gruppetiltak)
-                return@forEach
+                return@forEach publish(gruppetiltak)
             }
 
             val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplass(id)
             if (enkeltplass != null) {
-                publish(enkeltplass)
-                return@forEach
+                return@forEach publish(enkeltplass)
+            }
+
+            val arena = queries.gjennomforing.getGjennomforingArena(id)
+            if (arena != null) {
+                return@forEach publish(arena)
             }
 
             logger.warn("Fant ingen gjennomføring med id=$id")

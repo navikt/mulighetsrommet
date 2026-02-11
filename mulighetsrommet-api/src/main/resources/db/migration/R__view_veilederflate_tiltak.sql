@@ -4,6 +4,7 @@ drop view if exists view_veilederflate_tiltak;
 
 create view view_veilederflate_tiltak as
 select gjennomforing.id,
+       gjennomforing.gjennomforing_type,
        gjennomforing.arena_tiltaksnummer,
        gjennomforing.fts,
        tiltakstype.id               as tiltakstype_id,
@@ -33,8 +34,8 @@ select gjennomforing.id,
        arrangor_kontaktpersoner_json
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
+         join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join avtale on avtale.id = gjennomforing.avtale_id
-         left join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join lateral (select array_agg(personopplysning) as personopplysninger_som_kan_behandles
                             from avtale_personopplysning
                             where avtale_id = avtale.id) on true
@@ -77,4 +78,3 @@ from gjennomforing
                             from gjennomforing_arrangor_kontaktperson
                                      left join arrangor_kontaktperson on id = arrangor_kontaktperson_id
                             where gjennomforing_id = gjennomforing.id) on true
-where gjennomforing.gjennomforing_type = 'AVTALE'

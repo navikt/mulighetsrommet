@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.EnkeltplassFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -37,8 +36,7 @@ class GjennomforingPublicRoutesTest : FunSpec({
         ansatte = listOf(NavAnsattFixture.DonaldDuck),
         arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         avtaler = listOf(AvtaleFixtures.oppfolging),
-        gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
-        enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo1),
+        gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1, GjennomforingFixtures.EnkelAmo),
     )
 
     beforeSpec {
@@ -57,7 +55,7 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
     context("getTiltaksgjennomforingV2") {
         val tiltakGruppeId = GjennomforingFixtures.Oppfolging1.id
-        val tiltakEnkeltplassId = EnkeltplassFixtures.EnkelAmo1.id
+        val tiltakEnkeltplassId = GjennomforingFixtures.EnkelAmo.id
 
         test("401 når påkrevde claims mangler fra token") {
             withTestApplication(appConfig()) {
@@ -122,7 +120,7 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
     context("getTiltaksgjennomforingArenadata") {
         val tiltakGruppeId = GjennomforingFixtures.Oppfolging1.id
-        val tiltakEnkeltplassId = EnkeltplassFixtures.EnkelAmo1.id
+        val tiltakEnkeltplassId = GjennomforingFixtures.EnkelAmo.id
 
         test("401 når påkrevde claims mangler fra token") {
             withTestApplication(appConfig()) {

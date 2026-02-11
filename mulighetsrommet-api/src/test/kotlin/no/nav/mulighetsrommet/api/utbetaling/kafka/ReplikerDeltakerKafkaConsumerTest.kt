@@ -17,8 +17,8 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.EnkeltplassFixtures.EnkelAmo1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -62,8 +62,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
 
         val domain = MulighetsrommetTestDomain(
             avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT, AvtaleFixtures.VTA),
-            gjennomforinger = listOf(Oppfolging1, AFT1, VTA1),
-            enkeltplasser = listOf(EnkelAmo1),
+            gjennomforinger = listOf(Oppfolging1, AFT1, VTA1, EnkelAmo),
         )
 
         beforeEach {
@@ -119,13 +118,13 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
 
             deltakerConsumer.consume(
                 amtDeltaker1.id,
-                Json.encodeToJsonElement(amtDeltaker1.copy(gjennomforingId = EnkelAmo1.id)),
+                Json.encodeToJsonElement(amtDeltaker1.copy(gjennomforingId = EnkelAmo.id)),
             )
 
             database.run {
                 queries.deltaker.getAll().shouldHaveSize(1).first().should {
                     it.id shouldBe amtDeltaker1.id
-                    it.gjennomforingId shouldBe EnkelAmo1.id
+                    it.gjennomforingId shouldBe EnkelAmo.id
                 }
             }
         }

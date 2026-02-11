@@ -18,6 +18,8 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
@@ -35,11 +37,13 @@ class ArenaAdapterServiceTest : FunSpec({
 
     fun createArenaAdapterService(
         sanityService: SanityService = mockk(relaxed = true),
+        features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ) = ArenaAdapterService(
         config = ArenaAdapterService.Config(TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         sanityService = sanityService,
         arrangorService = ArrangorService(database.db, mockk(relaxed = true), mockk(relaxed = true)),
+        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), db = database.db),
     )
 
     context("tiltak i egen regi") {
@@ -48,7 +52,7 @@ class ArenaAdapterServiceTest : FunSpec({
             sanityId = null,
             navn = "IPS",
             arenaKode = TiltakstypeFixtures.IPS.arenaKode,
-            tiltaksnummer = "12345",
+            tiltaksnummer = "2020#12345",
             arrangorOrganisasjonsnummer = "976663934",
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusYears(1),
@@ -137,7 +141,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 navn = "Oppfølging",
                 sanityId = null,
                 arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
-                tiltaksnummer = "12345",
+                tiltaksnummer = "2020#12345",
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusYears(1),
@@ -325,6 +329,27 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
+        test("oppretter enkeltplass som Arena-gjennomføring når sluttdato er før EnkeltplassSluttDatoCutoffDate") {
+            val service = createArenaAdapterService()
+
+            service.upsertTiltaksgjennomforing(
+                arenaGjennomforing.copy(
+                    startDato = LocalDate.of(2023, 1, 1),
+                    sluttDato = LocalDate.of(2024, 1, 1),
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                ),
+            )
+
+            database.run {
+                queries.gjennomforing.getGjennomforingArenaOrError(arenaGjennomforing.id).should {
+                    it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
+                    it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
+                    it.navn shouldBe "En enkeltplass"
+                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
+                }
+            }
+        }
+
         test("skal publisere til kafka kun når det er endringer fra Arena") {
             val service = createArenaAdapterService()
 
@@ -355,6 +380,45 @@ class ArenaAdapterServiceTest : FunSpec({
             // Verifiser at upsert med ny data produserer meldinger
             database.run {
                 queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(2)
+            }
+        }
+
+        test("tillater ikke opprettelse fra Arena når tiltakstype er migrert") {
+            val service = createArenaAdapterService(
+                features = mapOf(
+                    Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT),
+                ),
+            )
+
+            val exception = shouldThrowExactly<IllegalStateException> {
+                service.upsertTiltaksgjennomforing(arenaGjennomforing)
+            }
+            exception.message shouldBe "Tiltakstype tiltakskode=ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING er migrert, men gjennomføring fra Arena er ukjent"
+        }
+
+        test("oppdaterer bare arenadata når tiltakstype er migrert") {
+            val gjennomforing = GjennomforingFixtures.EnkelAmo.copy(
+                id = arenaGjennomforing.id,
+                navn = "Gammelt navn",
+            )
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            val service = createArenaAdapterService(
+                features = mapOf(
+                    Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT),
+                ),
+            )
+
+            service.upsertTiltaksgjennomforing(arenaGjennomforing)
+
+            database.run {
+                queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
+                    it.navn shouldBe "Gammelt navn"
+                    it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2025#1")
+                    it.arena?.ansvarligNavEnhet shouldBe "0400"
+                }
             }
         }
     }

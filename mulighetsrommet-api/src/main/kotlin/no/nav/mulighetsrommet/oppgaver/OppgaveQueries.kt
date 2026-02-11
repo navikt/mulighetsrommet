@@ -350,17 +350,22 @@ data class AvtaleManglerAdministratorOppgaveData(
     val tiltakstype: OppgaveTiltakstype,
 )
 
-private fun Row.toOppgaveGjennomforing(): OppgaveGjennomforing = when (GjennomforingType.valueOf(string("gjennomforing_type"))) {
-    GjennomforingType.AVTALE -> OppgaveGjennomforing.Gruppetiltak(
-        id = uuid("gjennomforing_id"),
-        lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
-        navn = string("gjennomforing_navn"),
-    )
+private fun Row.toOppgaveGjennomforing(): OppgaveGjennomforing {
+    val id = uuid("gjennomforing_id")
+    return when (GjennomforingType.valueOf(string("gjennomforing_type"))) {
+        GjennomforingType.ARENA -> throw IllegalStateException("Oppgaver er ikke støttet for gjennomføring av typen ARENA id=$id")
 
-    GjennomforingType.ENKELTPLASS -> OppgaveGjennomforing.Enkeltplass(
-        id = uuid("gjennomforing_id"),
-        lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
-    )
+        GjennomforingType.AVTALE -> OppgaveGjennomforing.Gruppetiltak(
+            id = id,
+            lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
+            navn = string("gjennomforing_navn"),
+        )
+
+        GjennomforingType.ENKELTPLASS -> OppgaveGjennomforing.Enkeltplass(
+            id = id,
+            lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
+        )
+    }
 }
 
 sealed class OppgaveGjennomforing {

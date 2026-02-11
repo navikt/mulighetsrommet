@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.arena.ArenaMigrering
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -34,19 +34,20 @@ data class ArenaMigreringTiltaksgjennomforingDto(
 ) {
     companion object {
         fun from(
-            gjennomforing: GjennomforingAvtale,
+            gjennomforing: Gjennomforing,
             arenaId: Int?,
         ): ArenaMigreringTiltaksgjennomforingDto {
-            val enhetsnummer = if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
-                gjennomforing.arena?.ansvarligNavEnhet
-            } else {
-                gjennomforing.kontorstruktur.firstOrNull()?.region?.enhetsnummer?.value
-            }
-            requireNotNull(enhetsnummer) {
-                "navRegion or arenaAnsvarligEnhet was null! Should not be possible!"
+            val enhetsnummer = gjennomforing.arena?.ansvarligNavEnhet
+                ?: (gjennomforing as? GjennomforingAvtale)?.kontorstruktur?.firstOrNull()?.region?.enhetsnummer?.value
+                ?: error("navRegion or arenaAnsvarligEnhet was null! Should not be possible!")
+
+            val status = when (gjennomforing) {
+                is GjennomforingAvtale -> gjennomforing.status.type
+                is GjennomforingEnkeltplass -> gjennomforing.status
+                is GjennomforingArena -> gjennomforing.status
             }
 
-            val status = when (gjennomforing.status.type) {
+            val arenaStatus = when (status) {
                 GjennomforingStatusType.GJENNOMFORES -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
                 GjennomforingStatusType.AVSLUTTET -> ArenaTiltaksgjennomforingStatus.AVSLUTTET
                 GjennomforingStatusType.AVBRUTT -> ArenaTiltaksgjennomforingStatus.AVBRUTT
@@ -58,15 +59,18 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 tiltakskode = gjennomforing.tiltakstype.tiltakskode.arenakode,
                 startDato = gjennomforing.startDato,
                 sluttDato = gjennomforing.sluttDato,
-                opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
-                endretTidspunkt = gjennomforing.oppdatertTidspunkt,
+                opprettetTidspunkt = gjennomforing.opprettetTidspunkt.tilNorskLocalDateTime(),
+                endretTidspunkt = gjennomforing.oppdatertTidspunkt.tilNorskLocalDateTime(),
                 navn = gjennomforing.navn,
                 orgnummer = gjennomforing.arrangor.organisasjonsnummer.value,
                 antallPlasser = gjennomforing.antallPlasser,
-                status = status,
+                status = arenaStatus,
                 arenaId = arenaId,
                 enhet = enhetsnummer,
-                apentForInnsok = gjennomforing.apentForPamelding,
+                apentForInnsok = when (gjennomforing) {
+                    is GjennomforingAvtale -> gjennomforing.apentForPamelding
+                    is GjennomforingEnkeltplass, is GjennomforingArena -> false
+                },
                 deltidsprosent = gjennomforing.deltidsprosent,
             )
         }

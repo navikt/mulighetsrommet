@@ -7,7 +7,9 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingAvtaleDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingEnkeltplassDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -45,8 +47,7 @@ data class MulighetsrommetTestDomain(
         PrismodellFixtures.ForhandsgodkjentVta,
     ),
     val avtaler: List<AvtaleDbo> = listOf(),
-    val gjennomforinger: List<GjennomforingAvtaleDbo> = listOf(),
-    val enkeltplasser: List<GjennomforingEnkeltplassDbo> = listOf(),
+    val gjennomforinger: List<GjennomforingDbo> = listOf(),
     val deltakere: List<DeltakerDbo> = listOf(),
     val tilsagn: List<TilsagnDbo> = listOf(),
     val utbetalinger: List<UtbetalingDbo> = listOf(),
@@ -68,8 +69,13 @@ data class MulighetsrommetTestDomain(
             tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
             prismodeller.forEach { queries.prismodell.upsert(it) }
             avtaler.forEach { queries.avtale.create(it) }
-            gjennomforinger.forEach { queries.gjennomforing.upsertGjennomforingAvtale(it) }
-            enkeltplasser.forEach { queries.gjennomforing.upsertEnkeltplass(it) }
+            gjennomforinger.forEach {
+                when (it) {
+                    is GjennomforingAvtaleDbo -> queries.gjennomforing.upsertGjennomforingAvtale(it)
+                    is GjennomforingEnkeltplassDbo -> queries.gjennomforing.upsertEnkeltplass(it)
+                    is GjennomforingArenaDbo -> queries.gjennomforing.upsertGjennomforingArena(it)
+                }
+            }
             deltakere.forEach { queries.deltaker.upsert(it) }
             tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }

@@ -4,6 +4,8 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
@@ -19,6 +21,20 @@ import java.util.UUID
 
 class TilsagnValidatorTest : FunSpec({
     context("validate Tilsagn") {
+        val annenAvtaltPris = Prismodell.AnnenAvtaltPris(
+            id = UUID.randomUUID(),
+            valuta = Valuta.NOK,
+            prisbetingelser = null,
+        )
+
+        val forhandsgodkjent = Prismodell.from(
+            type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            id = UUID.randomUUID(),
+            valuta = Valuta.NOK,
+            prisbetingelser = null,
+            satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
+        )
+
         test("Arrangør slettet") {
             TilsagnValidator.validate(
                 TilsagnFixtures.TilsagnRequest1,
@@ -27,8 +43,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = true,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = emptyList(),
-                prismodellValuta = Valuta.NOK,
+                prismodell = annenAvtaltPris,
             ) shouldBeLeft listOf(
                 FieldError.of("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg", TilsagnRequest::id),
             )
@@ -48,8 +63,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = emptyList(),
-                prismodellValuta = Valuta.NOK,
+                prismodell = annenAvtaltPris,
             ) shouldBeLeft listOf(
                 FieldError.of(
                     "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
@@ -72,8 +86,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
-                prismodellValuta = Valuta.NOK,
+                prismodell = forhandsgodkjent,
             ).shouldBeRight()
         }
 
@@ -91,8 +104,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = emptyList(),
-                prismodellValuta = Valuta.NOK,
+                prismodell = annenAvtaltPris,
             ) shouldBeLeft listOf(
                 FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart),
                 FieldError(
@@ -112,8 +124,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = emptyList(),
-                prismodellValuta = Valuta.NOK,
+                prismodell = annenAvtaltPris,
             ) shouldBeLeft listOf(
                 FieldError.of(
                     "Minimum startdato for tilsagn til AFT er ${gyldigStart.formaterDatoTilEuropeiskDatoformat()}",
@@ -137,8 +148,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = emptyList(),
-                prismodellValuta = Valuta.NOK,
+                prismodell = annenAvtaltPris,
             ) shouldBeLeft listOf(
                 FieldError.of("Du må legge til en linje", TilsagnRequest::beregning, TilsagnBeregningRequest::linjer),
             )
@@ -158,8 +168,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = emptyList(),
-                prismodellValuta = Valuta.NOK,
+                prismodell = annenAvtaltPris,
             ) shouldBeLeft listOf(
                 FieldError.of("Du må velge et kostnadssted", TilsagnRequest::kostnadssted),
                 FieldError.of(
@@ -186,8 +195,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
-                prismodellValuta = Valuta.NOK,
+                prismodell = forhandsgodkjent,
             ) shouldBeLeft listOf(
                 FieldError.of("Maksimum sluttdato for tilsagn til AFT er 31.12.2025", TilsagnRequest::periodeSlutt),
             )
@@ -201,8 +209,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = null,
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
-                prismodellValuta = Valuta.NOK,
+                prismodell = forhandsgodkjent,
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeStart",
@@ -219,8 +226,7 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = LocalDate.of(2025, 10, 1),
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                avtalteSatser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
-                prismodellValuta = Valuta.NOK,
+                prismodell = forhandsgodkjent,
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeSlutt",

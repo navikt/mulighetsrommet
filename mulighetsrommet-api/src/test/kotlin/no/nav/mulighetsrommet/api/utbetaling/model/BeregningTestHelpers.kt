@@ -14,8 +14,8 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.ValutaBelop
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 object BeregningTestHelpers {
@@ -96,7 +96,7 @@ object BeregningTestHelpers {
         tiltakskode: Tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         stengt: List<GjennomforingAvtale.StengtPeriode>,
     ): GjennomforingAvtale {
-        val now = LocalDateTime.now()
+        val now = Instant.now()
         return GjennomforingAvtale(
             id = id,
             tiltakstype = no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.Tiltakstype(
@@ -109,7 +109,7 @@ object BeregningTestHelpers {
                 id = UUID.randomUUID(),
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "Test arrangør",
-                kontaktpersoner = emptyList<GjennomforingAvtale.ArrangorKontaktperson>(),
+                kontaktpersoner = emptyList(),
                 slettet = false,
             ),
             arena = null,

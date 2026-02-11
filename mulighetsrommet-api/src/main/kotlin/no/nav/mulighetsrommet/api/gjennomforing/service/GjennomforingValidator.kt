@@ -46,7 +46,7 @@ object GjennomforingValidator {
     ) {
         data class Gjennomforing(
             val arrangorId: UUID,
-            val avtaleId: UUID?,
+            val avtaleId: UUID,
             val status: GjennomforingStatusType,
             val sluttDato: LocalDate?,
             val oppstart: GjennomforingOppstartstype,
