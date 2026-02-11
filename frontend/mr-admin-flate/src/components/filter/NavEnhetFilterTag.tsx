@@ -1,5 +1,5 @@
-import { MultiLabelFilterTag } from "@mr/frontend-common";
 import { NavRegionDto } from "@tiltaksadministrasjon/api-client";
+import { Chips } from "node_modules/@navikt/ds-react/esm/chips/Chips";
 
 interface Props {
   navEnheter: string[];
@@ -9,7 +9,7 @@ interface Props {
 
 export function NavEnhetFilterTag({ navEnheter, onClose, regioner }: Props) {
   const labels = getSelectedNavEnheter(regioner, navEnheter);
-  return <MultiLabelFilterTag labels={labels} onClose={onClose} />;
+  return <Chips.Removable onClick={onClose}>{tagLabel(labels)}</Chips.Removable>;
 }
 
 function getSelectedNavEnheter(regioner: NavRegionDto[], enheter: string[]): string[] {
@@ -17,4 +17,12 @@ function getSelectedNavEnheter(regioner: NavRegionDto[], enheter: string[]): str
     .flatMap((region) => region.enheter)
     .filter((enhet) => enheter.includes(enhet.enhetsnummer))
     .map((enhet) => enhet.navn);
+}
+
+function tagLabel(labels: string[]) {
+  const firstLabel = labels[0];
+  if (labels.length > 1) {
+    return `${firstLabel} +${labels.length - 1}`;
+  }
+  return firstLabel;
 }

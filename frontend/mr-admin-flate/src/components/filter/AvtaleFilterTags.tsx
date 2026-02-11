@@ -3,11 +3,12 @@ import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
-import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
+import { FilterTagsContainer } from "@mr/frontend-common";
 import { AvtaleFilterType } from "@/pages/avtaler/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { NavEnhetFilterTag } from "@/components/filter/NavEnhetFilterTag";
+import { Chips } from "node_modules/@navikt/ds-react/esm/chips/Chips";
 
 interface Props {
   filter: AvtaleFilterType;
@@ -32,95 +33,102 @@ export function AvtaleFilterTags({
 
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
-      {filter.sok && (
-        <FilterTag
-          label={`Søkt på: '${filter.sok}'`}
-          onClose={() => {
-            updateFilter({
-              sok: "",
-              page: 1,
-            });
-          }}
-        />
-      )}
-      {filter.statuser.map((status) => (
-        <FilterTag
-          key={status}
-          label={AVTALE_STATUS_OPTIONS.find((o) => status === o.value)?.label || status}
-          onClose={() => {
-            updateFilter({
-              statuser: addOrRemove(filter.statuser, status),
-              page: 1,
-            });
-          }}
-        />
-      ))}
-      {filter.avtaletyper.map((avtaletype) => (
-        <FilterTag
-          key={avtaletype}
-          label={avtaletypeTilTekst(avtaletype)}
-          onClose={() => {
-            updateFilter({
-              avtaletyper: addOrRemove(filter.avtaletyper, avtaletype),
-              page: 1,
-            });
-          }}
-        />
-      ))}
-      {filter.visMineAvtaler && (
-        <FilterTag
-          label="Mine avtaler"
-          onClose={() => {
-            updateFilter({
-              visMineAvtaler: false,
-              page: 1,
-            });
-          }}
-        />
-      )}
-      {filter.navEnheter.length > 0 && (
-        <NavEnhetFilterTag
-          navEnheter={filter.navEnheter}
-          regioner={regioner}
-          onClose={() => updateFilter({ navEnheter: [], page: 1 })}
-        />
-      )}
-      {!tiltakstypeId &&
-        filter.tiltakstyper.map((tiltakstype) => (
-          <FilterTag
-            key={tiltakstype}
-            label={tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
-            onClose={() => {
+      <Chips>
+        {filter.sok && (
+          <Chips.Removable
+            onClick={() => {
               updateFilter({
-                tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+                sok: "",
                 page: 1,
               });
             }}
-          />
+          >{`Søkt på: '${filter.sok}'`}</Chips.Removable>
+        )}
+        {filter.statuser.map((status) => (
+          <Chips.Removable
+            key={status}
+            onClick={() => {
+              updateFilter({
+                statuser: addOrRemove(filter.statuser, status),
+                page: 1,
+              });
+            }}
+          >
+            {AVTALE_STATUS_OPTIONS.find((o) => status === o.value)?.label || status}
+          </Chips.Removable>
         ))}
-      {filter.arrangorer.map((id) => (
-        <FilterTag
-          key={id}
-          label={arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
-          onClose={() => {
-            updateFilter({
-              arrangorer: addOrRemove(filter.arrangorer, id),
-              page: 1,
-            });
-          }}
-        />
-      ))}
-      {(filter.personvernBekreftet === false || filter.personvernBekreftet === true) && (
-        <FilterTag
-          label={filter.personvernBekreftet ? "Personvern bekreftet" : "Personvern ikke bekreftet"}
-          onClose={() => {
-            updateFilter({
-              personvernBekreftet: undefined,
-              page: 1,
-            });
-          }}
-        />
-      )}
+        {filter.avtaletyper.map((avtaletype) => (
+          <Chips.Removable
+            key={avtaletype}
+            onClick={() => {
+              updateFilter({
+                avtaletyper: addOrRemove(filter.avtaletyper, avtaletype),
+                page: 1,
+              });
+            }}
+          >
+            {avtaletypeTilTekst(avtaletype)}
+          </Chips.Removable>
+        ))}
+        {filter.visMineAvtaler && (
+          <Chips.Removable
+            onClick={() => {
+              updateFilter({
+                visMineAvtaler: false,
+                page: 1,
+              });
+            }}
+          >
+            Mine avtaler
+          </Chips.Removable>
+        )}
+        {filter.navEnheter.length > 0 && (
+          <NavEnhetFilterTag
+            navEnheter={filter.navEnheter}
+            regioner={regioner}
+            onClose={() => updateFilter({ navEnheter: [], page: 1 })}
+          />
+        )}
+        {!tiltakstypeId &&
+          filter.tiltakstyper.map((tiltakstype) => (
+            <Chips.Removable
+              key={tiltakstype}
+              onClick={() => {
+                updateFilter({
+                  tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+                  page: 1,
+                });
+              }}
+            >
+              {tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
+            </Chips.Removable>
+          ))}
+        {filter.arrangorer.map((id) => (
+          <Chips.Removable
+            key={id}
+            onClick={() => {
+              updateFilter({
+                arrangorer: addOrRemove(filter.arrangorer, id),
+                page: 1,
+              });
+            }}
+          >
+            {arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
+          </Chips.Removable>
+        ))}
+        {(filter.personvernBekreftet === false || filter.personvernBekreftet === true) && (
+          <Chips.Removable
+            onClick={() => {
+              updateFilter({
+                personvernBekreftet: undefined,
+                page: 1,
+              });
+            }}
+          >
+            {filter.personvernBekreftet ? "Personvern bekreftet" : "Personvern ikke bekreftet"}
+          </Chips.Removable>
+        )}
+      </Chips>
     </FilterTagsContainer>
   );
 }
