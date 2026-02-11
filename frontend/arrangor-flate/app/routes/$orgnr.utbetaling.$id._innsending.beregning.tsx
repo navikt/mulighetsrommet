@@ -93,6 +93,8 @@ export default function UtbetalingBeregning() {
             as={ReactRouterLink}
             className="justify-self-end"
             to={pathTo.oppsummering(orgnr, utbetaling.id)}
+            // Brukt i beregningssjekk ved innsending
+            state={{ updatedAt: utbetaling.updatedAt }}
           >
             Neste
           </Button>

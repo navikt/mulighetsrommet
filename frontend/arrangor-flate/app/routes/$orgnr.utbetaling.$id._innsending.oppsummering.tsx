@@ -12,7 +12,7 @@ import {
 } from "@navikt/ds-react";
 import { FieldError } from "api-client";
 import { useEffect, useRef, useState } from "react";
-import { Link as ReactRouterLink, MetaFunction, useNavigate } from "react-router";
+import { Link as ReactRouterLink, MetaFunction, useNavigate, useLocation } from "react-router";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
@@ -41,6 +41,7 @@ export default function BekreftUtbetaling() {
   const id = useIdFromUrl();
   const orgnr = useOrgnrFromUrl();
   const navigate = useNavigate();
+  const { updatedAt } = useLocation().state;
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
   const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id);
@@ -83,7 +84,7 @@ export default function BekreftUtbetaling() {
 
     const result = await godkjennUtbetaling.mutateAsync({
       id: id,
-      digest: utbetaling.beregning.digest,
+      updatedAt: updatedAt,
       kid: kid || null,
     });
 

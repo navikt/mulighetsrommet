@@ -111,7 +111,7 @@ class UtbetalingValidatorTest : FunSpec({
     context("godkjenn utbetaling av arrangør") {
         test("Kan ikke godkjenne før periode er passert") {
             val request = GodkjennUtbetaling(
-                digest = "asdf",
+                updatedAt = "asdf",
                 kid = null,
             )
 

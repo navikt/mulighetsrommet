@@ -1316,8 +1316,6 @@ components:
           type: string
         pris:
           $ref: "#/components/schemas/ValutaBelop"
-        digest:
-          type: string
         stengt:
           type: array
           items:
@@ -1332,7 +1330,6 @@ components:
             $ref: "#/components/schemas/DataDetails"
       required:
       - deltakelser
-      - digest
       - displayName
       - pris
       - satsDetaljer
@@ -1454,9 +1451,10 @@ components:
         kanViseBeregning:
           type: boolean
         createdAt:
-          type:
-          - "null"
-          - string
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
           format: date-time
         tiltakstype:
           $ref: "#/components/schemas/ArrangorflateTiltakstypeDto"
@@ -1522,20 +1520,21 @@ components:
       - status
       - tiltakstype
       - type
+      - updatedAt
       - utbetalesTidligstDato
       - valuta
     GodkjennUtbetaling:
       type: object
       properties:
-        digest:
+        updatedAt:
           type: string
         kid:
           type:
           - "null"
           - string
       required:
-      - digest
       - kid
+      - updatedAt
     FieldError:
       type: object
       properties:

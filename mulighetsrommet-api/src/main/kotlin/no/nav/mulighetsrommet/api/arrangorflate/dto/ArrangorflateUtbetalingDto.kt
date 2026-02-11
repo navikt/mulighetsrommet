@@ -33,7 +33,9 @@ data class ArrangorflateUtbetalingDto(
     val utbetalesTidligstDato: LocalDate?,
     val kanViseBeregning: Boolean,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val createdAt: LocalDateTime?,
+    val createdAt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val updatedAt: LocalDateTime,
     val tiltakstype: ArrangorflateTiltakstypeDto,
     val gjennomforing: ArrangorflateGjennomforingDto,
     val arrangor: ArrangorflateArrangorDto,
@@ -57,7 +59,6 @@ data class ArrangorflateUtbetalingDto(
 class ArrangorflateBeregning(
     val displayName: String,
     val pris: ValutaBelop,
-    val digest: String,
     val stengt: List<StengtPeriode>,
     val deltakelser: DataDrivenTableDto?,
     val satsDetaljer: List<DataDetails>,

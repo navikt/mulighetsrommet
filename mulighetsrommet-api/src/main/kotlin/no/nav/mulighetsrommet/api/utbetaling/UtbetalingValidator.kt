@@ -156,7 +156,7 @@ object UtbetalingValidator {
                 "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.",
             )
         }
-        validate(request.digest == utbetaling.beregning.getDigest()) {
+        validate(request.updatedAt == utbetaling.updatedAt.toString()) {
             FieldError("/info", "Informasjonen i kravet har endret seg. Vennligst se over på nytt.")
         }
         validate(utbetaling.betalingsinformasjon != null) {
