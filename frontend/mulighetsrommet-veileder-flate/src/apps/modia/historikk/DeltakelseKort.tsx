@@ -54,7 +54,7 @@ function Knapper({ deltakelse }: Props) {
     case DeltakelseEierskap.TEAM_TILTAK: {
       const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/avtale/${deltakelse.id}?part=VEILEDER`;
       return (
-        <Button as={Link} variant="secondary" to={link} size="small">
+        <Button as="a" variant="secondary" href={link} size="small">
           Gå til avtale
         </Button>
       );
