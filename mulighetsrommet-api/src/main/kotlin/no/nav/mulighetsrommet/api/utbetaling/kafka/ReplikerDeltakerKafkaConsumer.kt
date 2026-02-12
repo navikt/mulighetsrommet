@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.kafka
 
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
-import no.nav.amt.model.AmtDeltakerV1Dto
+import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -29,7 +29,7 @@ class ReplikerDeltakerKafkaConsumer(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
-        val amtDeltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerV1Dto?>(message)
+        val amtDeltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerEksternV1Dto?>(message)
 
         if (amtDeltaker == null) {
             logger.info("Mottok tombstone for deltaker deltakerId=$key, sletter deltakeren")
@@ -38,7 +38,7 @@ class ReplikerDeltakerKafkaConsumer(
             return
         }
 
-        if (amtDeltaker.status.type == DeltakerStatusType.FEILREGISTRERT) {
+        if (amtDeltaker.status.statusType == DeltakerStatusType.FEILREGISTRERT) {
             logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
             queries.deltaker.delete(key)
             return skedulerOppdaterUtbetalinger(amtDeltaker.gjennomforingId)
@@ -59,10 +59,10 @@ class ReplikerDeltakerKafkaConsumer(
         )
     }
 
-    private fun QueryContext.harEndringer(amtDeltaker: AmtDeltakerV1Dto): Boolean {
+    private fun QueryContext.harEndringer(amtDeltaker: AmtDeltakerEksternV1Dto): Boolean {
         val deltaker = queries.deltaker.get(amtDeltaker.id) ?: return true
 
-        if (deltaker.endretTidspunkt > amtDeltaker.endretDato) {
+        if (deltaker.endretTidspunkt > amtDeltaker.endretTidspunkt) {
             return false
         }
 
@@ -71,37 +71,37 @@ class ReplikerDeltakerKafkaConsumer(
             gjennomforingId = amtDeltaker.gjennomforingId,
             startDato = amtDeltaker.startDato,
             sluttDato = amtDeltaker.sluttDato,
-            registrertTidspunkt = amtDeltaker.registrertDato,
-            endretTidspunkt = amtDeltaker.endretDato,
+            registrertTidspunkt = amtDeltaker.registrertTidspunkt,
+            endretTidspunkt = amtDeltaker.endretTidspunkt,
             status = amtDeltaker.status.toDeltakerStatus(),
-            deltakelsesmengder = amtDeltaker.deltakelsesmengder.orEmpty().map {
-                Deltakelsesmengde(it.gyldigFra, it.deltakelsesprosent.toDouble())
+            deltakelsesmengder = amtDeltaker.deltakelsesmengder.map {
+                Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble())
             },
         )
     }
 }
 
-fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {
+fun AmtDeltakerEksternV1Dto.toDeltakerDbo(): DeltakerDbo {
     return DeltakerDbo(
         id = id,
         gjennomforingId = gjennomforingId,
         startDato = startDato,
         sluttDato = sluttDato,
-        registrertTidspunkt = registrertDato,
-        endretTidspunkt = endretDato,
+        registrertTidspunkt = registrertTidspunkt,
+        endretTidspunkt = endretTidspunkt,
         status = status.toDeltakerStatus(),
-        deltakelsesmengder = deltakelsesmengder.orEmpty().map {
+        deltakelsesmengder = deltakelsesmengder.map {
             DeltakerDbo.Deltakelsesmengde(
-                gyldigFra = it.gyldigFra,
-                opprettetTidspunkt = it.opprettet,
+                gyldigFra = it.gyldigFraDato,
+                opprettetTidspunkt = it.opprettetTidspunkt,
                 deltakelsesprosent = it.deltakelsesprosent.toDouble(),
             )
         },
     )
 }
 
-private fun AmtDeltakerV1Dto.DeltakerStatusDto.toDeltakerStatus(): DeltakerStatus = DeltakerStatus(
-    type = type,
-    aarsak = aarsak,
-    opprettetTidspunkt = opprettetDato,
+private fun AmtDeltakerEksternV1Dto.DeltakerStatusDto.toDeltakerStatus(): DeltakerStatus = DeltakerStatus(
+    type = statusType,
+    aarsak = aarsakType,
+    opprettetTidspunkt = opprettetTidspunkt,
 )
