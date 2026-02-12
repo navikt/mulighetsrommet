@@ -114,7 +114,7 @@ dependencies {
         implementation("org.yaml:snakeyaml:2.5") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.15") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.18") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
