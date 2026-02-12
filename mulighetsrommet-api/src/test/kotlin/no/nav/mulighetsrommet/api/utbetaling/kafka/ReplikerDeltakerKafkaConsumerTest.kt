@@ -89,7 +89,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         status = DeltakerStatus(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,
-                            opprettetDato = opprettetDato,
+                            opprettetTidspunkt = opprettetDato,
                         ),
                         registrertDato = LocalDate.of(2023, 3, 1),
                         endretTidspunkt = opprettetDato,
@@ -103,7 +103,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         status = DeltakerStatus(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,
-                            opprettetDato = opprettetDato,
+                            opprettetTidspunkt = opprettetDato,
                         ),
                         registrertDato = LocalDate.of(2023, 3, 1),
                         endretTidspunkt = opprettetDato,

@@ -55,7 +55,7 @@ class DeltakerQueries(private val session: Session) {
             "endret_tidspunkt" to deltaker.endretTidspunkt,
             "status_type" to deltaker.status.type.name,
             "status_aarsak" to deltaker.status.aarsak?.name,
-            "status_opprettet_tidspunkt" to deltaker.status.opprettetDato,
+            "status_opprettet_tidspunkt" to deltaker.status.opprettetTidspunkt,
         )
         execute(queryOf(query, params))
 
@@ -154,7 +154,7 @@ private fun Row.toDeltaker() = Deltaker(
     status = DeltakerStatus(
         type = DeltakerStatusType.valueOf(string("status_type")),
         aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatusAarsakType.valueOf(it) },
-        opprettetDato = localDateTime("status_opprettet_tidspunkt"),
+        opprettetTidspunkt = localDateTime("status_opprettet_tidspunkt"),
     ),
     deltakelsesmengder = stringOrNull("deltakelsesmengder_json")?.let { Json.decodeFromString(it) } ?: listOf(),
 )

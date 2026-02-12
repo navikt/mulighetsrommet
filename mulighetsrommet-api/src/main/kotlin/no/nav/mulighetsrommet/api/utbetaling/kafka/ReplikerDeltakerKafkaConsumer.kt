@@ -103,5 +103,5 @@ fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {
 private fun AmtDeltakerV1Dto.DeltakerStatusDto.toDeltakerStatus(): DeltakerStatus = DeltakerStatus(
     type = type,
     aarsak = aarsak,
-    opprettetDato = opprettetDato,
+    opprettetTidspunkt = opprettetDato,
 )

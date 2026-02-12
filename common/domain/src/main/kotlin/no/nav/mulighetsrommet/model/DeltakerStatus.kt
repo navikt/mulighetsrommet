@@ -9,7 +9,7 @@ data class DeltakerStatus(
     val type: DeltakerStatusType,
     val aarsak: DeltakerStatusAarsakType?,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val opprettetDato: LocalDateTime,
+    val opprettetTidspunkt: LocalDateTime,
 )
 
 enum class DeltakerStatusType(val description: String, val variant: DataElement.Status.Variant) {

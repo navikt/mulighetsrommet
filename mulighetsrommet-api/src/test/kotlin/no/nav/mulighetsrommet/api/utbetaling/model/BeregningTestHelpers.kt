@@ -156,7 +156,7 @@ object BeregningTestHelpers {
         status = DeltakerStatus(
             type = status,
             aarsak = null,
-            opprettetDato = periode.start.atStartOfDay(),
+            opprettetTidspunkt = periode.start.atStartOfDay(),
         ),
         deltakelsesmengder = deltakelsesmengder,
     )

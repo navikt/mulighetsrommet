@@ -34,7 +34,7 @@ object DeltakerFixtures {
         status = DeltakerStatus(
             type = statusType,
             aarsak = null,
-            opprettetDato = statusOpprettet,
+            opprettetTidspunkt = statusOpprettet,
         ),
     )
 
@@ -55,7 +55,7 @@ object DeltakerFixtures {
         status = DeltakerStatus(
             type = statusType,
             aarsak = null,
-            opprettetDato = statusOpprettet,
+            opprettetTidspunkt = statusOpprettet,
         ),
     )
 
@@ -74,7 +74,7 @@ object DeltakerFixtures {
         status = DeltakerStatus(
             type = statusType,
             aarsak = null,
-            opprettetDato = LocalDateTime.now(),
+            opprettetTidspunkt = LocalDateTime.now(),
         ),
         deltakelsesmengder = listOf(),
     )

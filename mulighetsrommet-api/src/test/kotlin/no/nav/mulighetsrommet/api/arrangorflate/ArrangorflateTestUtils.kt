@@ -68,7 +68,7 @@ object ArrangorflateTestUtils {
         status = DeltakerStatus(
             type = DeltakerStatusType.DELTAR,
             aarsak = null,
-            opprettetDato = LocalDateTime.now(),
+            opprettetTidspunkt = LocalDateTime.now(),
         ),
     )
 
