@@ -50,7 +50,7 @@ export function ProblemDetailPage({ error }: ProblemDetailPageProps) {
 }
 
 type Props = {
-  statusCode: number;
+  statusCode?: number;
   title?: string;
   errorText?: string;
 };
@@ -59,13 +59,19 @@ export function ErrorPage(props: Props) {
   const location = useLocation();
   return (
     <Box background="default" borderRadius="8" padding="space-32">
-      <BodyShort textColor="subtle" size="small">
-        Statuskode {props.statusCode}
-      </BodyShort>
+      {props.statusCode && (
+        <BodyShort textColor="subtle" size="small">
+          Statuskode {props.statusCode}
+        </BodyShort>
+      )}
       <Heading level="1" size="large" spacing>
         Beklager, noe gikk galt.
       </Heading>
-      <BodyShort spacing>{props.errorText}</BodyShort>
+      {props.errorText?.split("\n").map((errorLine, index) => (
+        <BodyShort key={index} spacing>
+          {errorLine}
+        </BodyShort>
+      ))}
       <BodyShort spacing>Du kan prøve å</BodyShort>
       <VStack gap="space-16">
         <List>

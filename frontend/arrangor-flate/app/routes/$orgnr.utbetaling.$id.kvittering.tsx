@@ -38,7 +38,7 @@ function UtbetalingKvitteringContent({ id }: { id: string }) {
 
   const mottattDato = utbetaling.innsendtAvArrangorDato;
   if (!mottattDato) {
-    throw new Response("Mangler dato for innsending", { status: 400 });
+    throw new Error("Utbetalingskravet er ikke sendt inn");
   }
 
   const utbetalesTidligstDato = utbetaling.utbetalesTidligstDato;
