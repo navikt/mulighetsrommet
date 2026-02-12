@@ -176,10 +176,9 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         <Dokument>
           <ErrorPage
             title="Ukjent feil"
-            statusCode={500}
             errorText={
-              "En teknisk feil på våre servere gjør at siden er utilgjengelig. Dette skyldes ikke noe du gjorde." +
-              (error instanceof Error ? ` Feilmelding: ${error.message}` : "")
+              "En teknisk feil gjør at siden er utilgjengelig. Dette skyldes ikke noe du gjorde." +
+              (error instanceof Error ? `\n Feilmelding: ${error.message}` : "")
             }
           />
         </Dokument>

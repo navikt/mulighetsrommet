@@ -44,7 +44,7 @@ export default function BekreftUtbetaling() {
   const orgnr = useOrgnrFromUrl();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { updatedAt } = useLocation().state;
+  const { updatedAt } = useLocation().state || {};
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
   const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id);
