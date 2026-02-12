@@ -53,12 +53,12 @@ export function NotifikasjonerList({ lest }: Props) {
         paddingInline="space-16"
         borderRadius="8"
       >
+        <HStack align={"end"} justify={"end"}>
+          <Button variant="tertiary" size="small" onClick={toggleMarkertSomlestUlest}>
+            Merk alle som {lest ? "ulest" : "lest"}
+          </Button>
+        </HStack>
         <VStack as="ul" gap="space-16">
-          <HStack align={"end"} justify={"end"}>
-            <Button variant="tertiary" size="small" onClick={toggleMarkertSomlestUlest}>
-              Merk alle som {lest ? "ulest" : "lest"}
-            </Button>
-          </HStack>
           {notifikasjoner.map((n) => {
             return <NotifikasjonerListItem lest={lest} key={n.id} notifikasjon={n} />;
           })}

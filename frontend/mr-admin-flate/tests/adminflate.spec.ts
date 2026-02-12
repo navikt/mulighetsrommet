@@ -51,13 +51,13 @@ test.describe("Smoketest og UU", () => {
 
   test("Notifikasjoner", async ({ page }) => {
     await page.getByTestId("notifikasjoner").click();
-    await expect(page.getByTestId("header_oppgaveoversikt")).toBeVisible();
-    await sjekkUU(page, "header_oppgaveoversikt");
+    await expect(page.getByText("Oppgaveoversikt")).toBeVisible();
+    await sjekkUU(page, "oppgaveoversikt-container");
   });
 
   test("Arrangører", async ({ page }) => {
     await page.getByRole("button", { name: "Meny" }).click();
-    await page.getByRole("button", { name: "Arrangører" }).click();
+    await page.getByRole("menuitem", { name: "Arrangører" }).click();
     await expect(page.getByTestId("header_arrangorer")).toBeVisible();
     await sjekkUU(page, "header_arrangorer");
   });

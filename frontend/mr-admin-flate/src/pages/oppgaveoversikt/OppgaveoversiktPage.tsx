@@ -18,35 +18,34 @@ export function OppgaveoversiktPage() {
     <>
       <title>Oppgaveoversikt</title>
       <HeaderBanner heading="Oppgaveoversikt" ikon={<OppgaveoversiktIkon />} />
-      <Box background="default">
-        <Tabs value={currentTab} selectionFollowsFocus>
+      <Tabs value={currentTab} selectionFollowsFocus>
+        <Box background="default">
           <Tabs.List id="fane_liste">
             <Tabs.Tab
               value="oppgaver"
               label={`Oppgaver`}
               onClick={() => navigate("/oppgaveoversikt/oppgaver")}
-              aria-controls="panel"
             />
             <Tabs.Tab
               value="notifikasjoner"
               label={unreadCount ? `Notifikasjoner (${unreadCount})` : "Notifikasjoner"}
               onClick={() => navigate("/oppgaveoversikt/notifikasjoner")}
-              aria-controls="panel"
               data-testid="notifikasjoner"
             />
             <Tabs.Tab
               value="tidligere-notifikasjoner"
               label={"Tidligere notifikasjoner"}
               onClick={() => navigate("/oppgaveoversikt/tidligere-notifikasjoner")}
-              aria-controls="panel"
               data-testid="tidligere-notifikasjoner"
             />
           </Tabs.List>
-        </Tabs>
-      </Box>
-      <ContentBox>
-        <Outlet />
-      </ContentBox>
+        </Box>
+        <ContentBox data-testid="oppgaveoversikt-container">
+          <Tabs.Panel value={currentTab}>
+            <Outlet />
+          </Tabs.Panel>
+        </ContentBox>
+      </Tabs>
     </>
   );
 }
