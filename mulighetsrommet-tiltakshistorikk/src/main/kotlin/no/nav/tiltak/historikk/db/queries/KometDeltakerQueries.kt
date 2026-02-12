@@ -5,8 +5,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.createArrayOfValue
-import no.nav.mulighetsrommet.model.DeltakerStatus
-import no.nav.mulighetsrommet.model.DeltakerStatusAarsak
+import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -160,10 +159,10 @@ private fun Row.toTeamKometDeltakelse(): TiltakshistorikkV1Dto.TeamKometDeltakel
             tiltakstype.navn,
             arrangor.hovedenhet?.navn ?: arrangor.underenhet.navn,
         ),
-        status = DeltakerStatus(
+        status = TiltakshistorikkV1Dto.TeamKometDeltakelse.Status(
             type = DeltakerStatusType.valueOf(string("status_type")),
             aarsak = stringOrNull("status_aarsak")?.let { aarsak ->
-                DeltakerStatusAarsak.valueOf(aarsak)
+                DeltakerStatusAarsakType.valueOf(aarsak)
             },
             opprettetDato = localDateTime("status_opprettet_dato"),
         ),

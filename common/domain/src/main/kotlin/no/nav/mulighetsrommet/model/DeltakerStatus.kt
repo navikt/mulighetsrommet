@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 @Serializable
 data class DeltakerStatus(
     val type: DeltakerStatusType,
-    val aarsak: DeltakerStatusAarsak?,
+    val aarsak: DeltakerStatusAarsakType?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val opprettetDato: LocalDateTime,
 )
@@ -32,7 +32,7 @@ enum class DeltakerStatusType(val description: String, val variant: DataElement.
     fun toDataElement() = DataElement.Status(description, variant)
 }
 
-enum class DeltakerStatusAarsak(val description: String) {
+enum class DeltakerStatusAarsakType(val description: String) {
     ANNET("Annet"),
     AVLYST_KONTRAKT("Avlyst kontrakt"),
     FATT_JOBB("Fått jobb"),

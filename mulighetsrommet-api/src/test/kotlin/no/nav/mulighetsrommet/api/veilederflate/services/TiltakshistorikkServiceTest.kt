@@ -34,7 +34,6 @@ import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -78,7 +77,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             deltidsprosent = 100f,
         ),
         norskIdent = NorskIdent("12345678910"),
-        status = DeltakerStatus(
+        status = TiltakshistorikkV1Dto.TeamKometDeltakelse.Status(
             type = DeltakerStatusType.VENTELISTE,
             opprettetDato = LocalDateTime.of(2018, 12, 3, 0, 0),
             aarsak = null,

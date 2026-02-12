@@ -4,7 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -147,7 +148,7 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val tittel: String,
-        val status: DeltakerStatus,
+        val status: Status,
         val tiltakstype: Tiltakstype,
         val gjennomforing: Gjennomforing,
         val arrangor: Arrangor,
@@ -160,6 +161,15 @@ sealed class TiltakshistorikkV1Dto {
         data class Tiltakstype(
             val tiltakskode: Tiltakskode,
             val navn: String,
+        )
+
+        @Serializable
+        data class Status(
+            val type: DeltakerStatusType,
+            val aarsak: DeltakerStatusAarsakType?,
+            // TODO endre til `opprettetTidspunkt`, men avklare med konsumenter først
+            @Serializable(with = LocalDateTimeSerializer::class)
+            val opprettetDato: LocalDateTime,
         )
     }
 

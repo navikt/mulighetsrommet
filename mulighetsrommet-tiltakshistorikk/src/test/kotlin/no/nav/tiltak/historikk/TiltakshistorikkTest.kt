@@ -248,7 +248,7 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = null,
                         sluttDato = null,
                         tittel = "Arbeidsmarkedsopplæring (gruppe) hos Arrangør",
-                        status = DeltakerStatus(
+                        status = TiltakshistorikkV1Dto.TeamKometDeltakelse.Status(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,
                             opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
