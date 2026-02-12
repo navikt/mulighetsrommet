@@ -1,9 +1,10 @@
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
+import { FilterTagsContainer } from "@mr/frontend-common";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 import { OppgaverFilterType } from "@/pages/oppgaveoversikt/oppgaver/filter";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
+import { Chips } from "@navikt/ds-react";
 
 interface Props {
   filter: OppgaverFilterType;
@@ -24,43 +25,38 @@ export function OppgaveFilterTags({
   const { data: regioner } = useNavRegioner();
   const { data: tiltakstyper } = useTiltakstyper();
 
+  const removeArrayItem = (key: keyof OppgaverFilterType, value: any) => {
+    updateFilter({
+      [key]: addOrRemove(filter[key] as any[], value),
+    });
+  };
+
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
-      {filter.type.map((type) => (
-        <FilterTag
-          key={type}
-          label={oppgavetyper.find((o) => type === o.type)?.navn || type}
-          onClose={() => {
-            updateFilter({
-              type: addOrRemove(filter.type, type),
-            });
-          }}
-        />
-      ))}
-
-      {filter.regioner.map((enhetsnummer) => (
-        <FilterTag
-          key={enhetsnummer}
-          label={regioner.find((r) => r.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
-          onClose={() => {
-            updateFilter({
-              regioner: addOrRemove(filter.regioner, enhetsnummer),
-            });
-          }}
-        />
-      ))}
-      {!tiltakstypeId &&
-        filter.tiltakstyper.map((tiltakstype) => (
-          <FilterTag
-            key={tiltakstype}
-            label={tiltakstyper.find((t) => tiltakstype === t.tiltakskode)?.navn || tiltakstype}
-            onClose={() => {
-              updateFilter({
-                tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
-              });
-            }}
-          />
+      <Chips>
+        {filter.type.map((type) => (
+          <Chips.Removable key={type} onClick={() => removeArrayItem("type", type)}>
+            {oppgavetyper.find((o) => type === o.type)?.navn || type}
+          </Chips.Removable>
         ))}
+        {filter.regioner.map((enhetsnummer) => (
+          <Chips.Removable
+            key={enhetsnummer}
+            onClick={() => removeArrayItem("regioner", enhetsnummer)}
+          >
+            {regioner.find((r) => r.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
+          </Chips.Removable>
+        ))}
+        {!tiltakstypeId &&
+          filter.tiltakstyper.map((tiltakstype) => (
+            <Chips.Removable
+              key={tiltakstype}
+              onClick={() => removeArrayItem("tiltakstyper", tiltakstype)}
+            >
+              {tiltakstyper.find((t) => tiltakstype === t.tiltakskode)?.navn || tiltakstype}
+            </Chips.Removable>
+          ))}
+      </Chips>
     </FilterTagsContainer>
   );
 }

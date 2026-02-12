@@ -31,54 +31,36 @@ export function AvtaleFilterTags({
     pageSize: 10000,
   });
 
+  const removeArrayItem = (key: keyof AvtaleFilterType, value: any) => {
+    updateFilter({
+      [key]: addOrRemove(filter[key] as any[], value),
+      page: 1,
+    });
+  };
+
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       <Chips>
         {filter.sok && (
           <Chips.Removable
-            onClick={() => {
-              updateFilter({
-                sok: "",
-                page: 1,
-              });
-            }}
+            onClick={() => updateFilter({ sok: "", page: 1 })}
           >{`Søkt på: '${filter.sok}'`}</Chips.Removable>
         )}
         {filter.statuser.map((status) => (
-          <Chips.Removable
-            key={status}
-            onClick={() => {
-              updateFilter({
-                statuser: addOrRemove(filter.statuser, status),
-                page: 1,
-              });
-            }}
-          >
+          <Chips.Removable key={status} onClick={() => removeArrayItem("statuser", status)}>
             {AVTALE_STATUS_OPTIONS.find((o) => status === o.value)?.label || status}
           </Chips.Removable>
         ))}
         {filter.avtaletyper.map((avtaletype) => (
           <Chips.Removable
             key={avtaletype}
-            onClick={() => {
-              updateFilter({
-                avtaletyper: addOrRemove(filter.avtaletyper, avtaletype),
-                page: 1,
-              });
-            }}
+            onClick={() => removeArrayItem("avtaletyper", avtaletype)}
           >
             {avtaletypeTilTekst(avtaletype)}
           </Chips.Removable>
         ))}
         {filter.visMineAvtaler && (
-          <Chips.Removable
-            onClick={() => {
-              updateFilter({
-                visMineAvtaler: false,
-                page: 1,
-              });
-            }}
-          >
+          <Chips.Removable onClick={() => updateFilter({ visMineAvtaler: false, page: 1 })}>
             Mine avtaler
           </Chips.Removable>
         )}
@@ -93,37 +75,19 @@ export function AvtaleFilterTags({
           filter.tiltakstyper.map((tiltakstype) => (
             <Chips.Removable
               key={tiltakstype}
-              onClick={() => {
-                updateFilter({
-                  tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
-                  page: 1,
-                });
-              }}
+              onClick={() => removeArrayItem("tiltakstyper", tiltakstype)}
             >
               {tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
             </Chips.Removable>
           ))}
         {filter.arrangorer.map((id) => (
-          <Chips.Removable
-            key={id}
-            onClick={() => {
-              updateFilter({
-                arrangorer: addOrRemove(filter.arrangorer, id),
-                page: 1,
-              });
-            }}
-          >
+          <Chips.Removable key={id} onClick={() => removeArrayItem("arrangorer", id)}>
             {arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
           </Chips.Removable>
         ))}
         {(filter.personvernBekreftet === false || filter.personvernBekreftet === true) && (
           <Chips.Removable
-            onClick={() => {
-              updateFilter({
-                personvernBekreftet: undefined,
-                page: 1,
-              });
-            }}
+            onClick={() => updateFilter({ personvernBekreftet: undefined, page: 1 })}
           >
             {filter.personvernBekreftet ? "Personvern bekreftet" : "Personvern ikke bekreftet"}
           </Chips.Removable>

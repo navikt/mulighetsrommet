@@ -12,11 +12,10 @@ import { ArrangorerFilterType } from "@/pages/arrangor/filter";
 interface Props {
   filter: ArrangorerFilterType;
   updateFilter: (values: Partial<ArrangorerFilterType>) => void;
-  tagsHeight: number;
   filterOpen: boolean;
 }
 
-export function ArrangorerTabell({ filter, updateFilter, tagsHeight, filterOpen }: Props) {
+export function ArrangorerTabell({ filter, updateFilter, filterOpen }: Props) {
   const sort = filter.sortering.tableSort;
   const { data } = useArrangorer(ArrangorKobling.AVTALE, filter);
 
@@ -46,7 +45,7 @@ export function ArrangorerTabell({ filter, updateFilter, tagsHeight, filterOpen 
 
   return (
     <>
-      <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
+      <ToolbarContainer tagsHeight={0} filterOpen={filterOpen}>
         {arrangorer.length > 0 ? (
           <PagineringsOversikt
             page={filter.page}
@@ -70,7 +69,7 @@ export function ArrangorerTabell({ filter, updateFilter, tagsHeight, filterOpen 
           <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)}>
             <Table.Header
               style={{
-                top: `calc(${tagsHeight}px + 7.4rem)`,
+                top: `calc(0px + 7.4rem)`,
               }}
             >
               <Table.Row>

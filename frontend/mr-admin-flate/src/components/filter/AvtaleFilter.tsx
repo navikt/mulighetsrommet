@@ -1,7 +1,7 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { arrangorOptions, AVTALE_STATUS_OPTIONS, AVTALE_TYPE_OPTIONS } from "@/utils/filterUtils";
-import { Accordion, Search, Switch } from "@navikt/ds-react";
+import { Accordion, Search, Switch, VStack } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
 import { CheckboxList } from "./CheckboxList";
@@ -11,15 +11,12 @@ import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { AvtaleTiltakstypeFilter } from "@/components/filter/AvtaleTiltakstypeFilter";
 
-type Filters = "tiltakstype";
-
 interface Props {
   filter: AvtaleFilterType;
   updateFilter: (values: Partial<AvtaleFilterType>) => void;
-  skjulFilter?: Record<Filters, boolean>;
 }
 
-export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
+export function AvtaleFilter({ filter, updateFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
 
   const { data: regioner } = useNavRegioner();
@@ -31,15 +28,19 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
     return <FilterSkeleton />;
   }
 
-  function selectDeselectAll(checked: boolean, key: string, values: string[]) {
+  const toggleAccordion = (key: string) => {
+    setAccordionsOpen([...addOrRemove(accordionsOpen, key)]);
+  };
+
+  const updateArrayFilter = (key: keyof AvtaleFilterType, value: any) => {
     updateFilter({
-      [key]: checked ? values : [],
+      [key]: addOrRemove(filter[key] as any[], value),
       page: 1,
     });
-  }
+  };
 
   return (
-    <>
+    <VStack gap="space-8">
       <Search
         label="Søk etter tiltaksgjennomføring"
         hideLabel
@@ -56,28 +57,22 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
         value={filter.sok}
         aria-label="Søk etter tiltaksgjennomføring"
       />
-      <div style={{ margin: "0.8rem 0.5rem" }}>
-        <Switch
-          position="left"
-          size="small"
-          checked={filter.visMineAvtaler}
-          onChange={(event) => {
-            updateFilter({
-              visMineAvtaler: event.currentTarget.checked,
-              page: 1,
-            });
-          }}
-        >
-          <span style={{ fontWeight: "bold" }}>Vis kun mine avtaler</span>
-        </Switch>
-      </div>
+      <Switch
+        position="left"
+        size="small"
+        checked={filter.visMineAvtaler}
+        onChange={(event) => {
+          updateFilter({
+            visMineAvtaler: event.currentTarget.checked,
+            page: 1,
+          });
+        }}
+      >
+        Vis kun mine avtaler
+      </Switch>
       <Accordion>
         <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
-          <Accordion.Header
-            onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "navEnhet")]);
-            }}
-          >
+          <Accordion.Header onClick={() => toggleAccordion("navEnhet")}>
             <FilterAccordionHeader
               tittel="Nav-enhet"
               antallValgteFilter={filter.navEnheter.length}
@@ -94,62 +89,41 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
           </Accordion.Content>
         </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("status")}>
-          <Accordion.Header
-            onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "status")]);
-            }}
-          >
+          <Accordion.Header onClick={() => toggleAccordion("status")}>
             <FilterAccordionHeader tittel="Status" antallValgteFilter={filter.statuser.length} />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
-              onSelectAll={(checked) => {
-                selectDeselectAll(
-                  checked,
-                  "statuser",
-                  AVTALE_STATUS_OPTIONS.map((s) => s.value),
-                );
-              }}
+              onSelectAll={(checked) =>
+                updateFilter({
+                  statuser: checked ? AVTALE_STATUS_OPTIONS.map((s) => s.value) : [],
+                  page: 1,
+                })
+              }
               items={AVTALE_STATUS_OPTIONS}
               isChecked={(status) => filter.statuser.includes(status)}
-              onChange={(status) => {
-                updateFilter({
-                  statuser: addOrRemove(filter.statuser, status),
-                  page: 1,
-                });
+              onChange={(status) => updateArrayFilter("statuser", status)}
+            />
+          </Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item open={accordionsOpen.includes("tiltakstype")}>
+          <Accordion.Header onClick={() => toggleAccordion("tiltakstype")}>
+            <FilterAccordionHeader
+              tittel="Tiltakstype"
+              antallValgteFilter={filter.tiltakstyper.length}
+            />
+          </Accordion.Header>
+          <Accordion.Content>
+            <AvtaleTiltakstypeFilter
+              value={filter.tiltakstyper}
+              onChange={(tiltakstyper) => {
+                updateFilter({ tiltakstyper, page: 1 });
               }}
             />
           </Accordion.Content>
         </Accordion.Item>
-
-        {!skjulFilter?.tiltakstype && (
-          <Accordion.Item open={accordionsOpen.includes("tiltakstype")}>
-            <Accordion.Header
-              onClick={() => {
-                setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstype")]);
-              }}
-            >
-              <FilterAccordionHeader
-                tittel="Tiltakstype"
-                antallValgteFilter={filter.tiltakstyper.length}
-              />
-            </Accordion.Header>
-            <Accordion.Content>
-              <AvtaleTiltakstypeFilter
-                value={filter.tiltakstyper}
-                onChange={(tiltakstyper) => {
-                  updateFilter({ tiltakstyper, page: 1 });
-                }}
-              />
-            </Accordion.Content>
-          </Accordion.Item>
-        )}
         <Accordion.Item open={accordionsOpen.includes("avtaletype")}>
-          <Accordion.Header
-            onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "avtaletype")]);
-            }}
-          >
+          <Accordion.Header onClick={() => toggleAccordion("avtaletype")}>
             <FilterAccordionHeader
               tittel="Avtaletype"
               antallValgteFilter={filter.avtaletyper.length}
@@ -157,30 +131,20 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
-              onSelectAll={(checked) => {
-                selectDeselectAll(
-                  checked,
-                  "avtaletyper",
-                  AVTALE_TYPE_OPTIONS.map((a) => a.value),
-                );
-              }}
+              onSelectAll={(checked) =>
+                updateFilter({
+                  avtaletyper: checked ? AVTALE_TYPE_OPTIONS.map((a) => a.value) : [],
+                  page: 1,
+                })
+              }
               items={AVTALE_TYPE_OPTIONS}
               isChecked={(type) => filter.avtaletyper.includes(type)}
-              onChange={(type) => {
-                updateFilter({
-                  avtaletyper: addOrRemove(filter.avtaletyper, type),
-                  page: 1,
-                });
-              }}
+              onChange={(type) => updateArrayFilter("avtaletyper", type)}
             />
           </Accordion.Content>
         </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("arrangor")}>
-          <Accordion.Header
-            onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "arrangor")]);
-            }}
-          >
+          <Accordion.Header onClick={() => toggleAccordion("arrangor")}>
             <FilterAccordionHeader
               tittel="Arrangør"
               antallValgteFilter={filter.arrangorer.length}
@@ -191,21 +155,12 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
               searchable
               items={arrangorOptions(arrangorData.data)}
               isChecked={(id) => filter.arrangorer.includes(id)}
-              onChange={(id) => {
-                updateFilter({
-                  arrangorer: addOrRemove(filter.arrangorer, id),
-                  page: 1,
-                });
-              }}
+              onChange={(id) => updateArrayFilter("arrangorer", id)}
             />
           </Accordion.Content>
         </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("personvern")}>
-          <Accordion.Header
-            onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "personvern")]);
-            }}
-          >
+          <Accordion.Header onClick={() => toggleAccordion("personvern")}>
             <FilterAccordionHeader
               tittel="Personvern"
               antallValgteFilter={filter.personvernBekreftet ? 1 : 0}
@@ -234,6 +189,6 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
           </Accordion.Content>
         </Accordion.Item>
       </Accordion>
-    </>
+    </VStack>
   );
 }

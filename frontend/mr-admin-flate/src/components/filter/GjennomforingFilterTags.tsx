@@ -2,11 +2,12 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
-import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
+import { FilterTagsContainer } from "@mr/frontend-common";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { NavEnhetFilterTag } from "@/components/filter/NavEnhetFilterTag";
+import { Chips } from "@navikt/ds-react";
 
 interface Props {
   filter: GjennomforingFilterType;
@@ -27,86 +28,57 @@ export function GjennomforingFilterTags({
     pageSize: 10000,
   });
 
+  const removeArrayItem = (key: keyof GjennomforingFilterType, value: any) => {
+    updateFilter({
+      [key]: addOrRemove(filter[key] as any[], value),
+      page: 1,
+    });
+  };
+
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
-      {filter.search && (
-        <FilterTag
-          label={`Søkt på: '${filter.search}'`}
-          onClose={() => {
-            updateFilter({
-              search: "",
-              page: 1,
-            });
-          }}
-        />
-      )}
-      {filter.navEnheter.length > 0 && (
-        <NavEnhetFilterTag
-          navEnheter={filter.navEnheter}
-          regioner={regioner}
-          onClose={() => updateFilter({ navEnheter: [], page: 1 })}
-        />
-      )}
-      {filter.tiltakstyper.map((tiltakstype) => (
-        <FilterTag
-          key={tiltakstype}
-          label={tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
-          onClose={() => {
-            updateFilter({
-              tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
-              page: 1,
-            });
-          }}
-        />
-      ))}
-      {filter.statuser.map((status) => (
-        <FilterTag
-          key={status}
-          label={
-            TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((o) => status === o.value)?.label || status
-          }
-          onClose={() => {
-            updateFilter({
-              statuser: addOrRemove(filter.statuser, status),
-              page: 1,
-            });
-          }}
-        />
-      ))}
-      {filter.visMineGjennomforinger && (
-        <FilterTag
-          label="Mine gjennomføringer"
-          onClose={() => {
-            updateFilter({
-              visMineGjennomforinger: false,
-              page: 1,
-            });
-          }}
-        />
-      )}
-      {filter.publisert.map((value) => (
-        <FilterTag
-          label={value === "publisert" ? "Publisert" : "Ikke publisert"}
-          onClose={() => {
-            updateFilter({
-              publisert: addOrRemove(filter.publisert, value),
-              page: 1,
-            });
-          }}
-        />
-      ))}
-      {filter.arrangorer.map((id) => (
-        <FilterTag
-          key={id}
-          label={arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
-          onClose={() => {
-            updateFilter({
-              arrangorer: addOrRemove(filter.arrangorer, id),
-              page: 1,
-            });
-          }}
-        />
-      ))}
+      <Chips>
+        {filter.search && (
+          <Chips.Removable onClick={() => updateFilter({ search: "", page: 1 })}>
+            {`Søkt på: '${filter.search}'`}
+          </Chips.Removable>
+        )}
+        {filter.navEnheter.length > 0 && (
+          <NavEnhetFilterTag
+            navEnheter={filter.navEnheter}
+            regioner={regioner}
+            onClose={() => updateFilter({ navEnheter: [], page: 1 })}
+          />
+        )}
+        {filter.tiltakstyper.map((tiltakstype) => (
+          <Chips.Removable
+            key={tiltakstype}
+            onClick={() => removeArrayItem("tiltakstyper", tiltakstype)}
+          >
+            {tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
+          </Chips.Removable>
+        ))}
+        {filter.statuser.map((status) => (
+          <Chips.Removable key={status} onClick={() => removeArrayItem("statuser", status)}>
+            {TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((o) => status === o.value)?.label || status}
+          </Chips.Removable>
+        ))}
+        {filter.visMineGjennomforinger && (
+          <Chips.Removable onClick={() => updateFilter({ visMineGjennomforinger: false, page: 1 })}>
+            Mine gjennomføringer
+          </Chips.Removable>
+        )}
+        {filter.publisert.map((value) => (
+          <Chips.Removable key={value} onClick={() => removeArrayItem("publisert", value)}>
+            {value === "publisert" ? "Publisert" : "Ikke publisert"}
+          </Chips.Removable>
+        ))}
+        {filter.arrangorer.map((id) => (
+          <Chips.Removable key={id} onClick={() => removeArrayItem("arrangorer", id)}>
+            {arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
+          </Chips.Removable>
+        ))}
+      </Chips>
     </FilterTagsContainer>
   );
 }
