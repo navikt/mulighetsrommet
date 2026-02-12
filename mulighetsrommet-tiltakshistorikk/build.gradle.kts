@@ -22,6 +22,7 @@ dependencies {
     implementation(projects.common.metrics)
     implementation(projects.common.tiltakshistorikkClient)
     implementation(projects.common.brreg)
+    implementation(projects.common.amtDeltaker)
 
     // Cache
     implementation(libs.caffeine)

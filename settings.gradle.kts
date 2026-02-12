@@ -17,6 +17,7 @@ include(
     "common:token-provider",
     "common:tiltakshistorikk-client",
     "common:tiltaksokonomi-client",
+    "common:amt-deltaker",
     "mulighetsrommet-api",
     "mulighetsrommet-arena-adapter",
     "mulighetsrommet-tiltakshistorikk",

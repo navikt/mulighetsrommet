@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.amt.model.Melding
+import no.nav.amt.model.AmtArrangorMelding
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.util.UUID
@@ -71,7 +71,7 @@ class DeltakerForslagQueries(private val session: Session) {
 
 private fun Row.toForslagDbo(): DeltakerForslag {
     val endring = string("endring")
-        .let { Json.decodeFromString<Melding.Forslag.Endring>(it) }
+        .let { Json.decodeFromString<AmtArrangorMelding.Forslag.Endring>(it) }
 
     return DeltakerForslag(
         id = uuid("id"),
@@ -87,7 +87,7 @@ data class DeltakerForslag(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
-    val endring: Melding.Forslag.Endring,
+    val endring: AmtArrangorMelding.Forslag.Endring,
     val status: Status,
 ) {
     enum class Status {

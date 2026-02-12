@@ -89,7 +89,6 @@ fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {
         sluttDato = sluttDato,
         registrertDato = registrertDato.toLocalDate(),
         endretTidspunkt = endretDato,
-        deltakelsesprosent = prosentStilling?.toDouble(),
         status = status.toDeltakerStatus(),
         deltakelsesmengder = deltakelsesmengder.orEmpty().map {
             DeltakerDbo.Deltakelsesmengde(
@@ -104,5 +103,5 @@ fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {
 private fun AmtDeltakerV1Dto.DeltakerStatusDto.toDeltakerStatus(): DeltakerStatus = DeltakerStatus(
     type = type,
     aarsak = aarsak,
-    opprettetDato = opprettetDato,
+    opprettetTidspunkt = opprettetDato,
 )

@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Serializable(with = MeldingSerializer::class)
-sealed interface Melding {
+sealed interface AmtArrangorMelding {
     val id: UUID
     val deltakerId: UUID
     val opprettetAvArrangorAnsattId: UUID
@@ -39,7 +39,7 @@ sealed interface Melding {
         val begrunnelse: String? = null,
         val endring: Endring,
         val status: Status,
-    ) : Melding {
+    ) : AmtArrangorMelding {
         @Serializable
         sealed interface Status {
             @Serializable
@@ -189,19 +189,19 @@ sealed interface EndringAarsak {
     ) : EndringAarsak
 }
 
-object MeldingSerializer : KSerializer<Melding?> {
+object MeldingSerializer : KSerializer<AmtArrangorMelding?> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Melding") {
         element<String>("type")
         element<String>("data", isOptional = true)
     }
 
-    override fun deserialize(decoder: Decoder): Melding? {
+    override fun deserialize(decoder: Decoder): AmtArrangorMelding? {
         require(decoder is JsonDecoder) // This serializer works with JSON
         val jsonElement = decoder.decodeJsonElement().jsonObject
 
         return when (jsonElement["type"]?.jsonPrimitive?.content) {
             "Forslag" -> decoder.json.decodeFromJsonElement(
-                Melding.Forslag.serializer(),
+                AmtArrangorMelding.Forslag.serializer(),
                 jsonElement,
             )
 
@@ -209,7 +209,7 @@ object MeldingSerializer : KSerializer<Melding?> {
         }
     }
 
-    override fun serialize(encoder: Encoder, value: Melding?) {
+    override fun serialize(encoder: Encoder, value: AmtArrangorMelding?) {
         throw UnsupportedOperationException() // Implement if needed
     }
 }

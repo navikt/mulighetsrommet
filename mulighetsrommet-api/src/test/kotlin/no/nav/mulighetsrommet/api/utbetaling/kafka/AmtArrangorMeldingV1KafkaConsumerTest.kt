@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.utbetaling.kafka
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
+import no.nav.amt.model.AmtArrangorMelding
 import no.nav.amt.model.EndringAarsak
-import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -159,7 +159,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
                 DeltakerForslag(
                     id = UUID.fromString("26b2ef7f-2c33-4468-b9cd-98e935d747cc"),
                     deltakerId = deltakerId,
-                    endring = Melding.Forslag.Endring.AvsluttDeltakelse(
+                    endring = AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse(
                         aarsak = EndringAarsak.TrengerAnnenStotte,
                         harDeltatt = false,
                     ),

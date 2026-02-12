@@ -36,11 +36,10 @@ class DeltakerQueriesTest : FunSpec({
         sluttDato = null,
         registrertDato = opprettetTidspunkt.toLocalDate(),
         endretTidspunkt = opprettetTidspunkt,
-        deltakelsesprosent = 100.0,
         status = DeltakerStatus(
             DeltakerStatusType.VENTER_PA_OPPSTART,
             aarsak = null,
-            opprettetDato = opprettetTidspunkt,
+            opprettetTidspunkt = opprettetTidspunkt,
         ),
         deltakelsesmengder = emptyList(),
     )
@@ -62,7 +61,7 @@ class DeltakerQueriesTest : FunSpec({
                 status = DeltakerStatus(
                     DeltakerStatusType.HAR_SLUTTET,
                     aarsak = null,
-                    opprettetDato = LocalDateTime.of(2023, 3, 2, 0, 0, 0),
+                    opprettetTidspunkt = LocalDateTime.of(2023, 3, 2, 0, 0, 0),
                 ),
             )
             queries.deltaker.upsert(avsluttetDeltaker2)

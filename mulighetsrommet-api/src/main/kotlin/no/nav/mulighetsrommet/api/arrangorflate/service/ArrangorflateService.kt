@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.service
 import arrow.core.Either
 import arrow.core.getOrElse
 import io.ktor.http.HttpStatusCode
-import no.nav.amt.model.Melding
+import no.nav.amt.model.AmtArrangorMelding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
@@ -347,33 +347,33 @@ fun isForslagRelevantForPeriode(
     val deltakerPeriodeSluttDato = deltakelsePeriode.getLastInclusiveDate()
 
     return when (forslag.endring) {
-        is Melding.Forslag.Endring.AvsluttDeltakelse -> {
+        is AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse -> {
             val sluttDato = forslag.endring.sluttdato
             forslag.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(deltakerPeriodeSluttDato))
         }
 
-        is Melding.Forslag.Endring.Deltakelsesmengde -> {
+        is AmtArrangorMelding.Forslag.Endring.Deltakelsesmengde -> {
             forslag.endring.gyldigFra?.isBefore(deltakerPeriodeSluttDato) ?: true
         }
 
-        is Melding.Forslag.Endring.ForlengDeltakelse -> {
+        is AmtArrangorMelding.Forslag.Endring.ForlengDeltakelse -> {
             val sluttdato = forslag.endring.sluttdato
             sluttdato.isAfter(deltakerPeriodeSluttDato) && sluttdato.isBefore(utbetalingPeriode.slutt)
         }
 
-        is Melding.Forslag.Endring.Sluttdato -> {
+        is AmtArrangorMelding.Forslag.Endring.Sluttdato -> {
             forslag.endring.sluttdato.isBefore(deltakerPeriodeSluttDato)
         }
 
-        is Melding.Forslag.Endring.Startdato -> {
+        is AmtArrangorMelding.Forslag.Endring.Startdato -> {
             forslag.endring.startdato.isAfter(deltakelsePeriode.start)
         }
 
-        is Melding.Forslag.Endring.Sluttarsak -> false
+        is AmtArrangorMelding.Forslag.Endring.Sluttarsak -> false
 
-        is Melding.Forslag.Endring.IkkeAktuell,
-        is Melding.Forslag.Endring.FjernOppstartsdato,
-        is Melding.Forslag.Endring.EndreAvslutning,
+        is AmtArrangorMelding.Forslag.Endring.IkkeAktuell,
+        is AmtArrangorMelding.Forslag.Endring.FjernOppstartsdato,
+        is AmtArrangorMelding.Forslag.Endring.EndreAvslutning,
         -> true
     }
 }

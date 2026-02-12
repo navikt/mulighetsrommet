@@ -12,7 +12,6 @@ data class DeltakerDbo(
     val sluttDato: LocalDate?,
     val registrertDato: LocalDate,
     val endretTidspunkt: LocalDateTime,
-    val deltakelsesprosent: Double?,
     val status: DeltakerStatus,
     val deltakelsesmengder: List<Deltakelsesmengde>,
 ) {
