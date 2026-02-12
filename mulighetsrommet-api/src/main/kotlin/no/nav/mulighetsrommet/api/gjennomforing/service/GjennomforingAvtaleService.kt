@@ -24,15 +24,12 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
-import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -60,17 +57,7 @@ class GjennomforingAvtaleService(
         val ctx = getValidatorCtx(request, previous, today)
 
         val dbo = GjennomforingValidator
-            .validate(
-                request.copy(
-                    veilederinformasjon = request.veilederinformasjon.copy(
-                        navKontorer = sanitizeNavEnheter(
-                            request.veilederinformasjon.navRegioner,
-                            request.veilederinformasjon.navKontorer,
-                        ),
-                    ),
-                ),
-                ctx,
-            )
+            .validate(request, ctx)
             .onRight { dbo ->
                 dbo.kontaktpersoner.forEach {
                     navAnsattService.addUserToKontaktpersoner(it.navIdent)
@@ -371,17 +358,6 @@ class GjennomforingAvtaleService(
             null,
         )
         queries.kafkaProducerRecord.storeRecord(recordV2)
-    }
-
-    // Filtrer vekk underenheter uten fylke
-    private fun sanitizeNavEnheter(
-        navRegioner: List<NavEnhetNummer>,
-        navKontorer: List<NavEnhetNummer>,
-    ): List<NavEnhetNummer> = db.session {
-        return NavEnhetHelpers.buildNavRegioner(
-            (navRegioner + navKontorer).mapNotNull { queries.enhet.get(it)?.toDto() },
-        )
-            .flatMap { it.enheter.map { it.enhetsnummer } }
     }
 }
 
