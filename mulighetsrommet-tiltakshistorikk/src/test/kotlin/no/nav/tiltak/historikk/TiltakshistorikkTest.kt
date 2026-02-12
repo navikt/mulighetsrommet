@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -456,7 +455,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         personIdent = "12345678910",
         startDato = null,
         sluttDato = null,
-        status = DeltakerStatus(
+        status = AmtDeltakerV1Dto.DeltakerStatusDto(
             type = DeltakerStatusType.VENTER_PA_OPPSTART,
             aarsak = null,
             opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0, 0),

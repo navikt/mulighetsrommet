@@ -1,7 +1,8 @@
 package no.nav.amt.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -20,7 +21,7 @@ data class AmtDeltakerV1Dto(
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: DeltakerStatus,
+    val status: DeltakerStatusDto,
     @Serializable(with = LocalDateTimeSerializer::class)
     val registrertDato: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -29,6 +30,14 @@ data class AmtDeltakerV1Dto(
     val prosentStilling: Float?,
     val deltakelsesmengder: List<DeltakelsesmengdeDto>? = null,
 ) {
+    @Serializable
+    data class DeltakerStatusDto(
+        val type: DeltakerStatusType,
+        val aarsak: DeltakerStatusAarsakType?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val opprettetDato: LocalDateTime,
+    )
+
     @Serializable
     data class DeltakelsesmengdeDto(
         val deltakelsesprosent: Float,

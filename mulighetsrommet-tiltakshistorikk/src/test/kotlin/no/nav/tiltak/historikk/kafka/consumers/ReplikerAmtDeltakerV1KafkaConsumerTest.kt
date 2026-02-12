@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
@@ -58,7 +58,7 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
             }
 
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
-                status = DeltakerStatus(
+                status = AmtDeltakerV1Dto.DeltakerStatusDto(
                     type = DeltakerStatusType.FEILREGISTRERT,
                     aarsak = null,
                     opprettetDato = LocalDateTime.now(),
