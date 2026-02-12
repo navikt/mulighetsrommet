@@ -1,6 +1,7 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrangorflateService, FieldError } from "api-client";
 import { queryClient } from "~/api/client";
+import { queryKeys } from "~/api/queryKeys";
 
 interface GodkjennUtbetalingParams {
   id: string;
@@ -14,6 +15,8 @@ interface GodkjennUtbetalingResult {
 }
 
 export function useGodkjennUtbetaling() {
+  const tanstackClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({
       id,
@@ -34,6 +37,12 @@ export function useGodkjennUtbetaling() {
       }
 
       return { success: true };
+    },
+    onSuccess: async (_, { id }) => {
+      return await tanstackClient.invalidateQueries({
+        queryKey: queryKeys.utbetaling(id),
+        refetchType: "all",
+      });
     },
   });
 }
