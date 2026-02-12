@@ -55,6 +55,7 @@ dependencies {
     implementation(projects.common.tasks)
     implementation(projects.common.tiltakshistorikkClient)
     implementation(projects.common.tiltaksokonomiClient)
+    implementation(projects.common.amtDeltaker)
 
     // Kotlin
     implementation(libs.kotlinx.coroutines.core)
