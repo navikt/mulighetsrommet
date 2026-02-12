@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.arrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -23,6 +24,7 @@ import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.compareTo
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -108,11 +110,12 @@ object UtbetalingValidator {
         validateNotNull(request.periodeSlutt) {
             FieldError.of("Periodeslutt må være satt", OpprettUtbetalingRequest::periodeSlutt)
         }
-        validate(request.pris.belop > 1) {
-            FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris)
+        validate(request.pris?.belop != null && request.pris.belop >= 1) {
+            FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris, ValutaBelopRequest::belop)
         }
-        validate(request.beskrivelse.length > 10) {
-            FieldError.of("Du må fylle ut beskrivelse", OpprettUtbetalingRequest::beskrivelse)
+        requireNotNull(request.pris?.valuta)
+        validate(request.beskrivelse != null && request.beskrivelse.length >= 10) {
+            FieldError.of("Beskrivelse må være minst 10 tegn", OpprettUtbetalingRequest::beskrivelse)
         }
         validate(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {
             FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer)
@@ -123,6 +126,7 @@ object UtbetalingValidator {
         }
         requireValid(request.periodeStart.isBefore(request.periodeSlutt))
         requireValid(request.kidNummer == null || Kid.parse(request.kidNummer) != null)
+        requireValid(request.pris.belop != null)
         val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
 
         OpprettUtbetalingAnnenAvtaltPris(
@@ -130,8 +134,8 @@ object UtbetalingValidator {
             gjennomforingId = request.gjennomforingId,
             periodeStart = periode.start,
             periodeSlutt = periode.getLastInclusiveDate(),
-            pris = request.pris,
-            kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
+            pris = ValutaBelop(request.pris.belop, request.pris.valuta),
+            kidNummer = request.kidNummer ?. let { Kid.parseOrThrow(it) },
             beskrivelse = request.beskrivelse,
             vedlegg = emptyList(),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,

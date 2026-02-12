@@ -33,9 +33,6 @@ interface Props {
   betalingsinformasjon?: Betalingsinformasjon;
 }
 
-const MIN_BEGRUNNELSE_LENGDE = 10;
-const MAKS_BEGRUNNELSE_LENGDE = 300;
-
 export function OpprettUtbetalingForm({ gjennomforing, prismodell, betalingsinformasjon }: Props) {
   const form = useForm<OpprettUtbetalingRequest>({
     resolver: async (values) => ({ values, errors: {} }),
@@ -53,7 +50,7 @@ export function OpprettUtbetalingForm({ gjennomforing, prismodell, betalingsinfo
         ...data,
         kidNummer: data.kidNummer || null,
         gjennomforingId: gjennomforing.id,
-        pris: { ...data.pris, valuta: prismodell?.valuta ?? Valuta.NOK },
+        pris: { belop: data.pris?.belop ?? null, valuta: prismodell?.valuta ?? Valuta.NOK },
       },
       {
         onSuccess: () => {
@@ -121,8 +118,6 @@ export function OpprettUtbetalingForm({ gjennomforing, prismodell, betalingsinfo
                   error={errors.beskrivelse?.message}
                   resize
                   cols={93}
-                  minLength={MIN_BEGRUNNELSE_LENGDE}
-                  maxLength={MAKS_BEGRUNNELSE_LENGDE}
                 />
               </HStack>
               <Separator />
