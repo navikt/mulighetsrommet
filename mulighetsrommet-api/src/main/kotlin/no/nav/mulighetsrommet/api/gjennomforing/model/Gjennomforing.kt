@@ -4,12 +4,12 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale.ArrangorKontaktperson
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -51,14 +51,62 @@ sealed class Gjennomforing {
         val id: UUID,
         val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
-        val kontaktpersoner: List<ArrangorKontaktperson>,
         val slettet: Boolean,
     )
 
     @Serializable
     data class ArenaData(
-        val tiltaksnummer: Tiltaksnummer?,
+        val tiltaksnummer: Tiltaksnummer,
         val ansvarligNavEnhet: String?,
+    )
+}
+
+@Serializable
+data class GjennomforingAvtaleDetaljer(
+    val publisert: Boolean,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+    val kontorstruktur: List<Kontorstruktur>,
+    val kontaktpersoner: List<GjennomforingKontaktperson>,
+    val oppmoteSted: String?,
+    val estimertVentetid: EstimertVentetid?,
+    val administratorer: List<Administrator>,
+    val amoKategorisering: AmoKategorisering?,
+    val utdanningslop: UtdanningslopDto?,
+    @Serializable(with = LocalDateSerializer::class)
+    val tilgjengeligForArrangorDato: LocalDate?,
+    val arrangorKontaktpersoner: List<ArrangorKontaktperson>,
+) {
+    @Serializable
+    data class Administrator(
+        val navIdent: NavIdent,
+        val navn: String,
+    )
+
+    @Serializable
+    data class GjennomforingKontaktperson(
+        val navIdent: NavIdent,
+        val navn: String,
+        val epost: String,
+        val mobilnummer: String? = null,
+        val hovedenhet: NavEnhetNummer,
+        val beskrivelse: String?,
+    )
+
+    @Serializable
+    data class EstimertVentetid(
+        val verdi: Int,
+        val enhet: String,
+    )
+
+    @Serializable
+    data class ArrangorKontaktperson(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+        val beskrivelse: String?,
+        val telefon: String?,
+        val epost: String,
     )
 }
 
@@ -83,49 +131,16 @@ data class GjennomforingAvtale(
     override val opprettetTidspunkt: Instant,
     @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
-    val apentForPamelding: Boolean,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
-    val administratorer: List<Administrator>,
-    val kontorstruktur: List<Kontorstruktur>,
     val oppstart: GjennomforingOppstartstype,
     val pameldingType: GjennomforingPameldingType,
-    val kontaktpersoner: List<GjennomforingKontaktperson>,
-    val oppmoteSted: String?,
-    val faneinnhold: Faneinnhold?,
-    val beskrivelse: String?,
-    val publisert: Boolean,
-    val estimertVentetid: EstimertVentetid?,
-    @Serializable(with = LocalDateSerializer::class)
-    val tilgjengeligForArrangorDato: LocalDate?,
-    val amoKategorisering: AmoKategorisering?,
-    val utdanningslop: UtdanningslopDto?,
-    val stengt: List<StengtPeriode>,
     val prismodell: Prismodell,
+    val kontorstruktur: List<Kontorstruktur>,
+    val apentForPamelding: Boolean,
+    val stengt: List<StengtPeriode>,
+    // TODO: vurdere om administratorer fortsatt burde være i denne modellen. Benyttes til et par notifikasjoner.
 ) : Gjennomforing() {
-
-    @Serializable
-    data class Administrator(
-        val navIdent: NavIdent,
-        val navn: String,
-    )
-
-    @Serializable
-    data class ArrangorKontaktperson(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val navn: String,
-        val beskrivelse: String?,
-        val telefon: String?,
-        val epost: String,
-    )
-
-    @Serializable
-    data class EstimertVentetid(
-        val verdi: Int,
-        val enhet: String,
-    )
-
     @Serializable
     data class StengtPeriode(
         val id: Int,

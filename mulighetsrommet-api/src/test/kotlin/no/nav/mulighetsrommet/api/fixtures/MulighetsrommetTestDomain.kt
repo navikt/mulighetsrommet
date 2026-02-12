@@ -7,10 +7,7 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingAvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingEnkeltplassDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
@@ -52,7 +49,7 @@ data class MulighetsrommetTestDomain(
     val tilsagn: List<TilsagnDbo> = listOf(),
     val utbetalinger: List<UtbetalingDbo> = listOf(),
     val delutbetalinger: List<DelutbetalingDbo> = listOf(),
-    val additionalSetup: (QueryContext.() -> Unit)? = null,
+    val additionalSetup: (QueryContext.(MulighetsrommetTestDomain) -> Unit)? = null,
 ) {
     fun initialize(database: ApiDatabase): MulighetsrommetTestDomain = database.transaction {
         setup(session)
@@ -69,20 +66,14 @@ data class MulighetsrommetTestDomain(
             tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
             prismodeller.forEach { queries.prismodell.upsert(it) }
             avtaler.forEach { queries.avtale.create(it) }
-            gjennomforinger.forEach {
-                when (it) {
-                    is GjennomforingAvtaleDbo -> queries.gjennomforing.upsertGjennomforingAvtale(it)
-                    is GjennomforingEnkeltplassDbo -> queries.gjennomforing.upsertEnkeltplass(it)
-                    is GjennomforingArenaDbo -> queries.gjennomforing.upsertGjennomforingArena(it)
-                }
-            }
+            gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
             deltakere.forEach { queries.deltaker.upsert(it) }
             tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
             delutbetalinger.forEach { queries.delutbetaling.upsert(it) }
         }
 
-        additionalSetup?.invoke(context)
+        additionalSetup?.invoke(context, this)
 
         return this
     }

@@ -8,7 +8,7 @@ import java.util.UUID
 data class UtdanningslopDbo(
     @Serializable(with = UUIDSerializer::class)
     val utdanningsprogram: UUID,
-    val utdanninger: List<
+    val utdanninger: Set<
         @Serializable(with = UUIDSerializer::class)
         UUID,
         >,

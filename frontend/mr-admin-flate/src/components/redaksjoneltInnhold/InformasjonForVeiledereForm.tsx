@@ -13,7 +13,7 @@ import {
 } from "@navikt/ds-react";
 import { PortableText } from "../portableText/PortableText";
 import {
-  GjennomforingKontaktperson,
+  GjennomforingKontaktpersonDto,
   GjennomforingRequest,
   VeilederflateTiltakstype,
 } from "@tiltaksadministrasjon/api-client";
@@ -44,7 +44,7 @@ interface Props {
   kontorerOptions: kontorOption[];
   andreEnheterOptions: kontorOption[];
   kontaktpersonForm: boolean;
-  lagredeKontaktpersoner?: GjennomforingKontaktperson[];
+  lagredeKontaktpersoner?: GjennomforingKontaktpersonDto[];
 }
 
 export type kontorOption = {
@@ -326,7 +326,7 @@ function RegionerOgEnheterOgKontaktpersoner({
   kontorerOptions: kontorOption[];
   andreEnheterOptions: kontorOption[];
   kontaktpersonForm: boolean;
-  lagredeKontaktpersoner: GjennomforingKontaktperson[];
+  lagredeKontaktpersoner: GjennomforingKontaktpersonDto[];
 }) {
   const { register, control } = useFormContext();
 
@@ -432,7 +432,7 @@ function SokEtterKontaktperson({
 }: {
   index: number;
   id: string;
-  lagredeKontaktpersoner: GjennomforingKontaktperson[];
+  lagredeKontaktpersoner: GjennomforingKontaktpersonDto[];
 }) {
   const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
   const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery, id);

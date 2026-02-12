@@ -45,7 +45,10 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             session.execute(Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.AFT.id}'"))
             session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE}'::innsatsgruppe]"))
 
+            queries.gjennomforing.setNavEnheter(Oppfolging1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")))
             queries.gjennomforing.setPublisert(Oppfolging1.id, true)
+
+            queries.gjennomforing.setNavEnheter(AFT1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")))
             queries.gjennomforing.setPublisert(AFT1.id, true)
         }
 
@@ -101,16 +104,11 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                queries.gjennomforing.upsertGjennomforingAvtale(
-                    Oppfolging1.copy(
-                        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
-                    ),
+                queries.gjennomforing.setNavEnheter(
+                    Oppfolging1.id,
+                    setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
                 )
-                queries.gjennomforing.upsertGjennomforingAvtale(
-                    AFT1.copy(
-                        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300")),
-                    ),
-                )
+                queries.gjennomforing.setNavEnheter(AFT1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300")))
 
                 queries.veilderTiltak.getAll(
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -170,10 +168,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1)
                 queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("Oppfølging hos Erik"))
-
-                queries.gjennomforing.upsertGjennomforingAvtale(AFT1)
                 queries.gjennomforing.setFreeTextSearch(AFT1.id, listOf("AFT hos Frank"))
 
                 queries.veilderTiltak.getAll(
@@ -244,6 +239,10 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE}'::innsatsgruppe]"))
 
             queries.gjennomforing.setPublisert(ArbeidsrettetRehabilitering.id, true)
+            queries.gjennomforing.setNavEnheter(
+                ArbeidsrettetRehabilitering.id,
+                setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+            )
         }
 
         test("skal ta med ARR hvis sykmeldt med TRENGER_VEILEDNING") {
@@ -281,16 +280,10 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             gjennomforinger = listOf(Oppfolging1),
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
-            queries.gjennomforing.upsertGjennomforingAvtale(
-                Oppfolging1.copy(
-                    navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
-                    kontaktpersoner = listOf(
-                        GjennomforingKontaktpersonDbo(
-                            navIdent = NavAnsattFixture.DonaldDuck.navIdent,
-                            beskrivelse = "Tiltaksansvarlig",
-                        ),
-                    ),
-                ),
+            queries.gjennomforing.setNavEnheter(Oppfolging1.id, setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer))
+            queries.gjennomforing.setKontaktpersoner(
+                Oppfolging1.id,
+                setOf(GjennomforingKontaktpersonDbo(NavAnsattFixture.DonaldDuck.navIdent, "Tiltaksansvarlig")),
             )
         }
 

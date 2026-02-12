@@ -11,6 +11,8 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.reflect.KProperty1
 
+typealias Validated<T> = Either<List<FieldError>, T>
+
 @DslMarker
 annotation class FieldValidatorDsl
 

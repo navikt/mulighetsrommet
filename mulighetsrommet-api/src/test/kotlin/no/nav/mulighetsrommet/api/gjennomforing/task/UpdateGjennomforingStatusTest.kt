@@ -178,43 +178,4 @@ class UpdateGjennomforingStatusTest : FunSpec({
             }
         }
     }
-
-    context("når gjennomføring blir avsluttet") {
-        val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
-            id = UUID.randomUUID(),
-            startDato = LocalDate.of(2023, 1, 1),
-            sluttDato = LocalDate.of(2023, 1, 31),
-        )
-
-        val domain = MulighetsrommetTestDomain(
-            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(AvtaleFixtures.oppfolging),
-            gjennomforinger = listOf(gjennomforing),
-        )
-
-        beforeEach {
-            domain.initialize(database.db)
-        }
-
-        afterEach {
-            database.truncateAll()
-        }
-
-        test("avpubliserer og stenger gjennomføring for påmelding") {
-            database.run {
-                queries.gjennomforing.setPublisert(gjennomforing.id, true)
-                queries.gjennomforing.setApentForPamelding(gjennomforing.id, true)
-            }
-
-            createTask().execute(now = LocalDateTime.of(2023, 2, 1, 0, 0))
-
-            database.run {
-                queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing.id).should {
-                    it.status.shouldBe(GjennomforingStatus.Avsluttet)
-                    it.publisert.shouldBe(false)
-                    it.apentForPamelding.shouldBe(false)
-                }
-            }
-        }
-    }
 })

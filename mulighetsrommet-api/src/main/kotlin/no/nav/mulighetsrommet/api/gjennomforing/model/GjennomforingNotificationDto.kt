@@ -13,6 +13,6 @@ data class GjennomforingNotificationDto(
     val navn: String,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val administratorer: List<GjennomforingAvtale.Administrator>,
+    val administratorer: List<GjennomforingAvtaleDetaljer.Administrator>,
     val tiltaksnummer: String?,
 )

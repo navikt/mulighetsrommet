@@ -1,21 +1,21 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import arrow.core.Either
-import arrow.core.right
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
-import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetTilgjengligForArrangorRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingAvtaleDbo
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.FieldValidator
+import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AmoKurstype
@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
@@ -59,10 +60,17 @@ object GjennomforingValidator {
         }
     }
 
+    data class GjennomforingAvtaleResult(
+        val gjennomforing: GjennomforingDbo,
+        val administratorer: Set<NavIdent>,
+        val kontaktpersoner: Set<GjennomforingKontaktpersonDbo>,
+        val arrangorKontaktpersoner: Set<UUID>,
+    )
+
     fun validate(
         request: GjennomforingRequest,
         ctx: Ctx,
-    ): Either<List<FieldError>, GjennomforingAvtaleDbo> = validation {
+    ): Validated<GjennomforingAvtaleResult> = validation {
         var next = request
 
         validate(ctx.avtale.tiltakstype.id == next.tiltakstypeId) {
@@ -99,14 +107,14 @@ object GjennomforingValidator {
             FieldError.of(
                 "Du må velge en enhet",
                 GjennomforingRequest::estimertVentetid,
-                EstimertVentetid::enhet,
+                GjennomforingRequest.EstimertVentetid::enhet,
             )
         }
         validate(next.estimertVentetid == null || (next.estimertVentetid.verdi != null && next.estimertVentetid.verdi > 0)) {
             FieldError.of(
                 "Du må velge en verdi større enn 0",
                 GjennomforingRequest::estimertVentetid,
-                EstimertVentetid::verdi,
+                GjennomforingRequest.EstimertVentetid::verdi,
             )
         }
         if (ctx.harEgenskap(TiltakstypeEgenskap.KREVER_DELTIDSPROSENT)) {
@@ -163,18 +171,14 @@ object GjennomforingValidator {
             FieldError.of("Du må velge en arrangør fra avtalen", GjennomforingRequest::arrangorId)
         }
 
-        validateUtdanningslop(ctx.avtale.tiltakstype.tiltakskode, next.utdanningslop, ctx.avtale)
-        val navEnheter = validateNavEnheter(next.veilederinformasjon, ctx.avtale)
         validateSlettetNavAnsatte(ctx.kontaktpersoner, GjennomforingRequest::kontaktpersoner)
         validateSlettetNavAnsatte(ctx.administratorer, GjennomforingRequest::administratorer)
-        validateNotNull(ctx.arrangor) {
+        requireValid(ctx.arrangor != null) {
             FieldError.of(
                 "Du må velge en arrangør",
                 GjennomforingRequest::arrangorId,
             )
         }
-        val amoKategorisering = validateAmoKategorisering(ctx.avtale, request.amoKategorisering).bind()
-        requireValid(ctx.arrangor != null)
 
         next = validateOrResetTilgjengeligForArrangorDato(next)
 
@@ -185,17 +189,32 @@ object GjennomforingValidator {
         }
 
         requireValid(next.antallPlasser != null && next.startDato != null && request.oppstart != null && request.pameldingType != null && request.prismodellId != null)
-        GjennomforingDboMapper.fromGjennomforingRequest(
-            request = next,
-            navEnheter = navEnheter,
-            startDato = next.startDato,
-            antallPlasser = next.antallPlasser,
-            arrangorId = ctx.arrangor.id,
-            status = ctx.status,
-            oppstartstype = request.oppstart,
-            pameldingType = request.pameldingType,
-            amoKategorisering = amoKategorisering,
-            prismodellId = request.prismodellId,
+        GjennomforingAvtaleResult(
+            GjennomforingDbo(
+                id = next.id,
+                type = GjennomforingType.AVTALE,
+                tiltakstypeId = next.tiltakstypeId,
+                arrangorId = ctx.arrangor.id,
+                navn = next.navn,
+                startDato = next.startDato,
+                sluttDato = next.sluttDato,
+                status = ctx.status,
+                deltidsprosent = next.deltidsprosent,
+                antallPlasser = next.antallPlasser,
+                avtaleId = next.avtaleId,
+                prismodellId = request.prismodellId,
+                oppstart = request.oppstart,
+                pameldingType = request.pameldingType,
+                oppmoteSted = next.oppmoteSted?.ifBlank { null },
+                faneinnhold = next.veilederinformasjon.faneinnhold,
+                beskrivelse = next.veilederinformasjon.beskrivelse,
+                estimertVentetidVerdi = next.estimertVentetid?.verdi,
+                estimertVentetidEnhet = next.estimertVentetid?.enhet,
+                tilgjengeligForArrangorDato = next.tilgjengeligForArrangorDato,
+            ),
+            request.administratorer,
+            request.kontaktpersoner.map { GjennomforingKontaktpersonDbo(it.navIdent, it.beskrivelse) }.toSet(),
+            request.arrangorKontaktpersoner,
         )
     }
 
@@ -231,12 +250,11 @@ object GjennomforingValidator {
         tilgjengeligForArrangorDato
     }
 
-    private fun FieldValidator.validateUtdanningslop(
-        tiltakskode: Tiltakskode,
-        utdanningslop: UtdanningslopDbo?,
+    fun validateUtdanningslop(
         avtale: Avtale,
-    ) {
-        when (tiltakskode) {
+        utdanningslop: UtdanningslopDbo?,
+    ): Validated<UtdanningslopDbo?> = validation {
+        when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             Tiltakskode.ARBEIDSRETTET_REHABILITERING,
             Tiltakskode.AVKLARING,
@@ -252,7 +270,7 @@ object GjennomforingValidator {
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
             Tiltakskode.STUDIESPESIALISERING,
             Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-            -> return
+            -> return@validation null
 
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
@@ -284,18 +302,19 @@ object GjennomforingValidator {
                 GjennomforingRequest::utdanningslop,
             )
         }
+
+        utdanningslop
     }
 
-    private fun FieldValidator.validateNavEnheter(
-        veilederinfoRequest: GjennomforingVeilederinfoRequest,
+    fun validateNavEnheter(
         avtale: Avtale,
-    ): Set<NavEnhetNummer> {
+        veilederinfoRequest: GjennomforingVeilederinfoRequest,
+    ): Validated<Set<NavEnhetNummer>> = validation(GjennomforingRequest::veilederinformasjon) {
         val avtaleRegioner = avtale.kontorstruktur.map { it.region.enhetsnummer }
         val navRegioner = avtaleRegioner.intersect(veilederinfoRequest.navRegioner.toSet())
         validate(navRegioner.isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-region fra avtalen",
-                GjennomforingRequest::veilederinformasjon,
                 GjennomforingVeilederinfoRequest::navRegioner,
             )
         }
@@ -306,12 +325,11 @@ object GjennomforingValidator {
         validate((navKontorer + navAndreEnheter).isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-enhet fra avtalen",
-                GjennomforingRequest::veilederinformasjon,
                 GjennomforingVeilederinfoRequest::navKontorer,
             )
         }
 
-        return navRegioner + navKontorer + navAndreEnheter
+        navRegioner + navKontorer + navAndreEnheter
     }
 
     private fun FieldValidator.validateSlettetNavAnsatte(
@@ -427,10 +445,10 @@ object GjennomforingValidator {
         }
     }
 
-    private fun FieldValidator.validateAmoKategorisering(
+    fun validateAmoKategorisering(
         avtale: Avtale,
         amoKategorisering: AmoKategoriseringRequest?,
-    ): Either<List<FieldError>, AmoKategorisering?> {
+    ): Either<List<FieldError>, AmoKategorisering?> = validation {
         when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             Tiltakskode.ARBEIDSRETTET_REHABILITERING,
@@ -461,7 +479,7 @@ object GjennomforingValidator {
             }
         }
 
-        return when (avtale.tiltakstype.tiltakskode) {
+        when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             Tiltakskode.ARBEIDSRETTET_REHABILITERING,
             Tiltakskode.AVKLARING,
@@ -521,6 +539,6 @@ object GjennomforingValidator {
 
             Tiltakskode.STUDIESPESIALISERING,
             -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
-        }?.toDbo().right()
+        }?.toDbo()
     }
 }

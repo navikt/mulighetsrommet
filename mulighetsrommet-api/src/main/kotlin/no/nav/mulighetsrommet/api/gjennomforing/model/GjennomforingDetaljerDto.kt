@@ -14,6 +14,9 @@ import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -39,6 +42,42 @@ sealed class GjennomforingDto {
         val type: GjennomforingStatusType,
         val status: DataElement.Status,
     )
+
+    @Serializable
+    data class ArrangorUnderenhet(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val organisasjonsnummer: Organisasjonsnummer,
+        val navn: String,
+        val slettet: Boolean,
+        val kontaktpersoner: List<ArrangorKontaktperson>,
+    )
+
+    @Serializable
+    data class ArrangorKontaktperson(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+        val beskrivelse: String?,
+        val telefon: String?,
+        val epost: String,
+    )
+
+    @Serializable
+    data class Administrator(
+        val navIdent: NavIdent,
+        val navn: String,
+    )
+
+    @Serializable
+    data class StengtPeriode(
+        val id: Int,
+        @Serializable(with = LocalDateSerializer::class)
+        val start: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        val slutt: LocalDate,
+        val beskrivelse: String,
+    )
 }
 
 @Serializable
@@ -49,7 +88,7 @@ data class GjennomforingAvtaleDto(
     val navn: String,
     val lopenummer: Tiltaksnummer,
     val tiltaksnummer: Tiltaksnummer?,
-    val arrangor: Gjennomforing.ArrangorUnderenhet,
+    val arrangor: ArrangorUnderenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -65,8 +104,8 @@ data class GjennomforingAvtaleDto(
     val deltidsprosent: Double,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
-    val administratorer: List<GjennomforingAvtale.Administrator>,
-    val stengt: List<GjennomforingAvtale.StengtPeriode>,
+    val administratorer: List<Administrator>,
+    val stengt: List<StengtPeriode>,
 ) : GjennomforingDto()
 
 @Serializable
@@ -77,7 +116,7 @@ data class GjennomforingEnkeltplassDto(
     val navn: String,
     val lopenummer: Tiltaksnummer,
     val tiltaksnummer: Tiltaksnummer?,
-    val arrangor: Gjennomforing.ArrangorUnderenhet,
+    val arrangor: ArrangorUnderenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -92,7 +131,24 @@ data class GjennomforingVeilederinfoDto(
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
     val kontorstruktur: List<Kontorstruktur>,
-    val kontaktpersoner: List<GjennomforingKontaktperson>,
+    val kontaktpersoner: List<GjennomforingKontaktpersonDto>,
     val oppmoteSted: String?,
-    val estimertVentetid: GjennomforingAvtale.EstimertVentetid?,
+    val estimertVentetid: EstimertVentetid?,
+) {
+
+    @Serializable
+    data class EstimertVentetid(
+        val verdi: Int,
+        val enhet: String,
+    )
+}
+
+@Serializable
+data class GjennomforingKontaktpersonDto(
+    val navIdent: NavIdent,
+    val navn: String,
+    val epost: String,
+    val mobilnummer: String? = null,
+    val hovedenhet: NavEnhetNummer,
+    val beskrivelse: String?,
 )

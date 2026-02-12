@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.fromValidatedAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
+import no.nav.mulighetsrommet.api.avtale.model.Avtale.OpsjonLoggDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggDbo
@@ -26,6 +27,7 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodeller
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.ArrangorUnderenhet
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
@@ -64,7 +66,7 @@ object AvtaleValidator {
         data class Avtale(
             val status: AvtaleStatusType,
             val opphav: ArenaMigrering.Opphav,
-            val opsjonerRegistrert: List<no.nav.mulighetsrommet.api.avtale.model.Avtale.OpsjonLoggDto>,
+            val opsjonerRegistrert: List<OpsjonLoggDto>,
             val opsjonsmodell: Opsjonsmodell,
             val avtaletype: Avtaletype,
             val tiltakskode: Tiltakskode,
@@ -73,7 +75,7 @@ object AvtaleValidator {
         )
 
         data class Gjennomforing(
-            val arrangor: no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.ArrangorUnderenhet,
+            val arrangor: ArrangorUnderenhet,
             val startDato: LocalDate,
             val utdanningslop: UtdanningslopDto?,
             val status: GjennomforingStatusType,

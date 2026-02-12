@@ -1,10 +1,12 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
@@ -25,6 +27,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import java.util.UUID
 
@@ -33,11 +36,37 @@ class GjennomforingDetaljerService(
     private val tiltakstypeService: TiltakstypeService,
     private val navAnsattService: NavAnsattService,
 ) {
-    fun get(id: UUID): GjennomforingDetaljerDto? = db.session {
-        getGjennomforing(id)?.let { GjennomforingDtoMapper.fromGjennomforing(it) }
+    fun getTiltaksgjennomforingV2Dto(id: UUID): TiltaksgjennomforingV2Dto? = db.session {
+        val gjennomforing = getGjennomforing(id) ?: return null
+
+        when (gjennomforing) {
+            is GjennomforingAvtale -> {
+                val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
+                TiltaksgjennomforingV2Mapper.fromGjennomforingAvtale(gjennomforing, detaljer)
+            }
+
+            is GjennomforingEnkeltplass -> TiltaksgjennomforingV2Mapper.fromGjennomforingEnkeltplass(gjennomforing)
+
+            is GjennomforingArena -> TiltaksgjennomforingV2Mapper.fromGjennomforingArena(gjennomforing)
+        }
     }
 
-    fun getAll(
+    fun getGjennomforingDetaljerDto(id: UUID): GjennomforingDetaljerDto? = db.session {
+        val gjennomforing = getGjennomforing(id) ?: return null
+
+        when (gjennomforing) {
+            is GjennomforingAvtale -> {
+                val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
+                GjennomforingDtoMapper.fromGjennomforingAvtale(gjennomforing, detaljer)
+            }
+
+            is GjennomforingEnkeltplass -> GjennomforingDtoMapper.fromEnkeltplass(gjennomforing)
+
+            is GjennomforingArena -> throw IllegalStateException("Visning av gamle gjennomføringer fra Arena er ikke støttet")
+        }
+    }
+
+    fun getAllKompaktDto(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
@@ -65,9 +94,9 @@ class GjennomforingDetaljerService(
         }
     }
 
-    fun handlinger(id: UUID, navIdent: NavIdent): Set<GjennomforingHandling> {
+    fun getHandlinger(id: UUID, navIdent: NavIdent): Set<GjennomforingHandling> {
         val ansatt = navAnsattService.getNavAnsattByNavIdent(navIdent) ?: return setOf()
-        val gjennomforing = getGjennomforing(id) ?: return setOf()
+        val gjennomforing = db.session { getGjennomforing(id) } ?: return setOf()
         return when (gjennomforing) {
             is GjennomforingAvtale -> getHandlingerGruppetiltak(gjennomforing, ansatt)
             is GjennomforingEnkeltplass -> setOf()
@@ -75,8 +104,10 @@ class GjennomforingDetaljerService(
         }
     }
 
-    private fun getGjennomforing(id: UUID): Gjennomforing? = db.session {
-        queries.gjennomforing.getGjennomforingAvtale(id) ?: queries.gjennomforing.getGjennomforingEnkeltplass(id)
+    private fun QueryContext.getGjennomforing(id: UUID): Gjennomforing? {
+        return queries.gjennomforing.getGjennomforingAvtale(id)
+            ?: queries.gjennomforing.getGjennomforingEnkeltplass(id)
+            ?: queries.gjennomforing.getGjennomforingArena(id)
     }
 
     companion object {

@@ -15,7 +15,7 @@ import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
 import { CaretDownFillIcon, CaretUpFillIcon } from "@navikt/aksel-icons";
 import {
   Faneinnhold,
-  GjennomforingKontaktperson,
+  GjennomforingKontaktpersonDto,
   GjennomforingTiltakstype,
   Kontorstruktur,
 } from "@tiltaksadministrasjon/api-client";
@@ -26,7 +26,7 @@ interface RedaksjoneltInnholdPreviewProps {
   beskrivelse: string | null;
   faneinnhold: Faneinnhold | null;
   kontorstruktur: Kontorstruktur[];
-  kontaktpersoner: GjennomforingKontaktperson[];
+  kontaktpersoner: GjennomforingKontaktpersonDto[];
 }
 
 export function RedaksjoneltInnholdPreview() {

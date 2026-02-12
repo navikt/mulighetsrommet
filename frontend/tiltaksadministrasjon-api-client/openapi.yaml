@@ -3710,6 +3710,7 @@ components:
           items:
             type: string
             format: uuid
+          uniqueItems: true
       required:
       - utdanninger
       - utdanningsprogram
@@ -4569,14 +4570,17 @@ components:
           type: array
           items:
             type: string
+          uniqueItems: true
         navKontorer:
           type: array
           items:
             type: string
+          uniqueItems: true
         navAndreEnheter:
           type: array
           items:
             type: string
+          uniqueItems: true
         beskrivelse:
           type:
           - "null"
@@ -4591,7 +4595,7 @@ components:
       - navAndreEnheter
       - navKontorer
       - navRegioner
-    GjennomforingKontaktpersonDto:
+    GjennomforingRequest.Kontaktperson:
       type: object
       properties:
         navIdent:
@@ -4608,7 +4612,7 @@ components:
       enum:
       - LOPENDE
       - FELLES
-    EstimertVentetid:
+    GjennomforingRequest.EstimertVentetid:
       type: object
       properties:
         verdi:
@@ -4667,16 +4671,19 @@ components:
           items:
             type: string
             format: uuid
+          uniqueItems: true
         veilederinformasjon:
           $ref: "#/components/schemas/GjennomforingVeilederinfoRequest"
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingKontaktpersonDto"
+            $ref: "#/components/schemas/GjennomforingRequest.Kontaktperson"
+          uniqueItems: true
         administratorer:
           type: array
           items:
             type: string
+          uniqueItems: true
         oppstart:
           oneOf:
           - type: "null"
@@ -4691,7 +4698,7 @@ components:
         estimertVentetid:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/EstimertVentetid"
+          - $ref: "#/components/schemas/GjennomforingRequest.EstimertVentetid"
         tilgjengeligForArrangorDato:
           type:
           - "null"
@@ -4774,7 +4781,7 @@ components:
           - "null"
           - string
         arrangor:
-          $ref: "#/components/schemas/Gjennomforing.ArrangorUnderenhet"
+          $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
         startDato:
           type: string
           format: date
@@ -4810,11 +4817,11 @@ components:
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingAvtale.Administrator"
+            $ref: "#/components/schemas/GjennomforingDto.Administrator"
         stengt:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingAvtale.StengtPeriode"
+            $ref: "#/components/schemas/GjennomforingDto.StengtPeriode"
       required:
       - administratorer
       - antallPlasser
@@ -4834,7 +4841,7 @@ components:
       - stengt
       - tilgjengeligForArrangorDato
       - tiltaksnummer
-    Gjennomforing.ArrangorUnderenhet:
+    GjennomforingDto.ArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -4844,19 +4851,19 @@ components:
           type: string
         navn:
           type: string
+        slettet:
+          type: boolean
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingAvtale.ArrangorKontaktperson"
-        slettet:
-          type: boolean
+            $ref: "#/components/schemas/GjennomforingDto.ArrangorKontaktperson"
       required:
       - id
       - kontaktpersoner
       - navn
       - organisasjonsnummer
       - slettet
-    GjennomforingAvtale.ArrangorKontaktperson:
+    GjennomforingDto.ArrangorKontaktperson:
       type: object
       properties:
         id:
@@ -4897,7 +4904,7 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
-    GjennomforingAvtale.Administrator:
+    GjennomforingDto.Administrator:
       type: object
       properties:
         navIdent:
@@ -4907,7 +4914,7 @@ components:
       required:
       - navIdent
       - navn
-    GjennomforingAvtale.StengtPeriode:
+    GjennomforingDto.StengtPeriode:
       type: object
       properties:
         id:
@@ -4941,7 +4948,7 @@ components:
           - "null"
           - string
         arrangor:
-          $ref: "#/components/schemas/Gjennomforing.ArrangorUnderenhet"
+          $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
         startDato:
           type: string
           format: date
@@ -4984,7 +4991,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingKontaktperson"
+            $ref: "#/components/schemas/GjennomforingKontaktpersonDto"
         oppmoteSted:
           type:
           - "null"
@@ -4992,7 +4999,7 @@ components:
         estimertVentetid:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/GjennomforingAvtale.EstimertVentetid"
+          - $ref: "#/components/schemas/GjennomforingVeilederinfoDto.EstimertVentetid"
       required:
       - beskrivelse
       - estimertVentetid
@@ -5001,7 +5008,7 @@ components:
       - kontorstruktur
       - oppmoteSted
       - publisert
-    GjennomforingKontaktperson:
+    GjennomforingKontaktpersonDto:
       type: object
       properties:
         navIdent:
@@ -5027,7 +5034,7 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    GjennomforingAvtale.EstimertVentetid:
+    GjennomforingVeilederinfoDto.EstimertVentetid:
       type: object
       properties:
         verdi:

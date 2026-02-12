@@ -289,6 +289,7 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("skedulerer publisering av gjennomføringer tilhørende avtalen ved endring av prismodell") {
+            val prismodell = PrismodellFixtures.AvtaltPrisPerTimeOppfolging
             val avtale = AvtaleFixtures.oppfolging
             val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
@@ -301,7 +302,7 @@ class AvtaleServiceTest : FunSpec({
 
             val request = listOf(
                 PrismodellRequest(
-                    id = gjennomforing.prismodellId,
+                    id = prismodell.id,
                     type = PrismodellType.ANNEN_AVTALT_PRIS,
                     valuta = Valuta.NOK,
                     satser = emptyList(),

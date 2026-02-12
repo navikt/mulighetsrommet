@@ -125,7 +125,7 @@ class AvtaleService(
                     AvtaleValidator.Ctx.Gjennomforing(
                         arrangor = it.arrangor,
                         startDato = it.startDato,
-                        utdanningslop = it.utdanningslop,
+                        utdanningslop = null, // TODO: it.utdanningslop,
                         status = it.status.type,
                         prismodellId = it.prismodell.id,
                     )

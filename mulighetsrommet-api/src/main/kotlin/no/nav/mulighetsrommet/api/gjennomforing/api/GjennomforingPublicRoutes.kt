@@ -6,13 +6,9 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.model.ExchangeArenaIdForIdResponse
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingArenaDataDto
@@ -32,23 +28,7 @@ fun Route.gjennomforingPublicRoutes() {
 }
 
 private fun Route.getGjennomforingV2Route() {
-    val db: ApiDatabase by inject()
-
-    suspend fun QueryContext.getTiltaksgjennomforingV2(id: UUID): TiltaksgjennomforingV2Dto? = coroutineScope {
-        val gruppe = async {
-            queries.gjennomforing.getGjennomforingAvtale(id)?.let(TiltaksgjennomforingV2Mapper::fromGjennomforing)
-        }
-
-        val enkeltplass = async {
-            queries.gjennomforing.getGjennomforingEnkeltplass(id)?.let(TiltaksgjennomforingV2Mapper::fromGjennomforing)
-        }
-
-        val arena = async {
-            queries.gjennomforing.getGjennomforingArena(id)?.let(TiltaksgjennomforingV2Mapper::fromGjennomforing)
-        }
-
-        listOf(gruppe, enkeltplass, arena).awaitAll().firstOrNull { it != null }
-    }
+    val gjennomforinger: GjennomforingDetaljerService by inject()
 
     get("{id}", {
         tags = setOf("Tiltaksgjennomforing")
@@ -68,7 +48,7 @@ private fun Route.getGjennomforingV2Route() {
     }) {
         val id: UUID by call.parameters
 
-        val tiltaksgjennomforing = db.session { getTiltaksgjennomforingV2(id) }
+        val tiltaksgjennomforing = gjennomforinger.getTiltaksgjennomforingV2Dto(id)
             ?: return@get call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
 
         call.respond(tiltaksgjennomforing)
