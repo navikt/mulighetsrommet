@@ -1,6 +1,6 @@
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { NotificationStatus } from "@tiltaksadministrasjon/api-client";
-import { Button, HStack } from "@navikt/ds-react";
+import { Box, Button, HStack, VStack } from "@navikt/ds-react";
 import { EmptyState } from "./EmptyState";
 import { NotifikasjonerListItem } from "./NotifikasjonerListItem";
 import { useMutateNotifications, useNotifications } from "@/api/notifikasjoner/useNotifications";
@@ -46,23 +46,24 @@ export function NotifikasjonerList({ lest }: Props) {
 
   return (
     <ReloadAppErrorBoundary>
-      <div className="max-w-360 mt-5">
+      <Box
+        margin="space-8"
+        background="default"
+        paddingBlock="space-16"
+        paddingInline="space-16"
+        borderRadius="8"
+      >
         <HStack align={"end"} justify={"end"}>
-          <Button
-            data-color="neutral"
-            variant="tertiary"
-            size="small"
-            onClick={toggleMarkertSomlestUlest}
-          >
+          <Button variant="tertiary" size="small" onClick={toggleMarkertSomlestUlest}>
             Merk alle som {lest ? "ulest" : "lest"}
           </Button>
         </HStack>
-        <ul className="m-0 mb-4 pl-0 flex flex-col">
+        <VStack as="ul" gap="space-16">
           {notifikasjoner.map((n) => {
             return <NotifikasjonerListItem lest={lest} key={n.id} notifikasjon={n} />;
           })}
-        </ul>
-      </div>
+        </VStack>
+      </Box>
     </ReloadAppErrorBoundary>
   );
 }

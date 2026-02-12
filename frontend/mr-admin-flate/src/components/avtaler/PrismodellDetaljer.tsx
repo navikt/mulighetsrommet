@@ -13,58 +13,55 @@ interface Props {
 }
 
 export function PrismodellDetaljer({ prismodeller }: Props) {
+  const prismodellkort = prismodeller.map((prismodell) => {
+    switch (prismodell.type) {
+      case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+        return (
+          <VStack key={prismodell.navn} gap="space-16">
+            <PrismodellTypenavn type={prismodell.navn} />
+            <PrismodellSatser satser={prismodell.satser} />
+          </VStack>
+        );
+      case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
+      case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
+      case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
+      case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
+        return (
+          <VStack key={prismodell.navn} gap="space-16">
+            <PrismodellTypenavn type={prismodell.navn} />
+            <PrismodellSatser satser={prismodell.satser} />
+            {prismodell.prisbetingelser && (
+              <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
+            )}
+          </VStack>
+        );
+      case PrismodellType.ANNEN_AVTALT_PRIS:
+        return (
+          <VStack key={prismodell.navn} gap="space-16">
+            <PrismodellTypenavn type={prismodell.navn} />
+            <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
+          </VStack>
+        );
+    }
+  });
   return (
     <>
       <Heading level="3" size="small" spacing>
         {avtaletekster.prismodell.heading}
       </Heading>
       <VStack gap="space-16">
-        {prismodeller.map((prismodell) => {
-          switch (prismodell.type) {
-            case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
-              return (
-                <VStack
-                  key={prismodell.navn}
-                  gap="space-16"
-                  padding="space-8"
-                  className="border-ax-border-neutral-subtle border rounded-md"
-                >
-                  <PrismodellTypenavn type={prismodell.navn} />
-                  <PrismodellSatser satser={prismodell.satser} />
-                </VStack>
-              );
-            case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
-            case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
-            case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
-            case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
-              return (
-                <VStack
-                  key={prismodell.navn}
-                  gap="space-16"
-                  padding="space-8"
-                  className="border-ax-border-neutral-subtle border rounded-md"
-                >
-                  <PrismodellTypenavn type={prismodell.navn} />
-                  <PrismodellSatser satser={prismodell.satser} />
-                  {prismodell.prisbetingelser && (
-                    <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
-                  )}
-                </VStack>
-              );
-            case PrismodellType.ANNEN_AVTALT_PRIS:
-              return (
-                <VStack
-                  key={prismodell.navn}
-                  gap="space-16"
-                  padding="space-8"
-                  className="border-ax-border-neutral-subtle border rounded-md"
-                >
-                  <PrismodellTypenavn type={prismodell.navn} />
-                  <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
-                </VStack>
-              );
-          }
-        })}
+        {prismodellkort.map((kort, index) => (
+          <Box
+            key={index}
+            borderColor="neutral-subtle"
+            background="neutral-soft"
+            borderWidth="1"
+            borderRadius="8"
+            padding="space-8"
+          >
+            {kort}
+          </Box>
+        ))}
       </VStack>
     </>
   );
@@ -79,6 +76,7 @@ function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {
     <Box
       key={sats.gjelderFra}
       borderColor="neutral-subtle"
+      background="default"
       padding="space-8"
       borderWidth="1"
       borderRadius="4"

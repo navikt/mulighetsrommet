@@ -12,35 +12,40 @@ export function OppgaveoversiktPage() {
   const summary = useNotificationSummary();
   const { unreadCount } = summary.data;
 
+  const currentTab = pathname.split("/").pop() || "oppgaver";
+
   return (
-    <>
+    <Box data-testid="oppgaveoversikt-container">
       <title>Oppgaveoversikt</title>
       <HeaderBanner heading="Oppgaveoversikt" ikon={<OppgaveoversiktIkon />} />
-      <Box background="default">
-        <Tabs
-          value={pathname.includes("notifikasjoner") ? "notifikasjoner" : "oppgaver"}
-          selectionFollowsFocus
-        >
+      <Tabs value={currentTab} selectionFollowsFocus>
+        <Box background="default">
           <Tabs.List id="fane_liste">
             <Tabs.Tab
               value="oppgaver"
               label={`Oppgaver`}
               onClick={() => navigate("/oppgaveoversikt/oppgaver")}
-              aria-controls="panel"
             />
             <Tabs.Tab
               value="notifikasjoner"
               label={unreadCount ? `Notifikasjoner (${unreadCount})` : "Notifikasjoner"}
               onClick={() => navigate("/oppgaveoversikt/notifikasjoner")}
-              aria-controls="panel"
               data-testid="notifikasjoner"
             />
+            <Tabs.Tab
+              value="tidligere-notifikasjoner"
+              label={"Tidligere notifikasjoner"}
+              onClick={() => navigate("/oppgaveoversikt/tidligere-notifikasjoner")}
+              data-testid="tidligere-notifikasjoner"
+            />
           </Tabs.List>
-        </Tabs>
-      </Box>
-      <ContentBox>
-        <Outlet />
-      </ContentBox>
-    </>
+        </Box>
+        <ContentBox>
+          <Tabs.Panel value={currentTab}>
+            <Outlet />
+          </Tabs.Panel>
+        </ContentBox>
+      </Tabs>
+    </Box>
   );
 }

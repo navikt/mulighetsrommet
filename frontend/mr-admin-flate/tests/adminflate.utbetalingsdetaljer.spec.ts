@@ -13,7 +13,7 @@ test.describe("Utbetalinger detaljer", () => {
     await firstGjennomforing.click();
 
     // Wait for the gjennomføring details page to load
-    await page.waitForSelector("h1");
+    await page.waitForSelector("h2");
 
     // Click on the "Utbetalinger" tab
     await page.locator("button", { hasText: "Utbetalinger" }).click();
