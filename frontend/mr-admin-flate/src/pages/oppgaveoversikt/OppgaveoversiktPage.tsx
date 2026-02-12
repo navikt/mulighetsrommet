@@ -15,7 +15,7 @@ export function OppgaveoversiktPage() {
   const currentTab = pathname.split("/").pop() || "oppgaver";
 
   return (
-    <>
+    <Box data-testid="oppgaveoversikt-container">
       <title>Oppgaveoversikt</title>
       <HeaderBanner heading="Oppgaveoversikt" ikon={<OppgaveoversiktIkon />} />
       <Tabs value={currentTab} selectionFollowsFocus>
@@ -40,12 +40,12 @@ export function OppgaveoversiktPage() {
             />
           </Tabs.List>
         </Box>
-        <ContentBox data-testid="oppgaveoversikt-container">
+        <ContentBox>
           <Tabs.Panel value={currentTab}>
             <Outlet />
           </Tabs.Panel>
         </ContentBox>
       </Tabs>
-    </>
+    </Box>
   );
 }
