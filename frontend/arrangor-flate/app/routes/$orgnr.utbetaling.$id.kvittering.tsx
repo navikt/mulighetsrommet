@@ -13,7 +13,7 @@ import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { tekster } from "~/tekster";
 import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
-import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
+import { useUtbetalingsKvittering } from "~/hooks/useUtbetalingKvittering";
 
 export const meta: MetaFunction = () => {
   return [
@@ -34,15 +34,7 @@ export default function UtbetalingKvittering() {
 
 function UtbetalingKvitteringContent({ id }: { id: string }) {
   const orgnr = useOrgnrFromUrl();
-  const { data: utbetaling } = useArrangorflateUtbetaling(id);
-
-  const mottattDato = utbetaling.innsendtAvArrangorDato;
-  if (!mottattDato) {
-    throw new Error("Utbetalingskravet er ikke sendt inn");
-  }
-
-  const utbetalesTidligstDato = utbetaling.utbetalesTidligstDato;
-  const kontonummer = utbetaling.betalingsinformasjon?.kontonummer ?? null;
+  const { data: kvittering } = useUtbetalingsKvittering(id);
 
   return (
     <Box background="default" padding="space-32" borderRadius="8" marginInline="auto">
@@ -73,11 +65,13 @@ function UtbetalingKvitteringContent({ id }: { id: string }) {
           </ExpansionCard.Header>
           <ExpansionCard.Content>
             <VStack gap="space-8">
-              <BodyShort>{tekster.bokmal.utbetaling.kvittering.mottattAv(mottattDato)}</BodyShort>
-              {utbetalesTidligstDato && (
+              <BodyShort>
+                {tekster.bokmal.utbetaling.kvittering.mottattAv(kvittering.mottattDato)}
+              </BodyShort>
+              {kvittering.utbetalesTidligstDato && (
                 <BodyShort spacing>
                   {tekster.bokmal.utbetaling.kvittering.utbetalesTidligstDato(
-                    utbetalesTidligstDato,
+                    kvittering.utbetalesTidligstDato,
                   )}
                 </BodyShort>
               )}
@@ -104,7 +98,7 @@ function UtbetalingKvitteringContent({ id }: { id: string }) {
               <BodyShort weight="semibold">
                 {tekster.bokmal.utbetaling.kvittering.kontonummerRegistrert}
               </BodyShort>
-              <BodyShort>{kontonummer}</BodyShort>
+              <BodyShort>{kvittering.kontonummer}</BodyShort>
             </VStack>
           </ExpansionCard.Content>
         </ExpansionCard>

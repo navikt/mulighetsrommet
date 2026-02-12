@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.altinn.AltinnError
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
@@ -41,6 +42,7 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
@@ -53,6 +55,7 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
@@ -278,6 +281,46 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     utbetalingService.godkjentAvArrangor(utbetaling.id, it)
                     call.respond(HttpStatusCode.OK)
                 }
+        }
+
+        get("/kvittering", {
+            description = "Hent utbetalingskvittering for arrangør"
+            tags = setOf("Arrangorflate")
+            operationId = "getUtbetalingsKvittering"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Kvitteringsdata for gitt id"
+                    body<ArrangorflateUtbetalingKvittering>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val utbetaling = getUtbetalingOrRespondNotFound()
+
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+
+            if (utbetaling.godkjentAvArrangorTidspunkt != null) {
+                call.respond(
+                    ArrangorflateUtbetalingKvittering(
+                        id = utbetaling.id,
+                        mottattDato = utbetaling.godkjentAvArrangorTidspunkt.toLocalDate(),
+                        utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
+                        kontonummer = when (utbetaling.betalingsinformasjon) {
+                            is Betalingsinformasjon.BBan -> utbetaling.betalingsinformasjon.kontonummer
+                            is Betalingsinformasjon.IBan -> null
+                            null -> null
+                        },
+                    ),
+                )
+            } else {
+                call.respondWithProblemDetail(NotFound("Utbetalingskravet er ikke sendt inn. Ingen kvittering tilgjengelig."))
+            }
         }
 
         post("/avbryt", {
@@ -567,4 +610,15 @@ fun ArrangorflateTilsagnDto.toRadDto(): ArrangorflateTilsagnRadDto = Arrangorfla
     periode = periode,
     tilsagnNavn = "${type.displayName()} ($bestillingsnummer)",
     status = status,
+)
+
+@Serializable
+data class ArrangorflateUtbetalingKvittering(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = LocalDateSerializer::class)
+    val mottattDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val utbetalesTidligstDato: LocalDate?,
+    val kontonummer: Kontonummer?,
 )
