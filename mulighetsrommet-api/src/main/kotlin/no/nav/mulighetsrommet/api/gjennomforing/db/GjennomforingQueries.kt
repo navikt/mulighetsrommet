@@ -42,6 +42,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.UUID
@@ -124,69 +125,6 @@ class GjennomforingQueries(private val session: Session) {
             where id = :gjennomforing_id::uuid
         """.trimIndent()
 
-        @Language("PostgreSQL")
-        val upsertAdministrator = """
-             insert into gjennomforing_administrator (gjennomforing_id, nav_ident)
-             values (:id::uuid, :nav_ident)
-             on conflict (gjennomforing_id, nav_ident) do nothing
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val deleteAdministratorer = """
-             delete from gjennomforing_administrator
-             where gjennomforing_id = ?::uuid and not (nav_ident = any (?))
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val upsertKontaktperson = """
-            insert into gjennomforing_kontaktperson (
-                gjennomforing_id,
-                kontaktperson_nav_ident,
-                beskrivelse
-            )
-            values (:id::uuid, :nav_ident, :beskrivelse)
-            on conflict (gjennomforing_id, kontaktperson_nav_ident) do update set
-                beskrivelse = :beskrivelse
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val deleteKontaktpersoner = """
-            delete from gjennomforing_kontaktperson
-            where gjennomforing_id = ?::uuid and not (kontaktperson_nav_ident = any (?))
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val upsertArrangorKontaktperson = """
-            insert into gjennomforing_arrangor_kontaktperson (
-                arrangor_kontaktperson_id,
-                gjennomforing_id
-            )
-            values (:arrangor_kontaktperson_id::uuid, :gjennomforing_id::uuid)
-            on conflict do nothing
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val deleteArrangorKontaktpersoner = """
-            delete from gjennomforing_arrangor_kontaktperson
-            where gjennomforing_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val deleteUtdanningslop = """
-            delete from gjennomforing_utdanningsprogram
-            where gjennomforing_id = ?::uuid
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val insertUtdanningslop = """
-            insert into gjennomforing_utdanningsprogram(
-                gjennomforing_id,
-                utdanning_id,
-                utdanningsprogram_id
-            )
-            values(:gjennomforing_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
-        """.trimIndent()
-
         val params = mapOf(
             "gjennomforing_id" to gjennomforing.id,
             "avtale_id" to gjennomforing.avtaleId,
@@ -200,55 +138,10 @@ class GjennomforingQueries(private val session: Session) {
         )
         execute(queryOf(query, params))
 
-        batchPreparedNamedStatement(
-            upsertAdministrator,
-            gjennomforing.administratorer.map { administrator ->
-                mapOf("id" to gjennomforing.id, "nav_ident" to administrator.value)
-            },
-        )
-
-        execute(
-            queryOf(
-                deleteAdministratorer,
-                gjennomforing.id,
-                gjennomforing.administratorer.map { it.value }.let { createTextArray(it) },
-            ),
-        )
-
         setNavEnheter(gjennomforing.id, gjennomforing.navEnheter)
-
-        val kontaktpersoner = gjennomforing.kontaktpersoner.map { kontakt ->
-            mapOf(
-                "id" to gjennomforing.id,
-                "nav_ident" to kontakt.navIdent.value,
-                "beskrivelse" to kontakt.beskrivelse,
-            )
-        }
-        batchPreparedNamedStatement(upsertKontaktperson, kontaktpersoner)
-
-        execute(
-            queryOf(
-                deleteKontaktpersoner,
-                gjennomforing.id,
-                createArrayOfValue(gjennomforing.kontaktpersoner) { it.navIdent.value },
-            ),
-        )
-
-        val arrangorKontaktpersoner = gjennomforing.arrangorKontaktpersoner.map { person ->
-            mapOf(
-                "gjennomforing_id" to gjennomforing.id,
-                "arrangor_kontaktperson_id" to person,
-            )
-        }
-        batchPreparedNamedStatement(upsertArrangorKontaktperson, arrangorKontaktpersoner)
-
-        execute(
-            queryOf(
-                deleteArrangorKontaktpersoner,
-                gjennomforing.id,
-                createUuidArray(gjennomforing.arrangorKontaktpersoner),
-            ),
-        )
+        setAdministratorer(gjennomforing.id, gjennomforing.administratorer)
+        setKontaktpersoner(gjennomforing.id, gjennomforing.kontaktpersoner)
+        setArrangorKontaktpersoner(gjennomforing.id, gjennomforing.arrangorKontaktpersoner)
 
         AmoKategoriseringQueries.upsert(
             AmoKategoriseringQueries.Relation.GJENNOMFORING,
@@ -256,18 +149,7 @@ class GjennomforingQueries(private val session: Session) {
             gjennomforing.amoKategorisering,
         )
 
-        execute(queryOf(deleteUtdanningslop, gjennomforing.id))
-
-        gjennomforing.utdanningslop?.also { utdanningslop ->
-            val utdanninger = utdanningslop.utdanninger.map {
-                mapOf(
-                    "gjennomforing_id" to gjennomforing.id,
-                    "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
-                    "utdanning_id" to it,
-                )
-            }
-            batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
-        }
+        setUtdanningslop(gjennomforing.id, gjennomforing.utdanningslop)
     }
 
     fun setNavEnheter(id: UUID, navEnheter: Set<NavEnhetNummer>) = with(session) {
@@ -285,6 +167,110 @@ class GjennomforingQueries(private val session: Session) {
              where gjennomforing_id = ?::uuid and not (enhetsnummer = any (?))
         """.trimIndent()
         execute(queryOf(deleteEnheter, id, createArrayOfValue(navEnheter) { it.value }))
+    }
+
+    fun setAdministratorer(id: UUID, administratorer: List<NavIdent>) = with(session) {
+        @Language("PostgreSQL")
+        val upsertAdministrator = """
+             insert into gjennomforing_administrator (gjennomforing_id, nav_ident)
+             values (:id::uuid, :nav_ident)
+             on conflict (gjennomforing_id, nav_ident) do nothing
+        """.trimIndent()
+        batchPreparedNamedStatement(
+            upsertAdministrator,
+            administratorer.map { mapOf("id" to id, "nav_ident" to it.value) },
+        )
+
+        @Language("PostgreSQL")
+        val deleteAdministratorer = """
+             delete from gjennomforing_administrator
+             where gjennomforing_id = ?::uuid and not (nav_ident = any (?))
+        """.trimIndent()
+        execute(queryOf(deleteAdministratorer, id, createArrayOfValue(administratorer) { it.value }))
+    }
+
+    fun setKontaktpersoner(id: UUID, kontaktpersoner: List<GjennomforingKontaktpersonDbo>) = with(session) {
+        @Language("PostgreSQL")
+        val upsertKontaktperson = """
+            insert into gjennomforing_kontaktperson (
+                gjennomforing_id,
+                kontaktperson_nav_ident,
+                beskrivelse
+            )
+            values (:id::uuid, :nav_ident, :beskrivelse)
+            on conflict (gjennomforing_id, kontaktperson_nav_ident) do update set
+                beskrivelse = :beskrivelse
+        """.trimIndent()
+        val params = kontaktpersoner.map { kontakt ->
+            mapOf(
+                "id" to id,
+                "nav_ident" to kontakt.navIdent.value,
+                "beskrivelse" to kontakt.beskrivelse,
+            )
+        }
+        batchPreparedNamedStatement(upsertKontaktperson, params)
+
+        @Language("PostgreSQL")
+        val deleteKontaktpersoner = """
+            delete from gjennomforing_kontaktperson
+            where gjennomforing_id = ?::uuid and not (kontaktperson_nav_ident = any (?))
+        """.trimIndent()
+        execute(queryOf(deleteKontaktpersoner, id, createArrayOfValue(kontaktpersoner) { it.navIdent.value }))
+    }
+
+    fun setArrangorKontaktpersoner(id: UUID, arrangorKontaktpersoner: List<UUID>) = with(session) {
+        @Language("PostgreSQL")
+        val upsertArrangorKontaktperson = """
+            insert into gjennomforing_arrangor_kontaktperson (
+                arrangor_kontaktperson_id,
+                gjennomforing_id
+            )
+            values (:arrangor_kontaktperson_id::uuid, :gjennomforing_id::uuid)
+            on conflict do nothing
+        """.trimIndent()
+        val params = arrangorKontaktpersoner.map { person ->
+            mapOf(
+                "gjennomforing_id" to id,
+                "arrangor_kontaktperson_id" to person,
+            )
+        }
+        batchPreparedNamedStatement(upsertArrangorKontaktperson, params)
+
+        @Language("PostgreSQL")
+        val deleteArrangorKontaktpersoner = """
+            delete from gjennomforing_arrangor_kontaktperson
+            where gjennomforing_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
+        """.trimIndent()
+        execute(queryOf(deleteArrangorKontaktpersoner, id, createUuidArray(arrangorKontaktpersoner)))
+    }
+
+    fun setUtdanningslop(id: UUID, utdanningslop: UtdanningslopDbo?) = with(session) {
+        @Language("PostgreSQL")
+        val deleteUtdanningslop = """
+            delete from gjennomforing_utdanningsprogram
+            where gjennomforing_id = ?::uuid
+        """.trimIndent()
+        execute(queryOf(deleteUtdanningslop, id))
+
+        @Language("PostgreSQL")
+        val insertUtdanningslop = """
+            insert into gjennomforing_utdanningsprogram(
+                gjennomforing_id,
+                utdanning_id,
+                utdanningsprogram_id
+            )
+            values(:gjennomforing_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
+        """.trimIndent()
+        if (utdanningslop != null) {
+            val utdanninger = utdanningslop.utdanninger.map {
+                mapOf(
+                    "gjennomforing_id" to id,
+                    "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
+                    "utdanning_id" to it,
+                )
+            }
+            batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
+        }
     }
 
     private fun upsert(gjennomforing: GjennomforingBaseDbo) {
