@@ -61,7 +61,6 @@ class VeilederflateTiltakQueries(private val session: Session) {
             select *
             from view_veilederflate_tiltak
             where publisert
-              and gjennomforing_type = 'AVTALE'
               and (
                 (:innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper))
                 or (

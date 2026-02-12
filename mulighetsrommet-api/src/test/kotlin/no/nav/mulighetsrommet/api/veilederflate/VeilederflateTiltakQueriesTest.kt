@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.veilederflate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -315,14 +316,17 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
     }
 
-    context("visning av Arena-tiltak") {
+    context("enkeltplasser og Arena-tiltak") {
+        val arenatiltak = GjennomforingFixtures.ArenaArbeidsrettetRehabilitering
+        val enkeltplass = GjennomforingFixtures.EnkelAmo
+
         val domain = MulighetsrommetTestDomain(
             navEnheter = listOf(Innlandet, Gjovik),
-            tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering),
-            avtaler = listOf(),
-            gjennomforinger = listOf(GjennomforingFixtures.ArenaArbeidsrettetRehabilitering),
+            tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering, TiltakstypeFixtures.EnkelAmo),
+            gjennomforinger = listOf(arenatiltak, enkeltplass),
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))
+            session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.EnkelAmo.id}'"))
             session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE}'::innsatsgruppe]"))
         }
 
@@ -330,15 +334,10 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                queries.gjennomforing.setNavEnheter(
-                    GjennomforingFixtures.ArenaArbeidsrettetRehabilitering.id,
-                    setOf(NavEnhetNummer("0502")),
-                )
-
-                queries.gjennomforing.setPublisert(
-                    GjennomforingFixtures.ArenaArbeidsrettetRehabilitering.id,
-                    true,
-                )
+                listOf(arenatiltak.id, enkeltplass.id).forEach { id ->
+                    queries.gjennomforing.setNavEnheter(id, setOf(NavEnhetNummer("0502")))
+                    queries.gjennomforing.setPublisert(id, true)
+                }
 
                 queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
@@ -347,15 +346,13 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             }
         }
 
-        test("hentes fra get-spørring") {
+        test("hentes ikke fra get-spørring") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val tiltak = queries.veilderTiltak
-                    .get(GjennomforingFixtures.ArenaArbeidsrettetRehabilitering.id)
-                    .shouldNotBeNull()
+                queries.veilderTiltak.get(arenatiltak.id).shouldBeNull()
 
-                tiltak.navn shouldBe "Arena ARR"
+                queries.veilderTiltak.get(enkeltplass.id).shouldBeNull()
             }
         }
     }
