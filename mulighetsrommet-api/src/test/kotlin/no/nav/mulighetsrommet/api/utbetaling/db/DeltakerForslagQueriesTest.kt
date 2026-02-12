@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.maps.shouldNotContainKey
-import no.nav.amt.model.Melding
+import no.nav.amt.model.AmtArrangorMelding
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -37,7 +37,7 @@ class DeltakerForslagQueriesTest : FunSpec({
             val forslag = DeltakerForslag(
                 id = UUID.randomUUID(),
                 deltakerId = deltaker.id,
-                endring = Melding.Forslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
+                endring = AmtArrangorMelding.Forslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
                 status = DeltakerForslag.Status.GODKJENT,
             )
 

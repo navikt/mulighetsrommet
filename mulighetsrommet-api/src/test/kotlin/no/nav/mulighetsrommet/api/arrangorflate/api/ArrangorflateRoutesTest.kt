@@ -18,8 +18,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.headersOf
 import kotliquery.Query
+import no.nav.amt.model.AmtArrangorMelding
 import no.nav.amt.model.EndringAarsak
-import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -237,7 +237,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 DeltakerForslag(
                     id = UUID.randomUUID(),
                     deltakerId = deltaker.id,
-                    endring = Melding.Forslag.Endring.AvsluttDeltakelse(
+                    endring = AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse(
                         aarsak = EndringAarsak.Syk,
                         harDeltatt = false,
                     ),

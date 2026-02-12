@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.kafka
 
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
-import no.nav.amt.model.Melding
+import no.nav.amt.model.AmtArrangorMelding
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
@@ -23,18 +23,18 @@ class AmtArrangorMeldingV1KafkaConsumer(
     override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
         logger.info("Konsumerer arrangor-melding med id=$key")
 
-        when (val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<Melding?>(message)) {
-            is Melding.Forslag -> {
+        when (val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtArrangorMelding?>(message)) {
+            is AmtArrangorMelding.Forslag -> {
                 when (melding.status) {
-                    is Melding.Forslag.Status.Avvist,
-                    is Melding.Forslag.Status.Erstattet,
-                    is Melding.Forslag.Status.Godkjent,
-                    is Melding.Forslag.Status.Tilbakekalt,
+                    is AmtArrangorMelding.Forslag.Status.Avvist,
+                    is AmtArrangorMelding.Forslag.Status.Erstattet,
+                    is AmtArrangorMelding.Forslag.Status.Godkjent,
+                    is AmtArrangorMelding.Forslag.Status.Tilbakekalt,
                     -> {
                         queries.deltakerForslag.delete(melding.id)
                     }
 
-                    Melding.Forslag.Status.VenterPaSvar -> {
+                    AmtArrangorMelding.Forslag.Status.VenterPaSvar -> {
                         if (queries.deltaker.get(melding.deltakerId) != null) {
                             queries.deltakerForslag.upsert(melding.toForslagDbo())
                         }
@@ -47,7 +47,7 @@ class AmtArrangorMeldingV1KafkaConsumer(
     }
 }
 
-fun Melding.Forslag.toForslagDbo(): DeltakerForslag {
+fun AmtArrangorMelding.Forslag.toForslagDbo(): DeltakerForslag {
     return DeltakerForslag(
         id = id,
         deltakerId = deltakerId,
@@ -56,10 +56,10 @@ fun Melding.Forslag.toForslagDbo(): DeltakerForslag {
     )
 }
 
-fun Melding.Forslag.Status.toStatus(): DeltakerForslag.Status = when (this) {
-    is Melding.Forslag.Status.Avvist -> DeltakerForslag.Status.AVVIST
-    is Melding.Forslag.Status.Erstattet -> DeltakerForslag.Status.ERSTATTET
-    is Melding.Forslag.Status.Godkjent -> DeltakerForslag.Status.GODKJENT
-    is Melding.Forslag.Status.Tilbakekalt -> DeltakerForslag.Status.TILBAKEKALT
-    Melding.Forslag.Status.VenterPaSvar -> DeltakerForslag.Status.VENTER_PA_SVAR
+fun AmtArrangorMelding.Forslag.Status.toStatus(): DeltakerForslag.Status = when (this) {
+    is AmtArrangorMelding.Forslag.Status.Avvist -> DeltakerForslag.Status.AVVIST
+    is AmtArrangorMelding.Forslag.Status.Erstattet -> DeltakerForslag.Status.ERSTATTET
+    is AmtArrangorMelding.Forslag.Status.Godkjent -> DeltakerForslag.Status.GODKJENT
+    is AmtArrangorMelding.Forslag.Status.Tilbakekalt -> DeltakerForslag.Status.TILBAKEKALT
+    AmtArrangorMelding.Forslag.Status.VenterPaSvar -> DeltakerForslag.Status.VENTER_PA_SVAR
 }
