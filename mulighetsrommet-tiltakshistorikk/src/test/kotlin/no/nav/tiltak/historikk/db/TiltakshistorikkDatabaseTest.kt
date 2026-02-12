@@ -156,8 +156,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             deltidsprosent = 100f,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(
-                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(hovedenhet.organisasjonsnummer, hovedenhet.navn),
-                            underenhet = TiltakshistorikkV1Dto.Virksomhet(underenhet.organisasjonsnummer, underenhet.navn),
+                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(
+                                hovedenhet.organisasjonsnummer,
+                                hovedenhet.navn,
+                            ),
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(
+                                underenhet.organisasjonsnummer,
+                                underenhet.navn,
+                            ),
                         ),
                         deltidsprosent = 100f,
                         dagerPerUke = 5f,
@@ -180,8 +186,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             deltidsprosent = 80f,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(
-                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(hovedenhet.organisasjonsnummer, hovedenhet.navn),
-                            underenhet = TiltakshistorikkV1Dto.Virksomhet(underenhet.organisasjonsnummer, underenhet.navn),
+                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(
+                                hovedenhet.organisasjonsnummer,
+                                hovedenhet.navn,
+                            ),
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(
+                                underenhet.organisasjonsnummer,
+                                underenhet.navn,
+                            ),
                         ),
                         deltidsprosent = 50f,
                         dagerPerUke = 2.5f,
@@ -212,8 +224,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             deltidsprosent = 80f,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(
-                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(hovedenhet.organisasjonsnummer, hovedenhet.navn),
-                            underenhet = TiltakshistorikkV1Dto.Virksomhet(underenhet.organisasjonsnummer, underenhet.navn),
+                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(
+                                hovedenhet.organisasjonsnummer,
+                                hovedenhet.navn,
+                            ),
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(
+                                underenhet.organisasjonsnummer,
+                                underenhet.navn,
+                            ),
                         ),
                         deltidsprosent = 50f,
                         dagerPerUke = 2.5f,
@@ -342,7 +360,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         startDato = null,
                         sluttDato = null,
                         tittel = "Arbeidsmarkedsopplæring (gruppe) hos Arrangør Foretak",
-                        status = DeltakerStatus(
+                        status = TiltakshistorikkV1Dto.TeamKometDeltakelse.Status(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,
                             opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
@@ -357,8 +375,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             deltidsprosent = 80f,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(
-                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(hovedenhet.organisasjonsnummer, hovedenhet.navn),
-                            underenhet = TiltakshistorikkV1Dto.Virksomhet(underenhet.organisasjonsnummer, underenhet.navn),
+                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(
+                                hovedenhet.organisasjonsnummer,
+                                hovedenhet.navn,
+                            ),
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(
+                                underenhet.organisasjonsnummer,
+                                underenhet.navn,
+                            ),
                         ),
                         deltidsprosent = 50f,
                         dagerPerUke = 2.5f,
