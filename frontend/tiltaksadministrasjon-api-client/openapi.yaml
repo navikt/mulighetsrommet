@@ -6304,6 +6304,21 @@ components:
       - ATTESTER
       - RETURNER
       - SEND_TIL_ATTESTERING
+    ValutaBelopRequest:
+      type: object
+      properties:
+        belop:
+          type:
+          - "null"
+          - integer
+          format: int32
+        valuta:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Valuta"
+      required:
+      - belop
+      - valuta
     OpprettUtbetalingRequest:
       type: object
       properties:
@@ -6321,13 +6336,17 @@ components:
           - string
           format: date
         beskrivelse:
-          type: string
+          type:
+          - "null"
+          - string
         kidNummer:
           type:
           - "null"
           - string
         pris:
-          $ref: "#/components/schemas/ValutaBelop"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelopRequest"
       required:
       - beskrivelse
       - gjennomforingId

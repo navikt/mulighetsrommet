@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -34,7 +35,6 @@ import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.util.UUID
@@ -105,13 +105,13 @@ class UtbetalingRoutesTest : FunSpec({
                             periodeSlutt = LocalDate.now().plusDays(1),
                             beskrivelse = "Kort besk..",
                             kidNummer = null,
-                            pris = 0.withValuta(Valuta.NOK),
+                            pris = ValutaBelopRequest(0, Valuta.NOK),
                         ),
                     )
                 }
                 response.status shouldBe HttpStatusCode.BadRequest
                 response.body<ValidationError>().errors shouldBe listOf(
-                    FieldError("/pris", "Beløp må være positivt"),
+                    FieldError("/pris/belop", "Beløp må være positivt"),
                 )
             }
         }
@@ -131,7 +131,7 @@ class UtbetalingRoutesTest : FunSpec({
                             periodeSlutt = LocalDate.now().plusDays(1),
                             beskrivelse = "Bla bla bla bla bla",
                             kidNummer = null,
-                            pris = 150.withValuta(Valuta.NOK),
+                            pris = ValutaBelopRequest(150, Valuta.NOK),
                         ),
                     )
                 }
@@ -155,7 +155,7 @@ class UtbetalingRoutesTest : FunSpec({
                             periodeSlutt = LocalDate.now().plusDays(1),
                             beskrivelse = "Bla bla bla bla bla",
                             kidNummer = null,
-                            pris = 150.withValuta(Valuta.NOK),
+                            pris = ValutaBelopRequest(150, Valuta.NOK),
                         ),
                     )
                 }

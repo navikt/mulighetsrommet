@@ -38,6 +38,7 @@ import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhe
 import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
@@ -567,12 +568,12 @@ data class OpprettUtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
     @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate?,
+    val periodeStart: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate?,
-    val beskrivelse: String,
+    val periodeSlutt: LocalDate? = null,
+    val beskrivelse: String? = null,
     val kidNummer: String? = null,
-    val pris: ValutaBelop,
+    val pris: ValutaBelopRequest? = null,
 )
 
 data class BeregningFilter(

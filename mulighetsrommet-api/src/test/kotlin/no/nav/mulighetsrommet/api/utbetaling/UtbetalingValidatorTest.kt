@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Valuta
@@ -25,7 +26,7 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla bla bla beskrivelse",
                 kidNummer = null,
-                pris = 150.withValuta(Valuta.NOK),
+                pris = ValutaBelopRequest(150, Valuta.NOK),
             )
 
             val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
@@ -39,13 +40,13 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeSlutt = null,
                 beskrivelse = "Bla bla bla beskrivelse",
                 kidNummer = "asdf",
-                pris = (-5).withValuta(Valuta.NOK),
+                pris = ValutaBelopRequest(-5, Valuta.NOK),
             )
 
             val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
             result.shouldBeLeft().shouldContainAll(
                 FieldError.of("Periodeslutt må være satt", OpprettUtbetalingRequest::periodeSlutt),
-                FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris),
+                FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris, ValutaBelopRequest::belop),
                 FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer),
             )
         }
@@ -57,7 +58,7 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla bla bla beskrivelse",
                 kidNummer = null,
-                pris = 150.withValuta(Valuta.NOK),
+                pris = ValutaBelopRequest(150, Valuta.NOK),
             )
 
             val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
@@ -78,13 +79,13 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla bla bla beskrivelse",
                 kidNummer = null,
-                pris = 0.withValuta(Valuta.NOK),
+                pris = ValutaBelopRequest(0, Valuta.NOK),
             )
 
             val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
             result.shouldBeLeft().shouldContainAll(
                 listOf(
-                    FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris),
+                    FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris, ValutaBelopRequest::belop),
                 ),
             )
         }
@@ -96,13 +97,13 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeSlutt = LocalDate.now().plusDays(1),
                 beskrivelse = "Bla",
                 kidNummer = null,
-                pris = 150.withValuta(Valuta.NOK),
+                pris = ValutaBelopRequest(150, Valuta.NOK),
             )
 
             val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
             result.shouldBeLeft().shouldContainAll(
                 listOf(
-                    FieldError.of("Du må fylle ut beskrivelse", OpprettUtbetalingRequest::beskrivelse),
+                    FieldError.of("Beskrivelse må være minst 10 tegn", OpprettUtbetalingRequest::beskrivelse),
                 ),
             )
         }
