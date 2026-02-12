@@ -24,7 +24,6 @@ class DeltakerQueries(private val session: Session) {
                                   slutt_dato,
                                   registrert_dato,
                                   endret_tidspunkt,
-                                  deltakelsesprosent,
                                   status_type,
                                   status_aarsak,
                                   status_opprettet_tidspunkt)
@@ -34,7 +33,6 @@ class DeltakerQueries(private val session: Session) {
                     :slutt_dato,
                     :registrert_dato,
                     :endret_tidspunkt,
-                    :deltakelsesprosent,
                     :status_type::deltaker_status_type,
                     :status_aarsak::deltaker_status_aarsak,
                     :status_opprettet_tidspunkt)
@@ -44,7 +42,6 @@ class DeltakerQueries(private val session: Session) {
                               slutt_dato                 = excluded.slutt_dato,
                               registrert_dato            = excluded.registrert_dato,
                               endret_tidspunkt           = excluded.endret_tidspunkt,
-                              deltakelsesprosent         = excluded.deltakelsesprosent,
                               status_type                = excluded.status_type,
                               status_aarsak              = excluded.status_aarsak,
                               status_opprettet_tidspunkt = excluded.status_opprettet_tidspunkt
@@ -56,7 +53,6 @@ class DeltakerQueries(private val session: Session) {
             "slutt_dato" to deltaker.sluttDato,
             "registrert_dato" to deltaker.registrertDato,
             "endret_tidspunkt" to deltaker.endretTidspunkt,
-            "deltakelsesprosent" to deltaker.deltakelsesprosent,
             "status_type" to deltaker.status.type.name,
             "status_aarsak" to deltaker.status.aarsak?.name,
             "status_opprettet_tidspunkt" to deltaker.status.opprettetDato,

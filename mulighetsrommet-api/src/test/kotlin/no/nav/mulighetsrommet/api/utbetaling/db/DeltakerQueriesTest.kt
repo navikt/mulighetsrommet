@@ -36,7 +36,6 @@ class DeltakerQueriesTest : FunSpec({
         sluttDato = null,
         registrertDato = opprettetTidspunkt.toLocalDate(),
         endretTidspunkt = opprettetTidspunkt,
-        deltakelsesprosent = 100.0,
         status = DeltakerStatus(
             DeltakerStatusType.VENTER_PA_OPPSTART,
             aarsak = null,

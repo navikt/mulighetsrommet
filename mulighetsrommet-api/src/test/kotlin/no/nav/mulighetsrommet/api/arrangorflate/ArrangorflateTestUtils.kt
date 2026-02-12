@@ -64,7 +64,6 @@ object ArrangorflateTestUtils {
         sluttDato = GjennomforingFixtures.AFT1.sluttDato,
         registrertDato = GjennomforingFixtures.AFT1.startDato,
         endretTidspunkt = LocalDateTime.now(),
-        deltakelsesprosent = 100.0,
         deltakelsesmengder = listOf(),
         status = DeltakerStatus(
             type = DeltakerStatusType.DELTAR,

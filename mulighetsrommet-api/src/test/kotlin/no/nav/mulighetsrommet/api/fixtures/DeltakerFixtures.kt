@@ -30,7 +30,6 @@ object DeltakerFixtures {
         gjennomforingId = gjennomforingId,
         registrertDato = LocalDate.now(),
         endretTidspunkt = LocalDateTime.now(),
-        deltakelsesprosent = deltakelsesprosent,
         deltakelsesmengder = deltakelsesmengder,
         status = DeltakerStatus(
             type = statusType,
@@ -52,7 +51,6 @@ object DeltakerFixtures {
         gjennomforingId = gjennomforingId,
         registrertDato = LocalDate.now(),
         endretTidspunkt = LocalDateTime.now(),
-        deltakelsesprosent = null,
         deltakelsesmengder = emptyList(),
         status = DeltakerStatus(
             type = statusType,
