@@ -138,6 +138,12 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
+              "name": "amt.deltaker-ekstern-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
               "name": "amt.arrangor-melding-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
