@@ -149,7 +149,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
 
             val deltakerConsumer = createConsumer()
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
-                status = DeltakerStatus(
+                status = AmtDeltakerV1Dto.DeltakerStatusDto(
                     type = DeltakerStatusType.FEILREGISTRERT,
                     aarsak = null,
                     opprettetDato = LocalDateTime.now(),
@@ -286,7 +286,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
 
             val feilregistrert = amtDeltaker1.copy(
-                status = DeltakerStatus(
+                status = AmtDeltakerV1Dto.DeltakerStatusDto(
                     type = DeltakerStatusType.FEILREGISTRERT,
                     aarsak = null,
                     opprettetDato = LocalDateTime.now(),
@@ -303,7 +303,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
 
             val ikkeAktuell = amtDeltaker1.copy(
-                status = DeltakerStatus(
+                status = AmtDeltakerV1Dto.DeltakerStatusDto(
                     type = DeltakerStatusType.IKKE_AKTUELL,
                     aarsak = null,
                     opprettetDato = LocalDateTime.now(),
@@ -344,7 +344,7 @@ private fun createAmtDeltakerV1Dto(
     personIdent = personIdent,
     startDato = null,
     sluttDato = null,
-    status = DeltakerStatus(
+    status = AmtDeltakerV1Dto.DeltakerStatusDto(
         type = status,
         aarsak = null,
         opprettetDato = opprettetDato,

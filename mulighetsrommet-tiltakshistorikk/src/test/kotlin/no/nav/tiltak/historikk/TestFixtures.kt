@@ -1,7 +1,6 @@
 package no.nav.tiltak.historikk
 
 import no.nav.amt.model.AmtDeltakerV1Dto
-import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -163,7 +162,7 @@ object TestFixtures {
             personIdent = "10101010100",
             startDato = null,
             sluttDato = null,
-            status = DeltakerStatus(
+            status = AmtDeltakerV1Dto.DeltakerStatusDto(
                 type = DeltakerStatusType.VENTER_PA_OPPSTART,
                 aarsak = null,
                 opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),

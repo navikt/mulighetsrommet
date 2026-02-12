@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
+import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
@@ -72,7 +73,7 @@ class ReplikerDeltakerKafkaConsumer(
             sluttDato = amtDeltaker.sluttDato,
             registrertDato = amtDeltaker.registrertDato.toLocalDate(),
             endretTidspunkt = amtDeltaker.endretDato,
-            status = amtDeltaker.status,
+            status = amtDeltaker.status.toDeltakerStatus(),
             deltakelsesmengder = amtDeltaker.deltakelsesmengder.orEmpty().map {
                 Deltakelsesmengde(it.gyldigFra, it.deltakelsesprosent.toDouble())
             },
@@ -89,7 +90,7 @@ fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {
         registrertDato = registrertDato.toLocalDate(),
         endretTidspunkt = endretDato,
         deltakelsesprosent = prosentStilling?.toDouble(),
-        status = status,
+        status = status.toDeltakerStatus(),
         deltakelsesmengder = deltakelsesmengder.orEmpty().map {
             DeltakerDbo.Deltakelsesmengde(
                 gyldigFra = it.gyldigFra,
@@ -99,3 +100,9 @@ fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {
         },
     )
 }
+
+private fun AmtDeltakerV1Dto.DeltakerStatusDto.toDeltakerStatus(): DeltakerStatus = DeltakerStatus(
+    type = type,
+    aarsak = aarsak,
+    opprettetDato = opprettetDato,
+)

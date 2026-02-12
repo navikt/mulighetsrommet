@@ -8,7 +8,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -399,7 +398,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     personIdent = "10101010100",
                     startDato = null,
                     sluttDato = null,
-                    status = DeltakerStatus(
+                    status = AmtDeltakerV1Dto.DeltakerStatusDto(
                         type = DeltakerStatusType.VENTER_PA_OPPSTART,
                         aarsak = null,
                         opprettetDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
@@ -416,7 +415,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     personIdent = "10101010100",
                     startDato = null,
                     sluttDato = LocalDate.of(2024, 1, 1),
-                    status = DeltakerStatus(
+                    status = AmtDeltakerV1Dto.DeltakerStatusDto(
                         type = DeltakerStatusType.VENTER_PA_OPPSTART,
                         aarsak = null,
                         opprettetDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
@@ -459,7 +458,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     personIdent = "99999999999",
                     startDato = null,
                     sluttDato = null,
-                    status = DeltakerStatus(
+                    status = AmtDeltakerV1Dto.DeltakerStatusDto(
                         type = DeltakerStatusType.VENTER_PA_OPPSTART,
                         aarsak = null,
                         opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
