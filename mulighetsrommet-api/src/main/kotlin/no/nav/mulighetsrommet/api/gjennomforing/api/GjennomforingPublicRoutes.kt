@@ -43,7 +43,11 @@ private fun Route.getGjennomforingV2Route() {
             queries.gjennomforing.getGjennomforingEnkeltplass(id)?.let(TiltaksgjennomforingV2Mapper::fromGjennomforing)
         }
 
-        listOf(gruppe, enkeltplass).awaitAll().firstOrNull { it != null }
+        val arena = async {
+            queries.gjennomforing.getGjennomforingArena(id)?.let(TiltaksgjennomforingV2Mapper::fromGjennomforing)
+        }
+
+        listOf(gruppe, enkeltplass, arena).awaitAll().firstOrNull { it != null }
     }
 
     get("{id}", {

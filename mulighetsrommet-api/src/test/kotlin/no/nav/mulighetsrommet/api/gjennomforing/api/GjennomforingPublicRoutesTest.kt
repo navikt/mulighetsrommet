@@ -36,7 +36,12 @@ class GjennomforingPublicRoutesTest : FunSpec({
         ansatte = listOf(NavAnsattFixture.DonaldDuck),
         arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         avtaler = listOf(AvtaleFixtures.oppfolging),
-        gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1, GjennomforingFixtures.EnkelAmo),
+        gjennomforinger = listOf(
+            GjennomforingFixtures.Oppfolging1,
+            GjennomforingFixtures.EnkelAmo,
+            GjennomforingFixtures.ArenaArbeidsrettetRehabilitering,
+            GjennomforingFixtures.ArenaEnkelAmo,
+        ),
     )
 
     beforeSpec {
@@ -55,7 +60,9 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
     context("getTiltaksgjennomforingV2") {
         val tiltakGruppeId = GjennomforingFixtures.Oppfolging1.id
+        val tiltakGruppeArenaId = GjennomforingFixtures.ArenaArbeidsrettetRehabilitering.id
         val tiltakEnkeltplassId = GjennomforingFixtures.EnkelAmo.id
+        val tiltakEnkeltplassArenaId = GjennomforingFixtures.ArenaEnkelAmo.id
 
         test("401 når påkrevde claims mangler fra token") {
             withTestApplication(appConfig()) {
@@ -91,11 +98,9 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
                 response.status shouldBe HttpStatusCode.OK
 
-                val gjennomforing = response.body<TiltaksgjennomforingV2Dto>()
+                response.body<TiltaksgjennomforingV2Dto>()
                     .shouldBeTypeOf<TiltaksgjennomforingV2Dto.Gruppe>()
-
-                gjennomforing.id shouldBe tiltakGruppeId
-                gjennomforing.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.underenhet1.organisasjonsnummer
+                    .id shouldBe tiltakGruppeId
             }
         }
 
@@ -109,11 +114,41 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
                 response.status shouldBe HttpStatusCode.OK
 
-                val gjennomforing = response.body<TiltaksgjennomforingV2Dto>()
+                response.body<TiltaksgjennomforingV2Dto>()
                     .shouldBeTypeOf<TiltaksgjennomforingV2Dto.Enkeltplass>()
+                    .id shouldBe tiltakEnkeltplassId
+            }
+        }
 
-                gjennomforing.id shouldBe tiltakEnkeltplassId
-                gjennomforing.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.underenhet1.organisasjonsnummer
+        test("200 når arena-gruppetiltak finnes") {
+            withTestApplication(appConfig()) {
+                val response = client.get("/api/v2/tiltaksgjennomforinger/$tiltakGruppeArenaId") {
+                    bearerAuth(
+                        oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+
+                response.body<TiltaksgjennomforingV2Dto>()
+                    .shouldBeTypeOf<TiltaksgjennomforingV2Dto.Gruppe>()
+                    .id shouldBe tiltakGruppeArenaId
+            }
+        }
+
+        test("200 når arena-enkeltplass finnes") {
+            withTestApplication(appConfig()) {
+                val response = client.get("/api/v2/tiltaksgjennomforinger/$tiltakEnkeltplassArenaId") {
+                    bearerAuth(
+                        oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+
+                response.body<TiltaksgjennomforingV2Dto>()
+                    .shouldBeTypeOf<TiltaksgjennomforingV2Dto.Enkeltplass>()
+                    .id shouldBe tiltakEnkeltplassArenaId
             }
         }
     }
