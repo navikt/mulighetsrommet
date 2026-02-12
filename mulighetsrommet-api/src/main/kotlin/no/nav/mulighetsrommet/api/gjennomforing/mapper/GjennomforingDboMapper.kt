@@ -1,18 +1,21 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingAvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import java.time.LocalDate
 import java.util.UUID
 
 object GjennomforingDboMapper {
     fun fromGjennomforingRequest(
         request: GjennomforingRequest,
+        navEnheter: Set<NavEnhetNummer>,
         startDato: LocalDate,
         antallPlasser: Int,
         prismodellId: UUID,
@@ -33,8 +36,7 @@ object GjennomforingDboMapper {
         antallPlasser = antallPlasser,
         avtaleId = request.avtaleId,
         administratorer = request.administratorer,
-        navEnheter =
-        (request.veilederinformasjon.navRegioner + request.veilederinformasjon.navKontorer + request.veilederinformasjon.navAndreEnheter).toSet(),
+        navEnheter = navEnheter,
         oppstart = oppstartstype,
         kontaktpersoner = request.kontaktpersoner.map {
             GjennomforingKontaktpersonDbo(

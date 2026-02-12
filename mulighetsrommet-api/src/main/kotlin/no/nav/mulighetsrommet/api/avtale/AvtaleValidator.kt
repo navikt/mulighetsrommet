@@ -94,7 +94,6 @@ object AvtaleValidator {
             validateDetaljer(request.detaljer, ctx).bind()
         }
 
-        validateNavEnheter(ctx.navEnheter).bind()
         val detaljerDbo = request.detaljer.toDbo(
             ctx.tiltakstype.id,
             ctx.arrangor?.toDbo(request.detaljer.arrangor?.kontaktpersoner),

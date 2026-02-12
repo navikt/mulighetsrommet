@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
@@ -163,7 +164,7 @@ object GjennomforingValidator {
         }
 
         validateUtdanningslop(ctx.avtale.tiltakstype.tiltakskode, next.utdanningslop, ctx.avtale)
-        validateNavEnheter(next.veilederinformasjon, ctx.avtale)
+        val navEnheter = validateNavEnheter(next.veilederinformasjon, ctx.avtale)
         validateSlettetNavAnsatte(ctx.kontaktpersoner, GjennomforingRequest::kontaktpersoner)
         validateSlettetNavAnsatte(ctx.administratorer, GjennomforingRequest::administratorer)
         validateNotNull(ctx.arrangor) {
@@ -186,6 +187,7 @@ object GjennomforingValidator {
         requireValid(next.antallPlasser != null && next.startDato != null && request.oppstart != null && request.pameldingType != null && request.prismodellId != null)
         GjennomforingDboMapper.fromGjennomforingRequest(
             request = next,
+            navEnheter = navEnheter,
             startDato = next.startDato,
             antallPlasser = next.antallPlasser,
             arrangorId = ctx.arrangor.id,
@@ -287,9 +289,10 @@ object GjennomforingValidator {
     private fun FieldValidator.validateNavEnheter(
         veilederinfoRequest: GjennomforingVeilederinfoRequest,
         avtale: Avtale,
-    ) {
+    ): Set<NavEnhetNummer> {
         val avtaleRegioner = avtale.kontorstruktur.map { it.region.enhetsnummer }
-        validate(avtaleRegioner.intersect(veilederinfoRequest.navRegioner.toSet()).isNotEmpty()) {
+        val navRegioner = avtaleRegioner.intersect(veilederinfoRequest.navRegioner.toSet())
+        validate(navRegioner.isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-region fra avtalen",
                 GjennomforingRequest::veilederinformasjon,
@@ -298,34 +301,17 @@ object GjennomforingValidator {
         }
 
         val avtaleNavKontorer = avtale.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } }
-        val navKontorer = veilederinfoRequest.navKontorer.toSet()
-        val navAndreEnheter = veilederinfoRequest.navAndreEnheter.toSet()
-        validate(avtaleNavKontorer.intersect(navKontorer + navAndreEnheter).isNotEmpty()) {
+        val navKontorer = avtaleNavKontorer.intersect(veilederinfoRequest.navKontorer.toSet())
+        val navAndreEnheter = avtaleNavKontorer.intersect(veilederinfoRequest.navAndreEnheter.toSet())
+        validate((navKontorer + navAndreEnheter).isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-enhet fra avtalen",
                 GjennomforingRequest::veilederinformasjon,
                 GjennomforingVeilederinfoRequest::navKontorer,
             )
         }
-        navKontorer.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
-            error {
-                FieldError.of(
-                    "Nav-enhet $enhetsnummer mangler i avtalen",
-                    GjennomforingRequest::veilederinformasjon,
-                    GjennomforingVeilederinfoRequest::navKontorer,
-                )
-            }
-        }
-        veilederinfoRequest.navAndreEnheter.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }
-            .forEach { enhetsnummer ->
-                error {
-                    FieldError.of(
-                        "Nav-enhet $enhetsnummer mangler i avtalen",
-                        GjennomforingRequest::veilederinformasjon,
-                        GjennomforingVeilederinfoRequest::navAndreEnheter,
-                    )
-                }
-            }
+
+        return navRegioner + navKontorer + navAndreEnheter
     }
 
     private fun FieldValidator.validateSlettetNavAnsatte(
