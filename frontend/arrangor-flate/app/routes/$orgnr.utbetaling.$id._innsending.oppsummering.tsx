@@ -26,8 +26,6 @@ import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTi
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useSyncKontonummer } from "~/hooks/useSyncKontonummer";
 import { useGodkjennUtbetaling } from "~/hooks/useGodkjennUtbetaling";
-import { queryKeys } from "~/api/queryKeys";
-import { useQueryClient } from "@tanstack/react-query";
 
 export const meta: MetaFunction = () => {
   return [
@@ -43,7 +41,6 @@ export default function BekreftUtbetaling() {
   const id = useIdFromUrl();
   const orgnr = useOrgnrFromUrl();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { updatedAt } = useLocation().state || {};
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
@@ -94,7 +91,6 @@ export default function BekreftUtbetaling() {
     if (result.errors) {
       setErrors(result.errors);
     } else if (result.success) {
-      queryClient.invalidateQueries({ queryKey: queryKeys.utbetaling(utbetaling.id) });
       navigate(pathTo.kvittering(orgnr, id));
     }
   };
