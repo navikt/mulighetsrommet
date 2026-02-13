@@ -1,8 +1,9 @@
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { OpprettUtbetalingForm } from "./OpprettUtbetalingForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
+import { Link } from "@navikt/ds-react";
 
 export function OpprettUtbetalingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -11,7 +12,9 @@ export function OpprettUtbetalingPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger`}>Tilbake</Link>
+      <Link as={ReactRouterLink} to={`/gjennomforinger/${gjennomforingId}/utbetalinger`}>
+        Tilbake
+      </Link>
       <OpprettUtbetalingForm
         gjennomforing={gjennomforing}
         prismodell={prismodell}

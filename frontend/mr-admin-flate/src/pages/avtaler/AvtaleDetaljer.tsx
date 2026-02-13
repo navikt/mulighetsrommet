@@ -13,9 +13,9 @@ import {
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
-import { Alert } from "@navikt/ds-react";
+import { Alert, Link } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
@@ -51,7 +51,11 @@ export function AvtaleDetaljer() {
   const tiltakMeta: Definition[] = [
     {
       key: avtaletekster.tiltakstypeLabel,
-      value: <Link to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Link>,
+      value: (
+        <Link as={ReactRouterLink} to={`/tiltakstyper/${tiltakstype.id}`}>
+          {tiltakstype.navn}
+        </Link>
+      ),
     },
     { key: avtaletekster.avtaletypeLabel, value: avtaletypeTilTekst(avtaletype) },
   ];
@@ -106,7 +110,7 @@ export function AvtaleDetaljer() {
     {
       key: avtaletekster.tiltaksarrangorHovedenhetLabel,
       value: (
-        <Link to={`/arrangorer/${arrangor?.id}`}>
+        <Link as={ReactRouterLink} to={`/arrangorer/${arrangor?.id}`}>
           {arrangor?.navn} - {arrangor?.organisasjonsnummer}
         </Link>
       ),

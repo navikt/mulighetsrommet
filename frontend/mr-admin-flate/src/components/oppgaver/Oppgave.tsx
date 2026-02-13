@@ -6,9 +6,9 @@ import {
   HandshakeIcon,
   PiggybankIcon,
 } from "@navikt/aksel-icons";
-import { BodyShort, Box, LinkCard, Spacer, Tag, TagProps } from "@navikt/ds-react";
+import { BodyShort, Box, Link, LinkCard, Spacer, Tag, TagProps } from "@navikt/ds-react";
 import { ReactNode } from "react";
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 
 interface OppgaveProps {
   oppgave: Oppgave;
@@ -30,7 +30,9 @@ export function Oppgave({ oppgave }: OppgaveProps) {
       </Box>
       <LinkCard.Title>
         <LinkCard.Anchor asChild>
-          <Link to={link.link}>{title}</Link>
+          <Link as={ReactRouterLink} to={link.link}>
+            {title}
+          </Link>
         </LinkCard.Anchor>
       </LinkCard.Title>
       <LinkCard.Description>{description}</LinkCard.Description>

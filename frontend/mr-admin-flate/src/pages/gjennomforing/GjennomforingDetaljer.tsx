@@ -11,8 +11,8 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { BodyShort, Heading, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
-import { Link } from "react-router";
+import { BodyShort, Heading, HelpText, HStack, Link, Tag, VStack } from "@navikt/ds-react";
+import { Link as ReactRouterLink } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 import {
   Definisjonsliste,
@@ -77,7 +77,7 @@ export function GjennomforingDetaljer() {
           {
             key: gjennomforingTekster.tiltaksarrangorHovedenhetLabel,
             value: (
-              <Link to={`/arrangorer/${avtale.arrangor.id}`}>
+              <Link as={ReactRouterLink} to={`/arrangorer/${avtale.arrangor.id}`}>
                 {avtale.arrangor.navn} - {avtale.arrangor.organisasjonsnummer}
               </Link>
             ),

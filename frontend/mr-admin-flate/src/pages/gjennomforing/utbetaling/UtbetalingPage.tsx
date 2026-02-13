@@ -87,12 +87,12 @@ export function UtbetalingPage() {
       </HStack>
       <ContentBox>
         <WhitePaddedBox>
-          <VStack gap="space-8">
+          <VStack gap="space-16">
             <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
             <VStack
-              gap="space-8"
+              gap="space-16"
               id="kostnadsfordeling"
-              padding="space-8"
+              padding="space-16"
               className="border-ax-neutral-400 border rounded-lg"
             >
               <HGrid columns="1fr 1fr 0.25fr">
@@ -160,7 +160,7 @@ export function UtbetalingPage() {
                   <Heading size="medium" level="2">
                     Betalingsinformasjon
                   </Heading>
-                  <VStack gap="space-8">
+                  <VStack gap="space-16">
                     {utbetaling.betalingsinformasjon && (
                       <BetalingsinformasjonDetaljer
                         betalingsinformasjon={utbetaling.betalingsinformasjon}
@@ -172,7 +172,7 @@ export function UtbetalingPage() {
                       <Heading size="medium" level="2">
                         Journalføring
                       </Heading>
-                      <VStack gap="space-8">
+                      <VStack gap="space-16">
                         <MetadataHGrid
                           label="Journalpost-ID i Gosys"
                           value={
