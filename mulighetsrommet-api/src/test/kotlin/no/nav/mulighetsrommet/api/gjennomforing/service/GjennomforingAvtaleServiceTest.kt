@@ -36,7 +36,6 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 const val TEST_GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"
 
@@ -185,7 +184,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
-                tidspunkt = LocalDateTime.now(),
+                sluttDato = LocalDate.now(),
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
                     listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     null,
@@ -209,7 +208,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
-                tidspunkt = LocalDate.of(2023, 7, 2).atStartOfDay(),
+                sluttDato = LocalDate.of(2023, 7, 2),
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
                     listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     null,
@@ -232,7 +231,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
-                tidspunkt = LocalDate.of(2023, 7, 1).atStartOfDay(),
+                sluttDato = LocalDate.of(2023, 7, 1),
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
                     listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     null,
@@ -271,7 +270,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
-                tidspunkt = LocalDate.of(2023, 6, 1).atStartOfDay(),
+                sluttDato = LocalDate.of(2023, 6, 1),
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
                     listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     null,
