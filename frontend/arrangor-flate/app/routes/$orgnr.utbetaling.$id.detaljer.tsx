@@ -315,17 +315,19 @@ function AvbrytModal({ id, open, setOpen }: AvbrytModalProps) {
     >
       <Modal.Body>
         <form onSubmit={handleSubmit}>
-          <VStack gap="space-8">
+          <VStack gap="space-16">
             <LocalAlert status={"announcement"}>
               <LocalAlert.Header>
                 <LocalAlert.Title>Hva betyr det å avbryte en innsending?</LocalAlert.Title>
               </LocalAlert.Header>
-              Hvis kravet avbrytes, vil det ikke behandles av Nav og det vil ikke utbetales noe. Det
-              kan være aktuelt hvis dere oppdager noe feil i innsendingen.
-              <br />
-              <br />
-              Dere kan selv starte en ny innsending med korrekte opplysninger etter at kravet er
-              avbrutt. Vær oppmerksom på at et avbrutt krav fremdeles vil være arkivert hos Nav.
+              <LocalAlert.Content>
+                Hvis kravet avbrytes, vil det ikke behandles av Nav og det vil ikke utbetales noe.
+                Det kan være aktuelt hvis dere oppdager noe feil i innsendingen.
+                <br />
+                <br />
+                Dere kan selv starte en ny innsending med korrekte opplysninger etter at kravet er
+                avbrutt. Vær oppmerksom på at et avbrutt krav fremdeles vil være arkivert hos Nav.
+              </LocalAlert.Content>
             </LocalAlert>
             <Textarea
               name="begrunnelse"
