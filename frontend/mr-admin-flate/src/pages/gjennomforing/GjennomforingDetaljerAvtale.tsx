@@ -1,8 +1,9 @@
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { formaterPeriodeUdefinertSlutt } from "@mr/frontend-common/utils/date";
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
+import { Link } from "@navikt/ds-react";
 
 interface Props {
   avtale: AvtaleDto;
@@ -16,7 +17,7 @@ export function GjennomforingDetaljerAvtale({ avtale }: Props) {
         {
           key: gjennomforingTekster.avtaleLabel,
           value: (
-            <Link to={`/avtaler/${avtale.id}`}>
+            <Link as={ReactRouterLink} to={`/avtaler/${avtale.id}`}>
               {avtale.navn} {avtale.avtalenummer ?? null}
             </Link>
           ),

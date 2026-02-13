@@ -5,9 +5,19 @@ import {
   UtbetalingLinje,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
-import { Alert, BodyShort, Heading, HStack, List, Table, VStack, Box } from "@navikt/ds-react";
+import {
+  Alert,
+  BodyShort,
+  Heading,
+  HStack,
+  List,
+  Table,
+  VStack,
+  Box,
+  Link,
+} from "@navikt/ds-react";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { DelutbetalingStatusTag } from "./DelutbetalingStatusTag";
@@ -101,7 +111,10 @@ export function UtbetalingLinjeRow({
       }
     >
       <Table.HeaderCell className={grayBgClass}>
-        <Link to={`/gjennomforinger/${gjennomforingId}/tilsagn/${linje.tilsagn.id}`}>
+        <Link
+          as={ReactRouterLink}
+          to={`/gjennomforinger/${gjennomforingId}/tilsagn/${linje.tilsagn.id}`}
+        >
           {linje.tilsagn.bestillingsnummer}
         </Link>
       </Table.HeaderCell>

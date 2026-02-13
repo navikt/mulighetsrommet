@@ -1,7 +1,7 @@
-import { Alert, Pagination, Table } from "@navikt/ds-react";
+import { Alert, Link, Pagination, Table } from "@navikt/ds-react";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
@@ -92,7 +92,9 @@ export function ArrangorerTabell({ filter, updateFilter, filterOpen }: Props) {
                 return (
                   <Table.Row key={arrangor.id}>
                     <Table.DataCell>
-                      <Link to={`${arrangor.id}`}>{arrangor.navn}</Link>
+                      <Link as={ReactRouterLink} to={`${arrangor.id}`}>
+                        {arrangor.navn}
+                      </Link>
                     </Table.DataCell>
                     <Table.DataCell>{arrangor.organisasjonsnummer}</Table.DataCell>
                   </Table.Row>

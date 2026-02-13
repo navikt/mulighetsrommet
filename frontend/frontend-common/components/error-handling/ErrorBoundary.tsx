@@ -1,7 +1,7 @@
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
-import { Alert, BodyShort, Heading } from "@navikt/ds-react";
+import { Alert, BodyShort, Heading, Link } from "@navikt/ds-react";
 import { PropsWithChildren } from "react";
-import { Link } from "react-router";
+import { Link as ReactRouterLink } from "react-router";
 import { resolveErrorMessage } from "./errors";
 
 interface DefaultErrorBoundaryProps extends PropsWithChildren {
@@ -65,7 +65,7 @@ function ReloadAppFallback({ error, portenUrl }: DefaultErrorFallbackProps) {
         <BodyShort>
           Hvis problemet vedvarer opprett en sak via <a href={portenUrl}>Porten</a>.
         </BodyShort>
-        <Link to="/" reloadDocument className="error-link">
+        <Link as={ReactRouterLink} to="/" reloadDocument className="error-link">
           Ta meg til forsiden og prøv igjen
         </Link>
       </Alert>

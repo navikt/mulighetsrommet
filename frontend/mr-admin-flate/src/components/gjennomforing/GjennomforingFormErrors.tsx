@@ -1,5 +1,5 @@
-import { Link } from "react-router";
-import { BodyShort } from "@navikt/ds-react";
+import { Link as ReactRouterLink } from "react-router";
+import { BodyShort, Link } from "@navikt/ds-react";
 import { avtaleHarRegioner } from "@/utils/Utils";
 import { PORTEN_URL } from "@/constants";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
@@ -19,7 +19,7 @@ const avtaleManglerNavRegionError = (avtaleId?: string) => (
       Avtalen mangler Nav region. Du må oppdatere avtalens Nav region for å kunne opprette en
       gjennomføring.
       {avtaleId ? (
-        <Link reloadDocument to={`/avtaler/${avtaleId}`}>
+        <Link as={ReactRouterLink} to={`/avtaler/${avtaleId}`}>
           Klikk her for å fikse avtalen
         </Link>
       ) : null}
