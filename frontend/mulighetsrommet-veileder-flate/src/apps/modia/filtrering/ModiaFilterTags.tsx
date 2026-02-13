@@ -37,6 +37,7 @@ export function ModiaFilterTags({ filterOpen, setTagsHeight }: Props) {
             onClick={() => {
               setFilter({ ...filter, innsatsgruppe: undefined });
             }}
+            data-testid={`filtertag_${filter.innsatsgruppe.nokkel}`}
           >
             {filter.innsatsgruppe.tittel}
           </Chips.Removable>
