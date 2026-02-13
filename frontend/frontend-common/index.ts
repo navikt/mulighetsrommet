@@ -4,7 +4,6 @@ import { shallowEquals } from "./utils/shallow-equals";
 import { ControlledSokeSelect } from "./components/ControlledSokeSelect";
 import { CheckboxGroup } from "./components/filter/CheckboxGroup";
 import { MultiLabelFilterTag } from "./components/filter/filterTag/MultiLabelFilterTag";
-import { FilterTag } from "./components/filter/filterTag/FilterTag";
 import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
 import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader";
 import { FilterSkeleton } from "./components/skeleton/FilterSkeleton";
@@ -37,7 +36,6 @@ export {
   shallowEquals,
   CheckboxGroup,
   MultiLabelFilterTag,
-  FilterTag,
   FilterTagsContainer,
   FilterAccordionHeader,
   FilterSkeleton,

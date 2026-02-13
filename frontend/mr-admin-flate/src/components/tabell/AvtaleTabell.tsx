@@ -107,7 +107,7 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
                       </Link>
                     </Table.DataCell>
                     <Table.DataCell aria-label={`Avtalenummer: ${avtale.avtalenummer}`}>
-                      {avtale.avtalenummer}
+                      {avtale.avtalenummer ?? "-"}
                     </Table.DataCell>
                     <Table.DataCell aria-label={`Tiltaksarrangør: ${avtale.arrangor?.navn}`}>
                       {capitalizeEveryWord(avtale.arrangor?.navn, ["og", "i"]) || ""}

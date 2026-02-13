@@ -1,8 +1,8 @@
 import { ApentForPamelding } from "@api-client";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { FilterTag } from "@mr/frontend-common/components/filter/filterTag/FilterTag";
 import { FilterTagsContainer } from "@mr/frontend-common/components/filter/filterTag/FilterTagsContainer";
 import { NavEnhetFilterTag } from "@/components/filtrering/NavEnhetFilterTag";
+import { Chips } from "@navikt/ds-react";
 
 interface Props {
   filterOpen: boolean;
@@ -14,39 +14,54 @@ export function ModiaFilterTags({ filterOpen, setTagsHeight }: Props) {
 
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
-      {filter.innsatsgruppe && (
-        <FilterTag label={filter.innsatsgruppe.tittel} testId={filter.innsatsgruppe.nokkel} />
-      )}
-      <NavEnhetFilterTag
-        navEnheter={filter.navEnheter}
-        onClose={() => setFilter({ ...filter, navEnheter: [] })}
-      />
-      {filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT && (
-        <FilterTag
-          label={filter.apentForPamelding === ApentForPamelding.APENT ? "Åpent" : "Stengt"}
-          onClose={() =>
-            setFilter({
-              ...filter,
-              apentForPamelding: ApentForPamelding.APENT_ELLER_STENGT,
-            })
-          }
-        />
-      )}
-      {filter.tiltakstyper.map((tiltakstype) => (
-        <FilterTag
-          key={tiltakstype.id}
-          label={tiltakstype.tittel}
-          onClose={() =>
-            setFilter({
-              ...filter,
-              tiltakstyper: filter.tiltakstyper.filter(({ id }) => tiltakstype.id !== id),
-            })
-          }
-        />
-      ))}
-      {filter.search && (
-        <FilterTag label={filter.search} onClose={() => setFilter({ ...filter, search: "" })} />
-      )}
+      <Chips>
+        {filter.search && (
+          <Chips.Removable onClick={() => setFilter({ ...filter, search: "" })}>
+            {filter.search}
+          </Chips.Removable>
+        )}
+        {filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT && (
+          <Chips.Removable
+            onClick={() =>
+              setFilter({
+                ...filter,
+                apentForPamelding: ApentForPamelding.APENT_ELLER_STENGT,
+              })
+            }
+          >
+            {filter.apentForPamelding === ApentForPamelding.APENT ? "Åpent" : "Stengt"}
+          </Chips.Removable>
+        )}
+        {filter.innsatsgruppe && (
+          <Chips.Removable
+            onClick={() => {
+              setFilter({ ...filter, innsatsgruppe: undefined });
+            }}
+            data-testid={`filtertag_${filter.innsatsgruppe.nokkel}`}
+          >
+            {filter.innsatsgruppe.tittel}
+          </Chips.Removable>
+        )}
+        {filter.navEnheter.length > 0 && (
+          <NavEnhetFilterTag
+            navEnheter={filter.navEnheter}
+            onClose={() => setFilter({ ...filter, navEnheter: [] })}
+          />
+        )}
+        {filter.tiltakstyper.map((tiltakstype) => (
+          <Chips.Removable
+            key={tiltakstype.id}
+            onClick={() =>
+              setFilter({
+                ...filter,
+                tiltakstyper: filter.tiltakstyper.filter(({ id }) => tiltakstype.id !== id),
+              })
+            }
+          >
+            {tiltakstype.tittel}
+          </Chips.Removable>
+        ))}
+      </Chips>
     </FilterTagsContainer>
   );
 }

@@ -1,9 +1,10 @@
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
+import { FilterTagsContainer } from "@mr/frontend-common";
 import { InnsendingFilterType } from "./filter";
 import { useKostnadsstedFilter } from "@/api/enhet/useKostnadsstedFilter";
 import { NavEnhetFilterTag } from "@/components/filter/NavEnhetFilterTag";
+import { Chips } from "@navikt/ds-react";
 
 interface Props {
   filter: InnsendingFilterType;
@@ -16,27 +17,32 @@ export function InnsendingFilterTags({ filter, updateFilter, tiltakstypeId, filt
   const { data: kostnadssteder } = useKostnadsstedFilter();
   const { data: tiltakstyper } = useTiltakstyper();
 
+  const removeArrayItem = (key: keyof InnsendingFilterType, value: any) => {
+    updateFilter({
+      [key]: addOrRemove(filter[key] as any[], value),
+    });
+  };
+
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={() => {}}>
-      {filter.navEnheter.length > 0 && (
-        <NavEnhetFilterTag
-          navEnheter={filter.navEnheter}
-          regioner={kostnadssteder}
-          onClose={() => updateFilter({ navEnheter: [] })}
-        />
-      )}
-      {!tiltakstypeId &&
-        filter.tiltakstyper.map((tiltakstype) => (
-          <FilterTag
-            key={tiltakstype}
-            label={tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
-            onClose={() => {
-              updateFilter({
-                tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
-              });
-            }}
+      <Chips>
+        {filter.navEnheter.length > 0 && (
+          <NavEnhetFilterTag
+            navEnheter={filter.navEnheter}
+            regioner={kostnadssteder}
+            onClose={() => updateFilter({ navEnheter: [] })}
           />
-        ))}
+        )}
+        {!tiltakstypeId &&
+          filter.tiltakstyper.map((tiltakstype) => (
+            <Chips.Removable
+              key={tiltakstype}
+              onClick={() => removeArrayItem("tiltakstyper", tiltakstype)}
+            >
+              {tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
+            </Chips.Removable>
+          ))}
+      </Chips>
     </FilterTagsContainer>
   );
 }
