@@ -410,7 +410,7 @@ class AvtaleServiceTest : FunSpec({
                 queries.gjennomforing.setStatus(
                     gjennomforing.id,
                     status = GjennomforingStatusType.AVBRUTT,
-                    tidspunkt = LocalDate.of(2025, 1, 15).atStartOfDay(),
+                    sluttDato = LocalDate.of(2025, 1, 14),
                     aarsaker = listOf(AvbrytGjennomforingAarsak.BUDSJETT_HENSYN),
                     forklaring = null,
                 )

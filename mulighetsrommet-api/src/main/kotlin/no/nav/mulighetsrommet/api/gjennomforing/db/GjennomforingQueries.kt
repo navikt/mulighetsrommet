@@ -44,7 +44,6 @@ import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class GjennomforingQueries(private val session: Session) {
@@ -589,7 +588,7 @@ class GjennomforingQueries(private val session: Session) {
     fun setStatus(
         id: UUID,
         status: GjennomforingStatusType,
-        tidspunkt: LocalDateTime?,
+        sluttDato: LocalDate?,
         aarsaker: List<AvbrytGjennomforingAarsak>?,
         forklaring: String?,
     ): Int = with(session) {
@@ -597,7 +596,7 @@ class GjennomforingQueries(private val session: Session) {
         val query = """
             update gjennomforing
             set status = :status::gjennomforing_status,
-                avsluttet_tidspunkt = :tidspunkt,
+                slutt_dato = coalesce(:slutt_dato, slutt_dato),
                 avbrutt_aarsaker = :aarsaker,
                 avbrutt_forklaring = :forklaring
             where id = :id::uuid
@@ -606,7 +605,7 @@ class GjennomforingQueries(private val session: Session) {
         val params = mapOf(
             "id" to id,
             "status" to status.name,
-            "tidspunkt" to tidspunkt,
+            "slutt_dato" to sluttDato,
             "aarsaker" to aarsaker?.let { session.createTextArray(it) },
             "forklaring" to forklaring,
         )
@@ -839,13 +838,11 @@ private fun Row.toGjennomforingStatus(): GjennomforingStatus {
         GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
 
         GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
-            tidspunkt = localDateTime("avsluttet_tidspunkt"),
             array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
             stringOrNull("avbrutt_forklaring"),
         )
 
         GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
-            tidspunkt = localDateTime("avsluttet_tidspunkt"),
             array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
             stringOrNull("avbrutt_forklaring"),
         )

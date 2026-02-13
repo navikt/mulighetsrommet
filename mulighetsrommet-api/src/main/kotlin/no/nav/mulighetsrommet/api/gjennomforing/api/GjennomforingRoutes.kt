@@ -62,7 +62,6 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 fun Route.gjennomforingRoutes() {
@@ -132,7 +131,7 @@ fun Route.gjennomforingRoutes() {
                     .flatMap {
                         avtaleGjennomforinger.avbrytGjennomforing(
                             id,
-                            tidspunkt = LocalDateTime.now(),
+                            sluttDato = LocalDate.now(),
                             aarsakerOgForklaring = it,
                             avbruttAv = navIdent,
                         )
