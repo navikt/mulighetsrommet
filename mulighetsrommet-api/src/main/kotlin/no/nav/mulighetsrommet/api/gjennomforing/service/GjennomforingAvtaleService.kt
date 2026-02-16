@@ -172,7 +172,7 @@ class GjennomforingAvtaleService(
         queries.gjennomforing.setStatus(
             id = id,
             status = GjennomforingStatusType.AVSLUTTET,
-            tidspunkt = avsluttetTidspunkt,
+            sluttDato = null,
             aarsaker = null,
             forklaring = null,
         )
@@ -187,7 +187,7 @@ class GjennomforingAvtaleService(
     fun avbrytGjennomforing(
         id: UUID,
         avbruttAv: Agent,
-        tidspunkt: LocalDateTime,
+        sluttDato: LocalDate,
         aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>,
     ): Either<List<FieldError>, GjennomforingAvtale> = db.transaction {
         val gjennomforing = getOrError(id)
@@ -202,12 +202,10 @@ class GjennomforingAvtaleService(
                 return FieldError.root("Gjennomføringen er allerede avsluttet").nel().left()
         }
 
-        val tidspunktForStart = gjennomforing.startDato.atStartOfDay()
-        val tidspunktForSlutt = gjennomforing.sluttDato?.plusDays(1)?.atStartOfDay()
-        val status = if (tidspunkt.isBefore(tidspunktForStart)) {
-            GjennomforingStatusType.AVLYST
-        } else if (tidspunktForSlutt == null || tidspunkt.isBefore(tidspunktForSlutt)) {
-            GjennomforingStatusType.AVBRUTT
+        val (status, nySluttDato) = if (sluttDato.isBefore(gjennomforing.startDato)) {
+            GjennomforingStatusType.AVLYST to null
+        } else if (gjennomforing.sluttDato == null || sluttDato.isBefore(gjennomforing.sluttDato)) {
+            GjennomforingStatusType.AVBRUTT to sluttDato
         } else {
             throw Exception("Gjennomføring allerede avsluttet")
         }
@@ -215,7 +213,7 @@ class GjennomforingAvtaleService(
         queries.gjennomforing.setStatus(
             id = id,
             status = status,
-            tidspunkt = tidspunkt,
+            sluttDato = nySluttDato,
             aarsaker = aarsakerOgForklaring.aarsaker,
             forklaring = aarsakerOgForklaring.forklaring,
         )

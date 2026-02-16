@@ -28,9 +28,10 @@ object FastSatsPerTiltaksplassPerManedBeregning :
         deltakere: List<Deltaker>,
         periode: Periode,
     ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed {
-        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
-        val stengt = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(deltakere, periode)
+        val justertPeriode = Periode(periode.start, listOfNotNull(periode.slutt, gjennomforing.sluttDato?.plusDays(1)).min())
+        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, justertPeriode)
+        val stengt = resolveStengtHosArrangor(justertPeriode, gjennomforing.stengt)
+        val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(deltakere, justertPeriode)
         val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengt, deltakelser)
 
         val manedsverk = deltakelser

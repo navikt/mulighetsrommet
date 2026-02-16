@@ -327,7 +327,7 @@ class GjennomforingQueriesTest : FunSpec({
                 val id = Oppfolging1.id
                 queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1)
 
-                val tidspunkt = LocalDate.now().atStartOfDay()
+                val tidspunkt = LocalDate.now()
                 queries.gjennomforing.setStatus(
                     id,
                     GjennomforingStatusType.AVBRUTT,
@@ -336,7 +336,6 @@ class GjennomforingQueriesTest : FunSpec({
                     ":)",
                 )
                 queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingStatus.Avbrutt(
-                    tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
                     forklaring = ":)",
                 )
@@ -344,12 +343,11 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.gjennomforing.setStatus(
                     id = id,
                     status = GjennomforingStatusType.AVLYST,
-                    tidspunkt = tidspunkt,
+                    sluttDato = tidspunkt,
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
                 queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingStatus.Avlyst(
-                    tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
@@ -357,7 +355,7 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.gjennomforing.setStatus(
                     id = id,
                     status = GjennomforingStatusType.GJENNOMFORES,
-                    tidspunkt = tidspunkt,
+                    sluttDato = tidspunkt,
                     aarsaker = null,
                     forklaring = null,
                 )

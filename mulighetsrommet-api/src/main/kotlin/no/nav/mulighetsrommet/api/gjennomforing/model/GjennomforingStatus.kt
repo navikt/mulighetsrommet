@@ -4,8 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
-import java.time.LocalDateTime
 
 @Serializable
 sealed class GjennomforingStatus {
@@ -28,8 +26,6 @@ sealed class GjennomforingStatus {
     @Serializable
     @SerialName("AVBRUTT")
     data class Avbrutt(
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val tidspunkt: LocalDateTime,
         val aarsaker: List<AvbrytGjennomforingAarsak>,
         val forklaring: String?,
     ) : GjennomforingStatus() {
@@ -40,8 +36,6 @@ sealed class GjennomforingStatus {
     @Serializable
     @SerialName("AVLYST")
     data class Avlyst(
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val tidspunkt: LocalDateTime,
         val aarsaker: List<AvbrytGjennomforingAarsak>,
         val forklaring: String?,
     ) : GjennomforingStatus() {
