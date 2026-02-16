@@ -830,24 +830,6 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingAvtale {
     )
 }
 
-private fun Row.toGjennomforingStatus(): GjennomforingStatus {
-    return when (GjennomforingStatusType.valueOf(string("status"))) {
-        GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
-
-        GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
-
-        GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
-            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-            stringOrNull("avbrutt_forklaring"),
-        )
-
-        GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
-            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-            stringOrNull("avbrutt_forklaring"),
-        )
-    }
-}
-
 private fun Row.toEnkeltplass(): GjennomforingEnkeltplass {
     return GjennomforingEnkeltplass(
         id = uuid("id"),
@@ -875,7 +857,7 @@ private fun Row.toEnkeltplass(): GjennomforingEnkeltplass {
         navn = string("navn"),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = GjennomforingStatusType.valueOf(string("status")),
+        status = toGjennomforingStatus(),
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),
     )
@@ -907,10 +889,28 @@ private fun Row.toGjennomforingArena(): GjennomforingArena {
         navn = string("navn"),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = GjennomforingStatusType.valueOf(string("status")),
+        status = toGjennomforingStatus(),
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
         pameldingType = GjennomforingPameldingType.valueOf(string("pamelding_type")),
     )
+}
+
+private fun Row.toGjennomforingStatus(): GjennomforingStatus {
+    return when (GjennomforingStatusType.valueOf(string("status"))) {
+        GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
+
+        GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
+
+        GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
+            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
+            stringOrNull("avbrutt_forklaring"),
+        )
+
+        GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
+            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
+            stringOrNull("avbrutt_forklaring"),
+        )
+    }
 }

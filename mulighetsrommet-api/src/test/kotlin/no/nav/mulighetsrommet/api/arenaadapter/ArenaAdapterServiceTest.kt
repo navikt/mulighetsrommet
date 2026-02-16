@@ -310,7 +310,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
                     it.navn shouldBe "En enkeltplass"
-                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
                 }
             }
 
@@ -323,7 +323,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
-                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
+                    it.status.type shouldBe GjennomforingStatusType.AVSLUTTET
                     it.arena?.ansvarligNavEnhet shouldBe "1000"
                 }
             }
@@ -345,7 +345,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
                     it.navn shouldBe "En enkeltplass"
-                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
+                    it.status.type shouldBe GjennomforingStatusType.AVSLUTTET
                 }
             }
         }

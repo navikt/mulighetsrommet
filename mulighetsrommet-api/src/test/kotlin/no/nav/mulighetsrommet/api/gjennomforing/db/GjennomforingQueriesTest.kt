@@ -513,7 +513,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.navn shouldBe "Arenanavn"
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato shouldBe LocalDate.of(2025, 2, 1)
-                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.deltidsprosent shouldBe 100.0
                     it.antallPlasser shouldBe 10
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
@@ -558,7 +558,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.navn shouldBe "Arena-navn"
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato.shouldBeNull()
-                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
                 }
 
                 queries.gjennomforing.setArenaData(
