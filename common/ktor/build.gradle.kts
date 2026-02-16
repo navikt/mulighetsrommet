@@ -29,6 +29,7 @@ dependencies {
 
     // Audit-logging
     implementation(libs.nav.common.auditLog)
+    implementation(libs.bundles.logging)
 
     // Cache
     implementation(libs.caffeine)
