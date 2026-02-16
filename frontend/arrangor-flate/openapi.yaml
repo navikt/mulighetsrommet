@@ -336,7 +336,7 @@ paths:
       tags:
       - Arrangorflate
       description: Hent utbetalingskvittering for arrangør
-      operationId: getUtbetalingsKvittering
+      operationId: getUtbetalingKvittering
       parameters:
       - name: id
         in: path

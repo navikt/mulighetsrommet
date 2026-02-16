@@ -3,11 +3,11 @@ import { ArrangorflateService } from "api-client";
 import { queryClient } from "~/api/client";
 import { queryKeys } from "~/api/queryKeys";
 
-export function useUtbetalingsKvittering(id: string) {
+export function useUtbetalingKvittering(id: string) {
   return useSuspenseQuery({
     queryKey: queryKeys.utbetalingKvittering(id),
     queryFn: async () => {
-      const result = await ArrangorflateService.getUtbetalingsKvittering({
+      const result = await ArrangorflateService.getUtbetalingKvittering({
         path: { id },
         client: queryClient,
       });

@@ -13,7 +13,7 @@ import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { tekster } from "~/tekster";
 import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
-import { useUtbetalingsKvittering } from "~/hooks/useUtbetalingKvittering";
+import { useUtbetalingKvittering } from "~/hooks/useUtbetalingKvittering";
 
 export const meta: MetaFunction = () => {
   return [
@@ -34,7 +34,7 @@ export default function UtbetalingKvittering() {
 
 function UtbetalingKvitteringContent({ id }: { id: string }) {
   const orgnr = useOrgnrFromUrl();
-  const { data: kvittering } = useUtbetalingsKvittering(id);
+  const { data: kvittering } = useUtbetalingKvittering(id);
 
   return (
     <Box background="default" padding="space-32" borderRadius="8" marginInline="auto">

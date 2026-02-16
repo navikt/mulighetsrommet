@@ -286,7 +286,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         get("/kvittering", {
             description = "Hent utbetalingskvittering for arrangør"
             tags = setOf("Arrangorflate")
-            operationId = "getUtbetalingsKvittering"
+            operationId = "getUtbetalingKvittering"
             request {
                 pathParameterUuid("id")
             }
