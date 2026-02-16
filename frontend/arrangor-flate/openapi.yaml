@@ -331,6 +331,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/arrangorflate/utbetaling/{id}/kvittering:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent utbetalingskvittering for arrangør
+      operationId: getUtbetalingKvittering
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Kvitteringsdata for gitt id
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorflateUtbetalingKvittering"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/arrangorflate/utbetaling/{id}/avbryt:
     post:
       tags:
@@ -1580,6 +1611,29 @@ components:
       - status
       - title
       - type
+    ArrangorflateUtbetalingKvittering:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        mottattDato:
+          type: string
+          format: date
+        utbetalesTidligstDato:
+          type:
+          - "null"
+          - string
+          format: date
+        kontonummer:
+          type:
+          - "null"
+          - string
+      required:
+      - id
+      - kontonummer
+      - mottattDato
+      - utbetalesTidligstDato
     AvbrytUtbetaling:
       type: object
       properties:

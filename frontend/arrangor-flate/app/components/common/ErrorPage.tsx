@@ -10,9 +10,6 @@ export function ProblemDetailPage({ error }: ProblemDetailPageProps) {
   const location = useLocation();
   return (
     <Box background="default" borderRadius="8" padding="space-32">
-      <BodyShort textColor="subtle" size="small">
-        Statuskode {error.status}
-      </BodyShort>
       <Heading level="1" size="large" spacing>
         Beklager, noe gikk galt.
       </Heading>
@@ -27,9 +24,11 @@ export function ProblemDetailPage({ error }: ProblemDetailPageProps) {
           <BodyShort>
             Status: <i>{error.status}</i>
           </BodyShort>
-          <BodyShort>
-            TraceId: <i>{error.traceId as string}</i>
-          </BodyShort>
+          {"traceId" in error && (
+            <BodyShort>
+              TraceId: <i>{error.traceId as string}</i>
+            </BodyShort>
+          )}
         </VStack>
       </Box>
       <BodyShort spacing>Du kan prøve å</BodyShort>
