@@ -23,7 +23,7 @@ data class ArenaGjennomforingDbo(
     val arenaAnsvarligEnhet: String?,
     val avslutningsstatus: Avslutningsstatus,
     val apentForPamelding: Boolean,
-    val antallPlasser: Int?,
+    val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
     val deltidsprosent: Double,

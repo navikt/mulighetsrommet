@@ -174,7 +174,7 @@ class ArenaAdapterService(
             sluttDato = arenaGjennomforing.sluttDato,
             status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
             deltidsprosent = arenaGjennomforing.deltidsprosent,
-            antallPlasser = arenaGjennomforing.antallPlasser ?: 1,
+            antallPlasser = arenaGjennomforing.antallPlasser,
         )
         if (previous == null || harEndringer(dbo, previous) || harEndringer(arenadata, previous)) {
             queries.gjennomforing.upsertEnkeltplass(dbo)
@@ -200,7 +200,7 @@ class ArenaAdapterService(
             sluttDato = arenaGjennomforing.sluttDato,
             status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
             deltidsprosent = arenaGjennomforing.deltidsprosent,
-            antallPlasser = arenaGjennomforing.antallPlasser ?: 1,
+            antallPlasser = arenaGjennomforing.antallPlasser,
             tiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
             arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
         )

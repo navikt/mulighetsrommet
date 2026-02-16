@@ -59,7 +59,7 @@ class ArenaAdapterServiceTest : FunSpec({
             arenaAnsvarligEnhet = null,
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             apentForPamelding = true,
-            antallPlasser = null,
+            antallPlasser = 10,
             avtaleId = null,
             deltidsprosent = 100.0,
         )
@@ -148,7 +148,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 apentForPamelding = true,
-                antallPlasser = null,
+                antallPlasser = 10,
                 avtaleId = null,
                 deltidsprosent = 100.0,
             )
@@ -246,7 +246,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 arenaAnsvarligEnhet = null,
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 apentForPamelding = true,
-                antallPlasser = null,
+                antallPlasser = 10,
                 avtaleId = null,
                 deltidsprosent = 100.0,
             )
@@ -295,7 +295,7 @@ class ArenaAdapterServiceTest : FunSpec({
             arenaAnsvarligEnhet = "0400",
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             apentForPamelding = true,
-            antallPlasser = null,
+            antallPlasser = 1,
             avtaleId = null,
             deltidsprosent = 100.0,
         )
