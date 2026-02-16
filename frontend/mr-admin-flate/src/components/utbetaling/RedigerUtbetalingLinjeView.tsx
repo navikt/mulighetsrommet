@@ -158,10 +158,15 @@ export function RedigerUtbetalingLinjeView({
                     size="small"
                     style={{ maxWidth: "6rem" }}
                     hideLabel
-                    type="number"
+                    type="text"
+                    error={form.formState.errors.formLinjer?.[index]?.pris?.belop?.message}
                     label={utbetalingTekster.delutbetaling.belop.label}
                     {...form.register(`formLinjer.${index}.pris.belop`, {
                       setValueAs: (v) => (v === "" ? null : Number(v)),
+                      validate: (value) => {
+                        if (!Number.isInteger(value)) return "Beløp må være et heltall";
+                        return true;
+                      },
                     })}
                   />
                 }
