@@ -41,13 +41,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 ?: (gjennomforing as? GjennomforingAvtale)?.kontorstruktur?.firstOrNull()?.region?.enhetsnummer?.value
                 ?: error("navRegion or arenaAnsvarligEnhet was null! Should not be possible!")
 
-            val status = when (gjennomforing) {
-                is GjennomforingAvtale -> gjennomforing.status.type
-                is GjennomforingEnkeltplass -> gjennomforing.status
-                is GjennomforingArena -> gjennomforing.status
-            }
-
-            val arenaStatus = when (status) {
+            val arenaStatus = when (gjennomforing.status.type) {
                 GjennomforingStatusType.GJENNOMFORES -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
                 GjennomforingStatusType.AVSLUTTET -> ArenaTiltaksgjennomforingStatus.AVSLUTTET
                 GjennomforingStatusType.AVBRUTT -> ArenaTiltaksgjennomforingStatus.AVBRUTT

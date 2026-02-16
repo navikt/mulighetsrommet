@@ -274,7 +274,7 @@ private fun harEndringer(
         navn = current.navn,
         startDato = current.startDato,
         sluttDato = current.sluttDato,
-        status = current.status,
+        status = current.status.type,
         deltidsprosent = current.deltidsprosent,
         antallPlasser = current.antallPlasser,
     )
@@ -291,7 +291,7 @@ private fun harEndringer(
         navn = current.navn,
         startDato = current.startDato,
         sluttDato = current.sluttDato,
-        status = current.status,
+        status = current.status.type,
         deltidsprosent = current.deltidsprosent,
         antallPlasser = current.antallPlasser,
         tiltaksnummer = current.arena?.tiltaksnummer!!,
