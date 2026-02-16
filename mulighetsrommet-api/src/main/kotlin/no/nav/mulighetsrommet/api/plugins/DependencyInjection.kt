@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
@@ -35,6 +34,8 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
+import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
@@ -352,6 +353,13 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.dokark.url,
             clientEngine = appConfig.engine,
             tokenProvider = azureAdTokenProvider.withScope(appConfig.dokark.scope),
+        )
+    }
+    single {
+        DokdistClient(
+            baseUrl = appConfig.dokdistfordeling.url,
+            clientEngine = appConfig.engine,
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.dokdistfordeling.scope),
         )
     }
     single {

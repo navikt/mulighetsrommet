@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.dokark
+package no.nav.mulighetsrommet.api.clients.teamdokumenthandtering
 
 import arrow.core.Either
 import arrow.core.left

@@ -59,6 +59,7 @@ data class AppConfig(
     val utdanning: HttpClientConfig,
     val altinn: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
+    val dokdistfordeling: AuthenticatedHttpClientConfig,
     val okonomi: OkonomiConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
     val clamav: HttpClientConfig,

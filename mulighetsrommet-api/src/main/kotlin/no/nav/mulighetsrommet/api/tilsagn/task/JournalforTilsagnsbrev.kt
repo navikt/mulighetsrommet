@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling.task
+package no.nav.mulighetsrommet.api.tilsagn.task
 
 import arrow.core.Either
 import arrow.core.flatMap
@@ -8,14 +8,16 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.clamav.Vedlegg
+import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapper
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
@@ -25,7 +27,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
-class JournalforUtbetaling(
+class JournalforTilsagnsbrev(
     private val db: ApiDatabase,
     private val dokarkClient: DokarkClient,
     private val amtDeltakerClient: AmtDeltakerClient,
@@ -36,71 +38,78 @@ class JournalforUtbetaling(
     @Serializable
     data class TaskData(
         @Serializable(with = UUIDSerializer::class)
-        val utbetalingId: UUID,
-        val vedlegg: List<Vedlegg>,
+        val tilsagnId: UUID,
+        @Serializable(with = UUIDSerializer::class)
+        val deltakerId: UUID, // Så lenge ikke tilsagnet har en direkte kobling mot en bruker
     )
 
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
         .executeSuspend { inst, _ ->
-            journalfor(inst.data.utbetalingId, inst.data.vedlegg).onLeft { message ->
-                throw Exception("Feil ved journalføring av utbetaling med id=${inst.data.utbetalingId}: $message")
+            journalfor(inst.data.tilsagnId, inst.data.deltakerId).onLeft { message ->
+                throw Exception("Feil ved journalføring av tilsagnsbrev med id=${inst.data.tilsagnId}: $message")
             }
         }
 
-    fun schedule(utbetalingId: UUID, startTime: Instant, tx: TransactionalSession, vedlegg: List<Vedlegg>): UUID {
+    fun schedule(tilsagnId: UUID, deltakerId: UUID, startTime: Instant, tx: TransactionalSession): UUID {
         val id = UUID.randomUUID()
-        val instance = task.instance(id.toString(), TaskData(utbetalingId, vedlegg))
+        val instance = task.instance(id.toString(), TaskData(tilsagnId, deltakerId))
         val client = transactionalSchedulerClient(task, tx.connection.underlying)
         client.scheduleIfNotExists(instance, startTime)
         return id
     }
 
-    suspend fun journalfor(id: UUID, vedlegg: List<Vedlegg>): Either<String, DokarkResponse> = db.session {
-        logger.info("Journalfører utbetaling med id: $id")
+    suspend fun journalfor(tilsagnId: UUID, deltakerId: UUID): Either<String, DokarkResponse> = db.session {
+        logger.info("Journalfører tilsagn med id: $tilsagnId")
 
-        val utbetaling = queries.utbetaling.getOrError(id)
-        val gjennomforing = queries.gjennomforing.getGjennomforingOrError(utbetaling.gjennomforing.id)
-        val fagsakId = gjennomforing.arena?.tiltaksnummer?.value ?: gjennomforing.lopenummer.value
+        val personalia = amtDeltakerClient.hentPersonalia(setOf(deltakerId))
+            .getOrElse {
+                throw Exception("Kunne ikke hente personalia fra amt-deltaker med id: $it")
+            }.single()
+        val tilsagn = queries.tilsagn.getOrError(tilsagnId)
+        val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
+        val arrangor = queries.arrangor.get(tilsagn.arrangor.organisasjonsnummer)
+        require(arrangor != null) { "Fant ikke arrangør med organisasjonsnummer ${tilsagn.arrangor.organisasjonsnummer} for tilsagn med id $tilsagnId" }
 
-        generatePdf(utbetaling)
+        val fagsakId = enkeltplass.arena?.tiltaksnummer?.value ?: enkeltplass.lopenummer.value
+
+        generatePdf(tilsagn, personalia)
             .flatMap { pdf ->
-                val journalpost = utbetalingJournalpost(pdf, utbetaling.id, utbetaling.arrangor, fagsakId, vedlegg)
+                val journalpost = tilsagnJournalpost(
+                    pdf = pdf,
+                    bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+                    deltaker = personalia.norskIdent,
+                    arrangor = arrangor,
+                    fagsakId = fagsakId,
+                )
                 dokarkClient
                     .opprettJournalpost(journalpost, AccessType.M2M)
                     .mapLeft { error -> "Feil fra dokark: ${error.message}" }
             }
             .onRight {
-                queries.utbetaling.setJournalpostId(id, it.journalpostId)
+                // TODO: queries.tilsagn.setJournalpostId(tilsagnId, it.journalpostId)
             }
     }
 
-    private suspend fun generatePdf(utbetaling: Utbetaling): Either<String, ByteArray> {
-        val deltakelseIds = utbetaling.beregning.deltakelsePerioder().map { it.deltakelseId }.toSet()
-        val personalia = amtDeltakerClient.hentPersonalia(deltakelseIds)
-            .getOrElse {
-                throw Exception("Klarte ikke hente personalia fra amt-deltaker error: $it")
-            }
-            .associateBy { it.deltakerId }
-
-        val content = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
-            utbetaling,
-            personalia,
+    private suspend fun generatePdf(tilsagn: Tilsagn, deltaker: DeltakerPersonalia): Either<String, ByteArray> {
+        val content = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+            tilsagn,
+            deltaker,
         )
         return pdf
             .getPdfDocument(content)
-            .mapLeft { error -> "Feil fra pdfgen: $error" }
+            .mapLeft { error -> "Feil ved generering av tilsagnsbrev. pdfgen: $error" }
     }
 }
 
-fun utbetalingJournalpost(
+fun tilsagnJournalpost(
     pdf: ByteArray,
-    utbetalingId: UUID,
-    arrangor: Utbetaling.Arrangor,
+    bestillingsnummer: String,
+    deltaker: NorskIdent,
+    arrangor: ArrangorDto,
     fagsakId: String,
-    vedlegg: List<Vedlegg>,
 ): Journalpost = Journalpost(
-    tittel = "Utbetaling",
+    tittel = "Tilsagnsbrev",
     journalposttype = "INNGAAENDE",
     avsenderMottaker = Journalpost.AvsenderMottaker(
         id = arrangor.organisasjonsnummer.value,
@@ -108,14 +117,14 @@ fun utbetalingJournalpost(
         navn = arrangor.navn,
     ),
     bruker = Journalpost.Bruker(
-        id = arrangor.organisasjonsnummer.value,
-        idType = "ORGNR",
+        id = deltaker.value,
+        idType = "FNR",
     ),
-    tema = "TIL",
+    tema = "TIL", // Tiltak
     datoMottatt = LocalDateTime.now().toString(),
     dokumenter = listOf(
         Journalpost.Dokument(
-            tittel = "Utbetaling",
+            tittel = "Tilsagn",
             dokumentvarianter = listOf(
                 Journalpost.Dokument.Dokumentvariant(
                     "PDFA",
@@ -124,23 +133,8 @@ fun utbetalingJournalpost(
                 ),
             ),
         ),
-    ) + vedlegg.mapNotNull {
-        if (it.content.content.isEmpty()) {
-            null
-        } else {
-            Journalpost.Dokument(
-                tittel = it.filename,
-                dokumentvarianter = listOf(
-                    Journalpost.Dokument.Dokumentvariant(
-                        "PDF",
-                        it.content.content,
-                        "ARKIV",
-                    ),
-                ),
-            )
-        }
-    },
-    eksternReferanseId = utbetalingId.toString(),
+    ),
+    eksternReferanseId = bestillingsnummer,
     journalfoerendeEnhet = "9999", // Automatisk journalføring
     kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
     sak = Journalpost.Sak(
