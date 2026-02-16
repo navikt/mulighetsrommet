@@ -105,9 +105,7 @@ class GjennomforingDetaljerService(
     }
 
     private fun QueryContext.getGjennomforing(id: UUID): Gjennomforing? {
-        return queries.gjennomforing.getGjennomforingAvtale(id)
-            ?: queries.gjennomforing.getGjennomforingEnkeltplass(id)
-            ?: queries.gjennomforing.getGjennomforingArena(id)
+        return queries.gjennomforing.getGjennomforing(id)
     }
 
     companion object {

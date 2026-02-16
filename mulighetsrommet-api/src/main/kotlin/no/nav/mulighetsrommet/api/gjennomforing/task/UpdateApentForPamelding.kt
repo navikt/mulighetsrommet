@@ -40,8 +40,9 @@ class UpdateApentForPamelding(
         @Language("PostgreSQL")
         val query = """
                 select id
-                from view_gjennomforing_avtale
-                where apent_for_pamelding = true
+                from view_gjennomforing
+                where gjennomforing_type = 'AVTALE'
+                  and apent_for_pamelding = true
                   and oppstart = 'FELLES'
                   and start_dato = ?
         """.trimIndent()

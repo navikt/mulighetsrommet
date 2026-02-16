@@ -460,6 +460,7 @@ private fun tasks(config: AppConfig) = module {
             ),
             get(),
             get(),
+            get(),
         )
     }
     single {

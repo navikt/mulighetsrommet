@@ -388,26 +388,44 @@ class GjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_gjennomforing_avtale
+            from view_gjennomforing
             where avtale_id = ?
         """.trimIndent()
 
         return session.list(queryOf(query, avtaleId)) { it.toGjennomforingAvtale() }
     }
 
-    fun getGjennomforingAvtaleOrError(id: UUID): GjennomforingAvtale {
-        return checkNotNull(getGjennomforingAvtale(id)) { "Gjennomføring med id $id finnes ikke" }
+    fun getGjennomforingOrError(id: UUID): Gjennomforing {
+        return checkNotNull(getGjennomforing(id)) { "Gjennomføring med id $id finnes ikke" }
     }
 
-    fun getGjennomforingAvtale(id: UUID): GjennomforingAvtale? {
+    fun getGjennomforing(id: UUID): Gjennomforing? {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_gjennomforing_avtale
+            from view_gjennomforing
             where id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, id)) { it.toGjennomforingAvtale() }
+        return session.single(queryOf(query, id)) { it.toGjennomforing() }
+    }
+
+    fun getGjennomforingAvtaleOrError(id: UUID): GjennomforingAvtale {
+        return getGjennomforing(id) as? GjennomforingAvtale ?: error(
+            "Gjennomføring med id $id er ikke av type GjennomforingAvtale",
+        )
+    }
+
+    fun getGjennomforingEnkeltplassOrError(id: UUID): GjennomforingEnkeltplass {
+        return getGjennomforing(id) as? GjennomforingEnkeltplass ?: error(
+            "Gjennomføring med id $id er ikke av type GjennomforingEnkeltplass",
+        )
+    }
+
+    fun getGjennomforingArenaOrError(id: UUID): GjennomforingArena {
+        return getGjennomforing(id) as? GjennomforingArena ?: error(
+            "Gjennomføring med id $id er ikke av type GjennomforingArena",
+        )
     }
 
     fun getGjennomforingAvtaleDetaljerOrError(id: UUID): GjennomforingAvtaleDetaljer {
@@ -417,42 +435,24 @@ class GjennomforingQueries(private val session: Session) {
     fun getGjennomforingAvtaleDetaljer(id: UUID): GjennomforingAvtaleDetaljer? {
         @Language("PostgreSQL")
         val query = """
-            select *
-            from view_gjennomforing_avtale
+            select publisert,
+                   oppmote_sted,
+                   beskrivelse,
+                   faneinnhold,
+                   estimert_ventetid_verdi,
+                   estimert_ventetid_enhet,
+                   tilgjengelig_for_arrangor_dato,
+                   administratorer_json,
+                   nav_enheter_json,
+                   nav_kontaktpersoner_json,
+                   arrangor_kontaktpersoner_json,
+                   utdanningslop_json,
+                   amo_kategorisering_json
+            from view_gjennomforing_avtale_detaljer
             where id = ?::uuid
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { it.toGjennomforingAvtaleDetaljer() }
-    }
-
-    fun getGjennomforingEnkeltplassOrError(id: UUID): GjennomforingEnkeltplass {
-        return checkNotNull(getGjennomforingEnkeltplass(id)) { "Gjennomføring med id=$id finnes ikke" }
-    }
-
-    fun getGjennomforingEnkeltplass(id: UUID): GjennomforingEnkeltplass? {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from view_gjennomforing_enkeltplass
-            where id = ?::uuid
-        """.trimIndent()
-
-        return session.single(queryOf(query, id)) { it.toEnkeltplass() }
-    }
-
-    fun getGjennomforingArenaOrError(id: UUID): GjennomforingArena {
-        return checkNotNull(getGjennomforingArena(id)) { "Gjennomføring med id=$id finnes ikke" }
-    }
-
-    fun getGjennomforingArena(id: UUID): GjennomforingArena? {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from view_gjennomforing_arena
-            where id = ?::uuid
-        """.trimIndent()
-
-        return session.single(queryOf(query, id)) { it.toGjennomforingArena() }
     }
 
     fun getPrismodell(id: UUID): Prismodell? {
@@ -638,6 +638,14 @@ class GjennomforingQueries(private val session: Session) {
     }
 }
 
+private fun Row.toGjennomforing(): Gjennomforing {
+    return when (GjennomforingType.valueOf(string("gjennomforing_type"))) {
+        GjennomforingType.AVTALE -> toGjennomforingAvtale()
+        GjennomforingType.ENKELTPLASS -> toGjennomforingEnkeltplass()
+        GjennomforingType.ARENA -> toGjennomforingArena()
+    }
+}
+
 private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
     val arrangor = GjennomforingKompakt.ArrangorUnderenhet(
         id = uuid("arrangor_id"),
@@ -779,7 +787,7 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
     )
 }
 
-private fun Row.toEnkeltplass(): GjennomforingEnkeltplass {
+private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
     return GjennomforingEnkeltplass(
         id = uuid("id"),
         opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),

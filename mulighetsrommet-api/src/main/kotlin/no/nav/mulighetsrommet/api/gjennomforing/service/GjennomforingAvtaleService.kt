@@ -20,8 +20,10 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingRequestMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -56,7 +58,7 @@ class GjennomforingAvtaleService(
         val id = request.id
         val (previous, detaljer) = db.session {
             Pair(
-                queries.gjennomforing.getGjennomforingAvtale(id),
+                getGjennomforingAvtale(id),
                 queries.gjennomforing.getGjennomforingAvtaleDetaljer(id),
             )
         }
@@ -136,8 +138,15 @@ class GjennomforingAvtaleService(
         )
     }
 
-    fun getGruppetiltak(id: UUID): GjennomforingAvtale? = db.session {
-        queries.gjennomforing.getGjennomforingAvtale(id)
+    fun getGjennomforingAvtale(id: UUID): GjennomforingAvtale? {
+        val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(id) } ?: return null
+        return when (gjennomforing) {
+            is GjennomforingAvtale -> gjennomforing
+
+            is GjennomforingEnkeltplass,
+            is GjennomforingArena,
+            -> throw IllegalArgumentException("Gjennomføring med id $id er ikke av typen GjennomforingAvtale")
+        }
     }
 
     fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent): Unit = db.transaction {

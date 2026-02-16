@@ -100,7 +100,7 @@ fun Route.tilsagnRoutesBeregning() {
         val request = call.receive<TilsagnRequest>()
 
         // TODO: må også gjelde enkeltplasser
-        val gjennomforing = gjennomforinger.getGruppetiltak(request.gjennomforingId)
+        val gjennomforing = gjennomforinger.getGjennomforingAvtale(request.gjennomforingId)
             ?: return@post call.respond(HttpStatusCode.NotFound)
 
         val defaults = when (request.type) {

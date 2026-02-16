@@ -33,7 +33,9 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
@@ -468,9 +470,13 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            avtaleGjennomforinger.getGruppetiltak(id)
-                ?.let { gjennomforing ->
-                    gjennomforing.arena?.tiltaksnummer
+            gjennomforinger.getGjennomforingDetaljerDto(id)
+                ?.let { detaljer ->
+                    val tiltaksnummer = when (detaljer.gjennomforing) {
+                        is GjennomforingAvtaleDto -> detaljer.gjennomforing.tiltaksnummer
+                        is GjennomforingEnkeltplassDto -> detaljer.gjennomforing.tiltaksnummer
+                    }
+                    tiltaksnummer
                         ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it.value)) }
                         ?: call.respond(HttpStatusCode.NoContent)
                 }

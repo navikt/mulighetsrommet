@@ -82,10 +82,11 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                    navn,
                    slutt_dato,
                    administratorer_json
-            from view_gjennomforing_avtale
-            where (:today::timestamp + interval '14' day) = slutt_dato
+            from view_gjennomforing
+            where gjennomforing_type = 'AVTALE' and (
+               (:today::timestamp + interval '14' day) = slutt_dato
                or (:today::timestamp + interval '7' day) = slutt_dato
-               or (:today::timestamp + interval '1' day) = slutt_dato
+               or (:today::timestamp + interval '1' day) = slutt_dato)
         """.trimIndent()
 
         session.list(queryOf(query, mapOf("today" to today))) { it.toTiltaksgjennomforingNotificationDto() }

@@ -7,11 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -27,6 +23,7 @@ import java.util.UUID
 class InitialLoadGjennomforinger(
     private val config: Config,
     private val db: ApiDatabase,
+    private val gjennomforinger: GjennomforingDetaljerService,
     private val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,
 ) {
     data class Config(
@@ -92,56 +89,27 @@ class InitialLoadGjennomforinger(
                 result.items
             },
         ) {
-            when (it) {
-                is GjennomforingAvtaleKompakt -> publishGjennomforingAvtale(it.id)
-                is GjennomforingEnkeltplassKompakt -> publishGjennomforingEnkeltplass(it.id)
-                is GjennomforingArenaKompakt -> publishGjennomforingArena(it.id)
-            }
+            publish(it.id)
         }
 
         logger.info("Gjennomføringer relastet på topic, tiltakskode=$tiltakskode, antall=$total")
     }
 
     fun initialLoadGjennomforingerById(ids: List<UUID>) = db.session {
-        ids.forEach { id ->
-            queries.gjennomforing.getGjennomforingAvtale(id)?.also { gjennomforing ->
-                val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
-                return@forEach publish(TiltaksgjennomforingV2Mapper.fromGjennomforingAvtale(gjennomforing, detaljer))
-            }
-
-            queries.gjennomforing.getGjennomforingEnkeltplass(id)?.also { gjennomforing ->
-                return@forEach publish(TiltaksgjennomforingV2Mapper.fromGjennomforingEnkeltplass(gjennomforing))
-            }
-
-            queries.gjennomforing.getGjennomforingArena(id)?.also { gjennomforing ->
-                return@forEach publish(TiltaksgjennomforingV2Mapper.fromGjennomforingArena(gjennomforing))
-            }
-
-            logger.warn("Fant ingen gjennomføring med id=$id")
-        }
+        ids.forEach { publish(it) }
     }
 
     private fun initialLoadByAvtale(avtaleId: UUID) = db.session {
-        queries.gjennomforing.getByAvtale(avtaleId).forEach { gjennomforing ->
-            val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
-            publish(TiltaksgjennomforingV2Mapper.fromGjennomforingAvtale(gjennomforing, detaljer))
+        queries.gjennomforing.getByAvtale(avtaleId).forEach {
+            publish(it.id)
         }
     }
 
-    private fun QueryContext.publishGjennomforingAvtale(id: UUID) {
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(id)
-        val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(id)
-        publish(TiltaksgjennomforingV2Mapper.fromGjennomforingAvtale(gjennomforing, detaljer))
-    }
-
-    private fun QueryContext.publishGjennomforingEnkeltplass(id: UUID) {
-        val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(id)
-        publish(TiltaksgjennomforingV2Mapper.fromGjennomforingEnkeltplass(gjennomforing))
-    }
-
-    private fun QueryContext.publishGjennomforingArena(id: UUID) {
-        val gjennomforing = queries.gjennomforing.getGjennomforingArenaOrError(id)
-        publish(TiltaksgjennomforingV2Mapper.fromGjennomforingArena(gjennomforing))
+    private fun publish(id: UUID) {
+        val dto = gjennomforinger.getTiltaksgjennomforingV2Dto(id) ?: return run {
+            logger.warn("Ingen gjennomføring med id=$id")
+        }
+        publish(dto)
     }
 
     private fun publish(gjennomforingV2: TiltaksgjennomforingV2Dto) {

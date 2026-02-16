@@ -114,7 +114,7 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.gjennomforing.delete(Oppfolging1.id)
 
-                queries.gjennomforing.getGjennomforingAvtale(Oppfolging1.id) shouldBe null
+                queries.gjennomforing.getGjennomforing(Oppfolging1.id) shouldBe null
             }
         }
 
@@ -529,7 +529,7 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.gjennomforing.delete(arenaEnkelAmo1.id)
 
-                queries.gjennomforing.getGjennomforingArena(arenaEnkelAmo1.id) shouldBe null
+                queries.gjennomforing.getGjennomforing(arenaEnkelAmo1.id) shouldBe null
             }
         }
     }
@@ -582,7 +582,7 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.gjennomforing.delete(enkelAmo1.id)
 
-                queries.gjennomforing.getGjennomforingEnkeltplass(enkelAmo1.id) shouldBe null
+                queries.gjennomforing.getGjennomforing(enkelAmo1.id) shouldBe null
             }
         }
     }
