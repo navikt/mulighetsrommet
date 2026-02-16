@@ -9,7 +9,7 @@ ktor = "3.4.0"
 logback = "1.5.28"
 metrics = "4.2.38"
 arrow = "2.2.1.1"
-micrometer = "1.16.2"
+micrometer = "1.16.3"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
