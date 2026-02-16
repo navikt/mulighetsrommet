@@ -105,7 +105,8 @@ class TiltakgjennomforingEventProcessor(
             val tiltakstypeMapping = entities
                 .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
                 .bind()
-            val gjennomforing = data.toTiltakshistorikk(tiltaksgjennomforing.id, tiltakstypeMapping.entityId, virksomhetsnummer)
+            val gjennomforing = data
+                .toTiltakshistorikk(tiltaksgjennomforing.id, tiltakstypeMapping.entityId, virksomhetsnummer)
             status = upsertTiltaksgjennomforingToTiltakshistorikk(event.operation, gjennomforing).bind()
         }
 
@@ -214,7 +215,7 @@ class TiltakgjennomforingEventProcessor(
         arenaAnsvarligEnhet = sak.enhet,
         avslutningsstatus = resolveAvslutningsstatus(status, tilDato),
         apentForPamelding = apentForInnsok,
-        antallPlasser = antallPlasser,
+        antallPlasser = antallPlasser ?: 1,
         avtaleId = avtaleId,
         deltidsprosent = deltidsprosent,
     )
