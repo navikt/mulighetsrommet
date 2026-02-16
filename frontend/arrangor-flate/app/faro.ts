@@ -1,4 +1,10 @@
-import { getWebInstrumentations, initializeFaro, Faro } from "@grafana/faro-react";
+import {
+  getWebInstrumentations,
+  initializeFaro,
+  Faro,
+  ExceptionEventExtended,
+  TransportItem,
+} from "@grafana/faro-react";
 
 interface NaisConfig {
   telemetryCollectorURL: string;
@@ -31,6 +37,30 @@ export function initializeLogs() {
     url: nais.telemetryCollectorURL,
     app: nais.app,
     instrumentations: [...getWebInstrumentations()],
+    preserveOriginalError: true,
+    beforeSend: (item) => {
+      if (item.type !== "exception") {
+        return item;
+      }
+      const extendedItem = item as TransportItem<ExceptionEventExtended>;
+      const originalError = extendedItem.payload.originalError;
+      if (typeof originalError === "object") {
+        extendedItem.payload.value = JSON.stringify(
+          originalError,
+          Object.getOwnPropertyNames(originalError),
+        );
+      }
+      if (originalError?.name == null) {
+        extendedItem.payload.value = `Uncontrolled error: ${extendedItem.payload.value}`;
+      }
+      if (originalError?.message && typeof originalError.message === "object") {
+        extendedItem.payload.value = JSON.stringify(
+          originalError.message,
+          Object.getOwnPropertyNames(originalError.message),
+        );
+      }
+      return extendedItem;
+    },
   });
 }
 
@@ -46,5 +76,5 @@ function refineError(err: unknown): Error {
   if (typeof err === "string") {
     return new Error(err);
   }
-  return new Error(JSON.stringify(err, null, 2));
+  return new Error(JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
 }
