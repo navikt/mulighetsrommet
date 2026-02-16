@@ -435,7 +435,6 @@ class GjennomforingQueries(private val session: Session) {
                    start_dato,
                    slutt_dato,
                    status,
-                   avsluttet_tidspunkt,
                    avbrutt_aarsaker,
                    avbrutt_forklaring,
                    publisert,
