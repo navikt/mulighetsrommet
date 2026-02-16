@@ -168,6 +168,13 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
 
     if (!formState.belop) {
       newErrors.push({ pointer: "/belop", detail: "Du må fylle ut beløp" });
+    } else {
+      const belopNumber = Number(formState.belop);
+      if (isNaN(belopNumber)) {
+        newErrors.push({ pointer: "/belop", detail: "Beløp må være et tall" });
+      } else if (!Number.isInteger(belopNumber)) {
+        newErrors.push({ pointer: "/belop", detail: "Beløp må være et heltall" });
+      }
     }
     if (!formState.kontonummer) {
       newErrors.push({ pointer: "/kontonummer", detail: "Fant ikke kontonummer" });
