@@ -99,9 +99,10 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
 suspend fun ApplicationCall.respondWithProblemDetail(problem: ProblemDetail) {
     val json = Json.encodeToJsonElement(problem).jsonObject
 
-    val traceId = Span.current().spanContext.traceId?.takeIf { traceId -> !traceId.all { it == '0' } }
-    val enriched = traceId?.let { JsonObject(json + ("traceId" to JsonPrimitive(it))) }
-        ?: json
+    val traceId = Span.current().spanContext.traceId
+    val enriched = traceId?.let {
+        JsonObject(json + ("traceId" to JsonPrimitive(it)))
+    } ?: json
 
     respondText(
         text = enriched.toString(),
