@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.11.1",
-    "@hey-api/openapi-ts": "0.91.1",
+    "@hey-api/openapi-ts": "0.92.3",
     "@mr/eslint-config-react-app": "workspace:*",
     "@playwright/test": "1.58.0",
     "@tailwindcss/typography": "0.5.19",
