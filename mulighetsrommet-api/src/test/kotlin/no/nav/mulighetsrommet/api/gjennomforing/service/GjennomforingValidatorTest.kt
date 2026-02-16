@@ -19,6 +19,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.TiltakOslo
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
@@ -374,6 +377,21 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
+    test("fjerner nav-enheter som ikke er en del av avtalen") {
+        GjennomforingValidator.validate(
+            request.copy(
+                veilederinformasjon = request.veilederinformasjon.copy(
+                    navRegioner = listOf(Innlandet.enhetsnummer, Oslo.enhetsnummer),
+                    navKontorer = listOf(Gjovik.enhetsnummer, Sel.enhetsnummer),
+                    navAndreEnheter = listOf(TiltakOslo.enhetsnummer),
+                ),
+            ),
+            ctx,
+        ).shouldBeRight().should {
+            it.navEnheter.shouldBe(setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer))
+        }
+    }
+
     context("når gjennonmføring allerede eksisterer") {
         val gjennomforing = GjennomforingValidator.Ctx.Gjennomforing(
             arrangorId = ArrangorFixtures.underenhet1.id,
@@ -429,7 +447,10 @@ class GjennomforingValidatorTest : FunSpec({
                     startDato = LocalDate.now().minusDays(2),
                     sluttDato = LocalDate.now().minusDays(1),
                 ),
-                ctx.copy(previous = gjennomforing.copy(sluttDato = null), avtale = ctx.avtale.copy(startDato = LocalDate.now().minusDays(2))),
+                ctx.copy(
+                    previous = gjennomforing.copy(sluttDato = null),
+                    avtale = ctx.avtale.copy(startDato = LocalDate.now().minusDays(2)),
+                ),
             ).shouldBeLeft(
                 listOf(
                     FieldError(
