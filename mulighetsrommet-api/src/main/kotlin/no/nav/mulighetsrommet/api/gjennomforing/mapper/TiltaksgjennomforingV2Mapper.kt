@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Arrangor
@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Gruppe
 import no.nav.mulighetsrommet.model.Tiltakskoder
 
 object TiltaksgjennomforingV2Mapper {
-    fun fromGjennomforing(gjennomforing: Gjennomforing): TiltaksgjennomforingV2Dto = when (gjennomforing) {
-        is GjennomforingAvtale -> Gruppe(
+    fun fromGjennomforingAvtale(gjennomforing: GjennomforingAvtale, detaljer: GjennomforingAvtaleDetaljer): Gruppe {
+        return Gruppe(
             id = gjennomforing.id,
             opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
             oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
@@ -25,15 +25,17 @@ object TiltaksgjennomforingV2Mapper {
             sluttDato = gjennomforing.sluttDato,
             status = gjennomforing.status.type,
             oppstart = gjennomforing.oppstart,
-            tilgjengeligForArrangorFraOgMedDato = gjennomforing.tilgjengeligForArrangorDato,
-            apentForPamelding = gjennomforing.apentForPamelding,
             antallPlasser = gjennomforing.antallPlasser,
             deltidsprosent = gjennomforing.deltidsprosent,
-            oppmoteSted = gjennomforing.oppmoteSted,
             pameldingType = gjennomforing.pameldingType,
+            apentForPamelding = gjennomforing.apentForPamelding,
+            oppmoteSted = detaljer.oppmoteSted,
+            tilgjengeligForArrangorFraOgMedDato = detaljer.tilgjengeligForArrangorDato,
         )
+    }
 
-        is GjennomforingEnkeltplass -> Enkeltplass(
+    fun fromGjennomforingEnkeltplass(gjennomforing: GjennomforingEnkeltplass): Enkeltplass {
+        return Enkeltplass(
             id = gjennomforing.id,
             opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
             oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
@@ -42,8 +44,10 @@ object TiltaksgjennomforingV2Mapper {
                 organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
             ),
         )
+    }
 
-        is GjennomforingArena -> if (Tiltakskoder.isEnkeltplassTiltak(gjennomforing.tiltakstype.tiltakskode)) {
+    fun fromGjennomforingArena(gjennomforing: GjennomforingArena): TiltaksgjennomforingV2Dto {
+        return if (Tiltakskoder.isEnkeltplassTiltak(gjennomforing.tiltakstype.tiltakskode)) {
             Enkeltplass(
                 id = gjennomforing.id,
                 opprettetTidspunkt = gjennomforing.opprettetTidspunkt,

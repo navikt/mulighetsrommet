@@ -13,7 +13,7 @@ data class UtdanningslopDto(
     fun toDbo(): UtdanningslopDbo {
         return UtdanningslopDbo(
             utdanningsprogram = utdanningsprogram.id,
-            utdanninger = utdanninger.map { it.id },
+            utdanninger = utdanninger.map { it.id }.toSet(),
         )
     }
 

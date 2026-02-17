@@ -10,6 +10,8 @@ import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -36,14 +38,20 @@ class InitialLoadGjennomforingerTest : FunSpec({
 
     val gjennomforinvV2Topic = "topic-v2"
 
+    fun createTask(
+        database: ApiDatabaseTestListener,
+        producerClient: KafkaProducerClient<ByteArray, ByteArray?>,
+    ): InitialLoadGjennomforinger = InitialLoadGjennomforinger(
+        InitialLoadGjennomforinger.Config(gjennomforinvV2Topic),
+        database.db,
+        GjennomforingDetaljerService(database.db, TiltakstypeService(db = database.db), mockk()),
+        producerClient,
+    )
+
     test("initial load basert på tiltakskode") {
         val producerClient = mockk<KafkaProducerClient<ByteArray, ByteArray?>>(relaxed = true)
 
-        val task = InitialLoadGjennomforinger(
-            InitialLoadGjennomforinger.Config(gjennomforinvV2Topic),
-            database.db,
-            producerClient,
-        )
+        val task = createTask(database, producerClient)
 
         task.initialLoadByTiltakskode(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING)
 
@@ -78,11 +86,7 @@ class InitialLoadGjennomforingerTest : FunSpec({
     test("initial load basert på id") {
         val producerClient = mockk<KafkaProducerClient<ByteArray, ByteArray?>>(relaxed = true)
 
-        val task = InitialLoadGjennomforinger(
-            InitialLoadGjennomforinger.Config(gjennomforinvV2Topic),
-            database.db,
-            producerClient,
-        )
+        val task = createTask(database, producerClient)
 
         task.initialLoadGjennomforingerById(listOf(UUID.randomUUID()))
 

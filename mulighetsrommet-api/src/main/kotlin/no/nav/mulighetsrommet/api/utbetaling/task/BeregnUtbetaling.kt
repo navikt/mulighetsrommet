@@ -67,7 +67,7 @@ class BeregnUtbetaling(
             val gjennomforingIds: Set<UUID> = existingUtbetalinger.mapTo(mutableSetOf()) { it.gjennomforing.id } +
                 newUtbetalinger.mapTo(mutableSetOf()) { it.gjennomforing.id }
             val gjennomforinger = db.session {
-                gjennomforingIds.mapNotNull { queries.gjennomforing.getGjennomforingAvtale(it) }
+                gjennomforingIds.map { queries.gjennomforing.getGjennomforingAvtaleOrError(it) }
             }
 
             val report = createReport(gjennomforinger, existingUtbetalinger, newUtbetalinger)

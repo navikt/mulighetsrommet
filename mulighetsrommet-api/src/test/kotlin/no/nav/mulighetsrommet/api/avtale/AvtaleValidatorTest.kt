@@ -440,7 +440,7 @@ class AvtaleValidatorTest : FunSpec({
                 tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode!!,
                 utdanningslop = UtdanningslopDbo(
                     utdanningsprogram = UUID.randomUUID(),
-                    utdanninger = emptyList(),
+                    utdanninger = setOf(),
                 ),
             ),
         )
@@ -774,7 +774,6 @@ class AvtaleValidatorTest : FunSpec({
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         navn = ArrangorFixtures.underenhet1.navn,
-                        kontaktpersoner = emptyList(),
                         slettet = false,
                     ),
                     startDato = LocalDate.now(),
@@ -856,7 +855,6 @@ class AvtaleValidatorTest : FunSpec({
                                         id = ArrangorFixtures.underenhet2.id,
                                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                                         navn = ArrangorFixtures.underenhet2.navn,
-                                        kontaktpersoner = emptyList(),
                                         slettet = false,
                                     ),
                                     startDato = LocalDate.now(),

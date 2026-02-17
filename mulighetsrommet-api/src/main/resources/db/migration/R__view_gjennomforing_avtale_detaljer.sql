@@ -1,61 +1,23 @@
 -- ${flyway:timestamp}
 
-drop view if exists view_gjennomforing_avtale;
+drop view if exists view_gjennomforing_avtale_detaljer;
 
-create view view_gjennomforing_avtale as
+create view view_gjennomforing_avtale_detaljer as
 select gjennomforing.id,
-       gjennomforing.opphav,
-       gjennomforing.lopenummer,
-       gjennomforing.arena_tiltaksnummer,
-       gjennomforing.arena_ansvarlig_enhet as arena_nav_enhet_enhetsnummer,
-       arena_nav_enhet.navn                as arena_nav_enhet_navn,
-       gjennomforing.navn,
-       gjennomforing.start_dato,
-       gjennomforing.slutt_dato,
-       gjennomforing.status,
-       gjennomforing.avbrutt_aarsaker,
-       gjennomforing.avbrutt_forklaring,
-       gjennomforing.deltidsprosent,
-       gjennomforing.antall_plasser,
-       gjennomforing.fts,
-       gjennomforing.created_at            as opprettet_tidspunkt,
-       gjennomforing.updated_at            as oppdatert_tidspunkt,
-       gjennomforing.apent_for_pamelding,
-       gjennomforing.oppstart,
-       gjennomforing.pamelding_type,
+       gjennomforing.publisert,
+       gjennomforing.oppmote_sted,
        gjennomforing.beskrivelse,
        gjennomforing.faneinnhold,
        gjennomforing.estimert_ventetid_verdi,
        gjennomforing.estimert_ventetid_enhet,
-       gjennomforing.oppmote_sted,
-       gjennomforing.publisert,
        gjennomforing.tilgjengelig_for_arrangor_dato,
-       gjennomforing.avtale_id,
-       prismodell.id                       as prismodell_id,
-       prismodell.valuta                   as prismodell_valuta,
-       prismodell.prismodell_type          as prismodell_type,
-       prismodell.prisbetingelser          as prismodell_prisbetingelser,
-       prismodell.satser                   as prismodell_satser,
-       tiltakstype.id                      as tiltakstype_id,
-       tiltakstype.navn                    as tiltakstype_navn,
-       tiltakstype.tiltakskode             as tiltakstype_tiltakskode,
-       arrangor.id                         as arrangor_id,
-       arrangor.organisasjonsnummer        as arrangor_organisasjonsnummer,
-       arrangor.navn                       as arrangor_navn,
-       arrangor.slettet_dato is not null   as arrangor_slettet,
-       arrangor_kontaktpersoner_json,
-       nav_kontaktpersoner_json,
        administratorer_json,
-       koordinator_json,
        nav_enheter_json,
-       amo_kategorisering_json,
+       nav_kontaktpersoner_json,
+       arrangor_kontaktpersoner_json,
        utdanningslop_json,
-       stengt_perioder_json
+       amo_kategorisering_json
 from gjennomforing
-         join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-         join arrangor on arrangor.id = gjennomforing.arrangor_id
-         left join prismodell on prismodell.id = gjennomforing.prismodell_id
-         left join nav_enhet arena_nav_enhet on gjennomforing.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'enhetsnummer', enhet.enhetsnummer,
@@ -89,15 +51,6 @@ from gjennomforing
                             from gjennomforing_administrator administrator
                                      join nav_ansatt ansatt on ansatt.nav_ident = administrator.nav_ident
                             where administrator.gjennomforing_id = gjennomforing.id) on true
-         left join lateral (select jsonb_agg(
-                                           jsonb_build_object(
-                                                   'navIdent', ansatt.nav_ident,
-                                                   'navn', concat(ansatt.fornavn, ' ', ansatt.etternavn)
-                                           )
-                                   ) as koordinator_json
-                            from gjennomforing_koordinator koordinator
-                                     join nav_ansatt ansatt on ansatt.nav_ident = koordinator.nav_ident
-                            where koordinator.gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'id', id,

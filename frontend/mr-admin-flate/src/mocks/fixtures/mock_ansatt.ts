@@ -1,4 +1,8 @@
-import { GjennomforingKontaktperson, NavAnsattDto, Rolle } from "@tiltaksadministrasjon/api-client";
+import {
+  GjennomforingKontaktpersonDto,
+  NavAnsattDto,
+  Rolle,
+} from "@tiltaksadministrasjon/api-client";
 
 const bertil: NavAnsattDto = {
   entraObjectId: "0bab029e-e84e-4842-8a27-d153b29782cf",
@@ -75,7 +79,7 @@ const petrus: NavAnsattDto = {
   roller: [{ rolle: Rolle.KONTAKTPERSON, navn: "Kontaktperson" }],
 };
 
-export const petrusKontaktperson: GjennomforingKontaktperson = {
+export const petrusKontaktperson: GjennomforingKontaktpersonDto = {
   navIdent: petrus.navIdent,
   navn: petrus.fornavn + " " + petrus.etternavn,
   hovedenhet: "0400",
@@ -84,7 +88,7 @@ export const petrusKontaktperson: GjennomforingKontaktperson = {
   beskrivelse: "Beskrivelse til Petrus",
 };
 
-export const nikolineKontaktperson: GjennomforingKontaktperson = {
+export const nikolineKontaktperson: GjennomforingKontaktpersonDto = {
   navIdent: nikoline.navIdent,
   navn: nikoline.fornavn + " " + nikoline.etternavn,
   hovedenhet: "0400",

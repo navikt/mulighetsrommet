@@ -3,8 +3,8 @@ import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
   ArenaMigreringOpphav,
   DataElementStatusVariant,
-  GjennomforingArrangorUnderenhet,
   GjennomforingDetaljerDto,
+  GjennomforingDtoArrangorUnderenhet,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingStatusType,
@@ -18,7 +18,7 @@ import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 
-const arrangor: GjennomforingArrangorUnderenhet = {
+const arrangor: GjennomforingDtoArrangorUnderenhet = {
   id: "d9d4db51-3564-4493-b897-4fc38dc48965",
   organisasjonsnummer: "992943084",
   navn: "FRETEX AS AVD OSLO",

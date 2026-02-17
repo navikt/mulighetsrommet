@@ -3,11 +3,13 @@ package no.nav.mulighetsrommet.api.gjennomforing.api
 import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.flatMap
+import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import arrow.core.raise.zipOrAccumulate
+import arrow.core.right
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.put
@@ -30,9 +32,10 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
@@ -48,6 +51,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -97,7 +101,7 @@ fun Route.gjennomforingRoutes() {
 
                 val result = avtaleGjennomforinger.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
-                    .map { GjennomforingDtoMapper.fromGruppetiltak(it) }
+                    .flatMap { gjennomforinger.getOrInternalServerError(it.id) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -263,7 +267,7 @@ fun Route.gjennomforingRoutes() {
                         avtaleGjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
-                    .map { GjennomforingDtoMapper.fromGruppetiltak(it) }
+                    .flatMap { gjennomforinger.getOrInternalServerError(it.id) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -363,7 +367,7 @@ fun Route.gjennomforingRoutes() {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            val result = gjennomforinger.getAll(pagination, filter)
+            val result = gjennomforinger.getAllKompaktDto(pagination, filter)
 
             call.respond(result)
         }
@@ -408,7 +412,7 @@ fun Route.gjennomforingRoutes() {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            val result = gjennomforinger.getAll(pagination, filter)
+            val result = gjennomforinger.getAllKompaktDto(pagination, filter)
             val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
 
             call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
@@ -442,7 +446,7 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            gjennomforinger.get(id)
+            gjennomforinger.getGjennomforingDetaljerDto(id)
                 ?.let { call.respond(it) }
                 ?: call.respondUkjentGjennomforing(id)
         }
@@ -466,9 +470,13 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            avtaleGjennomforinger.getGruppetiltak(id)
-                ?.let { gjennomforing ->
-                    gjennomforing.arena?.tiltaksnummer
+            gjennomforinger.getGjennomforingDetaljerDto(id)
+                ?.let { detaljer ->
+                    val tiltaksnummer = when (detaljer.gjennomforing) {
+                        is GjennomforingAvtaleDto -> detaljer.gjennomforing.tiltaksnummer
+                        is GjennomforingEnkeltplassDto -> detaljer.gjennomforing.tiltaksnummer
+                    }
+                    tiltaksnummer
                         ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it.value)) }
                         ?: call.respond(HttpStatusCode.NoContent)
                 }
@@ -554,11 +562,16 @@ fun Route.gjennomforingRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
 
-            val handlinger = gjennomforinger.handlinger(id, navIdent)
+            val handlinger = gjennomforinger.getHandlinger(id, navIdent)
 
             call.respond(handlinger)
         }
     }
+}
+
+private fun GjennomforingDetaljerService.getOrInternalServerError(id: UUID): Either<InternalServerError, GjennomforingDetaljerDto> {
+    return getGjennomforingDetaljerDto(id)?.right()
+        ?: InternalServerError("Klarte ikke hente detaljer om gjennomforing=$id").left()
 }
 
 private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {
@@ -640,13 +653,13 @@ data class GjennomforingRequest(
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val arrangorId: UUID?,
-    val arrangorKontaktpersoner: List<
+    val arrangorKontaktpersoner: Set<
         @Serializable(with = UUIDSerializer::class)
         UUID,
         >,
     val veilederinformasjon: GjennomforingVeilederinfoRequest,
-    val kontaktpersoner: List<GjennomforingKontaktpersonDto>,
-    val administratorer: List<NavIdent>,
+    val kontaktpersoner: Set<Kontaktperson>,
+    val administratorer: Set<NavIdent>,
     val oppstart: GjennomforingOppstartstype?,
     val oppmoteSted: String?,
     val deltidsprosent: Double,
@@ -658,21 +671,27 @@ data class GjennomforingRequest(
     @Serializable(with = UUIDSerializer::class)
     val prismodellId: UUID?,
     val pameldingType: GjennomforingPameldingType?,
-)
+) {
+    @Serializable
+    data class EstimertVentetid(
+        val verdi: Int?,
+        val enhet: String?,
+    )
+
+    @Serializable
+    data class Kontaktperson(
+        val navIdent: NavIdent,
+        val beskrivelse: String?,
+    )
+}
 
 @Serializable
 data class GjennomforingVeilederinfoRequest(
-    val navRegioner: List<NavEnhetNummer>,
-    val navKontorer: List<NavEnhetNummer>,
-    val navAndreEnheter: List<NavEnhetNummer>,
+    val navRegioner: Set<NavEnhetNummer>,
+    val navKontorer: Set<NavEnhetNummer>,
+    val navAndreEnheter: Set<NavEnhetNummer>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
-)
-
-@Serializable
-data class GjennomforingKontaktpersonDto(
-    val navIdent: NavIdent,
-    val beskrivelse: String?,
 )
 
 @Serializable
@@ -739,12 +758,6 @@ data class SetStengtHosArrangorRequest(
 data class SetTilgjengligForArrangorRequest(
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
-)
-
-@Serializable
-data class EstimertVentetid(
-    val verdi: Int?,
-    val enhet: String?,
 )
 
 @Serializable

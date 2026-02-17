@@ -17,11 +17,13 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingAvtaleDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingRequestMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -53,35 +55,52 @@ class GjennomforingAvtaleService(
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, GjennomforingAvtale> = either {
-        val previous = getGruppetiltak(request.id)
+        val id = request.id
+        val (previous, detaljer) = db.session {
+            Pair(
+                getGjennomforingAvtale(id),
+                queries.gjennomforing.getGjennomforingAvtaleDetaljer(id),
+            )
+        }
+
+        if (previous != null && detaljer != null && isEqual(request, previous, detaljer)) {
+            return@either previous
+        }
+
         val ctx = getValidatorCtx(request, previous, today)
 
-        val dbo = GjennomforingValidator
+        val result = GjennomforingValidator
             .validate(request, ctx)
-            .onRight { dbo ->
-                dbo.kontaktpersoner.forEach {
+            .onRight { result ->
+                result.kontaktpersoner.forEach {
                     navAnsattService.addUserToKontaktpersoner(it.navIdent)
                 }
             }
             .bind()
 
-        if (previous != null && isEqual(previous, dbo)) {
-            return@either previous
-        }
-
         db.transaction {
-            queries.gjennomforing.upsertGjennomforingAvtale(dbo)
-
-            dispatchNotificationToNewAdministrators(dbo, navIdent)
+            queries.gjennomforing.upsert(result.gjennomforing)
+            setAdministratorer(id, result.administratorer, navIdent, result.gjennomforing.navn)
+            queries.gjennomforing.setKontaktpersoner(id, result.kontaktpersoner)
+            queries.gjennomforing.setArrangorKontaktpersoner(id, request.arrangorKontaktpersoner)
+            GjennomforingValidator.validateNavEnheter(ctx.avtale, request.veilederinformasjon).bind().let {
+                queries.gjennomforing.setNavEnheter(id, it)
+            }
+            GjennomforingValidator.validateUtdanningslop(ctx.avtale, request.utdanningslop).bind().let {
+                queries.gjennomforing.setUtdanningslop(id, it)
+            }
+            GjennomforingValidator.validateAmoKategorisering(ctx.avtale, request.amoKategorisering).bind().let {
+                queries.gjennomforing.setAmoKategorisering(id, it)
+            }
 
             val operation = if (ctx.previous == null) {
                 "Opprettet gjennomføring"
             } else {
                 "Redigerte gjennomføring"
             }
-            val dto = logEndring(operation, dbo.id, navIdent)
+            val dto = logEndring(operation, id, navIdent)
 
-            queries.gjennomforing.setFreeTextSearch(dbo.id, listOf(dbo.navn, dto.arrangor.navn))
+            queries.gjennomforing.setFreeTextSearch(id, listOf(result.gjennomforing.navn, dto.arrangor.navn))
 
             publishToKafka(dto)
             dto
@@ -119,8 +138,15 @@ class GjennomforingAvtaleService(
         )
     }
 
-    fun getGruppetiltak(id: UUID): GjennomforingAvtale? = db.session {
-        queries.gjennomforing.getGjennomforingAvtale(id)
+    fun getGjennomforingAvtale(id: UUID): GjennomforingAvtale? {
+        val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(id) } ?: return null
+        return when (gjennomforing) {
+            is GjennomforingAvtale -> gjennomforing
+
+            is GjennomforingEnkeltplass,
+            is GjennomforingArena,
+            -> throw IllegalArgumentException("Gjennomføring med id $id er ikke av typen GjennomforingAvtale")
+        }
     }
 
     fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent): Unit = db.transaction {
@@ -311,18 +337,22 @@ class GjennomforingAvtaleService(
         return queries.gjennomforing.getGjennomforingAvtaleOrError(id)
     }
 
-    private fun QueryContext.dispatchNotificationToNewAdministrators(
-        dbo: GjennomforingAvtaleDbo,
+    // TODO: valider slettede admins her i stedet
+    private fun QueryContext.setAdministratorer(
+        id: UUID,
+        administratorer: Set<NavIdent>,
         navIdent: NavIdent,
+        navn: String,
     ) {
-        val currentAdministratorer = getGruppetiltak(dbo.id)?.administratorer?.map { it.navIdent }?.toSet()
-            ?: setOf()
+        val currentAdministratorer = queries.gjennomforing.getAdministratorer(id).orEmpty().map { it.navIdent }.toSet()
 
-        val administratorsToNotify = (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull()
+        queries.gjennomforing.setAdministratorer(id, administratorer)
+
+        val administratorsToNotify = (administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull()
             ?: return
 
         val notification = ScheduledNotification(
-            title = "Du har blitt satt som administrator på gjennomføringen \"${dbo.navn}\"",
+            title = "Du har blitt satt som administrator på gjennomføringen \"${navn}\"",
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
@@ -348,7 +378,8 @@ class GjennomforingAvtaleService(
     }
 
     private fun QueryContext.publishToKafka(gjennomforing: GjennomforingAvtale) {
-        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGjennomforing(gjennomforing)
+        val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
+        val gjennomforingV2 = TiltaksgjennomforingV2Mapper.fromGjennomforingAvtale(gjennomforing, detaljer)
         val recordV2 = StoredProducerRecord(
             config.gjennomforingV2Topic,
             gjennomforingV2.id.toString().toByteArray(),
@@ -360,41 +391,9 @@ class GjennomforingAvtaleService(
 }
 
 private fun isEqual(
+    request: GjennomforingRequest,
     previous: GjennomforingAvtale,
-    dbo: GjennomforingAvtaleDbo,
-): Boolean = dbo == GjennomforingAvtaleDbo(
-    id = previous.id,
-    navn = previous.navn,
-    tiltakstypeId = previous.tiltakstype.id,
-    arrangorId = previous.arrangor.id,
-    arrangorKontaktpersoner = previous.arrangor.kontaktpersoner.map { it.id },
-    startDato = previous.startDato,
-    sluttDato = previous.sluttDato,
-    status = previous.status.type,
-    antallPlasser = previous.antallPlasser,
-    avtaleId = previous.avtaleId,
-    administratorer = previous.administratorer.map { it.navIdent },
-    navEnheter = previous.kontorstruktur
-        .flatMap { (region, kontorer) ->
-            kontorer.map { kontor -> kontor.enhetsnummer } + region.enhetsnummer
-        }
-        .toSet(),
-    oppstart = previous.oppstart,
-    kontaktpersoner = previous.kontaktpersoner.map {
-        GjennomforingKontaktpersonDbo(
-            navIdent = it.navIdent,
-            beskrivelse = it.beskrivelse,
-        )
-    },
-    oppmoteSted = previous.oppmoteSted,
-    faneinnhold = previous.faneinnhold,
-    beskrivelse = previous.beskrivelse,
-    deltidsprosent = previous.deltidsprosent,
-    estimertVentetidVerdi = previous.estimertVentetid?.verdi,
-    estimertVentetidEnhet = previous.estimertVentetid?.enhet,
-    tilgjengeligForArrangorDato = previous.tilgjengeligForArrangorDato,
-    amoKategorisering = previous.amoKategorisering,
-    utdanningslop = previous.utdanningslop?.toDbo(),
-    pameldingType = previous.pameldingType,
-    prismodellId = previous.prismodell.id,
-)
+    detaljer: GjennomforingAvtaleDetaljer,
+): Boolean {
+    return request == GjennomforingRequestMapper.fromGjennomforing(previous, detaljer)
+}

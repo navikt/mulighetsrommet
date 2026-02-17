@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.ArenaEnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
@@ -33,9 +32,9 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -74,7 +73,7 @@ class GjennomforingQueriesTest : FunSpec({
     context("avtale") {
         test("lagre gjennomføring") {
             database.runAndRollback {
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1)
+                queries.gjennomforing.upsert(Oppfolging1)
 
                 queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id) should {
                     it.id shouldBe Oppfolging1.id
@@ -89,46 +88,43 @@ class GjennomforingQueriesTest : FunSpec({
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         navn = ArrangorFixtures.underenhet1.navn,
                         slettet = false,
-                        kontaktpersoner = emptyList(),
                     )
                     it.startDato shouldBe Oppfolging1.startDato
                     it.sluttDato shouldBe Oppfolging1.sluttDato
                     it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
-                    it.apentForPamelding shouldBe true
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId
-                    it.administratorer shouldBe listOf(
-                        GjennomforingAvtale.Administrator(
-                            navIdent = NavIdent("DD1"),
-                            navn = "Donald Duck",
-                        ),
-                    )
-                    it.kontorstruktur.shouldNotBeNull()
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
+                    it.arena?.tiltaksnummer shouldBe null
+                    it.arena?.ansvarligNavEnhet shouldBe null
+                    it.apentForPamelding shouldBe true
+                    it.kontorstruktur.shouldNotBeNull()
+                }
+
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
+                    it.arrangorKontaktpersoner shouldBe emptyList()
+                    it.administratorer shouldBe listOf()
+                    it.kontorstruktur.shouldNotBeNull()
                     it.kontaktpersoner shouldBe listOf()
                     it.oppmoteSted shouldBe "Munch museet"
                     it.faneinnhold shouldBe null
                     it.beskrivelse shouldBe null
-                    it.arena?.tiltaksnummer shouldBe null
-                    it.arena?.ansvarligNavEnhet shouldBe null
                 }
 
                 queries.gjennomforing.delete(Oppfolging1.id)
 
-                queries.gjennomforing.getGjennomforingAvtale(Oppfolging1.id) shouldBe null
+                queries.gjennomforing.getGjennomforing(Oppfolging1.id) shouldBe null
             }
         }
 
         test("Administratorer crud") {
             database.runAndRollback {
-                val gjennomforing = Oppfolging1.copy(
-                    administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-                )
-                queries.gjennomforing.upsertGjennomforingAvtale(gjennomforing)
+                queries.gjennomforing.upsert(Oppfolging1)
+                queries.gjennomforing.setAdministratorer(Oppfolging1.id, setOf(NavAnsattFixture.DonaldDuck.navIdent))
 
-                queries.gjennomforing.getGjennomforingAvtale(gjennomforing.id)?.administratorer.shouldContainExactlyInAnyOrder(
-                    GjennomforingAvtale.Administrator(
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).administratorer.shouldContainExactlyInAnyOrder(
+                    GjennomforingAvtaleDetaljer.Administrator(
                         navIdent = NavAnsattFixture.DonaldDuck.navIdent,
                         navn = "Donald Duck",
                     ),
@@ -142,10 +138,14 @@ class GjennomforingQueriesTest : FunSpec({
                     navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel, Oslo),
                 ).setup(session)
 
-                queries.gjennomforing.upsertGjennomforingAvtale(
-                    Oppfolging1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sel.enhetsnummer)),
+                queries.gjennomforing.upsert(Oppfolging1)
+                queries.gjennomforing.setNavEnheter(
+                    Oppfolging1.id,
+                    setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sel.enhetsnummer),
                 )
-                queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).kontorstruktur.shouldHaveSize(1)
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id)
+                    .kontorstruktur
+                    .shouldHaveSize(1)
                     .first()
                     .should {
                         it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
@@ -155,38 +155,42 @@ class GjennomforingQueriesTest : FunSpec({
                         }
                     }
 
-                queries.gjennomforing.upsertGjennomforingAvtale(
-                    Oppfolging1.copy(
-                        navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer),
-                    ),
+                queries.gjennomforing.setNavEnheter(
+                    Oppfolging1.id,
+                    setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer),
                 )
-                queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).kontorstruktur.shouldHaveSize(1)
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id)
+                    .kontorstruktur
+                    .shouldHaveSize(1)
                     .first()
                     .should {
                         it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
                         it.kontorer.shouldHaveSize(1).first().enhetsnummer shouldBe Lillehammer.enhetsnummer
                     }
 
-                queries.gjennomforing.upsertGjennomforingAvtale(
-                    Oppfolging1.copy(navEnheter = setOf(Oslo.enhetsnummer)),
+                queries.gjennomforing.setNavEnheter(
+                    Oppfolging1.id,
+                    setOf(Oslo.enhetsnummer),
                 )
-                queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).kontorstruktur.shouldHaveSize(1)
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id)
+                    .kontorstruktur
+                    .shouldHaveSize(1)
                     .first()
                     .should {
                         it.region.enhetsnummer shouldBe Oslo.enhetsnummer
                         it.kontorer.shouldBeEmpty()
                     }
 
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1.copy(navEnheter = setOf()))
-                queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).kontorstruktur.shouldBeEmpty()
+                queries.gjennomforing.setNavEnheter(Oppfolging1.id, setOf())
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).kontorstruktur.shouldBeEmpty()
             }
         }
 
         test("tilgjengelig for arrangør") {
             database.runAndRollback {
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1)
+                queries.gjennomforing.upsert(Oppfolging1)
                 queries.gjennomforing.setTilgjengeligForArrangorDato(Oppfolging1.id, LocalDate.now())
-                queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
                     it.tilgjengeligForArrangorDato shouldBe LocalDate.now()
                 }
             }
@@ -194,23 +198,23 @@ class GjennomforingQueriesTest : FunSpec({
 
         test("Nav kontaktperson") {
             database.runAndRollback {
-                queries.gjennomforing.upsertGjennomforingAvtale(
-                    Oppfolging1.copy(
-                        kontaktpersoner = listOf(
-                            GjennomforingKontaktpersonDbo(
-                                navIdent = NavAnsattFixture.DonaldDuck.navIdent,
-                                beskrivelse = "hei hei kontaktperson",
-                            ),
-                            GjennomforingKontaktpersonDbo(
-                                navIdent = NavAnsattFixture.MikkeMus.navIdent,
-                                beskrivelse = null,
-                            ),
+                queries.gjennomforing.upsert(Oppfolging1)
+                queries.gjennomforing.setKontaktpersoner(
+                    Oppfolging1.id,
+                    setOf(
+                        GjennomforingKontaktpersonDbo(
+                            navIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                            beskrivelse = "hei hei kontaktperson",
+                        ),
+                        GjennomforingKontaktpersonDbo(
+                            navIdent = NavAnsattFixture.MikkeMus.navIdent,
+                            beskrivelse = null,
                         ),
                     ),
                 )
 
-                queries.gjennomforing.getGjennomforingAvtale(Oppfolging1.id)?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
-                    GjennomforingKontaktperson(
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).kontaktpersoner shouldContainExactlyInAnyOrder listOf(
+                    GjennomforingAvtaleDetaljer.GjennomforingKontaktperson(
                         navIdent = NavIdent("DD1"),
                         navn = "Donald Duck",
                         mobilnummer = "12345678",
@@ -218,7 +222,7 @@ class GjennomforingQueriesTest : FunSpec({
                         hovedenhet = NavEnhetNummer("0400"),
                         beskrivelse = "hei hei kontaktperson",
                     ),
-                    GjennomforingKontaktperson(
+                    GjennomforingAvtaleDetaljer.GjennomforingKontaktperson(
                         navIdent = NavIdent("DD2"),
                         navn = "Mikke Mus",
                         mobilnummer = "48243214",
@@ -228,19 +232,18 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.gjennomforing.upsertGjennomforingAvtale(
-                    Oppfolging1.copy(
-                        kontaktpersoner = listOf(
-                            GjennomforingKontaktpersonDbo(
-                                navIdent = NavAnsattFixture.DonaldDuck.navIdent,
-                                beskrivelse = null,
-                            ),
+                queries.gjennomforing.setKontaktpersoner(
+                    Oppfolging1.id,
+                    setOf(
+                        GjennomforingKontaktpersonDbo(
+                            navIdent = NavAnsattFixture.DonaldDuck.navIdent,
+                            beskrivelse = null,
                         ),
                     ),
                 )
 
-                queries.gjennomforing.getGjennomforingAvtale(Oppfolging1.id)?.kontaktpersoner shouldBe listOf(
-                    GjennomforingKontaktperson(
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).kontaktpersoner shouldBe listOf(
+                    GjennomforingAvtaleDetaljer.GjennomforingKontaktperson(
                         navIdent = NavIdent("DD1"),
                         navn = "Donald Duck",
                         mobilnummer = "12345678",
@@ -277,24 +280,29 @@ class GjennomforingQueriesTest : FunSpec({
                     arrangorKontaktpersoner = listOf(thomas, jens),
                 ).setup(session)
 
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1.copy(arrangorKontaktpersoner = listOf(thomas.id)))
-                queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).should {
-                    it.arrangor.kontaktpersoner shouldContainExactly listOf(toGjennomforingArrangorKontaktperson(thomas))
+                queries.gjennomforing.upsert(Oppfolging1)
+                queries.gjennomforing.setArrangorKontaktpersoner(Oppfolging1.id, setOf(thomas.id))
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
+                    it.arrangorKontaktpersoner shouldContainExactly listOf(toGjennomforingArrangorKontaktperson(thomas))
                 }
 
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1.copy(arrangorKontaktpersoner = emptyList()))
-                queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).should {
-                    it.arrangor.kontaktpersoner shouldHaveSize 0
+                queries.gjennomforing.setArrangorKontaktpersoner(Oppfolging1.id, setOf())
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
+                    it.arrangorKontaktpersoner shouldHaveSize 0
                 }
 
-                queries.gjennomforing.upsertGjennomforingAvtale(
-                    Oppfolging1.copy(
-                        arrangorKontaktpersoner = listOf(thomas.id, jens.id),
-                    ),
-                )
-                queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).should {
-                    it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
+                queries.gjennomforing.setArrangorKontaktpersoner(Oppfolging1.id, setOf(thomas.id, jens.id))
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
+                    it.arrangorKontaktpersoner shouldContainExactlyInAnyOrder listOf(
                         toGjennomforingArrangorKontaktperson(thomas),
+                        toGjennomforingArrangorKontaktperson(jens),
+                    )
+                }
+
+                queries.gjennomforing.frikobleKontaktpersonFraGjennomforing(thomas.id, Oppfolging1.id)
+
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
+                    it.arrangorKontaktpersoner shouldContainExactlyInAnyOrder listOf(
                         toGjennomforingArrangorKontaktperson(jens),
                     )
                 }
@@ -303,18 +311,17 @@ class GjennomforingQueriesTest : FunSpec({
 
         test("Publisert må settes eksplisitt") {
             database.runAndRollback {
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1)
-
-                queries.gjennomforing.getGjennomforingAvtale(Oppfolging1.id)?.publisert shouldBe false
+                queries.gjennomforing.upsert(Oppfolging1)
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).publisert shouldBe false
 
                 queries.gjennomforing.setPublisert(Oppfolging1.id, true)
-                queries.gjennomforing.getGjennomforingAvtale(Oppfolging1.id)?.publisert shouldBe true
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).publisert shouldBe true
             }
         }
 
         test("skal sette åpent for påmelding") {
             database.runAndRollback {
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1)
+                queries.gjennomforing.upsert(Oppfolging1)
                 queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).apentForPamelding shouldBe true
 
                 queries.gjennomforing.setApentForPamelding(Oppfolging1.id, false)
@@ -325,7 +332,7 @@ class GjennomforingQueriesTest : FunSpec({
         test("oppdater status") {
             database.runAndRollback {
                 val id = Oppfolging1.id
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1)
+                queries.gjennomforing.upsert(Oppfolging1)
 
                 val tidspunkt = LocalDate.now()
                 queries.gjennomforing.setStatus(
@@ -385,9 +392,9 @@ class GjennomforingQueriesTest : FunSpec({
             )
 
             database.runAndRollback {
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1.copy(faneinnhold = faneinnhold))
+                queries.gjennomforing.upsert(Oppfolging1.copy(faneinnhold = faneinnhold))
 
-                queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
                     it.faneinnhold.shouldNotBeNull().forHvem shouldBe faneinnhold.forHvem
                 }
             }
@@ -403,13 +410,14 @@ class GjennomforingQueriesTest : FunSpec({
             )
 
             database.runAndRollback {
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1.copy(amoKategorisering = amo))
-                queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).should {
+                queries.gjennomforing.upsert(Oppfolging1)
+                queries.gjennomforing.setAmoKategorisering(Oppfolging1.id, amo)
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
                     it.amoKategorisering shouldBe amo
                 }
 
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1.copy(amoKategorisering = null))
-                queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).should {
+                queries.gjennomforing.setAmoKategorisering(Oppfolging1.id, null)
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
                     it.amoKategorisering shouldBe null
                 }
             }
@@ -417,7 +425,7 @@ class GjennomforingQueriesTest : FunSpec({
 
         test("stengt hos arrangør lagres og hentes i periodens rekkefølge") {
             database.runAndRollback {
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1)
+                queries.gjennomforing.upsert(Oppfolging1)
                 queries.gjennomforing.setStengtHosArrangor(
                     Oppfolging1.id,
                     Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -459,7 +467,7 @@ class GjennomforingQueriesTest : FunSpec({
 
         test("tillater ikke lagring av overlappende perioder med stengt hos arrangør") {
             database.runAndRollback {
-                queries.gjennomforing.upsertGjennomforingAvtale(Oppfolging1)
+                queries.gjennomforing.upsert(Oppfolging1)
 
                 queries.gjennomforing.setStengtHosArrangor(
                     Oppfolging1.id,
@@ -479,20 +487,20 @@ class GjennomforingQueriesTest : FunSpec({
     }
 
     context("arena") {
-        val arenaEnkelAmo1 = GjennomforingFixtures.ArenaEnkelAmo.copy(
+        val arenaEnkelAmo1 = ArenaEnkelAmo.copy(
             navn = "Arenanavn",
             startDato = LocalDate.of(2025, 1, 1),
             sluttDato = LocalDate.of(2025, 2, 1),
             status = GjennomforingStatusType.GJENNOMFORES,
             deltidsprosent = 100.0,
             antallPlasser = 10,
-            tiltaksnummer = Tiltaksnummer("2021#1234"),
+            arenaTiltaksnummer = Tiltaksnummer("2021#1234"),
             arenaAnsvarligEnhet = "1234",
         )
 
         test("lagre arenatiltak") {
             database.runAndRollback {
-                queries.gjennomforing.upsertGjennomforingArena(arenaEnkelAmo1)
+                queries.gjennomforing.upsert(arenaEnkelAmo1)
 
                 queries.gjennomforing.getGjennomforingArenaOrError(arenaEnkelAmo1.id).should {
                     it.id shouldBe arenaEnkelAmo1.id
@@ -506,7 +514,6 @@ class GjennomforingQueriesTest : FunSpec({
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         navn = ArrangorFixtures.underenhet1.navn,
                         slettet = false,
-                        kontaktpersoner = listOf(),
                     )
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2021#1234")
                     it.arena?.ansvarligNavEnhet shouldBe "1234"
@@ -522,7 +529,7 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.gjennomforing.delete(arenaEnkelAmo1.id)
 
-                queries.gjennomforing.getGjennomforingArena(arenaEnkelAmo1.id) shouldBe null
+                queries.gjennomforing.getGjennomforing(arenaEnkelAmo1.id) shouldBe null
             }
         }
     }
@@ -537,7 +544,7 @@ class GjennomforingQueriesTest : FunSpec({
 
         test("lagre enkeltplass") {
             database.runAndRollback {
-                queries.gjennomforing.upsertEnkeltplass(enkelAmo1)
+                queries.gjennomforing.upsert(enkelAmo1)
 
                 queries.gjennomforing.getGjennomforingEnkeltplassOrError(enkelAmo1.id).should {
                     it.id shouldBe enkelAmo1.id
@@ -551,7 +558,6 @@ class GjennomforingQueriesTest : FunSpec({
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         navn = ArrangorFixtures.underenhet1.navn,
                         slettet = false,
-                        kontaktpersoner = listOf(),
                     )
                     it.arena?.tiltaksnummer.shouldBeNull()
                     it.arena?.ansvarligNavEnhet.shouldBeNull()
@@ -576,7 +582,7 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.gjennomforing.delete(enkelAmo1.id)
 
-                queries.gjennomforing.getGjennomforingEnkeltplass(enkelAmo1.id) shouldBe null
+                queries.gjennomforing.getGjennomforing(enkelAmo1.id) shouldBe null
             }
         }
     }
@@ -682,21 +688,20 @@ class GjennomforingQueriesTest : FunSpec({
 
         test("kan filtrere på enten administrator eller koordinator") {
             database.runAndRollback { session ->
+                val id0 = UUID.randomUUID()
+                val id1 = UUID.randomUUID()
                 val domain = MulighetsrommetTestDomain(
                     gjennomforinger = listOf(
-                        Oppfolging1.copy(
-                            id = UUID.randomUUID(),
-                            administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-                        ),
-                        Oppfolging1.copy(
-                            id = UUID.randomUUID(),
-                            administratorer = listOf(
-                                NavAnsattFixture.DonaldDuck.navIdent,
-                                NavAnsattFixture.MikkeMus.navIdent,
-                            ),
-                        ),
+                        Oppfolging1.copy(id = id0),
+                        Oppfolging1.copy(id = id1),
                     ),
-                ).setup(session)
+                ) {
+                    queries.gjennomforing.setAdministratorer(id0, setOf(NavAnsattFixture.DonaldDuck.navIdent))
+                    queries.gjennomforing.setAdministratorer(
+                        id1,
+                        setOf(NavAnsattFixture.DonaldDuck.navIdent, NavAnsattFixture.MikkeMus.navIdent),
+                    )
+                }.setup(session)
 
                 queries.gjennomforing.getAll(
                     administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
@@ -748,12 +753,21 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel),
-                    gjennomforinger = listOf(
-                        Oppfolging1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer)),
-                        VTA1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer)),
-                        AFT1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Sel.enhetsnummer, Gjovik.enhetsnummer)),
-                    ),
-                ).setup(session)
+                    gjennomforinger = listOf(Oppfolging1, VTA1, AFT1),
+                ) {
+                    queries.gjennomforing.setNavEnheter(
+                        Oppfolging1.id,
+                        setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
+                    )
+                    queries.gjennomforing.setNavEnheter(
+                        VTA1.id,
+                        setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer),
+                    )
+                    queries.gjennomforing.setNavEnheter(
+                        AFT1.id,
+                        setOf(Innlandet.enhetsnummer, Sel.enhetsnummer, Gjovik.enhetsnummer),
+                    )
+                }.setup(session)
 
                 queries.gjennomforing.getAll(navEnheter = listOf(Gjovik.enhetsnummer))
                     .should { (totalCount, gjennomforinger) ->
@@ -818,7 +832,7 @@ class GjennomforingQueriesTest : FunSpec({
     test("pagination") {
         database.runAndRollback { _ ->
             (1..10).forEach {
-                queries.gjennomforing.upsertGjennomforingAvtale(
+                queries.gjennomforing.upsert(
                     Oppfolging1.copy(id = UUID.randomUUID(), navn = "$it".padStart(2, '0')),
                 )
             }
@@ -859,62 +873,9 @@ class GjennomforingQueriesTest : FunSpec({
             }
         }
     }
-
-    context("Frikoble kontaktperson fra arrangør") {
-        val kontaktperson1 = ArrangorKontaktperson(
-            id = UUID.randomUUID(),
-            arrangorId = ArrangorFixtures.underenhet1.id,
-            navn = "Aran Goran",
-            telefon = "",
-            epost = "test@test.no",
-            beskrivelse = "",
-            ansvarligFor = listOf(),
-        )
-
-        val kontaktperson2 = ArrangorKontaktperson(
-            id = UUID.randomUUID(),
-            arrangorId = ArrangorFixtures.underenhet1.id,
-            navn = "Gibli Bobli",
-            telefon = "",
-            epost = "test@test.no",
-            beskrivelse = "",
-            ansvarligFor = listOf(),
-        )
-
-        val domain = MulighetsrommetTestDomain(
-            arrangorKontaktpersoner = listOf(kontaktperson1, kontaktperson2),
-            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            gjennomforinger = listOf(
-                Oppfolging1.copy(arrangorKontaktpersoner = listOf(kontaktperson1.id)),
-                Oppfolging1.copy(id = UUID.randomUUID(), arrangorKontaktpersoner = listOf(kontaktperson2.id)),
-            ),
-        )
-
-        test("Skal fjerne kontaktperson fra koblingstabell") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                queries.gjennomforing.getGjennomforingAvtaleOrError(domain.gjennomforinger[0].id).should {
-                    it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson1.id)
-                }
-                queries.gjennomforing.getGjennomforingAvtaleOrError(domain.gjennomforinger[1].id).should {
-                    it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson2.id)
-                }
-
-                queries.gjennomforing.frikobleKontaktpersonFraGjennomforing(kontaktperson1.id, Oppfolging1.id)
-
-                queries.gjennomforing.getGjennomforingAvtaleOrError(domain.gjennomforinger[0].id).should {
-                    it.arrangor.kontaktpersoner.shouldBeEmpty()
-                }
-                queries.gjennomforing.getGjennomforingAvtaleOrError(domain.gjennomforinger[1].id).should {
-                    it.arrangor.kontaktpersoner.first().id.shouldBe(kontaktperson2.id)
-                }
-            }
-        }
-    }
 })
 
-private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = GjennomforingAvtale.ArrangorKontaktperson(
+private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = GjennomforingAvtaleDetaljer.ArrangorKontaktperson(
     id = kontaktperson.id,
     navn = kontaktperson.navn,
     beskrivelse = kontaktperson.beskrivelse,

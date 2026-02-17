@@ -26,25 +26,25 @@ class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
             Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 30),
-                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
             Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 23),
-                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
             Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 17),
-                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
             Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 26),
-                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
         ),
-    )
+    ) { domain ->
+        domain.gjennomforinger.forEach {
+            queries.gjennomforing.setAdministratorer(it.id, setOf(NavAnsattFixture.DonaldDuck.navIdent))
+        }
+    }
 
     beforeSpec {
         domain.initialize(database.db)

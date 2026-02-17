@@ -198,6 +198,12 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         test("genererer ikke utbetaling når alle deltakelser ble avsluttet før utbetalingsperioden") {
             MulighetsrommetTestDomain(
+                gjennomforinger = listOf(
+                    AFT1.copy(
+                        startDato = LocalDate.of(2024, 12, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                    ),
+                ),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
@@ -207,14 +213,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                         deltakelsesprosent = 100.0,
                     ),
                 ),
-            ) {
-                queries.gjennomforing.upsertGjennomforingAvtale(
-                    AFT1.copy(
-                        startDato = LocalDate.of(2024, 12, 1),
-                        sluttDato = LocalDate.of(2025, 1, 31),
-                    ),
-                )
-            }.initialize(database.db)
+            ).initialize(database.db)
 
             service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
         }
@@ -496,6 +495,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         test("genererer ikke utbetaling når gjennomføringen ble avbrutt før utbetalingsperioden, selv om deltaker har sluttdato i utbetalingsperioden") {
             MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1.copy(sluttDato = LocalDate.of(2025, 1, 31))),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
@@ -506,7 +506,6 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.upsertGjennomforingAvtale(AFT1.copy(sluttDato = LocalDate.of(2025, 1, 31)))
                 queries.gjennomforing.setStatus(
                     AFT1.id,
                     status = GjennomforingStatusType.AVBRUTT,
@@ -521,6 +520,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         test("genererer ikke utbetaling når gjennomføringen ble avsluttet før utbetalingsperioden, selv om deltaker har sluttdato i utbetalingsperioden") {
             MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1.copy(sluttDato = LocalDate.of(2025, 1, 31))),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
@@ -531,7 +531,6 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.upsertGjennomforingAvtale(AFT1.copy(sluttDato = LocalDate.of(2025, 1, 31)))
                 queries.gjennomforing.setStatus(
                     AFT1.id,
                     status = GjennomforingStatusType.AVSLUTTET,
@@ -546,6 +545,12 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         test("genererer ikke utbetaling når gjennomføringen ble avsluttet før den startet") {
             MulighetsrommetTestDomain(
+                gjennomforinger = listOf(
+                    AFT1.copy(
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = null,
+                    ),
+                ),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
                         AFT1.id,
@@ -556,12 +561,6 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.upsertGjennomforingAvtale(
-                    AFT1.copy(
-                        startDato = LocalDate.of(2025, 1, 1),
-                        sluttDato = null,
-                    ),
-                )
                 queries.gjennomforing.setStatus(
                     AFT1.id,
                     status = GjennomforingStatusType.AVLYST,
@@ -736,6 +735,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         test("justerer utbetalingsperioden til hele uker og genererer korrekt beløp") {
             MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing.copy(sluttDato = LocalDate.of(2024, 12, 31))),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(
                         gjennomforing.id,
@@ -744,9 +744,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                         statusType = DeltakerStatusType.HAR_SLUTTET,
                     ),
                 ),
-            ) {
-                queries.gjennomforing.upsertGjennomforingAvtale(gjennomforing.copy(sluttDato = LocalDate.of(2024, 12, 31)))
-            }.initialize(database.db)
+            ).initialize(database.db)
 
             val utbetaling = service.genererUtbetalingerForPeriode(januar)
                 .shouldHaveSize(1)

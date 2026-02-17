@@ -1,10 +1,10 @@
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { TEAMS_DYPLENKE } from "@mr/frontend-common/constants";
 import { BodyShort, VStack } from "@navikt/ds-react";
-import { GjennomforingKontaktperson } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingKontaktpersonDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  kontaktperson: GjennomforingKontaktperson;
+  kontaktperson: GjennomforingKontaktpersonDto;
 }
 
 export function Kontaktperson({ kontaktperson }: Props) {

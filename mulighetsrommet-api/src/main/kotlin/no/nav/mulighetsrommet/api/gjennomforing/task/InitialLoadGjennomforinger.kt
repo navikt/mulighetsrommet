@@ -7,11 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -27,6 +23,7 @@ import java.util.UUID
 class InitialLoadGjennomforinger(
     private val config: Config,
     private val db: ApiDatabase,
+    private val gjennomforinger: GjennomforingDetaljerService,
     private val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,
 ) {
     data class Config(
@@ -92,50 +89,30 @@ class InitialLoadGjennomforinger(
                 result.items
             },
         ) {
-            when (it) {
-                is GjennomforingAvtaleKompakt,
-                -> publish(queries.gjennomforing.getGjennomforingAvtaleOrError(it.id))
-
-                is GjennomforingEnkeltplassKompakt,
-                -> publish(queries.gjennomforing.getGjennomforingEnkeltplassOrError(it.id))
-
-                is GjennomforingArenaKompakt,
-                -> publish(queries.gjennomforing.getGjennomforingArenaOrError(it.id))
-            }
+            publish(it.id)
         }
 
         logger.info("Gjennomføringer relastet på topic, tiltakskode=$tiltakskode, antall=$total")
     }
 
     fun initialLoadGjennomforingerById(ids: List<UUID>) = db.session {
-        ids.forEach { id ->
-            val gruppetiltak = queries.gjennomforing.getGjennomforingAvtale(id)
-            if (gruppetiltak != null) {
-                return@forEach publish(gruppetiltak)
-            }
-
-            val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplass(id)
-            if (enkeltplass != null) {
-                return@forEach publish(enkeltplass)
-            }
-
-            val arena = queries.gjennomforing.getGjennomforingArena(id)
-            if (arena != null) {
-                return@forEach publish(arena)
-            }
-
-            logger.warn("Fant ingen gjennomføring med id=$id")
-        }
+        ids.forEach { publish(it) }
     }
 
     private fun initialLoadByAvtale(avtaleId: UUID) = db.session {
         queries.gjennomforing.getByAvtale(avtaleId).forEach {
-            publish(it)
+            publish(it.id)
         }
     }
 
-    private fun publish(gjennomforing: Gjennomforing) {
-        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGjennomforing(gjennomforing)
+    private fun publish(id: UUID) {
+        val dto = gjennomforinger.getTiltaksgjennomforingV2Dto(id) ?: return run {
+            logger.warn("Ingen gjennomføring med id=$id")
+        }
+        publish(dto)
+    }
+
+    private fun publish(gjennomforingV2: TiltaksgjennomforingV2Dto) {
         val recordV2: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.gjennomforinvV2Topic,
             gjennomforingV2.id.toString().toByteArray(),

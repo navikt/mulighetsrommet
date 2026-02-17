@@ -51,8 +51,9 @@ class UpdateGjennomforingStatus(
         @Language("PostgreSQL")
         val query = """
             select id
-            from view_gjennomforing_avtale
-            where status = 'GJENNOMFORES'
+            from view_gjennomforing
+            where gjennomforing_type = 'AVTALE'
+              and status = 'GJENNOMFORES'
               and slutt_dato < :slutt_dato_lt
             order by opprettet_tidspunkt
         """.trimIndent()

@@ -91,7 +91,7 @@ class OppgaverServiceTest : FunSpec({
             }.initialize(database.db)
 
             service.oppgaver(
-                oppgavetyper = setOf(),
+                oppgavetyper = setOf(OppgaveType.TILSAGN_TIL_GODKJENNING),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
                 ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
@@ -304,7 +304,7 @@ class OppgaverServiceTest : FunSpec({
 
             // Skal se returnert utbetaling når ansatt har saksbehandler-rolle
             service.oppgaver(
-                oppgavetyper = setOf(),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_RETURNERT),
                 tiltakskoder = setOf(),
                 regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
                 ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
@@ -319,7 +319,7 @@ class OppgaverServiceTest : FunSpec({
 
             // Skal se returnert utbetaling når ansatt selv var den som sendte til godkjenning
             service.oppgaver(
-                oppgavetyper = setOf(),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_RETURNERT),
                 tiltakskoder = setOf(),
                 regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
                 ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
@@ -333,7 +333,7 @@ class OppgaverServiceTest : FunSpec({
 
             // Skal ikke se returnert utbetaling når ansatt ikke har saksbehandler-rolle
             service.oppgaver(
-                oppgavetyper = setOf(),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_RETURNERT),
                 tiltakskoder = setOf(),
                 regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
                 ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
@@ -365,7 +365,7 @@ class OppgaverServiceTest : FunSpec({
             }.initialize(database.db)
 
             service.oppgaver(
-                oppgavetyper = setOf(),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
                 ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
@@ -402,7 +402,7 @@ class OppgaverServiceTest : FunSpec({
             }.initialize(database.db)
 
             service.oppgaver(
-                oppgavetyper = setOf(),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
                 ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
@@ -411,9 +411,11 @@ class OppgaverServiceTest : FunSpec({
                         NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
                     ),
                 ),
-            ).shouldHaveSize(1)
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+            )
             service.oppgaver(
-                oppgavetyper = setOf(),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
                 ansatt = NavAnsattFixture.FetterAnton.toNavAnsatt(
@@ -422,7 +424,9 @@ class OppgaverServiceTest : FunSpec({
                         NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
                     ),
                 ),
-            ).shouldHaveSize(1)
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+            )
         }
 
         test("Skal bare se oppgaver for kostandssteder som overlapper med ansattes roller") {
@@ -474,7 +478,7 @@ class OppgaverServiceTest : FunSpec({
                 ),
             ) { rolle, expectedOppgaver ->
                 service.oppgaver(
-                    oppgavetyper = setOf(),
+                    oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
                     tiltakskoder = setOf(),
                     regioner = setOf(),
                     ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
@@ -645,27 +649,28 @@ class OppgaverServiceTest : FunSpec({
 
     context("gjennomføringer") {
         test("oppgaver når aktive gjennomføringer mangler administrator") {
-            val avsluttetGjennomforing = UUID.randomUUID()
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(
                     AFT1.copy(
                         status = GjennomforingStatusType.GJENNOMFORES,
-                        administratorer = listOf(),
                     ),
                     AFT1.copy(
-                        id = avsluttetGjennomforing,
+                        id = UUID.randomUUID(),
                         status = GjennomforingStatusType.AVSLUTTET,
-                        administratorer = listOf(),
                     ),
                     AFT1.copy(
                         id = UUID.randomUUID(),
                         status = GjennomforingStatusType.GJENNOMFORES,
-                        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
                     ),
                 ),
-            ).initialize(database.db)
+            ) { domain ->
+                queries.gjennomforing.setAdministratorer(
+                    domain.gjennomforinger[2].id,
+                    setOf(NavAnsattFixture.DonaldDuck.navIdent),
+                )
+            }.initialize(database.db)
 
             val service = OppgaverService(database.db)
 

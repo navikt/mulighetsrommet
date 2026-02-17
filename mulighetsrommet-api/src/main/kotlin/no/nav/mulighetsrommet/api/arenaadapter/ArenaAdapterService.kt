@@ -10,13 +10,11 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingEnkeltplassDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
@@ -26,6 +24,8 @@ import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDato
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -93,9 +93,9 @@ class ArenaAdapterService(
             arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
         )
 
-        val previous = queries.gjennomforing.getGjennomforingAvtaleOrError(arenaGjennomforing.id)
+        val previous = queries.gjennomforing.getGjennomforingOrError(arenaGjennomforing.id)
 
-        if (!harEndringer(arenadata, previous)) {
+        if (!harArenadataEndringer(arenadata, previous)) {
             logger.info("Gjennomføring hadde ingen endringer")
             return@transaction
         }
@@ -111,7 +111,8 @@ class ArenaAdapterService(
             logUpdateGjennomforing(next)
         }
 
-        publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromGjennomforing(next))
+        val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(next.id)
+        publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromGjennomforingAvtale(next, detaljer))
     }
 
     private fun upsertEnkeltplass(
@@ -135,11 +136,41 @@ class ArenaAdapterService(
             return updateArenadata(arenaGjennomforing.id, tiltakstype, arenadata)
         }
 
-        val sluttDato = arenaGjennomforing.sluttDato
-        if (sluttDato == null || sluttDato >= ArenaMigrering.EnkeltplassSluttDatoCutoffDate) {
-            upsertAsEnkeltplass(arenaGjennomforing, tiltakstype, arrangor, arenadata)
-        } else {
-            upsertAsEnkeltplassArena(arenaGjennomforing, tiltakstype, arrangor)
+        val previous = queries.gjennomforing.getGjennomforing(arenaGjennomforing.id)
+        if (previous == null || harEnkeltplassEndringer(arenaGjennomforing, previous)) {
+            val sluttDato = arenaGjennomforing.sluttDato
+            val type = if (sluttDato == null || sluttDato >= ArenaMigrering.EnkeltplassSluttDatoCutoffDate) {
+                GjennomforingType.ENKELTPLASS
+            } else {
+                GjennomforingType.ARENA
+            }
+            val dbo = GjennomforingDbo(
+                type = type,
+                id = arenaGjennomforing.id,
+                tiltakstypeId = tiltakstype.id,
+                arrangorId = arrangor.id,
+                navn = arenaGjennomforing.navn,
+                startDato = arenaGjennomforing.startDato,
+                sluttDato = arenaGjennomforing.sluttDato,
+                status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
+                deltidsprosent = arenaGjennomforing.deltidsprosent,
+                antallPlasser = arenaGjennomforing.antallPlasser,
+                oppstart = GjennomforingOppstartstype.LOPENDE,
+                pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
+                arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
+                arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
+            )
+            queries.gjennomforing.upsert(dbo)
+            val dto = if (type == GjennomforingType.ENKELTPLASS) {
+                queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).let {
+                    TiltaksgjennomforingV2Mapper.fromGjennomforingEnkeltplass(it)
+                }
+            } else {
+                queries.gjennomforing.getGjennomforingArenaOrError(arenaGjennomforing.id).let {
+                    TiltaksgjennomforingV2Mapper.fromGjennomforingArena(it)
+                }
+            }
+            publishTiltaksgjennomforingV2ToKafka(dto)
         }
     }
 
@@ -148,67 +179,13 @@ class ArenaAdapterService(
         tiltakstype: Tiltakstype,
         arenadata: GjennomforingArenaDataDbo,
     ) {
-        val previous = queries.gjennomforing.getGjennomforingEnkeltplass(gjennomforingId)
+        val previous = queries.gjennomforing.getGjennomforing(gjennomforingId)
             ?: throw IllegalStateException("Tiltakstype tiltakskode=${tiltakstype.tiltakskode} er migrert, men gjennomføring fra Arena er ukjent")
 
-        if (harEndringer(arenadata, previous)) {
+        if (harArenadataEndringer(arenadata, previous)) {
             queries.gjennomforing.setArenaData(arenadata)
             // FIXME: Denne kalles her fordi tiltaksnummeret blir satt under panseret. Kanskje bedre om dette settes eksplisitt i stedet
             queries.gjennomforing.setFreeTextSearch(gjennomforingId, listOf())
-        }
-    }
-
-    private fun QueryContext.upsertAsEnkeltplass(
-        arenaGjennomforing: ArenaGjennomforingDbo,
-        tiltakstype: Tiltakstype,
-        arrangor: ArrangorDto,
-        arenadata: GjennomforingArenaDataDbo,
-    ) {
-        val previous = queries.gjennomforing.getGjennomforingEnkeltplass(arenaGjennomforing.id)
-        val dbo = GjennomforingEnkeltplassDbo(
-            id = arenaGjennomforing.id,
-            tiltakstypeId = tiltakstype.id,
-            arrangorId = arrangor.id,
-            navn = arenaGjennomforing.navn,
-            startDato = arenaGjennomforing.startDato,
-            sluttDato = arenaGjennomforing.sluttDato,
-            status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
-            deltidsprosent = arenaGjennomforing.deltidsprosent,
-            antallPlasser = arenaGjennomforing.antallPlasser,
-        )
-        if (previous == null || harEndringer(dbo, previous) || harEndringer(arenadata, previous)) {
-            queries.gjennomforing.upsertEnkeltplass(dbo)
-            queries.gjennomforing.setArenaData(arenadata)
-
-            val next = queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id)
-            publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromGjennomforing(next))
-        }
-    }
-
-    private fun QueryContext.upsertAsEnkeltplassArena(
-        arenaGjennomforing: ArenaGjennomforingDbo,
-        tiltakstype: Tiltakstype,
-        arrangor: ArrangorDto,
-    ) {
-        val previous = queries.gjennomforing.getGjennomforingArena(arenaGjennomforing.id)
-        val dbo = GjennomforingArenaDbo(
-            id = arenaGjennomforing.id,
-            tiltakstypeId = tiltakstype.id,
-            arrangorId = arrangor.id,
-            navn = arenaGjennomforing.navn,
-            startDato = arenaGjennomforing.startDato,
-            sluttDato = arenaGjennomforing.sluttDato,
-            status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
-            deltidsprosent = arenaGjennomforing.deltidsprosent,
-            antallPlasser = arenaGjennomforing.antallPlasser,
-            tiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
-            arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
-        )
-        if (previous == null || harEndringer(dbo, previous)) {
-            queries.gjennomforing.upsertGjennomforingArena(dbo)
-
-            val next = queries.gjennomforing.getGjennomforingArenaOrError(arenaGjennomforing.id)
-            publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromGjennomforing(next))
         }
     }
 
@@ -252,51 +229,31 @@ class ArenaAdapterService(
     }
 }
 
-private fun harEndringer(
+private fun harArenadataEndringer(
     arenadata: GjennomforingArenaDataDbo,
-    current: Gjennomforing,
+    gjennomforing: Gjennomforing,
 ): Boolean {
     return arenadata != GjennomforingArenaDataDbo(
-        current.id,
-        current.arena?.tiltaksnummer,
-        current.arena?.ansvarligNavEnhet,
+        gjennomforing.id,
+        gjennomforing.arena?.tiltaksnummer,
+        gjennomforing.arena?.ansvarligNavEnhet,
     )
 }
 
-private fun harEndringer(
-    enkeltplass: GjennomforingEnkeltplassDbo,
-    current: GjennomforingEnkeltplass,
+private fun harEnkeltplassEndringer(
+    arenaGjennomforing: ArenaGjennomforingDbo,
+    gjennomforing: Gjennomforing,
 ): Boolean {
-    return enkeltplass != GjennomforingEnkeltplassDbo(
-        id = current.id,
-        tiltakstypeId = current.tiltakstype.id,
-        arrangorId = current.arrangor.id,
-        navn = current.navn,
-        startDato = current.startDato,
-        sluttDato = current.sluttDato,
-        status = current.status.type,
-        deltidsprosent = current.deltidsprosent,
-        antallPlasser = current.antallPlasser,
-    )
-}
+    val arenadata = gjennomforing.arena ?: return true
 
-private fun harEndringer(
-    dbo: GjennomforingArenaDbo,
-    current: GjennomforingArena,
-): Boolean {
-    return dbo != GjennomforingArenaDbo(
-        id = current.id,
-        tiltakstypeId = current.tiltakstype.id,
-        arrangorId = current.arrangor.id,
-        navn = current.navn,
-        startDato = current.startDato,
-        sluttDato = current.sluttDato,
-        status = current.status.type,
-        deltidsprosent = current.deltidsprosent,
-        antallPlasser = current.antallPlasser,
-        tiltaksnummer = current.arena?.tiltaksnummer!!,
-        arenaAnsvarligEnhet = current.arena.ansvarligNavEnhet,
-    )
+    return arenaGjennomforing.navn != gjennomforing.navn ||
+        arenaGjennomforing.tiltaksnummer != arenadata.tiltaksnummer.value ||
+        arenaGjennomforing.arrangorOrganisasjonsnummer != gjennomforing.arrangor.organisasjonsnummer.value ||
+        arenaGjennomforing.startDato != gjennomforing.startDato ||
+        arenaGjennomforing.sluttDato != gjennomforing.sluttDato ||
+        arenaGjennomforing.arenaAnsvarligEnhet != arenadata.ansvarligNavEnhet ||
+        arenaGjennomforing.deltidsprosent != gjennomforing.deltidsprosent ||
+        mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus) != gjennomforing.status.type
 }
 
 private fun mapAvslutningsstatus(avslutningsstatus: Avslutningsstatus): GjennomforingStatusType = when (avslutningsstatus) {

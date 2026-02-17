@@ -119,11 +119,8 @@ class GjennomforingAvtaleServiceTest : FunSpec({
         test("navEnheter uten fylke blir filtrert vekk") {
             var gjennomforing = request.copy(
                 veilederinformasjon = request.veilederinformasjon.copy(
-                    navRegioner = listOf(Innlandet.enhetsnummer),
-                    navKontorer = listOf(
-                        Gjovik.enhetsnummer,
-                        Sagene.enhetsnummer,
-                    ),
+                    navRegioner = setOf(Innlandet.enhetsnummer),
+                    navKontorer = setOf(Gjovik.enhetsnummer, Sagene.enhetsnummer),
                 ),
             )
             createService().upsert(gjennomforing, bertilNavIdent).shouldBeRight().should {
@@ -147,7 +144,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             val navIdent = NavAnsattFixture.DonaldDuck.navIdent
 
             val gjennomforing = request.copy(
-                administratorer = listOf(navIdent),
+                administratorer = setOf(navIdent),
             )
             service.upsert(gjennomforing, navIdent).shouldBeRight()
 
@@ -159,7 +156,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
             val gjennomforing = request.copy(
-                administratorer = listOf(identAnsatt2, identAnsatt1),
+                administratorer = setOf(identAnsatt2, identAnsatt1),
             )
             service.upsert(gjennomforing, identAnsatt1).shouldBeRight()
 
@@ -239,11 +236,12 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {
                 it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>()
-                it.publisert shouldBe false
                 it.apentForPamelding shouldBe false
             }
 
             database.run {
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id).publisert.shouldBe(false)
+
                 shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
                     val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
                     val gruppe = decoded.shouldBeInstanceOf<TiltaksgjennomforingV2Dto.Gruppe>()
@@ -278,8 +276,11 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {
                 it.status.shouldBeTypeOf<GjennomforingStatus.Avlyst>()
-                it.publisert shouldBe false
                 it.apentForPamelding shouldBe false
+            }
+
+            database.run {
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id).publisert.shouldBe(false)
             }
         }
     }
@@ -303,11 +304,12 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 bertilNavIdent,
             ) should {
                 it.status.shouldBeTypeOf<GjennomforingStatus.Avsluttet>()
-                it.publisert shouldBe false
                 it.apentForPamelding shouldBe false
             }
 
             database.run {
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id).publisert.shouldBe(false)
+
                 shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
                     val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
                     val gruppe = decoded.shouldBeInstanceOf<TiltaksgjennomforingV2Dto.Gruppe>()

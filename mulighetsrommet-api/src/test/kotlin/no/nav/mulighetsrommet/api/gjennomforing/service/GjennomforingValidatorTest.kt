@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.TiltakOslo
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -102,10 +101,10 @@ class GjennomforingValidatorTest : FunSpec({
         AvtaleFixtures.oppfolging,
         startDato = avtale.startDato,
         sluttDato = avtale.sluttDato,
-        navRegioner = listOf(NavEnhetNummer("0400")),
-        navKontorer = listOf(NavEnhetNummer("0502")),
+        navRegioner = setOf(NavEnhetNummer("0400")),
+        navKontorer = setOf(NavEnhetNummer("0502")),
         arrangorId = ArrangorFixtures.underenhet1.id,
-        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+        administratorer = setOf(NavAnsattFixture.DonaldDuck.navIdent),
     )
 
     val ctx = GjennomforingValidator.Ctx(
@@ -121,19 +120,15 @@ class GjennomforingValidatorTest : FunSpec({
     test("validerer estimertVentetid") {
         GjennomforingValidator.validate(
             request.copy(
-                estimertVentetid = EstimertVentetid(
+                estimertVentetid = GjennomforingRequest.EstimertVentetid(
                     verdi = null,
                     enhet = null,
                 ),
             ),
             ctx,
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            FieldError.of("Du må velge en enhet", GjennomforingRequest::estimertVentetid, EstimertVentetid::enhet),
-            FieldError.of(
-                "Du må velge en verdi større enn 0",
-                GjennomforingRequest::estimertVentetid,
-                EstimertVentetid::verdi,
-            ),
+            FieldError("/estimertVentetid/enhet", "Du må velge en enhet"),
+            FieldError("/estimertVentetid/verdi", "Du må velge en verdi større enn 0"),
         )
     }
 
@@ -212,24 +207,22 @@ class GjennomforingValidatorTest : FunSpec({
         GjennomforingValidator.validate(
             req.copy(tilgjengeligForArrangorDato = avtale.startDato.minusMonths(3)),
             ctx,
-        )
-            .shouldBeRight().should {
-                it.tilgjengeligForArrangorDato.shouldBeNull()
-            }
+        ).shouldBeRight().should {
+            it.gjennomforing.tilgjengeligForArrangorDato.shouldBeNull()
+        }
 
         GjennomforingValidator.validate(
             req.copy(tilgjengeligForArrangorDato = req.startDato!!.plusDays(1)),
             ctx,
-        )
-            .shouldBeRight().should {
-                it.tilgjengeligForArrangorDato.shouldBeNull()
-            }
+        ).shouldBeRight().should {
+            it.gjennomforing.tilgjengeligForArrangorDato.shouldBeNull()
+        }
 
         GjennomforingValidator.validate(
             req.copy(tilgjengeligForArrangorDato = req.startDato.minusDays(1)),
             ctx,
         ).shouldBeRight().should {
-            it.tilgjengeligForArrangorDato shouldBe req.startDato.minusDays(1)
+            it.gjennomforing.tilgjengeligForArrangorDato shouldBe req.startDato.minusDays(1)
         }
     }
 
@@ -270,9 +263,9 @@ class GjennomforingValidatorTest : FunSpec({
             amoKategorisering = null,
         )
 
-        GjennomforingValidator.validate(
-            request.copy(tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id),
-            ctx.copy(avtale = avtaleUtenAmokategorisering),
+        GjennomforingValidator.validateAmoKategorisering(
+            avtaleUtenAmokategorisering,
+            request.amoKategorisering,
         ).shouldBeLeft(
             listOf(
                 FieldError("/avtale.amoKategorisering", "Du må velge en kurstype for avtalen"),
@@ -291,9 +284,9 @@ class GjennomforingValidatorTest : FunSpec({
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
 
-        GjennomforingValidator.validate(
-            request.copy(tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id),
-            ctx.copy(avtale = avtaleUtenAmokategorisering),
+        GjennomforingValidator.validateAmoKategorisering(
+            avtaleUtenAmokategorisering,
+            request.amoKategorisering,
         ).shouldBeLeft(
             listOf(
                 FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype"),
@@ -310,9 +303,9 @@ class GjennomforingValidatorTest : FunSpec({
             ),
         )
 
-        GjennomforingValidator.validate(
-            request.copy(tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id),
-            ctx.copy(avtale = avtaleGruFag),
+        GjennomforingValidator.validateUtdanningslop(
+            avtaleGruFag,
+            request.utdanningslop,
         ).shouldBeLeft(
             listOf(FieldError("/utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
         )
@@ -356,20 +349,6 @@ class GjennomforingValidatorTest : FunSpec({
             listOf(FieldError("/antallPlasser", "Du må legge inn antall plasser større enn 0")),
         )
         GjennomforingValidator.validate(
-            request.copy(
-                veilederinformasjon = request.veilederinformasjon.copy(
-                    navRegioner = listOf(),
-                    navKontorer = listOf(),
-                ),
-            ),
-            ctx,
-        ).shouldBeLeft(
-            listOf(
-                FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region fra avtalen"),
-                FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet fra avtalen"),
-            ),
-        )
-        GjennomforingValidator.validate(
             request.copy(arrangorId = ArrangorFixtures.underenhet2.id),
             ctx,
         ).shouldBeLeft(
@@ -377,18 +356,31 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("fjerner nav-enheter som ikke er en del av avtalen") {
-        GjennomforingValidator.validate(
-            request.copy(
-                veilederinformasjon = request.veilederinformasjon.copy(
-                    navRegioner = listOf(Innlandet.enhetsnummer, Oslo.enhetsnummer),
-                    navKontorer = listOf(Gjovik.enhetsnummer, Sel.enhetsnummer),
-                    navAndreEnheter = listOf(TiltakOslo.enhetsnummer),
-                ),
+    test("Nav-regioner og Nav-enheter er påkrevd") {
+        GjennomforingValidator.validateNavEnheter(
+            ctx.avtale,
+            request.veilederinformasjon.copy(
+                navRegioner = setOf(),
+                navKontorer = setOf(),
             ),
-            ctx,
+        ).shouldBeLeft(
+            listOf(
+                FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region fra avtalen"),
+                FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet fra avtalen"),
+            ),
+        )
+    }
+
+    test("fjerner nav-enheter som ikke er en del av avtalen") {
+        GjennomforingValidator.validateNavEnheter(
+            ctx.avtale,
+            request.veilederinformasjon.copy(
+                navRegioner = setOf(Innlandet.enhetsnummer, Oslo.enhetsnummer),
+                navKontorer = setOf(Gjovik.enhetsnummer, Sel.enhetsnummer),
+                navAndreEnheter = setOf(TiltakOslo.enhetsnummer),
+            ),
         ).shouldBeRight().should {
-            it.navEnheter.shouldBe(setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer))
+            it.shouldBe(setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer))
         }
     }
 

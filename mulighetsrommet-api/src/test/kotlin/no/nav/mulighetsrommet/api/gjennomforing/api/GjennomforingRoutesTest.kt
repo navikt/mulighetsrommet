@@ -173,9 +173,9 @@ class GjennomforingRoutesTest : FunSpec({
                     setBody(
                         GjennomforingFixtures.createGjennomforingRequest(
                             avtale,
-                            administratorer = emptyList(),
-                            navRegioner = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
-                            navKontorer = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
+                            administratorer = setOf(),
+                            navRegioner = setOf(NavEnhetFixtures.Oslo.enhetsnummer),
+                            navKontorer = setOf(NavEnhetFixtures.Sagene.enhetsnummer),
                         ),
                     )
                 }
@@ -200,8 +200,8 @@ class GjennomforingRoutesTest : FunSpec({
                     setBody(
                         GjennomforingFixtures.createGjennomforingRequest(
                             avtale,
-                            navRegioner = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
-                            navKontorer = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
+                            navRegioner = setOf(NavEnhetFixtures.Oslo.enhetsnummer),
+                            navKontorer = setOf(NavEnhetFixtures.Sagene.enhetsnummer),
                         ),
                     )
                 }

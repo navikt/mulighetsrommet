@@ -122,13 +122,19 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeAmo),
                 avtaler = listOf(AvtaleFixtures.gruppeAmo),
                 gjennomforinger = listOf(
-                    GruppeAmo1.copy(id = UUID.randomUUID(), amoKategorisering = studiespesialisering),
-                    GruppeAmo1.copy(id = UUID.randomUUID(), amoKategorisering = fov),
-                    GruppeAmo1.copy(id = UUID.randomUUID(), amoKategorisering = grunnleggende),
-                    GruppeAmo1.copy(id = UUID.randomUUID(), amoKategorisering = norskopplaering),
-                    GruppeAmo1.copy(id = UUID.randomUUID(), amoKategorisering = bransje),
+                    GruppeAmo1.copy(id = UUID.randomUUID()),
+                    GruppeAmo1.copy(id = UUID.randomUUID()),
+                    GruppeAmo1.copy(id = UUID.randomUUID()),
+                    GruppeAmo1.copy(id = UUID.randomUUID()),
+                    GruppeAmo1.copy(id = UUID.randomUUID()),
                 ),
-            )
+            ) { domain ->
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[0].id, studiespesialisering)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[1].id, fov)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[2].id, grunnleggende)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[3].id, norskopplaering)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[4].id, bransje)
+            }
 
             database.runAndRollback { session ->
                 domain.setup(session)
@@ -159,6 +165,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeFagOgYrkesopplaering),
                 avtaler = listOf(AvtaleFixtures.gruppeFagYrke),
+                gjennomforinger = listOf(GruppeFagYrke1),
             ) {
                 queries.utdanning.upsertUtdanningsprogram(
                     Utdanningsprogram(
@@ -197,13 +204,13 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 val utdanningslop = UtdanningslopDbo(
                     queries.utdanning.getIdForUtdanningsprogram("BABAN3----"),
-                    listOf(
+                    setOf(
                         queries.utdanning.getIdForUtdanning("u_sveisefag"),
                         queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann"),
                     ),
                 )
 
-                queries.gjennomforing.upsertGjennomforingAvtale(GruppeFagYrke1.copy(utdanningslop = utdanningslop))
+                queries.gjennomforing.setUtdanningslop(GruppeFagYrke1.id, utdanningslop)
             }
 
             database.runAndRollback { session ->
