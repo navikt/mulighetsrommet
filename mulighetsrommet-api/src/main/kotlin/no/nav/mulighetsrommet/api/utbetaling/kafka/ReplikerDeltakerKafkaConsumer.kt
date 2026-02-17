@@ -38,7 +38,7 @@ class ReplikerDeltakerKafkaConsumer(
             return
         }
 
-        if (amtDeltaker.status.statusType == DeltakerStatusType.FEILREGISTRERT) {
+        if (amtDeltaker.status.type == DeltakerStatusType.FEILREGISTRERT) {
             logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
             queries.deltaker.delete(key)
             return skedulerOppdaterUtbetalinger(amtDeltaker.gjennomforingId)
@@ -100,8 +100,8 @@ fun AmtDeltakerEksternV1Dto.toDeltakerDbo(): DeltakerDbo {
     )
 }
 
-private fun AmtDeltakerEksternV1Dto.DeltakerStatusDto.toDeltakerStatus(): DeltakerStatus = DeltakerStatus(
-    type = statusType,
-    aarsak = aarsakType,
+private fun AmtDeltakerEksternV1Dto.StatusDto.toDeltakerStatus(): DeltakerStatus = DeltakerStatus(
+    type = type,
+    aarsak = aarsak.type,
     opprettetTidspunkt = opprettetTidspunkt,
 )

@@ -21,29 +21,34 @@ data class AmtDeltakerEksternV1Dto(
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: DeltakerStatusDto,
+    val status: StatusDto,
     @Serializable(with = LocalDateTimeSerializer::class)
     val registrertTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
     val endretTidspunkt: LocalDateTime,
-    val kilde: Kilde?,
+    val kilde: Kilde,
     val innhold: DeltakelsesinnholdDto?,
     val deltakelsesmengder: List<DeltakelsesmengdeDto>,
 ) {
     @Serializable
-    data class DeltakerStatusDto(
-        val statusType: DeltakerStatusType,
-        val statusTekst: String,
-        val aarsakType: DeltakerStatusAarsakType?,
-        val aarsakBeskrivelse: String?,
+    data class StatusDto(
+        val type: DeltakerStatusType,
+        val tekst: String,
+        val aarsak: AarsakDto,
         @Serializable(with = LocalDateTimeSerializer::class)
         val opprettetTidspunkt: LocalDateTime,
     )
 
     @Serializable
+    data class AarsakDto(
+        val type: DeltakerStatusAarsakType?,
+        val beskrivelse: String?,
+    )
+
+    @Serializable
     data class DeltakelsesinnholdDto(
         val ledetekst: String?,
-        val innhold: List<InnholdDto>,
+        val valgtInnhold: List<InnholdDto>,
     )
 
     @Serializable

@@ -319,14 +319,6 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
     }
 })
 
-private fun createStatusDto(type: DeltakerStatusType): AmtDeltakerEksternV1Dto.DeltakerStatusDto = AmtDeltakerEksternV1Dto.DeltakerStatusDto(
-    statusType = type,
-    statusTekst = type.description,
-    aarsakType = null,
-    aarsakBeskrivelse = null,
-    opprettetTidspunkt = LocalDateTime.now(),
-)
-
 private fun createAmtDeltakerV1Dto(
     id: UUID = UUID.randomUUID(),
     gjennomforingId: UUID,
@@ -339,19 +331,23 @@ private fun createAmtDeltakerV1Dto(
     personIdent = personIdent,
     startDato = null,
     sluttDato = null,
-    status = AmtDeltakerEksternV1Dto.DeltakerStatusDto(
-        statusType = status,
-        statusTekst = status.description,
-        aarsakType = null,
-        aarsakBeskrivelse = null,
-        opprettetTidspunkt = opprettetTidspunkt,
-    ),
+    status = createStatusDto(status, opprettetTidspunkt),
     registrertTidspunkt = opprettetTidspunkt,
     endretTidspunkt = opprettetTidspunkt,
     deltakelsesmengder = listOf(),
     kilde = AmtDeltakerEksternV1Dto.Kilde.KOMET,
     innhold = AmtDeltakerEksternV1Dto.DeltakelsesinnholdDto(
         ledetekst = null,
-        innhold = listOf(),
+        valgtInnhold = listOf(),
     ),
+)
+
+private fun createStatusDto(
+    type: DeltakerStatusType,
+    opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+): AmtDeltakerEksternV1Dto.StatusDto = AmtDeltakerEksternV1Dto.StatusDto(
+    type = type,
+    tekst = type.description,
+    aarsak = AmtDeltakerEksternV1Dto.AarsakDto(null, null),
+    opprettetTidspunkt = opprettetTidspunkt,
 )
