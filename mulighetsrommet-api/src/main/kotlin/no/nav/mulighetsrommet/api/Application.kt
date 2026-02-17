@@ -36,6 +36,7 @@ import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.teamLogsError
+import org.koin.ktor.ext.get
 import org.koin.ktor.ext.inject
 import kotlin.time.Duration.Companion.seconds
 
@@ -92,7 +93,7 @@ fun Application.configure(config: AppConfig) {
 
     val kafka: KafkaConsumerOrchestrator by inject()
     val producerRecordProcessor: KafkaProducerRecordProcessor by inject()
-    val shedLockLeaderElectionClient: ShedLockLeaderElectionClient by inject()
+    val shedLockLeaderElectionClient = get<ShedLockLeaderElectionClient>()
 
     val scheduler: Scheduler by inject()
 
@@ -113,6 +114,7 @@ fun Application.configure(config: AppConfig) {
         producerRecordProcessor.close()
         kafka.disableFailedRecordProcessor()
         kafka.stopPollingTopicChanges()
+
         log.info("Closing Shedlock client...")
         shedLockLeaderElectionClient.close()
     }
