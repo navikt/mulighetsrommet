@@ -15,7 +15,7 @@ spec:
     - https://mulighetsrommet-sanity-studio.ansatt.nav.no
   replicas:
     min: 2
-    max: 4
+    max: 2
     scalingStrategy:
       cpu:
         thresholdPercentage: 75
