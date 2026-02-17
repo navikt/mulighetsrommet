@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object GjennomforingDtoMapper {
     fun fromGjennomforing(gjennomforing: Gjennomforing) = when (gjennomforing) {
@@ -74,6 +75,16 @@ object GjennomforingDtoMapper {
         amoKategorisering = null,
         utdanningslop = null,
     )
+
+    fun fromGjennomforingStatusType(status: GjennomforingStatusType): GjennomforingDto.Status {
+        val variant = when (status) {
+            GjennomforingStatusType.GJENNOMFORES -> DataElement.Status.Variant.SUCCESS
+            GjennomforingStatusType.AVSLUTTET -> DataElement.Status.Variant.NEUTRAL
+            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> DataElement.Status.Variant.ERROR
+        }
+        val element = DataElement.Status(status.beskrivelse, variant, null)
+        return GjennomforingDto.Status(status, element)
+    }
 
     fun fromGjennomforingStatus(status: GjennomforingStatus): GjennomforingDto.Status {
         val variant = when (status) {
