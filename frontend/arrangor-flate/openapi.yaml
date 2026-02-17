@@ -1654,7 +1654,6 @@ components:
       type: string
       enum:
       - TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER
-      - TILTAKSADMINISTRASJON_SVENSK_VALUTA
       - TILTAKSADMINISTRASJON_PAMELDING_TYPE
   examples: {}
 webhooks: {}

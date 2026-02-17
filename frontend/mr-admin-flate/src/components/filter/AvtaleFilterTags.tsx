@@ -8,7 +8,7 @@ import { AvtaleFilterType } from "@/pages/avtaler/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { NavEnhetFilterTag } from "@/components/filter/NavEnhetFilterTag";
-import { Chips } from "node_modules/@navikt/ds-react/esm/chips/Chips";
+import { Chips } from "@navikt/ds-react";
 
 interface Props {
   filter: AvtaleFilterType;
