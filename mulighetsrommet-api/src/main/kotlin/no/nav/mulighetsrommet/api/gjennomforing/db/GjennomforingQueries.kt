@@ -679,9 +679,6 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
     )
     return when (GjennomforingType.valueOf(string("gjennomforing_type"))) {
         GjennomforingType.AVTALE -> {
-            val navEnheter = stringOrNull("nav_enheter_json")
-                ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
-                ?: emptyList()
             GjennomforingAvtaleKompakt(
                 id = uuid("id"),
                 navn = string("navn"),
@@ -690,7 +687,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
                 sluttDato = localDateOrNull("slutt_dato"),
                 status = toGjennomforingStatus(),
                 publisert = boolean("publisert"),
-                kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
+                kontorstruktur = Kontorstruktur.fromNavEnheter(toNavEnheter()),
                 arrangor = arrangor,
                 tiltakstype = tiltakstype,
             )
@@ -724,12 +721,6 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
 }
 
 private fun Row.toGjennomforingAvtale(): GjennomforingAvtale {
-    val navEnheter = stringOrNull("nav_enheter_json")
-        ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
-        ?: emptyList()
-    val stengt = stringOrNull("stengt_perioder_json")
-        ?.let { Json.decodeFromString<List<GjennomforingAvtale.StengtPeriode>>(it) }
-        ?: emptyList()
     return GjennomforingAvtale(
         id = uuid("id"),
         tiltakstype = Gjennomforing.Tiltakstype(
@@ -764,15 +755,12 @@ private fun Row.toGjennomforingAvtale(): GjennomforingAvtale {
                 ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer"),
             )
         },
-        kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
-        stengt = stengt,
+        kontorstruktur = Kontorstruktur.fromNavEnheter(toNavEnheter()),
+        stengt = toStengtePerioder(),
     )
 }
 
 private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
-    val navEnheter = stringOrNull("nav_enheter_json")
-        ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
-        ?: emptyList()
     val kontaktpersoner = stringOrNull("nav_kontaktpersoner_json")
         ?.let { Json.decodeFromString<List<GjennomforingAvtaleDetaljer.GjennomforingKontaktperson>>(it) }
         ?: emptyList()
@@ -783,7 +771,7 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
         ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
     return GjennomforingAvtaleDetaljer(
         administratorer = toAdministratorer(),
-        kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
+        kontorstruktur = Kontorstruktur.fromNavEnheter(toNavEnheter()),
         kontaktpersoner = kontaktpersoner,
         oppmoteSted = stringOrNull("oppmote_sted"),
         faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
@@ -800,6 +788,16 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
         utdanningslop = toUtdanningslopDto(),
         arrangorKontaktpersoner = arrangorKontaktpersoner,
     )
+}
+
+private fun Row.toStengtePerioder(): List<GjennomforingAvtale.StengtPeriode> {
+    return stringOrNull("stengt_perioder_json")
+        ?.let { Json.decodeFromString<List<GjennomforingAvtale.StengtPeriode>>(it) }
+        ?: emptyList()
+}
+
+private fun Row.toNavEnheter(): List<NavEnhetDto> {
+    return stringOrNull("nav_enheter_json")?.let { Json.decodeFromString<List<NavEnhetDto>>(it) } ?: emptyList()
 }
 
 private fun Row.toAdministratorer(): List<GjennomforingAvtaleDetaljer.Administrator> {
