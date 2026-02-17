@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -26,6 +25,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
@@ -136,7 +136,7 @@ private fun getHandlingerGruppetiltak(
     gjennomforing: GjennomforingAvtale,
     ansatt: NavAnsatt,
 ): Set<GjennomforingHandling> {
-    val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
+    val statusGjennomfores = gjennomforing.status == GjennomforingStatusType.GJENNOMFORES
     return setOfNotNull(
         GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
         GjennomforingHandling.FORHANDSVIS_I_MODIA.takeIf { statusGjennomfores },
@@ -165,7 +165,7 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
         lopenummer = lopenummer,
         startDato = startDato,
         sluttDato = sluttDato,
-        status = GjennomforingDtoMapper.fromGjennomforingStatusType(status),
+        status = GjennomforingDtoMapper.fromGjennomforingStatus(status),
         arrangor = arrangor,
         tiltakstype = tiltakstype,
         publisert = publisert,
@@ -178,7 +178,7 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
         lopenummer = lopenummer,
         startDato = startDato,
         sluttDato = sluttDato,
-        status = GjennomforingDtoMapper.fromGjennomforingStatusType(status),
+        status = GjennomforingDtoMapper.fromGjennomforingStatus(status),
         arrangor = arrangor,
         tiltakstype = tiltakstype,
         publisert = false,

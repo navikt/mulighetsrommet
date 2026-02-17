@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytelseDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
@@ -9,7 +10,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktpersonDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -42,6 +42,7 @@ object GjennomforingDtoMapper {
             stengt = gjennomforing.stengt.map { it.toStengtPeriodeDto() },
             tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
             administratorer = detaljer.administratorer.map { it.toAdministratorDto() },
+            avbrytelse = detaljer.avbrytelse?.let { AvbrytelseDto(it.aarsaker, it.forklaring) },
         ),
         veilederinfo = GjennomforingVeilederinfoDto(
             kontorstruktur = detaljer.kontorstruktur,
@@ -83,7 +84,7 @@ object GjennomforingDtoMapper {
         utdanningslop = null,
     )
 
-    fun fromGjennomforingStatusType(status: GjennomforingStatusType): GjennomforingDto.Status {
+    fun fromGjennomforingStatus(status: GjennomforingStatusType): GjennomforingDto.Status {
         val variant = when (status) {
             GjennomforingStatusType.GJENNOMFORES -> DataElement.Status.Variant.SUCCESS
             GjennomforingStatusType.AVSLUTTET -> DataElement.Status.Variant.NEUTRAL
@@ -91,21 +92,6 @@ object GjennomforingDtoMapper {
         }
         val element = DataElement.Status(status.beskrivelse, variant, null)
         return GjennomforingDto.Status(status, element)
-    }
-
-    fun fromGjennomforingStatus(status: GjennomforingStatus): GjennomforingDto.Status {
-        val variant = when (status) {
-            GjennomforingStatus.Gjennomfores -> DataElement.Status.Variant.SUCCESS
-            GjennomforingStatus.Avsluttet -> DataElement.Status.Variant.NEUTRAL
-            is GjennomforingStatus.Avlyst, is GjennomforingStatus.Avbrutt -> DataElement.Status.Variant.ERROR
-        }
-        val description = when (status) {
-            GjennomforingStatus.Gjennomfores, GjennomforingStatus.Avsluttet -> null
-            is GjennomforingStatus.Avlyst -> status.forklaring
-            is GjennomforingStatus.Avbrutt -> status.forklaring
-        }
-        val element = DataElement.Status(status.type.beskrivelse, variant, description)
-        return GjennomforingDto.Status(status.type, element)
     }
 
     private fun GjennomforingAvtaleDetaljer.Administrator.toAdministratorDto(): GjennomforingDto.Administrator {

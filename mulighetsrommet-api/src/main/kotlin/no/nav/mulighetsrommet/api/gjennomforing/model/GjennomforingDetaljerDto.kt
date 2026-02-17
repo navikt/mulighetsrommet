@@ -106,6 +106,7 @@ data class GjennomforingAvtaleDto(
     val tilgjengeligForArrangorDato: LocalDate?,
     val administratorer: List<Administrator>,
     val stengt: List<StengtPeriode>,
+    val avbrytelse: AvbrytelseDto?,
 ) : GjennomforingDto()
 
 @Serializable
@@ -151,4 +152,10 @@ data class GjennomforingKontaktpersonDto(
     val mobilnummer: String? = null,
     val hovedenhet: NavEnhetNummer,
     val beskrivelse: String?,
+)
+
+@Serializable
+data class AvbrytelseDto(
+    val aarsaker: List<AvbrytGjennomforingAarsak>,
+    val forklaring: String?,
 )

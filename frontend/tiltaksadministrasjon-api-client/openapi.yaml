@@ -4822,11 +4822,16 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingDto.StengtPeriode"
+        avbrytelse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/AvbrytelseDto"
       required:
       - administratorer
       - antallPlasser
       - apentForPamelding
       - arrangor
+      - avbrytelse
       - avtaleId
       - deltidsprosent
       - id
@@ -4933,6 +4938,29 @@ components:
       - id
       - slutt
       - start
+    AvbrytelseDto:
+      type: object
+      properties:
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - forklaring
+    AvbrytGjennomforingAarsak:
+      type: string
+      enum:
+      - ENDRING_HOS_ARRANGOR
+      - BUDSJETT_HENSYN
+      - FOR_FAA_DELTAKERE
+      - FEILREGISTRERING
+      - AVBRUTT_I_ARENA
+      - ANNET
     GjennomforingEnkeltplassDto:
       type: object
       properties:
@@ -5075,15 +5103,6 @@ components:
       - tiltakstype
       - utdanningslop
       - veilederinfo
-    AvbrytGjennomforingAarsak:
-      type: string
-      enum:
-      - ENDRING_HOS_ARRANGOR
-      - BUDSJETT_HENSYN
-      - FOR_FAA_DELTAKERE
-      - FEILREGISTRERING
-      - AVBRUTT_I_ARENA
-      - ANNET
     AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak:
       type: object
       properties:

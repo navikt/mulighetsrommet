@@ -207,7 +207,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing1.id).should {
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2024#2024")
                     it.arena?.ansvarligNavEnhet shouldBe "0387"
-                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.avtaleId shouldBe gjennomforing1.avtaleId
                     it.navn shouldBe gjennomforing1.navn
@@ -310,7 +310,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
                     it.navn shouldBe "En enkeltplass"
-                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 }
             }
 
@@ -323,7 +323,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
-                    it.status.type shouldBe GjennomforingStatusType.AVSLUTTET
+                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
                     it.arena?.ansvarligNavEnhet shouldBe "1000"
                 }
             }
@@ -345,7 +345,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
                     it.navn shouldBe "En enkeltplass"
-                    it.status.type shouldBe GjennomforingStatusType.AVSLUTTET
+                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
                 }
             }
         }

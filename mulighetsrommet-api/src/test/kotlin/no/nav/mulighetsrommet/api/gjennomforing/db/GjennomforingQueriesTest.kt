@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
@@ -91,7 +90,7 @@ class GjennomforingQueriesTest : FunSpec({
                     )
                     it.startDato shouldBe Oppfolging1.startDato
                     it.sluttDato shouldBe Oppfolging1.sluttDato
-                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
@@ -342,10 +341,7 @@ class GjennomforingQueriesTest : FunSpec({
                     listOf(AvbrytGjennomforingAarsak.ANNET),
                     ":)",
                 )
-                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingStatus.Avbrutt(
-                    aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
-                    forklaring = ":)",
-                )
+                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingStatusType.AVBRUTT
 
                 queries.gjennomforing.setStatus(
                     id = id,
@@ -354,10 +350,7 @@ class GjennomforingQueriesTest : FunSpec({
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
-                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingStatus.Avlyst(
-                    aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
-                    forklaring = null,
-                )
+                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingStatusType.AVLYST
 
                 queries.gjennomforing.setStatus(
                     id = id,
@@ -366,7 +359,7 @@ class GjennomforingQueriesTest : FunSpec({
                     aarsaker = null,
                     forklaring = null,
                 )
-                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingStatus.Gjennomfores
+                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingStatusType.GJENNOMFORES
             }
         }
 
@@ -520,7 +513,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.navn shouldBe "Arenanavn"
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato shouldBe LocalDate.of(2025, 2, 1)
-                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.deltidsprosent shouldBe 100.0
                     it.antallPlasser shouldBe 10
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
@@ -564,7 +557,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.navn shouldBe "Arena-navn"
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato.shouldBeNull()
-                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 }
 
                 queries.gjennomforing.setArenaData(

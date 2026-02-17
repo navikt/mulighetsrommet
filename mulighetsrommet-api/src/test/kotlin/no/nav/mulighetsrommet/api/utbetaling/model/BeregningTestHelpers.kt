@@ -3,12 +3,12 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -118,7 +118,7 @@ object BeregningTestHelpers {
             deltidsprosent = 100.0,
             antallPlasser = 10,
             opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
-            status = GjennomforingStatus.Gjennomfores,
+            status = GjennomforingStatusType.GJENNOMFORES,
             apentForPamelding = true,
             avtaleId = UUID.randomUUID(),
             kontorstruktur = emptyList(),
