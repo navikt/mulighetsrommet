@@ -71,7 +71,7 @@ class ReplikerDeltakerKafkaConsumer(
             gjennomforingId = amtDeltaker.gjennomforingId,
             startDato = amtDeltaker.startDato,
             sluttDato = amtDeltaker.sluttDato,
-            registrertDato = amtDeltaker.registrertDato.toLocalDate(),
+            registrertTidspunkt = amtDeltaker.registrertDato,
             endretTidspunkt = amtDeltaker.endretDato,
             status = amtDeltaker.status.toDeltakerStatus(),
             deltakelsesmengder = amtDeltaker.deltakelsesmengder.orEmpty().map {
@@ -87,7 +87,7 @@ fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {
         gjennomforingId = gjennomforingId,
         startDato = startDato,
         sluttDato = sluttDato,
-        registrertDato = registrertDato.toLocalDate(),
+        registrertTidspunkt = registrertDato,
         endretTidspunkt = endretDato,
         status = status.toDeltakerStatus(),
         deltakelsesmengder = deltakelsesmengder.orEmpty().map {

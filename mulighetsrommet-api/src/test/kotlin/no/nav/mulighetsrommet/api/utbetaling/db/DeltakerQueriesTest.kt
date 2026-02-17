@@ -34,7 +34,7 @@ class DeltakerQueriesTest : FunSpec({
         gjennomforingId = domain.gjennomforinger[0].id,
         startDato = null,
         sluttDato = null,
-        registrertDato = opprettetTidspunkt.toLocalDate(),
+        registrertTidspunkt = opprettetTidspunkt,
         endretTidspunkt = opprettetTidspunkt,
         status = DeltakerStatus(
             DeltakerStatusType.VENTER_PA_OPPSTART,
@@ -142,7 +142,7 @@ fun DeltakerDbo.toDeltaker() = Deltaker(
     gjennomforingId = gjennomforingId,
     startDato = startDato,
     sluttDato = startDato,
-    registrertDato = registrertDato,
+    registrertTidspunkt = registrertTidspunkt,
     endretTidspunkt = endretTidspunkt,
     status = status,
     deltakelsesmengder = deltakelsesmengder.map { Deltakelsesmengde(it.gyldigFra, it.deltakelsesprosent) },

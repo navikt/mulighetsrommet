@@ -62,7 +62,7 @@ object ArrangorflateTestUtils {
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         startDato = GjennomforingFixtures.AFT1.startDato,
         sluttDato = GjennomforingFixtures.AFT1.sluttDato,
-        registrertDato = GjennomforingFixtures.AFT1.startDato,
+        registrertTidspunkt = GjennomforingFixtures.AFT1.startDato.atStartOfDay(),
         endretTidspunkt = LocalDateTime.now(),
         deltakelsesmengder = listOf(),
         status = DeltakerStatus(
