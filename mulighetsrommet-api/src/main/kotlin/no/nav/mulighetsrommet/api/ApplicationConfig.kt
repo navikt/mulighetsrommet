@@ -134,6 +134,11 @@ class KafkaClients(
         topic = "team-mulighetsrommet.tiltaksokonomi.faktura-status-v1",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.faktura-status.v2"),
     )
+    var replikerDeltakerNorskIdent: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "repliker-deltaker-norsk-ident",
+        topic = "amt.deltaker-ekstern-v1",
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.repliker-deltaker-norsk-ident.v1"),
+    )
     var replikerDeltakerEksternV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "repliker-amt-deltaker-ekstern",
         topic = "amt.deltaker-ekstern-v1",
