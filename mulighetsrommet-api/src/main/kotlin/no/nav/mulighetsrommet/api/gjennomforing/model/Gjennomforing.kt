@@ -139,7 +139,6 @@ data class GjennomforingAvtale(
     val kontorstruktur: List<Kontorstruktur>,
     val apentForPamelding: Boolean,
     val stengt: List<StengtPeriode>,
-    // TODO: vurdere om administratorer fortsatt burde være i denne modellen. Benyttes til et par notifikasjoner.
 ) : Gjennomforing() {
     @Serializable
     data class StengtPeriode(

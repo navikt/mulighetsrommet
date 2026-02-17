@@ -344,10 +344,7 @@ class GjennomforingAvtaleService(
         navIdent: NavIdent,
         navn: String,
     ) {
-        val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljer(id)
-        val currentAdministratorer = detaljer
-            ?.administratorer?.map { it.navIdent }?.toSet()
-            ?: setOf()
+        val currentAdministratorer = queries.gjennomforing.getAdministratorer(id).orEmpty().map { it.navIdent }.toSet()
 
         queries.gjennomforing.setAdministratorer(id, administratorer)
 

@@ -183,6 +183,16 @@ class GjennomforingQueries(private val session: Session) {
         execute(queryOf(deleteAdministratorer, id, createArrayOfValue(administratorer) { it.value }))
     }
 
+    fun getAdministratorer(id: UUID): List<GjennomforingAvtaleDetaljer.Administrator>? {
+        @Language("PostgreSQL")
+        val query = """
+            select administratorer_json
+            from view_gjennomforing_avtale_detaljer
+            where id = ?::uuid
+        """.trimIndent()
+        return session.single(queryOf(query, id)) { it.toAdministratorer() }
+    }
+
     fun setKontaktpersoner(id: UUID, kontaktpersoner: Set<GjennomforingKontaktpersonDbo>) = with(session) {
         @Language("PostgreSQL")
         val upsertKontaktperson = """
@@ -265,6 +275,16 @@ class GjennomforingQueries(private val session: Session) {
             }
             batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
         }
+    }
+
+    fun getUtdanningslop(id: UUID): UtdanningslopDto? {
+        @Language("PostgreSQL")
+        val query = """
+            select utdanningslop_json
+            from view_gjennomforing_avtale_detaljer
+            where id = ?::uuid
+        """.trimIndent()
+        return session.single(queryOf(query, id)) { it.toUtdanningslopDto() }
     }
 
     fun setAmoKategorisering(id: UUID, amo: AmoKategorisering?): Unit = with(session) {
@@ -469,16 +489,6 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { it.toPrismodell() }
-    }
-
-    fun getUtdanningslop(id: UUID): UtdanningslopDto? {
-        @Language("PostgreSQL")
-        val query = """
-            select utdanningslop_json
-            from view_gjennomforing_avtale_detaljer
-            where id = ?::uuid
-        """.trimIndent()
-        return session.single(queryOf(query, id)) { it.toUtdanningslopDto() }
     }
 
     fun setFreeTextSearch(id: UUID, content: List<String>) {
@@ -760,9 +770,6 @@ private fun Row.toGjennomforingAvtale(): GjennomforingAvtale {
 }
 
 private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
-    val administratorer = stringOrNull("administratorer_json")
-        ?.let { Json.decodeFromString<List<GjennomforingAvtaleDetaljer.Administrator>>(it) }
-        ?: emptyList()
     val navEnheter = stringOrNull("nav_enheter_json")
         ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
         ?: emptyList()
@@ -775,7 +782,7 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
     val amoKategorisering = stringOrNull("amo_kategorisering_json")
         ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
     return GjennomforingAvtaleDetaljer(
-        administratorer = administratorer,
+        administratorer = toAdministratorer(),
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
         kontaktpersoner = kontaktpersoner,
         oppmoteSted = stringOrNull("oppmote_sted"),
@@ -793,6 +800,12 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
         utdanningslop = toUtdanningslopDto(),
         arrangorKontaktpersoner = arrangorKontaktpersoner,
     )
+}
+
+private fun Row.toAdministratorer(): List<GjennomforingAvtaleDetaljer.Administrator> {
+    return stringOrNull("administratorer_json")
+        ?.let { Json.decodeFromString<List<GjennomforingAvtaleDetaljer.Administrator>>(it) }
+        ?: emptyList()
 }
 
 private fun Row.toUtdanningslopDto(): UtdanningslopDto? {
