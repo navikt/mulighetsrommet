@@ -471,6 +471,16 @@ class GjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toPrismodell() }
     }
 
+    fun getUtdanningslop(id: UUID): UtdanningslopDto? {
+        @Language("PostgreSQL")
+        val query = """
+            select utdanningslop_json
+            from view_gjennomforing_avtale_detaljer
+            where id = ?::uuid
+        """.trimIndent()
+        return session.single(queryOf(query, id)) { it.toUtdanningslopDto() }
+    }
+
     fun setFreeTextSearch(id: UUID, content: List<String>) {
         @Language("PostgreSQL")
         val query = """
@@ -759,8 +769,6 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
     val kontaktpersoner = stringOrNull("nav_kontaktpersoner_json")
         ?.let { Json.decodeFromString<List<GjennomforingAvtaleDetaljer.GjennomforingKontaktperson>>(it) }
         ?: emptyList()
-    val utdanningslop = stringOrNull("utdanningslop_json")
-        ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
     val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
         ?.let { Json.decodeFromString<List<GjennomforingAvtaleDetaljer.ArrangorKontaktperson>>(it) }
         ?: emptyList()
@@ -782,9 +790,13 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
         },
         tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
         amoKategorisering = amoKategorisering,
-        utdanningslop = utdanningslop,
+        utdanningslop = toUtdanningslopDto(),
         arrangorKontaktpersoner = arrangorKontaktpersoner,
     )
+}
+
+private fun Row.toUtdanningslopDto(): UtdanningslopDto? {
+    return stringOrNull("utdanningslop_json")?.let { Json.decodeFromString<UtdanningslopDto>(it) }
 }
 
 private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
