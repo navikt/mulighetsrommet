@@ -140,7 +140,7 @@ object BeregningTestHelpers {
         gjennomforingId = UUID.randomUUID(),
         startDato = periode.start,
         sluttDato = periode.getLastInclusiveDate(),
-        registrertDato = periode.start,
+        registrertTidspunkt = periode.start.atStartOfDay(),
         endretTidspunkt = periode.start.atStartOfDay(),
         status = DeltakerStatus(
             type = status,
