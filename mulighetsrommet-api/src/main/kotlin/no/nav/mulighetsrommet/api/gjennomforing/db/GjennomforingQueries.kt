@@ -719,7 +719,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
                 lopenummer = Tiltaksnummer(string("lopenummer")),
                 startDato = localDate("start_dato"),
                 sluttDato = localDateOrNull("slutt_dato"),
-                status = toGjennomforingStatus(),
+                status = GjennomforingStatusType.valueOf(string("status")),
                 publisert = boolean("publisert"),
                 kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
                 arrangor = arrangor,
@@ -733,7 +733,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
                 lopenummer = Tiltaksnummer(string("lopenummer")),
                 startDato = localDate("start_dato"),
                 sluttDato = localDateOrNull("slutt_dato"),
-                status = toGjennomforingStatus(),
+                status = GjennomforingStatusType.valueOf(string("status")),
                 arrangor = arrangor,
                 tiltakstype = tiltakstype,
             )
@@ -746,7 +746,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
                 lopenummer = Tiltaksnummer(string("lopenummer")),
                 startDato = localDate("start_dato"),
                 sluttDato = localDateOrNull("slutt_dato"),
-                status = toGjennomforingStatus(),
+                status = GjennomforingStatusType.valueOf(string("status")),
                 arrangor = arrangor,
                 tiltakstype = tiltakstype,
             )
