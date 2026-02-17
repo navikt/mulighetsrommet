@@ -2,7 +2,7 @@ import { OppgaveoversiktPage } from "@/pages/oppgaveoversikt/OppgaveoversiktPage
 import { OppgaverPage } from "@/pages/oppgaveoversikt/oppgaver/OppgaverPage";
 import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/DeltakerlisteContainer";
 import { TilsagnForGjennomforingPage } from "@/pages/gjennomforing/tilsagn/TilsagnForGjennomforingPage";
-import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
+import { getWebInstrumentations, initializeFaro, InternalLoggerLevel } from "@grafana/faro-web-sdk";
 import { Page, Theme } from "@navikt/ds-react";
 import { createBrowserRouter, Outlet, RouteObject, RouterProvider } from "react-router";
 import { ForsidePage } from "./pages/forside/ForsidePage";
@@ -58,6 +58,7 @@ if (import.meta.env.VITE_FARO_URL) {
     },
     instrumentations: [...getWebInstrumentations({ captureConsole: true })],
     isolate: true,
+    internalLoggerLevel: InternalLoggerLevel.OFF,
   });
 }
 
