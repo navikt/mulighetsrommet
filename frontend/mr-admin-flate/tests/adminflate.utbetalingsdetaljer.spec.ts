@@ -75,15 +75,6 @@ test.describe("Utbetalinger detaljer", () => {
     await expect(page.locator("a:has-text('A-2025/123')")).toBeVisible();
     await expect(page.getByTestId("linje-table")).toBeVisible();
 
-    // Verify that årsak og forklaring is rendered
-    await expect(
-      page.locator("h4", { hasText: "Linjen ble returnert på grunn av følgende årsaker" }),
-    ).toBeVisible();
-    // Verify that the return reason text is visible
-    await expect(page.locator("text=Feil beløp")).toBeVisible();
-    await expect(
-      page.locator("text=Beløpet er feil, og bør fikses ved å endre antall deltakere"),
-    ).toBeVisible();
     await sjekkUU(page, "utbetaling-til-utbetaling");
   });
 

@@ -1,5 +1,5 @@
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
-import { formatertVentetid } from "@/utils/Utils";
+import { avbrytGjennomforingAarsakTilTekst, formatertVentetid } from "@/utils/Utils";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import {
   Definisjonsliste,
@@ -14,6 +14,7 @@ import {
   GjennomforingVeilederinfoDto,
   TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
+import { AarsakerOgForklaring } from "./tilsagn/AarsakerOgForklaring";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -42,6 +43,18 @@ function getVarighetOgPameldingGruppe(
     {
       key: gjennomforingTekster.sluttdatoLabel,
       value: formaterDato(gjennomforing.sluttDato) ?? "-",
+    },
+    gjennomforing.avbrytelse && {
+      key: "",
+      value: (
+        <AarsakerOgForklaring
+          heading="Avbrytelse"
+          aarsaker={gjennomforing.avbrytelse.aarsaker.map((aarsak) =>
+            avbrytGjennomforingAarsakTilTekst(aarsak),
+          )}
+          forklaring={gjennomforing.avbrytelse.forklaring}
+        />
+      ),
     },
     {
       key: gjennomforingTekster.oppstart.label,
