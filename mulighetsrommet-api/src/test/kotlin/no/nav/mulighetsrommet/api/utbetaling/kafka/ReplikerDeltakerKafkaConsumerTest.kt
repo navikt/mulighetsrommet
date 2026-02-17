@@ -14,7 +14,7 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.amt.model.AmtDeltakerV1Dto
+import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -49,14 +49,14 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             gjennomforingId = Oppfolging1.id,
             status = DeltakerStatusType.VENTER_PA_OPPSTART,
             personIdent = "12345678910",
-            opprettetDato = opprettetDato,
+            opprettetTidspunkt = opprettetDato,
         )
 
         val amtDeltaker2 = createAmtDeltakerV1Dto(
             gjennomforingId = Oppfolging1.id,
             status = DeltakerStatusType.VENTER_PA_OPPSTART,
             personIdent = "12345678911",
-            opprettetDato = opprettetDato,
+            opprettetTidspunkt = opprettetDato,
         )
 
         val domain = MulighetsrommetTestDomain(
@@ -148,11 +148,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
 
             val deltakerConsumer = createConsumer()
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
-                status = AmtDeltakerV1Dto.DeltakerStatusDto(
-                    type = DeltakerStatusType.FEILREGISTRERT,
-                    aarsak = null,
-                    opprettetDato = LocalDateTime.now(),
-                ),
+                status = createStatusDto(DeltakerStatusType.FEILREGISTRERT),
             )
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
@@ -172,7 +168,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
                 status = DeltakerStatusType.DELTAR,
-                opprettetDato = deltarTidspunkt,
+                opprettetTidspunkt = deltarTidspunkt,
             )
 
             val avbruttTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
@@ -181,7 +177,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
                 status = DeltakerStatusType.AVBRUTT,
-                opprettetDato = avbruttTidspunkt,
+                opprettetTidspunkt = avbruttTidspunkt,
             )
 
             deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerAvbrutt))
@@ -214,7 +210,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
                 status = DeltakerStatusType.DELTAR,
-                opprettetDato = tidspunkt,
+                opprettetTidspunkt = tidspunkt,
             )
 
             val amtDeltakerAvbrutt = createAmtDeltakerV1Dto(
@@ -222,7 +218,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
                 status = DeltakerStatusType.AVBRUTT,
-                opprettetDato = tidspunkt,
+                opprettetTidspunkt = tidspunkt,
             )
 
             deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerDeltar))
@@ -285,11 +281,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
 
             val feilregistrert = amtDeltaker1.copy(
-                status = AmtDeltakerV1Dto.DeltakerStatusDto(
-                    type = DeltakerStatusType.FEILREGISTRERT,
-                    aarsak = null,
-                    opprettetDato = LocalDateTime.now(),
-                ),
+                status = createStatusDto(DeltakerStatusType.FEILREGISTRERT),
             )
             deltakerConsumer.consume(feilregistrert.id, Json.encodeToJsonElement(feilregistrert))
 
@@ -302,11 +294,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
 
             val ikkeAktuell = amtDeltaker1.copy(
-                status = AmtDeltakerV1Dto.DeltakerStatusDto(
-                    type = DeltakerStatusType.IKKE_AKTUELL,
-                    aarsak = null,
-                    opprettetDato = LocalDateTime.now(),
-                ),
+                status = createStatusDto(DeltakerStatusType.IKKE_AKTUELL),
             )
             deltakerConsumer.consume(ikkeAktuell.id, Json.encodeToJsonElement(ikkeAktuell))
 
@@ -336,21 +324,30 @@ private fun createAmtDeltakerV1Dto(
     gjennomforingId: UUID,
     status: DeltakerStatusType,
     personIdent: String,
-    opprettetDato: LocalDateTime = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
-) = AmtDeltakerV1Dto(
+    opprettetTidspunkt: LocalDateTime = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
+) = AmtDeltakerEksternV1Dto(
     id = id,
     gjennomforingId = gjennomforingId,
     personIdent = personIdent,
     startDato = null,
     sluttDato = null,
-    status = AmtDeltakerV1Dto.DeltakerStatusDto(
-        type = status,
-        aarsak = null,
-        opprettetDato = opprettetDato,
-    ),
-    registrertDato = opprettetDato,
-    endretDato = opprettetDato,
-    dagerPerUke = 2.5f,
-    prosentStilling = null,
+    status = createStatusDto(status, opprettetTidspunkt),
+    registrertTidspunkt = opprettetTidspunkt,
+    endretTidspunkt = opprettetTidspunkt,
     deltakelsesmengder = listOf(),
+    kilde = AmtDeltakerEksternV1Dto.Kilde.KOMET,
+    innhold = AmtDeltakerEksternV1Dto.DeltakelsesinnholdDto(
+        ledetekst = null,
+        valgtInnhold = listOf(),
+    ),
+)
+
+private fun createStatusDto(
+    type: DeltakerStatusType,
+    opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+): AmtDeltakerEksternV1Dto.StatusDto = AmtDeltakerEksternV1Dto.StatusDto(
+    type = type,
+    tekst = type.description,
+    aarsak = AmtDeltakerEksternV1Dto.AarsakDto(null, null),
+    opprettetTidspunkt = opprettetTidspunkt,
 )

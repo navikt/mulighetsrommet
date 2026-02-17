@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.utbetaling.tidligstTidspunktForUtbetalingDev
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -44,13 +43,7 @@ val ApplicationConfigDev = AppConfig(
     ),
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenByteProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
-        clients = KafkaClients(::aivenDefaultConsumerProperties) {
-            amtDeltakerV1 = KafkaTopicConsumer.Config(
-                id = "amt-deltaker",
-                topic = "amt.deltaker-v1",
-                consumerProperties = aivenDefaultConsumerProperties("mulighetsrommet-api.deltaker.v2"),
-            )
-        },
+        clients = KafkaClients(::aivenDefaultConsumerProperties),
     ),
     auth = AuthConfig(
         azure = AuthProvider(
