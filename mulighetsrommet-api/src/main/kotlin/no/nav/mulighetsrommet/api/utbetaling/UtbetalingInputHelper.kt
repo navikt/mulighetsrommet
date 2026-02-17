@@ -16,11 +16,10 @@ object UtbetalingInputHelper {
         gjennomforing: GjennomforingAvtale,
         periode: Periode,
     ): AvtaltPrisPerTimeOppfolgingPerDeltaker {
-        val justertPeriode = Periode(periode.start, listOfNotNull(periode.slutt, gjennomforing.sluttDato?.plusDays(1)).min())
-        val satser = resolveAvtalteSatser(gjennomforing, justertPeriode)
-        val stengtHosArrangor = resolveStengtHosArrangor(justertPeriode, gjennomforing.stengt)
+        val satser = resolveAvtalteSatser(gjennomforing, periode)
+        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
-        val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, justertPeriode)
+        val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, periode)
         return AvtaltPrisPerTimeOppfolgingPerDeltaker(
             satser,
             stengtHosArrangor,
