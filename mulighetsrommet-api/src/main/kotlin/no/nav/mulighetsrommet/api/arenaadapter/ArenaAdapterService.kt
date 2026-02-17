@@ -253,7 +253,7 @@ private fun harEnkeltplassEndringer(
         arenaGjennomforing.sluttDato != gjennomforing.sluttDato ||
         arenaGjennomforing.arenaAnsvarligEnhet != arenadata.ansvarligNavEnhet ||
         arenaGjennomforing.deltidsprosent != gjennomforing.deltidsprosent ||
-        mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus) != gjennomforing.status.type
+        mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus) != gjennomforing.status
 }
 
 private fun mapAvslutningsstatus(avslutningsstatus: Avslutningsstatus): GjennomforingStatusType = when (avslutningsstatus) {

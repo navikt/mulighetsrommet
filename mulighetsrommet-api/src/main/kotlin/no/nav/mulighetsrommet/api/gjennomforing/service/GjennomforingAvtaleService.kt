@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
@@ -117,14 +116,14 @@ class GjennomforingAvtaleService(
         val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
         val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
         val antallDeltakere = queries.deltaker.getByGjennomforingId(request.id).size
-        val status = resolveStatus(previous?.status?.type, request, today)
+        val status = resolveStatus(previous?.status, request, today)
         return GjennomforingValidator.Ctx(
             previous = previous?.let {
                 GjennomforingValidator.Ctx.Gjennomforing(
                     avtaleId = it.avtaleId,
                     oppstart = it.oppstart,
                     arrangorId = it.arrangor.id,
-                    status = it.status.type,
+                    status = it.status,
                     sluttDato = it.sluttDato,
                     pameldingType = it.pameldingType,
                 )
@@ -186,7 +185,7 @@ class GjennomforingAvtaleService(
     ): GjennomforingAvtale = db.transaction {
         val gjennomforing = getOrError(id)
 
-        check(gjennomforing.status is GjennomforingStatus.Gjennomfores) {
+        check(gjennomforing.status == GjennomforingStatusType.GJENNOMFORES) {
             "Gjennomføringen må være aktiv for å kunne avsluttes"
         }
 
@@ -219,12 +218,12 @@ class GjennomforingAvtaleService(
         val gjennomforing = getOrError(id)
 
         when (gjennomforing.status) {
-            is GjennomforingStatus.Gjennomfores -> Unit
+            GjennomforingStatusType.GJENNOMFORES -> Unit
 
-            is GjennomforingStatus.Avlyst, is GjennomforingStatus.Avbrutt ->
+            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT ->
                 return FieldError.root("Gjennomføringen er allerede avbrutt").nel().left()
 
-            is GjennomforingStatus.Avsluttet ->
+            GjennomforingStatusType.AVSLUTTET ->
                 return FieldError.root("Gjennomføringen er allerede avsluttet").nel().left()
         }
 

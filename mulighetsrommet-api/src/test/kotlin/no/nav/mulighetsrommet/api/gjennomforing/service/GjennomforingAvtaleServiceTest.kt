@@ -11,7 +11,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beInstanceOf
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -29,7 +28,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -235,7 +233,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 ),
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {
-                it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>()
+                it.status shouldBe GjennomforingStatusType.AVBRUTT
                 it.apentForPamelding shouldBe false
             }
 
@@ -275,7 +273,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 ),
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {
-                it.status.shouldBeTypeOf<GjennomforingStatus.Avlyst>()
+                it.status shouldBe GjennomforingStatusType.AVLYST
                 it.apentForPamelding shouldBe false
             }
 
@@ -303,7 +301,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 LocalDate.of(2023, 7, 2).atStartOfDay(),
                 bertilNavIdent,
             ) should {
-                it.status.shouldBeTypeOf<GjennomforingStatus.Avsluttet>()
+                it.status shouldBe GjennomforingStatusType.AVSLUTTET
                 it.apentForPamelding shouldBe false
             }
 

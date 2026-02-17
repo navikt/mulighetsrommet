@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -455,7 +454,10 @@ class GjennomforingQueries(private val session: Session) {
     fun getGjennomforingAvtaleDetaljer(id: UUID): GjennomforingAvtaleDetaljer? {
         @Language("PostgreSQL")
         val query = """
-            select publisert,
+            select status,
+                   avbrutt_aarsaker,
+                   avbrutt_forklaring,
+                   publisert,
                    oppmote_sted,
                    beskrivelse,
                    faneinnhold,
@@ -738,7 +740,7 @@ private fun Row.toGjennomforingAvtale(): GjennomforingAvtale {
         ),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = toGjennomforingStatus(),
+        status = GjennomforingStatusType.valueOf(string("status")),
         antallPlasser = int("antall_plasser"),
         apentForPamelding = boolean("apent_for_pamelding"),
         avtaleId = uuid("avtale_id"),
@@ -787,6 +789,19 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
         amoKategorisering = amoKategorisering,
         utdanningslop = toUtdanningslopDto(),
         arrangorKontaktpersoner = arrangorKontaktpersoner,
+        avbrytelse = when (GjennomforingStatusType.valueOf(string("status"))) {
+            GjennomforingStatusType.GJENNOMFORES,
+            GjennomforingStatusType.AVSLUTTET,
+            -> null
+
+            GjennomforingStatusType.AVBRUTT,
+            GjennomforingStatusType.AVLYST,
+            -> GjennomforingAvtaleDetaljer.Avbrytelse(
+                array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
+                stringOrNull("avbrutt_forklaring"),
+            )
+        },
+
     )
 }
 
@@ -837,7 +852,7 @@ private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
         navn = string("navn"),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = toGjennomforingStatus(),
+        status = GjennomforingStatusType.valueOf(string("status")),
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),
     )
@@ -870,7 +885,7 @@ private fun Row.toGjennomforingArena(): GjennomforingArena {
         navn = string("navn"),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = toGjennomforingStatus(),
+        status = GjennomforingStatusType.valueOf(string("status")),
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
@@ -878,20 +893,6 @@ private fun Row.toGjennomforingArena(): GjennomforingArena {
     )
 }
 
-private fun Row.toGjennomforingStatus(): GjennomforingStatus {
-    return when (GjennomforingStatusType.valueOf(string("status"))) {
-        GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
-
-        GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
-
-        GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
-            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-            stringOrNull("avbrutt_forklaring"),
-        )
-
-        GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
-            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-            stringOrNull("avbrutt_forklaring"),
-        )
-    }
-}
+// fredrik
+// array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
+// stringOrNull("avbrutt_forklaring"),

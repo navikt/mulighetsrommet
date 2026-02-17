@@ -4,6 +4,9 @@ drop view if exists view_gjennomforing_avtale_detaljer;
 
 create view view_gjennomforing_avtale_detaljer as
 select gjennomforing.id,
+       gjennomforing.status,
+       gjennomforing.avbrutt_aarsaker,
+       gjennomforing.avbrutt_forklaring,
        gjennomforing.publisert,
        gjennomforing.oppmote_sted,
        gjennomforing.beskrivelse,

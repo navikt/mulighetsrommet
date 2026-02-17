@@ -9,6 +9,7 @@ import {
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
+import { avbrytGjennomforingAarsakTilTekst } from "@/utils/Utils";
 
 interface AvbrytGjennomforingModalProps {
   open: boolean;
@@ -59,12 +60,30 @@ export function AvbrytGjennomforingModal({
         )
       }
       aarsaker={[
-        { value: AvbrytGjennomforingAarsak.BUDSJETT_HENSYN, label: "Budsjetthensyn" },
-        { value: AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR, label: "Endring hos arrangør" },
-        { value: AvbrytGjennomforingAarsak.FEILREGISTRERING, label: "Feilregistrering" },
-        { value: AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE, label: "For få deltakere" },
-        { value: AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA, label: "Avbrutt i Arena" },
-        { value: AvbrytGjennomforingAarsak.ANNET, label: "Annet" },
+        {
+          value: AvbrytGjennomforingAarsak.BUDSJETT_HENSYN,
+          label: avbrytGjennomforingAarsakTilTekst(AvbrytGjennomforingAarsak.BUDSJETT_HENSYN),
+        },
+        {
+          value: AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR,
+          label: avbrytGjennomforingAarsakTilTekst(AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR),
+        },
+        {
+          value: AvbrytGjennomforingAarsak.FEILREGISTRERING,
+          label: avbrytGjennomforingAarsakTilTekst(AvbrytGjennomforingAarsak.FEILREGISTRERING),
+        },
+        {
+          value: AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE,
+          label: avbrytGjennomforingAarsakTilTekst(AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE),
+        },
+        {
+          value: AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA,
+          label: avbrytGjennomforingAarsakTilTekst(AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA),
+        },
+        {
+          value: AvbrytGjennomforingAarsak.ANNET,
+          label: avbrytGjennomforingAarsakTilTekst(AvbrytGjennomforingAarsak.ANNET),
+        },
       ]}
       onClose={() => {
         setOpen(false);

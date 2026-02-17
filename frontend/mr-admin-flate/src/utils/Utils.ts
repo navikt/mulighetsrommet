@@ -9,6 +9,7 @@ import {
   TilsagnStatusAarsak,
   TilsagnType,
   ValidationError,
+  AvbrytGjennomforingAarsak,
 } from "@tiltaksadministrasjon/api-client";
 
 export function capitalize(text?: string): string {
@@ -262,4 +263,21 @@ export function tilsagnTypeToString(type: TilsagnType): string {
 
 export function isValidationError(error: unknown): error is ValidationError {
   return typeof error === "object" && error !== null && "errors" in error;
+}
+
+export function avbrytGjennomforingAarsakTilTekst(aarsak: AvbrytGjennomforingAarsak): string {
+  switch (aarsak) {
+    case AvbrytGjennomforingAarsak.BUDSJETT_HENSYN:
+      return "Budsjetthensyn";
+    case AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR:
+      return "Endring hos arrangør";
+    case AvbrytGjennomforingAarsak.FEILREGISTRERING:
+      return "Feilregistrering";
+    case AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE:
+      return "For få deltakere";
+    case AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA:
+      return "Avbrutt i Arena";
+    case AvbrytGjennomforingAarsak.ANNET:
+      return "Annet";
+  }
 }

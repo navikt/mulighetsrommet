@@ -80,7 +80,7 @@ export function UtbetalingLinjeRow({
                 </Alert>
               ) : (
                 <AarsakerOgForklaring
-                  heading="Linjen ble returnert på grunn av følgende årsaker:"
+                  heading="Linjen ble returnert på grunn av følgende årsaker"
                   aarsaker={linje.opprettelse.aarsaker.map((aarsak) =>
                     delutbetalingAarsakTilTekst(aarsak as DelutbetalingReturnertAarsak),
                   )}
