@@ -1,5 +1,5 @@
+import { Chips } from "@navikt/ds-react";
 import { NavRegionDto } from "@tiltaksadministrasjon/api-client";
-import { Chips } from "node_modules/@navikt/ds-react/esm/chips/Chips";
 
 interface Props {
   navEnheter: string[];

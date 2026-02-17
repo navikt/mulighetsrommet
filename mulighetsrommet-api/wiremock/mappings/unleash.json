@@ -14,11 +14,6 @@
           "strategies": []
         },
         {
-          "name": "tiltaksadministrasjon.svensk-valuta",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "tiltaksadministrasjon.pamelding-type",
           "enabled": true,
           "strategies": []

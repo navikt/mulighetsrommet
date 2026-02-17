@@ -13,14 +13,8 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import { AvtalteSatserForm } from "./AvtalteSatserForm";
-import {
-  FeatureToggle,
-  PrismodellType,
-  Tiltakskode,
-  Valuta,
-} from "@tiltaksadministrasjon/api-client";
+import { PrismodellType, Tiltakskode, Valuta } from "@tiltaksadministrasjon/api-client";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 interface Props {
   tiltakskode: Tiltakskode;
@@ -36,8 +30,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     register,
   } = useFormContext<PrismodellValues>();
   const { data: prismodellTyper = [] } = usePrismodeller(tiltakskode);
-  const { data: enableSEK } = useFeatureToggle(FeatureToggle.TILTAKSADMINISTRASJON_SVENSK_VALUTA);
-  const valutaOptions = enableSEK ? [Valuta.NOK, Valuta.SEK] : [Valuta.NOK];
+  const valutaOptions = [Valuta.NOK, Valuta.SEK];
 
   const prismodellerMedSatser = [
     PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
