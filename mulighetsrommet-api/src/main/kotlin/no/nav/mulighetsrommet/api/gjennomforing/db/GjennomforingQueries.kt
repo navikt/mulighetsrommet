@@ -892,7 +892,3 @@ private fun Row.toGjennomforingArena(): GjennomforingArena {
         pameldingType = GjennomforingPameldingType.valueOf(string("pamelding_type")),
     )
 }
-
-// fredrik
-// array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-// stringOrNull("avbrutt_forklaring"),
