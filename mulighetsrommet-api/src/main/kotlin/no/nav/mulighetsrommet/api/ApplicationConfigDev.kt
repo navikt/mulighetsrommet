@@ -281,9 +281,9 @@ val ApplicationConfigDev = AppConfig(
                 TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
                 TiltakstypeFeature.MIGRERT,
             )
-//            val vises = setOf(
-//                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-//            )
+            val vises = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+            )
             mapOf(
                 Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
@@ -299,10 +299,10 @@ val ApplicationConfigDev = AppConfig(
                 Tiltakskode.STUDIESPESIALISERING to migrert,
                 Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
 
-//                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to vises,
-//                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to vises,
-//                Tiltakskode.HOYERE_UTDANNING to vises,
-//                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to vises,
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to vises,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to vises,
+                Tiltakskode.HOYERE_UTDANNING to vises,
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to vises,
             )
         },
     ),
