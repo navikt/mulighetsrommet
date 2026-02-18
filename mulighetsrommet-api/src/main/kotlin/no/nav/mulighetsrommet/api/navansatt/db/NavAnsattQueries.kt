@@ -18,6 +18,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class NavAnsattQueries(private val session: Session) {
+
     fun upsert(ansatt: NavAnsattDbo) {
         @Language("PostgreSQL")
         val query = """
@@ -43,38 +44,6 @@ class NavAnsattQueries(private val session: Session) {
             "skal_slettes_dato" to ansatt.skalSlettesDato,
         )
         session.execute(queryOf(query, params))
-    }
-
-    fun upsertBatch(ansatte: List<NavAnsattDbo>) {
-        if (ansatte.isEmpty()) return
-
-        @Language("PostgreSQL")
-        val query = """
-            insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, entra_object_id, mobilnummer, epost, skal_slettes_dato)
-            values (:nav_ident, :fornavn, :etternavn, :hovedenhet, :entra_object_id::uuid, :mobilnummer, :epost, :skal_slettes_dato)
-            on conflict (nav_ident)
-                do update set fornavn           = excluded.fornavn,
-                              etternavn         = excluded.etternavn,
-                              hovedenhet        = excluded.hovedenhet,
-                              entra_object_id   = excluded.entra_object_id,
-                              mobilnummer       = excluded.mobilnummer,
-                              epost             = excluded.epost,
-                              skal_slettes_dato = excluded.skal_slettes_dato
-        """.trimIndent()
-
-        val params = ansatte.map { ansatt ->
-            mapOf(
-                "nav_ident" to ansatt.navIdent.value,
-                "fornavn" to ansatt.fornavn,
-                "etternavn" to ansatt.etternavn,
-                "hovedenhet" to ansatt.hovedenhet.value,
-                "entra_object_id" to ansatt.entraObjectId,
-                "mobilnummer" to ansatt.mobilnummer,
-                "epost" to ansatt.epost,
-                "skal_slettes_dato" to ansatt.skalSlettesDato,
-            )
-        }
-        session.batchPreparedNamedStatement(query, params)
     }
 
     fun setRoller(navIdent: NavIdent, roller: Set<NavAnsattRolle>) {
@@ -139,97 +108,6 @@ class NavAnsattQueries(private val session: Session) {
                 val paramsRolleEnheter = rolle.enheter.map { mapOf("role_id" to id, "enhet" to it.value) }
                 session.batchPreparedNamedStatement(insertRolleEnhet, paramsRolleEnheter)
             }
-        }
-    }
-
-    fun setRollerBatch(rollerByNavIdent: Map<NavIdent, Set<NavAnsattRolle>>) {
-        if (rollerByNavIdent.isEmpty()) return
-
-        val allRollerParams = rollerByNavIdent.flatMap { (navIdent, roller) ->
-            roller.map { rolle ->
-                mapOf(
-                    "nav_ident" to navIdent.value,
-                    "generell" to rolle.generell,
-                    "rolle" to rolle.rolle.name,
-                )
-            }
-        }
-
-        @Language("PostgreSQL")
-        val deleteObsoleteRoles = """
-            delete from nav_ansatt_rolle
-            where nav_ansatt_nav_ident = :nav_ident
-              and not (rolle = any(:roller::rolle[]))
-        """.trimIndent()
-
-        val deleteParams = rollerByNavIdent.map { (navIdent, roller) ->
-            mapOf(
-                "nav_ident" to navIdent.value,
-                "roller" to session.createArrayOfRolle(roller.map { it.rolle }),
-            )
-        }
-        session.batchPreparedNamedStatement(deleteObsoleteRoles, deleteParams)
-
-        if (allRollerParams.isNotEmpty()) {
-            @Language("PostgreSQL")
-            val insertRolle = """
-                insert into nav_ansatt_rolle(nav_ansatt_nav_ident, generell, rolle)
-                values (:nav_ident, :generell, :rolle::rolle)
-                on conflict (nav_ansatt_nav_ident, rolle) do update set
-                    generell = excluded.generell
-            """.trimIndent()
-            session.batchPreparedNamedStatement(insertRolle, allRollerParams)
-        }
-
-        @Language("PostgreSQL")
-        val selectAllRoleIds = """
-            select id, nav_ansatt_nav_ident, rolle
-            from nav_ansatt_rolle
-            where nav_ansatt_nav_ident = any(:nav_identer::text[])
-        """.trimIndent()
-
-        val navIdenter = rollerByNavIdent.keys.map { it.value }
-        val roleIdMap = session.list(
-            queryOf(selectAllRoleIds, mapOf("nav_identer" to session.createArrayOfValue(navIdenter) { it })),
-        ) { row ->
-            Triple(
-                row.int("id"),
-                NavIdent(row.string("nav_ansatt_nav_ident")),
-                Rolle.valueOf(row.string("rolle")),
-            )
-        }.associateBy { (_, navIdent, rolle) -> navIdent to rolle }
-
-        val allEnheterToInsert = mutableListOf<Map<String, Any?>>()
-        val enheterDeleteParams = mutableListOf<Pair<Int, List<String>>>()
-
-        rollerByNavIdent.forEach { (navIdent, roller) ->
-            roller.forEach { rolle ->
-                val roleId = roleIdMap[navIdent to rolle.rolle]?.first ?: return@forEach
-                enheterDeleteParams.add(roleId to rolle.enheter.map { it.value })
-                rolle.enheter.forEach { enhet ->
-                    allEnheterToInsert.add(mapOf("role_id" to roleId, "enhet" to enhet.value))
-                }
-            }
-        }
-
-        @Language("PostgreSQL")
-        val deleteEnheter = """
-            delete from nav_ansatt_rolle_nav_enhet
-            where nav_ansatt_rolle_id = ?
-              and not (nav_enhet_enhetsnummer = any(?::text[]))
-        """.trimIndent()
-        enheterDeleteParams.forEach { (roleId, enheter) ->
-            session.execute(queryOf(deleteEnheter, roleId, session.createArrayOfValue(enheter) { it }))
-        }
-
-        if (allEnheterToInsert.isNotEmpty()) {
-            @Language("PostgreSQL")
-            val insertRolleEnhet = """
-                insert into nav_ansatt_rolle_nav_enhet (nav_ansatt_rolle_id, nav_enhet_enhetsnummer)
-                values (:role_id, :enhet)
-                on conflict (nav_ansatt_rolle_id, nav_enhet_enhetsnummer) do nothing
-            """.trimIndent()
-            session.batchPreparedNamedStatement(insertRolleEnhet, allEnheterToInsert)
         }
     }
 
