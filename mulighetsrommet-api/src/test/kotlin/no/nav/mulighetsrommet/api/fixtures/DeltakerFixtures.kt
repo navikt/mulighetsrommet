@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.model.DeltakerStatus
@@ -77,5 +78,38 @@ object DeltakerFixtures {
             opprettetTidspunkt = LocalDateTime.now(),
         ),
         deltakelsesmengder = listOf(),
+    )
+
+    fun createAmtDeltakerDto(
+        id: UUID = UUID.randomUUID(),
+        gjennomforingId: UUID,
+        status: DeltakerStatusType,
+        personIdent: String,
+        opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    ) = AmtDeltakerEksternV1Dto(
+        id = id,
+        gjennomforingId = gjennomforingId,
+        personIdent = personIdent,
+        startDato = null,
+        sluttDato = null,
+        status = createAmtDeltakerStatusDto(status, opprettetTidspunkt),
+        registrertTidspunkt = opprettetTidspunkt,
+        endretTidspunkt = opprettetTidspunkt,
+        deltakelsesmengder = listOf(),
+        kilde = AmtDeltakerEksternV1Dto.Kilde.KOMET,
+        innhold = AmtDeltakerEksternV1Dto.DeltakelsesinnholdDto(
+            ledetekst = null,
+            valgtInnhold = listOf(),
+        ),
+    )
+
+    fun createAmtDeltakerStatusDto(
+        type: DeltakerStatusType,
+        opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    ): AmtDeltakerEksternV1Dto.StatusDto = AmtDeltakerEksternV1Dto.StatusDto(
+        type = type,
+        tekst = type.description,
+        aarsak = AmtDeltakerEksternV1Dto.AarsakDto(null, null),
+        opprettetTidspunkt = opprettetTidspunkt,
     )
 }

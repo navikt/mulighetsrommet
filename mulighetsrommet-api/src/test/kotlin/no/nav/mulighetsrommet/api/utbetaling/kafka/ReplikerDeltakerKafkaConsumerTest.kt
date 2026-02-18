@@ -14,9 +14,10 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures.createAmtDeltakerDto
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures.createAmtDeltakerStatusDto
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
@@ -43,20 +44,20 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
     }
 
     context("konsumering av deltakere") {
-        val opprettetDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+        val opprettetTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
 
-        val amtDeltaker1 = createAmtDeltakerV1Dto(
+        val amtDeltaker1 = createAmtDeltakerDto(
             gjennomforingId = Oppfolging1.id,
             status = DeltakerStatusType.VENTER_PA_OPPSTART,
             personIdent = "12345678910",
-            opprettetTidspunkt = opprettetDato,
+            opprettetTidspunkt = opprettetTidspunkt,
         )
 
-        val amtDeltaker2 = createAmtDeltakerV1Dto(
+        val amtDeltaker2 = createAmtDeltakerDto(
             gjennomforingId = Oppfolging1.id,
             status = DeltakerStatusType.VENTER_PA_OPPSTART,
             personIdent = "12345678911",
-            opprettetTidspunkt = opprettetDato,
+            opprettetTidspunkt = opprettetTidspunkt,
         )
 
         val domain = MulighetsrommetTestDomain(
@@ -88,10 +89,10 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         status = DeltakerStatus(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,
-                            opprettetTidspunkt = opprettetDato,
+                            opprettetTidspunkt = opprettetTidspunkt,
                         ),
-                        registrertTidspunkt = opprettetDato,
-                        endretTidspunkt = opprettetDato,
+                        registrertTidspunkt = opprettetTidspunkt,
+                        endretTidspunkt = opprettetTidspunkt,
                         deltakelsesmengder = listOf(),
                     ),
                     Deltaker(
@@ -102,10 +103,10 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         status = DeltakerStatus(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,
-                            opprettetTidspunkt = opprettetDato,
+                            opprettetTidspunkt = opprettetTidspunkt,
                         ),
-                        registrertTidspunkt = opprettetDato,
-                        endretTidspunkt = opprettetDato,
+                        registrertTidspunkt = opprettetTidspunkt,
+                        endretTidspunkt = opprettetTidspunkt,
                         deltakelsesmengder = listOf(),
                     ),
                 )
@@ -148,7 +149,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
 
             val deltakerConsumer = createConsumer()
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
-                status = createStatusDto(DeltakerStatusType.FEILREGISTRERT),
+                status = createAmtDeltakerStatusDto(DeltakerStatusType.FEILREGISTRERT),
             )
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
@@ -163,7 +164,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             val id = UUID.randomUUID()
 
             val deltarTidspunkt = LocalDateTime.of(2023, 2, 1, 0, 0, 0)
-            val amtDeltakerDeltar = createAmtDeltakerV1Dto(
+            val amtDeltakerDeltar = createAmtDeltakerDto(
                 id = id,
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
@@ -172,7 +173,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             )
 
             val avbruttTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
-            val amtDeltakerAvbrutt = createAmtDeltakerV1Dto(
+            val amtDeltakerAvbrutt = createAmtDeltakerDto(
                 id = id,
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
@@ -205,7 +206,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             val id = UUID.randomUUID()
 
             val tidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
-            val amtDeltakerDeltar = createAmtDeltakerV1Dto(
+            val amtDeltakerDeltar = createAmtDeltakerDto(
                 id = id,
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
@@ -213,7 +214,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                 opprettetTidspunkt = tidspunkt,
             )
 
-            val amtDeltakerAvbrutt = createAmtDeltakerV1Dto(
+            val amtDeltakerAvbrutt = createAmtDeltakerDto(
                 id = id,
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
@@ -244,7 +245,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
     context("deltakelser for utbetaling") {
         val oppdaterUtbetaling: GenererUtbetalingService = mockk()
 
-        val amtDeltaker1 = createAmtDeltakerV1Dto(
+        val amtDeltaker1 = createAmtDeltakerDto(
             gjennomforingId = AFT1.id,
             status = DeltakerStatusType.DELTAR,
             personIdent = "12345678910",
@@ -281,7 +282,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
 
             val feilregistrert = amtDeltaker1.copy(
-                status = createStatusDto(DeltakerStatusType.FEILREGISTRERT),
+                status = createAmtDeltakerStatusDto(DeltakerStatusType.FEILREGISTRERT),
             )
             deltakerConsumer.consume(feilregistrert.id, Json.encodeToJsonElement(feilregistrert))
 
@@ -294,7 +295,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
 
             val ikkeAktuell = amtDeltaker1.copy(
-                status = createStatusDto(DeltakerStatusType.IKKE_AKTUELL),
+                status = createAmtDeltakerStatusDto(DeltakerStatusType.IKKE_AKTUELL),
             )
             deltakerConsumer.consume(ikkeAktuell.id, Json.encodeToJsonElement(ikkeAktuell))
 
@@ -318,36 +319,3 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
         }
     }
 })
-
-private fun createAmtDeltakerV1Dto(
-    id: UUID = UUID.randomUUID(),
-    gjennomforingId: UUID,
-    status: DeltakerStatusType,
-    personIdent: String,
-    opprettetTidspunkt: LocalDateTime = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
-) = AmtDeltakerEksternV1Dto(
-    id = id,
-    gjennomforingId = gjennomforingId,
-    personIdent = personIdent,
-    startDato = null,
-    sluttDato = null,
-    status = createStatusDto(status, opprettetTidspunkt),
-    registrertTidspunkt = opprettetTidspunkt,
-    endretTidspunkt = opprettetTidspunkt,
-    deltakelsesmengder = listOf(),
-    kilde = AmtDeltakerEksternV1Dto.Kilde.KOMET,
-    innhold = AmtDeltakerEksternV1Dto.DeltakelsesinnholdDto(
-        ledetekst = null,
-        valgtInnhold = listOf(),
-    ),
-)
-
-private fun createStatusDto(
-    type: DeltakerStatusType,
-    opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
-): AmtDeltakerEksternV1Dto.StatusDto = AmtDeltakerEksternV1Dto.StatusDto(
-    type = type,
-    tekst = type.description,
-    aarsak = AmtDeltakerEksternV1Dto.AarsakDto(null, null),
-    opprettetTidspunkt = opprettetTidspunkt,
-)
