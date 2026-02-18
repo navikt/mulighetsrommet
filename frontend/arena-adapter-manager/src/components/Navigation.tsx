@@ -9,7 +9,7 @@ function Navigation() {
       gap="space-32"
       paddingInline="space-80"
       paddingBlock="space-40"
-      style={{ backgroundColor: "Var(--a-purple-500)" }}
+      style={{ backgroundColor: "Var(--ax-meta-purple-600)" }}
     >
       <Box width="fit-content">
         <Heading size="xlarge" spacing>
