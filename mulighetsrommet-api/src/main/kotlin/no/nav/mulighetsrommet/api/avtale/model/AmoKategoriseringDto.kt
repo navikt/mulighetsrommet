@@ -67,6 +67,7 @@ fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
         Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
             require(this is AmoKategorisering.BransjeOgYrkesrettet)
             AmoKategoriseringDto(
+                kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
                 bransje = this.bransje,
                 sertifiseringer = this.sertifiseringer,
                 forerkort = this.forerkort,
