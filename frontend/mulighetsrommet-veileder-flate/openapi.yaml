@@ -790,7 +790,7 @@ paths:
     get:
       tags:
       - NavEnheter
-      operationId: getRegioner
+      operationId: getKontorstruktur
       parameters: []
       responses:
         "200":
@@ -801,7 +801,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/NavRegionDto"
+                  $ref: "#/components/schemas/Kontorstruktur"
         default:
           description: Problem details
           headers: {}
@@ -2048,33 +2048,45 @@ components:
             $ref: "#/components/schemas/Oppskrift"
       required:
       - data
-    NavRegionDto:
+    Kontorstruktur:
       type: object
       properties:
-        enhetsnummer:
-          type: string
-        navn:
-          type: string
-        enheter:
+        region:
+          $ref: "#/components/schemas/Kontorstruktur.Region"
+        kontorer:
           type: array
           items:
-            $ref: "#/components/schemas/NavRegionUnderenhetDto"
+            $ref: "#/components/schemas/Kontorstruktur.Kontor"
       required:
-      - enheter
-      - enhetsnummer
-      - navn
-    NavRegionUnderenhetDto:
+      - kontorer
+      - region
+    Kontorstruktur.Region:
       type: object
       properties:
         navn:
           type: string
         enhetsnummer:
           type: string
-        erStandardvalg:
-          type: boolean
       required:
       - enhetsnummer
-      - erStandardvalg
       - navn
+    Kontorstruktur.Kontor:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+        type:
+          $ref: "#/components/schemas/Kontorstruktur.Kontortype"
+      required:
+      - enhetsnummer
+      - navn
+      - type
+    Kontorstruktur.Kontortype:
+      type: string
+      enum:
+      - LOKAL
+      - SPESIALENHET
   examples: {}
 webhooks: {}

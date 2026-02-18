@@ -2,8 +2,7 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterTagsContainer } from "@mr/frontend-common";
 import { InnsendingFilterType } from "./filter";
-import { useKostnadsstedFilter } from "@/api/enhet/useKostnadsstedFilter";
-import { NavEnhetFilterTag } from "@/components/filter/NavEnhetFilterTag";
+import { KostnadsstedFilterTag } from "@/components/filter/KostnadsstedFilterTag";
 import { Chips } from "@navikt/ds-react";
 
 interface Props {
@@ -14,7 +13,6 @@ interface Props {
 }
 
 export function InnsendingFilterTags({ filter, updateFilter, tiltakstypeId, filterOpen }: Props) {
-  const { data: kostnadssteder } = useKostnadsstedFilter();
   const { data: tiltakstyper } = useTiltakstyper();
 
   const removeArrayItem = (key: keyof InnsendingFilterType, value: any) => {
@@ -26,11 +24,10 @@ export function InnsendingFilterTags({ filter, updateFilter, tiltakstypeId, filt
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={() => {}}>
       <Chips>
-        {filter.navEnheter.length > 0 && (
-          <NavEnhetFilterTag
-            navEnheter={filter.navEnheter}
-            regioner={kostnadssteder}
-            onClose={() => updateFilter({ navEnheter: [] })}
+        {filter.kostnadssteder.length > 0 && (
+          <KostnadsstedFilterTag
+            kostnadssteder={filter.kostnadssteder}
+            onClose={() => updateFilter({ kostnadssteder: [] })}
           />
         )}
         {!tiltakstypeId &&

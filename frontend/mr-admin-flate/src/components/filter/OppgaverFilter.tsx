@@ -3,7 +3,7 @@ import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { useNavRegioner } from "@/api/enhet/useNavRegioner";
+import { useKontorstruktur } from "@/api/enhet/useKontorstruktur";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 import {
   oppgaverFilterAccordionAtom,
@@ -18,7 +18,7 @@ interface Props {
 export function OppgaverFilter({ filter, updateFilter }: Props) {
   const { data: oppgavetyper } = useGetOppgavetyper();
   const { data: tiltakstyper } = useTiltakstyper();
-  const { data: regioner } = useNavRegioner();
+  const { data: regioner } = useKontorstruktur();
 
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
 
@@ -72,7 +72,7 @@ export function OppgaverFilter({ filter, updateFilter }: Props) {
               }}
               hideLegend
             >
-              {regioner.map((region) => {
+              {regioner.map(({ region }) => {
                 return (
                   <Checkbox size="small" key={region.enhetsnummer} value={region.enhetsnummer}>
                     {region.navn}

@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -47,8 +48,8 @@ class NavEnhetService(
             .map { it.toDto() }
     }
 
-    fun hentRegioner(): List<NavRegionDto> {
-        val relevanteEnheter = EnhetFilter(
+    fun hentKontorstruktur(): List<Kontorstruktur> {
+        val muligeEnheter = EnhetFilter(
             statuser = listOf(
                 NavEnhetStatus.AKTIV,
                 NavEnhetStatus.UNDER_AVVIKLING,
@@ -57,10 +58,10 @@ class NavEnhetService(
             typer = listOf(NavEnhetType.KO, NavEnhetType.LOKAL, NavEnhetType.FYLKE, NavEnhetType.ARK),
         )
 
-        val alleEnheter = hentAlleEnheter(relevanteEnheter)
+        val enheter = hentAlleEnheter(muligeEnheter)
             .filter { NavEnhetHelpers.erGeografiskEnhet(it.type) || NavEnhetHelpers.erSpesialenhetSomKanVelgesIModia(it.enhetsnummer) }
 
-        return NavEnhetHelpers.buildNavRegioner(alleEnheter)
+        return Kontorstruktur.fromNavEnheter(enheter)
     }
 
     private fun QueryContext.getNavEnhetDto(enhetsnummer: NavEnhetNummer): NavEnhetDto? {

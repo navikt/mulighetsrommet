@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
-// TODO: forenkle typer til å bedre represenere hvordan de benyttes i Tiltaksadministrasjon vs hvordan de er definert i NORG2
 enum class NavEnhetType {
     KO,
     FYLKE,
@@ -51,18 +50,4 @@ fun NavEnhetDbo.toDto() = NavEnhetDto(
     enhetsnummer = enhetsnummer,
     type = NavEnhetType.valueOf(type.name),
     overordnetEnhet = overordnetEnhet,
-)
-
-@Serializable
-data class NavRegionDto(
-    val enhetsnummer: NavEnhetNummer,
-    val navn: String,
-    val enheter: List<NavRegionUnderenhetDto>,
-)
-
-@Serializable
-data class NavRegionUnderenhetDto(
-    val navn: String,
-    val enhetsnummer: NavEnhetNummer,
-    val erStandardvalg: Boolean,
 )

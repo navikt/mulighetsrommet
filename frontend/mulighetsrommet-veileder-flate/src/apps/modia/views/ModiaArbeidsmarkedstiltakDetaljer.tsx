@@ -3,7 +3,7 @@ import {
   isTiltakGruppe,
   useModiaArbeidsmarkedstiltakById,
 } from "@/api/queries/useArbeidsmarkedstiltakById";
-import { useRegioner } from "@/api/queries/useRegioner";
+import { useNavKontorstruktur } from "@/api/queries/useNavKontorstruktur";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
 import { useDeltMedBruker } from "@/apps/modia/hooks/useDeltMedBruker";
@@ -49,7 +49,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { data: veileder } = useVeilederdata();
   const { data: brukerdata } = useBrukerdata();
   const { data: tiltak } = useModiaArbeidsmarkedstiltakById();
-  const { data: regioner } = useRegioner();
+  const { data: regioner } = useNavKontorstruktur();
 
   const pagination = useAtomValue(paginationAtom);
 
@@ -67,7 +67,8 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 
   const tiltaksnummer = "tiltaksnummer" in tiltak ? tiltak.tiltaksnummer : undefined;
   // TODO: Denne kan utbedres til å sjekke litt mer for å finne fylket veileder vil henvende seg til
-  const fylke = regioner.find((r) => tiltak.fylker.includes(r.enhetsnummer))?.navn;
+  const fylke = regioner.find(({ region }) => tiltak.fylker.includes(region.enhetsnummer))?.region
+    .navn;
 
   return (
     <>
