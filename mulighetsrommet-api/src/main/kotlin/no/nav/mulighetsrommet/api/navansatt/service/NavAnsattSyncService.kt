@@ -35,25 +35,36 @@ class NavAnsattSyncService(
     suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate): Unit = db.session {
         val ansatteToUpsert = navAnsattService.getNavAnsatteForAllRoles()
 
-        logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
-        ansatteToUpsert.forEach { ansatt ->
-            val currentAnsattDbo = queries.ansatt.getNavAnsattDbo(ansatt.navIdent)
-            NavAnsattDbo.fromNavAnsatt(ansatt).takeIf { it != currentAnsattDbo }?.also {
-                queries.ansatt.upsert(it)
-            }
-            queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
+        val existingAnsatte = queries.ansatt.getAll().associateBy { it.navIdent }
+        val changedAnsatte = ansatteToUpsert.mapNotNull { ansatt ->
+            val dbo = NavAnsattDbo.fromNavAnsatt(ansatt)
+            dbo.takeIf { it != existingAnsatte[ansatt.navIdent] }
         }
+
+        logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure (${changedAnsatte.size} endret)")
+
+        queries.ansatt.upsertBatch(changedAnsatte)
+
+        val rollerByNavIdent = ansatteToUpsert.associate { it.navIdent to it.roller }
+        queries.ansatt.setRollerBatch(rollerByNavIdent)
+
         upsertSanityAnsatte(ansatteToUpsert)
 
-        val ansatteEntraObjectIds = ansatteToUpsert.map { it.entraObjectId }
+        val ansatteEntraObjectIds = ansatteToUpsert.map { it.entraObjectId }.toSet()
         val ansatteToScheduleForDeletion = queries.ansatt.getAll().filter { ansatt ->
             ansatt.entraObjectId !in ansatteEntraObjectIds && ansatt.skalSlettesDato == null
         }
-        ansatteToScheduleForDeletion.forEach { ansatt ->
-            logger.info("Oppdaterer NavAnsatt med dato for sletting oid=${ansatt.entraObjectId} dato=$deletionDate")
-            val ansattToDelete = NavAnsattDbo.fromNavAnsatt(ansatt).copy(skalSlettesDato = deletionDate)
-            queries.ansatt.upsert(ansattToDelete)
-            queries.ansatt.setRoller(ansattToDelete.navIdent, setOf())
+
+        if (ansatteToScheduleForDeletion.isNotEmpty()) {
+            logger.info("Markerer ${ansatteToScheduleForDeletion.size} ansatte for sletting med dato=$deletionDate")
+
+            val ansatteWithDeletionDate = ansatteToScheduleForDeletion.map { ansatt ->
+                NavAnsattDbo.fromNavAnsatt(ansatt).copy(skalSlettesDato = deletionDate)
+            }
+            queries.ansatt.upsertBatch(ansatteWithDeletionDate)
+
+            val emptyRollerByNavIdent = ansatteToScheduleForDeletion.associate { it.navIdent to emptySet<NavAnsattRolle>() }
+            queries.ansatt.setRollerBatch(emptyRollerByNavIdent)
         }
 
         val ansatteToDelete = queries.ansatt.getAll(skalSlettesDatoLte = today)
