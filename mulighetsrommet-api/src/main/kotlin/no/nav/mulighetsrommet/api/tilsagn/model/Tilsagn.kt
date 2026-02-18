@@ -30,6 +30,7 @@ data class Tilsagn(
     val status: TilsagnStatus,
     val kommentar: String?,
     val beskrivelse: String?,
+    val journalpostId: String?,
 ) {
     @Serializable
     data class Tiltakstype(

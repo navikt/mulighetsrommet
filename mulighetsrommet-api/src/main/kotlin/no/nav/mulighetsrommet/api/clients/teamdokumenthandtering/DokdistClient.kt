@@ -25,6 +25,9 @@ import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
+/**
+ * Se journalpost https://confluence.adeo.no/spaces/BOA/pages/320039012/POST+rest+v1+distribuerjournalpost
+ */
 class DokdistClient(
     clientEngine: HttpClientEngine,
     private val baseUrl: String,

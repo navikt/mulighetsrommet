@@ -59,7 +59,7 @@ class JournalforTilsagnsbrev(
         return id
     }
 
-    suspend fun journalfor(tilsagnId: UUID, deltakerId: UUID): Either<String, DokarkResponse> = db.session {
+    suspend fun journalfor(tilsagnId: UUID, deltakerId: UUID): Either<String, DokarkResponse> = db.transaction {
         logger.info("Journalfører tilsagn med id: $tilsagnId")
 
         val personalia = amtDeltakerClient.hentPersonalia(setOf(deltakerId))
@@ -87,7 +87,7 @@ class JournalforTilsagnsbrev(
                     .mapLeft { error -> "Feil fra dokark: ${error.message}" }
             }
             .onRight {
-                // TODO: queries.tilsagn.setJournalpostId(tilsagnId, it.journalpostId)
+                queries.tilsagn.setJournalpostId(tilsagnId, it.journalpostId)
             }
     }
 
