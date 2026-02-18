@@ -1,13 +1,13 @@
 import { QueryKeys } from "@/api/QueryKeys";
-import { NavEnheterService } from "@tiltaksadministrasjon/api-client";
+import { KodeverkService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
-export function useKostnadsstedFilter() {
+export function useKostnadssteder() {
   return useApiSuspenseQuery({
     queryKey: QueryKeys.kostnadssted(),
 
     queryFn: () => {
-      return NavEnheterService.getKostnadsstedFilter();
+      return KodeverkService.getKostnadssteder();
     },
   });
 }

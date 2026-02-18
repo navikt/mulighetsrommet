@@ -1,10 +1,10 @@
 import { CheckboxGroup } from "@mr/frontend-common";
-import { NavRegionDto } from "@tiltaksadministrasjon/api-client";
+import { Kontorstruktur, KontorstrukturKontortype } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   value: string[];
   onChange: (value: string[]) => void;
-  regioner: NavRegionDto[];
+  regioner: Kontorstruktur[];
 }
 
 export function NavEnhetFilter({ value, onChange, regioner }: Props) {
@@ -12,15 +12,15 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   return <CheckboxGroup value={value} onChange={onChange} groups={groups} />;
 }
 
-function toCheckboxGroups(regioner: NavRegionDto[]): CheckboxGroup[] {
-  return regioner.map((region) => {
+function toCheckboxGroups(regioner: Kontorstruktur[]): CheckboxGroup[] {
+  return regioner.map(({ region, kontorer }) => {
     return {
       id: region.enhetsnummer,
       navn: region.navn,
-      items: region.enheter.map((enhet) => ({
+      items: kontorer.map((enhet) => ({
         id: enhet.enhetsnummer,
         navn: enhet.navn,
-        erStandardvalg: enhet.erStandardvalg,
+        erStandardvalg: enhet.type === KontorstrukturKontortype.LOKAL,
       })),
     };
   });

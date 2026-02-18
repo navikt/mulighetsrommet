@@ -6,7 +6,7 @@ import { createSorteringProps } from "@/api/atoms";
 
 export const InnsendingFilterSchema = z.object({
   tiltakstyper: z.string().array(),
-  navEnheter: z.string().array(),
+  kostnadssteder: z.string().array(),
   sortering: createSorteringProps(z.string()),
 });
 
@@ -14,7 +14,7 @@ export type InnsendingFilterType = z.infer<typeof InnsendingFilterSchema>;
 
 const defaultInnsendingFilter: InnsendingFilterType = {
   tiltakstyper: [],
-  navEnheter: [],
+  kostnadssteder: [],
   sortering: {
     sortString: "navn-ascending",
     tableSort: {

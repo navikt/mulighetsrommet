@@ -5,7 +5,9 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
+import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
+import no.nav.mulighetsrommet.api.kostnadssted.RegionKostnadssteder
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -15,15 +17,14 @@ fun Route.navEnhetRoutes() {
     val kostnadsstedService: KostnadsstedService by inject()
     val navEnhetService: NavEnhetService by inject()
 
-    route("nav-enheter") {
-        // TODO: ikke returner NavRegionDto, men heller kontorstruktur-modellen. Deretter la frontend bestemme hva som er standardvalg
-        get("regioner", {
-            tags = setOf("NavEnheter")
-            operationId = "getRegioner"
+    route("kodeverk") {
+        get("kontorstruktur", {
+            tags = setOf("Kodeverk")
+            operationId = "getKontorstruktur"
             response {
                 code(HttpStatusCode.OK) {
                     description = "Alle Nav-enheter"
-                    body<List<NavRegionDto>>()
+                    body<List<Kontorstruktur>>()
                 }
                 default {
                     description = "Problem details"
@@ -31,17 +32,16 @@ fun Route.navEnhetRoutes() {
                 }
             }
         }) {
-            call.respond(navEnhetService.hentRegioner())
+            call.respond(navEnhetService.hentKontorstruktur())
         }
 
-        // TODO: eget kodeverk-route for kostnadssteder? Og ikke benytt NavRegionDto til dette...
-        get("kostnadsstedFilter", {
-            tags = setOf("NavEnheter")
-            operationId = "getKostnadsstedFilter"
+        get("kostnadssteder", {
+            tags = setOf("Kodeverk")
+            operationId = "getKostnadssteder"
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Filtre for kostnadssteder"
-                    body<List<NavRegionDto>>()
+                    description = "Alle kostnadssteder"
+                    body<List<RegionKostnadssteder>>()
                 }
                 default {
                     description = "Problem details"
@@ -49,7 +49,7 @@ fun Route.navEnhetRoutes() {
                 }
             }
         }) {
-            call.respond(kostnadsstedService.hentKostnadsstedFilter())
+            call.respond(kostnadsstedService.hentKostnadssteder())
         }
     }
 }

@@ -38,12 +38,10 @@ data class Kontorstruktur(
                 .map { Kontorstruktur(region = Region(it.navn, it.enhetsnummer), kontorer = emptyList()) }
 
             val kontorstrukturer = enheterByOverordnetEnhet.entries.mapNotNull { (overordnetEnhet, enheter) ->
-                overordnetEnhet?.let {
+                overordnetEnhet?.let { enheterByEnhetsnummer[it] }?.let { region ->
                     Kontorstruktur(
-                        region = enheterByEnhetsnummer.getValue(it).let { region ->
-                            Region(region.navn, region.enhetsnummer)
-                        },
-                        kontorer = enheter.map { enhet ->
+                        region = Region(region.navn, region.enhetsnummer),
+                        kontorer = enheter.toSet().map { enhet ->
                             val type = if (enhet.type == NavEnhetType.LOKAL) {
                                 Kontortype.LOKAL
                             } else {
