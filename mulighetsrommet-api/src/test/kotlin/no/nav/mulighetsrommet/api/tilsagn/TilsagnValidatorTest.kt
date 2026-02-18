@@ -182,8 +182,8 @@ class TilsagnValidatorTest : FunSpec({
         test("feil ved utenfor gyldig periode") {
             TilsagnValidator.validate(
                 TilsagnFixtures.TilsagnRequest1.copy(
-                    periodeStart = LocalDate.of(2026, 1, 1),
-                    periodeSlutt = LocalDate.of(2026, 4, 1),
+                    periodeStart = "2026-01-01",
+                    periodeSlutt = "2026-04-01",
                     beregning = TilsagnBeregningRequest(
                         type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
                         antallPlasser = 3,
@@ -220,7 +220,7 @@ class TilsagnValidatorTest : FunSpec({
 
         test("tilsagnet kan ikke slutte etter gjennomføringen") {
             TilsagnValidator.validate(
-                TilsagnFixtures.TilsagnRequest1.copy(periodeSlutt = LocalDate.of(2025, 11, 1)),
+                TilsagnFixtures.TilsagnRequest1.copy(periodeSlutt = "2025-11-01"),
                 previous = null,
                 gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
                 gjennomforingSluttDato = LocalDate.of(2025, 10, 1),
