@@ -1,5 +1,4 @@
 import {
-  AmoKategorisering,
   AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje,
   AmoKategoriseringBransjeOgYrkesrettetForerkortKlasse as ForerkortKlasse,
   AmoKategoriseringInnholdElement as InnholdElement,
@@ -10,6 +9,8 @@ import {
   TilsagnType,
   ValidationError,
   AvbrytGjennomforingAarsak,
+  AmoKategoriseringDto,
+  AmoKurstype,
 } from "@tiltaksadministrasjon/api-client";
 
 export function capitalize(text?: string): string {
@@ -145,19 +146,19 @@ export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
   }
 }
 
-export function kurstypeToString(kurstype: AmoKategorisering["kurstype"]): string {
+export function kurstypeToString(kurstype: AmoKategoriseringDto["kurstype"]): string {
   switch (kurstype) {
-    case "BRANSJE_OG_YRKESRETTET":
+    case AmoKurstype.BRANSJE_OG_YRKESRETTET:
       return "Bransje-/yrkesrettet kurs";
-    case "NORSKOPPLAERING":
+    case AmoKurstype.NORSKOPPLAERING:
       return "Norskopplæring";
-    case "STUDIESPESIALISERING":
+    case AmoKurstype.STUDIESPESIALISERING:
       return "Studiespesialisering";
-    case "FORBEREDENDE_OPPLAERING_FOR_VOKSNE":
+    case AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
       return "FOV (Forberedende opplæring for voksne)";
-    case "GRUNNLEGGENDE_FERDIGHETER":
+    case AmoKurstype.GRUNNLEGGENDE_FERDIGHETER:
       return "Grunnleggende ferdigheter";
-    case undefined:
+    case null:
       throw new Error("Kurstype is missing");
   }
 }

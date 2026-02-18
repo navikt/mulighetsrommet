@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.arenaadapter
 
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -80,7 +81,9 @@ class ArenaAdapterServiceTest : FunSpec({
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
-            database.assertTable("gjennomforing").isEmpty
+            database.run {
+                queries.gjennomforing.getAll().items.shouldBeEmpty()
+            }
         }
 
         test("should publish egen regi-tiltak to sanity") {
@@ -127,14 +130,16 @@ class ArenaAdapterServiceTest : FunSpec({
             database.truncateAll()
         }
 
-        test("tillater ikke opprettelse av gjennomføringer fra Arena") {
+        test("opprettes ikke når tiltakstype ikke er migrert") {
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
             ).initialize(database.db)
 
-            val service = createArenaAdapterService()
+            val service = createArenaAdapterService(
+                features = mapOf(Tiltakskode.OPPFOLGING to setOf()),
+            )
 
             val arenaGjennomforing = ArenaGjennomforingDbo(
                 id = UUID.randomUUID(),
@@ -153,13 +158,13 @@ class ArenaAdapterServiceTest : FunSpec({
                 deltidsprosent = 100.0,
             )
 
-            val exception = shouldThrowExactly<IllegalStateException> {
+            val exception = shouldThrowExactly<IllegalArgumentException> {
                 service.upsertTiltaksgjennomforing(arenaGjennomforing)
             }
-            exception.message shouldBe "Gjennomføring med id ${arenaGjennomforing.id} finnes ikke"
+            exception.message shouldBe "Ugyldig gjennomføring. Forventet ikke å motta nye gjennomføringer for tiltakskode=INDOPPFAG"
         }
 
-        test("skal bare oppdatere arena-felter når tiltakstype har endret eierskap") {
+        test("oppdaterer arena-felter når tiltakstype er migrert") {
             val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusDays(1),
@@ -199,7 +204,9 @@ class ArenaAdapterServiceTest : FunSpec({
                 deltidsprosent = 1.0,
             )
 
-            val service = createArenaAdapterService()
+            val service = createArenaAdapterService(
+                features = mapOf(Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.MIGRERT)),
+            )
 
             service.upsertTiltaksgjennomforing(arenaDbo)
 
@@ -232,7 +239,9 @@ class ArenaAdapterServiceTest : FunSpec({
                 gjennomforinger = listOf(gjennomforing1),
             ).initialize(database.db)
 
-            val service = createArenaAdapterService()
+            val service = createArenaAdapterService(
+                features = mapOf(Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.MIGRERT)),
+            )
 
             val arenaGjennomforing = ArenaGjennomforingDbo(
                 id = gjennomforing1.id,
@@ -393,7 +402,7 @@ class ArenaAdapterServiceTest : FunSpec({
             val exception = shouldThrowExactly<IllegalStateException> {
                 service.upsertTiltaksgjennomforing(arenaGjennomforing)
             }
-            exception.message shouldBe "Tiltakstype tiltakskode=ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING er migrert, men gjennomføring fra Arena er ukjent"
+            exception.message shouldBe "Tiltakstype tiltakskode=ENKELAMO er migrert, men gjennomføring fra Arena er ukjent"
         }
 
         test("oppdaterer bare arenadata når tiltakstype er migrert") {

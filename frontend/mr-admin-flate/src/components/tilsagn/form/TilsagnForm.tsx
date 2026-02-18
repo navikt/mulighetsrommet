@@ -60,6 +60,7 @@ export function TilsagnForm(props: Props) {
     handleSubmit,
     setError,
     register,
+    clearErrors,
     formState: { errors },
   } = form;
 
@@ -106,7 +107,10 @@ export function TilsagnForm(props: Props) {
                     fromDate={subDuration(new Date(gjennomforing.startDato), { months: 1 })}
                     toDate={addDuration(new Date(), { years: 1 })}
                     defaultSelected={form.getValues("periodeStart")}
-                    onChange={(val) => form.setValue("periodeStart", val)}
+                    onChange={(val) => {
+                      form.setValue("periodeStart", val);
+                    }}
+                    clearErrors={() => clearErrors("periodeStart")}
                     error={errors.periodeStart?.message}
                   />
                   <ControlledDateInput
@@ -114,7 +118,10 @@ export function TilsagnForm(props: Props) {
                     fromDate={subDuration(new Date(gjennomforing.startDato), { months: 1 })}
                     toDate={addDuration(new Date(), { years: 1 })}
                     defaultSelected={form.getValues("periodeSlutt")}
-                    onChange={(val) => form.setValue("periodeSlutt", val)}
+                    clearErrors={() => clearErrors("periodeSlutt")}
+                    onChange={(val) => {
+                      form.setValue("periodeSlutt", val);
+                    }}
                     error={errors.periodeSlutt?.message}
                   />
                 </HGrid>

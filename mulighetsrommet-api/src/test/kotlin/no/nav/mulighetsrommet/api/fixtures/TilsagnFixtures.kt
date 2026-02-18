@@ -142,8 +142,8 @@ object TilsagnFixtures {
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         type = TilsagnType.TILSAGN,
-        periodeStart = LocalDate.of(2025, 1, 1),
-        periodeSlutt = LocalDate.of(2025, 1, 31),
+        periodeStart = "2025-01-01",
+        periodeSlutt = "2025-01-31",
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         beregning = TilsagnBeregningRequest(
             type = TilsagnBeregningType.FRI,

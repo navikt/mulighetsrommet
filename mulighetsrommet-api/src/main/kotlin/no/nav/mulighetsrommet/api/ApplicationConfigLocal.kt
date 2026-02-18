@@ -45,6 +45,48 @@ import java.time.LocalDate
 private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
 
 val ApplicationConfigLocal = AppConfig(
+    tiltakstyper = TiltakstypeService.Config(
+        features = run {
+            val migrert = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+                TiltakstypeFeature.MIGRERT,
+            )
+            val vises = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+            )
+            mapOf(
+                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
+                Tiltakskode.AVKLARING to migrert,
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
+                Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to migrert,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to migrert,
+                Tiltakskode.JOBBKLUBB to migrert,
+                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
+                Tiltakskode.OPPFOLGING to migrert,
+                Tiltakskode.STUDIESPESIALISERING to migrert,
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
+
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to vises,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to vises,
+                Tiltakskode.HOYERE_UTDANNING to vises,
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to vises,
+            )
+        },
+    ),
+    okonomi = OkonomiConfig(
+        gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+            Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
+        },
+        opprettKravPrismodeller = listOf(
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            PrismodellType.ANNEN_AVTALT_PRIS,
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+        ),
+        tidligstTidspunktForUtbetaling = { _, _ -> null },
+    ),
     database = DatabaseConfig(
         jdbcUrl = "jdbc:postgresql://localhost:5442/mr-api?user=valp&password=valp",
         maximumPoolSize = 10,
@@ -122,37 +164,6 @@ val ApplicationConfigLocal = AppConfig(
                 )
             },
         ),
-    ),
-    tiltakstyper = TiltakstypeService.Config(
-        features = run {
-            val migrert = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-                TiltakstypeFeature.MIGRERT,
-            )
-            val vises = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-            )
-            mapOf(
-                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
-                Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
-                Tiltakskode.AVKLARING to migrert,
-                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
-                Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.JOBBKLUBB to migrert,
-                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
-                Tiltakskode.OPPFOLGING to migrert,
-                Tiltakskode.STUDIESPESIALISERING to migrert,
-                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
-
-                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to vises,
-                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to vises,
-                Tiltakskode.HOYERE_UTDANNING to vises,
-                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to vises,
-            )
-        },
     ),
     sanity = SanityClient.Config(
         dataset = "test",
@@ -384,17 +395,6 @@ val ApplicationConfigLocal = AppConfig(
             disabled = false,
             cronPattern = "0 0 5 7 * *",
         ),
-    ),
-    okonomi = OkonomiConfig(
-        gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
-            Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
-        },
-        opprettKravPrismodeller = listOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-            PrismodellType.ANNEN_AVTALT_PRIS,
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-        ),
-        tidligstTidspunktForUtbetaling = { _, _ -> null },
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090",

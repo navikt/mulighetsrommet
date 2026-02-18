@@ -75,8 +75,8 @@ class TilsagnServiceTest : FunSpec({
         id = requestId,
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         type = TilsagnType.TILSAGN,
-        periodeStart = LocalDate.of(2025, 1, 1),
-        periodeSlutt = LocalDate.of(2025, 1, 31),
+        periodeStart = "2025-01-01",
+        periodeSlutt = "2025-01-31",
         kostnadssted = Gjovik.enhetsnummer,
         beregning = beregningFri(),
         kommentar = null,
@@ -157,8 +157,8 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(
                 request.copy(
                     gjennomforingId = gjennomforing.id,
-                    periodeStart = LocalDate.of(2025, 1, 1),
-                    periodeSlutt = LocalDate.of(2025, 2, 1),
+                    periodeStart = "2025-01-01",
+                    periodeSlutt = "2025-02-01",
                     beregning = beregningInput,
                 ),
                 ansatt1,
@@ -408,7 +408,7 @@ class TilsagnServiceTest : FunSpec({
                     it.behandletAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt1)
                     it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
                     it.kostnadssted shouldBe request.kostnadssted
-                    it.periode shouldBe Periode.fromInclusiveDates(request.periodeStart!!, request.periodeSlutt!!)
+                    it.periode shouldBe Periode.fromInclusiveDates(LocalDate.parse(request.periodeStart!!), LocalDate.parse(request.periodeSlutt!!))
                 }
         }
 

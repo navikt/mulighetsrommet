@@ -6,10 +6,10 @@ function Navigation() {
   return (
     <HStack
       width="100%"
-      gap="8"
-      paddingInline="20"
-      paddingBlock="10"
-      style={{ backgroundColor: "Var(--a-purple-500)" }}
+      gap="space-32"
+      paddingInline="space-80"
+      paddingBlock="space-40"
+      style={{ backgroundColor: "Var(--ax-meta-purple-600)" }}
     >
       <Box width="fit-content">
         <Heading size="xlarge" spacing>

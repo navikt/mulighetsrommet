@@ -4,7 +4,7 @@ import { avtaleDetaljerSchema, toUtdanningslopDbo, validateAvtaledetaljer } from
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
 import {
-  AmoKategorisering,
+  AmoKategoriseringDto,
   AmoKategoriseringRequest,
   AmoKurstype,
   AvtaleArrangorKontaktperson,
@@ -99,10 +99,10 @@ export type AvtaleFormInput = z.input<typeof avtaleFormSchema>;
 export type AvtaleFormValues = z.infer<typeof avtaleFormSchema>;
 
 export function amoKategoriseringRequest(
-  amoKategorisering: AmoKategorisering | null,
+  amoKategorisering: AmoKategoriseringDto | null,
 ): AmoKategoriseringRequest | null {
   switch (amoKategorisering?.kurstype) {
-    case "BRANSJE_OG_YRKESRETTET":
+    case AmoKurstype.BRANSJE_OG_YRKESRETTET:
       return {
         kurstype: AmoKurstype.BRANSJE_OG_YRKESRETTET,
         bransje: amoKategorisering.bransje,
@@ -111,7 +111,7 @@ export function amoKategoriseringRequest(
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
       };
-    case "NORSKOPPLAERING":
+    case AmoKurstype.NORSKOPPLAERING:
       return {
         kurstype: AmoKurstype.NORSKOPPLAERING,
         innholdElementer: amoKategorisering.innholdElementer,
@@ -120,7 +120,7 @@ export function amoKategoriseringRequest(
         sertifiseringer: null,
         forerkort: null,
       };
-    case "GRUNNLEGGENDE_FERDIGHETER":
+    case AmoKurstype.GRUNNLEGGENDE_FERDIGHETER:
       return {
         kurstype: AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
         innholdElementer: amoKategorisering.innholdElementer,
@@ -129,7 +129,7 @@ export function amoKategoriseringRequest(
         sertifiseringer: null,
         forerkort: null,
       };
-    case "FORBEREDENDE_OPPLAERING_FOR_VOKSNE":
+    case AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
       return {
         kurstype: AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
         innholdElementer: amoKategorisering.innholdElementer,
@@ -138,7 +138,7 @@ export function amoKategoriseringRequest(
         sertifiseringer: null,
         forerkort: null,
       };
-    case "STUDIESPESIALISERING":
+    case AmoKurstype.STUDIESPESIALISERING:
       return {
         kurstype: AmoKurstype.STUDIESPESIALISERING,
         innholdElementer: null,
@@ -148,6 +148,7 @@ export function amoKategoriseringRequest(
         forerkort: null,
       };
 
+    case null:
     case undefined:
       return null;
   }

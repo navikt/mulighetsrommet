@@ -196,8 +196,8 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
         beregning = beregning,
         kommentar = tilsagn.kommentar,
         beskrivelse = tilsagn.beskrivelse,
-        periodeStart = tilsagn.periode.start,
-        periodeSlutt = tilsagn.periode.getLastInclusiveDate(),
+        periodeStart = tilsagn.periode.start.toString(),
+        periodeSlutt = tilsagn.periode.getLastInclusiveDate().toString(),
     )
 }
 
@@ -245,8 +245,8 @@ fun resolveTilsagnDefaults(
         id = UUID.randomUUID(),
         gjennomforingId = gjennomforing.id,
         type = TilsagnType.TILSAGN,
-        periodeStart = periode?.start,
-        periodeSlutt = periode?.getLastInclusiveDate(),
+        periodeStart = periode?.start?.toString(),
+        periodeSlutt = periode?.getLastInclusiveDate()?.toString(),
         kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
         beregning = beregning,
     )

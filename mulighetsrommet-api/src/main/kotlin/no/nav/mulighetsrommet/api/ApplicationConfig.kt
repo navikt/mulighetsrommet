@@ -30,6 +30,8 @@ import java.util.UUID
 data class AppConfig(
     val engine: HttpClientEngine = CIO.create(),
     val server: ServerConfig = ServerConfig(),
+    val tiltakstyper: TiltakstypeService.Config,
+    val okonomi: OkonomiConfig,
     val database: DatabaseConfig,
     val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(
         strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
@@ -37,7 +39,6 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
-    val tiltakstyper: TiltakstypeService.Config,
     val veilarboppfolgingConfig: AuthenticatedHttpClientConfig,
     val veilarbvedtaksstotteConfig: AuthenticatedHttpClientConfig,
     val veilarbdialogConfig: AuthenticatedHttpClientConfig,
@@ -57,7 +58,6 @@ data class AppConfig(
     val utdanning: HttpClientConfig,
     val altinn: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
-    val okonomi: OkonomiConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
     val clamav: HttpClientConfig,
 )

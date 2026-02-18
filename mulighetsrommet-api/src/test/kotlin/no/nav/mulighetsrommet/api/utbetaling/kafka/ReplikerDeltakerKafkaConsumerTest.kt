@@ -245,10 +245,12 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
     context("deltakelser for utbetaling") {
         val oppdaterUtbetaling: GenererUtbetalingService = mockk()
 
+        val opprettetTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
         val amtDeltaker1 = createAmtDeltakerDto(
             gjennomforingId = AFT1.id,
             status = DeltakerStatusType.DELTAR,
             personIdent = "12345678910",
+            opprettetTidspunkt = opprettetTidspunkt,
         )
 
         val domain = MulighetsrommetTestDomain(
