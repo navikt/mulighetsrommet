@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -245,10 +246,12 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
     context("deltakelser for utbetaling") {
         val oppdaterUtbetaling: GenererUtbetalingService = mockk()
 
+        val opprettetTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
         val amtDeltaker1 = createAmtDeltakerDto(
             gjennomforingId = AFT1.id,
             status = DeltakerStatusType.DELTAR,
             personIdent = "12345678910",
+            opprettetTidspunkt = opprettetTidspunkt,
         )
 
         val domain = MulighetsrommetTestDomain(
