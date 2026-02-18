@@ -1,4 +1,3 @@
-import { ArrangorerFilter } from "@/components/filter/ArrangorerFilter";
 import { ArrangorIkon } from "@/components/ikoner/ArrangorIkon";
 import { ArrangorerTabell } from "@/components/tabell/ArrangorerTabell";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
@@ -9,7 +8,7 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { arrangorerFilterStateAtom } from "@/pages/arrangor/filter";
 import { useFilterState } from "@/filter/useFilterState";
-import { Chips } from "@navikt/ds-react";
+import { Box, Chips, TextField } from "@navikt/ds-react";
 
 export function ArrangorerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -34,7 +33,24 @@ export function ArrangorerPage() {
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout
-            filter={<ArrangorerFilter filter={filter.values} updateFilter={updateFilter} />}
+            filter={
+              <Box margin="space-8">
+                <TextField
+                  label="Søk etter arrangør"
+                  hideLabel
+                  size="small"
+                  placeholder="Søk etter arrangør"
+                  onChange={(e) => {
+                    updateFilter({
+                      sok: e.currentTarget.value,
+                      page: 1,
+                    });
+                  }}
+                  value={filter.values.sok}
+                  aria-label="Søk etter arrangør"
+                />
+              </Box>
+            }
             nullstillFilterButton={
               hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null
             }

@@ -1,15 +1,15 @@
-import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { arrangorOptions, AVTALE_STATUS_OPTIONS, AVTALE_TYPE_OPTIONS } from "@/utils/filterUtils";
+import { AVTALE_STATUS_OPTIONS, AVTALE_TYPE_OPTIONS } from "@/utils/filterUtils";
 import { Accordion, Search, Switch, VStack } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
+import { FilterAccordionHeader } from "@mr/frontend-common";
 import { CheckboxList } from "./CheckboxList";
 import { avtaleFilterAccordionAtom, AvtaleFilterType } from "@/pages/avtaler/filter";
-import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { AvtaleTiltakstypeFilter } from "@/components/filter/AvtaleTiltakstypeFilter";
+import { ArrangorerFilter } from "./ArrangorerFilter";
+import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   filter: AvtaleFilterType;
@@ -20,13 +20,6 @@ export function AvtaleFilter({ filter, updateFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
 
   const { data: regioner } = useNavRegioner();
-  const { data: arrangorData } = useArrangorer(ArrangorKobling.AVTALE, {
-    pageSize: 10000,
-  });
-
-  if (!arrangorData) {
-    return <FilterSkeleton />;
-  }
 
   const toggleAccordion = (key: string) => {
     setAccordionsOpen([...addOrRemove(accordionsOpen, key)]);
@@ -151,11 +144,10 @@ export function AvtaleFilter({ filter, updateFilter }: Props) {
             />
           </Accordion.Header>
           <Accordion.Content>
-            <CheckboxList
-              searchable
-              items={arrangorOptions(arrangorData.data)}
-              isChecked={(id) => filter.arrangorer.includes(id)}
-              onChange={(id) => updateArrayFilter("arrangorer", id)}
+            <ArrangorerFilter
+              filter={filter.arrangorer}
+              updateFilter={(arrangorer) => updateFilter({ arrangorer, page: 1 })}
+              arrangorKobling={ArrangorKobling.AVTALE}
             />
           </Accordion.Content>
         </Accordion.Item>
