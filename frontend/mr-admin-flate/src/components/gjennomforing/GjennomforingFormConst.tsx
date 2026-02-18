@@ -1,6 +1,5 @@
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
-  AmoKategorisering,
   AvtaleDto,
   GjennomforingDto,
   GjennomforingAvtaleDto,
@@ -13,6 +12,7 @@ import {
   TiltakstypeDto,
   UtdanningslopDbo,
   UtdanningslopDto,
+  AmoKategoriseringDto,
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 import { amoKategoriseringRequest } from "@/schemas/avtale";
@@ -48,7 +48,7 @@ export function defaultGjennomforingData(
   gjennomforing: Partial<GjennomforingAvtaleDto> | null,
   veilederinfo: Partial<GjennomforingVeilederinfoDto> | null,
   prismodell: PrismodellDto | null,
-  amoKategorisering: AmoKategorisering | null,
+  amoKategorisering: AmoKategoriseringDto | null,
   utdanningslop: UtdanningslopDto | null,
 ): DeepPartial<GjennomforingRequest> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, veilederinfo);

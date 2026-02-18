@@ -17,7 +17,7 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import {
-  AmoKategorisering,
+  AmoKategoriseringDto,
   AvtaleDto,
   GjennomforingAvtaleDto,
   GjennomforingTiltakstype,
@@ -90,7 +90,7 @@ interface RedigerGjennomforingProps {
   gjennomforing: GjennomforingAvtaleDto;
   veilederinfo: GjennomforingVeilederinfoDto | null;
   prismodell: PrismodellDto | null;
-  amoKategorisering: AmoKategorisering | null;
+  amoKategorisering: AmoKategoriseringDto | null;
   utdanningslop: UtdanningslopDto | null;
 }
 
