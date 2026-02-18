@@ -291,8 +291,7 @@ class NavAnsattServiceTest : FunSpec({
                 runBlocking {
                     val service = createNavAnsattService(groups)
 
-                    val groupIds = groups.map { it.entraGroupId }.toSet()
-                    val resolvedAnsatte = service.getNavAnsatteInGroups(groupIds)
+                    val resolvedAnsatte = service.getNavAnsatteForRoles(groups)
 
                     resolvedAnsatte shouldContainExactlyInAnyOrder expectedAnsatte
                 }

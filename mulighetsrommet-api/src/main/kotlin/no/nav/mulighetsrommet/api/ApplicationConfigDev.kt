@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -305,13 +304,6 @@ val ApplicationConfigDev = AppConfig(
                 Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to vises,
             )
         },
-    ),
-    navAnsattSync = NavAnsattSyncService.Config(
-        ansattGroupsToSync = setOf(
-            teamMulighetsrommetAdGruppeId,
-            tiltaksadministrasjonAdGruppeId,
-            kontaktpersonAdGruppeId,
-        ),
     ),
     sanity = SanityClient.Config(
         dataset = System.getenv("SANITY_DATASET"),
