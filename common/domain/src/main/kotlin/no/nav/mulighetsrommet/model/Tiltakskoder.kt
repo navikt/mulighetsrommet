@@ -124,7 +124,6 @@ enum class Tiltakskode(
     HOYERE_YRKESFAGLIG_UTDANNING(
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
-            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
             TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
