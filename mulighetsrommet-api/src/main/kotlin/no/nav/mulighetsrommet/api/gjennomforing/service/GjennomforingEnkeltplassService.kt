@@ -4,6 +4,8 @@ import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
@@ -17,6 +19,7 @@ import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -55,6 +58,12 @@ class GjennomforingEnkeltplassService(
             GjennomforingType.ARENA
         }
 
+        val prismodellId = if (type == GjennomforingType.ENKELTPLASS) {
+            getOrCreatePrismodell(opprett.id)
+        } else {
+            null
+        }
+
         val dbo = GjennomforingDbo(
             type = type,
             id = opprett.id,
@@ -70,10 +79,26 @@ class GjennomforingEnkeltplassService(
             pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
             arenaTiltaksnummer = opprett.arenaTiltaksnummer,
             arenaAnsvarligEnhet = opprett.arenaAnsvarligEnhet,
+            prismodellId = prismodellId,
         )
         queries.gjennomforing.upsert(dbo)
 
         publishTiltaksgjennomforingV2ToKafka(dbo.id)
+    }
+
+    private fun QueryContext.getOrCreatePrismodell(gjennomforingId: UUID): UUID {
+        return queries.gjennomforing.getPrismodell(gjennomforingId)?.id ?: run {
+            val prismodellDbo = PrismodellDbo(
+                id = UUID.randomUUID(),
+                type = PrismodellType.ANNEN_AVTALT_PRIS,
+                valuta = Valuta.NOK,
+                prisbetingelser = null,
+                satser = null,
+                systemId = null,
+            )
+            queries.prismodell.upsert(prismodellDbo)
+            prismodellDbo.id
+        }
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(id: UUID) {

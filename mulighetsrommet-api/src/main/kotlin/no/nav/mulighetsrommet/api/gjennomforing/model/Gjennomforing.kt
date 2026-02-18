@@ -181,6 +181,7 @@ data class GjennomforingEnkeltplass(
     override val opprettetTidspunkt: Instant,
     @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
+    val prismodell: Prismodell,
 ) : Gjennomforing()
 
 @Serializable

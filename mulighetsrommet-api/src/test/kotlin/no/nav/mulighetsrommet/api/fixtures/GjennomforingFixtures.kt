@@ -166,6 +166,7 @@ object GjennomforingFixtures {
         status = GjennomforingStatusType.AVSLUTTET,
         deltidsprosent = 100.0,
         antallPlasser = 1,
+        prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
     )
 
     val ArenaEnkelAmo = GjennomforingDbo(
