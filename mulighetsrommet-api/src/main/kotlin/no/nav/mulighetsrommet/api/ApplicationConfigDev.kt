@@ -33,6 +33,51 @@ private val tiltaksadministrasjonAdGruppeId = "52bb9196-b071-4cc7-9472-be4942d33
 private val kontaktpersonAdGruppeId = "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba".toUUID()
 
 val ApplicationConfigDev = AppConfig(
+    tiltakstyper = TiltakstypeService.Config(
+        features = run {
+            val migrert = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+                TiltakstypeFeature.MIGRERT,
+            )
+            val vises = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+            )
+            mapOf(
+                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
+                Tiltakskode.AVKLARING to migrert,
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
+                Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to migrert,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to migrert,
+                Tiltakskode.JOBBKLUBB to migrert,
+                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
+                Tiltakskode.OPPFOLGING to migrert,
+                Tiltakskode.STUDIESPESIALISERING to migrert,
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
+
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to vises,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to vises,
+                Tiltakskode.HOYERE_UTDANNING to vises,
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to vises,
+            )
+        },
+    ),
+    okonomi = run {
+        var slutt = LocalDate.of(2027, 1, 1)
+        OkonomiConfig(
+            gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+                Periode(LocalDate.of(2025, 1, 1), slutt)
+            },
+            opprettKravPrismodeller = listOf(
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.ANNEN_AVTALT_PRIS,
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+            ),
+            tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
+        )
+    },
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
@@ -275,37 +320,6 @@ val ApplicationConfigDev = AppConfig(
             ),
         ),
     ),
-    tiltakstyper = TiltakstypeService.Config(
-        features = run {
-            val migrert = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-                TiltakstypeFeature.MIGRERT,
-            )
-            val vises = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-            )
-            mapOf(
-                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
-                Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
-                Tiltakskode.AVKLARING to migrert,
-                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
-                Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.JOBBKLUBB to migrert,
-                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
-                Tiltakskode.OPPFOLGING to migrert,
-                Tiltakskode.STUDIESPESIALISERING to migrert,
-                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
-
-                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to vises,
-                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to vises,
-                Tiltakskode.HOYERE_UTDANNING to vises,
-                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to vises,
-            )
-        },
-    ),
     navAnsattSync = NavAnsattSyncService.Config(
         ansattGroupsToSync = setOf(
             teamMulighetsrommetAdGruppeId,
@@ -418,22 +432,7 @@ val ApplicationConfigDev = AppConfig(
         channel = "#team-valp-monitorering-dev",
         enable = true,
     ),
-    okonomi = run {
-        var slutt = LocalDate.of(2027, 1, 1)
-        OkonomiConfig(
-            gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
-                Periode(LocalDate.of(2025, 1, 1), slutt)
-            },
-            opprettKravPrismodeller = listOf(
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                PrismodellType.ANNEN_AVTALT_PRIS,
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            ),
-            tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
-        )
-    },
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",
     ),
-
 )
