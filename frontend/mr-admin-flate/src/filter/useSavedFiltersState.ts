@@ -1,5 +1,5 @@
 import { useAtom, WritableAtom } from "jotai";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { dequal } from "dequal";
 import { FilterAction, FilterState } from "@/filter/filter-state";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
@@ -13,13 +13,14 @@ export function useSavedFiltersState<T extends object>(
 
   const [{ filter, defaultFilter }, dispatch] = useAtom(filterStateAtom);
 
-  useEffect(() => {
+  const savedDefaultFilter = useMemo(() => {
     const defaultFilter = filters.find((f) => f.isDefault);
-    const newDefault = defaultFilter
-      ? { id: defaultFilter.id, values: defaultFilter.filter as T }
-      : undefined;
-    dispatch({ type: "UPDATE_DEFAULT", payload: newDefault });
-  }, [filters, dispatch]);
+    return defaultFilter ? { id: defaultFilter.id, values: defaultFilter.filter as T } : undefined;
+  }, [filters]);
+
+  useEffect(() => {
+    dispatch({ type: "UPDATE_DEFAULT", payload: savedDefaultFilter });
+  }, [savedDefaultFilter, dispatch]);
 
   const resetFilterToDefault = useCallback(() => {
     dispatch({ type: "RESET_TO_DEFAULT" });
@@ -48,7 +49,10 @@ export function useSavedFiltersState<T extends object>(
     [filters, dispatch],
   );
 
-  const hasChanged = !dequal(filter.values, defaultFilter.values);
+  const hasChanged = useMemo(
+    () => !dequal(filter.values, defaultFilter.values),
+    [filter.values, defaultFilter.values],
+  );
 
   return {
     filter,
