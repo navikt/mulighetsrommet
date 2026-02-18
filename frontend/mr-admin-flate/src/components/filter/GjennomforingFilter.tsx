@@ -1,8 +1,7 @@
-import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { arrangorOptions, TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
-import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
+import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
+import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { CheckboxList } from "./CheckboxList";
@@ -13,6 +12,7 @@ import {
 import { ArrangorKobling, AvtaleDto } from "@tiltaksadministrasjon/api-client";
 import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
 import { GjennomforingTiltakstypeFilter } from "@/components/filter/GjennomforingTiltakstypeFilter";
+import { ArrangorerFilter } from "./ArrangorerFilter";
 
 type Filters = "tiltakstype";
 
@@ -25,15 +25,7 @@ interface Props {
 
 export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
-
   const { data: regioner } = useNavRegioner();
-  const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
-    pageSize: 10000,
-  });
-
-  if (!arrangorer) {
-    return <FilterSkeleton />;
-  }
 
   function selectDeselectAll(checked: boolean, key: string, values: string[]) {
     updateFilter({
@@ -137,16 +129,10 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
             />
           </Accordion.Header>
           <Accordion.Content>
-            <CheckboxList
-              searchable
-              items={arrangorOptions(arrangorer.data)}
-              isChecked={(id) => filter.arrangorer.includes(id)}
-              onChange={(id) => {
-                updateFilter({
-                  arrangorer: addOrRemove(filter.arrangorer, id),
-                  page: 1,
-                });
-              }}
+            <ArrangorerFilter
+              filter={filter.arrangorer}
+              updateFilter={(arrangorer) => updateFilter({ arrangorer, page: 1 })}
+              arrangorKobling={ArrangorKobling.TILTAKSGJENNOMFORING}
             />
           </Accordion.Content>
         </Accordion.Item>
