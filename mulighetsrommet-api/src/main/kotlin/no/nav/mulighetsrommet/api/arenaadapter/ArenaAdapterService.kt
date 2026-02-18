@@ -10,23 +10,20 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
+import no.nav.mulighetsrommet.api.gjennomforing.service.OpprettEnkeltplass
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.model.Arena
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -43,6 +40,7 @@ class ArenaAdapterService(
     private val sanityService: SanityService,
     private val arrangorService: ArrangorService,
     private val tiltakstypeService: TiltakstypeService,
+    private val enkeltplassService: GjennomforingEnkeltplassService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -130,26 +128,15 @@ class ArenaAdapterService(
     private fun upsertEnkeltplass(
         arenaGjennomforing: ArenaGjennomforingDbo,
         arrangor: ArrangorDto,
-    ): Unit = db.transaction {
+    ) {
         require(Tiltakskoder.isEnkeltplassTiltak(arenaGjennomforing.arenaKode)) {
             "Enkeltplasser er ikke støttet for tiltakstype ${arenaGjennomforing.arenaKode}"
         }
 
-        val previous = queries.gjennomforing.getGjennomforing(arenaGjennomforing.id)
-        if (previous != null && !harEnkeltplassEndringer(arenaGjennomforing, previous)) {
-            return
-        }
-
         val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
             ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
-        val sluttDato = arenaGjennomforing.sluttDato
-        val type = if (sluttDato == null || sluttDato >= ArenaMigrering.EnkeltplassSluttDatoCutoffDate) {
-            GjennomforingType.ENKELTPLASS
-        } else {
-            GjennomforingType.ARENA
-        }
-        val dbo = GjennomforingDbo(
-            type = type,
+
+        val opprettEnkeltplass = OpprettEnkeltplass(
             id = arenaGjennomforing.id,
             tiltakstypeId = tiltakstype.id,
             arrangorId = arrangor.id,
@@ -159,13 +146,10 @@ class ArenaAdapterService(
             status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
             deltidsprosent = arenaGjennomforing.deltidsprosent,
             antallPlasser = arenaGjennomforing.antallPlasser,
-            oppstart = GjennomforingOppstartstype.LOPENDE,
-            pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
             arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
             arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
         )
-        queries.gjennomforing.upsert(dbo)
-        publishTiltaksgjennomforingV2ToKafka(dbo.id)
+        enkeltplassService.upsert(opprettEnkeltplass)
     }
 
     private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): ArrangorDto {
@@ -231,22 +215,6 @@ private fun harArenadataEndringer(
         gjennomforing.arena?.tiltaksnummer,
         gjennomforing.arena?.ansvarligNavEnhet,
     )
-}
-
-private fun harEnkeltplassEndringer(
-    arenaGjennomforing: ArenaGjennomforingDbo,
-    gjennomforing: Gjennomforing,
-): Boolean {
-    val arenadata = gjennomforing.arena ?: return true
-
-    return arenaGjennomforing.navn != gjennomforing.navn ||
-        arenaGjennomforing.tiltaksnummer != arenadata.tiltaksnummer.value ||
-        arenaGjennomforing.arrangorOrganisasjonsnummer != gjennomforing.arrangor.organisasjonsnummer.value ||
-        arenaGjennomforing.startDato != gjennomforing.startDato ||
-        arenaGjennomforing.sluttDato != gjennomforing.sluttDato ||
-        arenaGjennomforing.arenaAnsvarligEnhet != arenadata.ansvarligNavEnhet ||
-        arenaGjennomforing.deltidsprosent != gjennomforing.deltidsprosent ||
-        mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus) != gjennomforing.status
 }
 
 private fun mapAvslutningsstatus(avslutningsstatus: Avslutningsstatus): GjennomforingStatusType = when (avslutningsstatus) {

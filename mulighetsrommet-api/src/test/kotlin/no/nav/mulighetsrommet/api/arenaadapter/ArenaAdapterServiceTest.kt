@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -44,7 +45,11 @@ class ArenaAdapterServiceTest : FunSpec({
         db = database.db,
         sanityService = sanityService,
         arrangorService = ArrangorService(database.db, mockk(relaxed = true), mockk(relaxed = true)),
-        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), db = database.db),
+        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db),
+        enkeltplassService = GjennomforingEnkeltplassService(
+            GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+            database.db,
+        ),
     )
 
     context("tiltak i egen regi") {
