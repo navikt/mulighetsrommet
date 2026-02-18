@@ -106,7 +106,7 @@ class GjennomforingDetaljerService(
         val gjennomforing = db.session { getGjennomforing(id) } ?: return setOf()
         return when (gjennomforing) {
             is GjennomforingAvtale -> getHandlingerGruppetiltak(gjennomforing, ansatt)
-            is GjennomforingEnkeltplass -> setOf()
+            is GjennomforingEnkeltplass -> getHandlingerEnkeltplasser(ansatt)
             is GjennomforingArena -> setOf()
         }
     }
@@ -158,6 +158,15 @@ private fun getHandlingerGruppetiltak(
 
         GjennomforingHandling.DUPLISER,
         GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
+        GjennomforingHandling.OPPRETT_TILSAGN,
+        GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
+    )
+        .filter { GjennomforingDetaljerService.tilgangTilHandling(it, ansatt) }
+        .toSet()
+}
+
+private fun getHandlingerEnkeltplasser(ansatt: NavAnsatt): Set<GjennomforingHandling> {
+    return setOfNotNull(
         GjennomforingHandling.OPPRETT_TILSAGN,
         GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
     )
