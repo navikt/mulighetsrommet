@@ -52,7 +52,7 @@ object TilsagnValidator {
             FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart)
         }
         val periodeSlutt = next.periodeSlutt?.parseOrNull()
-        validateNotNull(next.periodeSlutt) {
+        validateNotNull(periodeSlutt) {
             FieldError.of("Periodeslutt må være satt", TilsagnRequest::periodeSlutt)
         }
         validateNotNull(gyldigTilsagnPeriode) {
