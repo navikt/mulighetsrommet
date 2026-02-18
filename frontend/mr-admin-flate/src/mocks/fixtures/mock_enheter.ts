@@ -1,4 +1,8 @@
-import { KontorstrukturKontortype, NavRegionDto } from "@tiltaksadministrasjon/api-client";
+import {
+  Kontorstruktur,
+  KontorstrukturKontortype,
+  RegionKostnadssteder,
+} from "@tiltaksadministrasjon/api-client";
 
 export const mockEnheter = {
   // Innlandet
@@ -101,87 +105,115 @@ export const mockEnheter = {
   },
 } as const;
 
-export const mockRegioner: NavRegionDto[] = [
+export const kostnadssteder: RegionKostnadssteder[] = [
   {
-    navn: "Nav Oslo",
-    enhetsnummer: "0300",
-    enheter: [
+    region: {
+      navn: "Nav Oslo",
+      enhetsnummer: "0300",
+    },
+    kostnadssteder: [
       {
         navn: "Nav St. Hanshaugen",
         enhetsnummer: "0313",
-        erStandardvalg: true,
+      },
+    ],
+  },
+  {
+    region: {
+      navn: "Nav Innlandet",
+      enhetsnummer: "0400",
+    },
+    kostnadssteder: [],
+  },
+];
+
+export const kontorstruktur: Kontorstruktur[] = [
+  {
+    region: {
+      navn: "Nav Oslo",
+      enhetsnummer: "0300",
+    },
+    kontorer: [
+      {
+        navn: "Nav St. Hanshaugen",
+        enhetsnummer: "0313",
+        type: KontorstrukturKontortype.LOKAL,
       },
       {
         navn: "Nav Bjerke",
         enhetsnummer: "0330",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
       {
         navn: "Nav Nordstrand",
         enhetsnummer: "0318",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
       {
         navn: "Nav Vestre Aker",
         enhetsnummer: "0334",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
       {
         navn: "Nav Grünerløkka",
         enhetsnummer: "0315",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
     ],
   },
   {
-    navn: "Nav Innlandet",
-    enhetsnummer: "0400",
-    enheter: [
+    region: {
+      navn: "Nav Innlandet",
+      enhetsnummer: "0400",
+    },
+    kontorer: [
       {
         navn: "Nav Solør",
         enhetsnummer: "0425",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
       {
         navn: "Nav Kongsvinger",
         enhetsnummer: "0402",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
       {
         navn: "Nav Løten",
         enhetsnummer: "0415",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
       {
         navn: "Nav Trysil",
         enhetsnummer: "0428",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
       {
         navn: "Nav Lesja - Dovre",
         enhetsnummer: "0511",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
       {
         navn: "Nav Eidskog",
         enhetsnummer: "0420",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
     ],
   },
   {
-    navn: "Nav Øst-Viken",
-    enhetsnummer: "0200",
-    enheter: [
+    region: {
+      navn: "Nav Øst-Viken",
+      enhetsnummer: "0200",
+    },
+    kontorer: [
       {
         navn: "Nav Fredrikstad",
         enhetsnummer: "0106",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
       {
         navn: "Nav Sarpsborg",
         enhetsnummer: "0105",
-        erStandardvalg: true,
+        type: KontorstrukturKontortype.LOKAL,
       },
     ],
   },

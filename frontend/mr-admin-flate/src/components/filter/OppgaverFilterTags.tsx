@@ -3,7 +3,7 @@ import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterTagsContainer } from "@mr/frontend-common";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 import { OppgaverFilterType } from "@/pages/oppgaveoversikt/oppgaver/filter";
-import { useNavRegioner } from "@/api/enhet/useNavRegioner";
+import { useKontorstruktur } from "@/api/enhet/useKontorstruktur";
 import { Chips } from "@navikt/ds-react";
 
 interface Props {
@@ -22,7 +22,7 @@ export function OppgaveFilterTags({
   setTagsHeight,
 }: Props) {
   const { data: oppgavetyper } = useGetOppgavetyper();
-  const { data: regioner } = useNavRegioner();
+  const { data: regioner } = useKontorstruktur();
   const { data: tiltakstyper } = useTiltakstyper();
 
   const removeArrayItem = (key: keyof OppgaverFilterType, value: any) => {
@@ -44,7 +44,8 @@ export function OppgaveFilterTags({
             key={enhetsnummer}
             onClick={() => removeArrayItem("regioner", enhetsnummer)}
           >
-            {regioner.find((r) => r.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
+            {regioner.find(({ region }) => region.enhetsnummer === enhetsnummer)?.region.navn ||
+              enhetsnummer}
           </Chips.Removable>
         ))}
         {!tiltakstypeId &&
