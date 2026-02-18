@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.task
 
 import arrow.core.Either
 import arrow.core.getOrElse
+import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
@@ -38,6 +39,7 @@ class DistribuerTilsagnsbrev(
         val tilsagnId: UUID,
     )
 
+
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
         .executeSuspend { inst, _ ->
@@ -46,10 +48,13 @@ class DistribuerTilsagnsbrev(
             }
         }
 
-    fun schedule(tilsagnId: UUID, startTime: Instant, tx: TransactionalSession): UUID {
+    private val client = SchedulerClient.Builder
+        .create(db.getDatasource(), task)
+        .build()
+
+    fun schedule(tilsagnId: UUID, startTime: Instant = Instant.now()): UUID {
         val id = UUID.randomUUID()
         val instance = task.instance(id.toString(), TaskData(tilsagnId))
-        val client = transactionalSchedulerClient(task, tx.connection.underlying)
         client.scheduleIfNotExists(instance, startTime)
         return id
     }
@@ -101,7 +106,8 @@ class DistribuerTilsagnsbrev(
         requireNotNull(postadresse)
         requireNotNull(postadresse.postnummer) { "Norsk arrangør med orgnr=$organisasjonsnummer mangler postnummer i postadresse, kunne ikke hente adresse" }
         requireNotNull(postadresse.poststed) { "Norsk arrangør med orgnr=$organisasjonsnummer mangler poststed i postadresse, kunne ikke hente adresse" }
-        DokdistRequest.Adresse.NorskPostAdresse(
+
+        return DokdistRequest.Adresse.NorskPostAdresse(
             postnummer = postadresse.postnummer!!,
             poststed = postadresse.poststed!!,
             adresselinje1 = postadresse.adresse?.getOrNull(0),

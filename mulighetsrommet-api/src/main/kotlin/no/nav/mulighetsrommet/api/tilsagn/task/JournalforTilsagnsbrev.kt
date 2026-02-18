@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.task
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.getOrElse
+import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
@@ -35,6 +36,7 @@ class JournalforTilsagnsbrev(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+
     @Serializable
     data class TaskData(
         @Serializable(with = UUIDSerializer::class)
@@ -51,10 +53,13 @@ class JournalforTilsagnsbrev(
             }
         }
 
-    fun schedule(tilsagnId: UUID, deltakerId: UUID, startTime: Instant, tx: TransactionalSession): UUID {
+    private val client = SchedulerClient.Builder
+        .create(db.getDatasource(), task)
+        .build()
+
+    fun schedule(tilsagnId: UUID, deltakerId: UUID, startTime: Instant = Instant.now()): UUID {
         val id = UUID.randomUUID()
         val instance = task.instance(id.toString(), TaskData(tilsagnId, deltakerId))
-        val client = transactionalSchedulerClient(task, tx.connection.underlying)
         client.scheduleIfNotExists(instance, startTime)
         return id
     }
@@ -110,7 +115,7 @@ fun tilsagnJournalpost(
     fagsakId: String,
 ): Journalpost = Journalpost(
     tittel = "Tilsagnsbrev",
-    journalposttype = "INNGAAENDE",
+    journalposttype = "UTGAAENDE",
     avsenderMottaker = Journalpost.AvsenderMottaker(
         id = arrangor.organisasjonsnummer.value,
         idType = "ORGNR",

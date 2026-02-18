@@ -102,6 +102,39 @@ export function MrApi() {
           har kjørt ferdig.
         </BodyShort>
       </RunTask>
+
+      <RunTask
+        base={ApiBase.MR_API}
+        task={"journalfor-tilsagnsbrev"}
+        form={(props) => (
+          <TextInputForm
+            {...props}
+            label="Tilsangs id en vil lage tilsagnsbrev for"
+            name="tilsagnId"
+          />
+        )}
+      >
+        <BodyShort>
+          Lager et tilsagnsbrev basert på tilsagnId og deltakerId, og journalfører denne{" "}
+        </BodyShort>
+      </RunTask>
+
+      <RunTask
+        base={ApiBase.MR_API}
+        task={"distribuer-tilsagnsbrev"}
+        form={(props) => (
+          <TextInputForm
+            {...props}
+            label="Tilsangs id en vil lage tilsagnsbrev for"
+            name="tilsagnId"
+          />
+        )}
+      >
+        <BodyShort>
+          Distribuerer et tilsagnsbrev for gitt tilsagn id. Tryner om ikke journalpostId eksisterer
+          for tilsagnet (kjør journalføring av tilsagnsbrev først)
+        </BodyShort>
+      </RunTask>
     </>
   );
 }
