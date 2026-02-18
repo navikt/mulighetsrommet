@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -46,10 +47,12 @@ object TilsagnValidator {
         gjennomforingSluttDato: LocalDate?,
         prismodell: Prismodell,
     ): Either<List<FieldError>, Validated> = validation {
-        validateNotNull(next.periodeStart) {
+        val periodeStart = next.periodeStart?.parseOrNull()
+        validateNotNull(periodeStart) {
             FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart)
         }
-        validateNotNull(next.periodeSlutt) {
+        val periodeSlutt = next.periodeSlutt?.parseOrNull()
+        validateNotNull(periodeSlutt) {
             FieldError.of("Periodeslutt må være satt", TilsagnRequest::periodeSlutt)
         }
         validateNotNull(gyldigTilsagnPeriode) {
@@ -73,32 +76,32 @@ object TilsagnValidator {
 
         validateAntallPlasser(next.beregning.type, next.beregning.antallPlasser)
         validateAntallTimerOppfolgingPerDeltaker(next.beregning.type, next.beregning.antallTimerOppfolgingPerDeltaker)
-        requireValid(next.periodeStart != null && next.periodeSlutt != null && next.kostnadssted != null && gyldigTilsagnPeriode != null)
+        requireValid(periodeStart != null && periodeSlutt != null && next.kostnadssted != null && gyldigTilsagnPeriode != null)
 
-        validate(next.periodeStart.isBefore(next.periodeSlutt)) {
+        validate(periodeStart.isBefore(periodeSlutt)) {
             FieldError.of("Periodestart må være før slutt", TilsagnRequest::periodeStart)
         }
-        validate(!next.periodeStart.isBefore(gyldigTilsagnPeriode.start)) {
+        validate(!periodeStart.isBefore(gyldigTilsagnPeriode.start)) {
             val dato = gyldigTilsagnPeriode.start.formaterDatoTilEuropeiskDatoformat()
             FieldError.of("Minimum startdato for tilsagn til $tiltakstypeNavn er $dato", TilsagnRequest::periodeStart)
         }
-        validate(!next.periodeSlutt.isAfter(gyldigTilsagnPeriode.getLastInclusiveDate())) {
+        validate(!periodeSlutt.isAfter(gyldigTilsagnPeriode.getLastInclusiveDate())) {
             val dato = gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
             FieldError.of("Maksimum sluttdato for tilsagn til $tiltakstypeNavn er $dato", TilsagnRequest::periodeSlutt)
         }
-        validate(gjennomforingSluttDato == null || !next.periodeSlutt.isAfter(gjennomforingSluttDato)) {
+        validate(gjennomforingSluttDato == null || !periodeSlutt.isAfter(gjennomforingSluttDato)) {
             FieldError.of(
                 "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
                 TilsagnRequest::periodeSlutt,
             )
         }
-        validate(next.periodeStart.year == next.periodeSlutt.year) {
+        validate(periodeStart.year == periodeSlutt.year) {
             FieldError.of("Tilsagnsperioden kan ikke vare utover årsskiftet", TilsagnRequest::periodeSlutt)
         }
 
-        requireValid(next.periodeStart.isBefore(next.periodeSlutt))
+        requireValid(periodeStart.isBefore(periodeSlutt))
 
-        val periode = Periode.fromInclusiveDates(next.periodeStart, next.periodeSlutt)
+        val periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt)
 
         val beregning = validateBeregning(
             request = next.beregning,

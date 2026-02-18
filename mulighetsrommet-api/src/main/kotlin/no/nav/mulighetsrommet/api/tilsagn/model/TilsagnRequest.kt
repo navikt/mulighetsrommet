@@ -21,10 +21,8 @@ data class TilsagnRequest(
     val beregning: TilsagnBeregningRequest,
     val kommentar: String? = null,
     val beskrivelse: String? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate? = null,
+    val periodeStart: String? = null,
+    val periodeSlutt: String? = null,
 )
 
 @Serializable

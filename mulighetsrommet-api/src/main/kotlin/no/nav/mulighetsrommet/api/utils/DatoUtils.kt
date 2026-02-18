@@ -16,4 +16,12 @@ object DatoUtils {
     fun Instant.tilNorskDato(): LocalDate = atZone(ZoneId.of("Europe/Oslo")).toLocalDate()
 
     fun Instant.tilNorskLocalDateTime(): LocalDateTime = atZone(ZoneId.of("Europe/Oslo")).toLocalDateTime()
+
+    fun String.parseOrNull(): LocalDate? {
+        return try {
+            LocalDate.parse(this)
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

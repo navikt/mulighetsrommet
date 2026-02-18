@@ -11,6 +11,7 @@ export interface ControlledDateInputProps {
   required?: boolean;
   onChange: (date: string) => void;
   defaultSelected?: string | null;
+  clearErrors?: () => void;
   error?: string;
   size?: "small" | "medium";
   placeholder?: string;
@@ -24,6 +25,7 @@ export const ControlledDateInput = ({
   size = "small",
   readOnly = false,
   onChange,
+  clearErrors,
   defaultSelected,
   required = false,
   error,
@@ -41,6 +43,7 @@ export const ControlledDateInput = ({
     },
     onValidate: (validation: { isValidDate: boolean; isBefore: boolean; isAfter: boolean }) => {
       setUgyldigDatoError("");
+      clearErrors?.();
       if (!validation.isValidDate) {
         if (validation.isBefore) {
           setUgyldigDatoError(invalidDatoForTidlig);
