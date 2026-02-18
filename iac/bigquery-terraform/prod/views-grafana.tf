@@ -333,3 +333,75 @@ FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.publi
     ON tiltakstype.id = avtale.tiltakstype_id
 EOF
 }
+
+module "grafana_gjennomforing_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "gjennomforing_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode([
+    { name = "tiltaksnummer", type = "STRING", mode = "NULLABLE" },
+    { name = "start_dato", type = "DATE", mode = "NULLABLE" },
+    { name = "slutt_dato", type = "DATE", mode = "NULLABLE" },
+    { name = "arena_ansvarlig_enhet", type = "STRING", mode = "NULLABLE" },
+    { name = "antall_plasser", type = "INTEGER", mode = "NULLABLE" },
+    { name = "avtale_id", type = "STRING", mode = "NULLABLE" },
+    { name = "oppstart", type = "STRING", mode = "NULLABLE" },
+    { name = "opphav", type = "STRING", mode = "NULLABLE" },
+    { name = "sted_for_gjennomforing", type = "STRING", mode = "NULLABLE" },
+    { name = "publisert", type = "BOOLEAN", mode = "NULLABLE" },
+    { name = "nav_region", type = "STRING", mode = "NULLABLE" },
+    { name = "apent_for_pamelding", type = "BOOLEAN", mode = "NULLABLE" },
+    { name = "deltidsprosent", type = "NUMERIC", mode = "NULLABLE" },
+    { name = "estimert_ventetid_verdi", type = "INTEGER", mode = "NULLABLE" },
+    { name = "estimert_ventetid_enhet", type = "STRING", mode = "NULLABLE" },
+    { name = "arrangor_id", type = "STRING", mode = "NULLABLE" },
+    { name = "avbrutt_aarsak", type = "STRING", mode = "NULLABLE" },
+    { name = "lopenummer", type = "STRING", mode = "NULLABLE" },
+    { name = "tilgjengelig_for_arrangor_fra_og_med_dato", type = "TIMESTAMP", mode = "NULLABLE" },
+    { name = "tilgjengelig_for_arrangor_dato", type = "DATE", mode = "NULLABLE" },
+    { name = "status", type = "STRING", mode = "NULLABLE" },
+    { name = "avbrutt_aarsaker", type = "JSON", mode = "NULLABLE" },
+    { name = "arena_tiltaksnummer", type = "STRING", mode = "NULLABLE" },
+    { name = "pamelding_type", type = "STRING", mode = "NULLABLE" },
+    { name = "gjennomforing_type", type = "STRING", mode = "NULLABLE" },
+    { name = "prismodell_type", type = "STRING", mode = "NULLABLE" },
+    { name = "tiltakstype_navn", type = "STRING", mode = "NULLABLE" }
+  ])
+  view_query = <<EOF
+SELECT
+  gjennomforing.tiltaksnummer,
+  gjennomforing.start_dato,
+  gjennomforing.slutt_dato,
+  gjennomforing.arena_ansvarlig_enhet,
+  gjennomforing.antall_plasser,
+  gjennomforing.avtale_id,
+  gjennomforing.oppstart,
+  gjennomforing.opphav,
+  gjennomforing.sted_for_gjennomforing,
+  gjennomforing.publisert,
+  gjennomforing.nav_region,
+  gjennomforing.apent_for_pamelding,
+  gjennomforing.deltidsprosent,
+  gjennomforing.estimert_ventetid_verdi,
+  gjennomforing.estimert_ventetid_enhet,
+  gjennomforing.arrangor_id,
+  gjennomforing.avbrutt_aarsak,
+  gjennomforing.lopenummer,
+  gjennomforing.tilgjengelig_for_arrangor_fra_og_med_dato,
+  gjennomforing.tilgjengelig_for_arrangor_dato,
+  gjennomforing.status,
+  gjennomforing.avbrutt_aarsaker,
+  gjennomforing.arena_tiltaksnummer,
+  gjennomforing.pamelding_type,
+  prismodell.prismodell_type,
+  gjennomforing.gjennomforing_type,
+  tiltakstype.navn as tiltakstype_navn
+FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` gjennomforing
+  INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype
+    ON tiltakstype.id = gjennomforing.tiltakstype_id
+  INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_prismodell` prismodell
+    ON prismodell.id = gjennomforing.prismodell_id
+EOF
+}
