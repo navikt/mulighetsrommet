@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
+import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytelseDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
@@ -54,7 +55,7 @@ object GjennomforingDtoMapper {
             estimertVentetid = detaljer.estimertVentetid?.toEstimertVentetidDto(),
         ),
         prismodell = fromPrismodell(gjennomforing.prismodell),
-        amoKategorisering = detaljer.amoKategorisering,
+        amoKategorisering = detaljer.amoKategorisering?.toDto(gjennomforing.tiltakstype.tiltakskode),
         utdanningslop = detaljer.utdanningslop,
     )
 

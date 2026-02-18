@@ -47,12 +47,12 @@ export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
       {avtaleAmo.kurstype === "BRANSJE_OG_YRKESRETTET" && (
         <>
           <Select readOnly size="small" label="Bransje">
-            <option>{bransjeToString(avtaleAmo.bransje)}</option>
+            <option>{avtaleAmo.bransje ? bransjeToString(avtaleAmo.bransje) : "-"}</option>
           </Select>
-          {avtaleAmo.forerkort.length > 0 && (
+          {avtaleAmo.forerkort && avtaleAmo.forerkort.length > 0 && (
             <ForerkortForm path="amoKategorisering.forerkort" options={avtaleAmo.forerkort} />
           )}
-          {avtaleAmo.sertifiseringer.length > 0 && (
+          {avtaleAmo.sertifiseringer && avtaleAmo.sertifiseringer.length > 0 && (
             <SertifiseringerSkjema
               path="amoKategorisering.sertifiseringer"
               options={avtaleAmo.sertifiseringer}

@@ -4,11 +4,11 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.api.avtale.model.AmoKategoriseringDto
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -29,7 +29,7 @@ data class GjennomforingDetaljerDto(
     val gjennomforing: GjennomforingDto,
     val veilederinfo: GjennomforingVeilederinfoDto?,
     val prismodell: PrismodellDto?,
-    val amoKategorisering: AmoKategorisering?,
+    val amoKategorisering: AmoKategoriseringDto?,
     val utdanningslop: UtdanningslopDto?,
 )
 

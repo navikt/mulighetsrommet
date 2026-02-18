@@ -4032,76 +4032,46 @@ components:
       enum:
       - LOKAL
       - SPESIALENHET
-    AmoKategorisering:
-      anyOf:
-      - $ref: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
-      - $ref: "#/components/schemas/FORBEREDENDE_OPPLAERING_FOR_VOKSNE"
-      - $ref: "#/components/schemas/GRUNNLEGGENDE_FERDIGHETER"
-      - $ref: "#/components/schemas/NORSKOPPLAERING"
-      - $ref: "#/components/schemas/STUDIESPESIALISERING"
-      discriminator:
-        propertyName: kurstype
-        mapping:
-          BRANSJE_OG_YRKESRETTET: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
-          FORBEREDENDE_OPPLAERING_FOR_VOKSNE: "#/components/schemas/FORBEREDENDE_OPPLAERING_FOR_VOKSNE"
-          GRUNNLEGGENDE_FERDIGHETER: "#/components/schemas/GRUNNLEGGENDE_FERDIGHETER"
-          NORSKOPPLAERING: "#/components/schemas/NORSKOPPLAERING"
-          STUDIESPESIALISERING: "#/components/schemas/STUDIESPESIALISERING"
-    BRANSJE_OG_YRKESRETTET:
+    AmoKategoriseringDto:
       type: object
       properties:
+        kurstype:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/AmoKurstype"
         bransje:
-          $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Bransje"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Bransje"
+        innholdElementer:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
         sertifiseringer:
-          type: array
+          type:
+          - "null"
+          - array
           items:
             $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Sertifisering"
         forerkort:
-          type: array
+          type:
+          - "null"
+          - array
           items:
             $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse"
-        innholdElementer:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+        norskprove:
+          type:
+          - "null"
+          - boolean
       required:
       - bransje
       - forerkort
       - innholdElementer
-      - sertifiseringer
-    FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
-      type: object
-      properties:
-        innholdElementer:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-      required:
-      - innholdElementer
-    GRUNNLEGGENDE_FERDIGHETER:
-      type: object
-      properties:
-        innholdElementer:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-      required:
-      - innholdElementer
-    NORSKOPPLAERING:
-      type: object
-      properties:
-        norskprove:
-          type: boolean
-        innholdElementer:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-      required:
-      - innholdElementer
+      - kurstype
       - norskprove
-    STUDIESPESIALISERING:
-      type: object
-      properties: {}
+      - sertifiseringer
     Avtale.OpsjonLoggDto:
       type: object
       properties:
@@ -4289,7 +4259,7 @@ components:
         amoKategorisering:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategorisering"
+          - $ref: "#/components/schemas/AmoKategoriseringDto"
         opsjonsmodell:
           $ref: "#/components/schemas/Opsjonsmodell"
         opsjonerRegistrert:
@@ -5091,7 +5061,7 @@ components:
         amoKategorisering:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategorisering"
+          - $ref: "#/components/schemas/AmoKategoriseringDto"
         utdanningslop:
           oneOf:
           - type: "null"
