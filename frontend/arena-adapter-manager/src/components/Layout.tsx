@@ -14,7 +14,6 @@ export function Layout({ apps }: Props) {
   return (
     <Box as="main" width="100%">
       <Navigation />
-
       <Tabs value={pathname}>
         <Tabs.List>
           {apps.map((app) => (
@@ -28,7 +27,7 @@ export function Layout({ apps }: Props) {
           ))}
         </Tabs.List>
         <Tabs.Panel value={pathname}>
-          <VStack gap="8" padding="8">
+          <VStack gap="space-32" padding="space-32">
             <Outlet />
           </VStack>
         </Tabs.Panel>

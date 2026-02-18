@@ -31,7 +31,7 @@ export function DatePickerForm({ label, description, onSubmit, loading }: DatePi
 
   return (
     <form onSubmit={handleSubmit}>
-      <VStack gap="4" align="start">
+      <VStack gap="space-16" align="start">
         <DatePicker {...datepickerProps}>
           <DatePicker.Input
             {...inputProps}

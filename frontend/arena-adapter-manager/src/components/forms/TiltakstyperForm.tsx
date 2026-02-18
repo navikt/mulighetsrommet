@@ -59,7 +59,7 @@ export function TiltakstyperForm({ onSubmit, loading }: TiltakstyperFormProps) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <VStack align="start" gap="4" marginBlock="6">
+      <VStack align="start" gap="space-16" marginBlock="space-24">
         <UNSAFE_Combobox
           label="Tiltakstyper"
           isMultiSelect
