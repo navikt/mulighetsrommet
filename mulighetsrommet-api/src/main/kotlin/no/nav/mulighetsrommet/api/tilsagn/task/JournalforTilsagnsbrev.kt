@@ -7,7 +7,6 @@ import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
-import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
@@ -21,7 +20,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
-import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -35,7 +33,6 @@ class JournalforTilsagnsbrev(
     private val pdf: PdfGenClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-
 
     @Serializable
     data class TaskData(

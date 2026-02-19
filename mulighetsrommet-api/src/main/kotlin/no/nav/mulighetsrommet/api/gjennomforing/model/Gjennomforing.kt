@@ -22,6 +22,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
+@Serializable
 sealed class Gjennomforing {
     abstract val id: UUID
     abstract val lopenummer: Tiltaksnummer

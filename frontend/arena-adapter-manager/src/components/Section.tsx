@@ -13,15 +13,15 @@ export function Section({ children, headerText, isLoading, loadingText }: Sectio
       <Heading size="medium" spacing>
         {headerText}
       </Heading>
-      <Box padding="5" borderWidth="1" borderRadius="medium">
+      <Box padding="space-20" borderWidth="1" borderRadius="4">
         {isLoading ? (
-          <HStack gap="4">
+          <HStack gap="space-16">
             <Heading size="small">{loadingText}</Heading>
             <Loader />
           </HStack>
         ) : (
           <>
-            <VStack gap="4">{children}</VStack>
+            <VStack gap="space-16">{children}</VStack>
           </>
         )}
       </Box>

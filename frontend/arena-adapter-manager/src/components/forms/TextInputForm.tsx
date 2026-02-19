@@ -25,7 +25,7 @@ export function TextInputForm({ label, description, name, onSubmit, loading }: T
 
   return (
     <form onSubmit={handleSubmit}>
-      <VStack gap="4" align="start" marginBlock="6">
+      <VStack gap="space-16" align="start" marginBlock="space-24">
         <TextField
           label={label}
           description={description}

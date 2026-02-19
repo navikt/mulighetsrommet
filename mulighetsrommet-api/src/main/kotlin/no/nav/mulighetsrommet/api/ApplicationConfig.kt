@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -31,6 +30,8 @@ import java.util.UUID
 data class AppConfig(
     val engine: HttpClientEngine = CIO.create(),
     val server: ServerConfig = ServerConfig(),
+    val tiltakstyper: TiltakstypeService.Config,
+    val okonomi: OkonomiConfig,
     val database: DatabaseConfig,
     val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(
         strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
@@ -38,8 +39,6 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
-    val tiltakstyper: TiltakstypeService.Config,
-    val navAnsattSync: NavAnsattSyncService.Config,
     val veilarboppfolgingConfig: AuthenticatedHttpClientConfig,
     val veilarbvedtaksstotteConfig: AuthenticatedHttpClientConfig,
     val veilarbdialogConfig: AuthenticatedHttpClientConfig,
@@ -60,7 +59,6 @@ data class AppConfig(
     val altinn: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
     val dokdistfordeling: AuthenticatedHttpClientConfig,
-    val okonomi: OkonomiConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
     val clamav: HttpClientConfig,
 )

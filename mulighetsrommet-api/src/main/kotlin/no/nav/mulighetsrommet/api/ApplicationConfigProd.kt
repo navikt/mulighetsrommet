@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -33,6 +32,47 @@ private val tiltaksadministrasjonAdGruppeId = "2cf8d881-c2da-47b5-b409-fa088440a
 private val kontaktpersonAdGruppeId = "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toUUID()
 
 val ApplicationConfigProd = AppConfig(
+    tiltakstyper = TiltakstypeService.Config(
+        features = run {
+            val migrert = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+                TiltakstypeFeature.MIGRERT,
+            )
+            mapOf(
+                Tiltakskode.AVKLARING to migrert,
+                Tiltakskode.OPPFOLGING to migrert,
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to migrert,
+                Tiltakskode.JOBBKLUBB to migrert,
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to migrert,
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
+            )
+        },
+    ),
+    okonomi = run {
+        val slutt = LocalDate.of(2027, 1, 1)
+        OkonomiConfig(
+            gyldigTilsagnPeriode = mapOf(
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to Periode(LocalDate.of(2025, 7, 1), slutt),
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to Periode(LocalDate.of(2025, 7, 1), slutt),
+                Tiltakskode.AVKLARING to Periode(LocalDate.of(2025, 10, 1), slutt),
+                Tiltakskode.OPPFOLGING to Periode(LocalDate.of(2025, 10, 1), slutt),
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2025, 10, 1), slutt),
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to Periode(LocalDate.of(2025, 11, 1), slutt),
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
+                Tiltakskode.JOBBKLUBB to Periode(LocalDate.of(2026, 1, 1), slutt),
+            ),
+            opprettKravPrismodeller = listOf(
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.ANNEN_AVTALT_PRIS,
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+            ),
+            tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingProd,
+        )
+    },
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 20,
@@ -265,32 +305,6 @@ val ApplicationConfigProd = AppConfig(
             ),
         ),
     ),
-    tiltakstyper = TiltakstypeService.Config(
-        features = run {
-            val migrert = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-                TiltakstypeFeature.MIGRERT,
-            )
-            mapOf(
-                Tiltakskode.AVKLARING to migrert,
-                Tiltakskode.OPPFOLGING to migrert,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.JOBBKLUBB to migrert,
-                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
-                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
-            )
-        },
-    ),
-    navAnsattSync = NavAnsattSyncService.Config(
-        ansattGroupsToSync = setOf(
-            teamMulighetsrommetAdGruppeId,
-            tiltaksadministrasjonAdGruppeId,
-            kontaktpersonAdGruppeId,
-        ),
-    ),
     sanity = SanityClient.Config(
         dataset = System.getenv("SANITY_DATASET"),
         projectId = System.getenv("SANITY_PROJECT_ID"),
@@ -400,28 +414,6 @@ val ApplicationConfigProd = AppConfig(
         channel = "#team-valp-monitoring",
         enable = true,
     ),
-    okonomi = run {
-        val slutt = LocalDate.of(2027, 1, 1)
-        OkonomiConfig(
-            gyldigTilsagnPeriode = mapOf(
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to Periode(LocalDate.of(2025, 7, 1), slutt),
-                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to Periode(LocalDate.of(2025, 7, 1), slutt),
-                Tiltakskode.AVKLARING to Periode(LocalDate.of(2025, 10, 1), slutt),
-                Tiltakskode.OPPFOLGING to Periode(LocalDate.of(2025, 10, 1), slutt),
-                Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2025, 10, 1), slutt),
-                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to Periode(LocalDate.of(2025, 11, 1), slutt),
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
-                Tiltakskode.JOBBKLUBB to Periode(LocalDate.of(2026, 1, 1), slutt),
-            ),
-            opprettKravPrismodeller = listOf(
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                PrismodellType.ANNEN_AVTALT_PRIS,
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            ),
-            tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingProd,
-        )
-    },
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",
     ),
