@@ -855,6 +855,7 @@ private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
         status = GjennomforingStatusType.valueOf(string("status")),
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),
+        prismodell = toPrismodell(),
     )
 }
 

@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforin
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
@@ -370,6 +371,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     single {
@@ -390,10 +392,14 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get(), get(), get()) }
     single { GjennomforingDetaljerService(get(), get(), get()) }
     single {
+        GjennomforingEnkeltplassService(
+            GjennomforingEnkeltplassService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
+            get(),
+        )
+    }
+    single {
         GjennomforingAvtaleService(
-            GjennomforingAvtaleService.Config(
-                gjennomforingV2Topic = appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic,
-            ),
+            GjennomforingAvtaleService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
             get(),
             get(),
         )
