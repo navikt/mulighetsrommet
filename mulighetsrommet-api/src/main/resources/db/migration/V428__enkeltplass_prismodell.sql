@@ -1,19 +1,15 @@
 -- For hver gjennomføring med type 'ENKELTPLASS', opprett en prismodell og koble til gjennomføringen
-with new_prismodell as (
-    insert into prismodell (id, prismodell_type, prisbetingelser, satser, system_id, valuta)
-        select gen_random_uuid(), 'ANNEN_AVTALT_PRIS', null, null, null, 'NOK'
-        from gjennomforing
-        where gjennomforing_type = 'ENKELTPLASS'
-        returning id),
-     matched_gjennomforing as (select g.id                 as gjennomforing_id,
-                                      p.id                 as prismodell_id,
-                                      row_number() over () as rn_gjennomforing,
-                                      row_number() over () as rn_prismodell
-                               from gjennomforing g
-                                        join new_prismodell p on true
-                               where g.gjennomforing_type = 'ENKELTPLASS')
-update gjennomforing g
-set prismodell_id = m.prismodell_id
-from matched_gjennomforing m
-where g.id = m.gjennomforing_id
-  and m.rn_gjennomforing = m.rn_prismodell;
+do $$
+declare
+    gj record;
+    new_prismodell_id uuid;
+begin
+    for gj in select id from gjennomforing where gjennomforing_type = 'ENKELTPLASS' and prismodell_id is null
+    loop
+        insert into prismodell (id, prismodell_type, prisbetingelser, satser, system_id, valuta)
+        values (gen_random_uuid(), 'ANNEN_AVTALT_PRIS', null, null, null, 'NOK')
+        returning id into new_prismodell_id;
+
+        update gjennomforing set prismodell_id = new_prismodell_id where id = gj.id;
+    end loop;
+end $$;
