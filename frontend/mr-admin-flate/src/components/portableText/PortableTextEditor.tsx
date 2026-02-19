@@ -55,9 +55,7 @@ export function PortableTextFormEditor({ name, label, description }: PortableTex
             <b>{label}</b>
           </label>
           {description && (
-            <label className={"mb-[8px] inline-block text-ax-text-neutral-subtle"}>
-              {description}
-            </label>
+            <label className={"mb-2 inline-block text-ax-text-neutral-subtle"}>{description}</label>
           )}
           <PortableTextEditor value={field.value} onChange={field.onChange} />
           {error && <span>{error.message}</span>}
@@ -95,7 +93,7 @@ export function PortableTextEditor({
         />
         <PortableTextEditorToolbar />
         <PortableTextEditable
-          className="p-[8px] border rounded-b-md"
+          className="p-2 border rounded-b-md"
           renderDecorator={renderDecorator}
           renderAnnotation={renderAnnotation}
           renderBlock={renderBlock}
@@ -135,7 +133,7 @@ const renderAnnotation: RenderAnnotationFunction = (props) => {
 
 const renderBlock: RenderBlockFunction = (props) => {
   return (
-    <BodyLong size="small" className="mb-1 min-h-[0.75rem]">
+    <BodyLong size="small" className="mb-1 min-h-3">
       {props.children}
     </BodyLong>
   );
