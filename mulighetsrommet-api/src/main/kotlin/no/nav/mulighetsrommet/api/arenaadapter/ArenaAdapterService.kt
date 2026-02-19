@@ -53,8 +53,10 @@ class ArenaAdapterService(
     suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaGjennomforingDbo): UUID? {
         val arrangor = syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
 
-        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
-        if (tiltakstype?.tiltakskode != null && tiltakstypeService.erMigrert(tiltakstype.tiltakskode)) {
+        val erTiltakMigrert = tiltakstypeService.getByArenaTiltakskode(arenaGjennomforing.arenaKode).any {
+            it.tiltakskode != null && tiltakstypeService.erMigrert(it.tiltakskode)
+        }
+        if (erTiltakMigrert) {
             updateArenadata(arenaGjennomforing)
             return null
         }
