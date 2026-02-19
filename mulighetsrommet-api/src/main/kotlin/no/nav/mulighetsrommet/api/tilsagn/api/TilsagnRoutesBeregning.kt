@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
@@ -43,7 +43,7 @@ fun Route.tilsagnRoutesBeregning() {
     val config: AppConfig by inject()
     val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
-    val gjennomforinger: GjennomforingAvtaleService by inject()
+    val gjennomforinger: GjennomforingDetaljerService by inject()
 
     get("/{id}/defaults", {
         description = "Hent standardverdier for tilsagn utledet fra gitt tilsagn"
@@ -99,9 +99,8 @@ fun Route.tilsagnRoutesBeregning() {
     }) {
         val request = call.receive<TilsagnRequest>()
 
-        // TODO: må også gjelde enkeltplasser
-        val gjennomforing = gjennomforinger.getGjennomforingAvtale(request.gjennomforingId)
-            ?: return@post call.respond(HttpStatusCode.NotFound)
+        val gjennomforing = gjennomforinger.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
+            ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig gjennomforingId=${request.gjennomforingId}")
 
         val defaults = when (request.type) {
             TilsagnType.TILSAGN -> db.session {
@@ -203,7 +202,7 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
 
 fun resolveTilsagnDefaults(
     config: OkonomiConfig,
-    gjennomforing: GjennomforingAvtale,
+    gjennomforing: GjennomforingTiltaksadministrasjon,
     tilsagn: Tilsagn?,
 ): TilsagnRequest {
     val periode = when (gjennomforing.prismodell) {
@@ -297,7 +296,7 @@ private fun getAnskaffetTiltakPeriode(
 
 private fun resolveEkstraTilsagnInvesteringDefaults(
     request: TilsagnRequest,
-    gjennomforing: GjennomforingAvtale,
+    gjennomforing: GjennomforingTiltaksadministrasjon,
 ): TilsagnRequest {
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
     val valuta = gjennomforing.prismodell.valuta

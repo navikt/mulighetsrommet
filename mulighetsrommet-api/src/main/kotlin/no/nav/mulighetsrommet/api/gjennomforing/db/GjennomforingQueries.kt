@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -414,6 +415,12 @@ class GjennomforingQueries(private val session: Session) {
         return session.list(queryOf(query, avtaleId)) { it.toGjennomforingAvtale() }
     }
 
+    fun getGjennomforingTiltaksadministrasjon(id: UUID): GjennomforingTiltaksadministrasjon {
+        return getGjennomforing(id) as? GjennomforingTiltaksadministrasjon ?: error(
+            "Gjennomføring med id $id er ikke av type GjennomforingTiltaksadministrasjon",
+        )
+    }
+
     fun getGjennomforingOrError(id: UUID): Gjennomforing {
         return checkNotNull(getGjennomforing(id)) { "Gjennomføring med id $id finnes ikke" }
     }
@@ -475,6 +482,10 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { it.toGjennomforingAvtaleDetaljer() }
+    }
+
+    fun getPrismodellOrError(id: UUID): Prismodell {
+        return requireNotNull(getPrismodell(id)) { "Gjennomføring med id $id mangler prismodell" }
     }
 
     fun getPrismodell(id: UUID): Prismodell? {
