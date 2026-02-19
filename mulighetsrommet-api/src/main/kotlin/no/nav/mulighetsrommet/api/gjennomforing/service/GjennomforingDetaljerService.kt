@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -38,7 +39,6 @@ class GjennomforingDetaljerService(
 ) {
     fun getTiltaksgjennomforingV2Dto(id: UUID): TiltaksgjennomforingV2Dto? = db.session {
         val gjennomforing = getGjennomforing(id) ?: return null
-
         when (gjennomforing) {
             is GjennomforingAvtale -> {
                 val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
@@ -51,17 +51,24 @@ class GjennomforingDetaljerService(
         }
     }
 
-    fun getGjennomforingDetaljerDto(id: UUID): GjennomforingDetaljerDto? = db.session {
-        val gjennomforing = getGjennomforing(id) ?: return null
-
-        when (gjennomforing) {
+    fun getGjennomforingDetaljerDto(id: UUID): GjennomforingDetaljerDto? {
+        val gjennomforing = getGjennomforingTiltaksadministrasjon(id) ?: return null
+        return when (gjennomforing) {
             is GjennomforingAvtale -> {
-                val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
+                val detaljer = db.session {
+                    queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
+                }
                 GjennomforingDtoMapper.fromGjennomforingAvtale(gjennomforing, detaljer)
             }
 
             is GjennomforingEnkeltplass -> GjennomforingDtoMapper.fromEnkeltplass(gjennomforing)
+        }
+    }
 
+    fun getGjennomforingTiltaksadministrasjon(id: UUID): GjennomforingTiltaksadministrasjon? = db.session {
+        val gjennomforing = getGjennomforing(id) ?: return null
+        when (gjennomforing) {
+            is GjennomforingTiltaksadministrasjon -> gjennomforing
             is GjennomforingArena -> throw IllegalStateException("Visning av gamle gjennomføringer fra Arena er ikke støttet")
         }
     }

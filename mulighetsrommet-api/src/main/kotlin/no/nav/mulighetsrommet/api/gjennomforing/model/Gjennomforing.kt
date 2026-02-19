@@ -64,6 +64,11 @@ sealed class Gjennomforing {
 }
 
 @Serializable
+sealed class GjennomforingTiltaksadministrasjon : Gjennomforing() {
+    abstract val prismodell: Prismodell
+}
+
+@Serializable
 data class GjennomforingAvtaleDetaljer(
     val publisert: Boolean,
     val beskrivelse: String?,
@@ -140,15 +145,15 @@ data class GjennomforingAvtale(
     override val opprettetTidspunkt: Instant,
     @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
+    override val prismodell: Prismodell,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
     val oppstart: GjennomforingOppstartstype,
     val pameldingType: GjennomforingPameldingType,
-    val prismodell: Prismodell,
     val kontorstruktur: List<Kontorstruktur>,
     val apentForPamelding: Boolean,
     val stengt: List<StengtPeriode>,
-) : Gjennomforing() {
+) : GjennomforingTiltaksadministrasjon() {
     @Serializable
     data class StengtPeriode(
         val id: Int,
@@ -181,8 +186,8 @@ data class GjennomforingEnkeltplass(
     override val opprettetTidspunkt: Instant,
     @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
-    val prismodell: Prismodell,
-) : Gjennomforing()
+    override val prismodell: Prismodell,
+) : GjennomforingTiltaksadministrasjon()
 
 @Serializable
 data class GjennomforingArena(
