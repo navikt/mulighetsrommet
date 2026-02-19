@@ -80,7 +80,7 @@ object GjennomforingDtoMapper {
             opphav = gjennomforing.opphav,
         ),
         veilederinfo = null,
-        prismodell = null,
+        prismodell = fromPrismodell(gjennomforing.prismodell),
         amoKategorisering = null,
         utdanningslop = null,
     )

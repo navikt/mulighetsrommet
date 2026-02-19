@@ -484,6 +484,10 @@ class GjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toGjennomforingAvtaleDetaljer() }
     }
 
+    fun getPrismodellOrError(id: UUID): Prismodell {
+        return requireNotNull(getPrismodell(id)) { "Gjennomføring med id $id mangler prismodell" }
+    }
+
     fun getPrismodell(id: UUID): Prismodell? {
         @Language("PostgreSQL")
         val query = """
