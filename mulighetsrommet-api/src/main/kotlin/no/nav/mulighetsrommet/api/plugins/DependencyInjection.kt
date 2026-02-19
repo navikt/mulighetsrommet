@@ -61,6 +61,8 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
+import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
+import no.nav.mulighetsrommet.api.tilsagn.task.JournalforTilsagnsbrev
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
@@ -490,6 +492,8 @@ private fun tasks(config: AppConfig) = module {
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
+    single { JournalforTilsagnsbrev(get(), get(), get(), get()) }
+    single { DistribuerTilsagnsbrev(get(), get(), get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(
             get(),
@@ -520,6 +524,8 @@ private fun tasks(config: AppConfig) = module {
         val journalforUtbetaling: JournalforUtbetaling by inject()
         val oppdaterUtbetalingBeregning: GenererUtbetalingService by inject()
         val beregnUtbetaling: BeregnUtbetaling by inject()
+        val journalforTilsagnsbrev: JournalforTilsagnsbrev by inject()
+        val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
 
         val db: Database by inject()
 
@@ -532,6 +538,8 @@ private fun tasks(config: AppConfig) = module {
                 journalforUtbetaling.task,
                 oppdaterUtbetalingBeregning.task,
                 beregnUtbetaling.task,
+                journalforTilsagnsbrev.task,
+                distribuerTilsagnsbrev.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())
