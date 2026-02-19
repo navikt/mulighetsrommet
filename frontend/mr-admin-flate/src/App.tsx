@@ -21,7 +21,6 @@ import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/Re
 import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
 import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
-import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { Suspense } from "react";
 import { Laster } from "./components/laster/Laster";
@@ -129,12 +128,6 @@ const routes: RouteObject[] = [
         path: "tiltakstyper/:tiltakstypeId",
         element: <DetaljerTiltakstypePage />,
         errorElement: <ErrorPage />,
-        children: [
-          {
-            index: true,
-            element: <TiltakstypeInfo />,
-          },
-        ],
       },
       {
         path: "avtaler",
