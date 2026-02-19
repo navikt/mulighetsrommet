@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import kotlin.collections.map
 
 class NavAnsattService(
     private val roles: Set<EntraGroupNavAnsattRolleMapping>,
@@ -66,25 +67,38 @@ class NavAnsattService(
         microsoftGraphClient.addToGroup(ansatt.entraObjectId, kontaktPersonGruppeId)
     }
 
-    suspend fun getNavAnsatteInGroups(groups: Set<UUID>): List<NavAnsatt> = coroutineScope {
+    suspend fun getNavAnsatteForAllRoles(): List<NavAnsatt> = getNavAnsatteForRoles(roles)
+
+    suspend fun getNavAnsatteForRoles(roles: Set<EntraGroupNavAnsattRolleMapping>): List<NavAnsatt> = coroutineScope {
         // For å begrense antall parallelle requests mot msgraph
         val semaphore = Semaphore(permits = 20)
-        groups
-            .map { groupId ->
+
+        // Hent medlemmer for hver gruppe parallelt, og behold info om hvilken gruppe de tilhører
+        val groupMembersWithRoles = roles
+            .map { role ->
                 async {
                     semaphore.withPermit {
-                        microsoftGraphClient.getGroupMembers(groupId).also {
-                            logger.info("Fant ${it.size} i AD gruppe id=$groupId")
-                        }
+                        val members = microsoftGraphClient.getGroupMembers(role.entraGroupId)
+                        logger.info("Fant ${members.size} i AD gruppe id=${role.entraGroupId}")
+                        role to members
                     }
                 }
             }
             .awaitAll()
-            .flatMapTo(mutableSetOf()) { it }
-            .map { ansatt ->
-                async { semaphore.withPermit { toNavAnsatt(ansatt, AccessType.M2M) } }
+
+        val memberToRoles = mutableMapOf<UUID, MutableSet<EntraGroupNavAnsattRolleMapping>>()
+        groupMembersWithRoles.forEach { (role, members) ->
+            members.forEach { member ->
+                memberToRoles.getOrPut(member.entraObjectId) { mutableSetOf() }.add(role)
             }
-            .awaitAll()
+        }
+
+        val uniqueMembers = groupMembersWithRoles.flatMapTo(mutableSetOf()) { it.second }
+        uniqueMembers.map { ansatt ->
+            val userRoles = memberToRoles[ansatt.entraObjectId] ?: emptySet()
+            val ansattRoles = userRoles.map { it.toNavAnsattRolle() }.toSet()
+            ansatt.toNavAnsatt(ansattRoles)
+        }
     }
 
     suspend fun getNavAnsattFromAzure(oid: UUID, accessType: AccessType): NavAnsatt {
@@ -100,6 +114,12 @@ class NavAnsattService(
     suspend fun getNavAnsattRoles(oid: UUID, accessType: AccessType): Set<NavAnsattRolle> {
         val groups = microsoftGraphClient.getMemberGroups(oid, accessType)
         return getNavAnsattRolesFromGroups(groups)
+    }
+
+    fun EntraGroupNavAnsattRolleMapping.toNavAnsattRolle(): NavAnsattRolle {
+        val generell = kostnadssteder.isEmpty()
+        val enheter = kostnadssteder.flatMapTo(mutableSetOf()) { withKostnadssteder(it) }
+        return NavAnsattRolle(rolle, generell, enheter)
     }
 
     fun getNavAnsattRolesFromGroups(groups: List<UUID>): Set<NavAnsattRolle> {

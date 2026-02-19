@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import java.time.LocalDate
-import java.util.UUID
 
 class NavAnsattSyncServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -50,10 +49,7 @@ class NavAnsattSyncServiceTest : FunSpec({
     val sanityService: SanityService = mockk(relaxed = true)
     val navAnsattService: NavAnsattService = mockk()
 
-    val ansattGroupsToSync = setOf(UUID.randomUUID())
-
-    fun createService(groupsToSync: Set<UUID>) = NavAnsattSyncService(
-        config = NavAnsattSyncService.Config(groupsToSync),
+    fun createService() = NavAnsattSyncService(
         db = database.db,
         navAnsattService = navAnsattService,
         sanityService = sanityService,
@@ -70,10 +66,10 @@ class NavAnsattSyncServiceTest : FunSpec({
         val today = LocalDate.now()
         val tomorrow = today.plusDays(1)
 
-        val service = createService(ansattGroupsToSync)
+        val service = createService()
 
         test("begge finnes i azure => ingen skal slettes") {
-            coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
+            coEvery { navAnsattService.getNavAnsatteForAllRoles() } returns listOf(
                 ansatt1,
                 ansatt2,
             )
@@ -86,7 +82,7 @@ class NavAnsattSyncServiceTest : FunSpec({
         }
 
         test("bare en ansatt i gruppen => den andre satt til sletting og roller blir fratatt") {
-            coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
+            coEvery { navAnsattService.getNavAnsatteForAllRoles() } returns listOf(
                 ansatt2,
             )
 
@@ -104,7 +100,7 @@ class NavAnsattSyncServiceTest : FunSpec({
         }
 
         test("ingen fra azure => begge satt til sletting") {
-            coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns emptyList()
+            coEvery { navAnsattService.getNavAnsatteForAllRoles() } returns emptyList()
 
             service.synchronizeNavAnsatte(today, deletionDate = tomorrow)
 
@@ -124,12 +120,12 @@ class NavAnsattSyncServiceTest : FunSpec({
     }
 
     context("should delete nav_ansatt when their deletion date matches the provided deletion date") {
-        val service = createService(ansattGroupsToSync)
+        val service = createService()
 
         val today = LocalDate.now()
 
         test("bare en ansatt i gruppen => den andre blir slettet") {
-            coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns listOf(
+            coEvery { navAnsattService.getNavAnsatteForAllRoles() } returns listOf(
                 ansatt2,
             )
 
@@ -141,7 +137,7 @@ class NavAnsattSyncServiceTest : FunSpec({
         }
 
         test("ingen ansatt i gruppen => begge blir slettet") {
-            coEvery { navAnsattService.getNavAnsatteInGroups(ansattGroupsToSync) } returns emptyList()
+            coEvery { navAnsattService.getNavAnsatteForAllRoles() } returns emptyList()
 
             service.synchronizeNavAnsatte(today, deletionDate = today)
 

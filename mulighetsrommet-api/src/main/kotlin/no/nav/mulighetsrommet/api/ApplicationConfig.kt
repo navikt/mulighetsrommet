@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -40,7 +39,6 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
-    val navAnsattSync: NavAnsattSyncService.Config,
     val veilarboppfolgingConfig: AuthenticatedHttpClientConfig,
     val veilarbvedtaksstotteConfig: AuthenticatedHttpClientConfig,
     val veilarbdialogConfig: AuthenticatedHttpClientConfig,

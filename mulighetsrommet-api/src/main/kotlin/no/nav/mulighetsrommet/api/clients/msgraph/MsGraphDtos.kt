@@ -14,6 +14,7 @@ internal data class AddMemberRequest(
 @Serializable
 internal data class GetGroupMembersResponse(
     val value: List<MsGraphUserDto>,
+    val nextLink: String,
 )
 
 @Serializable

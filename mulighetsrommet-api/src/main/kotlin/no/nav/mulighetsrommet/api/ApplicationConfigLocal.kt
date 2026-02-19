@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -166,7 +165,6 @@ val ApplicationConfigLocal = AppConfig(
             },
         ),
     ),
-    navAnsattSync = NavAnsattSyncService.Config(setOf()),
     sanity = SanityClient.Config(
         dataset = "test",
         projectId = "xegcworx",

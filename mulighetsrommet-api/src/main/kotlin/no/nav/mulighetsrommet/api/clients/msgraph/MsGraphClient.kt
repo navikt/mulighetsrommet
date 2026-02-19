@@ -153,19 +153,28 @@ class MsGraphClient(
     }
 
     suspend fun getGroupMembers(groupId: UUID): List<EntraNavAnsatt> {
-        val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
-            bearerAuth(tokenProvider.exchange(AccessType.M2M))
-            parameter($$"$select", entraNavAnsattFields)
-            parameter($$"$top", "999")
+        val members = mutableListOf<MsGraphUserDto>()
+        var nextUrl: String? = "$baseUrl/v1.0/groups/$groupId/members"
+
+        while (nextUrl != null) {
+            val response = client.get(nextUrl) {
+                bearerAuth(tokenProvider.exchange(AccessType.M2M))
+                if (nextUrl == "$baseUrl/v1.0/groups/$groupId/members") {
+                    parameter($$"$select", entraNavAnsattFields)
+                    parameter($$"$top", "999")
+                }
+            }
+
+            if (!response.status.isSuccess()) {
+                logAndThrowError("Klarte ikke hente medlemmer i AD-gruppe med id=$groupId", response)
+            }
+
+            val result = response.body<GetGroupMembersResponse>()
+            members.addAll(result.value)
+            nextUrl = result.nextLink
         }
 
-        if (!response.status.isSuccess()) {
-            logAndThrowError("Klarte ikke hente medlemmer i AD-gruppe med id=$groupId", response)
-        }
-
-        val result = response.body<GetGroupMembersResponse>()
-
-        return result.value
+        return members
             .filter { isNavAnsatt(it) }
             .map { toNavAnsatt(it).getOrElse { ex -> throw ex } }
     }

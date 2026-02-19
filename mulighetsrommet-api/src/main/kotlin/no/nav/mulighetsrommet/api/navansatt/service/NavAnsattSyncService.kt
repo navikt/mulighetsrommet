@@ -24,7 +24,6 @@ import java.time.LocalDate
 import java.util.UUID
 
 class NavAnsattSyncService(
-    private val config: Config,
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
     private val sanityService: SanityService,
@@ -33,12 +32,8 @@ class NavAnsattSyncService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    data class Config(
-        val ansattGroupsToSync: Set<UUID>,
-    )
-
     suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate): Unit = db.session {
-        val ansatteToUpsert = navAnsattService.getNavAnsatteInGroups(config.ansattGroupsToSync)
+        val ansatteToUpsert = navAnsattService.getNavAnsatteForAllRoles()
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
