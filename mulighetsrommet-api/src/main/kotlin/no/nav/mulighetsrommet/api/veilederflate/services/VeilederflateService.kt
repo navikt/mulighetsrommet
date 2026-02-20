@@ -119,8 +119,7 @@ class VeilederflateService(
     ): VeilederflateTiltak {
         return db.session { queries.veilderTiltak.get(id) }
             ?.let { gjennomforing ->
-                toVeilederflateTiltak(gjennomforing)
-                    ?: throw NotFoundException("Fant gjennomføring for id '$id'")
+                toVeilederflateTiltak(gjennomforing) ?: throw NotFoundException("Fant ikke gjennomføring for id '$id'")
             }
             ?: run {
                 val gjennomforing = sanityService.getTiltak(id, sanityPerspective, cacheUsage)
