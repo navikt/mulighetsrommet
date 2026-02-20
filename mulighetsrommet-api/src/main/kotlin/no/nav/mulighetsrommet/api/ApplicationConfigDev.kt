@@ -34,6 +34,11 @@ private val kontaktpersonAdGruppeId = "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba".toU
 val ApplicationConfigDev = AppConfig(
     tiltakstyper = TiltakstypeService.Config(
         features = run {
+            val utfaset = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+                TiltakstypeFeature.MIGRERT,
+                TiltakstypeFeature.UTFASET,
+            )
             val migrert = setOf(
                 TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
                 TiltakstypeFeature.MIGRERT,
@@ -48,8 +53,8 @@ val ApplicationConfigDev = AppConfig(
                 Tiltakskode.AVKLARING to migrert,
                 Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
                 Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to migrert,
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to utfaset,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to utfaset,
                 Tiltakskode.JOBBKLUBB to migrert,
                 Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
                 Tiltakskode.OPPFOLGING to migrert,

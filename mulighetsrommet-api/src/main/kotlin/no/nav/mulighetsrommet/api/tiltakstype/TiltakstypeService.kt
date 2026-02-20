@@ -48,6 +48,10 @@ class TiltakstypeService(
         return config.features[tiltakskode].orEmpty().contains(TiltakstypeFeature.MIGRERT)
     }
 
+    fun erUtfaset(tiltakskode: Tiltakskode): Boolean {
+        return config.features[tiltakskode].orEmpty().contains(TiltakstypeFeature.UTFASET)
+    }
+
     fun getAll(filter: TiltakstypeFilter): List<TiltakstypeDto> = CacheUtils.tryCacheFirstNotNull(cacheByFilter, filter) {
         val tiltakskoder = config.features
             .filterValues { it.containsAll(filter.features) }

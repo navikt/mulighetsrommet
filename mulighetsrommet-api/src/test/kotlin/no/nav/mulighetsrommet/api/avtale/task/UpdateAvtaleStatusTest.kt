@@ -25,8 +25,9 @@ class UpdateAvtaleStatusTest : FunSpec({
         AvtaleService(
             config = AvtaleService.Config(mapOf()),
             db = database.db,
-            arrangorService = mockk(relaxed = true),
-            gjennomforingPublisher = mockk(relaxed = true),
+            arrangorService = mockk(),
+            tiltakstypeService = mockk(),
+            gjennomforingPublisher = mockk(),
         ),
     )
 
