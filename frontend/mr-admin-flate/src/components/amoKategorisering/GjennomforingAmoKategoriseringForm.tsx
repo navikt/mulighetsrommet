@@ -1,5 +1,5 @@
 import { bransjeToString, kurstypeToString } from "@/utils/Utils";
-import { AvtaleDto, Tiltakskode } from "@tiltaksadministrasjon/api-client";
+import { AmoKurstype, AvtaleDto, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { Alert, HGrid, Select } from "@navikt/ds-react";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { ForerkortForm } from "./ForerkortForm";
@@ -68,6 +68,13 @@ export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
         <NorksopplaeringForm
           norskprovePath="amoKategorisering.norskprove"
           innholdElementerPath="amoKategorisering.innholdElementer"
+          tiltakskode={avtale.tiltakstype.tiltakskode}
+        />
+      )}
+      {(avtaleAmo.kurstype === AmoKurstype.GRUNNLEGGENDE_FERDIGHETER ||
+        avtaleAmo.kurstype === AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE) && (
+        <InnholdElementerForm
+          path="amoKategorisering.innholdElementer"
           tiltakskode={avtale.tiltakstype.tiltakskode}
         />
       )}

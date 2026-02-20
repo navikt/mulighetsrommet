@@ -1,4 +1,12 @@
-import { TiltakstypeDto, TiltakstypeEgenskap } from "@tiltaksadministrasjon/api-client";
+import {
+  TiltakstypeDto,
+  TiltakstypeEgenskap,
+  TiltakstypeFeature,
+} from "@tiltaksadministrasjon/api-client";
+
+export function erUtfaset(tiltakstype: TiltakstypeDto) {
+  return harFeature(tiltakstype, TiltakstypeFeature.UTFASET);
+}
 
 export function kanOppretteAvtale(tiltakstype: TiltakstypeDto) {
   return harEgenskap(tiltakstype, TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE);
@@ -17,4 +25,8 @@ export function kreverDeltidsprosent(tiltakstype: TiltakstypeDto) {
 
 function harEgenskap(tiltakstype: TiltakstypeDto, egenskap: TiltakstypeEgenskap): boolean {
   return tiltakstype.egenskaper.includes(egenskap);
+}
+
+function harFeature(tiltakstype: TiltakstypeDto, feature: TiltakstypeFeature): boolean {
+  return tiltakstype.features.includes(feature);
 }

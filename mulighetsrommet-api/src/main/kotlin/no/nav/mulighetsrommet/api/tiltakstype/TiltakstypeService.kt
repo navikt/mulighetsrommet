@@ -48,6 +48,10 @@ class TiltakstypeService(
         return config.features[tiltakskode].orEmpty().contains(TiltakstypeFeature.MIGRERT)
     }
 
+    fun erUtfaset(tiltakskode: Tiltakskode): Boolean {
+        return config.features[tiltakskode].orEmpty().contains(TiltakstypeFeature.UTFASET)
+    }
+
     fun getAll(filter: TiltakstypeFilter): List<TiltakstypeDto> = CacheUtils.tryCacheFirstNotNull(cacheByFilter, filter) {
         val tiltakskoder = config.features
             .filterValues { it.containsAll(filter.features) }
@@ -67,8 +71,8 @@ class TiltakstypeService(
         queries.tiltakstype.get(id)?.toTiltakstypeDto()
     }
 
-    fun getBySanityId(sanityId: UUID): Tiltakstype {
-        return CacheUtils.tryCacheFirstNotNull(cacheBySanityId, sanityId) {
+    fun getBySanityId(sanityId: UUID): Tiltakstype? {
+        return CacheUtils.tryCacheFirstNullable(cacheBySanityId, sanityId) {
             db.session { queries.tiltakstype.getBySanityId(sanityId) }
         }
     }

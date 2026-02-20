@@ -37,4 +37,9 @@ enum class TiltakstypeFeature {
      * Administreres i Tiltaksadministrasjon og deles med Arena
      */
     MIGRERT,
+
+    /**
+     * Kan fortsatt redigeres, men ikke opprettes nye.
+     */
+    UTFASET,
 }

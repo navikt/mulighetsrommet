@@ -1,16 +1,19 @@
-import { Header } from "@/components/detaljside/Header";
-import { TiltakstypeIkon } from "@/components/ikoner/TiltakstypeIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { TiltakstypeStatusTag } from "@/components/statuselementer/TiltakstypeStatusTag";
-import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
-import { Heading, Tabs } from "@navikt/ds-react";
-import { Outlet, useMatch } from "react-router";
+import { useMatch } from "react-router";
 import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
+import { TiltakstypeIkon } from "@/components/ikoner/TiltakstypeIkon";
+import { Bolk } from "@/components/detaljside/Bolk";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
+import { MetadataVStack, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { formaterDato } from "@mr/frontend-common/utils/date";
+import { sanityStudioUrl } from "@/constants";
 
 export function DetaljerTiltakstypePage() {
-  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltakstype } = useTiltakstypeById();
+  const tiltakstypeSanityUrl = `${sanityStudioUrl()}/structure/tiltakstype;${tiltakstype.sanityId}`;
 
   const matchAvtaler = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
   const brodsmuler: (Brodsmule | undefined)[] = [
@@ -23,29 +26,40 @@ export function DetaljerTiltakstypePage() {
     <>
       <title>{`Tiltakstype | ${tiltakstype.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <Header>
-        <TiltakstypeIkon />
-        <Heading size="large" level="2">
-          {tiltakstype.navn}
-        </Heading>
-        <TiltakstypeStatusTag status={tiltakstype.status} />
-      </Header>
-
-      <Tabs value={"detaljer"}>
-        <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">
-          <Tabs.Tab
-            value="detaljer"
-            label="Detaljer"
-            onClick={() => navigateAndReplaceUrl(`/tiltakstyper/${tiltakstype.id}`)}
-            aria-controls="panel"
-          />
-        </Tabs.List>
-        <ContentBox>
-          <div id="panel">
-            <Outlet />
-          </div>
-        </ContentBox>
-      </Tabs>
+      <HeaderBanner heading={tiltakstype.navn} ikon={<TiltakstypeIkon />} />
+      <ContentBox>
+        <WhitePaddedBox>
+          <Bolk>
+            <MetadataVStack label="Tiltakstype" value={tiltakstype.navn} />
+            <MetadataVStack label="Tiltakskode" value={tiltakstype.tiltakskode} />
+          </Bolk>
+          <Separator />
+          <Bolk>
+            <MetadataVStack label="Startdato" value={formaterDato(tiltakstype.startDato)} />
+            <MetadataVStack
+              label="Sluttdato"
+              value={tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-"}
+            />
+          </Bolk>
+          {tiltakstype.sanityId && (
+            <>
+              <Separator />
+              <Bolk aria-label="Sanity-dokument">
+                <MetadataVStack
+                  label="Sanity-dokument"
+                  value={
+                    <>
+                      <Lenke isExternal target="_blank" to={tiltakstypeSanityUrl}>
+                        Åpne tiltakstypen i Sanity
+                      </Lenke>
+                    </>
+                  }
+                />
+              </Bolk>
+            </>
+          )}
+        </WhitePaddedBox>
+      </ContentBox>
     </>
   );
 }

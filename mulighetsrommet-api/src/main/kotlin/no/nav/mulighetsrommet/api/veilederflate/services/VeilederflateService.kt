@@ -47,24 +47,23 @@ class VeilederflateService(
     }
 
     suspend fun hentTiltakstyper(): List<VeilederflateTiltakstype> {
-        return sanityService.getTiltakstyper()
-            .map {
-                val tiltakstype = tiltakstypeService.getBySanityId(UUID.fromString(it._id))
-                VeilederflateTiltakstype(
-                    id = tiltakstype.id,
-                    sanityId = it._id,
-                    navn = it.tiltakstypeNavn,
-                    beskrivelse = it.beskrivelse,
-                    innsatsgrupper = it.innsatsgrupper,
-                    regelverkLenker = it.regelverkLenker,
-                    faneinnhold = it.faneinnhold,
-                    delingMedBruker = it.delingMedBruker,
-                    arenakode = tiltakstype.arenakode,
-                    tiltakskode = tiltakstype.tiltakskode,
-                    tiltaksgruppe = tiltakstype.tiltakskode?.gruppe?.tittel,
-                    kanKombineresMed = it.kanKombineresMed,
-                )
-            }
+        return sanityService.getTiltakstyper().mapNotNull {
+            val tiltakstype = tiltakstypeService.getBySanityId(UUID.fromString(it._id)) ?: return@mapNotNull null
+            VeilederflateTiltakstype(
+                id = tiltakstype.id,
+                sanityId = it._id,
+                navn = it.tiltakstypeNavn,
+                beskrivelse = it.beskrivelse,
+                innsatsgrupper = it.innsatsgrupper,
+                regelverkLenker = it.regelverkLenker,
+                faneinnhold = it.faneinnhold,
+                delingMedBruker = it.delingMedBruker,
+                arenakode = tiltakstype.arenakode,
+                tiltakskode = tiltakstype.tiltakskode,
+                tiltaksgruppe = tiltakstype.tiltakskode?.gruppe?.tittel,
+                kanKombineresMed = it.kanKombineresMed,
+            )
+        }
     }
 
     suspend fun hentTiltaksgjennomforinger(
@@ -170,6 +169,7 @@ class VeilederflateService(
         gjennomforing: SanityTiltaksgjennomforing,
     ): VeilederflateTiltak {
         val tiltakstypeDto = tiltakstypeService.getBySanityId(UUID.fromString(gjennomforing.tiltakstype._id))
+            ?: error("Tiltakstype ${gjennomforing.tiltakstype.tiltakstypeNavn} mangler i Sanity")
         val tiltakstype = gjennomforing.tiltakstype.run {
             VeilederflateTiltakstype(
                 id = tiltakstypeDto.id,

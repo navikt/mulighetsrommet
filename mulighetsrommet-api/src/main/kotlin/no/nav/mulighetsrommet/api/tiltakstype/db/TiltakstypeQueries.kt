@@ -97,7 +97,7 @@ class TiltakstypeQueries(private val session: Session) {
         return list(queryOf(query, arenaTiltakskode)) { it.toTiltakstype() }
     }
 
-    fun getBySanityId(sanityId: UUID): Tiltakstype = with(session) {
+    fun getBySanityId(sanityId: UUID): Tiltakstype? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -105,11 +105,7 @@ class TiltakstypeQueries(private val session: Session) {
             where sanity_id = ?::uuid
         """.trimIndent()
 
-        val tiltakstype = single(queryOf(query, sanityId)) { it.toTiltakstype() }
-
-        return requireNotNull(tiltakstype) {
-            "Det finnes ingen tiltakstype med sanity_id=$sanityId"
-        }
+        return single(queryOf(query, sanityId)) { it.toTiltakstype() }
     }
 
     fun getAll(

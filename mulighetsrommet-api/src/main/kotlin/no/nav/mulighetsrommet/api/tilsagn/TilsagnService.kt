@@ -17,6 +17,8 @@ import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.findAvtaltSats
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -73,7 +75,7 @@ class TilsagnService(
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
         requireNotNull(request.id) { "id mangler" }
 
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(request.gjennomforingId)
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
 
         val totrinnskontroll = Totrinnskontroll(
             id = UUID.randomUUID(),
@@ -270,8 +272,8 @@ class TilsagnService(
             return null
         }
 
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(request.gjennomforingId)
-        val avtaltSats = gjennomforing.prismodell.satser().findAvtaltSats(request.periodeStart)
+        val prismodell = queries.gjennomforing.getPrismodellOrError(request.gjennomforingId)
+        val avtaltSats = prismodell.satser().findAvtaltSats(request.periodeStart)
 
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
@@ -704,12 +706,14 @@ class TilsagnService(
             "Tilsagn id=${tilsagn.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(tilsagn.gjennomforing.id)
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(tilsagn.gjennomforing.id)
+
+        val avtale = when (gjennomforing) {
+            is GjennomforingAvtale -> queries.avtale.getOrError(gjennomforing.avtaleId)
+            is GjennomforingEnkeltplass -> null
+        }
+
         val arrangorErUtenlandsk = queries.arrangor.getById(gjennomforing.arrangor.id).erUtenlandsk
-
-        // TODO: støtte enkeltplasser
-        val avtale = queries.avtale.getOrError(gjennomforing.avtaleId)
-
         val arrangor = if (arrangorErUtenlandsk) {
             val utenlandskArrangor = requireNotNull(queries.arrangor.getUtenlandskArrangor(gjennomforing.arrangor.id)) {
                 "Mangler data om utenlandsk arrangør"
@@ -737,7 +741,7 @@ class TilsagnService(
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
             arrangor = arrangor,
             kostnadssted = tilsagn.kostnadssted.enhetsnummer,
-            avtalenummer = avtale.sakarkivNummer?.value,
+            avtalenummer = avtale?.sakarkivNummer?.value,
             belop = tilsagn.beregning.output.pris.belop,
             periode = tilsagn.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
