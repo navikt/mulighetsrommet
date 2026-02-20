@@ -110,11 +110,12 @@ data class DokdistRequest(
         data class NorskPostAdresse(
             override val postnummer: String,
             override val poststed: String,
-            override val land: String = "NO",
             override val adresselinje1: String?,
             override val adresselinje2: String?,
             override val adresselinje3: String?,
-        ) : Adresse()
+        ) : Adresse() {
+            override val land: String = "NO"
+        }
 
         @Serializable
         @SerialName("utenlandskPostadresse")
