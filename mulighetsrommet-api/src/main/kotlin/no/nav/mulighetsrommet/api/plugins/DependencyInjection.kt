@@ -380,6 +380,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     single { TiltakshistorikkService(get(), get(), get(), get(), get()) }

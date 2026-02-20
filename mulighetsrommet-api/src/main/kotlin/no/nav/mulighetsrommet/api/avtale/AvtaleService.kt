@@ -39,6 +39,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -59,6 +60,7 @@ class AvtaleService(
     private val config: Config,
     private val db: ApiDatabase,
     private val arrangorService: ArrangorService,
+    private val tiltakstypeService: TiltakstypeService,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
     data class Config(
@@ -69,6 +71,10 @@ class AvtaleService(
         request: OpprettAvtaleRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
+        if (tiltakstypeService.erUtfaset(request.detaljer.tiltakskode)) {
+            raise(FieldError.of("Nye avtaler kan ikke opprettes for denne tiltakstypen fordi den er utfaset").nel())
+        }
+
         val createAvtaleContext = db.session {
             getValidatorCtx(
                 request = request.detaljer,
@@ -520,7 +526,7 @@ class AvtaleService(
                 }
             },
             AvtaleHandling.OPPRETT_GJENNOMFORING.takeIf {
-                when (avtale.status) {
+                !tiltakstypeService.erUtfaset(avtale.tiltakstype.tiltakskode) && when (avtale.status) {
                     AvtaleStatus.Aktiv -> true
 
                     is AvtaleStatus.Avbrutt,

@@ -3274,6 +3274,7 @@ components:
       enum:
       - VISES_I_TILTAKSADMINISTRASJON
       - MIGRERT
+      - UTFASET
     TiltakstypeEgenskap:
       type: string
       enum:

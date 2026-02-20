@@ -47,6 +47,11 @@ private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".t
 val ApplicationConfigLocal = AppConfig(
     tiltakstyper = TiltakstypeService.Config(
         features = run {
+            val utfaset = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+                TiltakstypeFeature.MIGRERT,
+                TiltakstypeFeature.UTFASET,
+            )
             val migrert = setOf(
                 TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
                 TiltakstypeFeature.MIGRERT,
@@ -61,8 +66,8 @@ val ApplicationConfigLocal = AppConfig(
                 Tiltakskode.AVKLARING to migrert,
                 Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
                 Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to migrert,
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to utfaset,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to utfaset,
                 Tiltakskode.JOBBKLUBB to migrert,
                 Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
                 Tiltakskode.OPPFOLGING to migrert,

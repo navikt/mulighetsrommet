@@ -39,6 +39,8 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
@@ -86,10 +88,12 @@ class AvtaleServiceTest : FunSpec({
     fun createAvtaleService(
         gjennomforingPublisher: InitialLoadGjennomforinger = mockk(relaxed = true),
         arrangorService: ArrangorService = ArrangorService(database.db, mockk(), mockk()),
+        features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ) = AvtaleService(
         config = AvtaleService.Config(mapOf()),
         database.db,
         arrangorService,
+        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db),
         gjennomforingPublisher,
     )
 
@@ -184,6 +188,23 @@ class AvtaleServiceTest : FunSpec({
                     any(),
                 )
             }
+        }
+
+        test("får ikke opprette avtale dersom tiltakstype er utfaset") {
+            val request = AvtaleFixtures.createAvtaleRequest(
+                Tiltakskode.OPPFOLGING,
+                prismodell = listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging),
+            )
+
+            val avtaleService = createAvtaleService(
+                features = mapOf(
+                    Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.UTFASET),
+                ),
+            )
+
+            avtaleService.create(request, bertilNavIdent).shouldBeLeft() shouldBe listOf(
+                FieldError.of("Nye avtaler kan ikke opprettes for denne tiltakstypen fordi den er utfaset"),
+            )
         }
 
         test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {
