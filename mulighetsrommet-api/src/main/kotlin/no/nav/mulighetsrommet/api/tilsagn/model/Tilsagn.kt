@@ -30,8 +30,7 @@ data class Tilsagn(
     val status: TilsagnStatus,
     val kommentar: String?,
     val beskrivelse: String?,
-    val journalpostId: String?,
-    val journalpostDistribueringId: String?,
+    val journalpost: Journalpost?,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -60,6 +59,12 @@ data class Tilsagn(
     data class Bestilling(
         val bestillingsnummer: String,
         val status: BestillingStatusType?,
+    )
+
+    @Serializable
+    data class Journalpost(
+        val id: String,
+        val distribueringId: String?,
     )
 
     fun gjenstaendeBelop(): ValutaBelop = if (status in listOf(TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT)) {

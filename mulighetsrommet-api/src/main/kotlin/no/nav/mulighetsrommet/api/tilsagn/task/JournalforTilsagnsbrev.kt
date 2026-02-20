@@ -69,9 +69,9 @@ class JournalforTilsagnsbrev(
         logger.info("Journalfører tilsagn med id: $tilsagnId")
 
         val tilsagn = queries.tilsagn.getOrError(tilsagnId)
-        if (tilsagn.journalpostId != null) {
-            logger.info("Tilsagn med id $tilsagnId har allerede journalpostId ${tilsagn.journalpostId}, hopper journalføring")
-            return@transaction Either.Right(tilsagn.journalpostId)
+        if (tilsagn.journalpost != null) {
+            logger.info("Tilsagn med id $tilsagnId har allerede journalpostId ${tilsagn.journalpost.id}, hopper journalføring")
+            return@transaction Either.Right(tilsagn.journalpost.id)
         }
         val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
         val deltaker = queries.deltaker.getByGjennomforingId(enkeltplass.id).single()

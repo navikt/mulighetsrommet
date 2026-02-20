@@ -62,9 +62,11 @@ class DistribuerTilsagnsbrev(
         logger.info("Distribuerer journalpost for tilsagn id: $tilsagnId")
 
         val tilsagn = queries.tilsagn.getOrError(tilsagnId)
-        require(tilsagn.journalpostId != null) { "Tilsagn med id=$tilsagnId har ingen journalpostId, distribuering ikke mulig" }
+        require(tilsagn.journalpost?.id != null) { "Tilsagn med id=$tilsagnId har ingen journalpostId, distribuering ikke mulig" }
+
         val arrangor = queries.arrangor.get(tilsagn.arrangor.organisasjonsnummer)
         require(arrangor != null) { "Arrangør med orgnr=${tilsagn.arrangor.organisasjonsnummer} ikke funnet i database, distribuering ikke mulig" }
+
         val adresse = if (arrangor.erUtenlandsk) {
             hentUtenlandskArrangorAdresse(arrangor.id)
         } else {
@@ -72,12 +74,12 @@ class DistribuerTilsagnsbrev(
         }
 
         dokdistClient.distribuerJournalpost(
-            journalpostId = tilsagn.journalpostId,
+            journalpostId = tilsagn.journalpost.id,
             accessType = AccessType.M2M,
             distribusjonstype = DokdistRequest.DistribusjonsType.VIKTIG,
             adresse = adresse,
         ).map { response ->
-            queries.tilsagn.setJournalpostBestillingId(tilsagnId, response.bestillingsId)
+            queries.tilsagn.setJournalpostDistribueringId(tilsagnId, response.bestillingsId)
             response
         }
     }

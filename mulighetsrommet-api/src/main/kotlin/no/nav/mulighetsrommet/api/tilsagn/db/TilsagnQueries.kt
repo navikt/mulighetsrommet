@@ -358,7 +358,7 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setJournalpostBestillingId(id: UUID, journalpostDistribueringId: String) {
+    fun setJournalpostDistribueringId(id: UUID, journalpostDistribueringId: String) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn
@@ -416,8 +416,12 @@ class TilsagnQueries(private val session: Session) {
             status = TilsagnStatus.valueOf(string("status")),
             kommentar = stringOrNull("kommentar"),
             beskrivelse = stringOrNull("beskrivelse"),
-            journalpostId = stringOrNull("journalpost_id"),
-            journalpostDistribueringId = stringOrNull("journalpost_distribuering_id"),
+            journalpost = stringOrNull("journalpost_id")?.let { journalpostId ->
+                Tilsagn.Journalpost(
+                    id = journalpostId,
+                    distribueringId = stringOrNull("journalpost_distribuering_id"),
+                )
+            },
         )
     }
 
