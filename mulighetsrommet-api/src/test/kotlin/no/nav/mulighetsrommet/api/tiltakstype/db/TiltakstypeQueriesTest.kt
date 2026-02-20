@@ -176,7 +176,7 @@ class TiltakstypeQueriesTest : FunSpec({
             """.trimIndent()
             session.execute(queryOf(query))
 
-            queries.tiltakstype.getBySanityId(sanityId).id shouldBe TiltakstypeFixtures.Oppfolging.id
+            queries.tiltakstype.getBySanityId(sanityId).shouldNotBeNull().id shouldBe TiltakstypeFixtures.Oppfolging.id
         }
     }
 })
