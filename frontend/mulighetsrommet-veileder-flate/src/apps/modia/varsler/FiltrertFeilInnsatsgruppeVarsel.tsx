@@ -1,7 +1,7 @@
-import { Alert } from "@navikt/ds-react";
 import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
 import { Innsatsgruppe } from "@api-client";
 import { ArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { Melding } from "@/components/melding/Melding";
 
 interface FiltrertFeilInnsatsgruppeVarselProps {
   filter: ArbeidsmarkedstiltakFilter;
@@ -27,11 +27,11 @@ export function FiltrertFeilInnsatsgruppeVarsel({ filter }: FiltrertFeilInnsatsg
   return (
     <>
       {(standardInnsatsBruker || situasjonsbestemtInnsatsBruker || spesieltTilpassetInnsats) && (
-        <Alert variant="warning">
+        <Melding header="Varsel" variant="warning">
           Oversikten viser nå tiltak for innsatsgruppen
           <strong> {innsatsgruppeFiltrertNavn}</strong>. Tenker du noen av disse er aktuelle bør du
           gjøre en ny behovsvurdering.
-        </Alert>
+        </Melding>
       )}
     </>
   );

@@ -5,6 +5,7 @@ import { erPreview, formaterDato } from "@/utils/Utils";
 import { Actions, State } from "./DelemodalActions";
 import { getDelMedBrukerTekst } from "@/apps/modia/delMedBruker/helpers";
 import Markdown from "react-markdown";
+import { Melding } from "@/components/melding/Melding";
 
 export const MAKS_ANTALL_TEGN_DEL_MED_BRUKER = 500;
 
@@ -100,10 +101,10 @@ export function DelMedBrukerContent({
       ) : null}
 
       {erPreview() ? (
-        <Alert variant="warning" data-testid="alert-preview-del-med-bruker" className="mt-4">
+        <Melding header="Forhåndsvisning" variant="warning">
           Det er ikke mulig å dele tiltak med bruker i forhåndsvisning. Brukers navn blir automatisk
           satt utenfor forhåndsvisningsmodus.
-        </Alert>
+        </Melding>
       ) : null}
     </>
   );

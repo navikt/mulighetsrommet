@@ -1,8 +1,9 @@
-import { Alert, Skeleton } from "@navikt/ds-react";
+import { Skeleton } from "@navikt/ds-react";
 import { Oppskrift } from "@api-client";
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { formaterDato } from "@/utils/Utils";
 import { Suspense } from "react";
+import { Melding } from "../melding/Melding";
 
 interface Props {
   tiltakstypeId: string;
@@ -15,7 +16,11 @@ export function OppskriftOversikt({ tiltakstypeId, setOppskriftId }: Props) {
   if (!oppskrifter) return null;
 
   if (oppskrifter.data.length === 0) {
-    return <Alert variant="info">Det er ikke lagt inn oppskrifter for denne tiltakstypen</Alert>;
+    return (
+      <Melding header="Ingen oppskrifter" variant="info">
+        Det er ikke lagt inn oppskrifter for denne tiltakstypen
+      </Melding>
+    );
   }
 
   return (
@@ -44,7 +49,7 @@ interface OppskriftKortProps {
 
 function Oppskriftskort({ oppskrift: { navn, beskrivelse, _updatedAt } }: OppskriftKortProps) {
   return (
-    <div className="w-[15rem] p-2 flex flex-col justify-between h-full hover:cursor-pointer">
+    <div className="w-60 p-2 flex flex-col justify-between h-full hover:cursor-pointer">
       <div>
         <h3 className="underline">{navn}</h3>
         <p>{beskrivelse}</p>

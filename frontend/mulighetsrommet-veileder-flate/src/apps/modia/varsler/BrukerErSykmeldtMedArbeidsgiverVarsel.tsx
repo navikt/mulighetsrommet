@@ -1,5 +1,5 @@
-import { Alert } from "@navikt/ds-react";
 import { Brukerdata, Innsatsgruppe } from "@api-client";
+import { Melding } from "@/components/melding/Melding";
 
 interface Props {
   brukerdata: Brukerdata;
@@ -8,8 +8,8 @@ interface Props {
 export function BrukerErSykmeldtMedArbeidsgiverVarsel({ brukerdata }: Props) {
   return brukerdata.erSykmeldtMedArbeidsgiver &&
     brukerdata.innsatsgruppe === Innsatsgruppe.GODE_MULIGHETER ? (
-    <Alert variant="info">
+    <Melding header="Bruker er sykmeldt med arbeidsgiver" variant="info">
       Bruker er sykmeldt med arbedsgiver og kan derfor også meldes på Arbeidsrettet rehabilitering.
-    </Alert>
+    </Melding>
   ) : null;
 }

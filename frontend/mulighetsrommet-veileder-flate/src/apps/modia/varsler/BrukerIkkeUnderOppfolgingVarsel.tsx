@@ -1,5 +1,5 @@
-import { Alert } from "@navikt/ds-react";
 import { Brukerdata, BrukerdataVarsel } from "@api-client";
+import { Melding } from "@/components/melding/Melding";
 
 interface Props {
   brukerdata: Brukerdata;
@@ -8,9 +8,9 @@ interface Props {
 export function BrukerIkkeUnderOppfolgingVarsel({ brukerdata }: Props) {
   if (brukerdata.varsler.includes(BrukerdataVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)) {
     return (
-      <Alert variant="warning">
+      <Melding header="Bruker ikke under oppfølging" variant="warning">
         Bruker er ikke under oppfølging, og kan derfor ikke meldes på noen tiltak.
-      </Alert>
+      </Melding>
     );
   }
 

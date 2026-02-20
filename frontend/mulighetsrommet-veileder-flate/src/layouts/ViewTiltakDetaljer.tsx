@@ -1,12 +1,6 @@
-/*
-TODO: Aksel Box migration:
-Could not migrate the following:
-  - background=moderate
-*/
-
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
-import { BodyLong, BodyShort, Box, Tabs } from "@navikt/ds-react";
+import { Tabs } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@api-client";
 import { ReactNode, Suspense, useState } from "react";
 import SidemenyInfo from "@/components/sidemeny/SidemenyInfo";
@@ -18,6 +12,7 @@ import { EstimertVentetid } from "@/components/sidemeny/EstimertVentetid";
 import { SidemenyKanKombineresMed } from "@/components/sidemeny/SidemenyKanKombineresMed";
 import { DetaljerSkeleton } from "@mr/frontend-common";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
+import { Melding } from "@/components/melding/Melding";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -72,14 +67,9 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                 ) : null}
               </Tabs>
               {tiltak.oppmoteSted && (
-                <Box padding="space-16" borderColor="accent" borderWidth="1" background="moderate">
-                  <BodyShort size="small" className="font-bold text-left">
-                    Oppmøtested
-                  </BodyShort>
-                  <BodyLong className="whitespace-pre-wrap" size="small">
-                    {tiltak.oppmoteSted}
-                  </BodyLong>
-                </Box>
+                <Melding header="Oppmøtested" variant="info">
+                  {tiltak.oppmoteSted}
+                </Melding>
               )}
               <div className="flex flex-col gap-4 mt-4">{brukerActions}</div>
             </div>

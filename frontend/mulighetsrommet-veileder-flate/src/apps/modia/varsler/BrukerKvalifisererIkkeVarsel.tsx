@@ -1,5 +1,5 @@
-import { Alert } from "@navikt/ds-react";
 import { Brukerdata } from "@api-client";
+import { Melding } from "@/components/melding/Melding";
 
 interface Props {
   brukerdata: Brukerdata;
@@ -8,10 +8,10 @@ interface Props {
 
 export function BrukerKvalifisererIkkeVarsel({ brukerHarRettPaaTiltak, brukerdata }: Props) {
   return !brukerHarRettPaaTiltak && brukerdata.erUnderOppfolging && brukerdata.innsatsgruppe ? (
-    <Alert variant="warning">
+    <Melding header="Bruker kvalifiserer ikke til tiltaket" variant="warning">
       Brukeren tilhører innsatsgruppen{" "}
       <strong>{brukerdata.innsatsgruppe.replaceAll("_", " ").toLocaleLowerCase()}</strong> og kan
       ikke delta på dette tiltaket uten at det gjøres en ny behovsvurdering.
-    </Alert>
+    </Melding>
   ) : null;
 }
