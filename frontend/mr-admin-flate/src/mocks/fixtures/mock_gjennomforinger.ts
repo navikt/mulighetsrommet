@@ -9,6 +9,7 @@ import {
   GjennomforingPameldingType,
   GjennomforingStatusType,
   GjennomforingTiltakstype,
+  GjennomforingType,
   PaginatedResponseGjennomforingKompaktDto,
   PrismodellType,
   TiltakstypeDto,
@@ -245,6 +246,7 @@ export const paginertMockGjennomforinger: PaginatedResponseGjennomforingKompaktD
       publisert: detaljer.veilederinfo?.publisert || false,
       kontorstruktur: detaljer.veilederinfo?.kontorstruktur || [],
       ...detaljer.gjennomforing,
+      type: GjennomforingType.AVTALE,
     };
   }),
 };

@@ -23,6 +23,7 @@ export function useGjennomforinger(filter: Partial<GjennomforingFilterType>) {
       publisert: getPublisertStatus(filter.publisert),
       arrangorer: filter.arrangorer,
       visMineGjennomforinger: filter.visMineGjennomforinger,
+      gjennomforingTyper: filter.gjennomforingTyper,
     },
   };
 

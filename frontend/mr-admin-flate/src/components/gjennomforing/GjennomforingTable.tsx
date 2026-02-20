@@ -13,6 +13,7 @@ import { useDownloadGjennomforingerAsExcel } from "@/api/gjennomforing/useDownlo
 import { GjennomforingStatusTag } from "@/components/statuselementer/GjennomforingStatusTag";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link as ReactRouterLink } from "react-router";
+import { isEnkeltplassKompakt } from "@/api/gjennomforing/utils";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -197,6 +198,11 @@ export function GjennomforingTable({
                               size="small"
                             >
                               Publisert
+                            </Tag>
+                          )}
+                          {isEnkeltplassKompakt(gjennomforing) && (
+                            <Tag data-color="info" variant="strong" size="small">
+                              Enkeltplass
                             </Tag>
                           )}
                         </VStack>

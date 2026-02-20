@@ -1,7 +1,7 @@
 import { createSorteringProps } from "@/api/atoms";
 import { createFilterValidator } from "@/filter/filter-validator";
 import { PAGE_SIZE } from "@/constants";
-import { GjennomforingStatusType } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingStatusType, GjennomforingType } from "@tiltaksadministrasjon/api-client";
 import { z } from "zod";
 import { createFilterStateAtom, FilterAction, FilterState } from "@/filter/filter-state";
 import { atom, WritableAtom } from "jotai";
@@ -19,6 +19,7 @@ export const GjennomforingFilterSchema = z.object({
   publisert: z.string().array(),
   page: z.number(),
   pageSize: z.number(),
+  gjennomforingTyper: z.custom<GjennomforingType>().array(),
 });
 
 export type GjennomforingFilterType = z.infer<typeof GjennomforingFilterSchema>;
@@ -41,6 +42,7 @@ export const defaultGjennomforingFilter: GjennomforingFilterType = {
   visMineGjennomforinger: false,
   page: 1,
   pageSize: PAGE_SIZE,
+  gjennomforingTyper: [],
 };
 
 export const gjennomforingFilterStateAtom = createFilterStateAtom<GjennomforingFilterType>(
