@@ -143,6 +143,7 @@ data class DokdistRequest(
     }
 }
 
+@Serializable
 data class DokdistResponse(val bestillingsId: String)
 
 sealed class DokdistError(open val message: String) {
