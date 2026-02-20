@@ -31,6 +31,11 @@ class DokarkClient(
         install(HttpCache)
     }
 
+    /**
+     * Oppretter en journalpost i Joark
+     *
+     * https://confluence.adeo.no/spaces/BOA/pages/313346837/opprettJournalpost
+     */
     suspend fun opprettJournalpost(journalpost: Journalpost, accessType: AccessType): Either<DokarkError, DokarkResponse> {
         val response = client.post("$baseUrl/rest/journalpostapi/v1/journalpost?forsoekFerdigstill=true") {
             bearerAuth(tokenProvider.exchange(accessType))
