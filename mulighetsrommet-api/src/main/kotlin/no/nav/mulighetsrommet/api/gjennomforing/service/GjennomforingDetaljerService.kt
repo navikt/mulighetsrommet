@@ -94,7 +94,7 @@ class GjennomforingDetaljerService(
             administratorNavIdent = filter.administratorNavIdent,
             koordinatorNavIdent = filter.koordinatorNavIdent,
             publisert = filter.publisert,
-            typer = listOf(GjennomforingType.AVTALE, GjennomforingType.ENKELTPLASS),
+            typer = filter.gjennomforingTyper.ifEmpty { listOf(GjennomforingType.AVTALE, GjennomforingType.ENKELTPLASS) },
         ).let { (totalCount, items) ->
             val data = items.map { it.toKompaktDto() }
             PaginatedResponse.of(pagination, totalCount, data)
@@ -186,6 +186,7 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
         tiltakstype = tiltakstype,
         publisert = publisert,
         kontorstruktur = kontorstruktur,
+        type = GjennomforingType.AVTALE,
     )
 
     is GjennomforingEnkeltplassKompakt -> GjennomforingKompaktDto(
@@ -199,6 +200,7 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
         tiltakstype = tiltakstype,
         publisert = false,
         kontorstruktur = listOf(),
+        type = GjennomforingType.ENKELTPLASS,
     )
 
     is GjennomforingArenaKompakt -> throw IllegalStateException("Visning av gamle gjennomføringer fra Arena er ikke støttet")
