@@ -88,7 +88,11 @@ class JournalforTilsagnsbrev(
                 )
                 dokarkClient
                     .opprettJournalpost(journalpost, AccessType.M2M)
-                    .mapLeft { error -> "Feil fra dokark: ${error.message}" }
+                    .map { response ->
+                        logger.info("Journalpost opprettet med id ${response.journalpostId} for tilsagn med id $tilsagnId")
+                        response
+                    }
+                    .mapLeft { error -> "Feil fra dokark ved journalføring av tilsagn ${tilsagnId}: ${error.message}" }
             }
             .onRight {
                 queries.tilsagn.setJournalpostId(tilsagnId, it.journalpostId)
@@ -125,6 +129,9 @@ fun tilsagnJournalpost(
         idType = "FNR",
     ),
     tema = "TIL", // Tiltak
+    kanal = "ALTINN", // https://confluence.adeo.no/spaces/BOA/pages/316407153/Utsendingskanal
+    journalfoerendeEnhet = "9999", // Automatisk journalføring
+    eksternReferanseId = bestillingsnummer,
     datoMottatt = LocalDateTime.now().toString(),
     dokumenter = listOf(
         Journalpost.Dokument(
@@ -138,9 +145,6 @@ fun tilsagnJournalpost(
             ),
         ),
     ),
-    eksternReferanseId = bestillingsnummer,
-    journalfoerendeEnhet = "9999", // Automatisk journalføring
-    kanal = "NAV_NO", // Påkrevd for INNGAENDE. Se https://confluence.adeo.no/display/BOA/Mottakskanal
     sak = Journalpost.Sak(
         sakstype = Journalpost.Sak.Sakstype.FAGSAK,
         fagsakId = fagsakId,
