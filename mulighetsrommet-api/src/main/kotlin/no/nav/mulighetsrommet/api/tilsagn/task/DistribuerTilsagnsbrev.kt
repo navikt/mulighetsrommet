@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
@@ -47,6 +48,7 @@ class DistribuerTilsagnsbrev(
 
     private val client = SchedulerClient.Builder
         .create(db.getDatasource(), task)
+        .serializer(DbSchedulerKotlinSerializer())
         .build()
 
     fun schedule(tilsagnId: UUID, startTime: Instant = Instant.now()): UUID {

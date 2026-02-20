@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapp
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
@@ -52,6 +53,7 @@ class JournalforTilsagnsbrev(
 
     private val client = SchedulerClient.Builder
         .create(db.getDatasource(), task)
+        .serializer(DbSchedulerKotlinSerializer())
         .build()
 
     fun schedule(tilsagnId: UUID, deltakerId: UUID, startTime: Instant = Instant.now()): UUID {
