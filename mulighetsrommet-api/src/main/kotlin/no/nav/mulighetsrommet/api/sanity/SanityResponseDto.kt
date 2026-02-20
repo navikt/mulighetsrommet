@@ -27,9 +27,9 @@ data class RegelverkLenke(
 @Serializable
 data class SanityTiltakstype(
     val _id: String,
-    val tiltakstypeNavn: String,
+    val tiltakstypeNavn: String? = null,
     val beskrivelse: String? = null,
-    val innsatsgrupper: Set<Innsatsgruppe>,
+    val innsatsgrupper: Set<Innsatsgruppe>? = null,
     val regelverkLenker: List<RegelverkLenke>? = null,
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,

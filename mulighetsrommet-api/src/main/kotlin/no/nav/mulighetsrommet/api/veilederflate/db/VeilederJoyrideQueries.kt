@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.veilederflate
+package no.nav.mulighetsrommet.api.veilederflate.db
 
 import kotliquery.Session
 import kotliquery.queryOf

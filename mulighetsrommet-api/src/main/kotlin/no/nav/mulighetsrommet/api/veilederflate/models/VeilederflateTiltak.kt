@@ -145,13 +145,13 @@ data class VeilederflateTiltakstype(
     val navn: String,
     val beskrivelse: String?,
     val innsatsgrupper: Set<Innsatsgruppe>?,
-    val regelverkLenker: List<RegelverkLenke>? = emptyList(),
+    val regelverkLenker: List<RegelverkLenke>?,
     val faneinnhold: Faneinnhold?,
     val delingMedBruker: String?,
     val arenakode: String?,
     val tiltakskode: Tiltakskode?,
     val tiltaksgruppe: String?,
-    val kanKombineresMed: List<String> = emptyList(),
+    val kanKombineresMed: List<String>,
 )
 
 @Serializable

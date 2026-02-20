@@ -22,8 +22,8 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
-import no.nav.mulighetsrommet.api.veilederflate.VeilederJoyrideQueries
-import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakQueries
+import no.nav.mulighetsrommet.api.veilederflate.db.VeilederJoyrideQueries
+import no.nav.mulighetsrommet.api.veilederflate.db.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 import no.nav.mulighetsrommet.notifications.NotificationQueries
