@@ -13,9 +13,9 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
+import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
+import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkError
+import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures

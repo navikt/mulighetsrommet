@@ -6,9 +6,9 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
+import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
+import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig

@@ -9,9 +9,9 @@ import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
-import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
-import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
+import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
+import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
+import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling

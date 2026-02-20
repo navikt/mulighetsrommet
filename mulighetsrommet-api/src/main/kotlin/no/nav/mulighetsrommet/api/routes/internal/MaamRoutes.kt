@@ -14,6 +14,8 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
+import no.nav.mulighetsrommet.api.tilsagn.task.JournalforTilsagnsbrev
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
@@ -42,6 +44,8 @@ fun Route.maamRoutes() {
     val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
     val generateUtbetaling: GenerateUtbetaling by inject()
     val beregnUtbetaling: BeregnUtbetaling by inject()
+    val journalforTilsagnsbrev: JournalforTilsagnsbrev by inject()
+    val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
 
     route("/api/intern/maam") {
         route("/tasks") {
@@ -131,6 +135,18 @@ fun Route.maamRoutes() {
                 val response = ScheduleTaskResponse(id)
                 call.respond(HttpStatusCode.Accepted, response)
             }
+
+            post("journalfor-tilsagnsbrev") {
+                val request = call.receive<TilsagnIdRequest>()
+                val taskId = journalforTilsagnsbrev.schedule(request.tilsagnId)
+                call.respond(ScheduleTaskResponse(taskId))
+            }
+
+            post("distribuer-tilsagnsbrev") {
+                val request = call.receive<TilsagnIdRequest>()
+                val taskId = distribuerTilsagnsbrev.schedule(request.tilsagnId)
+                call.respond(ScheduleTaskResponse(taskId))
+            }
         }
 
         route("/topics") {
@@ -193,4 +209,10 @@ data class ScheduleTaskResponse(
 @Serializable
 data class ExecutedTaskResponse(
     val message: String,
+)
+
+@Serializable
+data class TilsagnIdRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val tilsagnId: UUID,
 )
