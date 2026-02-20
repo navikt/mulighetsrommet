@@ -4,7 +4,7 @@ import { AvtaleFormValues } from "@/schemas/avtale";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import { HGrid, List, Select, TextField, UNSAFE_Combobox, VStack, Box } from "@navikt/ds-react";
+import { Box, HGrid, List, Select, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -24,6 +24,7 @@ import {
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useParams } from "react-router";
 import { useTiltakstyperForAvtaler } from "@/api/tiltakstyper/useTiltakstyperForAvtaler";
+import { erUtfaset } from "@/utils/tiltakstype";
 
 export function AvtaleDetaljerForm() {
   const { avtaleId } = useParams();
@@ -31,6 +32,11 @@ export function AvtaleDetaljerForm() {
   const { data: ansatt } = useHentAnsatt();
   const tiltakstyper = useTiltakstyperForAvtaler();
   const { data: avtale } = usePotentialAvtale(avtaleId ?? null);
+
+  // Filtrer vekk utfasede tiltakstyper ved opprettelse, men ikke ved redigering
+  const relevanteTiltakstyper = avtale
+    ? tiltakstyper
+    : tiltakstyper.filter((tiltakstype) => !erUtfaset(tiltakstype));
 
   const {
     register,
@@ -142,7 +148,7 @@ export function AvtaleDetaljerForm() {
               })}
             >
               <option value="">-- Velg en --</option>
-              {tiltakstyper.map((type) => (
+              {relevanteTiltakstyper.map((type) => (
                 <option key={type.tiltakskode} value={type.tiltakskode}>
                   {type.navn}
                 </option>
