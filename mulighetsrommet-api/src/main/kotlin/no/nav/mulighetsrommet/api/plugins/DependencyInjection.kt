@@ -39,6 +39,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.ReplikerDeltakerNorskIdentEnkeltplassKafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
@@ -180,6 +181,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 db = get(),
                 genererUtbetalingService = get(),
             ),
+            config.clients.replikerDeltakerNorskIdent to ReplikerDeltakerNorskIdentEnkeltplassKafkaConsumer(get()),
             config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
             config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get()),
             config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
