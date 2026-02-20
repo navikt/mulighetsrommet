@@ -71,8 +71,8 @@ class TiltakstypeService(
         queries.tiltakstype.get(id)?.toTiltakstypeDto()
     }
 
-    fun getBySanityId(sanityId: UUID): Tiltakstype {
-        return CacheUtils.tryCacheFirstNotNull(cacheBySanityId, sanityId) {
+    fun getBySanityId(sanityId: UUID): Tiltakstype? {
+        return CacheUtils.tryCacheFirstNullable(cacheBySanityId, sanityId) {
             db.session { queries.tiltakstype.getBySanityId(sanityId) }
         }
     }
