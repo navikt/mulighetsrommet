@@ -58,7 +58,7 @@ class DistribuerTilsagnsbrev(
         return id
     }
 
-    suspend fun distribuerDok(tilsagnId: UUID): Either<DokdistError, DokdistResponse> = db.session {
+    suspend fun distribuerDok(tilsagnId: UUID): Either<DokdistError, DokdistResponse> = db.transaction {
         logger.info("Distribuerer journalpost for tilsagn id: $tilsagnId")
 
         val tilsagn = queries.tilsagn.getOrError(tilsagnId)
@@ -76,7 +76,10 @@ class DistribuerTilsagnsbrev(
             accessType = AccessType.M2M,
             distribusjonstype = DokdistRequest.DistribusjonsType.VIKTIG,
             adresse = adresse,
-        )
+        ).map { response ->
+            queries.tilsagn.setJournalpostBestillingId(tilsagnId, response.bestillingsId)
+            response
+        }
     }
 
     fun hentUtenlandskArrangorAdresse(arrangorId: UUID): DokdistRequest.Adresse.UtenlandskPostadresse = db.session {

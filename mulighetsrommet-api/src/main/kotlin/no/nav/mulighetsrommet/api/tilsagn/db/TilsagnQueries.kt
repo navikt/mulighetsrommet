@@ -358,6 +358,22 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun setJournalpostBestillingId(id: UUID, journalpostDistribueringId: String) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn
+              set journalpost_distribuering_id = :journalpost_distribuering_id
+            where
+              id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+            "journalpost_distribuering_id" to journalpostDistribueringId,
+        )
+        session.execute(queryOf(query, params))
+    }
+
     private fun Row.toTilsagn(): Tilsagn {
         val id = uuid("id")
         val valuta = string("valuta").let { Valuta.valueOf(it) }
@@ -401,6 +417,7 @@ class TilsagnQueries(private val session: Session) {
             kommentar = stringOrNull("kommentar"),
             beskrivelse = stringOrNull("beskrivelse"),
             journalpostId = stringOrNull("journalpost_id"),
+            journalpostDistribueringId = stringOrNull("journalpost_distribuering_id"),
         )
     }
 

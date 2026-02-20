@@ -144,7 +144,7 @@ data class DokdistRequest(
     }
 }
 
-data class DokdistResponse(val bestillingsId: UUID)
+data class DokdistResponse(val bestillingsId: String)
 
 sealed class DokdistError(open val message: String) {
 

@@ -31,6 +31,7 @@ data class Tilsagn(
     val kommentar: String?,
     val beskrivelse: String?,
     val journalpostId: String?,
+    val journalpostDistribueringId: String?,
 ) {
     @Serializable
     data class Tiltakstype(
