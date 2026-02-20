@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
-import java.util.UUID
 
 /**
  * Se https://confluence.adeo.no/spaces/BOA/pages/320039012/POST+rest+v1+distribuerjournalpost
