@@ -18,7 +18,7 @@ class ReplikerBestillingStatusConsumer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun consume(key: String, message: JsonElement): Unit = db.session {
+    override suspend fun consume(key: String, message: JsonElement): Unit = db.transaction {
         logger.info("Konsumerer statusmelding bestillingsnummer=$key")
 
         val (bestillingsnummer, status) = JsonIgnoreUnknownKeys.decodeFromJsonElement<BestillingStatus>(message)

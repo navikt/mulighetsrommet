@@ -137,13 +137,13 @@ fun Route.maamRoutes() {
             }
 
             post("journalfor-tilsagnsbrev") {
-                val request = call.receive<LagTilsagnsbrevRequest>()
-                val taskId = journalforTilsagnsbrev.schedule(request.tilsagnId, request.deltakerId)
+                val request = call.receive<TilsagnIdRequest>()
+                val taskId = journalforTilsagnsbrev.schedule(request.tilsagnId)
                 call.respond(ScheduleTaskResponse(taskId))
             }
 
             post("distribuer-tilsagnsbrev") {
-                val request = call.receive<DistribuerTilsagnsbrevRequest>()
+                val request = call.receive<TilsagnIdRequest>()
                 val taskId = distribuerTilsagnsbrev.schedule(request.tilsagnId)
                 call.respond(ScheduleTaskResponse(taskId))
             }
@@ -212,15 +212,7 @@ data class ExecutedTaskResponse(
 )
 
 @Serializable
-data class LagTilsagnsbrevRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val tilsagnId: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val deltakerId: UUID,
-)
-
-@Serializable
-data class DistribuerTilsagnsbrevRequest(
+data class TilsagnIdRequest(
     @Serializable(with = UUIDSerializer::class)
     val tilsagnId: UUID,
 )

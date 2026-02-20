@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
-import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
+import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.JournalpostId
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -32,6 +32,7 @@ class JournalforTilsagnsbrev(
     private val dokarkClient: DokarkClient,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val pdf: PdfGenClient,
+    private val distribuerTilsagnsbrev: DistribuerTilsagnsbrev,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -39,15 +40,16 @@ class JournalforTilsagnsbrev(
     data class TaskData(
         @Serializable(with = UUIDSerializer::class)
         val tilsagnId: UUID,
-        @Serializable(with = UUIDSerializer::class)
-        val deltakerId: UUID, // Så lenge ikke tilsagnet har en direkte kobling mot en bruker
     )
 
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
         .executeSuspend { inst, _ ->
-            journalfor(inst.data.tilsagnId, inst.data.deltakerId).onLeft { message ->
+            journalfor(inst.data.tilsagnId).onLeft { message ->
                 throw Exception("Feil ved journalføring av tilsagnsbrev med id=${inst.data.tilsagnId}: $message")
+            }.map { journalpostId ->
+                logger.info("Skedulerer distribusjon av tilsagnsbrev journapostId: $journalpostId, tilsagnId: ${inst.data.tilsagnId}")
+                distribuerTilsagnsbrev.schedule(inst.data.tilsagnId)
             }
         }
 
@@ -56,28 +58,33 @@ class JournalforTilsagnsbrev(
         .serializer(DbSchedulerKotlinSerializer())
         .build()
 
-    fun schedule(tilsagnId: UUID, deltakerId: UUID, startTime: Instant = Instant.now()): UUID {
+    fun schedule(tilsagnId: UUID, startTime: Instant = Instant.now()): UUID {
         val id = UUID.randomUUID()
-        val instance = task.instance(id.toString(), TaskData(tilsagnId, deltakerId))
+        val instance = task.instance(id.toString(), TaskData(tilsagnId))
         client.scheduleIfNotExists(instance, startTime)
         return id
     }
 
-    suspend fun journalfor(tilsagnId: UUID, deltakerId: UUID): Either<String, DokarkResponse> = db.transaction {
+    suspend fun journalfor(tilsagnId: UUID): Either<String, JournalpostId> = db.transaction {
         logger.info("Journalfører tilsagn med id: $tilsagnId")
 
-        val personalia = amtDeltakerClient.hentPersonalia(setOf(deltakerId))
-            .getOrElse {
-                throw Exception("Kunne ikke hente personalia fra amt-deltaker med id: $it")
-            }.single()
         val tilsagn = queries.tilsagn.getOrError(tilsagnId)
+        if (tilsagn.journalpostId != null) {
+            logger.info("Tilsagn med id $tilsagnId har allerede journalpostId ${tilsagn.journalpostId}, hopper journalføring")
+            return@transaction Either.Right(tilsagn.journalpostId)
+        }
         val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
+        val deltaker = queries.deltaker.getByGjennomforingId(enkeltplass.id).single()
+        val personalia = amtDeltakerClient.hentPersonalia(setOf(deltaker.id))
+            .getOrElse {
+                return@transaction Either.Left("Kunne ikke hente personalia fra amt-deltaker med id: $it")
+            }.single()
         val arrangor = queries.arrangor.get(tilsagn.arrangor.organisasjonsnummer)
-        require(arrangor != null) { "Fant ikke arrangør med organisasjonsnummer ${tilsagn.arrangor.organisasjonsnummer} for tilsagn med id $tilsagnId" }
+            ?: return@transaction Either.Left("Fant ikke arrangør med organisasjonsnummer ${tilsagn.arrangor.organisasjonsnummer} for tilsagn med id $tilsagnId")
 
         val fagsakId = enkeltplass.arena?.tiltaksnummer?.value ?: enkeltplass.lopenummer.value
 
-        generatePdf(tilsagn, personalia)
+        val journalpostResult = generatePdf(tilsagn, personalia)
             .flatMap { pdf ->
                 val journalpost = tilsagnJournalpost(
                     pdf = pdf,
@@ -88,15 +95,16 @@ class JournalforTilsagnsbrev(
                 )
                 dokarkClient
                     .opprettJournalpost(journalpost, AccessType.M2M)
-                    .map { response ->
-                        logger.info("Journalpost opprettet med id ${response.journalpostId} for tilsagn med id $tilsagnId")
-                        response
-                    }
-                    .mapLeft { error -> "Feil fra dokark ved journalføring av tilsagn ${tilsagnId}: ${error.message}" }
+                    .mapLeft { error -> "Feil fra dokark ved journalføring av tilsagn $tilsagnId: ${error.message}" }
             }
-            .onRight {
-                queries.tilsagn.setJournalpostId(tilsagnId, it.journalpostId)
+
+        journalpostResult.map { response ->
+            queries.tilsagn.setJournalpostId(tilsagnId, response.journalpostId)
+            if (!response.journalpostferdigstilt) {
+                logger.info("Journalpost ${response.journalpostId} for tilsagn $tilsagnId er ikke ferdigstilt: ${response.melding}")
             }
+            response.journalpostId
+        }
     }
 
     private suspend fun generatePdf(tilsagn: Tilsagn, deltaker: DeltakerPersonalia): Either<String, ByteArray> {

@@ -54,12 +54,14 @@ class DokarkClient(
 
 @Serializable
 data class DokarkResponse(
-    val journalpostId: String,
+    val journalpostId: JournalpostId,
     val journalstatus: String,
     val melding: String?,
     val journalpostferdigstilt: Boolean,
     val dokumenter: List<DokarkResponseDokument>,
 )
+
+typealias JournalpostId = String
 
 @Serializable
 data class DokarkResponseDokument(

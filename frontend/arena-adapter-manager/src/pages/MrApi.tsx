@@ -5,7 +5,6 @@ import { BodyShort, Link } from "@navikt/ds-react";
 import { TiltakstyperOrIdsForm } from "../components/forms/TiltakstyperOrIdsForm";
 import { TextInputForm } from "../components/forms/TextInputForm";
 import { DatePickerForm } from "../components/forms/DatePickerForm";
-import { JournalforTilsagnsbrevForm } from "../components/forms/JournalforTilsangsbrevForm";
 
 export function MrApi() {
   return (
@@ -107,11 +106,9 @@ export function MrApi() {
       <RunTask
         base={ApiBase.MR_API}
         task={"journalfor-tilsagnsbrev"}
-        form={(props) => <JournalforTilsagnsbrevForm {...props} />}
+        form={(props) => <TextInputForm {...props} label="Tilsangs id" name="tilsagnId" />}
       >
-        <BodyShort>
-          Lager et tilsagnsbrev basert på tilsagnId og deltakerId, og journalfører denne{" "}
-        </BodyShort>
+        <BodyShort>Lager et tilsagnsbrev</BodyShort>
       </RunTask>
 
       <RunTask

@@ -460,6 +460,7 @@ private fun services(appConfig: AppConfig) = module {
             ),
             db = get(),
             navAnsattService = get(),
+            journalforTilsagnsbrev = get(),
         )
     }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
@@ -499,7 +500,7 @@ private fun tasks(config: AppConfig) = module {
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
-    single { JournalforTilsagnsbrev(get(), get(), get(), get()) }
+    single { JournalforTilsagnsbrev(get(), get(), get(), get(), get()) }
     single { DistribuerTilsagnsbrev(get(), get(), get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(
