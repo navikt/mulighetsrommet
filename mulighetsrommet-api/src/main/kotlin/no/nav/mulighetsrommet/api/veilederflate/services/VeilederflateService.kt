@@ -66,6 +66,13 @@ class VeilederflateService(
         }
     }
 
+    suspend fun hentOppskrifter(
+        tiltakstypeId: UUID,
+        perspective: SanityPerspective,
+    ): List<Oppskrift> {
+        return sanityService.getOppskrifter(tiltakstypeId, perspective)
+    }
+
     suspend fun hentTiltaksgjennomforinger(
         enheter: NonEmptyList<NavEnhetNummer>,
         tiltakstypeIds: List<String>? = null,
@@ -91,6 +98,24 @@ class VeilederflateService(
         }
 
         (individuelleGjennomforinger.await() + gruppeGjennomforinger.await())
+    }
+
+    suspend fun hentTiltaksgjennomforing(
+        id: UUID,
+        sanityPerspective: SanityPerspective,
+        cacheUsage: CacheUsage,
+    ): VeilederflateTiltak = db.session {
+        return queries.veilderTiltak.get(id)
+            ?.let { gjennomforing ->
+                val sanityTiltakstype = hentTiltakstyper()
+                    .find { it.sanityId == gjennomforing.tiltakstype.sanityId }
+                    ?: throw NotFoundException("Fant ikke tiltakstype for gjennomføring med id: '$id'")
+                gjennomforing.copy(tiltakstype = sanityTiltakstype)
+            }
+            ?: run {
+                val gjennomforing = sanityService.getTiltak(id, sanityPerspective, cacheUsage)
+                toVeilederTiltaksgjennomforing(gjennomforing)
+            }
     }
 
     private suspend fun hentSanityTiltak(
@@ -145,24 +170,6 @@ class VeilederflateService(
             },
             erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
         )
-    }
-
-    suspend fun hentTiltaksgjennomforing(
-        id: UUID,
-        sanityPerspective: SanityPerspective,
-        cacheUsage: CacheUsage,
-    ): VeilederflateTiltak = db.session {
-        return queries.veilderTiltak.get(id)
-            ?.let { gjennomforing ->
-                val sanityTiltakstype = hentTiltakstyper()
-                    .find { it.sanityId == gjennomforing.tiltakstype.sanityId }
-                    ?: throw NotFoundException("Fant ikke tiltakstype for gjennomføring med id: '$id'")
-                gjennomforing.copy(tiltakstype = sanityTiltakstype)
-            }
-            ?: run {
-                val gjennomforing = sanityService.getTiltak(id, sanityPerspective, cacheUsage)
-                toVeilederTiltaksgjennomforing(gjennomforing)
-            }
     }
 
     private fun toVeilederTiltaksgjennomforing(
@@ -277,12 +284,5 @@ class VeilederflateService(
         return navEnhetService.hentEnhet(enhet)?.let {
             VeilederflateTiltaksansvarligHovedenhet(it.navn, it.enhetsnummer)
         }
-    }
-
-    suspend fun hentOppskrifter(
-        tiltakstypeId: UUID,
-        perspective: SanityPerspective,
-    ): List<Oppskrift> {
-        return sanityService.getOppskrifter(tiltakstypeId, perspective)
     }
 }
