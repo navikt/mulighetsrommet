@@ -10,7 +10,6 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotliquery.Query
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -32,6 +31,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.utils.toUUID
 import java.util.UUID
 
 class VeilederflateServiceTest : FunSpec({
@@ -101,16 +101,21 @@ class VeilederflateServiceTest : FunSpec({
         avtaler = listOf(AvtaleFixtures.oppfolging),
         gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
     ) {
-        val innsatsgrupper =
-            "'{TRENGER_VEILEDNING, TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE, JOBBE_DELVIS, LITEN_MULIGHET_TIL_A_JOBBE}'::innsatsgruppe[]"
-        session.execute(Query("update tiltakstype set sanity_id = '${tiltakstypeEnkelAmo._id}' where id = '${TiltakstypeFixtures.EnkelAmo.id}'"))
-        session.execute(Query("update tiltakstype set innsatsgrupper = $innsatsgrupper where id = '${TiltakstypeFixtures.EnkelAmo.id}'"))
+        val innsatsgrupper = setOf(
+            Innsatsgruppe.TRENGER_VEILEDNING,
+            Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
+            Innsatsgruppe.JOBBE_DELVIS,
+            Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
+        )
 
-        session.execute(Query("update tiltakstype set sanity_id = '${tiltakstypeArbeidstrening._id}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'"))
-        session.execute(Query("update tiltakstype set innsatsgrupper = $innsatsgrupper where id = '${TiltakstypeFixtures.Arbeidstrening.id}'"))
+        queries.tiltakstype.setSanityId(TiltakstypeFixtures.EnkelAmo.id, tiltakstypeEnkelAmo._id.toUUID())
+        queries.tiltakstype.setInnsatsgrupper(TiltakstypeFixtures.EnkelAmo.id, innsatsgrupper)
 
-        session.execute(Query("update tiltakstype set sanity_id = '${tiltakstypeOppfolging._id}' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
-        session.execute(Query("update tiltakstype set innsatsgrupper = $innsatsgrupper where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
+        queries.tiltakstype.setSanityId(TiltakstypeFixtures.Arbeidstrening.id, tiltakstypeArbeidstrening._id.toUUID())
+        queries.tiltakstype.setInnsatsgrupper(TiltakstypeFixtures.Arbeidstrening.id, innsatsgrupper)
+
+        queries.tiltakstype.setSanityId(TiltakstypeFixtures.Oppfolging.id, tiltakstypeOppfolging._id.toUUID())
+        queries.tiltakstype.setInnsatsgrupper(TiltakstypeFixtures.Oppfolging.id, innsatsgrupper)
         queries.gjennomforing.setPublisert(GjennomforingFixtures.Oppfolging1.id, true)
         queries.gjennomforing.setNavEnheter(
             GjennomforingFixtures.Oppfolging1.id,
@@ -217,7 +222,7 @@ class VeilederflateServiceTest : FunSpec({
         val veilederFlateService = createService()
 
         database.run {
-            session.execute(Query("update tiltakstype set sanity_id = null where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
+            queries.tiltakstype.setSanityId(TiltakstypeFixtures.Oppfolging.id, null)
         }
 
         veilederFlateService.hentTiltaksgjennomforinger(
@@ -230,7 +235,7 @@ class VeilederflateServiceTest : FunSpec({
         ).shouldBeEmpty()
 
         database.run {
-            session.execute(Query("update tiltakstype set sanity_id = '${tiltakstypeOppfolging._id}' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
+            queries.tiltakstype.setSanityId(TiltakstypeFixtures.Oppfolging.id, tiltakstypeOppfolging._id.toUUID())
         }
 
         veilederFlateService.hentTiltaksgjennomforinger(

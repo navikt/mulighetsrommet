@@ -7,7 +7,6 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotliquery.Query
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -33,7 +32,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
     context("getAll") {
         val oppfolgingSanityId = UUID.randomUUID()
-        val arbeidstreningSanityId = UUID.randomUUID()
+        val aftSanityId = UUID.randomUUID()
 
         val domain = MulighetsrommetTestDomain(
             navEnheter = listOf(Innlandet, Gjovik, Oslo),
@@ -41,13 +40,19 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT),
             gjennomforinger = listOf(Oppfolging1, AFT1),
         ) {
-            session.execute(Query("update tiltakstype set sanity_id = '$oppfolgingSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
-            session.execute(Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.AFT.id}'"))
-            session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE}'::innsatsgruppe]"))
-
+            queries.tiltakstype.setSanityId(TiltakstypeFixtures.Oppfolging.id, oppfolgingSanityId)
+            queries.tiltakstype.setInnsatsgrupper(
+                TiltakstypeFixtures.Oppfolging.id,
+                setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
+            )
             queries.gjennomforing.setNavEnheter(Oppfolging1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")))
             queries.gjennomforing.setPublisert(Oppfolging1.id, true)
 
+            queries.tiltakstype.setSanityId(TiltakstypeFixtures.AFT.id, aftSanityId)
+            queries.tiltakstype.setInnsatsgrupper(
+                TiltakstypeFixtures.AFT.id,
+                setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
+            )
             queries.gjennomforing.setNavEnheter(AFT1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")))
             queries.gjennomforing.setPublisert(AFT1.id, true)
         }
@@ -83,8 +88,15 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE}'::innsatsgruppe] where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
-                session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.GODE_MULIGHETER}'::innsatsgruppe, '${Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE}'::innsatsgruppe] where id = '${TiltakstypeFixtures.AFT.id}'"))
+                queries.tiltakstype.setInnsatsgrupper(
+                    TiltakstypeFixtures.Oppfolging.id,
+                    setOf(Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE),
+                )
+
+                queries.tiltakstype.setInnsatsgrupper(
+                    TiltakstypeFixtures.AFT.id,
+                    setOf(Innsatsgruppe.GODE_MULIGHETER, Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE),
+                )
 
                 queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.GODE_MULIGHETER,
@@ -156,7 +168,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                    sanityTiltakstypeIds = listOf(arbeidstreningSanityId),
+                    sanityTiltakstypeIds = listOf(aftSanityId),
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
@@ -235,8 +247,11 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.ARR),
             gjennomforinger = listOf(ArbeidsrettetRehabilitering),
         ) {
-            session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))
-            session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE}'::innsatsgruppe]"))
+            queries.tiltakstype.setSanityId(TiltakstypeFixtures.ArbeidsrettetRehabilitering.id, UUID.randomUUID())
+            queries.tiltakstype.setInnsatsgrupper(
+                TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
+                setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
+            )
 
             queries.gjennomforing.setPublisert(ArbeidsrettetRehabilitering.id, true)
             queries.gjennomforing.setNavEnheter(
@@ -279,7 +294,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(Oppfolging1),
         ) {
-            session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
+            queries.tiltakstype.setSanityId(TiltakstypeFixtures.Oppfolging.id, UUID.randomUUID())
             queries.gjennomforing.setNavEnheter(Oppfolging1.id, setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer))
             queries.gjennomforing.setKontaktpersoner(
                 Oppfolging1.id,
@@ -318,9 +333,17 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering, TiltakstypeFixtures.EnkelAmo),
             gjennomforinger = listOf(arenatiltak, enkeltplass),
         ) {
-            session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.ArbeidsrettetRehabilitering.id}'"))
-            session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.EnkelAmo.id}'"))
-            session.execute(Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE}'::innsatsgruppe]"))
+            queries.tiltakstype.setSanityId(TiltakstypeFixtures.ArbeidsrettetRehabilitering.id, UUID.randomUUID())
+            queries.tiltakstype.setInnsatsgrupper(
+                TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
+                setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
+            )
+
+            queries.tiltakstype.setSanityId(TiltakstypeFixtures.EnkelAmo.id, UUID.randomUUID())
+            queries.tiltakstype.setInnsatsgrupper(
+                TiltakstypeFixtures.EnkelAmo.id,
+                setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
+            )
         }
 
         test("hentes ikke fra getAll-spørring selv om tiltaket er publisert") {
