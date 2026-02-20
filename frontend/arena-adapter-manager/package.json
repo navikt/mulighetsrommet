@@ -16,8 +16,8 @@
     "@navikt/aksel-icons": "8.5.1",
     "@navikt/ds-css": "8.5.1",
     "@navikt/ds-react": "8.5.1",
-    "react": "19.0.3",
-    "react-dom": "19.0.3",
+    "react": "19.2.2",
+    "react-dom": "19.2.2",
     "react-hot-toast": "2.6.0",
     "react-router": "7.13.0",
     "uuid": "13.0.0"
