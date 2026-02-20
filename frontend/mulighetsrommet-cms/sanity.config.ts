@@ -1,4 +1,4 @@
-import { createAuthStore, defineConfig } from "sanity";
+import { AuthConfig, defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { schemas } from "./schemas/schemas";
 import { visionTool } from "@sanity/vision";
@@ -7,18 +7,31 @@ import { defaultDocumentNode, structure } from "./deskStructures/deskStrukture";
 const PROJECT_ID = "xegcworx";
 export const API_VERSION = "2024-04-23";
 
+const auth: AuthConfig = {
+  redirectOnSingle: true,
+  providers: () => [
+    {
+      name: "saml",
+      title: "NAV SSO",
+      url: "https://api.sanity.io/v2021-10-01/auth/saml/login/f3270b37",
+      logo: "/static/navlogo.svg",
+    },
+  ],
+  loginMethod: "dual",
+};
+
 const createCommonConfig = (dataset: "production" | "test", basePath: string) => ({
   name: dataset,
   title: `Mulighetsrommet - ${dataset}`,
   projectId: PROJECT_ID,
+  organization: "ojSsHMQGf",
   dataset,
   basePath,
   scheduledPublishing: {
     enabled: true,
   },
   document: {
-    unstable_comments: {
-      // Comments enabled https://www.sanity.io/blog/introducing-comments
+    comments: {
       enabled: true,
     },
     productionUrl: async (prev, context) => {
@@ -59,21 +72,7 @@ const createCommonConfig = (dataset: "production" | "test", basePath: string) =>
   schema: {
     types: schemas,
   },
-  auth: createAuthStore({
-    dataset,
-    projectId: PROJECT_ID,
-    redirectOnSingle: true,
-    mode: "replace",
-    providers: [
-      // https://www.sanity.io/docs/migrating-custom-auth-providers#67b857c108e4
-      {
-        name: "saml",
-        title: "Nav SSO",
-        url: "https://api.sanity.io/v2021-10-01/auth/saml/login/f3270b37",
-        logo: "/static/navlogo.svg",
-      },
-    ],
-  }),
+  auth: auth,
 });
 
 export default defineConfig([
