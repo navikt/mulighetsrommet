@@ -129,17 +129,6 @@ class TiltakstypeQueries(private val session: Session) {
         return list(queryOf(query, arenaTiltakskode)) { it.toTiltakstype() }
     }
 
-    fun getBySanityId(sanityId: UUID): Tiltakstype? = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from view_tiltakstype_dto
-            where sanity_id = ?::uuid
-        """.trimIndent()
-
-        return single(queryOf(query, sanityId)) { it.toTiltakstype() }
-    }
-
     fun getAll(
         tiltakskoder: Set<Tiltakskode> = setOf(),
         statuser: List<TiltakstypeStatus> = emptyList(),
