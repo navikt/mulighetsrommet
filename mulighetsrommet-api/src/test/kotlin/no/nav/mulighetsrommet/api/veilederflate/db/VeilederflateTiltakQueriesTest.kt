@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.veilederflate
+package no.nav.mulighetsrommet.api.veilederflate.db
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
