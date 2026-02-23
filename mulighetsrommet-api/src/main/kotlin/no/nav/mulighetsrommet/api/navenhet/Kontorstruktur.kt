@@ -37,21 +37,22 @@ data class Kontorstruktur(
 
             val kontorstrukturer = enheterByOverordnetEnhet.entries.mapNotNull { (overordnetEnhet, enheter) ->
                 overordnetEnhet?.let { enheterByEnhetsnummer[it] }?.let { region ->
+                    val kontorer = enheter.toSet().map { enhet ->
+                        val type = if (enhet.type == NavEnhetType.LOKAL) {
+                            Kontortype.LOKAL
+                        } else {
+                            Kontortype.SPESIALENHET
+                        }
+                        Kontor(enhet.navn, enhet.enhetsnummer, type)
+                    }
                     Kontorstruktur(
                         region = Region(region.navn, region.enhetsnummer),
-                        kontorer = enheter.toSet().map { enhet ->
-                            val type = if (enhet.type == NavEnhetType.LOKAL) {
-                                Kontortype.LOKAL
-                            } else {
-                                Kontortype.SPESIALENHET
-                            }
-                            Kontor(enhet.navn, enhet.enhetsnummer, type)
-                        },
+                        kontorer = kontorer.sortedWith(compareBy<Kontor> { it.type }.thenBy { it.navn }),
                     )
                 }
             }
 
-            return kontorstrukturer + regioner
+            return (kontorstrukturer + regioner).sortedBy { it.region.navn }
         }
     }
 }
