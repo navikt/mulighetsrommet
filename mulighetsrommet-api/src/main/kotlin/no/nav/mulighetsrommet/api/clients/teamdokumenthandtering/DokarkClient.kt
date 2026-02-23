@@ -116,6 +116,11 @@ data class Journalpost(
     data class Dokument(
         val dokumentvarianter: List<Dokumentvariant>,
         val tittel: String,
+        /**
+         * Kode som sier noe om dokumentets innhold og oppbygning. Brevkode bør settes for alle journalposttyper, og brukes blant annet for statistikk.
+         * For hoveddokumentet kan brevkode ikke være null eller tomt.
+         */
+        val brevKode: String? = null,
     ) {
         @Serializable
         data class Dokumentvariant(
