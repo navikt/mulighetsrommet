@@ -37,9 +37,9 @@ class SanityClientTest : FunSpec({
         }
     }
 
-    test("should add additional parameters as query parameters prefixed with \$") {
+    test("should add additional parameters as query parameters prefixed with $") {
         val engine = createMockEngine {
-            get("/v2024-01-01/data/query/test?query=*[]&\$id=\"b97b6d59-09af-44e3-bbd5-09c7030f4be2\"&\$string=\"foo\"&\$boolean=true&\$number=1.2&\$array=[\"bar\"]") {
+            get($$"/v2024-01-01/data/query/test?query=*[]&$id=\"b97b6d59-09af-44e3-bbd5-09c7030f4be2\"&$string=\"foo\"&$boolean=true&$number=1.2&$array=[\"bar\"]") {
                 respondJson(mockResponse)
             }
         }
@@ -75,13 +75,13 @@ class SanityClientTest : FunSpec({
         )
 
         val engine = createMockEngine {
-            get("/v2024-01-01/data/query/test?query=*[_type == \$type]") {
+            get($$"/v2024-01-01/data/query/test?query=*[_type == $type]") {
                 respondJson(error, status = HttpStatusCode.BadRequest)
             }
         }
         val client = SanityClient(engine, testConfig)
 
-        val result = client.query("*[_type == \$type]")
+        val result = client.query($$"*[_type == $type]")
 
         result.shouldBeTypeOf<SanityResponse.Error> {
             it.error.getValue("type").jsonPrimitive.content shouldBe "queryParseError"
