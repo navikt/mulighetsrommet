@@ -1,8 +1,6 @@
-package no.nav.mulighetsrommet.api.avtale.model
+package no.nav.mulighetsrommet.api.navenhet
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 @Serializable
@@ -34,28 +32,27 @@ data class Kontorstruktur(
             val enheterByOverordnetEnhet = navEnheter.groupBy { it.overordnetEnhet }
 
             val regioner = enheterByOverordnetEnhet[null].orEmpty()
-                .filter { it.enhetsnummer !in enheterByOverordnetEnhet.keys }
+                .filter { it.type == NavEnhetType.FYLKE && it.enhetsnummer !in enheterByOverordnetEnhet.keys }
                 .map { Kontorstruktur(region = Region(it.navn, it.enhetsnummer), kontorer = emptyList()) }
 
             val kontorstrukturer = enheterByOverordnetEnhet.entries.mapNotNull { (overordnetEnhet, enheter) ->
-                overordnetEnhet?.let {
+                overordnetEnhet?.let { enheterByEnhetsnummer[it] }?.let { region ->
+                    val kontorer = enheter.toSet().map { enhet ->
+                        val type = if (enhet.type == NavEnhetType.LOKAL) {
+                            Kontortype.LOKAL
+                        } else {
+                            Kontortype.SPESIALENHET
+                        }
+                        Kontor(enhet.navn, enhet.enhetsnummer, type)
+                    }
                     Kontorstruktur(
-                        region = enheterByEnhetsnummer.getValue(it).let { region ->
-                            Region(region.navn, region.enhetsnummer)
-                        },
-                        kontorer = enheter.map { enhet ->
-                            val type = if (enhet.type == NavEnhetType.LOKAL) {
-                                Kontortype.LOKAL
-                            } else {
-                                Kontortype.SPESIALENHET
-                            }
-                            Kontor(enhet.navn, enhet.enhetsnummer, type)
-                        },
+                        region = Region(region.navn, region.enhetsnummer),
+                        kontorer = kontorer.sortedWith(compareBy<Kontor> { it.type }.thenBy { it.navn }),
                     )
                 }
             }
 
-            return kontorstrukturer + regioner
+            return (kontorstrukturer + regioner).sortedBy { it.region.navn }
         }
     }
 }

@@ -1,41 +1,40 @@
 import {
+  Kontorstruktur,
   KontorstrukturKontor,
   KontorstrukturKontortype,
-  NavRegionDto,
-  NavRegionUnderenhetDto,
 } from "@tiltaksadministrasjon/api-client";
 
 export function getLokaleUnderenheterAsSelectOptions(
   valgteRegioner: (string | undefined)[],
-  regioner: NavRegionDto[],
+  regioner: Kontorstruktur[],
 ) {
   return getUnderenheterAsSelectOptionsBy(
     valgteRegioner,
     regioner,
-    (enhet) => enhet.erStandardvalg,
+    (enhet) => enhet.type === KontorstrukturKontortype.LOKAL,
   );
 }
 
 export function getAndreUnderenheterAsSelectOptions(
   valgteRegioner: (string | undefined)[],
-  regioner: NavRegionDto[],
+  regioner: Kontorstruktur[],
 ) {
   return getUnderenheterAsSelectOptionsBy(
     valgteRegioner,
     regioner,
-    (enhet) => !enhet.erStandardvalg,
+    (enhet) => enhet.type === KontorstrukturKontortype.SPESIALENHET,
   );
 }
 
 function getUnderenheterAsSelectOptionsBy(
   valgteRegioner: (string | undefined)[],
-  regioner: NavRegionDto[],
-  predicate: (item: NavRegionUnderenhetDto) => boolean,
+  regioner: Kontorstruktur[],
+  predicate: (item: KontorstrukturKontor) => boolean,
 ) {
   return regioner
-    .filter((region) => valgteRegioner.includes(region.enhetsnummer))
-    .flatMap((region) =>
-      region.enheter.filter(predicate).map((enhet) => ({
+    .filter(({ region }) => valgteRegioner.includes(region.enhetsnummer))
+    .flatMap(({ kontorer }) =>
+      kontorer.filter(predicate).map((enhet) => ({
         value: enhet.enhetsnummer,
         label: enhet.navn,
       })),

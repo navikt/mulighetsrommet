@@ -786,6 +786,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/veilederflate/nav-enheter/kontorstruktur:
+    get:
+      tags:
+      - NavEnheter
+      operationId: getKontorstruktur
+      parameters: []
+      responses:
+        "200":
+          description: Alle Nav-enheter
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Kontorstruktur"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/veilederflate/nav-enheter/regioner:
     get:
       tags:
@@ -2048,6 +2072,46 @@ components:
             $ref: "#/components/schemas/Oppskrift"
       required:
       - data
+    Kontorstruktur:
+      type: object
+      properties:
+        region:
+          $ref: "#/components/schemas/Kontorstruktur.Region"
+        kontorer:
+          type: array
+          items:
+            $ref: "#/components/schemas/Kontorstruktur.Kontor"
+      required:
+      - kontorer
+      - region
+    Kontorstruktur.Region:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
+    Kontorstruktur.Kontor:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+        type:
+          $ref: "#/components/schemas/Kontorstruktur.Kontortype"
+      required:
+      - enhetsnummer
+      - navn
+      - type
+    Kontorstruktur.Kontortype:
+      type: string
+      enum:
+      - LOKAL
+      - SPESIALENHET
     NavRegionDto:
       type: object
       properties:

@@ -1,7 +1,7 @@
 import { AVTALE_PAGE_SIZE } from "@/constants";
 import { z } from "zod";
 import { createSorteringProps } from "@/api/atoms";
-import { createFilterValidator } from "@/filter/filter-validator";
+import { createFilterValidator, createGracefulParser } from "@/filter/filter-validator";
 import { createFilterStateAtom } from "@/filter/filter-state";
 import { atom } from "jotai";
 import { AvtaleStatusType, Avtaletype } from "@tiltaksadministrasjon/api-client";
@@ -47,5 +47,7 @@ export const avtalerFilterStateAtom = createFilterStateAtom<AvtaleFilterType>(
   defaultAvtaleFilter,
   createFilterValidator(AvtaleFilterSchema),
 );
+
+export const parseAvtaleFilter = createGracefulParser(AvtaleFilterSchema, defaultAvtaleFilter);
 
 export const avtaleFilterAccordionAtom = atom<string[]>(["navEnhet"]);

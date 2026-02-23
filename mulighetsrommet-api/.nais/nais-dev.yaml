@@ -216,6 +216,7 @@ spec:
         - host: platform.tt02.altinn.no
         - host: test.maskinporten.no
         - host: dokarkiv-q2.dev-fss-pub.nais.io
+        - host: dokdistfordeling.dev-fss-pub.nais.io
         - host: sokos-kontoregister-q1.dev-fss-pub.nais.io
   envFrom:
     - secret: mulighetsrommet-api

@@ -116,7 +116,9 @@ export type MrApiTask =
   | "sync-utdanning"
   | "generate-utbetaling"
   | "beregn-utbetaling"
-  | "sync-arrangorer";
+  | "sync-arrangorer"
+  | "journalfor-tilsagnsbrev"
+  | "distribuer-tilsagnsbrev";
 
 export const runTask = (base: ApiBase, task: MrApiTask, input?: object) =>
   fetch(`${base}/tasks/${task}`, {

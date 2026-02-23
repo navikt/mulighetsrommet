@@ -368,6 +368,10 @@ val ApplicationConfigLocal = AppConfig(
         url = "http://localhost:8090/dokark",
         scope = "default",
     ),
+    dokdistfordeling = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/dokdistfordeling",
+        scope = "default",
+    ),
     utdanning = HttpClientConfig(
         url = "https://api.utdanning.no",
     ),

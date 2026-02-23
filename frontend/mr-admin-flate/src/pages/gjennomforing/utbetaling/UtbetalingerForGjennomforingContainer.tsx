@@ -26,10 +26,19 @@ export function UtbetalingerForGjennomforingContainer() {
               {handlinger.includes(GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING) && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
-                    navigate(`skjema`);
+                    navigate("opprett-korreksjon");
                   }}
                 >
                   Opprett korreksjon på utbetaling
+                </Dropdown.Menu.GroupedList.Item>
+              )}
+              {handlinger.includes(GjennomforingHandling.OPPRETT_UTBETALING) && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    navigate("opprett-utbetaling");
+                  }}
+                >
+                  Opprett utbetaling
                 </Dropdown.Menu.GroupedList.Item>
               )}
             </Dropdown.Menu.GroupedList>

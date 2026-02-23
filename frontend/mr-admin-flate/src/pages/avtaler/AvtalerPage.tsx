@@ -6,7 +6,6 @@ import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 import {
   LagredeFilterOversikt,
   LagreFilterButton,
@@ -17,8 +16,8 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Suspense, useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { AvtaleFilterSchema, avtalerFilterStateAtom } from "@/pages/avtaler/filter";
-import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
+import { AvtaleFilterSchema } from "@/pages/avtaler/filter";
+import { useAvtalerSavedFilterState } from "@/filter/useSavedFiltersState";
 
 export function AvtalerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -34,7 +33,7 @@ export function AvtalerPage() {
     saveFilter,
     deleteFilter,
     setDefaultFilter,
-  } = useSavedFiltersState(avtalerFilterStateAtom, LagretFilterType.AVTALE);
+  } = useAvtalerSavedFilterState();
 
   return (
     <>

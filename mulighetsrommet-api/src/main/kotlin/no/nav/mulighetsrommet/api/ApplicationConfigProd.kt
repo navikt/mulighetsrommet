@@ -374,6 +374,10 @@ val ApplicationConfigProd = AppConfig(
         url = "https://dokarkiv.prod-fss-pub.nais.io",
         scope = "api://prod-fss.teamdokumenthandtering.dokarkiv/.default",
     ),
+    dokdistfordeling = AuthenticatedHttpClientConfig(
+        url = "https://dokdistfordeling.prod-fss-pub.nais.io",
+        scope = "api://prod-fss.teamdokumenthandtering.dokdistfordeling/.default",
+    ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
         url = "https://sokos-kontoregister.prod-fss-pub.nais.io",
         scope = "api://prod-fss.okonomi.sokos-kontoregister/.default",

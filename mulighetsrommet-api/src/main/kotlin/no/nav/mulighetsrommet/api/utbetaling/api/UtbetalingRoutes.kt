@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
+import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
@@ -246,11 +246,8 @@ fun Route.utbetalingRoutes() {
 
                     val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys)
 
-                    val regioner = NavEnhetHelpers.buildNavRegioner(
-                        personalia.flatMap { personalia ->
-                            listOfNotNull(personalia.oppfolgingEnhet, personalia.region)
-                        },
-                    )
+                    val enheter = personalia.flatMapTo(mutableSetOf()) { listOfNotNull(it.oppfolgingEnhet, it.region) }
+                    val kontorstruktur = Kontorstruktur.fromNavEnheter(enheter.toList())
 
                     val deltakelsePersoner = personalia
                         .filter { filter.navEnheter.isEmpty() || it.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
@@ -259,7 +256,7 @@ fun Route.utbetalingRoutes() {
                     UtbetalingBeregningDto.from(
                         utbetaling.beregning,
                         deltakelsePersoner,
-                        regioner,
+                        kontorstruktur,
                         utbetalingPeriode = utbetaling.periode,
                     )
                 }

@@ -1,5 +1,5 @@
-import { useRegioner } from "@/api/queries/useRegioner";
-import { NavRegionDto } from "@api-client";
+import { useNavKontorstruktur } from "@/api/queries/useNavKontorstruktur";
+import { Kontorstruktur } from "@api-client";
 import { Chips } from "@navikt/ds-react";
 
 interface Props {
@@ -8,14 +8,14 @@ interface Props {
 }
 
 export function NavEnhetFilterTag({ navEnheter, onClose }: Props) {
-  const { data: regioner } = useRegioner();
+  const { data: regioner } = useNavKontorstruktur();
   const labels = getSelectedNavEnheter(regioner, navEnheter);
   return <Chips.Removable onClick={onClose}>{tagLabel(labels)}</Chips.Removable>;
 }
 
-function getSelectedNavEnheter(regioner: NavRegionDto[], enheter: string[]): string[] {
+function getSelectedNavEnheter(regioner: Kontorstruktur[], enheter: string[]): string[] {
   return regioner
-    .flatMap((region) => region.enheter)
+    .flatMap(({ kontorer }) => kontorer)
     .filter((enhet) => enheter.includes(enhet.enhetsnummer))
     .map((enhet) => enhet.navn);
 }

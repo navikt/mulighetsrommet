@@ -161,24 +161,6 @@ class TiltakstypeQueriesTest : FunSpec({
             }
         }
     }
-
-    test("getBySanityId krasjer ikke") {
-        database.runAndRollback { session ->
-            queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
-
-            val sanityId = UUID.randomUUID()
-
-            @Language("PostgreSQL")
-            val query = """
-                update tiltakstype
-                set sanity_id = '$sanityId'
-                where tiltakskode = '${Tiltakskode.OPPFOLGING.name}';
-            """.trimIndent()
-            session.execute(queryOf(query))
-
-            queries.tiltakstype.getBySanityId(sanityId).shouldNotBeNull().id shouldBe TiltakstypeFixtures.Oppfolging.id
-        }
-    }
 })
 
 private infix fun Collection<Tiltakstype>.shouldContainExactlyIds(listOf: Collection<UUID>) {

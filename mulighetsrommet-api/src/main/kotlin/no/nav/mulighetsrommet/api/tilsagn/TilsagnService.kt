@@ -12,6 +12,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.findAvtaltSats
@@ -39,6 +40,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.task.JournalforTilsagnsbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.validation.validation
@@ -66,6 +68,7 @@ class TilsagnService(
     val config: Config,
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
+    private val journalforTilsagnsbrev: JournalforTilsagnsbrev,
 ) {
     data class Config(
         val bestillingTopic: String,
@@ -700,7 +703,7 @@ class TilsagnService(
         return beslutterAnsatt?.displayName() ?: navIdent.value
     }
 
-    private fun QueryContext.publishOpprettBestilling(tilsagn: Tilsagn) {
+    private fun TransactionalQueryContext.publishOpprettBestilling(tilsagn: Tilsagn) {
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
         check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null) {
             "Tilsagn id=${tilsagn.id} må være besluttet godkjent for å sendes til økonomi"
@@ -754,7 +757,7 @@ class TilsagnService(
         storeOkonomiMelding(bestilling.bestillingsnummer, OkonomiBestillingMelding.Bestilling(bestilling))
     }
 
-    private fun QueryContext.publishAnnullerBestilling(tilsagn: Tilsagn) {
+    private fun TransactionalQueryContext.publishAnnullerBestilling(tilsagn: Tilsagn) {
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
         check(annullering.besluttetAv != null && annullering.besluttetTidspunkt != null) {
             "Tilsagn id=${tilsagn.id} må være besluttet annullert for å sendes som annullert til økonomi"
@@ -774,7 +777,7 @@ class TilsagnService(
         )
     }
 
-    private fun QueryContext.publishGjorOppBestilling(tilsagn: Tilsagn) {
+    private fun TransactionalQueryContext.publishGjorOppBestilling(tilsagn: Tilsagn) {
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
         check(oppgjor.besluttetAv != null && oppgjor.besluttetTidspunkt != null) {
             "Tilsagn id=${tilsagn.id} må være besluttet oppgjort for å kunne sendes til økonomi"
@@ -810,7 +813,7 @@ class TilsagnService(
         }
     }
 
-    private fun QueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
+    private fun TransactionalQueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
         val record = StoredProducerRecord(
             config.bestillingTopic,
             bestillingsnummer.toByteArray(),

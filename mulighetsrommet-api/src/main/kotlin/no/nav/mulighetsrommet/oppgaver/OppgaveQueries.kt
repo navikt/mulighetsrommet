@@ -5,9 +5,8 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.db.createArrayOfAvtaleStatus
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
+import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.tilsagn.db.createArrayOfTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -61,13 +60,11 @@ class OppgaveQueries(private val session: Session) {
             val navEnheter = row.stringOrNull("nav_enheter_json")
                 ?.let { json -> Json.decodeFromString<List<NavEnhetDto>>(json) }
                 ?: emptyList()
-            val kontorstruktur = fromNavEnheter(navEnheter)
-
             GjennomforingManglerAdministratorOppgaveData(
                 id = row.uuid("id"),
                 navn = row.string("navn"),
                 oppdatertTidspunkt = row.localDateTime("oppdatert_tidspunkt"),
-                kontorstruktur = kontorstruktur,
+                kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
                 tiltakstype = row.toOppgaveTiltakstype(),
             )
         }
@@ -279,11 +276,10 @@ class OppgaveQueries(private val session: Session) {
             val navEnheter = it.stringOrNull("nav_enheter_json")
                 ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
                 ?: emptyList()
-
             AvtaleManglerAdministratorOppgaveData(
                 id = it.uuid("id"),
                 navn = it.string("navn"),
-                kontorstruktur = fromNavEnheter(navEnheter),
+                kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
                 tiltakstype = it.toOppgaveTiltakstype(),
                 oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
             )

@@ -6,7 +6,7 @@ import { AvtaleListe } from "./AvtaleListe";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { InformasjonForVeiledereForm } from "../redaksjoneltInnhold/InformasjonForVeiledereForm";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
-import { useNavRegioner } from "@/api/enhet/useNavRegioner";
+import { useKontorstruktur } from "@/api/enhet/useKontorstruktur";
 import {
   getAndreUnderenheterAsSelectOptions,
   getLokaleUnderenheterAsSelectOptions,
@@ -18,7 +18,7 @@ export function AvtaleInformasjonForVeiledereForm() {
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
-  const { data: regioner } = useNavRegioner();
+  const { data: regioner } = useKontorstruktur();
 
   const { setValue, watch } = useFormContext<AvtaleFormValues>();
   const tiltakskode = watch("detaljer.tiltakskode");
@@ -30,7 +30,7 @@ export function AvtaleInformasjonForVeiledereForm() {
     setValue("veilederinformasjon.faneinnhold", faneinnhold ?? null);
   }
 
-  const regionerOptions = regioner.map((region) => ({
+  const regionerOptions = regioner.map(({ region }) => ({
     value: region.enhetsnummer,
     label: region.navn,
   }));

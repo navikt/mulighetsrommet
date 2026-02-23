@@ -1,20 +1,21 @@
 import { Chips } from "@navikt/ds-react";
-import { NavRegionDto } from "@tiltaksadministrasjon/api-client";
+import { Kontorstruktur } from "@tiltaksadministrasjon/api-client";
+import { useKontorstruktur } from "@/api/enhet/useKontorstruktur";
 
 interface Props {
   navEnheter: string[];
   onClose: () => void;
-  regioner: NavRegionDto[];
 }
 
-export function NavEnhetFilterTag({ navEnheter, onClose, regioner }: Props) {
+export function KontorstrukturFilterTag({ navEnheter, onClose }: Props) {
+  const { data: regioner } = useKontorstruktur();
   const labels = getSelectedNavEnheter(regioner, navEnheter);
   return <Chips.Removable onClick={onClose}>{tagLabel(labels)}</Chips.Removable>;
 }
 
-function getSelectedNavEnheter(regioner: NavRegionDto[], enheter: string[]): string[] {
+function getSelectedNavEnheter(regioner: Kontorstruktur[], enheter: string[]): string[] {
   return regioner
-    .flatMap((region) => region.enheter)
+    .flatMap(({ kontorer }) => kontorer)
     .filter((enhet) => enheter.includes(enhet.enhetsnummer))
     .map((enhet) => enhet.navn);
 }

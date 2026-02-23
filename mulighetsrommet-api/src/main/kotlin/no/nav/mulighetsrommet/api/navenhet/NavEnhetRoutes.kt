@@ -6,6 +6,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
+import no.nav.mulighetsrommet.api.kostnadssted.RegionKostnadssteder
+import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -15,6 +17,43 @@ fun Route.navEnhetRoutes() {
     val kostnadsstedService: KostnadsstedService by inject()
     val navEnhetService: NavEnhetService by inject()
 
+    route("kodeverk") {
+        get("kontorstruktur", {
+            tags = setOf("Kodeverk")
+            operationId = "getKontorstruktur"
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Alle Nav-enheter"
+                    body<List<Kontorstruktur>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            call.respond(navEnhetService.hentKontorstruktur())
+        }
+
+        get("kostnadssteder", {
+            tags = setOf("Kodeverk")
+            operationId = "getKostnadssteder"
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Alle kostnadssteder"
+                    body<List<RegionKostnadssteder>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            call.respond(kostnadsstedService.hentKostnadssteder())
+        }
+    }
+
+    // TODO: skal fjernes, midlertidig inkludert for å være bakoverkompatibel
     route("nav-enheter") {
         get("regioner", {
             tags = setOf("NavEnheter")
