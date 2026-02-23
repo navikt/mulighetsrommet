@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.dokark
+package no.nav.mulighetsrommet.api.clients.teamdokumenthandtering
 
 import arrow.core.Either
 import arrow.core.left
@@ -31,6 +31,11 @@ class DokarkClient(
         install(HttpCache)
     }
 
+    /**
+     * Oppretter en journalpost i Joark
+     *
+     * https://confluence.adeo.no/spaces/BOA/pages/313346837/opprettJournalpost
+     */
     suspend fun opprettJournalpost(journalpost: Journalpost, accessType: AccessType): Either<DokarkError, DokarkResponse> {
         val response = client.post("$baseUrl/rest/journalpostapi/v1/journalpost?forsoekFerdigstill=true") {
             bearerAuth(tokenProvider.exchange(accessType))
@@ -49,12 +54,14 @@ class DokarkClient(
 
 @Serializable
 data class DokarkResponse(
-    val journalpostId: String,
+    val journalpostId: JournalpostId,
     val journalstatus: String,
     val melding: String?,
     val journalpostferdigstilt: Boolean,
     val dokumenter: List<DokarkResponseDokument>,
 )
+
+typealias JournalpostId = String
 
 @Serializable
 data class DokarkResponseDokument(
