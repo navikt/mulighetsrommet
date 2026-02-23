@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistError
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistRequest
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistResponse
-import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -22,7 +21,6 @@ import java.util.UUID
 class DistribuerTilsagnsbrev(
     private val db: ApiDatabase,
     private val dokdistClient: DokdistClient,
-    private val brregClient: BrregClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
