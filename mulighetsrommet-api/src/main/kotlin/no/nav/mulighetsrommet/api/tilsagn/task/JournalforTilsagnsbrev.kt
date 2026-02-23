@@ -146,7 +146,8 @@ fun tilsagnJournalpost(
     datoMottatt = LocalDateTime.now().toString(),
     dokumenter = listOf(
         Journalpost.Dokument(
-            tittel = "Tilsagn",
+            tittel = "Tilsagnsbrev",
+            brevKode = "Tilsagnsbrev_v1",
             dokumentvarianter = listOf(
                 Journalpost.Dokument.Dokumentvariant(
                     "PDFA",
