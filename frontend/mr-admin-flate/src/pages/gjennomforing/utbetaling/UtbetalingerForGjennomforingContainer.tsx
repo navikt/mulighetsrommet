@@ -26,7 +26,7 @@ export function UtbetalingerForGjennomforingContainer() {
               {handlinger.includes(GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING) && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
-                    navigate(`skjema`);
+                    navigate("opprett-korreksjon");
                   }}
                 >
                   Opprett korreksjon på utbetaling
