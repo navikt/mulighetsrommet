@@ -217,7 +217,11 @@ const routes: RouteObject[] = [
             element: <UtbetalingerForGjennomforingContainer />,
           },
           {
-            path: "utbetalinger/skjema",
+            path: "utbetalinger/opprett-korreksjon",
+            element: <OpprettUtbetalingPage />,
+          },
+          {
+            path: "utbetalinger/opprett-utbetaling",
             element: <OpprettUtbetalingPage />,
           },
         ],

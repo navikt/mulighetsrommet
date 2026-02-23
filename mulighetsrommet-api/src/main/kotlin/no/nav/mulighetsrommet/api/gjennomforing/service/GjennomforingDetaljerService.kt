@@ -122,18 +122,25 @@ class GjennomforingDetaljerService(
             val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
 
             return when (handling) {
-                GjennomforingHandling.PUBLISER -> skrivGjennomforing
-                GjennomforingHandling.AVBRYT -> skrivGjennomforing
-                GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING -> skrivGjennomforing || oppfolgerGjennomforing
-                GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR -> skrivGjennomforing || oppfolgerGjennomforing
-                GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR -> skrivGjennomforing
-                GjennomforingHandling.DUPLISER -> skrivGjennomforing
-                GjennomforingHandling.REDIGER -> skrivGjennomforing
-                GjennomforingHandling.OPPRETT_TILSAGN -> saksbehandlerOkonomi
-                GjennomforingHandling.OPPRETT_EKSTRATILSAGN -> saksbehandlerOkonomi
-                GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER -> saksbehandlerOkonomi
-                GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING -> saksbehandlerOkonomi
                 GjennomforingHandling.FORHANDSVIS_I_MODIA -> true
+
+                GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING,
+                GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR,
+                -> skrivGjennomforing || oppfolgerGjennomforing
+
+                GjennomforingHandling.PUBLISER,
+                GjennomforingHandling.AVBRYT,
+                GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR,
+                GjennomforingHandling.DUPLISER,
+                GjennomforingHandling.REDIGER,
+                -> skrivGjennomforing
+
+                GjennomforingHandling.OPPRETT_TILSAGN,
+                GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
+                GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
+                GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
+                GjennomforingHandling.OPPRETT_UTBETALING,
+                -> saksbehandlerOkonomi
             }
         }
     }
@@ -169,6 +176,7 @@ private fun getHandlingerEnkeltplasser(ansatt: NavAnsatt): Set<GjennomforingHand
     return setOfNotNull(
         GjennomforingHandling.OPPRETT_TILSAGN,
         GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
+        GjennomforingHandling.OPPRETT_UTBETALING,
     )
         .filter { GjennomforingDetaljerService.tilgangTilHandling(it, ansatt) }
         .toSet()

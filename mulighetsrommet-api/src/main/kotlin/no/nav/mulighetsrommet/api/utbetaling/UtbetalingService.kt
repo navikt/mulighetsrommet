@@ -208,7 +208,7 @@ class UtbetalingService(
         agent: Agent,
         periode: Periode,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(request.gjennomforingId)
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
         val arrangor = requireNotNull(queries.arrangor.getByGjennomforingId(request.gjennomforingId))
         val betalingsinformasjon = arrangorService.getBetalingsinformasjon(arrangor.id)
         val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(

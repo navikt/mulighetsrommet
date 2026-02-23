@@ -5260,6 +5260,7 @@ components:
       - OPPRETT_EKSTRATILSAGN
       - OPPRETT_TILSAGN_FOR_INVESTERINGER
       - OPPRETT_KORREKSJON_PA_UTBETALING
+      - OPPRETT_UTBETALING
     PrismodellInfo:
       type: object
       properties:
