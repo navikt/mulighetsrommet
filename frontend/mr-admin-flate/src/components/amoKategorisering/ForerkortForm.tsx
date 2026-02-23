@@ -15,7 +15,6 @@ export function ForerkortForm<T extends FieldValues>(props: {
 
   return (
     <UNSAFE_Combobox
-      clearButton
       size="small"
       label={gjennomforingTekster.forerkortLabel}
       isMultiSelect
