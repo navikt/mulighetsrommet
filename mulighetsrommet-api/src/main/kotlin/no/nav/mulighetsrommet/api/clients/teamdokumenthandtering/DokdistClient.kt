@@ -196,8 +196,8 @@ sealed class DokdistError(open val message: String) {
     data class UnknownError(override val message: String) : DokdistError(message)
 
     companion object {
-        fun from(httpResponse: HttpResponse): DokdistError = when (httpResponse.status) {
-            HttpStatusCode.BadRequest -> BadRequestError("Feil i request body eller journalposten som journalpostId refererer til")
+        suspend fun from(httpResponse: HttpResponse): DokdistError = when (httpResponse.status) {
+            HttpStatusCode.BadRequest -> BadRequestError("Feil i request body eller journalposten som journalpostId refererer til: " + httpResponse.body())
             HttpStatusCode.Unauthorized -> UnauthorizedError("Ugyldig OIDC token eller manglende tilgang for å vise journalposten")
             HttpStatusCode.NotFound -> NotFoundError("Journalposten ble ikke funnet")
             HttpStatusCode.Gone -> GoneError("Journalpost kan ikke distribueres. Bruker er død og har ukjent postadresse")
