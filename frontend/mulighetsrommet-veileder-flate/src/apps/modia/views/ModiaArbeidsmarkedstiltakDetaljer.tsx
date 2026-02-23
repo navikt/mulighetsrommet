@@ -66,9 +66,10 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
     : null;
 
   const tiltaksnummer = "tiltaksnummer" in tiltak ? tiltak.tiltaksnummer : undefined;
-  // TODO: Denne kan utbedres til å sjekke litt mer for å finne fylket veileder vil henvende seg til
-  const fylke = regioner.find(({ region }) => tiltak.fylker.includes(region.enhetsnummer))?.region
-    .navn;
+  const fylke = regioner
+    .filter(({ region }) => tiltak.fylker.includes(region.enhetsnummer))
+    .map(({ region }) => region.navn)
+    .join(", ");
 
   return (
     <>
@@ -149,7 +150,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 
             {isTilbakemeldingerEnabled(tiltak) && (
               <TilbakemeldingsLenke
-                url={PORTEN_URL_FOR_TILBAKEMELDING(tiltaksnummer ?? "", fylke ?? "")}
+                url={PORTEN_URL_FOR_TILBAKEMELDING(tiltaksnummer ?? "", fylke)}
                 tekst="Gi tilbakemelding via Porten"
               />
             )}
