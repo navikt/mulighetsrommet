@@ -2603,54 +2603,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/nav-enheter/regioner:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getRegioner
-      parameters: []
-      responses:
-        "200":
-          description: Alle Nav-enheter
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavRegionDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/nav-enheter/kostnadsstedFilter:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getKostnadsstedFilter
-      parameters: []
-      responses:
-        "200":
-          description: Filtre for kostnadssteder
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavRegionDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/ansatt:
     get:
       tags:
@@ -6608,34 +6560,6 @@ components:
           type: string
       required:
       - enhetsnummer
-      - navn
-    NavRegionDto:
-      type: object
-      properties:
-        enhetsnummer:
-          type: string
-        navn:
-          type: string
-        enheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionUnderenhetDto"
-      required:
-      - enheter
-      - enhetsnummer
-      - navn
-    NavRegionUnderenhetDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        erStandardvalg:
-          type: boolean
-      required:
-      - enhetsnummer
-      - erStandardvalg
       - navn
     Rolle:
       type: string
