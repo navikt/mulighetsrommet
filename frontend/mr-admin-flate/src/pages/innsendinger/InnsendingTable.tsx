@@ -2,7 +2,7 @@ import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { Alert, BodyShort, Table, VStack, Link } from "@navikt/ds-react";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useGetInnsendinger } from "@/api/utbetaling/useFiltrerteInnsendinger";
-import { InnsendingFilterStateAtom, InnsendingFilterType } from "./filter";
+import { InnsendingFilterStateAtom, InnsendingFilterType, parseInnsendingFilter } from "./filter";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 import { Link as ReactRouterLink } from "react-router";
@@ -14,7 +14,11 @@ interface Props {
 }
 
 export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
-  const { filter } = useSavedFiltersState(InnsendingFilterStateAtom, LagretFilterType.INNSENDING);
+  const { filter } = useSavedFiltersState(
+    InnsendingFilterStateAtom,
+    LagretFilterType.INNSENDING,
+    parseInnsendingFilter,
+  );
   const { data: innsendinger } = useGetInnsendinger(filter.values);
 
   const sort = filter.values.sortering.tableSort;

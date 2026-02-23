@@ -19,6 +19,7 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import {
   GjennomforingFilterSchema,
   gjennomforingFilterStateAtom,
+  parseGjennomforingFilter,
 } from "@/pages/gjennomforing/filter";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 
@@ -36,7 +37,11 @@ export function GjennomforingerPage() {
     saveFilter,
     deleteFilter,
     setDefaultFilter,
-  } = useSavedFiltersState(gjennomforingFilterStateAtom, LagretFilterType.GJENNOMFORING);
+  } = useSavedFiltersState(
+    gjennomforingFilterStateAtom,
+    LagretFilterType.GJENNOMFORING,
+    parseGjennomforingFilter,
+  );
 
   return (
     <>

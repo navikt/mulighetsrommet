@@ -1,5 +1,5 @@
 import { createSorteringProps } from "@/api/atoms";
-import { createFilterValidator } from "@/filter/filter-validator";
+import { createFilterValidator, createGracefulParser } from "@/filter/filter-validator";
 import { PAGE_SIZE } from "@/constants";
 import { GjennomforingStatusType } from "@tiltaksadministrasjon/api-client";
 import { z } from "zod";
@@ -47,6 +47,11 @@ export const gjennomforingFilterStateAtom = createFilterStateAtom<GjennomforingF
   "gjennomforing-filter",
   defaultGjennomforingFilter,
   createFilterValidator(GjennomforingFilterSchema),
+);
+
+export const parseGjennomforingFilter = createGracefulParser(
+  GjennomforingFilterSchema,
+  defaultGjennomforingFilter,
 );
 
 export function getGjennomforingerForAvtaleFilterAtom(avtaleId: string) {

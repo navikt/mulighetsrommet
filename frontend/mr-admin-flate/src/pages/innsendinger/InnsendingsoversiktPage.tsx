@@ -12,7 +12,7 @@ import { CurrencyExchangeIcon } from "@navikt/aksel-icons";
 import { Suspense } from "react";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
-import { InnsendingFilterSchema, InnsendingFilterStateAtom } from "./filter";
+import { InnsendingFilterSchema, InnsendingFilterStateAtom, parseInnsendingFilter } from "./filter";
 import { InnsendingFilter } from "./InnsendingFilter";
 import { InnsendingTable } from "./InnsendingTable";
 import { InnsendingFilterTags } from "./InnsendingFilterTags";
@@ -29,7 +29,11 @@ export function InnsendingoversiktPage() {
     saveFilter,
     deleteFilter,
     setDefaultFilter,
-  } = useSavedFiltersState(InnsendingFilterStateAtom, LagretFilterType.INNSENDING);
+  } = useSavedFiltersState(
+    InnsendingFilterStateAtom,
+    LagretFilterType.INNSENDING,
+    parseInnsendingFilter,
+  );
 
   return (
     <>

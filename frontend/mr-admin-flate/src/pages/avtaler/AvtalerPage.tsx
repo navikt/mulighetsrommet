@@ -17,7 +17,11 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Suspense, useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { AvtaleFilterSchema, avtalerFilterStateAtom } from "@/pages/avtaler/filter";
+import {
+  AvtaleFilterSchema,
+  avtalerFilterStateAtom,
+  parseAvtaleFilter,
+} from "@/pages/avtaler/filter";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 
 export function AvtalerPage() {
@@ -34,7 +38,7 @@ export function AvtalerPage() {
     saveFilter,
     deleteFilter,
     setDefaultFilter,
-  } = useSavedFiltersState(avtalerFilterStateAtom, LagretFilterType.AVTALE);
+  } = useSavedFiltersState(avtalerFilterStateAtom, LagretFilterType.AVTALE, parseAvtaleFilter);
 
   return (
     <>

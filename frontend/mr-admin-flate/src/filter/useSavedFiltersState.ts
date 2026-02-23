@@ -8,6 +8,7 @@ import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 export function useSavedFiltersState<T extends object>(
   filterStateAtom: WritableAtom<FilterState<T>, [FilterAction<T>], void>,
   type: LagretFilterType,
+  parser: (input: unknown) => T,
 ) {
   const { filters, saveFilter, deleteFilter, setDefaultFilter } = useLagredeFilter(type);
 
@@ -15,8 +16,10 @@ export function useSavedFiltersState<T extends object>(
 
   const savedDefaultFilter = useMemo(() => {
     const defaultFilter = filters.find((f) => f.isDefault);
-    return defaultFilter ? { id: defaultFilter.id, values: defaultFilter.filter as T } : undefined;
-  }, [filters]);
+    return defaultFilter
+      ? { id: defaultFilter.id, values: parser(defaultFilter.filter) }
+      : undefined;
+  }, [filters, parser]);
 
   useEffect(() => {
     dispatch({ type: "UPDATE_DEFAULT", payload: savedDefaultFilter });
@@ -41,12 +44,12 @@ export function useSavedFiltersState<T extends object>(
           type: "SELECT_FILTER",
           payload: {
             id: filterId,
-            values: savedFilter.filter as T,
+            values: parser(savedFilter.filter),
           },
         });
       }
     },
-    [filters, dispatch],
+    [filters, dispatch, parser],
   );
 
   const hasChanged = useMemo(

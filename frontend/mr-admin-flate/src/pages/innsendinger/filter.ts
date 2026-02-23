@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 import { z } from "zod";
 import { createFilterStateAtom } from "@/filter/filter-state";
-import { createFilterValidator } from "@/filter/filter-validator";
+import { createFilterValidator, createGracefulParser } from "@/filter/filter-validator";
 import { createSorteringProps } from "@/api/atoms";
 
 export const InnsendingFilterSchema = z.object({
@@ -28,6 +28,11 @@ export const InnsendingFilterStateAtom = createFilterStateAtom<InnsendingFilterT
   "Innsending-filter",
   defaultInnsendingFilter,
   createFilterValidator(InnsendingFilterSchema),
+);
+
+export const parseInnsendingFilter = createGracefulParser(
+  InnsendingFilterSchema,
+  defaultInnsendingFilter,
 );
 
 export const InnsendingFilterAccordionAtom = atom<string[]>(["tiltakstype", "navEnhet"]);

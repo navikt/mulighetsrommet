@@ -14,6 +14,7 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import {
   OppgaverFilterSchema,
   oppgaverFilterStateAtom,
+  parseOppgaverFilter,
 } from "@/pages/oppgaveoversikt/oppgaver/filter";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 import OppgaverList from "@/components/oppgaver/OppgaveList";
@@ -32,7 +33,7 @@ export function OppgaverPage() {
     saveFilter,
     deleteFilter,
     setDefaultFilter,
-  } = useSavedFiltersState(oppgaverFilterStateAtom, LagretFilterType.OPPGAVE);
+  } = useSavedFiltersState(oppgaverFilterStateAtom, LagretFilterType.OPPGAVE, parseOppgaverFilter);
 
   return (
     <ContentBox>
