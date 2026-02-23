@@ -220,6 +220,10 @@ const routes: RouteObject[] = [
             path: "utbetalinger/skjema",
             element: <OpprettUtbetalingPage />,
           },
+          {
+            path: "utbetalinger/opprett-utbetaling",
+            element: <OpprettUtbetalingPage />,
+          },
         ],
       },
       {
