@@ -5,7 +5,6 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 import {
   LagredeFilterOversikt,
   LagreFilterButton,
@@ -16,11 +15,8 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Suspense, useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import {
-  GjennomforingFilterSchema,
-  gjennomforingFilterStateAtom,
-} from "@/pages/gjennomforing/filter";
-import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
+import { GjennomforingFilterSchema } from "@/pages/gjennomforing/filter";
+import { useGjennomforingerSavedFilterState } from "@/filter/useSavedFiltersState";
 
 export function GjennomforingerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -36,7 +32,7 @@ export function GjennomforingerPage() {
     saveFilter,
     deleteFilter,
     setDefaultFilter,
-  } = useSavedFiltersState(gjennomforingFilterStateAtom, LagretFilterType.GJENNOMFORING);
+  } = useGjennomforingerSavedFilterState();
 
   return (
     <>

@@ -4,10 +4,21 @@ import { dequal } from "dequal";
 import { FilterAction, FilterState } from "@/filter/filter-state";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
+import { avtalerFilterStateAtom, parseAvtaleFilter } from "@/pages/avtaler/filter";
+import {
+  gjennomforingFilterStateAtom,
+  parseGjennomforingFilter,
+} from "@/pages/gjennomforing/filter";
+import { InnsendingFilterStateAtom, parseInnsendingFilter } from "@/pages/innsendinger/filter";
+import {
+  oppgaverFilterStateAtom,
+  parseOppgaverFilter,
+} from "@/pages/oppgaveoversikt/oppgaver/filter";
 
-export function useSavedFiltersState<T extends object>(
+function useSavedFiltersState<T extends object>(
   filterStateAtom: WritableAtom<FilterState<T>, [FilterAction<T>], void>,
   type: LagretFilterType,
+  parser: (input: unknown) => T,
 ) {
   const { filters, saveFilter, deleteFilter, setDefaultFilter } = useLagredeFilter(type);
 
@@ -15,8 +26,10 @@ export function useSavedFiltersState<T extends object>(
 
   const savedDefaultFilter = useMemo(() => {
     const defaultFilter = filters.find((f) => f.isDefault);
-    return defaultFilter ? { id: defaultFilter.id, values: defaultFilter.filter as T } : undefined;
-  }, [filters]);
+    return defaultFilter
+      ? { id: defaultFilter.id, values: parser(defaultFilter.filter) }
+      : undefined;
+  }, [filters, parser]);
 
   useEffect(() => {
     dispatch({ type: "UPDATE_DEFAULT", payload: savedDefaultFilter });
@@ -41,12 +54,12 @@ export function useSavedFiltersState<T extends object>(
           type: "SELECT_FILTER",
           payload: {
             id: filterId,
-            values: savedFilter.filter as T,
+            values: parser(savedFilter.filter),
           },
         });
       }
     },
-    [filters, dispatch],
+    [filters, dispatch, parser],
   );
 
   const hasChanged = useMemo(
@@ -65,4 +78,32 @@ export function useSavedFiltersState<T extends object>(
     deleteFilter,
     setDefaultFilter,
   };
+}
+
+export function useAvtalerSavedFilterState() {
+  return useSavedFiltersState(avtalerFilterStateAtom, LagretFilterType.AVTALE, parseAvtaleFilter);
+}
+
+export function useGjennomforingerSavedFilterState() {
+  return useSavedFiltersState(
+    gjennomforingFilterStateAtom,
+    LagretFilterType.GJENNOMFORING,
+    parseGjennomforingFilter,
+  );
+}
+
+export function useInnsendingerSavedFilterState() {
+  return useSavedFiltersState(
+    InnsendingFilterStateAtom,
+    LagretFilterType.INNSENDING,
+    parseInnsendingFilter,
+  );
+}
+
+export function useOppgaverSavedFilterState() {
+  return useSavedFiltersState(
+    oppgaverFilterStateAtom,
+    LagretFilterType.OPPGAVE,
+    parseOppgaverFilter,
+  );
 }
