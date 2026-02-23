@@ -4,7 +4,7 @@ import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
+import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject

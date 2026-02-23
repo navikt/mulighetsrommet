@@ -2,10 +2,9 @@ package no.nav.mulighetsrommet.api.navenhet
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
-class NavEnhetHelpersTest : FunSpec({
+class KontorstrukturTest : FunSpec({
     test("buildNavRegioner skal gruppere enheter etter fylke og inkludere underenheter") {
         val enheter = listOf(
             NavEnhetDto("Fylke 1", NavEnhetNummer("0400"), NavEnhetType.FYLKE, null),
