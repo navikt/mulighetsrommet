@@ -47,6 +47,38 @@ class TiltakstypeQueries(private val session: Session) {
         execute(queryOf(query, tiltakstype.toSqlParameters()))
     }
 
+    fun setSanityId(id: UUID, sanityId: UUID?) {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltakstype
+            set sanity_id = :sanity_id::uuid
+            where id = :id::uuid;
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+            "sanity_id" to sanityId,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
+    fun setInnsatsgrupper(id: UUID, innsatsgrupper: Set<Innsatsgruppe>) {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltakstype
+            set innsatsgrupper = :innsatsgrupper::innsatsgruppe[]
+            where id = :id::uuid;
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+            "innsatsgrupper" to session.createArrayOf("innsatsgruppe", innsatsgrupper),
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
     fun get(id: UUID): Tiltakstype? = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -95,17 +127,6 @@ class TiltakstypeQueries(private val session: Session) {
         """.trimIndent()
 
         return list(queryOf(query, arenaTiltakskode)) { it.toTiltakstype() }
-    }
-
-    fun getBySanityId(sanityId: UUID): Tiltakstype? = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from view_tiltakstype_dto
-            where sanity_id = ?::uuid
-        """.trimIndent()
-
-        return single(queryOf(query, sanityId)) { it.toTiltakstype() }
     }
 
     fun getAll(

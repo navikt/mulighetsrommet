@@ -20,12 +20,6 @@ class TiltakstypeService(
         val features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     )
 
-    private val cacheBySanityId: Cache<UUID, Tiltakstype> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
-        .maximumSize(200)
-        .recordStats()
-        .build()
-
     private val cacheByTiltakskode: Cache<String, Tiltakstype> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)
         .maximumSize(200)
@@ -69,12 +63,6 @@ class TiltakstypeService(
 
     fun getById(id: UUID): TiltakstypeDto? = db.session {
         queries.tiltakstype.get(id)?.toTiltakstypeDto()
-    }
-
-    fun getBySanityId(sanityId: UUID): Tiltakstype? {
-        return CacheUtils.tryCacheFirstNullable(cacheBySanityId, sanityId) {
-            db.session { queries.tiltakstype.getBySanityId(sanityId) }
-        }
     }
 
     fun getByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype {

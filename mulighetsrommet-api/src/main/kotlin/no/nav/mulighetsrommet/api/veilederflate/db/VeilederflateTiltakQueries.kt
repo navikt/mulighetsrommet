@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.veilederflate
+package no.nav.mulighetsrommet.api.veilederflate.db
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -11,9 +11,7 @@ import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangorKont
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfo
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfoTiltaksansvarlig
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateNavEnhet
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppeStatus
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
@@ -28,7 +26,7 @@ import java.util.UUID
 
 class VeilederflateTiltakQueries(private val session: Session) {
 
-    fun get(id: UUID): VeilederflateTiltakGruppe? = with(session) {
+    fun get(id: UUID): Tiltaksgjennomforing? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -36,7 +34,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, id)) { it.toVeilederflateTiltaksgjennomforing() }
+        return session.single(queryOf(query, id)) { it.toTiltaksgjennomforing() }
     }
 
     fun getAll(
@@ -46,7 +44,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
         apentForPamelding: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
         erSykmeldtMedArbeidsgiver: Boolean = false,
-    ): List<VeilederflateTiltakGruppe> = with(session) {
+    ): List<Tiltaksgjennomforing> = with(session) {
         val parameters = mapOf(
             "innsatsgruppe" to innsatsgruppe.name,
             "brukers_enheter" to createArrayOfValue(brukersEnheter) { it.value },
@@ -78,11 +76,11 @@ class VeilederflateTiltakQueries(private val session: Session) {
               and (:apent_for_pamelding::boolean is null or apent_for_pamelding = :apent_for_pamelding)
         """.trimIndent()
 
-        return list(queryOf(query, parameters)) { it.toVeilederflateTiltaksgjennomforing() }
+        return list(queryOf(query, parameters)) { it.toTiltaksgjennomforing() }
     }
 }
 
-private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe {
+private fun Row.toTiltaksgjennomforing(): Tiltaksgjennomforing {
     val navEnheter = stringOrNull("nav_enheter_json")
         ?.let { Json.decodeFromString<List<VeilederflateNavEnhet>>(it) }
         ?: emptyList()
@@ -101,23 +99,9 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
 
     val status = GjennomforingStatusType.valueOf(string("status"))
 
-    val tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) }
-    return VeilederflateTiltakGruppe(
+    return Tiltaksgjennomforing(
         id = uuid("id"),
-        tiltakstype = VeilederflateTiltakstype(
-            id = uuid("tiltakstype_id"),
-            sanityId = uuid("tiltakstype_sanity_id").toString(),
-            navn = string("tiltakstype_navn"),
-            tiltakskode = tiltakskode,
-            tiltaksgruppe = tiltakskode?.gruppe?.tittel,
-            arenakode = tiltakskode?.arenakode,
-            kanKombineresMed = listOf(),
-            beskrivelse = null,
-            innsatsgrupper = null,
-            regelverkLenker = null,
-            faneinnhold = null,
-            delingMedBruker = null,
-        ),
+        tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
         navn = string("navn"),
         apentForPamelding = boolean("apent_for_pamelding"),
         tiltaksnummer = stringOrNull("arena_tiltaksnummer"),
