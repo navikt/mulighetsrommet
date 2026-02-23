@@ -62,6 +62,7 @@ class KontorstrukturTest : FunSpec({
             NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
             NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
             NavEnhetDto("Lokal 3", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0300")),
+            NavEnhetDto("Lokal 4", NavEnhetNummer("0301"), NavEnhetType.LOKAL, null),
         )
 
         val result = Kontorstruktur.fromNavEnheter(enheter)

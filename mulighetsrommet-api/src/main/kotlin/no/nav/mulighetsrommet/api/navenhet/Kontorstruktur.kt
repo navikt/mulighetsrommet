@@ -32,7 +32,7 @@ data class Kontorstruktur(
             val enheterByOverordnetEnhet = navEnheter.groupBy { it.overordnetEnhet }
 
             val regioner = enheterByOverordnetEnhet[null].orEmpty()
-                .filter { it.enhetsnummer !in enheterByOverordnetEnhet.keys }
+                .filter { it.type == NavEnhetType.FYLKE && it.enhetsnummer !in enheterByOverordnetEnhet.keys }
                 .map { Kontorstruktur(region = Region(it.navn, it.enhetsnummer), kontorer = emptyList()) }
 
             val kontorstrukturer = enheterByOverordnetEnhet.entries.mapNotNull { (overordnetEnhet, enheter) ->
