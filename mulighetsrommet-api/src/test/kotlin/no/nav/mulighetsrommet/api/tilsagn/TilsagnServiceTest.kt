@@ -425,7 +425,7 @@ class TilsagnServiceTest : FunSpec({
                 }
         }
 
-        test("godkjent enkeltplass tilsagn trigger skedulering av tilsagnsbrev") {
+        xtest("godkjent enkeltplass tilsagn trigger skedulering av tilsagnsbrev") {
             val journalforTilsagnsbrev = mockk<JournalforTilsagnsbrev>(relaxed = true)
             val service2 = createTilsagnService(journalforTilsagnsbrev = journalforTilsagnsbrev)
             service2.upsert(request.copy(gjennomforingId = GjennomforingFixtures.EnkelAmo.id), ansatt1).shouldBeRight()

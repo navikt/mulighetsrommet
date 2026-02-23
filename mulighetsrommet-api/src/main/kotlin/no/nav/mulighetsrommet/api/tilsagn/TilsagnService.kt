@@ -755,13 +755,6 @@ class TilsagnService(
         )
 
         storeOkonomiMelding(bestilling.bestillingsnummer, OkonomiBestillingMelding.Bestilling(bestilling))
-
-        when (gjennomforing) {
-            is GjennomforingAvtale -> Unit
-
-            // TODO: Burde tilsagnsbrevet heller bli opprettet når tilsagnet er aktivt?
-            is GjennomforingEnkeltplass -> journalforTilsagnsbrev.schedule(tilsagn.id)
-        }
     }
 
     private fun TransactionalQueryContext.publishAnnullerBestilling(tilsagn: Tilsagn) {
