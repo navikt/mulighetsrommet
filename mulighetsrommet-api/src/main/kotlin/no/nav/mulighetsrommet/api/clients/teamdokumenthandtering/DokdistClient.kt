@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
+import kotlin.String
 
 /**
  * Se https://confluence.adeo.no/spaces/BOA/pages/320039012/POST+rest+v1+distribuerjournalpost
@@ -55,6 +56,8 @@ class DokdistClient(
             } else {
                 DokdistRequest.Distribusjonstidspunkt.UMIDDELBART
             },
+            bestillendeFagsystem = "TILTAKSADMINISTRASJON",
+            dokumentProdApp = "TILTAKSADMINISTRASJON",
         )
         val response = client.post("$baseUrl/rest/v1/distribuerjournalpost") {
             bearerAuth(tokenProvider.exchange(accessType))
@@ -78,11 +81,11 @@ class DokdistClient(
 data class DokdistRequest(
     val journalpostId: String,
     val batchId: String?,
-    val bestillendeFagsystem: String = "TILTAKSADMINISTRASJON",
     val adresse: Adresse?,
-    val dokumentProdApp: String = "TILTAKSADMINISTRASJON",
     val distribusjonstype: DistribusjonsType,
     val distribusjonstidspunkt: Distribusjonstidspunkt,
+    val bestillendeFagsystem: String,
+    val dokumentProdApp: String,
 ) {
     /**
      * Struktur for å beskrive postadresse. Inneholder enten norsk postadresse eller utenlandsk postadresse.
