@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
-import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
@@ -18,16 +17,12 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHel
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
-import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
-import java.math.BigDecimal
-import java.math.RoundingMode
 import java.util.UUID
 
 @Serializable
@@ -309,77 +304,3 @@ private fun deltakelseFaktorCells(ukesverk: Double, belop: ValutaBelop) = mapOf(
     "faktor" to DataElement.number(ukesverk),
     "belop" to DataElement.money(belop),
 )
-
-private fun getRegnestykkeDeltakelsesfaktor(
-    valuta: Valuta,
-    deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
-    faktorLabel: String,
-    satsLabel: String,
-): List<DataElement> {
-    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(valuta, deltakelser)
-    return deltakelser
-        .flatMap { it.perioder }
-        .groupBy { it.sats }
-        .map { (sats, perioder) ->
-            val faktor = perioder.sumOf { it.faktor }
-            listOf(
-                DataElement.number(faktor),
-                DataElement.text(faktorLabel),
-                DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
-                DataElement.money(sats),
-                DataElement.text(satsLabel),
-            )
-        }
-        .reduce { a, b ->
-            a + listOf(DataElement.MathOperator(DataElement.MathOperator.Type.PLUS)) + b
-        }
-        .plus(DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS))
-        .plus(DataElement.money(belop))
-}
-
-fun beregningSatsPeriodeDetaljerMedFaktor(
-    satser: List<SatsPeriode>,
-    deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
-    satsLabel: String,
-    faktorLabel: String,
-): List<DataDetails> {
-    return satser.mapNotNull { satsPeriode ->
-        val faktor = deltakelser
-            .flatMap { it.perioder }
-            .filter { it.sats == satsPeriode.sats }
-            .map { it.faktor.toBigDecimal() }
-            .sumOf { it }
-            .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
-            .toDouble()
-
-        if (faktor.equals(BigDecimal.ZERO)) {
-            null
-        } else {
-            DataDetails(
-                header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${
-                    satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
-                }",
-                entries = listOf(
-                    LabeledDataElement.money(satsLabel, satsPeriode.sats),
-                    LabeledDataElement.number(faktorLabel, faktor),
-                ),
-            )
-        }
-    }
-}
-
-fun beregningSatsPeriodeDetaljerUtenFaktor(
-    satser: List<SatsPeriode>,
-    satsLabel: String,
-): List<DataDetails> {
-    return satser.map { satsPeriode ->
-        DataDetails(
-            header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${
-                satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
-            }",
-            entries = listOf(
-                LabeledDataElement.money(satsLabel, satsPeriode.sats),
-            ),
-        )
-    }
-}
