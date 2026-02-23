@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn.task
 
 import arrow.core.Either
-import arrow.core.getOrElse
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
@@ -12,11 +11,6 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistError
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistRequest
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistResponse
 import no.nav.mulighetsrommet.brreg.BrregClient
-import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
-import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
-import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
-import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -70,7 +64,7 @@ class DistribuerTilsagnsbrev(
         val adresse = if (arrangor.erUtenlandsk) {
             hentUtenlandskArrangorAdresse(arrangor.id)
         } else {
-            hentNorskArrangorAdresse(arrangor.organisasjonsnummer)
+            null
         }
 
         dokdistClient.distribuerJournalpost(
@@ -92,31 +86,6 @@ class DistribuerTilsagnsbrev(
             adresselinje1 = utenlandskArrangor.gateNavn,
             adresselinje2 = utenlandskArrangor.by,
             adresselinje3 = null,
-        )
-    }
-
-    suspend fun hentNorskArrangorAdresse(organisasjonsnummer: Organisasjonsnummer): DokdistRequest.Adresse.NorskPostAdresse {
-        val enhet = brregClient.getBrregEnhet(organisasjonsnummer)
-            .getOrElse { error ->
-                throw Exception("Feil ved henting av norsk arrangøradresse for arrangør med orgnr=$organisasjonsnummer: $error")
-            }
-        val postadresse =
-            when (enhet) {
-                is BrregHovedenhetDto -> enhet.postadresse
-                is SlettetBrregHovedenhetDto -> enhet.postadresse
-                is BrregUnderenhetDto -> TODO("Hvordan håndtere underenhet? Skal vi hente hovedenhetens adresse?")
-                is SlettetBrregUnderenhetDto -> TODO("Hvordan håndtere slettet underenhet? Skal vi hente hovedenhetens adresse?")
-            }
-        requireNotNull(postadresse)
-        requireNotNull(postadresse.postnummer) { "Norsk arrangør med orgnr=$organisasjonsnummer mangler postnummer i postadresse, kunne ikke hente adresse" }
-        requireNotNull(postadresse.poststed) { "Norsk arrangør med orgnr=$organisasjonsnummer mangler poststed i postadresse, kunne ikke hente adresse" }
-
-        return DokdistRequest.Adresse.NorskPostAdresse(
-            postnummer = postadresse.postnummer!!,
-            poststed = postadresse.poststed!!,
-            adresselinje1 = postadresse.adresse?.getOrNull(0),
-            adresselinje2 = postadresse.adresse?.getOrNull(1),
-            adresselinje3 = postadresse.adresse?.getOrNull(2),
         )
     }
 }
