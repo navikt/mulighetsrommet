@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.task
 
 import arrow.core.Either
 import com.github.kagkarlsson.scheduler.SchedulerClient
+import com.github.kagkarlsson.scheduler.task.FailureHandler
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
@@ -15,6 +16,7 @@ import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
+import java.time.Duration.ofMinutes
 import java.time.Instant
 import java.util.UUID
 
@@ -32,6 +34,7 @@ class DistribuerTilsagnsbrev(
 
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
+        .onFailure(FailureHandler.ExponentialBackoffFailureHandler<TaskData>(ofMinutes(5)))
         .executeSuspend { inst, _ ->
             distribuerDok(inst.data.tilsagnId).onLeft { message ->
                 throw Exception("Feil distribuering av tilsagnsbrev for tilsagn id=${inst.data.tilsagnId}: $message")
