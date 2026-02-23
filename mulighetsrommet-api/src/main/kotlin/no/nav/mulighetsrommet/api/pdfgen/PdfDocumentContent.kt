@@ -54,7 +54,7 @@ data class DescriptionListBlock(
     @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     @JsonClassDiscriminator("type")
-    sealed class Entry() {
+    sealed class Entry {
         @Serializable
         data class Text(
             val label: String,

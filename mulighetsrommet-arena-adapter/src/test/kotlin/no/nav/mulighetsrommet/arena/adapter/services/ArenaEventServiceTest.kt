@@ -477,7 +477,7 @@ class ArenaEventServiceTest : FunSpec({
             entities.getOrCreateMapping(failedEvent)
 
             val service = ArenaEventService(events = events, processors = listOf(), entities = entities)
-            service.setReplayStatusForEvents(table, ArenaEntityMapping.Status.Handled)
+            service.setReplayStatusForEvents(table, Handled)
 
             database.assertTable("arena_events")
                 .row().value("processing_status").isEqualTo(ProcessingStatus.Pending.name)

@@ -231,7 +231,7 @@ sealed class DataElement {
 
         fun number(value: Number) = Text(value.toString(), Format.NUMBER)
 
-        fun periode(periode: no.nav.mulighetsrommet.model.Periode) = DataElement.Periode(
+        fun periode(periode: no.nav.mulighetsrommet.model.Periode) = Periode(
             start = periode.start.formaterDatoTilEuropeiskDatoformat(),
             slutt = periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
         )
