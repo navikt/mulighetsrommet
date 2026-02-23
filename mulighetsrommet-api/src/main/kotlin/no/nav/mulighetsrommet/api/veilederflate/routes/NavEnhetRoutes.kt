@@ -12,7 +12,7 @@ import org.koin.ktor.ext.inject
 fun Route.regionRoutes() {
     val navEnhetService: NavEnhetService by inject()
 
-    get("nav-enheter/regioner", {
+    get("nav-enheter/kontorstruktur", {
         tags = setOf("NavEnheter")
         operationId = "getKontorstruktur"
         response {
