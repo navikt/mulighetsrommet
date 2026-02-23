@@ -43,7 +43,6 @@ import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentConten
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
-import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
