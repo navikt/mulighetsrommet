@@ -56,8 +56,8 @@ class DokdistClient(
             } else {
                 DokdistRequest.Distribusjonstidspunkt.UMIDDELBART
             },
-            bestillendeFagsystem = "TILTAKSADMINISTRASJON",
-            dokumentProdApp = "TILTAKSADMINISTRASJON",
+            bestillendeFagsystem = "TILTADM",
+            dokumentProdApp = "TILTADM",
         )
         val response = client.post("$baseUrl/rest/v1/distribuerjournalpost") {
             bearerAuth(tokenProvider.exchange(accessType))

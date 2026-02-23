@@ -13,7 +13,7 @@ import io.ktor.http.headersOf
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class DokdistClientTest : FunSpec({
-    fun createClient(engine: MockEngine) = DokdistClient(engine, "", { "token" })
+    fun createClient(engine: MockEngine) = DokdistClient(engine, "https://localhost", { "token" })
 
     test("skal kunne serialisere DokdistRequest") {
         val client = createClient(
@@ -21,7 +21,7 @@ class DokdistClientTest : FunSpec({
                 request.method shouldBe HttpMethod.Post
 
                 val bodyString = request.body.toByteArray().toString(Charsets.UTF_8)
-                bodyString shouldBe """{"journalpostId":"123","batchId":null,"adresse":null,"distribusjonstype":"VIKTIG","distribusjonstidspunkt":"KJERNETID","bestillendeFagsystem":"TILTAKSADMINISTRASJON","dokumentProdApp":"TILTAKSADMINISTRASJON"}"""
+                bodyString shouldBe """{"journalpostId":"123","batchId":null,"adresse":null,"distribusjonstype":"VIKTIG","distribusjonstidspunkt":"KJERNETID","bestillendeFagsystem":"TILTADM","dokumentProdApp":"TILTADM"}"""
 
                 respond(
                     content = """{"bestillingsId":"00000000-0000-0000-0000-000000000000"}""",
