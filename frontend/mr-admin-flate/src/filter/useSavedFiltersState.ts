@@ -4,8 +4,18 @@ import { dequal } from "dequal";
 import { FilterAction, FilterState } from "@/filter/filter-state";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
+import { avtalerFilterStateAtom, parseAvtaleFilter } from "@/pages/avtaler/filter";
+import {
+  gjennomforingFilterStateAtom,
+  parseGjennomforingFilter,
+} from "@/pages/gjennomforing/filter";
+import { InnsendingFilterStateAtom, parseInnsendingFilter } from "@/pages/innsendinger/filter";
+import {
+  oppgaverFilterStateAtom,
+  parseOppgaverFilter,
+} from "@/pages/oppgaveoversikt/oppgaver/filter";
 
-export function useSavedFiltersState<T extends object>(
+function useSavedFiltersState<T extends object>(
   filterStateAtom: WritableAtom<FilterState<T>, [FilterAction<T>], void>,
   type: LagretFilterType,
   parser: (input: unknown) => T,
@@ -68,4 +78,32 @@ export function useSavedFiltersState<T extends object>(
     deleteFilter,
     setDefaultFilter,
   };
+}
+
+export function useAvtalerSavedFilterState() {
+  return useSavedFiltersState(avtalerFilterStateAtom, LagretFilterType.AVTALE, parseAvtaleFilter);
+}
+
+export function useGjennomforingerSavedFilterState() {
+  return useSavedFiltersState(
+    gjennomforingFilterStateAtom,
+    LagretFilterType.GJENNOMFORING,
+    parseGjennomforingFilter,
+  );
+}
+
+export function useInnsendingerSavedFilterState() {
+  return useSavedFiltersState(
+    InnsendingFilterStateAtom,
+    LagretFilterType.INNSENDING,
+    parseInnsendingFilter,
+  );
+}
+
+export function useOppgaverSavedFilterState() {
+  return useSavedFiltersState(
+    oppgaverFilterStateAtom,
+    LagretFilterType.OPPGAVE,
+    parseOppgaverFilter,
+  );
 }
