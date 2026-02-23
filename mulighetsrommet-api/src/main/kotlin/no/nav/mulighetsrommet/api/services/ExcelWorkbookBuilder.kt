@@ -45,7 +45,7 @@ class ExcelSheetBuilder(
 
     private val styleCache = mutableMapOf<IndexedColors, XSSFCellStyle>()
 
-    private fun getStyle(color: IndexedColors): XSSFCellStyle? {
+    private fun getStyle(color: IndexedColors): XSSFCellStyle {
         return styleCache.getOrPut(color) {
             val style = workbook.createCellStyle()
             style.fillPattern = FillPatternType.SOLID_FOREGROUND

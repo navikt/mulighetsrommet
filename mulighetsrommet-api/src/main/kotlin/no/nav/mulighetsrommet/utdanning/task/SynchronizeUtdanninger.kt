@@ -133,4 +133,4 @@ private fun toUtdanning(utdanning: UtdanningNoProgramomraade): Utdanning {
 
 private fun sanitizeNavn(navn: String) = navn
     .replace("^Vg\\d ".toRegex(), "")
-    .replace(" \\(opplæring i bedrift\\)\$".toRegex(), "")
+    .replace(" \\(opplæring i bedrift\\)$".toRegex(), "")

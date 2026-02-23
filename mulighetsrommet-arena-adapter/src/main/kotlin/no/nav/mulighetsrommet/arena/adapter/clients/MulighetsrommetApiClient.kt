@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.arena.adapter
+package no.nav.mulighetsrommet.arena.adapter.clients
 
 import arrow.core.Either
 import io.ktor.client.HttpClient

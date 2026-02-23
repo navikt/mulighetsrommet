@@ -157,7 +157,7 @@ class SanityService(
 
         val query = """
             *[_type == "tiltaksgjennomforing"
-              ${if (search != null) "&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn] match \$search" else ""}
+              ${if (search != null) $$"&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn] match $search" else ""}
             ] {
               _id,
               tiltakstype->{

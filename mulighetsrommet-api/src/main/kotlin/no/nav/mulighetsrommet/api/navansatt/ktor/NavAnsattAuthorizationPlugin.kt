@@ -46,8 +46,7 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
                 )
             }
 
-            val navAnsattRoles = principal.roller.map { it.rolle }
-
+            val navAnsattRoles = principal.roller.map { it.rolle }.toSet()
             requiredRoles.roles.forEach { anyOfRoles ->
                 if (anyOfRoles.roles.intersect(navAnsattRoles).isEmpty()) {
                     return@on call.respond(

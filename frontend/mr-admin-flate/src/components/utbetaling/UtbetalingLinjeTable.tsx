@@ -66,7 +66,6 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
             <Table.DataCell className="font-ax-bold" align="right" colSpan={2}>
               <HStack align="center">
                 <CopyButton
-                  variant="action"
                   copyText={differanse.toString()}
                   size="small"
                   text={`Differanse ${formaterValuta(differanse, utbetaling.pris.valuta)}`}

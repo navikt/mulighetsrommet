@@ -19,7 +19,7 @@ class MsGraphClientTest : FunSpec({
         val id = UUID.randomUUID()
 
         val engine = createMockEngine {
-            get("/v1.0/users/$id?\$select=id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone") {
+            get($$"/v1.0/users/$$id?$select=id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone") {
                 respondJson(
                     MsGraphUserDto(
                         id = id,

@@ -17,7 +17,7 @@ class FieldValidatorTest : FunSpec({
                 FieldError.root("asdf")
             }
 
-            val h = g + 7
+            g + 7
         }
 
         a.shouldBeLeft().should {

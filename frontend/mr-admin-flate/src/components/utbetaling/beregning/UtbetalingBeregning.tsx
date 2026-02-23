@@ -50,7 +50,6 @@ function SatsPerioderOgBelop({
         label="Innsendt beløp"
         value={
           <CopyButton
-            variant="action"
             size="small"
             copyText={pris.belop.toString()}
             text={formaterValutaBelop(pris)}
