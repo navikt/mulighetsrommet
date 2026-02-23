@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
-import PersonvernDbo
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session

@@ -5,11 +5,11 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import no.nav.mulighetsrommet.arena.adapter.AppConfig
 import no.nav.mulighetsrommet.arena.adapter.KafkaConfig
-import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.SlackConfig
 import no.nav.mulighetsrommet.arena.adapter.TaskConfig
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
+import no.nav.mulighetsrommet.arena.adapter.clients.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.events.ArenaEventConsumer
 import no.nav.mulighetsrommet.arena.adapter.events.processors.SakEventProcessor
 import no.nav.mulighetsrommet.arena.adapter.events.processors.TiltakEventProcessor
