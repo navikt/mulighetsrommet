@@ -88,7 +88,7 @@ class JournalforTilsagnsbrev(
             .flatMap { pdf ->
                 val journalpost = tilsagnJournalpost(
                     pdf = pdf,
-                    bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+                    tilsagnId = tilsagn.id,
                     deltaker = personalia.norskIdent,
                     arrangor = arrangor,
                     fagsakId = fagsakId,
@@ -120,7 +120,7 @@ class JournalforTilsagnsbrev(
 
 fun tilsagnJournalpost(
     pdf: ByteArray,
-    bestillingsnummer: String,
+    tilsagnId: UUID,
     deltaker: NorskIdent,
     arrangor: ArrangorDto,
     fagsakId: String,
@@ -139,7 +139,7 @@ fun tilsagnJournalpost(
     tema = "TIL", // Tiltak
     kanal = "ALTINN", // https://confluence.adeo.no/spaces/BOA/pages/316407153/Utsendingskanal
     journalfoerendeEnhet = "9999", // Automatisk journalføring
-    eksternReferanseId = bestillingsnummer,
+    eksternReferanseId = tilsagnId.toString(),
     datoMottatt = LocalDateTime.now().toString(),
     dokumenter = listOf(
         Journalpost.Dokument(
