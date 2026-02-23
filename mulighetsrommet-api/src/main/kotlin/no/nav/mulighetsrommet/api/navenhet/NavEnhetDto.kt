@@ -51,3 +51,17 @@ fun NavEnhetDbo.toDto() = NavEnhetDto(
     type = NavEnhetType.valueOf(type.name),
     overordnetEnhet = overordnetEnhet,
 )
+
+@Serializable
+data class NavRegionDto(
+    val enhetsnummer: NavEnhetNummer,
+    val navn: String,
+    val enheter: List<NavRegionUnderenhetDto>,
+)
+
+@Serializable
+data class NavRegionUnderenhetDto(
+    val navn: String,
+    val enhetsnummer: NavEnhetNummer,
+    val erStandardvalg: Boolean,
+)

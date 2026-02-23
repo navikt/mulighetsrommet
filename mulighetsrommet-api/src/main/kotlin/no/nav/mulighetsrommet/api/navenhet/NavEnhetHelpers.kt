@@ -3,6 +3,31 @@ package no.nav.mulighetsrommet.api.navenhet
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 object NavEnhetHelpers {
+    fun buildNavRegioner(enheter: List<NavEnhetDto>): List<NavRegionDto> {
+        return enheter
+            .filter { it.type == NavEnhetType.FYLKE }
+            .toSet()
+            .map { region ->
+                val underliggendeEnheter = enheter
+                    .filter { it.overordnetEnhet == region.enhetsnummer }
+                    .toSet()
+                    .map {
+                        NavRegionUnderenhetDto(
+                            navn = it.navn,
+                            enhetsnummer = it.enhetsnummer,
+                            erStandardvalg = it.type == NavEnhetType.LOKAL,
+                        )
+                    }
+                    .sortedByDescending { it.erStandardvalg }
+
+                NavRegionDto(
+                    enhetsnummer = region.enhetsnummer,
+                    navn = region.navn,
+                    enheter = underliggendeEnheter,
+                )
+            }
+    }
+
     fun erGeografiskEnhet(type: NavEnhetType): Boolean {
         return type == NavEnhetType.FYLKE || type == NavEnhetType.LOKAL
     }

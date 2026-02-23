@@ -52,6 +52,43 @@ fun Route.navEnhetRoutes() {
             call.respond(kostnadsstedService.hentKostnadssteder())
         }
     }
+
+    // TODO: skal fjernes, midlertidig inkludert for å være bakoverkompatibel
+    route("nav-enheter") {
+        get("regioner", {
+            tags = setOf("NavEnheter")
+            operationId = "getRegioner"
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Alle Nav-enheter"
+                    body<List<NavRegionDto>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            call.respond(navEnhetService.hentRegioner())
+        }
+
+        get("kostnadsstedFilter", {
+            tags = setOf("NavEnheter")
+            operationId = "getKostnadsstedFilter"
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Filtre for kostnadssteder"
+                    body<List<NavRegionDto>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            call.respond(kostnadsstedService.hentKostnadsstedFilter())
+        }
+    }
 }
 
 data class EnhetFilter(

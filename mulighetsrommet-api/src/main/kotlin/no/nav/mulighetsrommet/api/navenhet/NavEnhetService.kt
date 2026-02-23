@@ -48,6 +48,22 @@ class NavEnhetService(
             .map { it.toDto() }
     }
 
+    fun hentRegioner(): List<NavRegionDto> {
+        val relevanteEnheter = EnhetFilter(
+            statuser = listOf(
+                NavEnhetStatus.AKTIV,
+                NavEnhetStatus.UNDER_AVVIKLING,
+                NavEnhetStatus.UNDER_ETABLERING,
+            ),
+            typer = listOf(NavEnhetType.KO, NavEnhetType.LOKAL, NavEnhetType.FYLKE, NavEnhetType.ARK),
+        )
+
+        val alleEnheter = hentAlleEnheter(relevanteEnheter)
+            .filter { NavEnhetHelpers.erGeografiskEnhet(it.type) || NavEnhetHelpers.erSpesialenhetSomKanVelgesIModia(it.enhetsnummer) }
+
+        return NavEnhetHelpers.buildNavRegioner(alleEnheter)
+    }
+
     fun hentKontorstruktur(): List<Kontorstruktur> {
         val muligeEnheter = EnhetFilter(
             statuser = listOf(
