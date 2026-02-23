@@ -998,6 +998,15 @@ paths:
         explode: false
         schema:
           type: string
+      - name: gjennomforingTyper
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingType"
       responses:
         "200":
           description: Gjennomføringer filtrert på query parameters
@@ -5181,6 +5190,12 @@ components:
       - beskrivelse
       - periodeSlutt
       - periodeStart
+    GjennomforingType:
+      type: string
+      enum:
+      - ARENA
+      - AVTALE
+      - ENKELTPLASS
     GjennomforingKompaktDto:
       type: object
       properties:
@@ -5211,6 +5226,8 @@ components:
           $ref: "#/components/schemas/GjennomforingKompakt.ArrangorUnderenhet"
         tiltakstype:
           $ref: "#/components/schemas/GjennomforingKompakt.Tiltakstype"
+        type:
+          $ref: "#/components/schemas/GjennomforingType"
       required:
       - arrangor
       - id
@@ -5222,6 +5239,7 @@ components:
       - startDato
       - status
       - tiltakstype
+      - type
     GjennomforingKompakt.ArrangorUnderenhet:
       type: object
       properties:
@@ -6545,6 +6563,7 @@ components:
       enum:
       - TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER
       - TILTAKSADMINISTRASJON_PAMELDING_TYPE
+      - TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER
     LagretFilterType:
       type: string
       enum:

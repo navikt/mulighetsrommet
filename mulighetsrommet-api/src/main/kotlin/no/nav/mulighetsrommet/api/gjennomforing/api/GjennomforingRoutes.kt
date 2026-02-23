@@ -32,6 +32,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
@@ -352,6 +353,9 @@ fun Route.gjennomforingRoutes() {
                 queryParameter<Int>("page")
                 queryParameter<Int>("size")
                 queryParameter<String>("sort")
+                queryParameter<List<GjennomforingType>>("gjennomforingTyper") {
+                    explode = true
+                }
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -589,6 +593,7 @@ data class AdminTiltaksgjennomforingFilter(
     val administratorNavIdent: NavIdent? = null,
     val publisert: Boolean? = null,
     val koordinatorNavIdent: NavIdent? = null,
+    val gjennomforingTyper: List<GjennomforingType> = emptyList(),
 )
 
 fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
@@ -605,6 +610,9 @@ fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomfor
     val administratorNavIdent = call.parameters["visMineGjennomforinger"]
         ?.takeIf { it == "true" }
         ?.let { getNavIdent() }
+    val gjennomforingTyper = call.parameters.getAll("gjennomforingTyper")
+        ?.map { GjennomforingType.valueOf(it) }
+        ?: emptyList()
 
     return AdminTiltaksgjennomforingFilter(
         search = search,
@@ -617,6 +625,7 @@ fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomfor
         publisert = publisert,
         administratorNavIdent = administratorNavIdent,
         koordinatorNavIdent = administratorNavIdent,
+        gjennomforingTyper = gjennomforingTyper,
     )
 }
 

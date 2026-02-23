@@ -8,10 +8,16 @@ import {
   gjennomforingFilterAccordionAtom,
   GjennomforingFilterType,
 } from "@/pages/gjennomforing/filter";
-import { ArrangorKobling, AvtaleDto } from "@tiltaksadministrasjon/api-client";
+import {
+  ArrangorKobling,
+  AvtaleDto,
+  FeatureToggle,
+  GjennomforingType,
+} from "@tiltaksadministrasjon/api-client";
 import { GjennomforingTiltakstypeFilter } from "@/components/filter/GjennomforingTiltakstypeFilter";
 import { KontorstrukturFilter } from "@/components/filter/KontorstrukturFilter";
 import { ArrangorerFilter } from "./ArrangorerFilter";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 type Filters = "tiltakstype";
 
@@ -24,6 +30,9 @@ interface Props {
 
 export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
+  const { data: enableEnkeltplassFilter } = useFeatureToggle(
+    FeatureToggle.TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER,
+  );
 
   function selectDeselectAll(checked: boolean, key: string, values: string[]) {
     updateFilter({
@@ -31,7 +40,6 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
       page: 1,
     });
   }
-
   return (
     <>
       <Search
@@ -64,6 +72,43 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
           <span style={{ fontWeight: "bold" }}>Vis kun mine gjennomføringer</span>
         </Switch>
       </div>
+      {enableEnkeltplassFilter && (
+        <Accordion>
+          <Accordion.Item open={accordionsOpen.includes("gjennomforingType")}>
+            <Accordion.Header
+              onClick={() => {
+                setAccordionsOpen([...addOrRemove(accordionsOpen, "gjennomforingType")]);
+              }}
+            >
+              <FilterAccordionHeader
+                tittel="Gjennomføringtype"
+                antallValgteFilter={filter.gjennomforingTyper.length}
+              />
+            </Accordion.Header>
+            <Accordion.Content>
+              <CheckboxList
+                items={[
+                  {
+                    label: "Gruppe",
+                    value: GjennomforingType.AVTALE,
+                  },
+                  {
+                    label: "Enkeltplass",
+                    value: GjennomforingType.ENKELTPLASS,
+                  },
+                ]}
+                isChecked={(type) => filter.gjennomforingTyper.includes(type)}
+                onChange={(type) => {
+                  updateFilter({
+                    gjennomforingTyper: addOrRemove(filter.gjennomforingTyper, type),
+                    page: 1,
+                  });
+                }}
+              />
+            </Accordion.Content>
+          </Accordion.Item>
+        </Accordion>
+      )}
       <Accordion>
         <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
           <Accordion.Header

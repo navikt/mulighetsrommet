@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -23,4 +24,5 @@ data class GjennomforingKompaktDto(
     val kontorstruktur: List<Kontorstruktur>,
     val arrangor: GjennomforingKompakt.ArrangorUnderenhet,
     val tiltakstype: GjennomforingKompakt.Tiltakstype,
+    val type: GjennomforingType,
 )
