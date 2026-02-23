@@ -4,34 +4,34 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
-class NavEnhetHelpersTest : FunSpec({
+class KontorstrukturTest : FunSpec({
     test("buildNavRegioner skal gruppere enheter etter fylke og inkludere underenheter") {
         val enheter = listOf(
-            NavEnhetDto("Fylke 1", NavEnhetNummer("0400"), NavEnhetType.FYLKE, null),
-            NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
-            NavEnhetDto("Lokal 2", NavEnhetNummer("0402"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
-            NavEnhetDto("Kø 1", NavEnhetNummer("0499"), NavEnhetType.KO, NavEnhetNummer("0400")),
             NavEnhetDto("Fylke 2", NavEnhetNummer("0500"), NavEnhetType.FYLKE, null),
+            NavEnhetDto("Fylke 1", NavEnhetNummer("0400"), NavEnhetType.FYLKE, null),
+            NavEnhetDto("Lokal 2", NavEnhetNummer("0402"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
+            NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
+            NavEnhetDto("Kø 2", NavEnhetNummer("0498"), NavEnhetType.KO, NavEnhetNummer("0400")),
+            NavEnhetDto("Kø 1", NavEnhetNummer("0499"), NavEnhetType.KO, NavEnhetNummer("0400")),
             NavEnhetDto("Lokal 3", NavEnhetNummer("0501"), NavEnhetType.LOKAL, NavEnhetNummer("0500")),
         )
 
-        val result = NavEnhetHelpers.buildNavRegioner(enheter)
+        val result = Kontorstruktur.fromNavEnheter(enheter)
 
         result shouldBe listOf(
-            NavRegionDto(
-                enhetsnummer = NavEnhetNummer("0400"),
-                navn = "Fylke 1",
-                enheter = listOf(
-                    NavRegionUnderenhetDto("Lokal 1", NavEnhetNummer("0401"), true),
-                    NavRegionUnderenhetDto("Lokal 2", NavEnhetNummer("0402"), true),
-                    NavRegionUnderenhetDto("Kø 1", NavEnhetNummer("0499"), false),
+            Kontorstruktur(
+                region = Kontorstruktur.Region("Fylke 1", NavEnhetNummer("0400")),
+                kontorer = listOf(
+                    Kontorstruktur.Kontor("Lokal 1", NavEnhetNummer("0401"), Kontorstruktur.Kontortype.LOKAL),
+                    Kontorstruktur.Kontor("Lokal 2", NavEnhetNummer("0402"), Kontorstruktur.Kontortype.LOKAL),
+                    Kontorstruktur.Kontor("Kø 1", NavEnhetNummer("0499"), Kontorstruktur.Kontortype.SPESIALENHET),
+                    Kontorstruktur.Kontor("Kø 2", NavEnhetNummer("0498"), Kontorstruktur.Kontortype.SPESIALENHET),
                 ),
             ),
-            NavRegionDto(
-                enhetsnummer = NavEnhetNummer("0500"),
-                navn = "Fylke 2",
-                enheter = listOf(
-                    NavRegionUnderenhetDto("Lokal 3", NavEnhetNummer("0501"), true),
+            Kontorstruktur(
+                region = Kontorstruktur.Region("Fylke 2", NavEnhetNummer("0500")),
+                kontorer = listOf(
+                    Kontorstruktur.Kontor("Lokal 3", NavEnhetNummer("0501"), Kontorstruktur.Kontortype.LOKAL),
                 ),
             ),
         )
@@ -46,14 +46,13 @@ class NavEnhetHelpersTest : FunSpec({
             NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
         )
 
-        val result = NavEnhetHelpers.buildNavRegioner(enheter)
+        val result = Kontorstruktur.fromNavEnheter(enheter)
 
         result shouldBe listOf(
-            NavRegionDto(
-                enhetsnummer = NavEnhetNummer("0400"),
-                navn = "Fylke 1",
-                enheter = listOf(
-                    NavRegionUnderenhetDto("Lokal 1", NavEnhetNummer("0401"), true),
+            Kontorstruktur(
+                region = Kontorstruktur.Region("Fylke 1", NavEnhetNummer("0400")),
+                kontorer = listOf(
+                    Kontorstruktur.Kontor("Lokal 1", NavEnhetNummer("0401"), Kontorstruktur.Kontortype.LOKAL),
                 ),
             ),
         )
@@ -65,16 +64,16 @@ class NavEnhetHelpersTest : FunSpec({
             NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
             NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
             NavEnhetDto("Lokal 3", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0300")),
+            NavEnhetDto("Lokal 4", NavEnhetNummer("0301"), NavEnhetType.LOKAL, null),
         )
 
-        val result = NavEnhetHelpers.buildNavRegioner(enheter)
+        val result = Kontorstruktur.fromNavEnheter(enheter)
 
         result shouldBe listOf(
-            NavRegionDto(
-                enhetsnummer = NavEnhetNummer("0400"),
-                navn = "Fylke 1",
-                enheter = listOf(
-                    NavRegionUnderenhetDto("Lokal 1", NavEnhetNummer("0401"), true),
+            Kontorstruktur(
+                region = Kontorstruktur.Region("Fylke 1", NavEnhetNummer("0400")),
+                kontorer = listOf(
+                    Kontorstruktur.Kontor("Lokal 1", NavEnhetNummer("0401"), Kontorstruktur.Kontortype.LOKAL),
                 ),
             ),
         )

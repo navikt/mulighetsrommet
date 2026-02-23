@@ -5,11 +5,10 @@ import { useAtom } from "jotai";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { CheckboxList } from "./CheckboxList";
 import { avtaleFilterAccordionAtom, AvtaleFilterType } from "@/pages/avtaler/filter";
-import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
-import { useNavRegioner } from "@/api/enhet/useNavRegioner";
+import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { AvtaleTiltakstypeFilter } from "@/components/filter/AvtaleTiltakstypeFilter";
 import { ArrangorerFilter } from "./ArrangorerFilter";
-import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
+import { KontorstrukturFilter } from "@/components/filter/KontorstrukturFilter";
 
 interface Props {
   filter: AvtaleFilterType;
@@ -18,8 +17,6 @@ interface Props {
 
 export function AvtaleFilter({ filter, updateFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
-
-  const { data: regioner } = useNavRegioner();
 
   const toggleAccordion = (key: string) => {
     setAccordionsOpen([...addOrRemove(accordionsOpen, key)]);
@@ -72,12 +69,11 @@ export function AvtaleFilter({ filter, updateFilter }: Props) {
             />
           </Accordion.Header>
           <Accordion.Content>
-            <NavEnhetFilter
+            <KontorstrukturFilter
               value={filter.navEnheter}
               onChange={(navEnheter) => {
                 updateFilter({ navEnheter, page: 1 });
               }}
-              regioner={regioner}
             />
           </Accordion.Content>
         </Accordion.Item>

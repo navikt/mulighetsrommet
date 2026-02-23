@@ -5,9 +5,8 @@ import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { Accordion } from "@navikt/ds-react";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
-import { useKostnadsstedFilter } from "@/api/enhet/useKostnadsstedFilter";
-import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
 import { GjennomforingTiltakstypeFilter } from "@/components/filter/GjennomforingTiltakstypeFilter";
+import { KostnadsstedFilter } from "@/components/filter/KostnadsstedFilter";
 
 type Filters = "tiltakstype" | "navEnhet" | "sortering";
 
@@ -20,7 +19,6 @@ interface Props {
 export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(InnsendingFilterAccordionAtom);
 
-  const { data: kostnadssteder } = useKostnadsstedFilter();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
   });
@@ -39,17 +37,16 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
             }}
           >
             <FilterAccordionHeader
-              tittel="Nav-enhet"
-              antallValgteFilter={filter.navEnheter.length}
+              tittel="Kostnadssted"
+              antallValgteFilter={filter.kostnadssteder.length}
             />
           </Accordion.Header>
           <Accordion.Content>
-            <NavEnhetFilter
-              value={filter.navEnheter}
-              onChange={(navEnheter) => {
-                updateFilter({ navEnheter });
+            <KostnadsstedFilter
+              value={filter.kostnadssteder}
+              onChange={(kostnadssteder) => {
+                updateFilter({ kostnadssteder });
               }}
-              regioner={kostnadssteder}
             />
           </Accordion.Content>
         </Accordion.Item>

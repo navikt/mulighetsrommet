@@ -1,4 +1,3 @@
-import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
@@ -10,8 +9,8 @@ import {
   GjennomforingFilterType,
 } from "@/pages/gjennomforing/filter";
 import { ArrangorKobling, AvtaleDto } from "@tiltaksadministrasjon/api-client";
-import { NavEnhetFilter } from "@/components/filter/NavEnhetFilter";
 import { GjennomforingTiltakstypeFilter } from "@/components/filter/GjennomforingTiltakstypeFilter";
+import { KontorstrukturFilter } from "@/components/filter/KontorstrukturFilter";
 import { ArrangorerFilter } from "./ArrangorerFilter";
 
 type Filters = "tiltakstype";
@@ -25,7 +24,6 @@ interface Props {
 
 export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
-  const { data: regioner } = useNavRegioner();
 
   function selectDeselectAll(checked: boolean, key: string, values: string[]) {
     updateFilter({
@@ -79,12 +77,11 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
             />
           </Accordion.Header>
           <Accordion.Content>
-            <NavEnhetFilter
+            <KontorstrukturFilter
               value={filter.navEnheter}
               onChange={(navEnheter) => {
                 updateFilter({ navEnheter, page: 1 });
               }}
-              regioner={regioner}
             />
           </Accordion.Content>
         </Accordion.Item>

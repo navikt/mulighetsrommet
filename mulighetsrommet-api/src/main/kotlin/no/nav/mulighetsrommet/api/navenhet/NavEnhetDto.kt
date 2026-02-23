@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
-// TODO: forenkle typer til å bedre represenere hvordan de benyttes i Tiltaksadministrasjon vs hvordan de er definert i NORG2
 enum class NavEnhetType {
     KO,
     FYLKE,

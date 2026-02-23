@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerMedFaktor
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerUtenFaktor
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.navenhet.NavRegionDto
+import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
@@ -33,7 +33,7 @@ import java.util.UUID
 @Serializable
 data class UtbetalingBeregningDto(
     val heading: String,
-    val deltakerRegioner: List<NavRegionDto>,
+    val deltakerRegioner: List<Kontorstruktur>,
     val deltakerTableData: DataDrivenTableDto?,
     val pris: ValutaBelop,
     val satsDetaljer: List<DataDetails>,
@@ -42,7 +42,7 @@ data class UtbetalingBeregningDto(
         fun from(
             beregning: UtbetalingBeregning,
             personaliaById: Map<UUID, DeltakerPersonaliaMedGeografiskEnhet>,
-            regioner: List<NavRegionDto>,
+            regioner: List<Kontorstruktur>,
             utbetalingPeriode: Periode,
         ): UtbetalingBeregningDto {
             return when (beregning) {

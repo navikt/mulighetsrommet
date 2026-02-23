@@ -2555,6 +2555,54 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/kodeverk/kontorstruktur:
+    get:
+      tags:
+      - Kodeverk
+      operationId: getKontorstruktur
+      parameters: []
+      responses:
+        "200":
+          description: Alle Nav-enheter
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Kontorstruktur"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/kodeverk/kostnadssteder:
+    get:
+      tags:
+      - Kodeverk
+      operationId: getKostnadssteder
+      parameters: []
+      responses:
+        "200":
+          description: Alle kostnadssteder
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RegionKostnadssteder"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/nav-enheter/regioner:
     get:
       tags:
@@ -6190,34 +6238,6 @@ components:
       required:
       - handlinger
       - utbetaling
-    NavRegionDto:
-      type: object
-      properties:
-        enhetsnummer:
-          type: string
-        navn:
-          type: string
-        enheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionUnderenhetDto"
-      required:
-      - enheter
-      - enhetsnummer
-      - navn
-    NavRegionUnderenhetDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        erStandardvalg:
-          type: boolean
-      required:
-      - enhetsnummer
-      - erStandardvalg
-      - navn
     UtbetalingBeregningDto:
       type: object
       properties:
@@ -6226,7 +6246,7 @@ components:
         deltakerRegioner:
           type: array
           items:
-            $ref: "#/components/schemas/NavRegionDto"
+            $ref: "#/components/schemas/Kontorstruktur"
         deltakerTableData:
           oneOf:
           - type: "null"
@@ -6557,6 +6577,66 @@ components:
       - navn
       - sortOrder
       - type
+    RegionKostnadssteder:
+      type: object
+      properties:
+        region:
+          $ref: "#/components/schemas/RegionKostnadssteder.Region"
+        kostnadssteder:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegionKostnadssteder.Kontor"
+      required:
+      - kostnadssteder
+      - region
+    RegionKostnadssteder.Region:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
+    RegionKostnadssteder.Kontor:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
+    NavRegionDto:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+        enheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegionUnderenhetDto"
+      required:
+      - enheter
+      - enhetsnummer
+      - navn
+    NavRegionUnderenhetDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+        erStandardvalg:
+          type: boolean
+      required:
+      - enhetsnummer
+      - erStandardvalg
+      - navn
     Rolle:
       type: string
       enum:

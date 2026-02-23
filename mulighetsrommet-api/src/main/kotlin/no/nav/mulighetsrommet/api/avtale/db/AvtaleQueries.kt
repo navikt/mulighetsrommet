@@ -10,11 +10,11 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -520,7 +520,6 @@ private fun Row.toAvtale(): Avtale {
     val navEnheter = stringOrNull("nav_enheter_json")
         ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
         ?: emptyList()
-    val kontorstruktur = fromNavEnheter(navEnheter)
 
     val opsjonerRegistrert = stringOrNull("opsjon_logg_json")
         ?.let { Json.decodeFromString<List<Avtale.OpsjonLoggDto>>(it) }
@@ -592,7 +591,7 @@ private fun Row.toAvtale(): Avtale {
         beskrivelse = stringOrNull("beskrivelse"),
         faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
         administratorer = administratorer,
-        kontorstruktur = kontorstruktur,
+        kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
         arrangor = arrangor,
         tiltakstype = Avtale.Tiltakstype(
             id = uuid("tiltakstype_id"),
