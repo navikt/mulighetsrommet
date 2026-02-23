@@ -2,9 +2,9 @@
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
 ch.qos.logback:logback-classic:1.3.16=ktlint
-ch.qos.logback:logback-classic:1.5.28=runtimeClasspath,testRuntimeClasspath
+ch.qos.logback:logback-classic:1.5.31=runtimeClasspath,testRuntimeClasspath
 ch.qos.logback:logback-core:1.3.16=ktlint
-ch.qos.logback:logback-core:1.5.28=runtimeClasspath,testRuntimeClasspath
+ch.qos.logback:logback-core:1.5.31=runtimeClasspath,testRuntimeClasspath
 com.fasterxml.jackson.core:jackson-annotations:2.19.1=compileClasspath,testCompileClasspath
 com.fasterxml.jackson.core:jackson-annotations:2.20=runtimeClasspath,testRuntimeClasspath
 com.fasterxml.jackson.core:jackson-core:2.19.1=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
@@ -155,7 +155,7 @@ org.ow2.asm:asm-commons:9.7.1=runtimeClasspath,testRuntimeClasspath
 org.ow2.asm:asm-tree:9.7.1=runtimeClasspath,testRuntimeClasspath
 org.ow2.asm:asm-util:9.7.1=runtimeClasspath,testRuntimeClasspath
 org.ow2.asm:asm:9.7.1=runtimeClasspath,testRuntimeClasspath
-org.postgresql:postgresql:42.7.9=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+org.postgresql:postgresql:42.7.10=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 org.slf4j:slf4j-api:2.0.17=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 org.slf4j:slf4j-api:2.0.7=ktlint
 tools.jackson.core:jackson-core:3.0.1=runtimeClasspath,testRuntimeClasspath
