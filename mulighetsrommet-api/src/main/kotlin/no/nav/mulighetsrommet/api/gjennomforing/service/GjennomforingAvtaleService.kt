@@ -104,37 +104,6 @@ class GjennomforingAvtaleService(
         }
     }
 
-    fun getValidatorCtx(
-        request: GjennomforingRequest,
-        previous: GjennomforingAvtale?,
-        today: LocalDate,
-    ): GjennomforingValidator.Ctx = db.session {
-        val avtale = queries.avtale.getOrError(request.avtaleId)
-        val kontaktpersoner = request.kontaktpersoner.mapNotNull { queries.ansatt.getByNavIdent(it.navIdent) }
-        val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
-        val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
-        val antallDeltakere = queries.deltaker.getByGjennomforingId(request.id).size
-        val status = resolveStatus(previous?.status, request, today)
-        return GjennomforingValidator.Ctx(
-            previous = previous?.let {
-                GjennomforingValidator.Ctx.Gjennomforing(
-                    avtaleId = it.avtaleId,
-                    oppstart = it.oppstart,
-                    arrangorId = it.arrangor.id,
-                    status = it.status,
-                    sluttDato = it.sluttDato,
-                    pameldingType = it.pameldingType,
-                )
-            },
-            avtale = avtale,
-            arrangor = arrangor,
-            kontaktpersoner = kontaktpersoner,
-            administratorer = administratorer,
-            antallDeltakere = antallDeltakere,
-            status = status,
-        )
-    }
-
     fun getGjennomforingAvtale(id: UUID): GjennomforingAvtale? {
         val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(id) } ?: return null
         return when (gjennomforing) {
@@ -306,6 +275,37 @@ class GjennomforingAvtaleService(
         )
 
         logEndring("Kontaktperson ble fjernet fra gjennomføringen", gjennomforingId, navIdent)
+    }
+
+    private fun getValidatorCtx(
+        request: GjennomforingRequest,
+        previous: GjennomforingAvtale?,
+        today: LocalDate,
+    ): GjennomforingValidator.Ctx = db.session {
+        val avtale = queries.avtale.getOrError(request.avtaleId)
+        val kontaktpersoner = request.kontaktpersoner.mapNotNull { queries.ansatt.getByNavIdent(it.navIdent) }
+        val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
+        val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
+        val antallDeltakere = queries.deltaker.getByGjennomforingId(request.id).size
+        val status = resolveStatus(previous?.status, request, today)
+        return GjennomforingValidator.Ctx(
+            previous = previous?.let {
+                GjennomforingValidator.Ctx.Gjennomforing(
+                    avtaleId = it.avtaleId,
+                    oppstart = it.oppstart,
+                    arrangorId = it.arrangor.id,
+                    status = it.status,
+                    sluttDato = it.sluttDato,
+                    pameldingType = it.pameldingType,
+                )
+            },
+            avtale = avtale,
+            arrangor = arrangor,
+            kontaktpersoner = kontaktpersoner,
+            administratorer = administratorer,
+            antallDeltakere = antallDeltakere,
+            status = status,
+        )
     }
 
     private fun resolveStatus(
