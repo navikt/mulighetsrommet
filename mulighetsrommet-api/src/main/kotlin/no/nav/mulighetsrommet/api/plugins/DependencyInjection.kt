@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
@@ -411,6 +412,12 @@ private fun services(appConfig: AppConfig) = module {
         GjennomforingAvtaleService(
             GjennomforingAvtaleService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
             get(),
+            get(),
+        )
+    }
+    single {
+        GjennomforingArenaService(
+            GjennomforingArenaService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
             get(),
         )
     }
