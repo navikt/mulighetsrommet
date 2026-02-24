@@ -2,9 +2,9 @@
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
 ch.qos.logback:logback-classic:1.3.16=ktlint
-ch.qos.logback:logback-classic:1.5.28=runtimeClasspath,testRuntimeClasspath
+ch.qos.logback:logback-classic:1.5.31=runtimeClasspath,testRuntimeClasspath
 ch.qos.logback:logback-core:1.3.16=ktlint
-ch.qos.logback:logback-core:1.5.28=runtimeClasspath,testRuntimeClasspath
+ch.qos.logback:logback-core:1.5.31=runtimeClasspath,testRuntimeClasspath
 com.auth0:java-jwt:4.5.0=testRuntimeClasspath
 com.auth0:jwks-rsa:0.23.0=testRuntimeClasspath
 com.fasterxml.jackson.core:jackson-annotations:2.20=runtimeClasspath,testRuntimeClasspath

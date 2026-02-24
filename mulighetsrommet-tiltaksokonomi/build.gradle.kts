@@ -29,7 +29,7 @@ dependencies {
 
     // FTP
     implementation("com.github.mwiede:jsch:2.27.7")
-    testImplementation("com.github.stefanbirkner:fake-sftp-server-lambda:2.0.0")
+    testImplementation("com.github.stefanbirkner:fake-sftp-server-lambda:2.0.1")
 
     // Cache
     implementation(libs.caffeine)

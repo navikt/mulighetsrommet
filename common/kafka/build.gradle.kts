@@ -8,6 +8,8 @@ dependencies {
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.metrics)
 
+    implementation(libs.bundles.logging)
+
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
 
