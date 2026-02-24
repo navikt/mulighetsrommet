@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
@@ -97,12 +98,9 @@ class GjennomforingAvtaleService(
             } else {
                 "Redigerte gjennomføring"
             }
-            val dto = logEndring(operation, id, navIdent)
-
-            queries.gjennomforing.setFreeTextSearch(id, listOf(result.gjennomforing.navn, dto.arrangor.navn))
-
-            publishToKafka(dto)
-            dto
+            logEndring(operation, id, navIdent)
+                .also { updateFreeTextSearch(it) }
+                .also { publishToKafka(it) }
         }
     }
 
@@ -162,7 +160,7 @@ class GjennomforingAvtaleService(
         id: UUID,
         tilgjengeligForArrangorDato: LocalDate?,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, Unit> = db.transaction {
+    ): Either<List<FieldError>, GjennomforingAvtale> = db.transaction {
         val gjennomforing = getOrError(id)
 
         GjennomforingValidator
@@ -170,11 +168,10 @@ class GjennomforingAvtaleService(
                 tilgjengeligForArrangorDato,
                 gjennomforing.startDato,
             )
-            .map {
-                queries.gjennomforing.setTilgjengeligForArrangorDato(id, it)
+            .map { dato ->
+                queries.gjennomforing.setTilgjengeligForArrangorDato(id, dato)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
-                val dto = logEndring(operation, id, navIdent)
-                publishToKafka(dto)
+                logEndring(operation, id, navIdent).also { publishToKafka(it) }
             }
     }
 
@@ -204,9 +201,7 @@ class GjennomforingAvtaleService(
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)
 
-        val dto = logEndring("Gjennomføringen ble avsluttet", id, endretAv)
-        publishToKafka(dto)
-        dto
+        logEndring("Gjennomføringen ble avsluttet", id, endretAv).also { publishToKafka(it) }
     }
 
     fun avbrytGjennomforing(
@@ -245,9 +240,9 @@ class GjennomforingAvtaleService(
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)
 
-        val dto = logEndring("Gjennomføringen ble avbrutt", id, avbruttAv)
-        publishToKafka(dto)
-        dto.right()
+        logEndring("Gjennomføringen ble avbrutt", id, avbruttAv)
+            .also { publishToKafka(it) }
+            .right()
     }
 
     fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, agent: Agent): Unit = db.transaction {
@@ -258,8 +253,7 @@ class GjennomforingAvtaleService(
         } else {
             "Stengte for påmelding"
         }
-        val dto = logEndring(operation, id, agent)
-        publishToKafka(dto)
+        logEndring(operation, id, agent).also { publishToKafka(it) }
     }
 
     fun setStengtHosArrangor(
@@ -286,9 +280,7 @@ class GjennomforingAvtaleService(
                 "-",
                 periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
             ).joinToString(separator = " ")
-            val dto = logEndring(operation, id, navIdent)
-            publishToKafka(dto)
-            dto
+            logEndring(operation, id, navIdent).also { publishToKafka(it) }
         }
     }
 
@@ -330,6 +322,14 @@ class GjennomforingAvtaleService(
                 GjennomforingStatusType.AVSLUTTET
             }
         }
+    }
+
+    private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingAvtale) {
+        val fts = listOf(gjennomforing.navn, gjennomforing.arrangor.navn) +
+            gjennomforing.lopenummer.toFreeTextSeach() +
+            gjennomforing.arena?.tiltaksnummer?.toFreeTextSeach().orEmpty()
+
+        queries.gjennomforing.setFreeTextSearch(gjennomforing.id, fts)
     }
 
     private fun QueryContext.getOrError(id: UUID): GjennomforingAvtale {
@@ -396,3 +396,9 @@ private fun isEqual(
 ): Boolean {
     return request == GjennomforingRequestMapper.fromGjennomforing(previous, detaljer)
 }
+
+fun Tiltaksnummer.toFreeTextSeach(): List<String> = listOfNotNull(
+    value,
+    aar.toString(),
+    lopenummer.toString(),
+)
