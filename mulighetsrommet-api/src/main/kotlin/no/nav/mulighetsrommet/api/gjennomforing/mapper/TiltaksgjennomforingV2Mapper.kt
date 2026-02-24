@@ -11,7 +11,10 @@ import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Gruppe
 import no.nav.mulighetsrommet.model.Tiltakskoder
 
 object TiltaksgjennomforingV2Mapper {
-    fun fromGjennomforingAvtale(gjennomforing: GjennomforingAvtale, detaljer: GjennomforingAvtaleDetaljer): Gruppe {
+    fun fromGjennomforingAvtale(
+        gjennomforing: GjennomforingAvtale,
+        detaljer: GjennomforingAvtaleDetaljer,
+    ): TiltaksgjennomforingV2Dto {
         return Gruppe(
             id = gjennomforing.id,
             opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
@@ -34,7 +37,7 @@ object TiltaksgjennomforingV2Mapper {
         )
     }
 
-    fun fromGjennomforingEnkeltplass(gjennomforing: GjennomforingEnkeltplass): Enkeltplass {
+    fun fromGjennomforingEnkeltplass(gjennomforing: GjennomforingEnkeltplass): TiltaksgjennomforingV2Dto {
         return Enkeltplass(
             id = gjennomforing.id,
             opprettetTidspunkt = gjennomforing.opprettetTidspunkt,

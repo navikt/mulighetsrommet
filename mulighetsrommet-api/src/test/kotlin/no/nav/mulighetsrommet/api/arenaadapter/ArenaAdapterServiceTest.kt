@@ -17,6 +17,8 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.sanity.SanityService
@@ -41,13 +43,21 @@ class ArenaAdapterServiceTest : FunSpec({
         sanityService: SanityService = mockk(relaxed = true),
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ) = ArenaAdapterService(
-        config = ArenaAdapterService.Config(TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         sanityService = sanityService,
         arrangorService = ArrangorService(database.db, mockk(relaxed = true), mockk(relaxed = true)),
         tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db),
-        enkeltplassService = GjennomforingEnkeltplassService(
+        gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+            database.db,
+        ),
+        gjennomforingAvtaleService = GjennomforingAvtaleService(
+            GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+            db = database.db,
+            navAnsattService = mockk(),
+        ),
+        gjennomforingArenaService = GjennomforingArenaService(
+            GjennomforingArenaService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
         ),
     )
@@ -166,7 +176,7 @@ class ArenaAdapterServiceTest : FunSpec({
             val exception = shouldThrowExactly<IllegalArgumentException> {
                 service.upsertTiltaksgjennomforing(arenaGjennomforing)
             }
-            exception.message shouldBe "Ugyldig gjennomføring. Forventet ikke å motta nye gjennomføringer for tiltakskode=INDOPPFAG"
+            exception.message shouldBe "Forventet ikke å motta nye gjennomføringer for tiltakskode=INDOPPFAG fordi alle gruppetiltak skal være migrert"
         }
 
         test("oppdaterer arena-felter når tiltakstype er migrert") {

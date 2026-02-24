@@ -508,14 +508,7 @@ class GjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
-            set fts = to_tsvector('norwegian',
-                                  concat_ws(' ',
-                                            lopenummer,
-                                            regexp_replace(lopenummer, '/', ' '),
-                                            coalesce(arena_tiltaksnummer, ''),
-                                            :content
-                                  )
-                      )
+            set fts = to_tsvector('norwegian', :content)
             where id = :id
         """.trimIndent()
         val params = mapOf(
