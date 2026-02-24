@@ -16,10 +16,7 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.application
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.altinn.AltinnError
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
@@ -36,6 +33,7 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.DeltakerAdvarselType
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
@@ -509,29 +507,13 @@ data class AvbrytUtbetaling(
     val begrunnelse: String?,
 )
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-@JsonClassDiscriminator("type")
-sealed class DeltakerAdvarsel {
-    abstract val deltakerId: UUID
-    abstract val beskrivelse: String
-
-    @Serializable
-    @SerialName("DeltakerAdvarselRelevanteForslag")
-    data class RelevanteForslag(
-        @Serializable(with = UUIDSerializer::class)
-        override val deltakerId: UUID,
-        override val beskrivelse: String,
-    ) : DeltakerAdvarsel()
-
-    @Serializable
-    @SerialName("DeltakerAdvarselFeilSluttDato")
-    data class FeilSluttDato(
-        @Serializable(with = UUIDSerializer::class)
-        override val deltakerId: UUID,
-        override val beskrivelse: String,
-    ) : DeltakerAdvarsel()
-}
+data class DeltakerAdvarselDto(
+    @Serializable(with = UUIDSerializer::class)
+    val deltakerId: UUID,
+    val beskrivelse: String,
+    val type: DeltakerAdvarselType,
+)
 
 @Serializable
 data class ScanVedleggRequest(

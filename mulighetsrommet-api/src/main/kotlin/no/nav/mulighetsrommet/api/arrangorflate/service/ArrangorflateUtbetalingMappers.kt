@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
+import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
@@ -12,6 +12,8 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.utbetaling.DeltakerAdvarsel
+import no.nav.mulighetsrommet.api.utbetaling.DeltakerAdvarselType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTimeline
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
@@ -99,7 +101,19 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         type = UtbetalingType.from(utbetaling).toDto(),
         linjer = linjer,
         innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),
-        advarsler = advarsler,
+        advarsler = advarsler.map { advarsel ->
+            val navn = personaliaById[advarsel.deltakerId]?.navn
+            val status = deltakereById[advarsel.deltakerId]?.status?.type
+
+            DeltakerAdvarselDto(
+                deltakerId = advarsel.deltakerId,
+                beskrivelse = when (advarsel.type) {
+                    DeltakerAdvarselType.RelevanteForslag -> "$navn har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg"
+                    DeltakerAdvarselType.FeilSluttDato -> "$navn har status “$status” og slutt dato frem i tid"
+                },
+                type = advarsel.type,
+            )
+        },
         kanAvbrytes = kanAvbrytes,
         avbruttDato = utbetaling.avbruttTidspunkt?.tilNorskDato(),
         kanRegenereres = kanRegenereres,

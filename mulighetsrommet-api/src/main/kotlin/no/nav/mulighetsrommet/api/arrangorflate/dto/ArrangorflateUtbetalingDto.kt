@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
+import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
@@ -46,7 +46,7 @@ data class ArrangorflateUtbetalingDto(
     val type: UtbetalingTypeDto,
     val innsendingsDetaljer: List<LabeledDataElement>,
     val linjer: List<ArrangforflateUtbetalingLinje>,
-    val advarsler: List<DeltakerAdvarsel>,
+    val advarsler: List<DeltakerAdvarselDto>,
     val kanAvbrytes: ArrangorAvbrytStatus,
     @Serializable(with = LocalDateSerializer::class)
     val avbruttDato: LocalDate?,
