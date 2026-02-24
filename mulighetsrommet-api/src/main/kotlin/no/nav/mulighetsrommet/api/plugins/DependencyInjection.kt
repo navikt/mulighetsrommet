@@ -374,9 +374,8 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         ArenaAdapterService(
-            ArenaAdapterService.Config(
-                gjennomforingV2Topic = appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic,
-            ),
+            get(),
+            get(),
             get(),
             get(),
             get(),

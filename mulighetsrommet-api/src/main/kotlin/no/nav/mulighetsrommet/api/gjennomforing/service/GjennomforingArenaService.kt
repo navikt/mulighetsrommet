@@ -4,23 +4,20 @@ import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
 
-data class OpprettGjennomforingEnkeltplass(
+data class OpprettGjennomforingArena(
     val id: UUID,
     val tiltakstypeId: UUID,
     val arrangorId: UUID,
@@ -32,9 +29,11 @@ data class OpprettGjennomforingEnkeltplass(
     val antallPlasser: Int,
     val arenaTiltaksnummer: Tiltaksnummer?,
     val arenaAnsvarligEnhet: String?,
+    val oppstart: GjennomforingOppstartstype,
+    val pameldingType: GjennomforingPameldingType,
 )
 
-class GjennomforingEnkeltplassService(
+class GjennomforingArenaService(
     private val config: Config,
     private val db: ApiDatabase,
 ) {
@@ -42,15 +41,14 @@ class GjennomforingEnkeltplassService(
         val gjennomforingV2Topic: String,
     )
 
-    fun upsert(opprett: OpprettGjennomforingEnkeltplass): Unit = db.transaction {
+    fun upsert(opprett: OpprettGjennomforingArena): Unit = db.transaction {
         val previous = queries.gjennomforing.getGjennomforing(opprett.id)
-        if (previous != null && !harEnkeltplassEndringer(opprett, previous)) {
+        if (previous != null && !harGjennomforingEndringer(opprett, previous)) {
             return
         }
 
-        val prismodellId = getOrCreatePrismodell(opprett.id)
         val dbo = GjennomforingDbo(
-            type = GjennomforingType.ENKELTPLASS,
+            type = GjennomforingType.ARENA,
             id = opprett.id,
             tiltakstypeId = opprett.tiltakstypeId,
             arrangorId = opprett.arrangorId,
@@ -60,18 +58,17 @@ class GjennomforingEnkeltplassService(
             status = opprett.status,
             deltidsprosent = opprett.deltidsprosent,
             antallPlasser = opprett.antallPlasser,
-            oppstart = GjennomforingOppstartstype.LOPENDE,
-            pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
             arenaTiltaksnummer = opprett.arenaTiltaksnummer,
             arenaAnsvarligEnhet = opprett.arenaAnsvarligEnhet,
-            prismodellId = prismodellId,
+            oppstart = opprett.oppstart,
+            pameldingType = opprett.pameldingType,
         )
         queries.gjennomforing.upsert(dbo)
 
         getOrError(dbo.id).also { publishTiltaksgjennomforingV2ToKafka(it) }
     }
 
-    fun updateArenaData(id: UUID, arenadata: Gjennomforing.ArenaData): GjennomforingEnkeltplass = db.transaction {
+    fun updateArenaData(id: UUID, arenadata: Gjennomforing.ArenaData): GjennomforingArena = db.transaction {
         val previous = getOrError(id)
         if (previous.arena == arenadata) {
             return previous
@@ -85,37 +82,15 @@ class GjennomforingEnkeltplassService(
             ),
         )
 
-        val next = getOrError(id)
-
-        val fts = listOf(next.arrangor.navn) +
-            next.lopenummer.toFreeTextSearch() +
-            next.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty()
-        queries.gjennomforing.setFreeTextSearch(id, fts)
-
-        next.also { publishTiltaksgjennomforingV2ToKafka(it) }
+        getOrError(id).also { publishTiltaksgjennomforingV2ToKafka(it) }
     }
 
-    private fun QueryContext.getOrError(id: UUID): GjennomforingEnkeltplass {
-        return queries.gjennomforing.getGjennomforingEnkeltplassOrError(id)
+    private fun QueryContext.getOrError(id: UUID): GjennomforingArena {
+        return queries.gjennomforing.getGjennomforingArenaOrError(id)
     }
 
-    private fun QueryContext.getOrCreatePrismodell(gjennomforingId: UUID): UUID {
-        return queries.gjennomforing.getPrismodell(gjennomforingId)?.id ?: run {
-            val prismodellDbo = PrismodellDbo(
-                id = UUID.randomUUID(),
-                type = PrismodellType.ANNEN_AVTALT_PRIS,
-                valuta = Valuta.NOK,
-                prisbetingelser = null,
-                satser = null,
-                systemId = null,
-            )
-            queries.prismodell.upsert(prismodellDbo)
-            prismodellDbo.id
-        }
-    }
-
-    private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingEnkeltplass) {
-        val dto = TiltaksgjennomforingV2Mapper.fromGjennomforingEnkeltplass(gjennomforing)
+    private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingArena) {
+        val dto = TiltaksgjennomforingV2Mapper.fromGjennomforingArena(gjennomforing)
         val record = StoredProducerRecord(
             config.gjennomforingV2Topic,
             dto.id.toString().toByteArray(),
@@ -126,13 +101,14 @@ class GjennomforingEnkeltplassService(
     }
 }
 
-private fun harEnkeltplassEndringer(opprett: OpprettGjennomforingEnkeltplass, gjennomforing: Gjennomforing): Boolean {
-    return opprett.navn != gjennomforing.navn ||
-        opprett.arenaTiltaksnummer?.value != gjennomforing.arena?.tiltaksnummer?.value ||
-        opprett.arrangorId != gjennomforing.arrangor.id ||
+private fun harGjennomforingEndringer(opprett: OpprettGjennomforingArena, gjennomforing: Gjennomforing): Boolean {
+    return opprett.arrangorId != gjennomforing.arrangor.id ||
+        opprett.navn != gjennomforing.navn ||
         opprett.startDato != gjennomforing.startDato ||
         opprett.sluttDato != gjennomforing.sluttDato ||
-        opprett.arenaAnsvarligEnhet != gjennomforing.arena?.ansvarligNavEnhet ||
         opprett.deltidsprosent != gjennomforing.deltidsprosent ||
-        opprett.status != gjennomforing.status
+        opprett.antallPlasser != gjennomforing.antallPlasser ||
+        opprett.status != gjennomforing.status ||
+        opprett.arenaTiltaksnummer?.value != gjennomforing.arena?.tiltaksnummer?.value ||
+        opprett.arenaAnsvarligEnhet != gjennomforing.arena?.ansvarligNavEnhet
 }

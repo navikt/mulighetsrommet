@@ -17,9 +17,11 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingRequestMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
@@ -30,6 +32,7 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatofo
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -102,6 +105,30 @@ class GjennomforingAvtaleService(
                 .also { updateFreeTextSearch(it) }
                 .also { publishToKafka(it) }
         }
+    }
+
+    fun updateArenaData(id: UUID, arenadata: Gjennomforing.ArenaData): GjennomforingAvtale = db.transaction {
+        val previous = getOrError(id)
+        if (previous.arena == arenadata) {
+            return previous
+        }
+
+        queries.gjennomforing.setArenaData(
+            GjennomforingArenaDataDbo(
+                id = id,
+                tiltaksnummer = arenadata.tiltaksnummer,
+                arenaAnsvarligEnhet = arenadata.ansvarligNavEnhet,
+            ),
+        )
+
+        val operation = if (previous.arena?.tiltaksnummer == null) {
+            "Oppdatert med tiltaksnummer fra Arena"
+        } else {
+            "Endret i Arena"
+        }
+        logEndring(operation, id, Arena)
+            .also { updateFreeTextSearch(it) }
+            .also { publishToKafka(it) }
     }
 
     fun getGjennomforingAvtale(id: UUID): GjennomforingAvtale? {
@@ -256,8 +283,7 @@ class GjennomforingAvtaleService(
     fun deleteStengtHosArrangor(id: UUID, periodeId: Int, navIdent: NavIdent) = db.transaction {
         queries.gjennomforing.deleteStengtHosArrangor(periodeId)
 
-        val dto = logEndring("Fjernet periode med stengt hos arrangør", id, navIdent)
-        publishToKafka(dto)
+        logEndring("Fjernet periode med stengt hos arrangør", id, navIdent).also { publishToKafka(it) }
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
@@ -326,8 +352,8 @@ class GjennomforingAvtaleService(
 
     private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingAvtale) {
         val fts = listOf(gjennomforing.navn, gjennomforing.arrangor.navn) +
-            gjennomforing.lopenummer.toFreeTextSeach() +
-            gjennomforing.arena?.tiltaksnummer?.toFreeTextSeach().orEmpty()
+            gjennomforing.lopenummer.toFreeTextSearch() +
+            gjennomforing.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty()
 
         queries.gjennomforing.setFreeTextSearch(gjennomforing.id, fts)
     }
@@ -397,7 +423,7 @@ private fun isEqual(
     return request == GjennomforingRequestMapper.fromGjennomforing(previous, detaljer)
 }
 
-fun Tiltaksnummer.toFreeTextSeach(): List<String> = listOfNotNull(
+fun Tiltaksnummer.toFreeTextSearch(): List<String> = listOfNotNull(
     value,
     aar.toString(),
     lopenummer.toString(),
