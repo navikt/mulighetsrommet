@@ -581,30 +581,18 @@ class GjennomforingQueriesTest : FunSpec({
     }
 
     context("free text search") {
-        test("løpenummer og tiltaksnummer blir automatisk med i fritekstsøket") {
+        test("kan søke med fritekst") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    gjennomforinger = listOf(
-                        Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
-                    ),
+                    gjennomforinger = listOf(Oppfolging1),
                 ).setup(session)
 
-                val lopenummer = queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).lopenummer
-
-                queries.gjennomforing.getAll(search = lopenummer.value).items.shouldHaveSize(0)
-
-                queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("foo"))
-
-                queries.gjennomforing.getAll(search = lopenummer.value)
-                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
-
-                queries.gjennomforing.getAll(search = lopenummer.aar.toString())
-                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
-
-                queries.gjennomforing.getAll(search = lopenummer.lopenummer.toString())
-                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+                queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("foo", "foobar"))
 
                 queries.gjennomforing.getAll(search = "foo")
+                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+
+                queries.gjennomforing.getAll(search = "foob")
                     .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
 
                 queries.gjennomforing.getAll(search = "bar").items.shouldHaveSize(0)

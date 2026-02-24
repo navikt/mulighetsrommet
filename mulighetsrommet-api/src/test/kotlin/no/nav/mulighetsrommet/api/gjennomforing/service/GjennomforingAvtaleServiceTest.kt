@@ -28,11 +28,13 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDate
 
 const val TEST_GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"
@@ -111,6 +113,39 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 queries.gjennomforing.getAll(search = "rart").items.shouldHaveSize(1)
                 queries.gjennomforing.getAll(search = ArrangorFixtures.hovedenhet.navn).items.shouldBeEmpty()
                 queries.gjennomforing.getAll(search = ArrangorFixtures.underenhet1.navn).items.shouldHaveSize(1)
+            }
+        }
+
+        test("løpenummer og tiltaksnummer fra Arena blir tilgjengelig via fritekstsøk") {
+            val gjennomforing = service.upsert(request, bertilNavIdent).shouldBeRight()
+
+            database.db.session {
+                queries.gjennomforing.getAll(
+                    search = "1234",
+                ).items.shouldBeEmpty()
+                queries.gjennomforing.getAll(
+                    search = gjennomforing.lopenummer.value,
+                ).items.shouldHaveSize(1)
+                queries.gjennomforing.getAll(
+                    search = gjennomforing.lopenummer.aar.toString(),
+                ).items.shouldHaveSize(1)
+                queries.gjennomforing.getAll(
+                    search = gjennomforing.lopenummer.lopenummer.toString(),
+                ).items.shouldHaveSize(1)
+            }
+
+            service.updateArenaData(gjennomforing.id, Gjennomforing.ArenaData(Tiltaksnummer("2025#123"), null))
+
+            database.db.session {
+                queries.gjennomforing.getAll(
+                    search = "2025#123",
+                ).items.shouldHaveSize(1)
+                queries.gjennomforing.getAll(
+                    search = "2025",
+                ).items.shouldHaveSize(1)
+                queries.gjennomforing.getAll(
+                    search = "123",
+                ).items.shouldHaveSize(1)
             }
         }
 
