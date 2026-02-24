@@ -15,6 +15,7 @@ import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { useUmami } from "@/sporing/useUmami";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
+import { ContentBox } from "@/layouts/ContentBox";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -100,7 +101,9 @@ function getTab(currentTab: AvtaleTab, avtale: AvtaleDto) {
     case AvtaleTab.GJENNOMFORINGER:
       return (
         <InlineErrorBoundary>
-          <GjennomforingerForAvtalePage />
+          <ContentBox>
+            <GjennomforingerForAvtalePage />
+          </ContentBox>
         </InlineErrorBoundary>
       );
   }

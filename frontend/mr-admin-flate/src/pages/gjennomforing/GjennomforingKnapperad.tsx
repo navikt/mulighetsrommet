@@ -6,8 +6,8 @@ import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentFo
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { LayersPlusIcon } from "@navikt/aksel-icons";
-import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
+import { ExternalLinkIcon, LayersPlusIcon } from "@navikt/aksel-icons";
+import { BodyShort, Button, ActionMenu, Switch } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
@@ -72,65 +72,66 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
       <EndringshistorikkPopover>
         <GjennomforingEndringshistorikk id={gjennomforing.id} />
       </EndringshistorikkPopover>
-      <Dropdown>
-        <Button size="small" variant="secondary" as={Dropdown.Toggle}>
-          Handlinger
-        </Button>
-        <Dropdown.Menu>
-          <Dropdown.Menu.GroupedList>
-            {isGruppetiltak(gjennomforing) &&
-              handlinger.includes(GjennomforingHandling.REDIGER) && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    if (
-                      gjennomforing.administratorer.length > 0 &&
-                      !gjennomforing.administratorer
-                        .map((a) => a.navIdent)
-                        .includes(ansatt.navIdent)
-                    ) {
-                      advarselModal.current?.showModal();
-                    } else {
-                      navigate("skjema");
-                    }
-                  }}
-                >
-                  Rediger gjennomføring
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-            {isGruppetiltak(gjennomforing) &&
-              handlinger.includes(GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING) && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => apentForPameldingModalRef.current?.showModal()}
-                >
-                  {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-            {handlinger.includes(GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR) && (
-              <Dropdown.Menu.GroupedList.Item
-                onClick={() => registrerStengtModalRef.current?.showModal()}
-              >
-                Registrer stengt hos arrangør
-              </Dropdown.Menu.GroupedList.Item>
-            )}
-            {handlinger.includes(GjennomforingHandling.AVBRYT) && (
-              <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
-                Avbryt gjennomføring
-              </Dropdown.Menu.GroupedList.Item>
-            )}
-          </Dropdown.Menu.GroupedList>
-          {isGruppetiltak(gjennomforing) && handlinger.includes(GjennomforingHandling.DUPLISER) && (
-            <>
-              <Dropdown.Menu.Divider />
-              <Dropdown.Menu.List>
-                <Dropdown.Menu.List.Item onClick={() => dupliserGjennomforing(gjennomforing)}>
-                  <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
-                  Dupliser
-                </Dropdown.Menu.List.Item>
-              </Dropdown.Menu.List>
-            </>
+      <ActionMenu>
+        <ActionMenu.Trigger>
+          <Button size="small" variant="secondary">
+            Handlinger
+          </Button>
+        </ActionMenu.Trigger>
+        <ActionMenu.Content>
+          {isGruppetiltak(gjennomforing) && handlinger.includes(GjennomforingHandling.REDIGER) && (
+            <ActionMenu.Item
+              onClick={() => {
+                if (
+                  gjennomforing.administratorer.length > 0 &&
+                  !gjennomforing.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
+                ) {
+                  advarselModal.current?.showModal();
+                } else {
+                  navigate("skjema");
+                }
+              }}
+            >
+              Rediger gjennomføring
+            </ActionMenu.Item>
           )}
-        </Dropdown.Menu>
-      </Dropdown>
+          {isGruppetiltak(gjennomforing) &&
+            handlinger.includes(GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING) && (
+              <ActionMenu.Item onClick={() => apentForPameldingModalRef.current?.showModal()}>
+                {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
+              </ActionMenu.Item>
+            )}
+          {handlinger.includes(GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR) && (
+            <ActionMenu.Item onClick={() => registrerStengtModalRef.current?.showModal()}>
+              Registrer stengt hos arrangør
+            </ActionMenu.Item>
+          )}
+          {handlinger.includes(GjennomforingHandling.AVBRYT) && (
+            <ActionMenu.Item onClick={() => setAvbrytModalOpen(true)}>
+              Avbryt gjennomføring
+            </ActionMenu.Item>
+          )}
+          <ActionMenu.Divider />
+          {handlinger.includes(GjennomforingHandling.FORHANDSVIS_I_MODIA) && (
+            <ActionMenu.Item
+              as="a"
+              href="https://nav.no"
+              target="_blank"
+              icon={<ExternalLinkIcon aria-hidden />}
+            >
+              Forhåndsvis i Modia
+            </ActionMenu.Item>
+          )}
+          {isGruppetiltak(gjennomforing) && handlinger.includes(GjennomforingHandling.DUPLISER) && (
+            <ActionMenu.Item
+              onClick={() => dupliserGjennomforing(gjennomforing)}
+              icon={<LayersPlusIcon aria-hidden />}
+            >
+              Dupliser
+            </ActionMenu.Item>
+          )}
+        </ActionMenu.Content>
+      </ActionMenu>
       <VarselModal
         modalRef={advarselModal}
         handleClose={() => advarselModal.current?.close()}

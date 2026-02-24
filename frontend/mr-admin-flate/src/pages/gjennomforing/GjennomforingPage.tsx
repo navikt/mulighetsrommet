@@ -4,22 +4,19 @@ import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Heading, Spacer, Tabs } from "@navikt/ds-react";
 import React from "react";
-import { useGjennomforing, useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { GjennomforingDto, GjennomforingHandling } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
 import { DataElementStatusTag } from "@mr/frontend-common";
-import { previewArbeidsmarkedstiltakUrl } from "@/constants";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { gjennomforing } = useGjennomforing(gjennomforingId);
-  const handlinger = useGjennomforingHandlinger(gjennomforing.id);
   const [currentTab, tabs] = useTabs(gjennomforing);
 
   const brodsmuler: (Brodsmule | undefined)[] = [
@@ -48,16 +45,6 @@ export function GjennomforingPage() {
         </Heading>
         <DataElementStatusTag {...gjennomforing.status.status} />
         <Spacer />
-        {handlinger.includes(GjennomforingHandling.FORHANDSVIS_I_MODIA) && (
-          <Lenkeknapp
-            size="small"
-            isExternal={true}
-            variant="secondary"
-            to={`${previewArbeidsmarkedstiltakUrl()}/tiltak/${gjennomforing.id}`}
-          >
-            Forhåndsvis i Modia
-          </Lenkeknapp>
-        )}
       </Header>
       <Tabs value={currentTab}>
         <Tabs.List className="bg-ax-bg-default">
