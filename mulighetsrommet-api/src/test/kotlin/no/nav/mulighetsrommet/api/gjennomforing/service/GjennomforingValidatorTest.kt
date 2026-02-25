@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -93,7 +92,6 @@ class GjennomforingValidatorTest : FunSpec({
                 prisbetingelser = null,
             ),
         ),
-        opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
         opsjonerRegistrert = emptyList(),
     )
 

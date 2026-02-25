@@ -3997,11 +3997,6 @@ components:
       required:
       - navIdent
       - navn
-    ArenaMigrering.Opphav:
-      type: string
-      enum:
-      - ARENA
-      - TILTAKSADMINISTRASJON
     Kontorstruktur:
       type: object
       properties:
@@ -4246,8 +4241,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Avtale.Administrator"
-        opphav:
-          $ref: "#/components/schemas/ArenaMigrering.Opphav"
         kontorstruktur:
           type: array
           items:
@@ -4295,7 +4288,6 @@ components:
       - id
       - kontorstruktur
       - navn
-      - opphav
       - opsjonerRegistrert
       - opsjonsmodell
       - personopplysninger
@@ -4889,6 +4881,11 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
+    ArenaMigrering.Opphav:
+      type: string
+      enum:
+      - ARENA
+      - TILTAKSADMINISTRASJON
     GjennomforingDto.Administrator:
       type: object
       properties:

@@ -36,7 +36,6 @@ import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -763,7 +762,6 @@ class AvtaleValidatorTest : FunSpec({
     context("når avtalen allerede eksisterer") {
         val previous = Ctx.Avtale(
             status = AvtaleStatusType.AKTIV,
-            opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
             opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
             opsjonerRegistrert = emptyList(),
             avtaletype = Avtaletype.AVTALE,
@@ -962,7 +960,6 @@ class AvtaleValidatorTest : FunSpec({
     context("endring av status") {
         val previous = Ctx.Avtale(
             status = AvtaleStatusType.AKTIV,
-            opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
             opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
             opsjonerRegistrert = emptyList(),
             avtaletype = Avtaletype.AVTALE,

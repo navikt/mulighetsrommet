@@ -20,7 +20,6 @@ object AvtaleDtoMapper {
         avtaletype = avtale.avtaletype,
         status = fromAvtaleStatus(avtale.status),
         administratorer = avtale.administratorer,
-        opphav = avtale.opphav,
         kontorstruktur = avtale.kontorstruktur,
         beskrivelse = avtale.beskrivelse,
         faneinnhold = avtale.faneinnhold,

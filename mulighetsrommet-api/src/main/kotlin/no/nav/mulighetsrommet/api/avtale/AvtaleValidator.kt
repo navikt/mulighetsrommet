@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -65,7 +64,6 @@ object AvtaleValidator {
     ) {
         data class Avtale(
             val status: AvtaleStatusType,
-            val opphav: ArenaMigrering.Opphav,
             val opsjonerRegistrert: List<OpsjonLoggDto>,
             val opsjonsmodell: Opsjonsmodell,
             val avtaletype: Avtaletype,
@@ -354,7 +352,7 @@ object AvtaleValidator {
         validateNotNull(request.startDato) {
             FieldError.of("Du må legge inn startdato for avtalen", DetaljerRequest::navn)
         }
-        validate(request.navn.length >= 5 || ctx.previous?.opphav == ArenaMigrering.Opphav.ARENA) {
+        validate(request.navn.length >= 5) {
             FieldError.of("Avtalenavn må være minst 5 tegn langt", DetaljerRequest::navn)
         }
         validate(request.administratorer.isNotEmpty()) {
