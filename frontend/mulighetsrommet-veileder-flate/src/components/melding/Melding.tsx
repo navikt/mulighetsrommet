@@ -32,7 +32,7 @@ export function Melding({ header, children, variant, utenMargin }: MeldingProps)
       <InfoCard.Header icon={ikon()}>
         <InfoCard.Title>{header}</InfoCard.Title>
       </InfoCard.Header>
-      <InfoCard.Content data-testid="melding-container">{children}</InfoCard.Content>
+      {children && <InfoCard.Content data-testid="melding-container">{children}</InfoCard.Content>}
     </InfoCard>
   );
 }

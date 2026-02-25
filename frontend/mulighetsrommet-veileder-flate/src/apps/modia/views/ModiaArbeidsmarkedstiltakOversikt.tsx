@@ -17,6 +17,7 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
+import { Box } from "@navikt/ds-react";
 
 export function ModiaArbeidsmarkedstiltakOversikt() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -62,20 +63,24 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
             }
             feilmelding={
               !isFilterReady(filter) ? (
-                <Melding
-                  data-testid="filter-mangler-verdier-feilmelding"
-                  header="Filter mangler"
-                  variant="info"
-                >
-                  Du må filtrere på en innsatsgruppe og minst én Nav-enhet for å se tiltak
-                </Melding>
+                <Box paddingInline="space-6 space-0">
+                  <Melding
+                    data-testid="filter-mangler-verdier-feilmelding"
+                    header="Filter mangler"
+                    variant="info"
+                  >
+                    Du må filtrere på en innsatsgruppe og minst én Nav-enhet for å se tiltak
+                  </Melding>
+                </Box>
               ) : tiltak.length === 0 ? (
                 isPending ? (
                   <ListSkeleton />
                 ) : (
-                  <Melding header="Ingen tiltak funnet" variant="warning">
-                    Prøv å justere søket eller filteret for å finne det du leter etter
-                  </Melding>
+                  <Box paddingInline="space-6 space-0">
+                    <Melding header="Ingen tiltak funnet" variant="warning">
+                      Prøv å justere søket eller filteret for å finne det du leter etter
+                    </Melding>
+                  </Box>
                 )
               ) : null
             }
