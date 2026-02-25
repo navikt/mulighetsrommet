@@ -68,7 +68,9 @@ class GjennomforingEnkeltplassService(
         )
         queries.gjennomforing.upsert(dbo)
 
-        getOrError(dbo.id).also { publishTiltaksgjennomforingV2ToKafka(it) }
+        getOrError(dbo.id)
+            .also { updateFreeTextSearch(it) }
+            .also { publishTiltaksgjennomforingV2ToKafka(it) }
     }
 
     fun updateArenaData(id: UUID, arenadata: Gjennomforing.ArenaData): GjennomforingEnkeltplass = db.transaction {
@@ -85,14 +87,17 @@ class GjennomforingEnkeltplassService(
             ),
         )
 
-        val next = getOrError(id)
+        getOrError(id)
+            .also { updateFreeTextSearch(it) }
+            .also { publishTiltaksgjennomforingV2ToKafka(it) }
+    }
 
-        val fts = listOf(next.arrangor.navn) +
-            next.lopenummer.toFreeTextSearch() +
-            next.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty()
-        queries.gjennomforing.setFreeTextSearch(id, fts)
+    private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingEnkeltplass) {
+        val fts = listOf(gjennomforing.arrangor.navn) +
+            gjennomforing.lopenummer.toFreeTextSearch() +
+            gjennomforing.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty()
 
-        next.also { publishTiltaksgjennomforingV2ToKafka(it) }
+        queries.gjennomforing.setFreeTextSearch(gjennomforing.id, fts)
     }
 
     private fun QueryContext.getOrError(id: UUID): GjennomforingEnkeltplass {
