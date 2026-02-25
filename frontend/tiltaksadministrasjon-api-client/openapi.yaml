@@ -4774,8 +4774,6 @@ components:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
         pameldingType:
           $ref: "#/components/schemas/GjennomforingPameldingType"
-        opphav:
-          $ref: "#/components/schemas/ArenaMigrering.Opphav"
         apentForPamelding:
           type: boolean
         deltidsprosent:
@@ -4809,7 +4807,6 @@ components:
       - id
       - lopenummer
       - navn
-      - opphav
       - oppstart
       - pameldingType
       - sluttDato
@@ -4881,11 +4878,6 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
-    ArenaMigrering.Opphav:
-      type: string
-      enum:
-      - ARENA
-      - TILTAKSADMINISTRASJON
     GjennomforingDto.Administrator:
       type: object
       properties:
@@ -4964,14 +4956,11 @@ components:
           format: date
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
-        opphav:
-          $ref: "#/components/schemas/ArenaMigrering.Opphav"
       required:
       - arrangor
       - id
       - lopenummer
       - navn
-      - opphav
       - sluttDato
       - startDato
       - status

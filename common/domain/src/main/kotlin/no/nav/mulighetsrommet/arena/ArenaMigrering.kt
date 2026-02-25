@@ -9,9 +9,4 @@ object ArenaMigrering {
     val EnkeltplassSluttDatoCutoffDate: LocalDate = LocalDate.of(2026, 1, 1)
 
     val ArenaTimestampFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-
-    enum class Opphav {
-        ARENA,
-        TILTAKSADMINISTRASJON,
-    }
 }

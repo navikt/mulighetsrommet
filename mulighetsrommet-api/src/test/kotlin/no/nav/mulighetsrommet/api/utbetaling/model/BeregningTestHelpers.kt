@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -117,7 +116,6 @@ object BeregningTestHelpers {
             sluttDato = periode.getLastInclusiveDate(),
             deltidsprosent = 100.0,
             antallPlasser = 10,
-            opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
             status = GjennomforingStatusType.GJENNOMFORES,
             apentForPamelding = true,
             avtaleId = UUID.randomUUID(),
