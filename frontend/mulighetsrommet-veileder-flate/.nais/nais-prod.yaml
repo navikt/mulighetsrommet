@@ -6,7 +6,7 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/poao-frontend:2026.02.02_13.09-9210ba7e0dcb
+  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/poao-frontend:2026.02.18_13.06-66e04fd8f3ba
   port: 8080
   ingresses:
     - https://nav-arbeidsmarkedstiltak.intern.nav.no
