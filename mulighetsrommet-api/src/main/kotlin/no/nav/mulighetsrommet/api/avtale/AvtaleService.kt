@@ -122,7 +122,6 @@ class AvtaleService(
             val gjennomforinger = queries.gjennomforing.getByAvtale(avtaleId)
             val previous = AvtaleValidator.Ctx.Avtale(
                 status = avtale.status.type,
-                opphav = avtale.opphav,
                 opsjonerRegistrert = avtale.opsjonerRegistrert,
                 opsjonsmodell = avtale.opsjonsmodell,
                 avtaletype = avtale.avtaletype,
