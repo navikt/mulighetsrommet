@@ -34,19 +34,28 @@ private val kontaktpersonAdGruppeId = "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toU
 val ApplicationConfigProd = AppConfig(
     tiltakstyper = TiltakstypeService.Config(
         features = run {
+            val utfaset = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+                TiltakstypeFeature.MIGRERT,
+                TiltakstypeFeature.UTFASET,
+            )
             val migrert = setOf(
                 TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
                 TiltakstypeFeature.MIGRERT,
             )
             mapOf(
-                Tiltakskode.AVKLARING to migrert,
-                Tiltakskode.OPPFOLGING to migrert,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.JOBBKLUBB to migrert,
-                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
+                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to migrert,
                 Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
+                Tiltakskode.AVKLARING to migrert,
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
+                Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to utfaset,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to utfaset,
+                Tiltakskode.JOBBKLUBB to migrert,
+                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
+                Tiltakskode.OPPFOLGING to migrert,
+                Tiltakskode.STUDIESPESIALISERING to migrert,
                 Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
             )
         },
