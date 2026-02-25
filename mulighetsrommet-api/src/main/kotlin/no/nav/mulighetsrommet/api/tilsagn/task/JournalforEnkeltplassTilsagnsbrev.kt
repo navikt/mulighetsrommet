@@ -29,7 +29,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
-class JournalforTilsagnsbrev(
+class JournalforEnkeltplassTilsagnsbrev(
     private val db: ApiDatabase,
     private val dokarkClient: DokarkClient,
     private val amtDeltakerClient: AmtDeltakerClient,
