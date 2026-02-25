@@ -6500,7 +6500,6 @@ components:
       type: string
       enum:
       - TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER
-      - TILTAKSADMINISTRASJON_PAMELDING_TYPE
       - TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER
     LagretFilterType:
       type: string
