@@ -71,7 +71,7 @@ class DistribuerTilsagnsbrev(
         dokdistClient.distribuerJournalpost(
             journalpostId = tilsagn.journalpost.id,
             accessType = AccessType.M2M,
-            distribusjonstype = DokdistRequest.DistribusjonsType.VIKTIG,
+            distribusjonstype = DokdistRequest.DistribusjonsType.ANNET,
             adresse = adresse,
         ).map { response ->
             queries.tilsagn.setJournalpostDistribueringId(tilsagnId, response.bestillingsId)
