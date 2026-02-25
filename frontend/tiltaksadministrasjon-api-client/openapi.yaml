@@ -4583,6 +4583,7 @@ components:
       enum:
       - LOPENDE
       - FELLES
+      - ENKELTPLASS
     GjennomforingRequest.EstimertVentetid:
       type: object
       properties:

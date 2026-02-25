@@ -514,8 +514,8 @@ class GjennomforingQueriesTest : FunSpec({
                     it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.deltidsprosent shouldBe 100.0
                     it.antallPlasser shouldBe 10
-                    it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
-                    it.pameldingType shouldBe GjennomforingPameldingType.DIREKTE_VEDTAK
+                    it.oppstart shouldBe GjennomforingOppstartstype.ENKELTPLASS
+                    it.pameldingType shouldBe GjennomforingPameldingType.TRENGER_GODKJENNING
                 }
 
                 queries.gjennomforing.delete(arenaEnkelAmo1.id)

@@ -146,6 +146,12 @@ class GjennomforingValidatorTest : FunSpec({
             .shouldContain(FieldError("/oppstart", "Tiltaket må ha løpende oppstart"))
     }
 
+    test("skal ikke kunne sette oppstartstype til enkeltplass") {
+        GjennomforingValidator.validate(request.copy(oppstart = GjennomforingOppstartstype.ENKELTPLASS), ctx)
+            .shouldBeLeft()
+            .shouldContain(FieldError("/oppstart", "Tiltaket må ha løpende oppstart"))
+    }
+
     test("skal ikke kunne sette direkte vedtak når tiltaket har felles oppstart") {
         GjennomforingValidator.validate(
             request.copy(

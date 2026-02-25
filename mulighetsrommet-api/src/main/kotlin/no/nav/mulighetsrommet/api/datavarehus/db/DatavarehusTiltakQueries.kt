@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AmoKurstype
@@ -16,7 +15,6 @@ import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import org.intellij.lang.annotations.Language
 import java.util.UUID
@@ -150,8 +148,8 @@ private fun Row.toAmoKategorisering(
 }
 
 private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
-    val type = GjennomforingType.valueOf(string("gjennomforing_type"))
     val tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode"))
+    val oppstartstype = GjennomforingOppstartstype.valueOf(string("oppstart_type"))
     return DatavarehusTiltakV1Dto(
         tiltakskode = tiltakskode,
         avtale = uuidOrNull("avtale_id")?.let {
@@ -172,21 +170,20 @@ private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
             arena = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) }?.let {
                 DatavarehusTiltakV1.ArenaData(aar = it.aar, lopenummer = it.lopenummer)
             },
-            navn = string("navn").takeIfIsGruppetiltak(type, tiltakskode),
-            oppstartstype = GjennomforingOppstartstype.valueOf(string("oppstart_type")),
+            oppstartstype = oppstartstype,
             pameldingstype = GjennomforingPameldingType.valueOf(string("pamelding_type")),
-            startDato = localDate("start_dato").takeIfIsGruppetiltak(type, tiltakskode),
-            sluttDato = localDateOrNull("slutt_dato")?.takeIfIsGruppetiltak(type, tiltakskode),
-            status = GjennomforingStatusType.valueOf(string("status")).takeIfIsGruppetiltak(type, tiltakskode),
-            deltidsprosent = double("deltidsprosent").takeIfIsGruppetiltak(type, tiltakskode),
+            navn = string("navn").takeIfIsGruppetiltak(oppstartstype),
+            startDato = localDate("start_dato").takeIfIsGruppetiltak(oppstartstype),
+            sluttDato = localDateOrNull("slutt_dato")?.takeIfIsGruppetiltak(oppstartstype),
+            status = GjennomforingStatusType.valueOf(string("status")).takeIfIsGruppetiltak(oppstartstype),
+            deltidsprosent = double("deltidsprosent").takeIfIsGruppetiltak(oppstartstype),
         ),
     )
 }
 
-private fun <T> T.takeIfIsGruppetiltak(type: GjennomforingType, tiltakskode: Tiltakskode): T? = takeIf {
+private fun <T> T.takeIfIsGruppetiltak(type: GjennomforingOppstartstype): T? = takeIf {
     when (type) {
-        GjennomforingType.AVTALE -> true
-        GjennomforingType.ENKELTPLASS -> false
-        GjennomforingType.ARENA -> Tiltakskoder.isGruppetiltak(tiltakskode)
+        GjennomforingOppstartstype.FELLES, GjennomforingOppstartstype.LOPENDE -> true
+        GjennomforingOppstartstype.ENKELTPLASS -> false
     }
 }

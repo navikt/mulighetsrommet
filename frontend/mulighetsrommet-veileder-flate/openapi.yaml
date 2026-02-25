@@ -1703,6 +1703,7 @@ components:
       enum:
       - LOPENDE
       - FELLES
+      - ENKELTPLASS
     VeilederflateTiltakEnkeltplass:
       type: object
       properties:

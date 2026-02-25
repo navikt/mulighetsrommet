@@ -154,6 +154,10 @@ object GjennomforingValidator {
                 )
             }
 
+            GjennomforingOppstartstype.ENKELTPLASS -> error {
+                FieldError.of("Tiltaket støtter ikke enkeltplasser", GjennomforingRequest::oppstart)
+            }
+
             null -> error {
                 FieldError.of("Oppstartstype er påkrevd", GjennomforingRequest::oppstart)
             }

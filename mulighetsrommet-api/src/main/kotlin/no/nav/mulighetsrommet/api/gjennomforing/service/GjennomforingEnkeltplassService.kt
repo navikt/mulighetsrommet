@@ -60,7 +60,7 @@ class GjennomforingEnkeltplassService(
             status = opprett.status,
             deltidsprosent = opprett.deltidsprosent,
             antallPlasser = opprett.antallPlasser,
-            oppstart = GjennomforingOppstartstype.LOPENDE,
+            oppstart = GjennomforingOppstartstype.ENKELTPLASS,
             pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
             arenaTiltaksnummer = opprett.arenaTiltaksnummer,
             arenaAnsvarligEnhet = opprett.arenaAnsvarligEnhet,
