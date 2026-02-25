@@ -73,7 +73,6 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerDeltakerKafkaConsumer
-import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerFakturaStatusConsumer
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
@@ -177,10 +176,6 @@ private fun kafka(appConfig: AppConfig) = module {
                 get(),
             ),
             config.clients.replikerDeltakerEksternV1 to ReplikerDeltakerKafkaConsumer(
-                db = get(),
-                genererUtbetalingService = get(),
-            ),
-            config.clients.amtDeltakerV1 to ReplikerDeltakerV1KafkaConsumer(
                 db = get(),
                 genererUtbetalingService = get(),
             ),
