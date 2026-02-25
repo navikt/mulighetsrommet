@@ -49,6 +49,7 @@ data class Utbetaling(
     val avbruttBegrunnelse: String?,
     @Serializable(with = InstantSerializer::class)
     val avbruttTidspunkt: Instant?,
+    val blokkeringer: Set<Blokkering>,
 ) {
     fun arrangorInnsendtAnnenAvtaltPris(): Boolean {
         return when (beregning) {
@@ -90,4 +91,9 @@ data class Utbetaling(
         val navn: String,
         val tiltakskode: Tiltakskode,
     )
+
+    @Serializable
+    enum class Blokkering {
+        UBEHANDLET_FORSLAG,
+    }
 }

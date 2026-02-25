@@ -63,19 +63,7 @@ class ArrangorflateService(
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private fun tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
-        val harAdvarsler = when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT -> getAdvarsler(utbetaling).isNotEmpty()
-
-            UtbetalingStatusType.INNSENDT,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.AVBRUTT,
-            -> false
-        }
-        val status = getArrangorflateUtbetalingStatus(utbetaling, harAdvarsler)
+        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
         val godkjentBelop = when (status) {
             ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
             ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
@@ -83,8 +71,8 @@ class ArrangorflateService(
             -> getGodkjentBelopForUtbetaling(utbetaling.id, valuta = utbetaling.beregning.output.pris.valuta)
 
             ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+            ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
             ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
-            ArrangorflateUtbetalingStatus.KREVER_ENDRING,
             ArrangorflateUtbetalingStatus.AVBRUTT,
             -> null
         }
@@ -133,12 +121,25 @@ class ArrangorflateService(
     }
 
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
-        val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
-        val deltakere = queries.deltaker
-            .getByGjennomforingId(utbetaling.gjennomforing.id)
-            .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
+        return when (utbetaling.status) {
+            UtbetalingStatusType.GENERERT -> {
+                val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
+                val deltakere = queries.deltaker
+                    .getByGjennomforingId(utbetaling.gjennomforing.id)
+                    .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
 
-        return UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
+                UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
+            }
+
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.RETURNERT,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
+            -> emptyList()
+        }
     }
 
     private fun getGodkjentBelopForUtbetaling(utbetalingId: UUID, valuta: Valuta): ValutaBelop = db.session {
@@ -163,7 +164,7 @@ class ArrangorflateService(
 
         val personalia = getPersonalia(deltakere.map { it.id }.toSet())
         val advarsler = getAdvarsler(utbetaling)
-        val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler.isNotEmpty())
+        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
         val (kanRegenereres, regenrertId) = kanRegenereres(utbetaling)
 
         return mapUtbetalingToArrangorflateUtbetaling(
@@ -231,16 +232,6 @@ class ArrangorflateService(
         } else {
             true to null
         }
-    }
-
-    private fun getArrangorflateUtbetalingStatus(
-        utbetaling: Utbetaling,
-        harAdvarsler: Boolean,
-    ): ArrangorflateUtbetalingStatus {
-        return ArrangorflateUtbetalingStatus.fromUtbetaling(
-            utbetaling.status,
-            harAdvarsler = harAdvarsler,
-        )
     }
 
     suspend fun getKontonummer(

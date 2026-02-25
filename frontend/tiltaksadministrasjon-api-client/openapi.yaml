@@ -6063,6 +6063,7 @@ components:
       type: string
       enum:
       - VENTER_PA_ARRANGOR
+      - UBEHANDLET_FORSLAG
       - KLAR_TIL_BEHANDLING
       - TIL_ATTESTERING
       - RETURNERT

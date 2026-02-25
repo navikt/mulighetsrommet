@@ -232,7 +232,7 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
   avbruttDato: null,
   id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
-  status: ArrangorflateUtbetalingStatus.KREVER_ENDRING,
+  status: ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
   innsendtAvArrangorDato: null,
   utbetalesTidligstDato: null,
   createdAt: "2025-06-17T13:58:12.405867",

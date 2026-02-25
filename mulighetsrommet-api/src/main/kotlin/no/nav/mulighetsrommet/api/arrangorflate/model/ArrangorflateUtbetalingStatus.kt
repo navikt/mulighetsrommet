@@ -1,28 +1,24 @@
 package no.nav.mulighetsrommet.api.arrangorflate.model
 
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 
 enum class ArrangorflateUtbetalingStatus {
     KLAR_FOR_GODKJENNING,
     BEHANDLES_AV_NAV,
     UTBETALT,
-    KREVER_ENDRING,
+    UBEHANDLET_FORSLAG,
     OVERFORT_TIL_UTBETALING,
     DELVIS_UTBETALT,
     AVBRUTT,
     ;
 
     companion object {
-        fun fromUtbetaling(
-            status: UtbetalingStatusType,
-            harAdvarsler: Boolean,
-        ): ArrangorflateUtbetalingStatus = when (status) {
-            UtbetalingStatusType.GENERERT -> {
-                if (harAdvarsler) {
-                    KREVER_ENDRING
-                } else {
-                    KLAR_FOR_GODKJENNING
-                }
+        fun fromUtbetaling(status: UtbetalingStatusType, blokkeringer: Set<Utbetaling.Blokkering>): ArrangorflateUtbetalingStatus = when (status) {
+            UtbetalingStatusType.GENERERT -> if (blokkeringer.isEmpty()) {
+                KLAR_FOR_GODKJENNING
+            } else {
+                UBEHANDLET_FORSLAG
             }
 
             UtbetalingStatusType.INNSENDT,

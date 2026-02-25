@@ -4,6 +4,7 @@ import no.nav.amt.model.AmtArrangorMelding
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
@@ -12,33 +13,38 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 
 object UtbetalingAdvarsler {
-    fun getAdvarsler(
-        utbetaling: Utbetaling,
-        deltakere: List<Deltaker>,
-        forslag: Map<UUID, List<DeltakerForslag>>,
-    ): List<DeltakerAdvarsel> {
-        return deltakereMedRelevanteForslag(utbetaling, forslag) + deltakereMedFeilSluttDato(deltakere, LocalDate.now())
-    }
-
-    fun deltakereMedRelevanteForslag(utbetaling: Utbetaling, forslag: Map<UUID, List<DeltakerForslag>>): List<DeltakerAdvarsel> {
+    fun relevanteForslag(periode: Periode, beregning: UtbetalingBeregning, forslag: Map<UUID, List<DeltakerForslag>>): List<DeltakerAdvarsel> {
         return forslag
             .mapNotNull { (deltakerId, forslag) ->
-                when (forslag.count { isForslagRelevantForUtbetaling(it, utbetaling) }) {
+                when (forslag.count { isForslagRelevantForUtbetaling(it, periode, beregning) }) {
                     0 -> null
                     else -> DeltakerAdvarsel(deltakerId, type = DeltakerAdvarselType.RelevanteForslag)
                 }
             }
     }
 
+    fun getAdvarsler(
+        utbetaling: Utbetaling,
+        deltakere: List<Deltaker>,
+        forslag: Map<UUID, List<DeltakerForslag>>,
+    ): List<DeltakerAdvarsel> {
+        return relevanteForslag(utbetaling.periode, utbetaling.beregning, forslag) + deltakereMedFeilSluttDato(deltakere, LocalDate.now())
+    }
+
     fun isForslagRelevantForUtbetaling(
         forslag: DeltakerForslag,
-        utbetaling: Utbetaling,
+        utbetalingPeriode: Periode,
+        beregning: UtbetalingBeregning,
     ): Boolean {
-        val periode = utbetaling.beregning.input.deltakelser()
+        val deltakelsePeriode = beregning.input.deltakelser()
             .find { it.deltakelseId == forslag.deltakerId }
             ?.periode()
             ?: return false
-        return isForslagRelevantForPeriode(forslag, utbetaling.periode, periode)
+        return isForslagRelevantForPeriode(
+            forslag,
+            utbetalingPeriode = utbetalingPeriode,
+            deltakelsePeriode = deltakelsePeriode,
+        )
     }
 
     fun isForslagRelevantForPeriode(

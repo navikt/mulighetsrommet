@@ -41,7 +41,6 @@ import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentConten
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
-import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
@@ -256,9 +255,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
-
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
-
             val request = call.receive<GodkjennUtbetaling>()
 
             val advarsler = arrangorFlateService.getAdvarsler(utbetaling)
@@ -513,11 +510,6 @@ data class DeltakerAdvarselDto(
     val deltakerId: UUID,
     val beskrivelse: String,
     val type: DeltakerAdvarselType,
-)
-
-@Serializable
-data class ScanVedleggRequest(
-    val vedlegg: List<Vedlegg>,
 )
 
 @Serializable

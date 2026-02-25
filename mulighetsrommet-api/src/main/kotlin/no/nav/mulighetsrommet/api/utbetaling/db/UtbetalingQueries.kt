@@ -143,6 +143,7 @@ class UtbetalingQueries(private val session: Session) {
         ) + bankKontoParams(dbo.betalingsinformasjon)
 
         execute(queryOf(utbetalingQuery, params))
+        setBlokkeringer(dbo.id, dbo.blokkeringer)
 
         when (dbo.beregning) {
             is UtbetalingBeregningFri -> Unit
@@ -400,6 +401,25 @@ class UtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
     }
 
+    fun setBlokkeringer(id: UUID, blokkeringer: Set<Utbetaling.Blokkering>) {
+        @Language("PostgreSQL")
+        val delete = """
+            delete from utbetaling_blokkering where utbetaling_id = :id::uuid
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val insert = """
+            insert into utbetaling_blokkering (utbetaling_id, blokkering)
+            values (:id::uuid, :blokkering)
+            on conflict do nothing
+        """.trimIndent()
+
+        session.execute(queryOf(delete, mapOf("id" to id)))
+        blokkeringer.forEach { blokkering ->
+            session.execute(queryOf(insert, mapOf("id" to id, "blokkering" to blokkering.name)))
+        }
+    }
+
     fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
         @Language("PostgreSQL")
         val query = """
@@ -526,15 +546,22 @@ class UtbetalingQueries(private val session: Session) {
         return session.list(queryOf(query, orgnrListe, statusListe)) { it.toUtbetaling() }
     }
 
-    fun getByGjennomforing(gjennomforingId: UUID): List<Utbetaling> = with(session) {
+    fun getByGjennomforing(
+        gjennomforingId: UUID,
+        statuser: Set<UtbetalingStatusType>? = emptySet(),
+    ): List<Utbetaling> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
             from view_utbetaling
             where gjennomforing_id = :id::uuid
+            and (:statuser::utbetaling_status[] is null or status = any (:statuser::utbetaling_status[]))
         """.trimIndent()
 
-        val params = mapOf("id" to gjennomforingId)
+        val params = mapOf(
+            "id" to gjennomforingId,
+            "statuser" to statuser?.ifEmpty { null }?.let { createArrayOfValue(it) { it } },
+        )
 
         return list(queryOf(query, params)) { it.toUtbetaling() }
     }
@@ -581,11 +608,17 @@ class UtbetalingQueries(private val session: Session) {
                    arrangor.navn as arrangor_navn,
                    tiltakstype.navn as tiltakstype_navn,
                    tiltakstype.tiltakskode,
-                   kostnadssteder_json
+                   kostnadssteder_json,
+                   blokkeringer
             from utbetaling
                      inner join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
                      inner join arrangor on gjennomforing.arrangor_id = arrangor.id
                      inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
+                     left join lateral (
+                         select coalesce(array_agg(blokkering), '{}') as blokkeringer
+                         from utbetaling_blokkering
+                         where utbetaling_id = utbetaling.id
+                     ) blokkeringer on true
                      left join lateral (select jsonb_agg(
                                                       distinct jsonb_build_object(
                                                                'enhetsnummer', nav_enhet.enhetsnummer,
@@ -671,6 +704,7 @@ class UtbetalingQueries(private val session: Session) {
             utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
             avbruttBegrunnelse = stringOrNull("avbrutt_begrunnelse"),
             avbruttTidspunkt = instantOrNull("avbrutt_tidspunkt"),
+            blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
         )
     }
 
@@ -695,7 +729,10 @@ class UtbetalingQueries(private val session: Session) {
         gjennomforingId = uuid("gjennomforing_id"),
         periode = periode("periode"),
         pris = intOrNull("belop_beregnet")?.withValuta(string("valuta").let { Valuta.valueOf(it) }),
-        status = UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.valueOf(string("status"))),
+        status = UtbetalingStatusDto.fromUtbetalingStatus(
+            UtbetalingStatusType.valueOf(string("status")),
+            array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
+        ),
         arrangor = string("arrangor_navn"),
         tiltakstype = Utbetaling.Tiltakstype(
             navn = string("tiltakstype_navn"),

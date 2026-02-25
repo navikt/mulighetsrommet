@@ -147,17 +147,28 @@ object UtbetalingValidator {
         advarsler: List<DeltakerAdvarsel>,
         today: LocalDate,
     ): Either<List<FieldError>, Kid?> = validation {
-        validate(utbetaling.innsender == null) {
-            FieldError.root("Utbetalingen er allerede godkjent")
+        when (utbetaling.status) {
+            UtbetalingStatusType.GENERERT -> Unit
+
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.RETURNERT,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
+            -> validate(false) {
+                FieldError.root("Utbetalingen er allerede godkjent")
+            }
         }
-        validate(utbetaling.periode.slutt.isBefore(today)) {
-            FieldError.root("Utbetalingen kan ikke godkjennes før perioden er passert")
-        }
-        validate(advarsler.isEmpty()) {
+        validate(utbetaling.blokkeringer.isEmpty() && advarsler.isEmpty()) {
             FieldError(
                 "/info",
                 "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.",
             )
+        }
+        validate(utbetaling.periode.slutt.isBefore(today)) {
+            FieldError.root("Utbetalingen kan ikke godkjennes før perioden er passert")
         }
         validate(request.updatedAt == utbetaling.updatedAt.toString()) {
             FieldError("/info", "Informasjonen i kravet har endret seg. Vennligst se over på nytt.")

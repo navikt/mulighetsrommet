@@ -42,6 +42,7 @@ object UtbetalingMapper {
             ),
             valuta = dbo.valuta,
             beregning = dbo.beregning,
+            blokkeringer = emptySet(),
         )
     }
 }

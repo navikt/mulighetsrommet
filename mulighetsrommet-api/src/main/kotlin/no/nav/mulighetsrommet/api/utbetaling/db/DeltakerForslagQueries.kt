@@ -67,6 +67,21 @@ class DeltakerForslagQueries(private val session: Session) {
         return list(queryOf(query, gjennomforingId)) { it.toForslagDbo() }
             .groupBy { it.deltakerId }
     }
+
+    fun get(id: UUID): DeltakerForslag? = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+        select
+            deltaker_id,
+            id,
+            endring,
+            status
+        from deltaker_forslag
+        where id = ?::uuid
+        """.trimIndent()
+
+        return single(queryOf(query, id)) { it.toForslagDbo() }
+    }
 }
 
 private fun Row.toForslagDbo(): DeltakerForslag {

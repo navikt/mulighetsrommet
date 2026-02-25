@@ -109,7 +109,7 @@ fun Route.utbetalingRoutes() {
 
                 UtbetalingKompaktDto(
                     id = utbetaling.id,
-                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status),
+                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer),
                     periode = utbetaling.periode,
                     kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
                     belopUtbetalt = belopUtbetalt,

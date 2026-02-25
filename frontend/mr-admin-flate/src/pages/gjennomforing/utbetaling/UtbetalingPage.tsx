@@ -230,6 +230,7 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
 
   switch (utbetaling.status.type) {
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
+    case UtbetalingStatusDtoType.UBEHANDLET_FORSLAG:
     case UtbetalingStatusDtoType.AVBRUTT:
       return null;
     case UtbetalingStatusDtoType.RETURNERT:

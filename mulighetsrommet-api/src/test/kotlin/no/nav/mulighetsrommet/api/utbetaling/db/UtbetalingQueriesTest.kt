@@ -86,6 +86,7 @@ class UtbetalingQueriesTest : FunSpec({
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
+        blokkeringer = emptySet(),
     )
 
     test("upsert and get utbetaling med fri beregning") {

@@ -41,6 +41,7 @@ object UtbetalingFixtures {
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
+        blokkeringer = emptySet(),
     )
 
     val utbetalingDto1 = Utbetaling(
@@ -81,6 +82,7 @@ object UtbetalingFixtures {
         updatedAt = LocalDateTime.now(),
         avbruttBegrunnelse = null,
         avbruttTidspunkt = null,
+        blokkeringer = emptySet(),
     )
 
     val utbetaling2 = UtbetalingDbo(
@@ -99,6 +101,7 @@ object UtbetalingFixtures {
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
+        blokkeringer = emptySet(),
     )
 
     val utbetaling3 = UtbetalingDbo(
@@ -117,6 +120,7 @@ object UtbetalingFixtures {
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
+        blokkeringer = emptySet(),
     )
 
     val delutbetaling1 = DelutbetalingDbo(

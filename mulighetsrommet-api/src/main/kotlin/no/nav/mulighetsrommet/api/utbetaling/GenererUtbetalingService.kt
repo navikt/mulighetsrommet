@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.Kontoregiste
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.SystemgenerertPrismodell
@@ -151,6 +152,18 @@ class GenererUtbetalingService(
             }
     }
 
+    fun oppdaterUtbetalingBlokkeringerForGjennomforing(gjennomforingId: UUID) = db.transaction {
+        val forslag = queries.deltakerForslag.getForslagByGjennomforing(gjennomforingId)
+
+        hentGenererteUtbetalinger(gjennomforingId)
+            .forEach { utbetaling ->
+                queries.utbetaling.setBlokkeringer(
+                    utbetaling.id,
+                    blokkeringer(utbetaling.periode, utbetaling.beregning, forslag),
+                )
+            }
+    }
+
     suspend fun regenererUtbetaling(utbetaling: Utbetaling): Utbetaling = db.transaction {
         val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
 
@@ -242,6 +255,8 @@ class GenererUtbetalingService(
             is Betalingsinformasjon.BBan -> forrigeKrav.betalingsinformasjon.kid
             else -> null
         }
+        val forslag = queries.deltakerForslag.getForslagByGjennomforing(gjennomforing.id)
+
         return UtbetalingDbo(
             id = utbetalingId,
             gjennomforingId = gjennomforing.id,
@@ -260,6 +275,17 @@ class GenererUtbetalingService(
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             godkjentAvArrangorTidspunkt = null,
             utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
+            blokkeringer = blokkeringer(periode, beregning, forslag),
+        )
+    }
+
+    private fun blokkeringer(periode: Periode, beregning: UtbetalingBeregning, forslag: Map<UUID, List<DeltakerForslag>>): Set<Utbetaling.Blokkering> {
+        val relevanteForslag = UtbetalingAdvarsler.relevanteForslag(periode, beregning, forslag)
+
+        return setOfNotNull(
+            Utbetaling.Blokkering.UBEHANDLET_FORSLAG.takeIf {
+                relevanteForslag.isNotEmpty()
+            },
         )
     }
 
@@ -377,4 +403,5 @@ private fun UtbetalingDbo.isNotEqualTo(utbetaling: Utbetaling): Boolean = this !
     tilskuddstype = utbetaling.tilskuddstype,
     godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
     utbetalesTidligstTidspunkt = utbetaling.utbetalesTidligstTidspunkt,
+    blokkeringer = utbetaling.blokkeringer,
 )

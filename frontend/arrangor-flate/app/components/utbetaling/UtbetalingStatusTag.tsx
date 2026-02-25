@@ -31,8 +31,8 @@ const utbetalingStatusConfig: Record<
     label: "Klar for innsending",
     color: "meta-purple",
   },
-  [ArrangorflateUtbetalingStatus.KREVER_ENDRING]: {
-    label: "Krever endring",
+  [ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG]: {
+    label: "Ubehandlede forslag",
     color: "warning",
   },
   [ArrangorflateUtbetalingStatus.AVBRUTT]: {
