@@ -5,7 +5,6 @@ drop view if exists view_gjennomforing;
 create view view_gjennomforing as
 select gjennomforing.id,
        gjennomforing.gjennomforing_type,
-       gjennomforing.opphav,
        gjennomforing.lopenummer,
        gjennomforing.arena_tiltaksnummer,
        gjennomforing.arena_ansvarlig_enhet as arena_nav_enhet_enhetsnummer,
