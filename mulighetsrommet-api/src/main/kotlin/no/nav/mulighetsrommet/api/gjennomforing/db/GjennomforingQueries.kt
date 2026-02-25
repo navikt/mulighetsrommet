@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
@@ -751,7 +750,6 @@ private fun Row.toGjennomforingAvtale(): GjennomforingAvtale {
         prismodell = toPrismodell(),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
         pameldingType = string("pamelding_type").let { GjennomforingPameldingType.valueOf(it) },
-        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
         opprettetTidspunkt = instant("opprettet_tidspunkt"),
         oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
         deltidsprosent = double("deltidsprosent"),
@@ -832,7 +830,6 @@ private fun Row.toUtdanningslopDto(): UtdanningslopDto? {
 private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
     return GjennomforingEnkeltplass(
         id = uuid("id"),
-        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
         lopenummer = Tiltaksnummer(string("lopenummer")),
         opprettetTidspunkt = instant("opprettet_tidspunkt"),
         oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
@@ -866,7 +863,6 @@ private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
 private fun Row.toGjennomforingArena(): GjennomforingArena {
     return GjennomforingArena(
         id = uuid("id"),
-        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
         lopenummer = Tiltaksnummer(string("lopenummer")),
         opprettetTidspunkt = instant("opprettet_tidspunkt"),
         oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
