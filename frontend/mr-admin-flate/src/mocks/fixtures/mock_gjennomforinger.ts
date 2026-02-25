@@ -1,7 +1,6 @@
 import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
 import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
-  ArenaMigreringOpphav,
   DataElementStatusVariant,
   GjennomforingDetaljerDto,
   GjennomforingDtoArrangorUnderenhet,
@@ -51,7 +50,6 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
         },
       },
       oppstart: GjennomforingOppstartstype.LOPENDE,
-      opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
       tilgjengeligForArrangorDato: null,
       pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
       stengt: [],
@@ -154,7 +152,6 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
         },
       },
       oppstart: GjennomforingOppstartstype.LOPENDE,
-      opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
       tilgjengeligForArrangorDato: null,
       stengt: [],
       antallPlasser: 0,
@@ -204,7 +201,6 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
         },
       },
       oppstart: GjennomforingOppstartstype.LOPENDE,
-      opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
       tilgjengeligForArrangorDato: null,
       stengt: [],
       antallPlasser: 0,

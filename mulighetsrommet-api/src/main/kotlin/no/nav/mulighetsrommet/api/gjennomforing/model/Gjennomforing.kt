@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -35,7 +34,6 @@ sealed class Gjennomforing {
     abstract val sluttDato: LocalDate?
     abstract val deltidsprosent: Double
     abstract val antallPlasser: Int
-    abstract val opphav: ArenaMigrering.Opphav
     abstract val opprettetTidspunkt: Instant
     abstract val oppdatertTidspunkt: Instant
 
@@ -140,7 +138,6 @@ data class GjennomforingAvtale(
     override val sluttDato: LocalDate?,
     override val deltidsprosent: Double,
     override val antallPlasser: Int,
-    override val opphav: ArenaMigrering.Opphav,
     @Serializable(with = InstantSerializer::class)
     override val opprettetTidspunkt: Instant,
     @Serializable(with = InstantSerializer::class)
@@ -181,7 +178,6 @@ data class GjennomforingEnkeltplass(
     override val sluttDato: LocalDate?,
     override val deltidsprosent: Double,
     override val antallPlasser: Int,
-    override val opphav: ArenaMigrering.Opphav,
     @Serializable(with = InstantSerializer::class)
     override val opprettetTidspunkt: Instant,
     @Serializable(with = InstantSerializer::class)
@@ -205,7 +201,6 @@ data class GjennomforingArena(
     override val sluttDato: LocalDate?,
     override val deltidsprosent: Double,
     override val antallPlasser: Int,
-    override val opphav: ArenaMigrering.Opphav,
     @Serializable(with = InstantSerializer::class)
     override val opprettetTidspunkt: Instant,
     @Serializable(with = InstantSerializer::class)

@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
@@ -280,7 +279,6 @@ class AvtaleQueries(private val session: Session) {
         """.trimIndent()
         val params = mapOf(
             "id" to id,
-            "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
             "navn" to detaljer.navn,
             "tiltakstype_id" to detaljer.tiltakstypeId,
             "sakarkiv_nummer" to detaljer.sakarkivNummer?.value,
@@ -584,7 +582,6 @@ private fun Row.toAvtale(): Avtale {
         sakarkivNummer = stringOrNull("sakarkiv_nummer")?.let { SakarkivNummer(it) },
         startDato = startDato,
         sluttDato = sluttDato,
-        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
         avtaletype = Avtaletype.valueOf(string("avtaletype")),
         status = status,
         beskrivelse = stringOrNull("beskrivelse"),

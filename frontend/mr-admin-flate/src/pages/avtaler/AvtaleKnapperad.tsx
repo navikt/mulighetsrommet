@@ -6,7 +6,6 @@ import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
 import {
-  ArenaMigreringOpphav,
   AvbrytAvtaleAarsak,
   AvtaleDto,
   AvtaleHandling,
@@ -57,7 +56,6 @@ export function AvtaleKnapperad({ avtale }: Props) {
     navigate(`/avtaler/opprett-avtale`, {
       state: {
         dupliserAvtale: {
-          opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
           tiltakstype: avtale.tiltakstype,
           avtaletype: avtale.avtaletype,
           beskrivelse: avtale.beskrivelse,

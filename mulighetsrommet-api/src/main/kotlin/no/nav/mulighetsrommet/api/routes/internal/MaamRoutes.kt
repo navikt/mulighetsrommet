@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -182,7 +181,6 @@ data class BeregnUtbetalingRequest(
 data class StartInitialLoadTiltaksgjennomforingRequest(
     val id: String? = null,
     val tiltakstyper: List<Tiltakskode>? = null,
-    val opphav: ArenaMigrering.Opphav? = null,
 )
 
 @Serializable
