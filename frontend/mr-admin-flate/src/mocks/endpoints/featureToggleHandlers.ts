@@ -4,7 +4,6 @@ import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
 
 const mockFeatures: Features = {
   [FeatureToggle.TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER]: true,
-  [FeatureToggle.TILTAKSADMINISTRASJON_PAMELDING_TYPE]: true,
   [FeatureToggle.TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER]: true,
 };
 

@@ -2,6 +2,5 @@ package no.nav.mulighetsrommet.featuretoggle.model
 
 enum class FeatureToggle(val key: String) {
     TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER("tiltakshistorikk.vis-komet-enkeltplasser"),
-    TILTAKSADMINISTRASJON_PAMELDING_TYPE("tiltaksadministrasjon.pamelding-type"),
     TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER("tiltaksadministrasjon.enkeltplass-filter"),
 }
