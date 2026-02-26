@@ -109,7 +109,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 deltakerId = advarsel.deltakerId,
                 beskrivelse = when (advarsel.type) {
                     DeltakerAdvarselType.RelevanteForslag -> "$navn har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg"
-                    DeltakerAdvarselType.FeilSluttDato -> "$navn har status “$status” og slutt dato frem i tid"
+                    DeltakerAdvarselType.FeilSluttDato -> "$navn har status “$status” og sluttdato frem i tid"
                 },
                 type = advarsel.type,
             )

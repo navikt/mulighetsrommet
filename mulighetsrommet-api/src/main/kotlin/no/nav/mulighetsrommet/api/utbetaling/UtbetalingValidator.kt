@@ -157,9 +157,7 @@ object UtbetalingValidator {
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
             UtbetalingStatusType.AVBRUTT,
-            -> validate(false) {
-                FieldError.root("Utbetalingen er allerede godkjent")
-            }
+            -> error { FieldError.root("Utbetalingen er allerede godkjent") }
         }
         validate(utbetaling.blokkeringer.isEmpty() && advarsler.isEmpty()) {
             FieldError(
