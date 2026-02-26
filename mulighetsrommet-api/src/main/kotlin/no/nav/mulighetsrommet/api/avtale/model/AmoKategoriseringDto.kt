@@ -97,6 +97,6 @@ fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
             -> throw IllegalStateException("amoKategorisering har feil verdier")
         }
 
-        Tiltakskode.STUDIESPESIALISERING -> null
+        Tiltakskode.STUDIESPESIALISERING -> AmoKategoriseringDto(kurstype = AmoKurstype.STUDIESPESIALISERING)
     }
 }
