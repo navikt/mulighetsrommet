@@ -10,7 +10,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
             TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
     ),
@@ -19,7 +18,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
     ),
     AVKLARING(
@@ -27,7 +25,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
     ),
     DIGITALT_OPPFOLGINGSTILTAK(
@@ -35,7 +32,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
     ),
     JOBBKLUBB(
@@ -43,8 +39,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
     ),
     OPPFOLGING(
@@ -52,7 +46,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
     ),
     VARIG_TILRETTELAGT_ARBEID_SKJERMET(
@@ -60,7 +53,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
             TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
     ),
@@ -70,8 +62,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -79,7 +69,6 @@ enum class Tiltakskode(
         arenakode = "ENKELAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -87,7 +76,6 @@ enum class Tiltakskode(
         arenakode = "ENKFAGYRKE",
         egenskaper = setOf(
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -96,8 +84,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -106,8 +92,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -116,8 +100,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -125,7 +107,6 @@ enum class Tiltakskode(
         arenakode = "HOYEREUTD",
         egenskaper = setOf(
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -133,7 +114,6 @@ enum class Tiltakskode(
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -142,8 +122,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -152,8 +130,6 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-            TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
-            TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -168,8 +144,6 @@ enum class TiltakstypeEgenskap {
     KAN_OPPRETTE_AVTALE,
     KREVER_DELTIDSPROSENT,
     KREVER_DIREKTE_VEDTAK,
-    STOTTER_FELLES_OPPSTART,
-    STOTTER_LOPENDE_OPPSTART,
     STOTTER_TILSKUDD_FOR_INVESTERINGER,
 }
 
