@@ -1,4 +1,4 @@
-import { BodyShort, Heading, List, Box } from "@navikt/ds-react";
+import { BodyShort, Heading, List, Box, Link } from "@navikt/ds-react";
 import { PadlockLockedIcon } from "@navikt/aksel-icons";
 import { TILGANGER_DOKUMENTASJON_URL } from "@/constants";
 import { ProblemDetail } from "@tiltaksadministrasjon/api-client";
@@ -24,7 +24,7 @@ export function IngenTilgang({ error }: IngenTilgangProps) {
         <BodyShort>{error.detail}</BodyShort>
         <div className="text-left">
           <Box marginBlock="space-16" asChild>
-            <List data-aksel-migrated-v8>
+            <List>
               {error.extensions.missingRoles.map((rolle) => (
                 <List.Item key={rolle}>
                   <strong>{rolle}</strong>
@@ -36,7 +36,7 @@ export function IngenTilgang({ error }: IngenTilgangProps) {
         <BodyShort>Hvis du nettopp har fått tilgang, forsøk å logge ut og inn igjen.</BodyShort>
         <BodyShort spacing>
           Hvis det fortsatt ikke fungerer,{" "}
-          <a href={TILGANGER_DOKUMENTASJON_URL}>besøk Tilganger-siden</a> for å se hvordan du
+          <Link href={TILGANGER_DOKUMENTASJON_URL}>besøk Tilganger-siden</Link> for å se hvordan du
           bestiller korrekte tilganger.
         </BodyShort>
       </div>
