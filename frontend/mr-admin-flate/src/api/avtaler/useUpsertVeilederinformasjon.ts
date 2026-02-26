@@ -22,6 +22,9 @@ export function useUpsertVeilederinformasjon(id: string) {
         queryClient.invalidateQueries({
           queryKey: QueryKeys.avtale(id),
         }),
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.avtaler(),
+        }),
       ]);
     },
   });
