@@ -268,7 +268,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 )
                 it.gjennomforing.arena.shouldBeNull()
                 it.gjennomforing.navn.shouldBeNull()
-                it.gjennomforing.oppstartstype shouldBe GjennomforingOppstartstype.LOPENDE
+                it.gjennomforing.oppstartstype shouldBe GjennomforingOppstartstype.ENKELTPLASS
                 it.gjennomforing.pameldingstype shouldBe GjennomforingPameldingType.TRENGER_GODKJENNING
                 it.gjennomforing.startDato.shouldBeNull()
                 it.gjennomforing.sluttDato.shouldBeNull()

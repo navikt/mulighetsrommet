@@ -149,7 +149,7 @@ export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
 export function kurstypeToString(kurstype: AmoKategoriseringDto["kurstype"]): string {
   switch (kurstype) {
     case AmoKurstype.BRANSJE_OG_YRKESRETTET:
-      return "Bransje-/yrkesrettet kurs";
+      return "Bransje";
     case AmoKurstype.NORSKOPPLAERING:
       return "Norskopplæring";
     case AmoKurstype.STUDIESPESIALISERING:

@@ -42,5 +42,7 @@ export function utledOppstart(tiltak: VeilederflateTiltak) {
       return formaterDato(tiltak.oppstartsdato);
     case GjennomforingOppstartstype.LOPENDE:
       return "Løpende oppstart";
+    case GjennomforingOppstartstype.ENKELTPLASS:
+      return null;
   }
 }

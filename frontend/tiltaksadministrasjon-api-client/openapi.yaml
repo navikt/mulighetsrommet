@@ -3289,8 +3289,7 @@ components:
       enum:
       - KAN_OPPRETTE_AVTALE
       - KREVER_DELTIDSPROSENT
-      - STOTTER_FELLES_OPPSTART
-      - STOTTER_LOPENDE_OPPSTART
+      - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
     ProblemDetail:
       type: object
@@ -4584,6 +4583,7 @@ components:
       enum:
       - LOPENDE
       - FELLES
+      - ENKELTPLASS
     GjennomforingRequest.EstimertVentetid:
       type: object
       properties:

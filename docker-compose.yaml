@@ -77,6 +77,7 @@ services:
 
   pdfgen:
     image: "ghcr.io/navikt/pdfgen:2.0.109"
+    platform: linux/amd64
     restart: "always"
     ports:
       - "8888:8080"

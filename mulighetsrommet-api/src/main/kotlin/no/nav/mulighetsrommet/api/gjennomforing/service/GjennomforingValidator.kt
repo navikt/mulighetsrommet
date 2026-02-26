@@ -144,26 +144,31 @@ object GjennomforingValidator {
             )
         }
 
-        if (ctx.harEgenskap(
-                TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
-                TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
-            )
-        ) {
-            if (request.oppstart == GjennomforingOppstartstype.FELLES) {
-                validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
-                    FieldError.of(
-                        "Påmeldingstype kan ikke være “direkte vedtak” hvis oppstartstype er felles",
-                        GjennomforingRequest::pameldingType,
-                    )
-                }
+        when (request.oppstart) {
+            GjennomforingOppstartstype.LOPENDE -> Unit
+
+            GjennomforingOppstartstype.FELLES -> validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
+                FieldError.of(
+                    "Påmeldingstype må være “trenger godkjenning” når tiltaket har felles oppstart",
+                    GjennomforingRequest::pameldingType,
+                )
             }
-        } else if (ctx.harEgenskap(TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART)) {
-            validate(next.oppstart == GjennomforingOppstartstype.FELLES) {
-                FieldError.of("Tiltaket må ha felles oppstart", GjennomforingRequest::oppstart)
+
+            GjennomforingOppstartstype.ENKELTPLASS -> error {
+                FieldError.of("Tiltaket støtter ikke enkeltplasser", GjennomforingRequest::oppstart)
             }
-        } else if (ctx.harEgenskap(TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART)) {
-            validate(next.oppstart == GjennomforingOppstartstype.LOPENDE) {
+
+            null -> error {
+                FieldError.of("Oppstartstype er påkrevd", GjennomforingRequest::oppstart)
+            }
+        }
+
+        if (ctx.harEgenskap(TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK)) {
+            validate(request.oppstart == GjennomforingOppstartstype.LOPENDE) {
                 FieldError.of("Tiltaket må ha løpende oppstart", GjennomforingRequest::oppstart)
+            }
+            validate(request.pameldingType == GjennomforingPameldingType.DIREKTE_VEDTAK) {
+                FieldError.of("Påmeldingstype må være “direkte vedtak”", GjennomforingRequest::pameldingType)
             }
         }
 
