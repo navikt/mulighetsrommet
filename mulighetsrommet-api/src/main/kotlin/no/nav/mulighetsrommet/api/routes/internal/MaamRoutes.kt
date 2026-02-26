@@ -10,6 +10,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
@@ -33,6 +34,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 fun Route.maamRoutes() {
+    val db: ApiDatabase by inject()
     val arrangor: ArrangorService by inject()
     val tilsagnService: TilsagnService by inject()
     val utbetalingService: UtbetalingService by inject()
@@ -48,6 +50,15 @@ fun Route.maamRoutes() {
 
     route("/api/intern/maam") {
         route("/tasks") {
+            route("/scheduled") {
+                get("failed") {
+                    db.session {
+                        val failedTasks = queries.scheduledTask.getFailedTasks()
+                        call.respond(failedTasks)
+                    }
+                }
+            }
+
             post("initial-load-gjennomforinger") {
                 val request = call.receive<StartInitialLoadTiltaksgjennomforingRequest>()
 
