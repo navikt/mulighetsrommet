@@ -5,6 +5,7 @@ import { Alert, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-re
 import { ReactNode } from "react";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { useDeltakelse } from "@/api/queries/useDeltakelse";
+import { Melding } from "../melding/Melding";
 
 interface PameldingProps {
   brukerHarRettPaaValgtTiltak: boolean;
@@ -49,11 +50,11 @@ export function PameldingForGruppetiltak({
 
   if (!tiltak.apentForPamelding) {
     return (
-      <Alert variant="info">
+      <Melding header="Stengt for påmelding" variant="info">
         <HStack align="center" gap="space-4">
           Tiltaket er stengt for påmelding <PadlockLockedFillIcon />
         </HStack>
-      </Alert>
+      </Melding>
     );
   }
 
