@@ -12,10 +12,20 @@ import kotlin.jvm.optionals.getOrNull
 
 class SlackNotifierSchedulerListener(
     private val slack: SlackNotifier,
+    private val config: Config = Config(),
 ) : SchedulerListener {
+
+    data class Config(
+        val minConsecutiveFailures: Int = 3,
+    )
 
     override fun onExecutionComplete(executionComplete: ExecutionComplete) {
         if (executionComplete.result != ExecutionComplete.Result.FAILED) {
+            return
+        }
+        val failCount = executionComplete.execution.consecutiveFailures
+        if (failCount < config.minConsecutiveFailures)
+        {
             return
         }
 
@@ -25,7 +35,7 @@ class SlackNotifierSchedulerListener(
 
         slack.sendMessage(
             """
-            |:warning: *Skedulert jobb har feilet!* :warning:
+            |:warning: *Skedulert jobb har feilet ${failCount} ganger!* :warning:
             |
             |Noen burde undersøke hva som har gått galt.
             |
