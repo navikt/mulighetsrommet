@@ -21,7 +21,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
-      TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+      TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
   },
   ARBRRHDAG: {
@@ -36,7 +36,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
-      TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+      TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
   },
   AVKLARAG: {
@@ -51,7 +51,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
-      TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+      TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
   },
   DIGIOPPARB: {
@@ -66,7 +66,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
-      TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+      TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
   },
   GRUPPEAMO: {
@@ -82,8 +82,6 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     egenskaper: [
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-      TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
-      TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
     ],
   },
   GRUFAGYRKE: {
@@ -99,8 +97,6 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     egenskaper: [
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-      TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
-      TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
     ],
   },
   JOBBK: {
@@ -116,8 +112,6 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     egenskaper: [
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
-      TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
-      TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART,
     ],
   },
   INDOPPFAG: {
@@ -132,7 +126,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
-      TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+      TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
   },
   VASV: {
@@ -147,7 +141,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
-      TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART,
+      TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
   },
 };

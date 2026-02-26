@@ -1,8 +1,9 @@
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
+  AmoKategoriseringDto,
   AvtaleDto,
-  GjennomforingDto,
   GjennomforingAvtaleDto,
+  GjennomforingDto,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingRequest,
@@ -12,19 +13,10 @@ import {
   TiltakstypeDto,
   UtdanningslopDbo,
   UtdanningslopDto,
-  AmoKategoriseringDto,
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 import { amoKategoriseringRequest } from "@/schemas/avtale";
-import { kanEndreOppstartOgPamelding } from "@/utils/tiltakstype";
-
-export function defaultPameldingType(
-  oppstart: GjennomforingOppstartstype,
-): GjennomforingPameldingType {
-  return oppstart === GjennomforingOppstartstype.FELLES
-    ? GjennomforingPameldingType.TRENGER_GODKJENNING
-    : GjennomforingPameldingType.DIREKTE_VEDTAK;
-}
+import { kreverDirekteVedtak } from "@/utils/tiltakstype";
 
 function defaultArrangor(
   avtale: AvtaleDto,
@@ -95,7 +87,7 @@ export function defaultGjennomforingData(
         ? toUtdanningslopDbo(avtale.utdanningslop)
         : null,
     oppmoteSted: veilederinfo?.oppmoteSted ?? null,
-    pameldingType: gjennomforing?.pameldingType || defaultPameldingType(oppstart),
+    pameldingType: gjennomforing?.pameldingType || getDefaultPameldingType(oppstart),
     prismodellId: prismodell?.id ?? avtale.prismodeller[0]?.id,
   };
 }
@@ -108,9 +100,15 @@ function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {
 }
 
 function getDefaultOppstart(tiltakstype: TiltakstypeDto): GjennomforingOppstartstype {
-  return kanEndreOppstartOgPamelding(tiltakstype)
-    ? GjennomforingOppstartstype.FELLES
-    : GjennomforingOppstartstype.LOPENDE;
+  return kreverDirekteVedtak(tiltakstype)
+    ? GjennomforingOppstartstype.LOPENDE
+    : GjennomforingOppstartstype.FELLES;
+}
+
+function getDefaultPameldingType(oppstart: GjennomforingOppstartstype): GjennomforingPameldingType {
+  return oppstart === GjennomforingOppstartstype.FELLES
+    ? GjennomforingPameldingType.TRENGER_GODKJENNING
+    : GjennomforingPameldingType.DIREKTE_VEDTAK;
 }
 
 function defaultNavRegion(

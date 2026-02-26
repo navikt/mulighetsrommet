@@ -12,11 +12,8 @@ export function kanOppretteAvtale(tiltakstype: TiltakstypeDto) {
   return harEgenskap(tiltakstype, TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE);
 }
 
-export function kanEndreOppstartOgPamelding(tiltakstype: TiltakstypeDto) {
-  return (
-    harEgenskap(tiltakstype, TiltakstypeEgenskap.STOTTER_FELLES_OPPSTART) &&
-    harEgenskap(tiltakstype, TiltakstypeEgenskap.STOTTER_LOPENDE_OPPSTART)
-  );
+export function kreverDirekteVedtak(tiltakstype: TiltakstypeDto) {
+  return harEgenskap(tiltakstype, TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK);
 }
 
 export function kreverDeltidsprosent(tiltakstype: TiltakstypeDto) {
