@@ -24,8 +24,7 @@ class SlackNotifierSchedulerListener(
             return
         }
         val failCount = executionComplete.execution.consecutiveFailures
-        if (failCount < config.minConsecutiveFailures)
-        {
+        if (failCount < config.minConsecutiveFailures) {
             return
         }
 
@@ -35,7 +34,7 @@ class SlackNotifierSchedulerListener(
 
         slack.sendMessage(
             """
-            |:warning: *Skedulert jobb har feilet ${failCount} ganger!* :warning:
+            |:warning: *Skedulert jobb har feilet $failCount ganger!* :warning:
             |
             |Noen burde undersøke hva som har gått galt.
             |
