@@ -157,6 +157,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         avbruttBegrunnelse = null,
         avbruttTidspunkt = null,
+        blokkeringer = emptySet(),
     )
 
     val utbetalingPrisPerTimeOppfolging = Utbetaling(
@@ -219,6 +220,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         avbruttBegrunnelse = null,
         avbruttTidspunkt = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        blokkeringer = emptySet(),
     )
 
     val personalia = mapOf(

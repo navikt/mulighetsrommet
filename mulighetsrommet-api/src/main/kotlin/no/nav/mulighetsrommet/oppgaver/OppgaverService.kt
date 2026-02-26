@@ -26,7 +26,11 @@ class OppgaverService(val db: ApiDatabase) {
         regioner: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
     ): List<Oppgave> = db.transaction {
-        val navEnheterForRegioner = getNavEnheterOgKostnadsstederForRegioner(regioner)
+        val navEnheterForRegioner = if (regioner.isEmpty()) {
+            emptySet()
+        } else {
+            getNavEnheterOgKostnadsstederForRegioner(regioner)
+        }
 
         val oppgaver = buildList {
             if (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.TILSAGN }) {

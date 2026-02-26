@@ -27,7 +27,7 @@ export function UtbetalingTextLink({
           Start innsending
         </Link>
       );
-    case ArrangorflateUtbetalingStatus.KREVER_ENDRING:
+    case ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG:
       return (
         <Link
           as={ReactRouterLink}

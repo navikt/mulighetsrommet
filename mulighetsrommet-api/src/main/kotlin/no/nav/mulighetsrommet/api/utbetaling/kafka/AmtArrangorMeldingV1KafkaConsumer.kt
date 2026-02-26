@@ -5,6 +5,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.amt.model.AmtArrangorMelding
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -14,6 +15,7 @@ import java.util.UUID
 
 class AmtArrangorMeldingV1KafkaConsumer(
     private val db: ApiDatabase,
+    private val genererUtbetalingService: GenererUtbetalingService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
     JsonElementDeserializer(),
@@ -23,7 +25,7 @@ class AmtArrangorMeldingV1KafkaConsumer(
     override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
         logger.info("Konsumerer arrangor-melding med id=$key")
 
-        when (val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtArrangorMelding?>(message)) {
+        val gjennomforingId = when (val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtArrangorMelding?>(message)) {
             is AmtArrangorMelding.Forslag -> {
                 when (melding.status) {
                     is AmtArrangorMelding.Forslag.Status.Avvist,
@@ -31,18 +33,34 @@ class AmtArrangorMeldingV1KafkaConsumer(
                     is AmtArrangorMelding.Forslag.Status.Godkjent,
                     is AmtArrangorMelding.Forslag.Status.Tilbakekalt,
                     -> {
+                        val gjennomforingId = queries.deltakerForslag.get(key)?.let {
+                            queries.deltaker.get(it.deltakerId)?.gjennomforingId
+                        }
                         queries.deltakerForslag.delete(melding.id)
+                        gjennomforingId
                     }
 
                     AmtArrangorMelding.Forslag.Status.VenterPaSvar -> {
-                        if (queries.deltaker.get(melding.deltakerId) != null) {
+                        val deltaker = queries.deltaker.get(melding.deltakerId)
+                        if (deltaker != null) {
                             queries.deltakerForslag.upsert(melding.toForslagDbo())
                         }
+                        deltaker?.gjennomforingId
                     }
                 }
             }
 
-            null -> queries.deltakerForslag.delete(key)
+            null -> {
+                val gjennomforingId = queries.deltakerForslag.get(key)?.let {
+                    queries.deltaker.get(it.deltakerId)?.gjennomforingId
+                }
+                queries.deltakerForslag.delete(key)
+                gjennomforingId
+            }
+        }
+
+        gjennomforingId?.let {
+            genererUtbetalingService.oppdaterUtbetalingBlokkeringerForGjennomforing(it)
         }
     }
 }

@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.arrangorflate.api.AvbrytUtbetaling
-import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.arrangorAvbrytStatus
@@ -148,17 +147,26 @@ object UtbetalingValidator {
         advarsler: List<DeltakerAdvarsel>,
         today: LocalDate,
     ): Either<List<FieldError>, Kid?> = validation {
-        validate(utbetaling.innsender == null) {
-            FieldError.root("Utbetalingen er allerede godkjent")
+        when (utbetaling.status) {
+            UtbetalingStatusType.GENERERT -> Unit
+
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.RETURNERT,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
+            -> error { FieldError.root("Utbetalingen er allerede godkjent") }
         }
-        validate(utbetaling.periode.slutt.isBefore(today)) {
-            FieldError.root("Utbetalingen kan ikke godkjennes før perioden er passert")
-        }
-        validate(advarsler.isEmpty()) {
+        validate(utbetaling.blokkeringer.isEmpty() && advarsler.isEmpty()) {
             FieldError(
                 "/info",
                 "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.",
             )
+        }
+        validate(utbetaling.periode.slutt.isBefore(today)) {
+            FieldError.root("Utbetalingen kan ikke godkjennes før perioden er passert")
         }
         validate(request.updatedAt == utbetaling.updatedAt.toString()) {
             FieldError("/info", "Informasjonen i kravet har endret seg. Vennligst se over på nytt.")

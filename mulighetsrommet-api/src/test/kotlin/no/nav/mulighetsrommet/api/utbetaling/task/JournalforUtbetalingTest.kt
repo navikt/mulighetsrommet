@@ -71,6 +71,7 @@ class JournalforUtbetalingTest : FunSpec({
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = LocalDateTime.now(),
         utbetalesTidligstTidspunkt = null,
+        blokkeringer = emptySet(),
     )
 
     val domain = MulighetsrommetTestDomain(

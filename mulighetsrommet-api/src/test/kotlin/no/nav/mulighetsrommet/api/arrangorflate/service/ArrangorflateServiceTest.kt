@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.data.forAll
-import io.kotest.data.row
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -19,13 +17,10 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
@@ -174,117 +169,5 @@ class ArrangorflateServiceTest : FunSpec({
             it.deltakelser.rows[0].cells["fnr"].shouldBeNull()
         }
         result.kanViseBeregning shouldBe false
-    }
-
-    context("advarsler") {
-        test("overlappende periode") {
-            val d = DeltakerOgPeriode(
-                id = UUID.randomUUID(),
-                norskIdent = NorskIdent("01010199999"),
-                periode = Periode.forMonthOf(LocalDate.of(2025, 8, 1)),
-            )
-
-            // Samme id gir ikke overlappende
-            harOverlappendePeriode(
-                d,
-                listOf(d),
-            ) shouldBe false
-
-            // Annen norsk ident gir ikke overlappende
-            harOverlappendePeriode(
-                d,
-                listOf(DeltakerOgPeriode(UUID.randomUUID(), NorskIdent("02020288888"), d.periode)),
-            ) shouldBe false
-
-            // Samme periode gir true
-            harOverlappendePeriode(
-                d,
-                listOf(DeltakerOgPeriode(UUID.randomUUID(), d.norskIdent, d.periode)),
-            ) shouldBe true
-
-            // Tre med overlappende periode gir true
-            harOverlappendePeriode(
-                d,
-                listOf(
-                    DeltakerOgPeriode(
-                        UUID.randomUUID(),
-                        d.norskIdent,
-                        Periode(LocalDate.of(2025, 8, 2), LocalDate.of(2025, 9, 10)),
-                    ),
-                    DeltakerOgPeriode(
-                        UUID.randomUUID(),
-                        d.norskIdent,
-                        Periode(LocalDate.of(2025, 7, 2), LocalDate.of(2025, 8, 2)),
-                    ),
-                ),
-            ) shouldBe true
-
-            // Neste dag gir false
-            harOverlappendePeriode(
-                DeltakerOgPeriode(
-                    d.id,
-                    d.norskIdent,
-                    Periode(LocalDate.of(2025, 8, 1), LocalDate.of(2025, 8, 3)),
-                ),
-                listOf(
-                    DeltakerOgPeriode(
-                        UUID.randomUUID(),
-                        d.norskIdent,
-                        Periode(LocalDate.of(2025, 8, 3), LocalDate.of(2025, 8, 5)),
-                    ),
-                ),
-            ) shouldBe false
-        }
-
-        test("feil slutt dato") {
-            val today = LocalDate.of(2025, 1, 1)
-            forAll(
-                row(DeltakerStatusType.AVBRUTT_UTKAST, false),
-                row(DeltakerStatusType.DELTAR, false),
-                row(DeltakerStatusType.FEILREGISTRERT, false),
-                row(DeltakerStatusType.IKKE_AKTUELL, false),
-                row(DeltakerStatusType.KLADD, false),
-                row(DeltakerStatusType.PABEGYNT_REGISTRERING, false),
-                row(DeltakerStatusType.SOKT_INN, false),
-                row(DeltakerStatusType.UTKAST_TIL_PAMELDING, false),
-                row(DeltakerStatusType.VENTELISTE, false),
-                row(DeltakerStatusType.VENTER_PA_OPPSTART, false),
-                row(DeltakerStatusType.VURDERES, false),
-
-                row(DeltakerStatusType.AVBRUTT, true),
-                row(DeltakerStatusType.FULLFORT, true),
-                row(DeltakerStatusType.HAR_SLUTTET, true),
-            ) { status, expectedResult ->
-                harFeilSluttDato(status, today.plusDays(1), today = today) shouldBe expectedResult
-            }
-
-            // I dag gir false
-            harFeilSluttDato(DeltakerStatusType.HAR_SLUTTET, today, today) shouldBe false
-            // I går gir false
-            harFeilSluttDato(DeltakerStatusType.HAR_SLUTTET, today.minusDays(1), today) shouldBe false
-            // Om et år gir true
-            harFeilSluttDato(DeltakerStatusType.AVBRUTT, today.plusYears(1), today) shouldBe true
-        }
-
-        test("getFeilSluttDato") {
-            val arrangorflateService = createService()
-
-            val today = LocalDate.of(2025, 1, 1)
-            val deltaker1 = DeltakerFixtures.createDeltaker(
-                gjennomforingId = UUID.randomUUID(),
-                startDato = today.minusMonths(1),
-                sluttDato = today.plusMonths(1),
-                statusType = DeltakerStatusType.HAR_SLUTTET,
-            )
-            val deltaker2 = DeltakerFixtures.createDeltaker(
-                gjennomforingId = UUID.randomUUID(),
-                startDato = today.minusMonths(1),
-                sluttDato = today.plusMonths(1),
-                statusType = DeltakerStatusType.DELTAR,
-            )
-            val feilSluttDato = arrangorflateService.getFeilSluttDato(listOf(deltaker1, deltaker2), emptyMap(), today)
-            feilSluttDato shouldHaveSize 1
-            feilSluttDato[0].deltakerId shouldBe deltaker1.id
-        }
     }
 })

@@ -3,10 +3,8 @@ package no.nav.mulighetsrommet.api.arrangorflate.service
 import arrow.core.Either
 import arrow.core.getOrElse
 import io.ktor.http.HttpStatusCode
-import no.nav.amt.model.AmtArrangorMelding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
@@ -29,8 +27,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.DeltakerAdvarsel
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -42,16 +40,12 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.DataDetails
-import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.LabeledDataElement
-import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -69,19 +63,7 @@ class ArrangorflateService(
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private fun tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
-        val harAdvarsler = when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT -> harAdvarsler(utbetaling)
-
-            UtbetalingStatusType.INNSENDT,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.AVBRUTT,
-            -> false
-        }
-        val status = getArrangorflateUtbetalingStatus(utbetaling, harAdvarsler)
+        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
         val godkjentBelop = when (status) {
             ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
             ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
@@ -89,8 +71,8 @@ class ArrangorflateService(
             -> getGodkjentBelopForUtbetaling(utbetaling.id, valuta = utbetaling.beregning.output.pris.valuta)
 
             ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+            ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
             ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
-            ArrangorflateUtbetalingStatus.KREVER_ENDRING,
             ArrangorflateUtbetalingStatus.AVBRUTT,
             -> null
         }
@@ -138,58 +120,26 @@ class ArrangorflateService(
             .map { toArrangorflateTilsagn(it) }
     }
 
-    fun harAdvarsler(utbetaling: Utbetaling): Boolean = db.session {
-        val deltakere = queries.deltaker
-            .getByGjennomforingId(utbetaling.gjennomforing.id)
-            .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
+    fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
+        return when (utbetaling.status) {
+            UtbetalingStatusType.GENERERT -> {
+                val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
+                val deltakere = queries.deltaker
+                    .getByGjennomforingId(utbetaling.gjennomforing.id)
+                    .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
 
-        return (deltakereMedRelevanteForslag(utbetaling) + deltakereMedFeilSluttDato(deltakere, LocalDate.now())).isNotEmpty()
-    }
-
-    suspend fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
-        val deltakelseIds = utbetaling.beregning.deltakelsePerioder().map { it.deltakelseId }.toSet()
-        val personalia = getPersonalia(deltakelseIds)
-        val deltakere = queries.deltaker
-            .getByGjennomforingId(utbetaling.gjennomforing.id)
-            .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
-
-        return getRelevanteForslag(utbetaling, personalia) + getFeilSluttDato(deltakere, personalia, LocalDate.now())
-    }
-
-    fun getFeilSluttDato(
-        deltakere: List<Deltaker>,
-        personalia: Map<UUID, ArrangorflatePersonalia>,
-        today: LocalDate,
-    ): List<DeltakerAdvarsel.FeilSluttDato> {
-        return deltakereMedFeilSluttDato(deltakere, today)
-            .map { deltakerId ->
-                val navn = personalia[deltakerId]?.navn
-                val deltaker = deltakere.find { it.id == deltakerId }
-                DeltakerAdvarsel.FeilSluttDato(
-                    deltakerId = deltakerId,
-                    beskrivelse = "$navn har status “${deltaker?.status}” og slutt dato frem i tid",
-                )
+                UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
             }
-    }
 
-    private fun QueryContext.deltakereMedRelevanteForslag(utbetaling: Utbetaling): List<UUID> {
-        return queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
-            .mapNotNull { (deltakerId, forslag) ->
-                when (forslag.count { isForslagRelevantForUtbetaling(it, utbetaling) }) {
-                    0 -> null
-                    else -> deltakerId
-                }
-            }
-    }
-
-    private fun QueryContext.getRelevanteForslag(utbetaling: Utbetaling, personalia: Map<UUID, ArrangorflatePersonalia>): List<DeltakerAdvarsel.RelevanteForslag> {
-        return deltakereMedRelevanteForslag(utbetaling)
-            .map { deltakerId ->
-                DeltakerAdvarsel.RelevanteForslag(
-                    deltakerId = deltakerId,
-                    beskrivelse = "${personalia[deltakerId]?.navn} har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg",
-                )
-            }
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.RETURNERT,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
+            -> emptyList()
+        }
     }
 
     private fun getGodkjentBelopForUtbetaling(utbetalingId: UUID, valuta: Valuta): ValutaBelop = db.session {
@@ -214,7 +164,7 @@ class ArrangorflateService(
 
         val personalia = getPersonalia(deltakere.map { it.id }.toSet())
         val advarsler = getAdvarsler(utbetaling)
-        val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler.isNotEmpty())
+        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
         val (kanRegenereres, regenrertId) = kanRegenereres(utbetaling)
 
         return mapUtbetalingToArrangorflateUtbetaling(
@@ -284,16 +234,6 @@ class ArrangorflateService(
         }
     }
 
-    private fun getArrangorflateUtbetalingStatus(
-        utbetaling: Utbetaling,
-        harAdvarsler: Boolean,
-    ): ArrangorflateUtbetalingStatus {
-        return ArrangorflateUtbetalingStatus.fromUtbetaling(
-            utbetaling.status,
-            harAdvarsler = harAdvarsler,
-        )
-    }
-
     suspend fun getKontonummer(
         orgnr: Organisasjonsnummer,
     ): Either<KontonummerRegisterOrganisasjonError, Kontonummer> {
@@ -326,94 +266,6 @@ class ArrangorflateService(
                 ArrangorflatePersonalia.fromPersonalia(it.value)
             }
     }
-}
-
-fun isForslagRelevantForUtbetaling(
-    forslag: DeltakerForslag,
-    utbetaling: Utbetaling,
-): Boolean {
-    val periode = utbetaling.beregning.input.deltakelser()
-        .find { it.deltakelseId == forslag.deltakerId }
-        ?.periode()
-        ?: return false
-    return isForslagRelevantForPeriode(forslag, utbetaling.periode, periode)
-}
-
-fun isForslagRelevantForPeriode(
-    forslag: DeltakerForslag,
-    utbetalingPeriode: Periode,
-    deltakelsePeriode: Periode,
-): Boolean {
-    val deltakerPeriodeSluttDato = deltakelsePeriode.getLastInclusiveDate()
-
-    return when (forslag.endring) {
-        is AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse -> {
-            val sluttDato = forslag.endring.sluttdato
-            forslag.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(deltakerPeriodeSluttDato))
-        }
-
-        is AmtArrangorMelding.Forslag.Endring.Deltakelsesmengde -> {
-            forslag.endring.gyldigFra?.isBefore(deltakerPeriodeSluttDato) ?: true
-        }
-
-        is AmtArrangorMelding.Forslag.Endring.ForlengDeltakelse -> {
-            val sluttdato = forslag.endring.sluttdato
-            sluttdato.isAfter(deltakerPeriodeSluttDato) && sluttdato.isBefore(utbetalingPeriode.slutt)
-        }
-
-        is AmtArrangorMelding.Forslag.Endring.Sluttdato -> {
-            forslag.endring.sluttdato.isBefore(deltakerPeriodeSluttDato)
-        }
-
-        is AmtArrangorMelding.Forslag.Endring.Startdato -> {
-            forslag.endring.startdato.isAfter(deltakelsePeriode.start)
-        }
-
-        is AmtArrangorMelding.Forslag.Endring.Sluttarsak -> false
-
-        is AmtArrangorMelding.Forslag.Endring.IkkeAktuell,
-        is AmtArrangorMelding.Forslag.Endring.FjernOppstartsdato,
-        is AmtArrangorMelding.Forslag.Endring.EndreAvslutning,
-        -> true
-    }
-}
-
-fun deltakereMedFeilSluttDato(
-    deltakere: List<Deltaker>,
-    today: LocalDate,
-): List<UUID> {
-    return deltakere.mapNotNull {
-        it.id.takeIf { _ -> harFeilSluttDato(it.status.type, it.sluttDato, today = today) }
-    }
-}
-
-fun harFeilSluttDato(
-    deltakerStatusType: DeltakerStatusType,
-    sluttDato: LocalDate?,
-    today: LocalDate,
-): Boolean {
-    return deltakerStatusType in listOf(
-        DeltakerStatusType.AVBRUTT,
-        DeltakerStatusType.FULLFORT,
-        DeltakerStatusType.HAR_SLUTTET,
-    ) &&
-        (sluttDato == null || sluttDato.isAfter(today))
-}
-
-data class DeltakerOgPeriode(
-    val id: UUID,
-    val norskIdent: NorskIdent,
-    val periode: Periode,
-)
-
-fun harOverlappendePeriode(
-    deltakerOgPeriode: DeltakerOgPeriode,
-    deltakere: List<DeltakerOgPeriode>,
-): Boolean {
-    val sammePerson = deltakere
-        .filter { (idB, _, _) -> idB != deltakerOgPeriode.id }
-        .filter { (_, norskIdentB, _) -> norskIdentB == deltakerOgPeriode.norskIdent }
-    return sammePerson.any { (_, _, periodeB) -> periodeB.intersects(deltakerOgPeriode.periode) }
 }
 
 fun toArrangorflateTilsagn(

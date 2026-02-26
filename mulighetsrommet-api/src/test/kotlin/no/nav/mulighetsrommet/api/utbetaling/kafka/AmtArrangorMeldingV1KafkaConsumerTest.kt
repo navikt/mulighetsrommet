@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.utbetaling.kafka
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.amt.model.AmtArrangorMelding
 import no.nav.amt.model.EndringAarsak
@@ -10,6 +12,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -22,7 +25,12 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
 
     fun createArrangorMeldingConsumer() = AmtArrangorMeldingV1KafkaConsumer(
         db = database.db,
+        genererUtbetalingService = mockk<GenererUtbetalingService>(relaxed = true),
     )
+
+    afterEach {
+        database.truncateAll()
+    }
 
     test("klarer og deserialisere arrangor-melding") {
         val arrangorMeldingConsumer = createArrangorMeldingConsumer()
@@ -167,5 +175,107 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
                 ),
             ),
         )
+    }
+
+    context("oppdaterUtbetalingBlokkeringerForGjennomforing kalles") {
+        fun venterPaSvarForslag(deltakerId: UUID, forslagId: UUID = UUID.randomUUID()) = """{
+            "type": "Forslag",
+            "id": "$forslagId",
+            "deltakerId": "$deltakerId",
+            "opprettetAvArrangorAnsattId": "fff9a665-cbde-4dbc-9ef9-deb8681a0d6f",
+            "opprettet": "2024-10-07T13:52:49.178623",
+            "begrunnelse": null,
+            "endring": { "type": "AvsluttDeltakelse", "sluttdato": null, "aarsak": { "type": "TrengerAnnenStotte" }, "harDeltatt": false },
+            "status": { "type": "VenterPaSvar" },
+            "navAnsatt": null,
+            "sistEndret": "2024-10-07T13:52:49.178623"
+        }
+        """.trimIndent()
+
+        fun godkjentForslag(deltakerId: UUID, forslagId: UUID) = """{
+            "type": "Forslag",
+            "id": "$forslagId",
+            "deltakerId": "$deltakerId",
+            "opprettetAvArrangorAnsattId": "fff9a665-cbde-4dbc-9ef9-deb8681a0d6f",
+            "opprettet": "2024-10-07T13:52:49.178623",
+            "begrunnelse": null,
+            "endring": { "type": "AvsluttDeltakelse", "sluttdato": null, "aarsak": { "type": "TrengerAnnenStotte" }, "harDeltatt": false },
+            "status": { "type": "Godkjent", "godkjentAv": { "id": "63074159-4c8f-463f-93d7-6569c156b8c6", "enhetId": "0a65ec18-626d-4ee9-aa69-c0ce43ec8ef5" }, "godkjent": "2024-10-07T13:52:57.250147881" },
+            "navAnsatt": null,
+            "sistEndret": "2024-10-07T13:52:57.250147881"
+        }
+        """.trimIndent()
+
+        test("oppdaterUtbetalingBlokkeringerForGjennomforing kalles når forslag mottas") {
+            val domain = MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(GjennomforingFixtures.AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        GjennomforingFixtures.AFT1.id,
+                        statusType = DeltakerStatusType.DELTAR,
+                        startDato = LocalDate.now(),
+                        sluttDato = null,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val deltakerId = domain.deltakere[0].id
+            val genererUtbetalingService = mockk<GenererUtbetalingService>(relaxed = true)
+            val consumer = AmtArrangorMeldingV1KafkaConsumer(db = database.db, genererUtbetalingService = genererUtbetalingService)
+
+            consumer.consume(
+                UUID.randomUUID(),
+                Json.parseToJsonElement(venterPaSvarForslag(deltakerId)),
+            )
+
+            verify(exactly = 1) {
+                genererUtbetalingService.oppdaterUtbetalingBlokkeringerForGjennomforing(GjennomforingFixtures.AFT1.id)
+            }
+        }
+
+        test("oppdaterUtbetalingBlokkeringerForGjennomforing kalles når forslag godkjennes") {
+            val forslagId = UUID.randomUUID()
+            val domain = MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(GjennomforingFixtures.AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        GjennomforingFixtures.AFT1.id,
+                        statusType = DeltakerStatusType.DELTAR,
+                        startDato = LocalDate.now(),
+                        sluttDato = null,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val deltakerId = domain.deltakere[0].id
+            val genererUtbetalingService = mockk<GenererUtbetalingService>(relaxed = true)
+            val consumer = AmtArrangorMeldingV1KafkaConsumer(db = database.db, genererUtbetalingService = genererUtbetalingService)
+
+            // Sett opp forslag først
+            consumer.consume(forslagId, Json.parseToJsonElement(venterPaSvarForslag(deltakerId, forslagId)))
+
+            // Godkjenn forslaget
+            consumer.consume(forslagId, Json.parseToJsonElement(godkjentForslag(deltakerId, forslagId)))
+
+            verify(exactly = 2) {
+                genererUtbetalingService.oppdaterUtbetalingBlokkeringerForGjennomforing(GjennomforingFixtures.AFT1.id)
+            }
+        }
+
+        test("oppdaterUtbetalingBlokkeringerForGjennomforing kalles ikke når deltaker ikke finnes") {
+            val genererUtbetalingService = mockk<GenererUtbetalingService>(relaxed = true)
+            val consumer = AmtArrangorMeldingV1KafkaConsumer(db = database.db, genererUtbetalingService = genererUtbetalingService)
+
+            consumer.consume(
+                UUID.randomUUID(),
+                Json.parseToJsonElement(venterPaSvarForslag(UUID.randomUUID())),
+            )
+
+            verify(exactly = 0) {
+                genererUtbetalingService.oppdaterUtbetalingBlokkeringerForGjennomforing(any())
+            }
+        }
     }
 })

@@ -653,17 +653,9 @@ class OppgaverServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(
-                    AFT1.copy(
-                        status = GjennomforingStatusType.GJENNOMFORES,
-                    ),
-                    AFT1.copy(
-                        id = UUID.randomUUID(),
-                        status = GjennomforingStatusType.AVSLUTTET,
-                    ),
-                    AFT1.copy(
-                        id = UUID.randomUUID(),
-                        status = GjennomforingStatusType.GJENNOMFORES,
-                    ),
+                    AFT1.copy(status = GjennomforingStatusType.GJENNOMFORES),
+                    AFT1.copy(id = UUID.randomUUID(), status = GjennomforingStatusType.AVSLUTTET),
+                    AFT1.copy(id = UUID.randomUUID(), status = GjennomforingStatusType.GJENNOMFORES),
                 ),
             ) { domain ->
                 queries.gjennomforing.setAdministratorer(

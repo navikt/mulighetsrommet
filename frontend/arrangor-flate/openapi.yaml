@@ -656,7 +656,7 @@ components:
       - KLAR_FOR_GODKJENNING
       - BEHANDLES_AV_NAV
       - UTBETALT
-      - KREVER_ENDRING
+      - UBEHANDLET_FORSLAG
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
       - AVBRUTT
@@ -1424,16 +1424,7 @@ components:
       - RETURNERT
       - UTBETALT
       - OVERFORT_TIL_UTBETALING
-    DeltakerAdvarsel:
-      anyOf:
-      - $ref: "#/components/schemas/DeltakerAdvarselFeilSluttDato"
-      - $ref: "#/components/schemas/DeltakerAdvarselRelevanteForslag"
-      discriminator:
-        propertyName: type
-        mapping:
-          DeltakerAdvarselFeilSluttDato: "#/components/schemas/DeltakerAdvarselFeilSluttDato"
-          DeltakerAdvarselRelevanteForslag: "#/components/schemas/DeltakerAdvarselRelevanteForslag"
-    DeltakerAdvarselFeilSluttDato:
+    DeltakerAdvarselDto:
       type: object
       properties:
         deltakerId:
@@ -1441,20 +1432,17 @@ components:
           format: uuid
         beskrivelse:
           type: string
+        type:
+          $ref: "#/components/schemas/DeltakerAdvarselType"
       required:
       - beskrivelse
       - deltakerId
-    DeltakerAdvarselRelevanteForslag:
-      type: object
-      properties:
-        deltakerId:
-          type: string
-          format: uuid
-        beskrivelse:
-          type: string
-      required:
-      - beskrivelse
-      - deltakerId
+      - type
+    DeltakerAdvarselType:
+      type: string
+      enum:
+      - RelevanteForslag
+      - FeilSluttDato
     ArrangorAvbrytStatus:
       type: string
       enum:
@@ -1516,7 +1504,7 @@ components:
         advarsler:
           type: array
           items:
-            $ref: "#/components/schemas/DeltakerAdvarsel"
+            $ref: "#/components/schemas/DeltakerAdvarselDto"
         kanAvbrytes:
           $ref: "#/components/schemas/ArrangorAvbrytStatus"
         avbruttDato:

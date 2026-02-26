@@ -180,7 +180,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 genererUtbetalingService = get(),
             ),
             config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
-            config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get()),
+            config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get(), get()),
             config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
             config.clients.replicateBestillingStatus to ReplikerBestillingStatusConsumer(get()),
             config.clients.replicateFakturaStatus to ReplikerFakturaStatusConsumer(get()),

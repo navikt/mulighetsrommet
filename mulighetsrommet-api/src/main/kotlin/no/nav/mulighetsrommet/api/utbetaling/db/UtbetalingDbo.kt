@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Agent
@@ -24,4 +25,5 @@ data class UtbetalingDbo(
     val tilskuddstype: Tilskuddstype,
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
     val utbetalesTidligstTidspunkt: Instant?,
+    val blokkeringer: Set<Utbetaling.Blokkering>,
 )

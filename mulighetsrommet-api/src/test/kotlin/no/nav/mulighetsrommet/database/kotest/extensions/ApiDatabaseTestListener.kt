@@ -68,13 +68,17 @@ class ApiDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecLi
     }
 
     fun truncateAll() {
+        val excludedTables = setOf("flyway_schema_history", "utbetaling_blokkering_type", "kostnadssted")
+
         val tableNames =
             queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")
                 .map { it.string("table_name") }
                 .asList
                 .let { db.db.run(it) }
-        tableNames.forEach {
-            db.db.run(queryOf("truncate table $it restart identity cascade").asExecute)
-        }
+        tableNames
+            .filter { it !in excludedTables }
+            .forEach {
+                db.db.run(queryOf("truncate table $it restart identity cascade").asExecute)
+            }
     }
 }

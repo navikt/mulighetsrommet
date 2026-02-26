@@ -16,10 +16,7 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.application
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.altinn.AltinnError
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
@@ -36,6 +33,7 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.DeltakerAdvarselType
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
@@ -43,7 +41,6 @@ import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentConten
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
-import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
@@ -258,9 +255,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
-
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
-
             val request = call.receive<GodkjennUtbetaling>()
 
             val advarsler = arrangorFlateService.getAdvarsler(utbetaling)
@@ -509,33 +504,12 @@ data class AvbrytUtbetaling(
     val begrunnelse: String?,
 )
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-@JsonClassDiscriminator("type")
-sealed class DeltakerAdvarsel {
-    abstract val deltakerId: UUID
-    abstract val beskrivelse: String
-
-    @Serializable
-    @SerialName("DeltakerAdvarselRelevanteForslag")
-    data class RelevanteForslag(
-        @Serializable(with = UUIDSerializer::class)
-        override val deltakerId: UUID,
-        override val beskrivelse: String,
-    ) : DeltakerAdvarsel()
-
-    @Serializable
-    @SerialName("DeltakerAdvarselFeilSluttDato")
-    data class FeilSluttDato(
-        @Serializable(with = UUIDSerializer::class)
-        override val deltakerId: UUID,
-        override val beskrivelse: String,
-    ) : DeltakerAdvarsel()
-}
-
-@Serializable
-data class ScanVedleggRequest(
-    val vedlegg: List<Vedlegg>,
+data class DeltakerAdvarselDto(
+    @Serializable(with = UUIDSerializer::class)
+    val deltakerId: UUID,
+    val beskrivelse: String,
+    val type: DeltakerAdvarselType,
 )
 
 @Serializable

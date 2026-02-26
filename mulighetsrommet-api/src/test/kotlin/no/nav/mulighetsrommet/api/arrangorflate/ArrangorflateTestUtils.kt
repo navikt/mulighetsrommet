@@ -150,6 +150,7 @@ object ArrangorflateTestUtils {
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             godkjentAvArrangorTidspunkt = null,
             utbetalesTidligstTidspunkt = null,
+            blokkeringer = emptySet(),
         )
     }
 
@@ -169,6 +170,7 @@ object ArrangorflateTestUtils {
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
+        blokkeringer = emptySet(),
     )
 
     fun createTestDomain(

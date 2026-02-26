@@ -190,6 +190,7 @@ class UtbetalingService(
                 null
             },
             utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
+            blokkeringer = emptySet(),
         )
         return opprettUtbetalingTransaction(dbo, utbetalingKrav.vedlegg, agent)
     }
@@ -243,6 +244,7 @@ class UtbetalingService(
                 null
             },
             utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
+            blokkeringer = emptySet(),
         )
 
         return opprettUtbetalingTransaction(dbo, request.vedlegg, agent)

@@ -18,8 +18,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.headersOf
 import kotliquery.Query
-import no.nav.amt.model.AmtArrangorMelding
-import no.nav.amt.model.EndringAarsak
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -27,14 +25,13 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.Tilskuddstype
-import java.util.UUID
 
 class ArrangorflateRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -232,23 +229,12 @@ class ArrangorflateRoutesTest : FunSpec({
     }
 
     test("ikke lov å godkjenne når det finnes relevante forslag") {
-        database.run {
-            queries.deltakerForslag.upsert(
-                DeltakerForslag(
-                    id = UUID.randomUUID(),
-                    deltakerId = deltaker.id,
-                    endring = AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse(
-                        aarsak = EndringAarsak.Syk,
-                        harDeltatt = false,
-                    ),
-                    status = DeltakerForslag.Status.VENTER_PA_SVAR,
-                ),
-            )
-        }
-
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val updatedAt = database.run {
                 UtbetalingQueries(session).getOrError(utbetaling.id).updatedAt
+            }
+            database.run {
+                queries.utbetaling.setBlokkeringer(utbetaling.id, setOf(Utbetaling.Blokkering.UBEHANDLET_FORSLAG))
             }
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
