@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -96,18 +95,6 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 queries.avtale.getOrError(avtaleId).arrangor.shouldBeNull()
-            }
-        }
-
-        test("upsert setter opphav første gang avtalen lagres") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val id = UUID.randomUUID()
-                queries.avtale.create(AvtaleFixtures.oppfolging.copy(id = id))
-                queries.avtale.getOrError(id).should {
-                    it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
-                }
             }
         }
 

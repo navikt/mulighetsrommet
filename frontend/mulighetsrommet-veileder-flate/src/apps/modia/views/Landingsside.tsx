@@ -31,6 +31,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Link, useLocation } from "react-router";
 import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
+import { Melding } from "@/components/melding/Melding";
 
 function Feilmelding({ message }: { message: string }) {
   return (
@@ -52,7 +53,7 @@ export function Landingsside() {
         }}
         gap="space-16"
       >
-        <VStack align={{ xs: "start", lg: "end" }} className="mt-0 ml-0 md:mt-[4rem] md:ml-[1rem]">
+        <VStack align={{ xs: "start", lg: "end" }} className="mt-0 ml-0 md:mt-16 md:ml-4">
           <Button
             as={Link}
             icon={<PlusIcon color="white" fontSize={30} aria-hidden />}
@@ -112,12 +113,7 @@ export function Landingsside() {
               >
                 <Suspense
                   fallback={
-                    <Skeleton
-                      className="mt-[1rem]"
-                      variant="rounded"
-                      height="10rem"
-                      width="40rem"
-                    />
+                    <Skeleton className="mt-4" variant="rounded" height="10rem" width="40rem" />
                   }
                 >
                   <DeltakelserAktive />
@@ -135,7 +131,7 @@ export function Landingsside() {
               >
                 <Suspense
                   fallback={
-                    <VStack gap="space-20" className="mt-[1rem]">
+                    <VStack gap="space-20" className="mt-4">
                       <Skeleton variant="rounded" height="10rem" width="40rem" />
                       <Skeleton variant="rounded" height="10rem" width="40rem" />
                     </VStack>
@@ -272,45 +268,41 @@ function TiltakshistorikkMeldinger({ meldinger }: GetDeltakelserForBrukerRespons
 
 function ManglerDeltakelserFraTiltakshistorikkenMelding() {
   return (
-    <Alert variant="warning">
-      <HStack align="center">
-        Vi får ikke kontakt med baksystemene og informasjon om brukers tiltakshistorikk mangler
-        derfor i visningen.
-      </HStack>
-    </Alert>
+    <Melding header="Får ikke kontakt med baksystemene" variant="warning">
+      Vi får ikke kontakt med baksystemene og informasjon om brukers tiltakshistorikk mangler derfor
+      i visningen.
+    </Melding>
   );
 }
 
 function ManglerSisteDeltakelserFraTeamKometMelding() {
   return (
-    <Alert variant="warning">
-      <HStack align="center">
-        Vi får ikke kontakt med baksystemene og informasjon om deltakelser på gruppetiltakene kan
-        derfor være utdatert.
-        <HelpText>
-          Gjelder følgende tiltakstyper:
-          <ul>
-            <li>Arbeidsforberedende trening</li>
-            <li>Arbeidsmarkedsopplæring (gruppe)</li>
-            <li>Arbeidsrettet rehabilitering</li>
-            <li>Avklaring</li>
-            <li>Digitalt jobbsøkerkurs</li>
-            <li>Fag- og yrkesopplæring (gruppe)</li>
-            <li>Jobbklubb</li>
-            <li>Oppfølging</li>
-            <li>Varig tilrettelagt arbeid i skjermet virksomhet</li>
-          </ul>
-        </HelpText>
-      </HStack>
-    </Alert>
+    <Melding header="Får ikke kontakt med baksystemene" variant="warning">
+      Vi får ikke kontakt med baksystemene og informasjon om deltakelser på gruppetiltakene kan
+      derfor være utdatert.
+      <HelpText>
+        Gjelder følgende tiltakstyper:
+        <ul>
+          <li>Arbeidsforberedende trening</li>
+          <li>Arbeidsmarkedsopplæring (gruppe)</li>
+          <li>Arbeidsrettet rehabilitering</li>
+          <li>Avklaring</li>
+          <li>Digitalt jobbsøkerkurs</li>
+          <li>Fag- og yrkesopplæring (gruppe)</li>
+          <li>Jobbklubb</li>
+          <li>Oppfølging</li>
+          <li>Varig tilrettelagt arbeid i skjermet virksomhet</li>
+        </ul>
+      </HelpText>
+    </Melding>
   );
 }
 
 function ManglerDeltakelserFraTeamTiltakMelding() {
   return (
-    <Alert variant="warning">
-      <HStack align="center">
-        Vi får ikke kontakt med baksystemene og informasjon om tiltak hos arbeidsgiver
+    <Melding header="Får ikke kontakt med baksystemene" variant="warning">
+      <HStack gap="space-2">
+        Vi får ikke kontakt med baksystemene og informasjon om tiltak hos arbeidsgiver{" "}
         <TeamTiltakTiltaksgjennomforingAvtalerLink />
         mangler derfor i visningen.
         <HelpText>
@@ -326,7 +318,7 @@ function ManglerDeltakelserFraTeamTiltakMelding() {
           </ul>
         </HelpText>
       </HStack>
-    </Alert>
+    </Melding>
   );
 }
 
@@ -350,7 +342,7 @@ export function IngenFunnetBox(props: { title: string }) {
         <img
           src={ingenFunnImg}
           alt="Bilde av forstørrelsesglass som ser på et dokument"
-          className="w-[130px] h-[90px]"
+          className="w-32.5 h-22.5"
         />
         <Heading level="2" size="medium">
           {props.title}

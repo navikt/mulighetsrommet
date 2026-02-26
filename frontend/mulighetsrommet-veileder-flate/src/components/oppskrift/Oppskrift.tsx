@@ -1,8 +1,9 @@
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
-import { Alert, Button } from "@navikt/ds-react";
+import { Button } from "@navikt/ds-react";
 import { useEffect, useRef } from "react";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
+import { Melding } from "../melding/Melding";
 
 interface Props {
   oppskriftId: string;
@@ -25,7 +26,11 @@ export function Oppskrift({ oppskriftId, tiltakstypeId, setOppskriftId }: Props)
   const oppskrift = oppskrifter.data.find((oppskrift) => oppskrift._id === oppskriftId);
 
   if (!oppskrift) {
-    return <Alert variant="warning">Vi kunne dessverre ikke finne oppskriften</Alert>;
+    return (
+      <Melding header="Varsel" variant="warning">
+        Vi kunne dessverre ikke finne oppskriften
+      </Melding>
+    );
   }
 
   function navigateViaShadowDomToElement(elementId: string) {

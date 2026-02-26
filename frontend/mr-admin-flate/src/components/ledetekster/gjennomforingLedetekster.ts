@@ -51,6 +51,8 @@ export const gjennomforingTekster = {
           return "Felles";
         case GjennomforingOppstartstype.LOPENDE:
           return "Løpende oppstart";
+        case GjennomforingOppstartstype.ENKELTPLASS:
+          return "Enkeltplass";
       }
     },
   },

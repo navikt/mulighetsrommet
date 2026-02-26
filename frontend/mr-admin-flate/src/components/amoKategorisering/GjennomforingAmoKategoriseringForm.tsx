@@ -1,4 +1,4 @@
-import { bransjeToString, kurstypeToString } from "@/utils/Utils";
+import { bransjeToString } from "@/utils/Utils";
 import { AmoKurstype, AvtaleDto, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { Alert, HGrid, Select } from "@navikt/ds-react";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
@@ -41,9 +41,6 @@ export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
 
   return (
     <HGrid gap="space-16" columns={1}>
-      <Select readOnly size="small" label={gjennomforingTekster.kurstypeLabel}>
-        <option>{kurstypeToString(avtaleAmo.kurstype)}</option>
-      </Select>
       {avtaleAmo.kurstype === "BRANSJE_OG_YRKESRETTET" && (
         <>
           <Select readOnly size="small" label="Bransje">

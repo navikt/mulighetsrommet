@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -94,7 +93,6 @@ class GjennomforingQueriesTest : FunSpec({
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
-                    it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.arena?.tiltaksnummer shouldBe null
                     it.arena?.ansvarligNavEnhet shouldBe null
                     it.apentForPamelding shouldBe true
@@ -516,8 +514,8 @@ class GjennomforingQueriesTest : FunSpec({
                     it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.deltidsprosent shouldBe 100.0
                     it.antallPlasser shouldBe 10
-                    it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
-                    it.pameldingType shouldBe GjennomforingPameldingType.DIREKTE_VEDTAK
+                    it.oppstart shouldBe GjennomforingOppstartstype.ENKELTPLASS
+                    it.pameldingType shouldBe GjennomforingPameldingType.TRENGER_GODKJENNING
                 }
 
                 queries.gjennomforing.delete(arenaEnkelAmo1.id)
@@ -581,30 +579,18 @@ class GjennomforingQueriesTest : FunSpec({
     }
 
     context("free text search") {
-        test("løpenummer og tiltaksnummer blir automatisk med i fritekstsøket") {
+        test("kan søke med fritekst") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    gjennomforinger = listOf(
-                        Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
-                    ),
+                    gjennomforinger = listOf(Oppfolging1),
                 ).setup(session)
 
-                val lopenummer = queries.gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).lopenummer
-
-                queries.gjennomforing.getAll(search = lopenummer.value).items.shouldHaveSize(0)
-
-                queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("foo"))
-
-                queries.gjennomforing.getAll(search = lopenummer.value)
-                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
-
-                queries.gjennomforing.getAll(search = lopenummer.aar.toString())
-                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
-
-                queries.gjennomforing.getAll(search = lopenummer.lopenummer.toString())
-                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+                queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("foo", "foobar"))
 
                 queries.gjennomforing.getAll(search = "foo")
+                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+
+                queries.gjennomforing.getAll(search = "foob")
                     .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
 
                 queries.gjennomforing.getAll(search = "bar").items.shouldHaveSize(0)

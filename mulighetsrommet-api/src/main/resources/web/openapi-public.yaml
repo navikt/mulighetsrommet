@@ -217,6 +217,7 @@ components:
       enum:
       - LOPENDE
       - FELLES
+      - ENKELTPLASS
     GjennomforingPameldingType:
       type: string
       enum:

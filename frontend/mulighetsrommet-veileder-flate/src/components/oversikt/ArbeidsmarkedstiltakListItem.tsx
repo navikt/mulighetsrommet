@@ -60,9 +60,11 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, deltMedBruker }: P
               <div />
             )}
 
-            <BodyShort size="small" title={oppstart} className="truncate">
-              {oppstart}
-            </BodyShort>
+            {oppstart && (
+              <BodyShort size="small" title={oppstart} className="truncate">
+                {oppstart}
+              </BodyShort>
+            )}
           </div>
 
           <ChevronRightIcon className="[grid-area:ikon] w-6 h-auto" title="Detaljer om tiltaket" />

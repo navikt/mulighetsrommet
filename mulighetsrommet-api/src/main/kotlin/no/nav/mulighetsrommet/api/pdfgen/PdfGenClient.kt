@@ -6,6 +6,7 @@ import arrow.core.right
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.accept
 import io.ktor.client.request.post
@@ -25,6 +26,9 @@ class PdfGenClient(
     private val client = HttpClient(clientEngine) {
         install(ContentNegotiation) {
             json()
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30_000
         }
     }
 

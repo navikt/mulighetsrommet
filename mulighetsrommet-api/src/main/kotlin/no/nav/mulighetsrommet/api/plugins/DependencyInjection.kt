@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
@@ -63,7 +64,7 @@ import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
-import no.nav.mulighetsrommet.api.tilsagn.task.JournalforTilsagnsbrev
+import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
@@ -72,7 +73,6 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerDeltakerKafkaConsumer
-import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerFakturaStatusConsumer
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
@@ -176,10 +176,6 @@ private fun kafka(appConfig: AppConfig) = module {
                 get(),
             ),
             config.clients.replikerDeltakerEksternV1 to ReplikerDeltakerKafkaConsumer(
-                db = get(),
-                genererUtbetalingService = get(),
-            ),
-            config.clients.amtDeltakerV1 to ReplikerDeltakerV1KafkaConsumer(
                 db = get(),
                 genererUtbetalingService = get(),
             ),
@@ -374,9 +370,8 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         ArenaAdapterService(
-            ArenaAdapterService.Config(
-                gjennomforingV2Topic = appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic,
-            ),
+            get(),
+            get(),
             get(),
             get(),
             get(),
@@ -412,6 +407,12 @@ private fun services(appConfig: AppConfig) = module {
         GjennomforingAvtaleService(
             GjennomforingAvtaleService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
             get(),
+            get(),
+        )
+    }
+    single {
+        GjennomforingArenaService(
+            GjennomforingArenaService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
             get(),
         )
     }
@@ -460,7 +461,7 @@ private fun services(appConfig: AppConfig) = module {
             ),
             db = get(),
             navAnsattService = get(),
-            journalforTilsagnsbrev = get(),
+            journalforEnkeltplassTilsagnsbrev = get(),
         )
     }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
@@ -500,7 +501,7 @@ private fun tasks(config: AppConfig) = module {
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
-    single { JournalforTilsagnsbrev(get(), get(), get(), get(), get()) }
+    single { JournalforEnkeltplassTilsagnsbrev(get(), get(), get(), get(), get()) }
     single { DistribuerTilsagnsbrev(get(), get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(
@@ -532,7 +533,7 @@ private fun tasks(config: AppConfig) = module {
         val journalforUtbetaling: JournalforUtbetaling by inject()
         val oppdaterUtbetalingBeregning: GenererUtbetalingService by inject()
         val beregnUtbetaling: BeregnUtbetaling by inject()
-        val journalforTilsagnsbrev: JournalforTilsagnsbrev by inject()
+        val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
         val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
 
         val db: Database by inject()
@@ -546,7 +547,7 @@ private fun tasks(config: AppConfig) = module {
                 journalforUtbetaling.task,
                 oppdaterUtbetalingBeregning.task,
                 beregnUtbetaling.task,
-                journalforTilsagnsbrev.task,
+                journalforEnkeltplassTilsagnsbrev.task,
                 distribuerTilsagnsbrev.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))

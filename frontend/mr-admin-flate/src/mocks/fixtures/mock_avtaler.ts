@@ -2,7 +2,6 @@ import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 import {
-  ArenaMigreringOpphav,
   AvtaleDto,
   AvtaleStatusType,
   AvtaleTiltakstype,
@@ -26,7 +25,6 @@ export const mockAvtaler: AvtaleDto[] = [
       },
     ],
     avtalenummer: "2021#10579",
-    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
     sakarkivNummer: "2020/1234",
     beskrivelse: null,
     faneinnhold: null,
@@ -112,7 +110,6 @@ export const mockAvtaler: AvtaleDto[] = [
         kontaktpersoner: [],
       })),
     },
-    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
     sakarkivNummer: "2020/1234",
     beskrivelse: null,
     faneinnhold: null,
@@ -161,7 +158,6 @@ export const mockAvtaler: AvtaleDto[] = [
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
-    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
     sakarkivNummer: "2020/1234",
     beskrivelse: null,
     faneinnhold: null,
@@ -221,7 +217,6 @@ export const mockAvtaler: AvtaleDto[] = [
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba93",
-    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
     beskrivelse: null,
     faneinnhold: null,
     administratorer: [

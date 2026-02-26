@@ -1,44 +1,46 @@
-import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { BodyShort, Heading } from "@navikt/ds-react";
+import { Melding } from "@/components/melding/Melding";
+import { BodyShort, Box, Heading, HStack } from "@navikt/ds-react";
 import { FallbackProps } from "react-error-boundary";
 import { PortenLink } from "@/components/PortenLink";
 import { isProblemDetail } from "@mr/frontend-common/components/error-handling/errors";
 
 export function ErrorFallback({ error }: FallbackProps) {
   return (
-    <Feilmelding ikonvariant="error" header={<>Vi beklager, men noe gikk galt</>}>
-      {isProblemDetail(error) ? (
-        <>
-          <BodyShort spacing={true}>{error.title}</BodyShort>
-          <BodyShort as="div" size="small" spacing={true}>
-            <Heading level="5" size="small">
-              Feilmelding
-            </Heading>
-            <code>{error.detail}</code>
-          </BodyShort>
-          {"traceId" in error && (
-            <BodyShort as="div" size="small" spacing={true}>
-              <Heading level="5" size="small">
-                Sporingsnøkkel
+    <HStack justify="center" align="center">
+      <Melding variant="danger" header="Vi beklager, men noe gikk galt">
+        {isProblemDetail(error) ? (
+          <>
+            <Box marginBlock="space-0 space-8">
+              <BodyShort spacing={true}>{error.title}</BodyShort>
+              <Heading level="5" size="xsmall">
+                Feilmelding
               </Heading>
-              <code>{String(error.traceId)}</code>
+              <BodyShort size="small">{error.detail}</BodyShort>
+              {"traceId" in error && (
+                <>
+                  <Heading level="5" size="xsmall">
+                    Sporingsnøkkel
+                  </Heading>
+                  <BodyShort size="small">{String(error.traceId)}</BodyShort>
+                </>
+              )}
+            </Box>
+            <BodyShort>
+              <PortenLink>Meld sak i Porten</PortenLink> hvis problemene vedvarer.
             </BodyShort>
-          )}
-          <BodyShort>
-            <PortenLink>Meld sak i Porten</PortenLink> hvis problemene vedvarer.
-          </BodyShort>
-        </>
-      ) : (
-        <>
-          <BodyShort>
-            Arbeidsmarkedstiltakene kunne ikke hentes på grunn av en feil hos oss.
-          </BodyShort>
-          <BodyShort>
-            Vennligst last nettsiden på nytt, eller ta <PortenLink>kontakt i Porten</PortenLink>{" "}
-            dersom du trenger mer hjelp.
-          </BodyShort>
-        </>
-      )}
-    </Feilmelding>
+          </>
+        ) : (
+          <>
+            <BodyShort spacing>
+              Arbeidsmarkedstiltakene kunne ikke hentes på grunn av en feil hos oss.
+            </BodyShort>
+            <BodyShort>
+              Vennligst last nettsiden på nytt, eller ta <PortenLink>kontakt i Porten</PortenLink>{" "}
+              dersom du trenger mer hjelp.
+            </BodyShort>
+          </>
+        )}
+      </Melding>
+    </HStack>
   );
 }

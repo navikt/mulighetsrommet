@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.service
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
@@ -26,7 +27,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -93,7 +93,6 @@ class GjennomforingValidatorTest : FunSpec({
                 prisbetingelser = null,
             ),
         ),
-        opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
         opsjonerRegistrert = emptyList(),
     )
 
@@ -141,13 +140,19 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("skal ikke kunne sette felles oppsart når tiltaket krever løpende oppstart") {
+    test("skal ikke kunne sette felles oppstart når tiltaket krever løpende oppstart") {
         GjennomforingValidator.validate(request.copy(oppstart = GjennomforingOppstartstype.FELLES), ctx)
             .shouldBeLeft()
-            .shouldContainExactlyInAnyOrder(FieldError("/oppstart", "Tiltaket må ha løpende oppstart"))
+            .shouldContain(FieldError("/oppstart", "Tiltaket må ha løpende oppstart"))
     }
 
-    test("skal ikke kunne sette direkte vedtak når oppsart er felles") {
+    test("skal ikke kunne sette oppstartstype til enkeltplass") {
+        GjennomforingValidator.validate(request.copy(oppstart = GjennomforingOppstartstype.ENKELTPLASS), ctx)
+            .shouldBeLeft()
+            .shouldContain(FieldError("/oppstart", "Tiltaket må ha løpende oppstart"))
+    }
+
+    test("skal ikke kunne sette direkte vedtak når tiltaket har felles oppstart") {
         GjennomforingValidator.validate(
             request.copy(
                 tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
@@ -168,7 +173,7 @@ class GjennomforingValidatorTest : FunSpec({
             .shouldContainExactlyInAnyOrder(
                 FieldError(
                     "/pameldingType",
-                    "Påmeldingstype kan ikke være “direkte vedtak” hvis oppstartstype er felles",
+                    "Påmeldingstype må være “trenger godkjenning” når tiltaket har felles oppstart",
                 ),
             )
     }

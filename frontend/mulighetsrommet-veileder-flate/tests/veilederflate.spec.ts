@@ -81,11 +81,7 @@ test.describe("Tiltaksoversikt", () => {
 
   test("Skal vise korrekt feilmelding dersom ingen tiltak blir funnet", async ({ page }) => {
     await page.getByTestId("filter_sokefelt").fill("blablablablabla");
-    await expect(page.getByTestId("feilmelding-container")).toBeVisible();
-    await expect(page.getByTestId("feilmelding-container")).toHaveAttribute(
-      "aria-live",
-      "assertive",
-    );
+    await expect(page.getByText("Prøv å justere søket eller filteret")).toBeVisible();
   });
 });
 
@@ -149,8 +145,8 @@ test.describe("Preview Mulighetsrommet", () => {
     page,
   }) => {
     await page.getByTestId("deleknapp").click();
-    await expect(page.getByTestId("alert-preview-del-med-bruker")).toContainText(
-      "Det er ikke mulig å dele tiltak med bruker i forhåndsvisning",
-    );
+    await expect(
+      page.getByTestId("melding-container").filter({ hasText: "Det er ikke mulig å dele tiltak" }),
+    ).toBeVisible();
   });
 });

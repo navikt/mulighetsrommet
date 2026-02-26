@@ -29,7 +29,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
-class JournalforTilsagnsbrev(
+class JournalforEnkeltplassTilsagnsbrev(
     private val db: ApiDatabase,
     private val dokarkClient: DokarkClient,
     private val amtDeltakerClient: AmtDeltakerClient,
@@ -73,17 +73,23 @@ class JournalforTilsagnsbrev(
 
         val tilsagn = queries.tilsagn.getOrError(tilsagnId)
         if (tilsagn.journalpost != null) {
-            logger.info("Tilsagn med id $tilsagnId har allerede journalpostId ${tilsagn.journalpost.id}, hopper journalføring")
+            logger.info("Tilsagn med id $tilsagnId er allrede journalført med id ${tilsagn.journalpost.id}")
             return@transaction Either.Right(tilsagn.journalpost.id)
         }
+
         val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
-        val deltaker = queries.deltaker.getByGjennomforingId(enkeltplass.id).single()
+        val deltakere = queries.deltaker.getByGjennomforingId(enkeltplass.id)
+        val deltaker = when (deltakere.size) {
+            1 -> deltakere.single()
+            0 -> return@transaction Either.Left("Fant ingen deltaker for enkeltplas ${enkeltplass.id}")
+            else -> return@transaction Either.Left("Fant ${deltakere.size} deltakere for enkeltplass ${enkeltplass.id}")
+        }
         val personalia = amtDeltakerClient.hentPersonalia(setOf(deltaker.id))
             .getOrElse {
                 return@transaction Either.Left("Kunne ikke hente personalia fra amt-deltaker med id: $it")
             }.single()
         val arrangor = queries.arrangor.get(tilsagn.arrangor.organisasjonsnummer)
-            ?: return@transaction Either.Left("Fant ikke arrangør med organisasjonsnummer ${tilsagn.arrangor.organisasjonsnummer} for tilsagn med id $tilsagnId")
+            ?: return@transaction Either.Left("Fant ikke arrangør med organisasjonsnummer ${tilsagn.arrangor.organisasjonsnummer}")
 
         val fagsakId = enkeltplass.arena?.tiltaksnummer?.value ?: enkeltplass.lopenummer.value
 

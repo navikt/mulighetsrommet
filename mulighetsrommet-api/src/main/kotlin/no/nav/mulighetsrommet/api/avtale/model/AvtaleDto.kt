@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.DataElement
@@ -30,7 +29,6 @@ data class AvtaleDto(
     val avtaletype: Avtaletype,
     val status: Status,
     val administratorer: List<Avtale.Administrator>,
-    val opphav: ArenaMigrering.Opphav,
     val kontorstruktur: List<Kontorstruktur>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,

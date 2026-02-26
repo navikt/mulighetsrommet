@@ -17,13 +17,14 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -41,13 +42,21 @@ class ArenaAdapterServiceTest : FunSpec({
         sanityService: SanityService = mockk(relaxed = true),
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ) = ArenaAdapterService(
-        config = ArenaAdapterService.Config(TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         sanityService = sanityService,
         arrangorService = ArrangorService(database.db, mockk(relaxed = true), mockk(relaxed = true)),
         tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db),
-        enkeltplassService = GjennomforingEnkeltplassService(
+        gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+            database.db,
+        ),
+        gjennomforingAvtaleService = GjennomforingAvtaleService(
+            GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+            db = database.db,
+            navAnsattService = mockk(),
+        ),
+        gjennomforingArenaService = GjennomforingArenaService(
+            GjennomforingArenaService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
         ),
     )
@@ -166,7 +175,7 @@ class ArenaAdapterServiceTest : FunSpec({
             val exception = shouldThrowExactly<IllegalArgumentException> {
                 service.upsertTiltaksgjennomforing(arenaGjennomforing)
             }
-            exception.message shouldBe "Ugyldig gjennomføring. Forventet ikke å motta nye gjennomføringer for tiltakskode=INDOPPFAG"
+            exception.message shouldBe "Forventet ikke å motta nye gjennomføringer for tiltakskode=INDOPPFAG fordi alle gruppetiltak skal være migrert"
         }
 
         test("oppdaterer arena-felter når tiltakstype er migrert") {
@@ -220,7 +229,6 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2024#2024")
                     it.arena?.ansvarligNavEnhet shouldBe "0387"
                     it.status shouldBe GjennomforingStatusType.GJENNOMFORES
-                    it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.avtaleId shouldBe gjennomforing1.avtaleId
                     it.navn shouldBe gjennomforing1.navn
                     it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.underenhet1.organisasjonsnummer

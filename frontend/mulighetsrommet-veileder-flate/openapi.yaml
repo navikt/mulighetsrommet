@@ -810,30 +810,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/veilederflate/nav-enheter/regioner:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getRegioner
-      parameters: []
-      responses:
-        "200":
-          description: Alle Nav-enheter
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavRegionDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
 components:
   schemas:
     OpenApiVersion:
@@ -1727,6 +1703,7 @@ components:
       enum:
       - LOPENDE
       - FELLES
+      - ENKELTPLASS
     VeilederflateTiltakEnkeltplass:
       type: object
       properties:
@@ -2112,33 +2089,5 @@ components:
       enum:
       - LOKAL
       - SPESIALENHET
-    NavRegionDto:
-      type: object
-      properties:
-        enhetsnummer:
-          type: string
-        navn:
-          type: string
-        enheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionUnderenhetDto"
-      required:
-      - enheter
-      - enhetsnummer
-      - navn
-    NavRegionUnderenhetDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        erStandardvalg:
-          type: boolean
-      required:
-      - enhetsnummer
-      - erStandardvalg
-      - navn
   examples: {}
 webhooks: {}

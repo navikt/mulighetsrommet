@@ -15,12 +15,11 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
-import no.nav.mulighetsrommet.api.tilsagn.task.JournalforTilsagnsbrev
+import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -44,7 +43,7 @@ fun Route.maamRoutes() {
     val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
     val generateUtbetaling: GenerateUtbetaling by inject()
     val beregnUtbetaling: BeregnUtbetaling by inject()
-    val journalforTilsagnsbrev: JournalforTilsagnsbrev by inject()
+    val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
     val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
 
     route("/api/intern/maam") {
@@ -138,7 +137,7 @@ fun Route.maamRoutes() {
 
             post("journalfor-tilsagnsbrev") {
                 val request = call.receive<TilsagnIdRequest>()
-                val taskId = journalforTilsagnsbrev.schedule(request.tilsagnId)
+                val taskId = journalforEnkeltplassTilsagnsbrev.schedule(request.tilsagnId)
                 call.respond(ScheduleTaskResponse(taskId))
             }
 
@@ -182,7 +181,6 @@ data class BeregnUtbetalingRequest(
 data class StartInitialLoadTiltaksgjennomforingRequest(
     val id: String? = null,
     val tiltakstyper: List<Tiltakskode>? = null,
-    val opphav: ArenaMigrering.Opphav? = null,
 )
 
 @Serializable

@@ -2612,54 +2612,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/nav-enheter/regioner:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getRegioner
-      parameters: []
-      responses:
-        "200":
-          description: Alle Nav-enheter
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavRegionDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/nav-enheter/kostnadsstedFilter:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getKostnadsstedFilter
-      parameters: []
-      responses:
-        "200":
-          description: Filtre for kostnadssteder
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavRegionDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/ansatt:
     get:
       tags:
@@ -3337,8 +3289,7 @@ components:
       enum:
       - KAN_OPPRETTE_AVTALE
       - KREVER_DELTIDSPROSENT
-      - STOTTER_FELLES_OPPSTART
-      - STOTTER_LOPENDE_OPPSTART
+      - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
     ProblemDetail:
       type: object
@@ -4045,11 +3996,6 @@ components:
       required:
       - navIdent
       - navn
-    ArenaMigrering.Opphav:
-      type: string
-      enum:
-      - ARENA
-      - TILTAKSADMINISTRASJON
     Kontorstruktur:
       type: object
       properties:
@@ -4294,8 +4240,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Avtale.Administrator"
-        opphav:
-          $ref: "#/components/schemas/ArenaMigrering.Opphav"
         kontorstruktur:
           type: array
           items:
@@ -4343,7 +4287,6 @@ components:
       - id
       - kontorstruktur
       - navn
-      - opphav
       - opsjonerRegistrert
       - opsjonsmodell
       - personopplysninger
@@ -4640,6 +4583,7 @@ components:
       enum:
       - LOPENDE
       - FELLES
+      - ENKELTPLASS
     GjennomforingRequest.EstimertVentetid:
       type: object
       properties:
@@ -4830,8 +4774,6 @@ components:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
         pameldingType:
           $ref: "#/components/schemas/GjennomforingPameldingType"
-        opphav:
-          $ref: "#/components/schemas/ArenaMigrering.Opphav"
         apentForPamelding:
           type: boolean
         deltidsprosent:
@@ -4865,7 +4807,6 @@ components:
       - id
       - lopenummer
       - navn
-      - opphav
       - oppstart
       - pameldingType
       - sluttDato
@@ -5015,14 +4956,11 @@ components:
           format: date
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
-        opphav:
-          $ref: "#/components/schemas/ArenaMigrering.Opphav"
       required:
       - arrangor
       - id
       - lopenummer
       - navn
-      - opphav
       - sluttDato
       - startDato
       - status
@@ -6628,34 +6566,6 @@ components:
           type: string
       required:
       - enhetsnummer
-      - navn
-    NavRegionDto:
-      type: object
-      properties:
-        enhetsnummer:
-          type: string
-        navn:
-          type: string
-        enheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionUnderenhetDto"
-      required:
-      - enheter
-      - enhetsnummer
-      - navn
-    NavRegionUnderenhetDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        erStandardvalg:
-          type: boolean
-      required:
-      - enhetsnummer
-      - erStandardvalg
       - navn
     Rolle:
       type: string
