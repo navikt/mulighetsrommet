@@ -4,11 +4,11 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Arrangor
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Enkeltplass
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Gruppe
-import no.nav.mulighetsrommet.model.Tiltakskoder
 
 object TiltaksgjennomforingV2Mapper {
     fun fromGjennomforingAvtale(
@@ -50,18 +50,8 @@ object TiltaksgjennomforingV2Mapper {
     }
 
     fun fromGjennomforingArena(gjennomforing: GjennomforingArena): TiltaksgjennomforingV2Dto {
-        return if (Tiltakskoder.isEnkeltplassTiltak(gjennomforing.tiltakstype.tiltakskode)) {
-            Enkeltplass(
-                id = gjennomforing.id,
-                opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
-                oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
-                tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-                arrangor = Arrangor(
-                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-                ),
-            )
-        } else {
-            Gruppe(
+        return when (gjennomforing.oppstart) {
+            GjennomforingOppstartstype.LOPENDE, GjennomforingOppstartstype.FELLES -> Gruppe(
                 id = gjennomforing.id,
                 opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
                 oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
@@ -80,6 +70,16 @@ object TiltaksgjennomforingV2Mapper {
                 tilgjengeligForArrangorFraOgMedDato = null,
                 apentForPamelding = false,
                 oppmoteSted = null,
+            )
+
+            GjennomforingOppstartstype.ENKELTPLASS -> Enkeltplass(
+                id = gjennomforing.id,
+                opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
+                oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
+                tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+                arrangor = Arrangor(
+                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                ),
             )
         }
     }

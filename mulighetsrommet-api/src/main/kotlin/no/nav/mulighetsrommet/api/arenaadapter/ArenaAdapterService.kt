@@ -95,7 +95,7 @@ class ArenaAdapterService(
                 antallPlasser = arenaGjennomforing.antallPlasser,
                 arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
-                oppstart = GjennomforingOppstartstype.LOPENDE,
+                oppstart = GjennomforingOppstartstype.ENKELTPLASS,
                 pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
             )
             gjennomforingArenaService.upsert(upsert)
