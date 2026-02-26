@@ -631,14 +631,14 @@ class UtbetalingService(
         return if (delutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
             godkjennUtbetaling(delutbetaling.utbetalingId, delutbetalinger)
         } else {
-            getOrError(delutbetaling.utbetalingId)
-        }.right()
+            getOrError(delutbetaling.utbetalingId).right()
+        }
     }
 
     private fun TransactionalQueryContext.godkjennUtbetaling(
         id: UUID,
         delutbetalinger: List<Delutbetaling>,
-    ): Utbetaling {
+    ): Either<List<FieldError>, Utbetaling> {
         queries.delutbetaling.setStatusForDelutbetalingerForBetaling(id, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
 
         delutbetalinger.forEach { delutbetaling ->
@@ -652,13 +652,13 @@ class UtbetalingService(
                     behandletAv = opprettelse.behandletAv,
                     besluttetAv = requireNotNull(opprettelse.besluttetAv),
                     this,
-                )
+                ).onLeft { return it.left() }
             }
             publishOpprettFaktura(delutbetaling)
         }
 
         queries.utbetaling.setStatus(id, UtbetalingStatusType.FERDIG_BEHANDLET)
-        return logEndring("Overført til utbetaling", getOrError(id), Tiltaksadministrasjon)
+        return logEndring("Overført til utbetaling", getOrError(id), Tiltaksadministrasjon).right()
     }
 
     private fun TransactionalQueryContext.returnerDelutbetaling(

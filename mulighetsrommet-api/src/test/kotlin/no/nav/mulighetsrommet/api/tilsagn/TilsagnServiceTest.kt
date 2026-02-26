@@ -779,7 +779,7 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 service.gjorOppTilsagnVedUtbetaling(id = requestId, Tiltaksadministrasjon, Tiltaksadministrasjon, this)
-            }.status shouldBe TilsagnStatus.OPPGJORT
+            }.shouldBeRight().status shouldBe TilsagnStatus.OPPGJORT
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.GJOR_OPP).should {

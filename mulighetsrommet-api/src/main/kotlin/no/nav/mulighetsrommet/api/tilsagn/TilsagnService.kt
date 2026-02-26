@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptyListOf
@@ -361,7 +360,7 @@ class TilsagnService(
         behandletAv: Agent,
         besluttetAv: Agent,
         queryContext: QueryContext,
-    ): Tilsagn {
+    ): Either<List<FieldError>, Tilsagn> {
         var tilsagn = queryContext.queries.tilsagn.getOrError(id)
         tilsagn = queryContext.setTilOppgjort(
             tilsagn,
@@ -374,10 +373,7 @@ class TilsagnService(
             tilsagn,
             besluttetAv,
             operation = "Tilsagn oppgjort ved attestering av utbetaling",
-        ).getOrElse {
-            // TODO returner valideringsfeil i stedet for å kaste exception
-            throw IllegalStateException(it.first().detail)
-        }
+        )
     }
 
     private fun QueryContext.godkjennTilsagn(
