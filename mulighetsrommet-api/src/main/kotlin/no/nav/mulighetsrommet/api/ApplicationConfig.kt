@@ -151,7 +151,7 @@ class KafkaClients(
     var amtArrangorMeldingV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "amt-arrangor-melding",
         topic = "amt.arrangor-melding-v1",
-        consumerProperties = getConsumerProperties("mulighetsrommet-api.amt-arrangor-melding.v1"),
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.amt-arrangor-melding.v2"),
     )
     var amtKoordinatorMeldingV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "amt-tiltakskoordinators-deltakerliste",
