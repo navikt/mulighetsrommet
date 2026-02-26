@@ -41,7 +41,7 @@ import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWit
 import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
-import { kanEndreOppstartOgPamelding, kreverDeltidsprosent } from "@/utils/tiltakstype";
+import { kreverDirekteVedtak, kreverDeltidsprosent } from "@/utils/tiltakstype";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 interface Props {
@@ -143,7 +143,7 @@ export function GjennomforingFormDetaljer(props: Props) {
               label="Oppstartstype"
               placeholder="Velg oppstart"
               name="oppstart"
-              readOnly={!kanEndreOppstartOgPamelding(tiltakstype)}
+              readOnly={kreverDirekteVedtak(tiltakstype)}
               onChange={(e) => {
                 if (e.target.value === GjennomforingOppstartstype.FELLES) {
                   setValue("pameldingType", GjennomforingPameldingType.TRENGER_GODKJENNING);
@@ -169,7 +169,7 @@ export function GjennomforingFormDetaljer(props: Props) {
                 placeholder="Velg påmeldingstype"
                 name="pameldingType"
                 readOnly={
-                  !kanEndreOppstartOgPamelding(tiltakstype) ||
+                  kreverDirekteVedtak(tiltakstype) ||
                   watch("oppstart") === GjennomforingOppstartstype.FELLES
                 }
                 options={[
