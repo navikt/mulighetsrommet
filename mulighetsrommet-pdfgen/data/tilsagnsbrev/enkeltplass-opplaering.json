@@ -1,0 +1,48 @@
+{
+  "title": "Tilsagnsbrev",
+  "subject": "Tilsagnsbrev til arrangør",
+  "description": "For å dekke tilskuddet til bruker",
+  "author": "Tiltaksadministrasjon",
+  "tiltakstype": "arbeidsmarkedsopplæring",
+  "tilDatoRef": [
+    {
+      "label": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
+      "value": "05.01.2026"
+    },{
+      "label": "",
+      "value": "Ref. A-2026/10174-2"
+    }
+  ],
+  "deltakerDetaljer": [
+    {
+      "label": "Tiltaket",
+      "value": "Tuckførerkurs"
+    },
+    {
+      "label": "Deltakeren",
+      "value": "AKVATISK BOKHYLLE (20499215666)"
+    },
+    {
+      "label": "Periode",
+      "value": "01.01.2026 - 31.01.2026"
+    },
+    {
+      "label": "Støtten fra Nav",
+      "value": "Opptil 1 234 NOK"
+    }
+  ],
+  "ordnoKonto": [
+    {
+      "label": "Bedriftsnummer",
+      "value": "310438707"
+    },
+    {
+      "label": "Kontonummer",
+      "value": "25602438514"
+    }
+  ],
+  "behandlere": [
+    "Beslutters navn",
+    "Saksbehandlers navn"
+  ]
+}
