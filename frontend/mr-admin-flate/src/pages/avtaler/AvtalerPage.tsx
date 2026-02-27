@@ -1,5 +1,4 @@
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
-import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { AvtaleFilterTags } from "@/components/filter/AvtaleFilterTags";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
@@ -18,10 +17,15 @@ import { Suspense, useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { AvtaleFilterSchema } from "@/pages/avtaler/filter";
 import { useAvtalerSavedFilterState } from "@/filter/useSavedFiltersState";
+import { useAvtalerHandlinger } from "@/api/avtaler/useAvtaler";
+import { Button } from "@navikt/ds-react";
+import { Link } from "react-router";
+import { AvtaleHandling } from "node_modules/@tiltaksadministrasjon/api-client/build/types.gen";
 
 export function AvtalerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
+  const { data: handlinger } = useAvtalerHandlinger();
 
   const {
     filter,
@@ -71,7 +75,13 @@ export function AvtalerPage() {
                 setTagsHeight={setTagsHeight}
               />
             }
-            buttons={<AvtaleFilterButtons />}
+            buttons={
+              handlinger.includes(AvtaleHandling.OPPRETT) ? (
+                <Button as={Link} to="/avtaler/opprett-avtale" size="small" variant="primary">
+                  Opprett ny avtale
+                </Button>
+              ) : null
+            }
             table={
               <Suspense fallback={<ListSkeleton />}>
                 <AvtaleTabell
