@@ -36,6 +36,8 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id,
+        arenaTiltaksnummer = null,
+        arenaAnsvarligEnhet = null,
     )
 
     val VTA1 = GjennomforingDbo(
@@ -59,6 +61,8 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.ForhandsgodkjentVta.id,
+        arenaTiltaksnummer = null,
+        arenaAnsvarligEnhet = null,
     )
 
     val AFT1 = GjennomforingDbo(
@@ -82,6 +86,8 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.ForhandsgodkjentAft.id,
+        arenaTiltaksnummer = null,
+        arenaAnsvarligEnhet = null,
     )
 
     val GruppeAmo1 = GjennomforingDbo(
@@ -105,6 +111,8 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
+        arenaTiltaksnummer = null,
+        arenaAnsvarligEnhet = null,
     )
 
     val GruppeFagYrke1 = GjennomforingDbo(
@@ -128,6 +136,8 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
+        arenaTiltaksnummer = null,
+        arenaAnsvarligEnhet = null,
     )
 
     val ArbeidsrettetRehabilitering = GjennomforingDbo(
@@ -151,6 +161,8 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
+        arenaTiltaksnummer = null,
+        arenaAnsvarligEnhet = null,
     )
 
     val EnkelAmo = GjennomforingDbo(
@@ -167,6 +179,15 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         antallPlasser = 1,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
+        avtaleId = null,
+        oppmoteSted = null,
+        faneinnhold = null,
+        beskrivelse = null,
+        estimertVentetidVerdi = null,
+        estimertVentetidEnhet = null,
+        tilgjengeligForArrangorDato = null,
+        arenaTiltaksnummer = null,
+        arenaAnsvarligEnhet = null,
     )
 
     val ArenaEnkelAmo = GjennomforingDbo(
@@ -184,6 +205,14 @@ object GjennomforingFixtures {
         antallPlasser = 10,
         arenaTiltaksnummer = Tiltaksnummer("2021#1234"),
         arenaAnsvarligEnhet = "1234",
+        avtaleId = null,
+        prismodellId = null,
+        oppmoteSted = null,
+        faneinnhold = null,
+        beskrivelse = null,
+        estimertVentetidVerdi = null,
+        estimertVentetidEnhet = null,
+        tilgjengeligForArrangorDato = null,
     )
 
     val ArenaArbeidsrettetRehabilitering = GjennomforingDbo(
@@ -201,6 +230,14 @@ object GjennomforingFixtures {
         antallPlasser = 10,
         arenaTiltaksnummer = Tiltaksnummer("2022#1"),
         arenaAnsvarligEnhet = "1234",
+        avtaleId = null,
+        prismodellId = null,
+        oppmoteSted = null,
+        faneinnhold = null,
+        beskrivelse = null,
+        estimertVentetidVerdi = null,
+        estimertVentetidEnhet = null,
+        tilgjengeligForArrangorDato = null,
     )
 
     fun createGjennomforingRequest(

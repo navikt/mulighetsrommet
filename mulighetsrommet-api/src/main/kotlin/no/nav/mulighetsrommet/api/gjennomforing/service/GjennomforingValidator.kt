@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.SetTilgjengligForArrangorReq
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.ArenaData
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.FieldValidator
@@ -53,6 +54,7 @@ object GjennomforingValidator {
             val sluttDato: LocalDate?,
             val oppstart: GjennomforingOppstartstype,
             val pameldingType: GjennomforingPameldingType,
+            val arena: ArenaData?,
         )
 
         fun harEgenskap(vararg egenskap: TiltakstypeEgenskap): Boolean {
@@ -216,6 +218,8 @@ object GjennomforingValidator {
                 estimertVentetidVerdi = next.estimertVentetid?.verdi,
                 estimertVentetidEnhet = next.estimertVentetid?.enhet,
                 tilgjengeligForArrangorDato = next.tilgjengeligForArrangorDato,
+                arenaTiltaksnummer = ctx.previous?.arena?.tiltaksnummer,
+                arenaAnsvarligEnhet = ctx.previous?.arena?.ansvarligNavEnhet,
             ),
             request.administratorer,
             request.kontaktpersoner.map { GjennomforingKontaktpersonDbo(it.navIdent, it.beskrivelse) }.toSet(),

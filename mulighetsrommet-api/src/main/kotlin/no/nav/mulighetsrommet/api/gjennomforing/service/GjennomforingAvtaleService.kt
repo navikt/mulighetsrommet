@@ -323,6 +323,7 @@ class GjennomforingAvtaleService(
                     status = it.status,
                     sluttDato = it.sluttDato,
                     pameldingType = it.pameldingType,
+                    arena = it.arena,
                 )
             },
             avtale = avtale,
