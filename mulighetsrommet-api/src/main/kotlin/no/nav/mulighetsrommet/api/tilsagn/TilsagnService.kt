@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptyListOf
@@ -354,29 +353,6 @@ class TilsagnService(
         tilsagn
     }
 
-    fun gjorOppTilsagnVedUtbetaling(
-        id: UUID,
-        behandletAv: Agent,
-        besluttetAv: Agent,
-        queryContext: QueryContext,
-    ): Tilsagn {
-        val tilsagn = queryContext.setTilOppgjor(
-            id,
-            behandletAv,
-            aarsaker = emptyList(),
-            forklaring = null,
-            operation = "Sendt til oppgjør ved behandling av utbetaling",
-        )
-        return queryContext.gjorOppTilsagn(
-            tilsagn,
-            besluttetAv,
-            operation = "Tilsagn oppgjort ved attestering av utbetaling",
-        ).getOrElse {
-            // TODO returner valideringsfeil i stedet for å kaste exception
-            throw IllegalStateException(it.first().detail)
-        }
-    }
-
     private fun QueryContext.godkjennTilsagn(
         tilsagn: Tilsagn,
         besluttetAv: NavIdent,
@@ -529,13 +505,14 @@ class TilsagnService(
         return dto.right()
     }
 
-    private fun QueryContext.setTilOppgjor(
+    context(tx: TransactionalQueryContext)
+    fun setTilOppgjor(
         id: UUID,
         agent: Agent,
         aarsaker: List<String>,
         forklaring: String?,
         operation: String,
-    ): Tilsagn {
+    ): Tilsagn = with(tx) {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
@@ -564,11 +541,12 @@ class TilsagnService(
         return dto
     }
 
-    private fun QueryContext.gjorOppTilsagn(
+    context(tx: TransactionalQueryContext)
+    fun gjorOppTilsagn(
         tilsagn: Tilsagn,
         besluttetAv: Agent,
         operation: String,
-    ): Either<List<FieldError>, Tilsagn> {
+    ): Either<List<FieldError>, Tilsagn> = with(tx) {
         if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal godkjennes")
                 .nel()
