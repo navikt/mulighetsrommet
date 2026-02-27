@@ -21,7 +21,8 @@ import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
-import no.nav.mulighetsrommet.database.datatypes.ScheduledTaskDbo
+import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordDbo
+import no.nav.mulighetsrommet.database.queries.ScheduledTaskDbo
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -55,7 +56,7 @@ fun Route.maamRoutes() {
                 get("failed") {
                     db.session {
                         val failedTasks = queries.scheduledTask.getFailedTasks()
-                            .map(ScheduledTaskDto::fromDbo)
+                            .map { it.toDto() }
                         call.respond(failedTasks)
                     }
                 }
@@ -174,6 +175,14 @@ fun Route.maamRoutes() {
                 kafka.updateRunningTopics(topics)
                 call.respond(HttpStatusCode.OK)
             }
+
+            get("/failed-records") {
+                db.session {
+                    val failedRecords = queries.kafkaConsumerRecords.getFailedRecords()
+                        .map { it.toDto() }
+                    call.respond(failedRecords)
+                }
+            }
         }
     }
 }
@@ -242,23 +251,52 @@ data class ScheduledTaskDto(
     val lastHeartbeat: String?,
     val version: Long,
     val priority: Short?,
-) {
-    companion object {
-        fun fromDbo(dbo: ScheduledTaskDbo): ScheduledTaskDto {
-            return ScheduledTaskDto(
-                taskName = dbo.taskName,
-                taskInstance = dbo.taskInstance,
-                taskData = dbo.taskData.decodeToString(),
-                executionTime = dbo.executionTime.toString(),
-                picked = dbo.picked,
-                pickedBy = dbo.pickedBy,
-                lastSuccess = dbo.lastSuccess?.toString(),
-                lastFailure = dbo.lastFailure?.toString(),
-                consecutiveFailures = dbo.consecutiveFailures,
-                lastHeartbeat = dbo.lastHeartbeat?.toString(),
-                version = dbo.version,
-                priority = dbo.priority,
-            )
-        }
-    }
+)
+
+fun ScheduledTaskDbo.toDto(): ScheduledTaskDto {
+    return ScheduledTaskDto(
+        taskName = taskName,
+        taskInstance = taskInstance,
+        taskData = taskData.decodeToString(),
+        executionTime = executionTime.toString(),
+        picked = picked,
+        pickedBy = pickedBy,
+        lastSuccess = lastSuccess?.toString(),
+        lastFailure = lastFailure?.toString(),
+        consecutiveFailures = consecutiveFailures,
+        lastHeartbeat = lastHeartbeat?.toString(),
+        version = version,
+        priority = priority,
+    )
+}
+
+@Serializable
+data class KafkaConsumerRecordDto(
+    val id: Long,
+    val topic: String,
+    val partition: Int,
+    val recordOffset: Long,
+    val retries: Int,
+    val lastRetry: String?,
+    val key: String?,
+    val value: String?,
+    val headersJson: String?,
+    val recordTimestamp: String?,
+    val createdAt: String,
+)
+
+fun KafkaConsumerRecordDbo.toDto(): KafkaConsumerRecordDto {
+    return KafkaConsumerRecordDto(
+        id = id,
+        topic = topic,
+        partition = partition,
+        recordOffset = recordOffset,
+        retries = retries,
+        lastRetry = lastRetry?.toString(),
+        key = key?.decodeToString(),
+        value = value?.decodeToString(),
+        headersJson = headersJson,
+        recordTimestamp = recordTimestamp?.toString(),
+        createdAt = createdAt.toString(),
+    )
 }

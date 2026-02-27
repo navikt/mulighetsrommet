@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.database.datatypes
+package no.nav.mulighetsrommet.database.queries
 
 import kotliquery.Session
 import kotliquery.queryOf

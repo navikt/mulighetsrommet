@@ -1,4 +1,4 @@
-import { ScheduledTask, Topic } from "../domain";
+import { KafkaConsumerRecord, ScheduledTask, Topic } from "../domain";
 import toast from "react-hot-toast";
 import { ErrorToast } from "../components/Toast";
 
@@ -26,6 +26,16 @@ export const getTopics = (base: ApiBase) =>
   })
     .then(parseJson)
     .catch((error) => toastError("Klarte ikke laste Topics", error));
+
+export const getFailedKafkaConsumerRecords = async (
+  base: ApiBase,
+): Promise<KafkaConsumerRecord[]> =>
+  fetch(`${base}/topics/failed-records`, {
+    method: "GET",
+    headers: getDefaultHeaders(),
+  })
+    .then(parseJson)
+    .catch((error) => toastError("Klarte ikke laste failed kafka consumer records", error));
 
 export const getArenaTables = () =>
   fetch("/mulighetsrommet-arena-adapter/arena-tables", {
