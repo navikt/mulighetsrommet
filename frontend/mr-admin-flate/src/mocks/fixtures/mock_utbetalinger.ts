@@ -47,7 +47,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       type: UtbetalingStatusDtoType.VENTER_PA_ARRANGOR,
       status: {
         value: "Venter på arrangør",
-        variant: DataElementStatusVariant.ALT,
+        variant: DataElementStatusVariant.ALT_1,
         description: null,
       },
     },
@@ -165,7 +165,7 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
       type: UtbetalingStatusDtoType.VENTER_PA_ARRANGOR,
       status: {
         value: "Venter på arrangør",
-        variant: DataElementStatusVariant.ALT,
+        variant: DataElementStatusVariant.ALT_1,
         description: null,
       },
     },
@@ -297,7 +297,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
         type: TilsagnStatus.TIL_ANNULLERING,
         status: {
           value: "Til annullering",
-          variant: DataElementStatusVariant.ERROR_BORDER,
+          variant: DataElementStatusVariant.ERROR,
           description: null,
         },
       },
