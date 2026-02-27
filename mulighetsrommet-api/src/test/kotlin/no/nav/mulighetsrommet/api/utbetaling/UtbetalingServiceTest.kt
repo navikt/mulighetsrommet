@@ -17,12 +17,14 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -89,8 +91,15 @@ class UtbetalingServiceTest : FunSpec({
     var umiddelbarUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, _ -> null }
     val arrangorService: ArrangorService = mockk()
 
+    fun createTilsagnService(): TilsagnService = TilsagnService(
+        TilsagnService.Config("bestilling-topic", mapOf()),
+        db = database.db,
+        navAnsattService = mockk(),
+        journalforEnkeltplassTilsagnsbrev = mockk(),
+    )
+
     fun createUtbetalingService(
-        tilsagnService: TilsagnService = mockk(relaxed = true),
+        tilsagnService: TilsagnService = createTilsagnService(),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
     ) = UtbetalingService(
@@ -290,7 +299,7 @@ class UtbetalingServiceTest : FunSpec({
             service.godkjennDelutbetaling(
                 id = delutbetaling.id,
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
-            ).shouldBeRight()
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
         }
 
         test("returnering av delutbetaling setter den i RETURNERT status") {
@@ -329,7 +338,11 @@ class UtbetalingServiceTest : FunSpec({
                 aarsaker = listOf(DelutbetalingReturnertAarsak.ANNET),
                 forklaring = "Maksbeløp er 5",
                 navIdent = domain.ansatte[0].navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
+
+            database.run {
+                queries.delutbetaling.getOrError(delutbetaling.id).status shouldBe DelutbetalingStatus.RETURNERT
+            }
         }
 
         test("sletting av delutbetaling skjer ikke ved valideringsfeil") {
@@ -369,7 +382,7 @@ class UtbetalingServiceTest : FunSpec({
                 aarsaker = listOf(DelutbetalingReturnertAarsak.ANNET),
                 forklaring = "Maksbeløp er 5",
                 navIdent = domain.ansatte[1].navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
             service.opprettDelutbetalinger(
                 request = OpprettDelutbetalingerRequest(utbetaling1.id, emptyList(), "begrunnelse"),
@@ -379,7 +392,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             database.run {
-                queries.delutbetaling.getOrError(delutbetaling.id)
+                queries.delutbetaling.getOrError(delutbetaling.id).status shouldBe DelutbetalingStatus.RETURNERT
             }
         }
 
@@ -538,7 +551,7 @@ class UtbetalingServiceTest : FunSpec({
                 aarsaker = listOf(DelutbetalingReturnertAarsak.FEIL_BELOP),
                 forklaring = null,
                 navIdent = domain.ansatte[1].navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(utbetaling.id, listOf(delutbetaling1), "begrunnelse"),
@@ -602,14 +615,18 @@ class UtbetalingServiceTest : FunSpec({
             service.godkjennDelutbetaling(
                 delutbetaling1.id,
                 domain.ansatte[0].navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.GODKJENT
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_ATTESTERING
+
+            database.run {
+                queries.delutbetaling.getOrError(delutbetaling1.id).status shouldBe DelutbetalingStatus.GODKJENT
+            }
 
             service.returnerDelutbetaling(
                 id = delutbetaling2.id,
                 aarsaker = listOf(DelutbetalingReturnertAarsak.ANNET),
                 forklaring = "Maksbeløp er 5",
                 navIdent = domain.ansatte[0].navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
             database.run {
                 queries.delutbetaling.getOrError(delutbetaling1.id).status shouldBe DelutbetalingStatus.RETURNERT
@@ -618,6 +635,7 @@ class UtbetalingServiceTest : FunSpec({
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                 }
 
+                queries.delutbetaling.getOrError(delutbetaling1.id).status shouldBe DelutbetalingStatus.RETURNERT
                 queries.totrinnskontroll.getOrError(delutbetaling2.id, Totrinnskontroll.Type.OPPRETT).should {
                     it.besluttelse shouldBe Besluttelse.AVVIST
                     it.besluttetAv shouldBe domain.ansatte[0].navIdent
@@ -761,7 +779,7 @@ class UtbetalingServiceTest : FunSpec({
                 aarsaker = listOf(DelutbetalingReturnertAarsak.ANNET),
                 forklaring = "Maksbeløp er 5",
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling1), "begrunnelse"),
@@ -781,7 +799,7 @@ class UtbetalingServiceTest : FunSpec({
                 aarsaker = listOf(DelutbetalingReturnertAarsak.ANNET),
                 forklaring = "Maksbeløp er 5",
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
             val delutbetaling2 = DelutbetalingRequest(
                 UUID.randomUUID(),
@@ -837,7 +855,7 @@ class UtbetalingServiceTest : FunSpec({
             service.godkjennDelutbetaling(
                 id = delutbetaling1.id,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
             database.run {
                 queries.delutbetaling.getByUtbetalingId(utbetaling1.id).should { (first, second) ->
@@ -888,12 +906,10 @@ class UtbetalingServiceTest : FunSpec({
                 setRoller(
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
-
                 )
             }.initialize(database.db)
 
-            val tilsagnService: TilsagnService = mockk(relaxed = true)
-            val service = createUtbetalingService(tilsagnService)
+            val service = createUtbetalingService()
 
             val delutbetaling = DelutbetalingRequest(
                 UUID.randomUUID(),
@@ -902,17 +918,18 @@ class UtbetalingServiceTest : FunSpec({
                 pris = 10.withValuta(Valuta.NOK),
             )
             service.opprettDelutbetalinger(
-                OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling), begrunnelseMindreBetalt = null),
+                OpprettDelutbetalingerRequest(utbetaling.id, listOf(delutbetaling), begrunnelseMindreBetalt = null),
                 NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
             service.godkjennDelutbetaling(
                 id = delutbetaling.id,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
 
-            verify(exactly = 1) {
-                tilsagnService.gjorOppTilsagnVedUtbetaling(Tilsagn1.id, any(), any(), any())
+            database.run {
+                queries.delutbetaling.getOrError(delutbetaling.id).status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+                queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.OPPGJORT
             }
         }
 
@@ -969,14 +986,21 @@ class UtbetalingServiceTest : FunSpec({
             service.godkjennDelutbetaling(
                 id = delutbetaling1.id,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.GODKJENT
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_ATTESTERING
+
+            database.run {
+                queries.delutbetaling.getOrError(delutbetaling1.id).status shouldBe DelutbetalingStatus.GODKJENT
+            }
 
             service.godkjennDelutbetaling(
                 id = delutbetaling2.id,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
 
             database.run {
+                queries.delutbetaling.getOrError(delutbetaling1.id).status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+                queries.delutbetaling.getOrError(delutbetaling2.id).status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+
                 val records = queries.kafkaProducerRecord.getRecords(10)
                 records.shouldHaveSize(2)
 
@@ -1032,7 +1056,7 @@ class UtbetalingServiceTest : FunSpec({
             service.godkjennDelutbetaling(
                 id = delutbetaling1.id,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
 
             database.run {
                 val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
@@ -1076,7 +1100,7 @@ class UtbetalingServiceTest : FunSpec({
             service.godkjennDelutbetaling(
                 id = delutbetaling1.id,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
-            ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
 
             database.run {
                 val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
@@ -1270,6 +1294,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             database.run {
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.INNSENDT
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
             }
         }
@@ -1289,6 +1314,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             database.run {
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.INNSENDT
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
             }
         }
@@ -1312,6 +1338,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             database.run {
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.INNSENDT
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
             }
         }
@@ -1340,6 +1367,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             database.run {
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.INNSENDT
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
             }
         }
@@ -1368,6 +1396,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             database.run {
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.INNSENDT
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
             }
         }
@@ -1402,6 +1431,8 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             database.run {
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
+                queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.GODKJENT
                 queries.delutbetaling.getByUtbetalingId(utbetaling1Id).first().should {
                     it.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
                     it.gjorOppTilsagn shouldBe false
@@ -1432,22 +1463,64 @@ class UtbetalingServiceTest : FunSpec({
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
             }.initialize(database.db)
 
-            val tilsagnService: TilsagnService = mockk(relaxed = true)
-            val service = createUtbetalingService(tilsagnService = tilsagnService)
+            val service = createUtbetalingService()
 
             service.godkjentAvArrangor(utbetaling1.id, kid = null).shouldBeRight(
                 AutomatiskUtbetalingResult.GODKJENT,
             )
 
             database.run {
-                queries.delutbetaling.getByUtbetalingId(utbetaling1.id).first().should {
-                    it.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
-                    it.gjorOppTilsagn shouldBe true
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
+                queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.OPPGJORT
+                queries.delutbetaling.getByUtbetalingId(utbetaling1.id).shouldHaveSize(1).should { (first) ->
+                    first.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+                    first.gjorOppTilsagn shouldBe true
                 }
             }
+        }
 
-            verify(exactly = 1) {
-                tilsagnService.gjorOppTilsagnVedUtbetaling(Tilsagn1.id, any(), any(), any())
+        test("blir ikke utbetalt hvis det oppstår valideringsfeil i forbindelse med oppgjør av tilsagnet") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(
+                    Tilsagn1.copy(
+                        periode = Periode(LocalDate.of(2025, 1, 4), LocalDate.of(2025, 3, 1)),
+                    ),
+                ),
+                utbetalinger = listOf(
+                    utbetaling1.copy(
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
+                        beregning = getForhandsgodkjentBeregning(
+                            periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
+                            pris = 100.withValuta(Valuta.NOK),
+                        ),
+                    ),
+                ),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val tilsagnService: TilsagnService = spyk(createTilsagnService())
+            coEvery {
+                with(any<TransactionalQueryContext>()) {
+                    tilsagnService.gjorOppTilsagn(any(), any(), any())
+                }
+            } answers {
+                FieldError.root("Noe feil skjedde").nel().left()
+            }
+            val service = createUtbetalingService(tilsagnService = tilsagnService)
+
+            service.godkjentAvArrangor(
+                utbetaling1.id,
+                kid = null,
+            ) shouldBeRight AutomatiskUtbetalingResult.VALIDERINGSFEIL
+
+            database.run {
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.INNSENDT
+                queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.GODKJENT
+                queries.delutbetaling.getByUtbetalingId(utbetaling1.id).shouldBeEmpty()
             }
         }
     }
