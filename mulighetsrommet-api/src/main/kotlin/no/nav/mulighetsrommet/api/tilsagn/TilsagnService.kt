@@ -125,6 +125,7 @@ class TilsagnService(
                     beregning = validated.beregning,
                     kommentar = request.kommentar?.trim(),
                     beskrivelse = request.beskrivelse?.trim(),
+                    deltakere = request.deltakere ?: emptyList(),
                 )
             }
             .map { dbo ->

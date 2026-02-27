@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.minus
 import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.serializers.UUIDListSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.util.UUID
@@ -31,6 +32,8 @@ data class Tilsagn(
     val kommentar: String?,
     val beskrivelse: String?,
     val journalpost: Journalpost?,
+    @Serializable(with = UUIDListSerializer::class)
+    val deltakere: List<UUID>,
 ) {
     @Serializable
     data class Tiltakstype(

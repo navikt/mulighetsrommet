@@ -38,7 +38,10 @@ export const PrismodellSchema = z.object({
       })
       .superRefine((data, ctx) => {
         if (
-          data.type !== PrismodellType.ANNEN_AVTALT_PRIS &&
+          ![
+            PrismodellType.ANNEN_AVTALT_PRIS_PER_DELTAKER,
+            PrismodellType.ANNEN_AVTALT_PRIS,
+          ].includes(data.type) &&
           (!data.satser || data.satser.length === 0)
         ) {
           ctx.addIssue({

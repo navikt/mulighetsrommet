@@ -64,6 +64,7 @@ object RammedetaljerValidator {
         PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
         PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
         PrismodellType.ANNEN_AVTALT_PRIS,
+        PrismodellType.ANNEN_AVTALT_PRIS_PER_DELTAKER,
         -> true
     }
 }

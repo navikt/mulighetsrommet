@@ -36,9 +36,15 @@ select tilsagn.id,
        arrangor.navn                     as arrangor_navn,
        arrangor.slettet_dato is not null as arrangor_slettet,
        tiltakstype.tiltakskode           as tiltakskode,
-       tiltakstype.navn                  as tiltakstype_navn
+       tiltakstype.navn                  as tiltakstype_navn,
+       deltakere
 from tilsagn
          inner join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
          inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
          inner join arrangor on arrangor.id = gjennomforing.arrangor_id
          inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
+         left join lateral (
+             select coalesce(array_agg(deltaker_id), '{}') as deltakere
+             from tilsagn_deltaker
+             where tilsagn_id = tilsagn.id
+         ) deltakere on true;

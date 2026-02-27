@@ -10,6 +10,13 @@ enum class PrismodellType(val navn: String, val beskrivelse: List<String>) {
             "Arrangør benytter digital innsending og kan laste opp vedlegg som en del av innsendingen. Nav gjør ingen forhåndsberegning av beløp.",
         ),
     ),
+    ANNEN_AVTALT_PRIS_PER_DELTAKER(
+        "Annen avtalt pris per deltaker",
+        listOf(
+            "Prismodellen skal brukes når ingen av de andre valgene passer, eksempelvis ved avtalt pris per deltaker eller fastpris.",
+            "Arrangør benytter digital innsending og kan laste opp vedlegg som en del av innsendingen. Nav gjør ingen forhåndsberegning av beløp.",
+        ),
+    ),
     FORHANDSGODKJENT_PRIS_PER_MANEDSVERK(
         "Fast sats per tiltaksplass per måned",
         listOf(),
@@ -71,6 +78,7 @@ object Prismodeller {
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             PrismodellType.ANNEN_AVTALT_PRIS,
+            PrismodellType.ANNEN_AVTALT_PRIS_PER_DELTAKER,
         )
 
         Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,

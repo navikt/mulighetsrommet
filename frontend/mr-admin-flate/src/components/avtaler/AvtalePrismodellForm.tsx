@@ -48,7 +48,9 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     setValue(`prismodeller.${index}.type`, type);
     setValue(
       `prismodeller.${index}.satser`,
-      type === PrismodellType.ANNEN_AVTALT_PRIS
+      [PrismodellType.ANNEN_AVTALT_PRIS_PER_DELTAKER, PrismodellType.ANNEN_AVTALT_PRIS].includes(
+        type,
+      )
         ? []
         : [{ gjelderTil: null, gjelderFra: "", pris: 0 }],
     );

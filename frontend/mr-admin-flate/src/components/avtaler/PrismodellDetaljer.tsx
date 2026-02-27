@@ -36,6 +36,7 @@ export function PrismodellDetaljer({ prismodeller }: Props) {
           </VStack>
         );
       case PrismodellType.ANNEN_AVTALT_PRIS:
+      case PrismodellType.ANNEN_AVTALT_PRIS_PER_DELTAKER:
         return (
           <VStack key={prismodell.navn} gap="space-16">
             <PrismodellTypenavn type={prismodell.navn} />

@@ -10,6 +10,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
@@ -27,6 +28,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
@@ -37,9 +39,17 @@ import java.util.UUID
 class TilsagnQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
+    val deltaker = DeltakerFixtures.createDeltakerDbo(
+        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        startDato = GjennomforingFixtures.AFT1.startDato,
+        sluttDato = null,
+        statusType = DeltakerStatusType.DELTAR,
+    )
+
     val domain = MulighetsrommetTestDomain(
         avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.ARR),
         gjennomforinger = listOf(GjennomforingFixtures.AFT1, GjennomforingFixtures.ArbeidsrettetRehabilitering),
+        deltakere = listOf(deltaker),
     )
 
     val beregningFri = {
@@ -74,6 +84,7 @@ class TilsagnQueriesTest : FunSpec({
         beregning = beregningFri(),
         kommentar = "Kommentar",
         beskrivelse = "Beskrivelse til arrangør",
+        deltakere = emptyList(),
     )
 
     context("CRUD") {
@@ -373,6 +384,55 @@ class TilsagnQueriesTest : FunSpec({
                 queries.tilsagn.setBestillingStatus(tilsagn.bestillingsnummer, BestillingStatusType.OPPGJORT)
 
                 queries.tilsagn.getOrError(tilsagn.id).bestilling.status shouldBe BestillingStatusType.OPPGJORT
+            }
+        }
+
+        test("med deltakere") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                queries.tilsagn.upsert(tilsagn.copy(deltakere = listOf(deltaker.id)))
+
+                queries.tilsagn.getOrError(tilsagn.id) should {
+                    it.id shouldBe tilsagn.id
+                    it.tiltakstype shouldBe Tilsagn.Tiltakstype(
+                        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
+                        navn = TiltakstypeFixtures.AFT.navn,
+                    )
+                    it.gjennomforing.id shouldBe GjennomforingFixtures.AFT1.id
+                    it.gjennomforing.lopenummer.shouldNotBeNull()
+                    it.periode shouldBe Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1))
+                    it.kostnadssted shouldBe Gjovik
+                    it.lopenummer shouldBe 1
+                    it.bestilling shouldBe Tilsagn.Bestilling(
+                        bestillingsnummer = "1",
+                        status = null,
+                    )
+                    it.arrangor shouldBe Tilsagn.Arrangor(
+                        navn = ArrangorFixtures.underenhet1.navn,
+                        id = ArrangorFixtures.underenhet1.id,
+                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                        slettet = false,
+                    )
+                    it.beregning shouldBe TilsagnBeregningFri(
+                        TilsagnBeregningFri.Input(
+                            linjer = (tilsagn.beregning as TilsagnBeregningFri).input.linjer,
+                            prisbetingelser = "Prisbetingelser fra avtale",
+                        ),
+                        TilsagnBeregningFri.Output(
+                            pris = 123.withValuta(Valuta.NOK),
+                        ),
+                    )
+                    it.type shouldBe TilsagnType.TILSAGN
+                    it.status shouldBe TilsagnStatus.TIL_GODKJENNING
+                    it.kommentar shouldBe "Kommentar"
+                    it.beskrivelse shouldBe "Beskrivelse til arrangør"
+                    it.deltakere shouldBe listOf(deltaker.id)
+                }
+
+                queries.tilsagn.delete(tilsagn.id)
+
+                queries.tilsagn.get(tilsagn.id) shouldBe null
             }
         }
     }

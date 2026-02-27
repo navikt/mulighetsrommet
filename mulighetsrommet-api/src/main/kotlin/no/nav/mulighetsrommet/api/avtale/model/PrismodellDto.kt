@@ -21,6 +21,7 @@ data class PrismodellDto(
 fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
     val satser = when (prismodell) {
         is Prismodell.AnnenAvtaltPris -> null
+        is Prismodell.AnnenAvtaltPrisPerDeltaker -> null
         is Prismodell.ForhandsgodkjentPrisPerManedsverk -> prismodell.satser
         is Prismodell.AvtaltPrisPerManedsverk -> prismodell.satser
         is Prismodell.AvtaltPrisPerUkesverk -> prismodell.satser
@@ -29,6 +30,7 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
     }
     val prisbetingelser = when (prismodell) {
         is Prismodell.AnnenAvtaltPris -> prismodell.prisbetingelser
+        is Prismodell.AnnenAvtaltPrisPerDeltaker -> prismodell.prisbetingelser
         is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
         is Prismodell.AvtaltPrisPerManedsverk -> prismodell.prisbetingelser
         is Prismodell.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser

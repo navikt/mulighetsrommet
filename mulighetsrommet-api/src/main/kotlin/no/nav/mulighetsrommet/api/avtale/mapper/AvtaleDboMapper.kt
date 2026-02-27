@@ -80,6 +80,7 @@ object AvtaleDboMapper {
 
 fun Prismodell.prisbetingelser(): String? = when (this) {
     is Prismodell.AnnenAvtaltPris -> prisbetingelser
+    is Prismodell.AnnenAvtaltPrisPerDeltaker -> prisbetingelser
     is Prismodell.AvtaltPrisPerManedsverk -> prisbetingelser
     is Prismodell.AvtaltPrisPerUkesverk -> prisbetingelser
     is Prismodell.AvtaltPrisPerHeleUkesverk -> prisbetingelser
@@ -89,6 +90,7 @@ fun Prismodell.prisbetingelser(): String? = when (this) {
 
 fun Prismodell.satser(): List<AvtaltSats> = when (this) {
     is Prismodell.AnnenAvtaltPris -> emptyList()
+    is Prismodell.AnnenAvtaltPrisPerDeltaker -> emptyList()
     is Prismodell.ForhandsgodkjentPrisPerManedsverk -> toAvtalteSatser(satser)
     is Prismodell.AvtaltPrisPerManedsverk -> toAvtalteSatser(satser)
     is Prismodell.AvtaltPrisPerUkesverk -> toAvtalteSatser(satser)

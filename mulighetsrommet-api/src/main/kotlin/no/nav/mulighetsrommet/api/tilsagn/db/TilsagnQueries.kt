@@ -173,10 +173,40 @@ class TilsagnQueries(private val session: Session) {
         }
 
         execute(queryOf(query, params + beregningParams))
+        upsertTilsagnDeltakere(dbo.id, dbo.deltakere)
 
         if (dbo.beregning is TilsagnBeregningFri) {
             upsertTilsagnBeregningFriLinjer(dbo.id, dbo.beregning.input.linjer)
         }
+    }
+
+    private fun TransactionalSession.upsertTilsagnDeltakere(
+        tilsagnId: UUID,
+        deltakere: List<UUID>,
+    ) {
+        @Language("PostgreSQL")
+        val deleteQuery = """
+            delete from tilsagn_deltaker
+            where tilsagn_id = :tilsagn_id::uuid
+        """.trimIndent()
+
+        execute(queryOf(deleteQuery, mapOf("tilsagn_id" to tilsagnId)))
+
+        @Language("PostgreSQL")
+        val insertQuery = """
+            insert into tilsagn_deltaker (tilsagn_id, deltaker_id)
+            select
+                :tilsagn_id::uuid,
+                unnest(:deltaker_ids::uuid[])
+            on conflict (tilsagn_id, deltaker_id) do nothing
+        """.trimIndent()
+
+        val insertParams = mapOf(
+            "tilsagn_id" to tilsagnId,
+            "deltaker_ids" to deltakere.toTypedArray(),
+        )
+
+        execute(queryOf(insertQuery, insertParams))
     }
 
     private fun TransactionalSession.upsertTilsagnBeregningFriLinjer(
@@ -422,6 +452,7 @@ class TilsagnQueries(private val session: Session) {
                     distribueringId = stringOrNull("journalpost_distribuering_id"),
                 )
             },
+            deltakere = array<UUID>("deltakere").map { it },
         )
     }
 
