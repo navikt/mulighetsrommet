@@ -680,7 +680,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            service.tilGjorOppRequest(
+            service.tilOppgjorRequest(
                 id = requestId,
                 navIdent = ansatt1,
                 request = AarsakerOgForklaringRequest(aarsaker = emptyList(), forklaring = null),
@@ -703,7 +703,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            service.tilGjorOppRequest(
+            service.tilOppgjorRequest(
                 id = requestId,
                 navIdent = ansatt1,
                 request = AarsakerOgForklaringRequest(aarsaker = emptyList(), forklaring = null),
@@ -726,7 +726,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
             val bestillingsnummer = database.run { queries.tilsagn.getOrError(requestId).bestilling.bestillingsnummer }
 
-            service.tilGjorOppRequest(
+            service.tilOppgjorRequest(
                 id = requestId,
                 navIdent = ansatt1,
                 request = AarsakerOgForklaringRequest(

@@ -169,14 +169,12 @@ class TilsagnService(
         setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun tilGjorOppRequest(
+    fun tilOppgjorRequest(
         id: UUID,
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
     ): Tilsagn = db.transaction {
-        val tilsagn = queries.tilsagn.getOrError(id)
-
-        setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring, "Sendt til oppgjør")
+        setTilOppgjor(id, navIdent, request.aarsaker.map { it.name }, request.forklaring, "Sendt til oppgjør")
     }
 
     fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
@@ -362,9 +360,8 @@ class TilsagnService(
         besluttetAv: Agent,
         queryContext: QueryContext,
     ): Tilsagn {
-        var tilsagn = queryContext.queries.tilsagn.getOrError(id)
-        tilsagn = queryContext.setTilOppgjort(
-            tilsagn,
+        val tilsagn = queryContext.setTilOppgjor(
+            id,
             behandletAv,
             aarsaker = emptyList(),
             forklaring = null,
@@ -532,13 +529,15 @@ class TilsagnService(
         return dto.right()
     }
 
-    private fun QueryContext.setTilOppgjort(
-        tilsagn: Tilsagn,
+    private fun QueryContext.setTilOppgjor(
+        id: UUID,
         agent: Agent,
         aarsaker: List<String>,
         forklaring: String?,
         operation: String,
     ): Tilsagn {
+        val tilsagn = queries.tilsagn.getOrError(id)
+
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Kan bare gjøre opp godkjente tilsagn"
         }
@@ -813,7 +812,10 @@ class TilsagnService(
         }
     }
 
-    private fun TransactionalQueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
+    private fun TransactionalQueryContext.storeOkonomiMelding(
+        bestillingsnummer: String,
+        message: OkonomiBestillingMelding,
+    ) {
         val record = StoredProducerRecord(
             config.bestillingTopic,
             bestillingsnummer.toByteArray(),
