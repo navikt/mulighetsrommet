@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.veilederflate.db.VeilederJoyrideQueries
 import no.nav.mulighetsrommet.api.veilederflate.db.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.datatypes.ScheduledTaskQueries
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 import no.nav.mulighetsrommet.notifications.NotificationQueries
 import no.nav.mulighetsrommet.oppgaver.OppgaveQueries
@@ -85,6 +86,7 @@ open class QueryContext(open val session: Session) {
         val kafkaProducerRecord = KafkaProducerRecordQueries(session)
         val oppgave = OppgaveQueries(session)
         val arrangorTiltak = ArrangorflateTiltakQueries(session)
+        val scheduledTask = ScheduledTaskQueries(session)
     }
 }
 

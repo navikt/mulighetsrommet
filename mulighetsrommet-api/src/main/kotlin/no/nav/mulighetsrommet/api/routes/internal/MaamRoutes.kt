@@ -10,6 +10,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
@@ -20,6 +21,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
+import no.nav.mulighetsrommet.database.datatypes.ScheduledTaskDbo
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -33,6 +35,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 fun Route.maamRoutes() {
+    val db: ApiDatabase by inject()
     val arrangor: ArrangorService by inject()
     val tilsagnService: TilsagnService by inject()
     val utbetalingService: UtbetalingService by inject()
@@ -48,6 +51,16 @@ fun Route.maamRoutes() {
 
     route("/api/intern/maam") {
         route("/tasks") {
+            route("/scheduled") {
+                get("failed") {
+                    db.session {
+                        val failedTasks = queries.scheduledTask.getFailedTasks()
+                            .map(ScheduledTaskDto::fromDbo)
+                        call.respond(failedTasks)
+                    }
+                }
+            }
+
             post("initial-load-gjennomforinger") {
                 val request = call.receive<StartInitialLoadTiltaksgjennomforingRequest>()
 
@@ -214,3 +227,38 @@ data class TilsagnIdRequest(
     @Serializable(with = UUIDSerializer::class)
     val tilsagnId: UUID,
 )
+
+@Serializable
+data class ScheduledTaskDto(
+    val taskName: String,
+    val taskInstance: String,
+    val taskData: String,
+    val executionTime: String,
+    val picked: Boolean,
+    val pickedBy: String?,
+    val lastSuccess: String?,
+    val lastFailure: String?,
+    val consecutiveFailures: Int,
+    val lastHeartbeat: String?,
+    val version: Long,
+    val priority: Short?,
+) {
+    companion object {
+        fun fromDbo(dbo: ScheduledTaskDbo): ScheduledTaskDto {
+            return ScheduledTaskDto(
+                taskName = dbo.taskName,
+                taskInstance = dbo.taskInstance,
+                taskData = dbo.taskData.decodeToString(),
+                executionTime = dbo.executionTime.toString(),
+                picked = dbo.picked,
+                pickedBy = dbo.pickedBy,
+                lastSuccess = dbo.lastSuccess?.toString(),
+                lastFailure = dbo.lastFailure?.toString(),
+                consecutiveFailures = dbo.consecutiveFailures,
+                lastHeartbeat = dbo.lastHeartbeat?.toString(),
+                version = dbo.version,
+                priority = dbo.priority,
+            )
+        }
+    }
+}

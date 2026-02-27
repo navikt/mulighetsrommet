@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Topic } from "../domain";
-import { ApiBase, getArenaTables, getTopics } from "./api";
+import { ScheduledTask, Topic } from "../domain";
+import { ApiBase, getArenaTables, getFailedScheduledTasks, getTopics } from "./api";
 
 export function useTopics(base: ApiBase) {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -28,4 +28,18 @@ export function useArenaTables() {
     fetchArenaTables();
   }, []);
   return { arenaTables, isArenaTablesLoading: isLoading };
+}
+
+export function useFailedScheduledTasks(base: ApiBase) {
+  const [tasks, setTasks] = useState<ScheduledTask[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const fetchScheduledTasks = async () => {
+      const data = await getFailedScheduledTasks(base);
+      setTasks(data);
+      setIsLoading(false);
+    };
+    fetchScheduledTasks();
+  }, []);
+  return { isLoading, tasks };
 }

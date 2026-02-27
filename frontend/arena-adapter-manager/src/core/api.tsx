@@ -1,4 +1,4 @@
-import { Topic } from "../domain";
+import { ScheduledTask, Topic } from "../domain";
 import toast from "react-hot-toast";
 import { ErrorToast } from "../components/Toast";
 
@@ -47,6 +47,14 @@ export const putTopicRunningState = (base: ApiBase, topics: Topic[]) =>
     .then(checkOk)
     .then(() => toast.success("Topics oppdatert"))
     .catch((error) => toastError("Klarte ikke oppdatere topics", error));
+
+export const getFailedScheduledTasks = async (base: ApiBase): Promise<ScheduledTask[]> =>
+  fetch(`${base}/tasks/scheduled/failed`, {
+    method: "GET",
+    headers: getDefaultHeaders(),
+  })
+    .then(parseJson)
+    .catch((error) => toastError("Klarte ikke laste failed shceduled tasks", error));
 
 export const replayEvents = (arenaTable: string | null, status: string | null) =>
   fetch("/mulighetsrommet-arena-adapter/events/replay", {
