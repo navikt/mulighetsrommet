@@ -3776,6 +3776,7 @@ components:
       type: string
       enum:
       - ANNEN_AVTALT_PRIS
+      - ANNEN_AVTALT_PRIS_PER_DELTAKER
       - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
       - AVTALT_PRIS_PER_MANEDSVERK
       - AVTALT_PRIS_PER_UKESVERK
@@ -5917,9 +5918,17 @@ components:
           type:
           - "null"
           - string
+        deltakere:
+          type:
+          - "null"
+          - array
+          items:
+            type: string
+            format: uuid
       required:
       - beregning
       - beskrivelse
+      - deltakere
       - gjennomforingId
       - id
       - kommentar

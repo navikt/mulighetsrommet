@@ -208,6 +208,8 @@ fun resolveTilsagnDefaults(
     val periode = when (gjennomforing.prismodell) {
         is Prismodell.AnnenAvtaltPris -> null
 
+        is Prismodell.AnnenAvtaltPrisPerDeltaker -> null
+
         is Prismodell.ForhandsgodkjentPrisPerManedsverk,
         -> getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
 
@@ -328,6 +330,7 @@ private fun resolveBeregningTypeAndPrisbetingelser(
     prismodell: Prismodell,
 ): Pair<TilsagnBeregningType, String?> = when (prismodell) {
     is Prismodell.AnnenAvtaltPris -> TilsagnBeregningType.FRI to prismodell.prisbetingelser
+    is Prismodell.AnnenAvtaltPrisPerDeltaker -> TilsagnBeregningType.FRI to prismodell.prisbetingelser
     is Prismodell.AvtaltPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK to prismodell.prisbetingelser
     is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING to prismodell.prisbetingelser
     is Prismodell.AvtaltPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK to prismodell.prisbetingelser

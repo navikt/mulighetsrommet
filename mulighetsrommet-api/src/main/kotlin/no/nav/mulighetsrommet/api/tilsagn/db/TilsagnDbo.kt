@@ -21,4 +21,5 @@ data class TilsagnDbo(
     val beregning: TilsagnBeregning,
     val kommentar: String?,
     val beskrivelse: String?,
+    val deltakere: List<UUID>,
 )

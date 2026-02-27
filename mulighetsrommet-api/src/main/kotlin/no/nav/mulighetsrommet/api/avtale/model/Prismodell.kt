@@ -25,6 +25,17 @@ sealed class Prismodell {
     }
 
     @Serializable
+    data class AnnenAvtaltPrisPerDeltaker(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        override val valuta: Valuta,
+        val prisbetingelser: String?,
+    ) : Prismodell() {
+        @Transient
+        override val type = PrismodellType.ANNEN_AVTALT_PRIS_PER_DELTAKER
+    }
+
+    @Serializable
     data class ForhandsgodkjentPrisPerManedsverk(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
@@ -91,6 +102,12 @@ sealed class Prismodell {
             }
             return when (type) {
                 PrismodellType.ANNEN_AVTALT_PRIS -> AnnenAvtaltPris(
+                    id = id,
+                    valuta = valuta,
+                    prisbetingelser = prisbetingelser,
+                )
+
+                PrismodellType.ANNEN_AVTALT_PRIS_PER_DELTAKER -> AnnenAvtaltPrisPerDeltaker(
                     id = id,
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,

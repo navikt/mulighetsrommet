@@ -268,6 +268,7 @@ object AvtaleValidator {
 
             val satser = when (prismodell.type) {
                 PrismodellType.ANNEN_AVTALT_PRIS,
+                PrismodellType.ANNEN_AVTALT_PRIS_PER_DELTAKER,
                 -> null
 
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,

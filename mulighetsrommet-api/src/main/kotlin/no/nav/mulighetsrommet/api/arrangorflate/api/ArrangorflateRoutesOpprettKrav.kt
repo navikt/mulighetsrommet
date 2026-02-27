@@ -603,6 +603,7 @@ data class OpprettKravDeltakere(
             fun from(prismodellType: PrismodellType?): GuidePanelType = when (prismodellType) {
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> TIMESPRIS
 
+                PrismodellType.ANNEN_AVTALT_PRIS_PER_DELTAKER,
                 PrismodellType.ANNEN_AVTALT_PRIS,
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,

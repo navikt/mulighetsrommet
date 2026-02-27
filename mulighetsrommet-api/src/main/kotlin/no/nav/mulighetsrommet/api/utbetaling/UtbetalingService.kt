@@ -128,6 +128,7 @@ class UtbetalingService(
             )
 
             PrismodellType.ANNEN_AVTALT_PRIS,
+            PrismodellType.ANNEN_AVTALT_PRIS_PER_DELTAKER,
             -> opprettAnnenAvtaltPrisUtbetaling(
                 utbetalingKrav.toAnnenAvtaltPris(
                     gjennomforingId = utbetalingKrav.gjennomforingId,

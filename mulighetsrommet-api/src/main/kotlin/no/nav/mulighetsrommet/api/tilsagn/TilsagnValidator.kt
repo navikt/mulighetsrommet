@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.time.LocalDate
+import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
@@ -74,6 +75,7 @@ object TilsagnValidator {
             FieldError.of("Du må velge et kostnadssted", TilsagnRequest::kostnadssted)
         }
 
+        validateDeltakere(next.deltakere, prismodell)
         validateAntallPlasser(next.beregning.type, next.beregning.antallPlasser)
         validateAntallTimerOppfolgingPerDeltaker(next.beregning.type, next.beregning.antallTimerOppfolgingPerDeltaker)
         requireValid(periodeStart != null && periodeSlutt != null && next.kostnadssted != null && gyldigTilsagnPeriode != null)
@@ -268,6 +270,22 @@ object TilsagnValidator {
                 )
             }
             antallPlasser
+        }
+    }
+
+    private fun FieldValidator.validateDeltakere(deltakere: List<UUID>?, prismodell: Prismodell) = when (prismodell) {
+        is Prismodell.AnnenAvtaltPris,
+        is Prismodell.AvtaltPrisPerHeleUkesverk,
+        is Prismodell.AvtaltPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
+        is Prismodell.AvtaltPrisPerUkesverk,
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+        -> Unit
+
+        is Prismodell.AnnenAvtaltPrisPerDeltaker -> {
+            validate(!deltakere.isNullOrEmpty()) {
+                FieldError.of("Du må velge en deltaker", TilsagnRequest::deltakere)
+            }
         }
     }
 
