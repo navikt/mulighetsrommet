@@ -39,7 +39,6 @@ function getStatusTagStyles(variant: DataElementStatusVariant): {
       };
     case DataElementStatusVariant.NEUTRAL:
       return { dataColor: "neutral" };
-    case DataElementStatusVariant.ALT:
     case DataElementStatusVariant.ALT_1:
       return { dataColor: "meta-purple" };
     case DataElementStatusVariant.ALT_2:
@@ -53,16 +52,10 @@ function getStatusTagStyles(variant: DataElementStatusVariant): {
       return { dataColor: "warning" };
     case DataElementStatusVariant.ERROR:
       return { dataColor: "danger" };
-    case DataElementStatusVariant.ERROR_BORDER:
-      return {
-        dataColor: "neutral",
-        className: "bg-ax-bg-default border-[color:var(--ax-border-danger)]",
-      };
     case DataElementStatusVariant.ERROR_BORDER_STRIKETHROUGH:
       return {
-        dataColor: "neutral",
-        className:
-          "bg-ax-bg-default text-[color:var(--ax-text-danger-subtle)] border-[color:var(--ax-border-danger)] line-through",
+        dataColor: "danger",
+        className: "border-ax-bg-danger line-through",
       };
   }
 }

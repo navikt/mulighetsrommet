@@ -121,7 +121,7 @@ private fun toTilsagnAction(tilsagn: Tilsagn): DataElement.Link {
 
 fun toTilsagnStatusTag(status: TilsagnStatus): DataElement.Status {
     val variant = when (status) {
-        TilsagnStatus.TIL_GODKJENNING -> DataElement.Status.Variant.WARNING
+        TilsagnStatus.TIL_GODKJENNING -> DataElement.Status.Variant.INFO
 
         TilsagnStatus.GODKJENT -> DataElement.Status.Variant.SUCCESS
 
@@ -133,7 +133,7 @@ fun toTilsagnStatusTag(status: TilsagnStatus): DataElement.Status {
 
         TilsagnStatus.TIL_ANNULLERING,
         TilsagnStatus.TIL_OPPGJOR,
-        -> DataElement.Status.Variant.ERROR_BORDER
+        -> DataElement.Status.Variant.ERROR
     }
     return DataElement.Status(status.beskrivelse, variant)
 }
