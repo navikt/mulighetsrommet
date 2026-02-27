@@ -563,6 +563,7 @@ class AvtaleService(
                 AvtaleHandling.REGISTRER_OPSJON,
                 AvtaleHandling.DUPLISER,
                 AvtaleHandling.REDIGER,
+                AvtaleHandling.OPPRETT,
                 -> ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)
             }
         }

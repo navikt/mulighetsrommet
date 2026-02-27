@@ -25,6 +25,13 @@ export const avtaleHandlers = [
   ),
 
   http.get<PathParams, undefined, AvtaleHandling[]>(
+    "*/api/tiltaksadministrasjon/avtaler/handlinger",
+    () => {
+      return HttpResponse.json([AvtaleHandling.OPPRETT]);
+    },
+  ),
+
+  http.get<PathParams, undefined, AvtaleHandling[]>(
     "*/api/tiltaksadministrasjon/avtaler/:id/handlinger",
     () => {
       return HttpResponse.json([

@@ -23,7 +23,7 @@ export function usePotentialAvtale(id: string | null) {
 
 export function useAvtaleHandlinger(id: string) {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.avtaleHandlnger(id),
+    queryKey: QueryKeys.avtaleHandlinger(id),
     queryFn: async () => {
       return AvtaleService.getAvtaleHandlinger({ path: { id } });
     },

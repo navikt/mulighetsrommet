@@ -583,6 +583,33 @@ fun Route.avtaleRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
+        get("handlinger", {
+            tags = setOf("Avtale")
+            operationId = "getAvtaleHandlingerForNyeAvtaler"
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Mulige handlinger på nye avtaler for innlogget bruker"
+                    body<Set<AvtaleHandling>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val navIdent = getNavIdent()
+            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+                ?: throw MrExceptions.navAnsattNotFound(navIdent)
+
+            val handlinger = if (ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)) {
+                setOf(AvtaleHandling.OPPRETT)
+            } else {
+                emptySet()
+            }
+
+            call.respond(handlinger)
+        }
+
         get("{id}/handlinger", {
             tags = setOf("Avtale")
             operationId = "getAvtaleHandlinger"
@@ -643,6 +670,7 @@ enum class AvtaleHandling {
     REGISTRER_OPSJON,
     OPPDATER_PRIS,
     OPPDATER_RAMMEDETALJER,
+    OPPRETT,
 }
 
 fun RoutingContext.getAvtaleFilter(): AvtaleFilter {

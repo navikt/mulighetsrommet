@@ -27,3 +27,12 @@ export function useAvtaler(filter: Partial<AvtaleFilterType>) {
     queryFn: () => AvtaleService.getAvtaler(queryFilter),
   });
 }
+
+export function useAvtalerHandlinger() {
+  return useApiSuspenseQuery({
+    queryKey: QueryKeys.avtaleHandlinger(),
+    queryFn: async () => {
+      return AvtaleService.getAvtaleHandlingerForNyeAvtaler();
+    },
+  });
+}
