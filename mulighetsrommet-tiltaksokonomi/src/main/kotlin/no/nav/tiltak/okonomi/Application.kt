@@ -115,7 +115,7 @@ fun Application.configure(config: AppConfig) {
 
     val kafka = configureKafka(config.kafka, db, okonomi)
 
-    configureApi(kafka, okonomi)
+    configureApi(kafka, okonomi, db)
 
     configureDbScheduler(config, okonomiDb)
 
