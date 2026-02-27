@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.TiltakOslo
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -35,6 +36,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.SakarkivNummer
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -397,6 +399,7 @@ class GjennomforingValidatorTest : FunSpec({
             oppstart = GjennomforingOppstartstype.LOPENDE,
             avtaleId = avtale.id,
             pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+            arena = Gjennomforing.ArenaData(Tiltaksnummer("2020#1"), "1234"),
         )
 
         test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
@@ -414,6 +417,16 @@ class GjennomforingValidatorTest : FunSpec({
                         FieldError("/startDato", "Du må legge inn en startdato som er etter avtalens startdato"),
                     ),
                 )
+        }
+
+        test("inkluderer arena-felter i validert modell") {
+            GjennomforingValidator.validate(
+                request,
+                ctx.copy(previous = gjennomforing),
+            ).shouldBeRight().gjennomforing.should {
+                it.arenaTiltaksnummer shouldBe Tiltaksnummer("2020#1")
+                it.arenaAnsvarligEnhet shouldBe "1234"
+            }
         }
 
         test("Skal godta endringer for sluttdato frem i tid selv om gjennomføringen er aktiv") {
@@ -501,6 +514,7 @@ class GjennomforingValidatorTest : FunSpec({
             oppstart = GjennomforingOppstartstype.FELLES,
             avtaleId = avtale.id,
             pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+            arena = null,
         )
 
         test("skal ikke kunne endre oppstartstype") {

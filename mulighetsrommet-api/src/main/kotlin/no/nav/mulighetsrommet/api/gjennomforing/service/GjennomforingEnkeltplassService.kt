@@ -65,6 +65,13 @@ class GjennomforingEnkeltplassService(
             arenaTiltaksnummer = opprett.arenaTiltaksnummer,
             arenaAnsvarligEnhet = opprett.arenaAnsvarligEnhet,
             prismodellId = prismodellId,
+            avtaleId = null,
+            oppmoteSted = null,
+            faneinnhold = null,
+            beskrivelse = null,
+            estimertVentetidVerdi = null,
+            estimertVentetidEnhet = null,
+            tilgjengeligForArrangorDato = null,
         )
         queries.gjennomforing.upsert(dbo)
 
