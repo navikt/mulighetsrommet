@@ -135,9 +135,6 @@ sealed class DataElement {
             @SerialName("neutral")
             NEUTRAL,
 
-            @SerialName("alt")
-            ALT,
-
             @SerialName("alt-1")
             ALT_1,
 
@@ -158,9 +155,6 @@ sealed class DataElement {
 
             @SerialName("error")
             ERROR,
-
-            @SerialName("error-border")
-            ERROR_BORDER,
 
             @SerialName("error-border-strikethrough")
             ERROR_BORDER_STRIKETHROUGH,

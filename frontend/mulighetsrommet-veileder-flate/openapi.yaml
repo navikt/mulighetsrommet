@@ -1155,7 +1155,6 @@ components:
       enum:
       - blank
       - neutral
-      - alt
       - alt-1
       - alt-2
       - alt-3
@@ -1163,7 +1162,6 @@ components:
       - success
       - warning
       - error
-      - error-border
       - error-border-strikethrough
     DeltakelsePamelding:
       type: object

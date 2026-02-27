@@ -42,7 +42,7 @@ data class UtbetalingStatusDto(
         VENTER_PA_ARRANGOR("Venter på arrangør", DataElement.Status.Variant.ALT_1),
         UBEHANDLET_FORSLAG("Ubehandlede forslag", DataElement.Status.Variant.WARNING),
         KLAR_TIL_BEHANDLING("Klar til behandling", DataElement.Status.Variant.SUCCESS),
-        TIL_ATTESTERING("Til attestering", DataElement.Status.Variant.WARNING),
+        TIL_ATTESTERING("Til attestering", DataElement.Status.Variant.INFO),
         RETURNERT("Returnert", DataElement.Status.Variant.ERROR),
         OVERFORT_TIL_UTBETALING("Overført til utbetaling", DataElement.Status.Variant.SUCCESS),
         DELVIS_UTBETALT("Delvis utbetalt", DataElement.Status.Variant.SUCCESS),

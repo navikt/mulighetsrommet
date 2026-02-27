@@ -48,7 +48,7 @@ export const mockTilsagn: TilsagnDto[] = [
       type: TilsagnStatus.TIL_GODKJENNING,
       status: {
         value: "Til annullering",
-        variant: DataElementStatusVariant.ERROR_BORDER,
+        variant: DataElementStatusVariant.ERROR,
         description: null,
       },
     },

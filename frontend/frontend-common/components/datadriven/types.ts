@@ -100,7 +100,6 @@ export type DataElementStatus = {
 export enum DataElementStatusVariant {
   BLANK = "blank",
   NEUTRAL = "neutral",
-  ALT = "alt",
   ALT_1 = "alt-1",
   ALT_2 = "alt-2",
   ALT_3 = "alt-3",
@@ -108,7 +107,6 @@ export enum DataElementStatusVariant {
   SUCCESS = "success",
   WARNING = "warning",
   ERROR = "error",
-  ERROR_BORDER = "error-border",
   ERROR_BORDER_STRIKETHROUGH = "error-border-strikethrough",
 }
 

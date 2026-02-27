@@ -1,5 +1,3 @@
-import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
-import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
@@ -10,26 +8,13 @@ import {
   TilsagnStatusAarsak,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
-import {
-  ActionMenu,
-  BodyShort,
-  Box,
-  Button,
-  Heading,
-  HGrid,
-  HStack,
-  Show,
-  Spacer,
-  VStack,
-} from "@navikt/ds-react";
+import { Box, Button, Heading, HGrid, HStack, Show, Spacer, VStack } from "@navikt/ds-react";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
-import { useTilsagn, useTilsagnEndringshistorikk } from "./tilsagnDetaljerLoader";
+import { useTilsagn } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -40,64 +25,34 @@ import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import {
   MetadataFritekstfelt,
-  MetadataHGrid,
+  MetadataVStack,
   Separator,
 } from "@mr/frontend-common/components/datadriven/Metadata";
-import { DataDetails } from "@mr/frontend-common";
-import {
-  useGodkjennTilsagn,
-  useReturnerTilsagn,
-  useSlettTilsagn,
-  useTilsagnTilAnnullering,
-  useTilsagnTilOppgjor,
-} from "@/api/tilsagn/mutations";
-
-function useTilsagnDetaljer(tilsagnId: string) {
-  const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
-  const { data: historikk } = useTilsagnEndringshistorikk(tilsagnId);
-  return { historikk, ...tilsagnDetaljer };
-}
-
-const tilAnnuleringAarsaker = [
-  TilsagnStatusAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
-  TilsagnStatusAarsak.FEIL_REGISTRERING,
-  TilsagnStatusAarsak.TILTAK_SKAL_IKKE_GJENNOMFORES,
-  TilsagnStatusAarsak.ANNET,
-].map((aarsak) => ({
-  value: aarsak,
-  label: tilsagnAarsakTilTekst(aarsak),
-}));
+import { getDataElement } from "@mr/frontend-common";
+import { useGodkjennTilsagn, useReturnerTilsagn } from "@/api/tilsagn/mutations";
+import { TilsagnHandlingsmeny } from "./TilsagnHandlingsmeny";
 
 export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
 
-  const { tilsagn, beregning, opprettelse, annullering, tilOppgjor, historikk, handlinger } =
-    useTilsagnDetaljer(tilsagnId);
+  const { data } = useTilsagn(tilsagnId);
+  const { tilsagn, beregning, annullering, tilOppgjor, opprettelse, handlinger } = data;
 
   const godkjennTilsagnMutation = useGodkjennTilsagn();
   const returnerTilsagnMutation = useReturnerTilsagn();
-  const tilAnnulleringMutation = useTilsagnTilAnnullering();
-  const tilOppgjorMutation = useTilsagnTilOppgjor();
-  const slettMutation = useSlettTilsagn();
 
   const navigate = useNavigate();
-  const [tilAnnulleringModalOpen, setTilAnnulleringModalOpen] = useState<boolean>(false);
-  const [tilOppgjorModalOpen, setTilOppgjorModalOpen] = useState<boolean>(false);
-  const [slettTilsagnModalOpen, setSlettTilsagnModalOpen] = useState<boolean>(false);
+
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const [avvisAnnulleringModalOpen, setAvvisAnnulleringModalOpen] = useState(false);
   const [avvisOppgjorModalOpen, setAvvisOppgjorModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
 
-  function navigerTilbake() {
-    navigate(-1);
-  }
-
   function godkjennTilsagn() {
     godkjennTilsagnMutation.mutate(
       { id: tilsagn.id },
       {
-        onSuccess: navigerTilbake,
+        onSuccess: () => navigate(-1),
         onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
     );
@@ -107,89 +62,11 @@ export function TilsagnDetaljer() {
     returnerTilsagnMutation.mutate(
       { id: tilsagn.id, request },
       {
-        onSuccess: navigerTilbake,
+        onSuccess: () => navigate(-1),
         onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
     );
   }
-
-  function tilAnnullering(request: AarsakerOgForklaringRequestTilsagnStatusAarsak) {
-    tilAnnulleringMutation.mutate(
-      { id: tilsagn.id, request },
-      {
-        onSuccess: navigerTilbake,
-        onValidationError: (error: ValidationError) => setErrors(error.errors),
-      },
-    );
-  }
-
-  function upsertTilOppgjor(request: AarsakerOgForklaringRequestTilsagnStatusAarsak) {
-    tilOppgjorMutation.mutate(
-      { id: tilsagn.id, request },
-      {
-        onSuccess: navigerTilbake,
-        onValidationError: (error: ValidationError) => setErrors(error.errors),
-      },
-    );
-  }
-
-  function slettTilsagn() {
-    slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilbake });
-  }
-
-  const handlingsMeny = (
-    <HStack gap="space-8" justify={"end"}>
-      <EndringshistorikkPopover>
-        <ViewEndringshistorikk historikk={historikk} />
-      </EndringshistorikkPopover>
-      {[TilsagnStatus.RETURNERT, TilsagnStatus.GODKJENT].includes(tilsagn.status.type) && (
-        <ActionMenu>
-          <ActionMenu.Trigger>
-            <Button variant="secondary" size="small">
-              Handlinger
-            </Button>
-          </ActionMenu.Trigger>
-          <ActionMenu.Content>
-            {handlinger.includes(TilsagnHandling.REDIGER) && (
-              <ActionMenu.Item icon={<PencilFillIcon />}>
-                <Link className="no-underline" to="./rediger-tilsagn">
-                  Rediger tilsagn
-                </Link>
-              </ActionMenu.Item>
-            )}
-            {handlinger.includes(TilsagnHandling.SLETT) && (
-              <ActionMenu.Item
-                variant="danger"
-                onSelect={() => setSlettTilsagnModalOpen(true)}
-                icon={<TrashIcon />}
-              >
-                Slett tilsagn
-              </ActionMenu.Item>
-            )}
-            {handlinger.includes(TilsagnHandling.ANNULLER) && (
-              <ActionMenu.Item
-                variant="danger"
-                onSelect={() => setTilAnnulleringModalOpen(true)}
-                icon={<EraserIcon />}
-              >
-                Annuller tilsagn
-              </ActionMenu.Item>
-            )}
-            {handlinger.includes(TilsagnHandling.GJOR_OPP) && (
-              <ActionMenu.Item
-                variant="danger"
-                onSelect={() => setTilOppgjorModalOpen(true)}
-                icon={<EraserIcon />}
-              >
-                Gjør opp tilsagn
-              </ActionMenu.Item>
-            )}
-          </ActionMenu.Content>
-        </ActionMenu>
-      )}
-    </HStack>
-  );
-
   const { bestillingsnummer, status, periode, type, kostnadssted, kommentar, beskrivelse } =
     tilsagn;
 
@@ -253,110 +130,107 @@ export function TilsagnDetaljer() {
           forklaring={tilOppgjor.forklaring}
         />
       )}
-      <VStack
-        gap="space-24"
-        padding="space-16"
-        className="rounded-lg border-ax-neutral-400 border-1"
-      >
-        <>
-          <HStack className="mb-2">
-            <Heading size="medium" level="3">
-              Tilsagn
-            </Heading>
-            <Spacer />
-            {handlingsMeny}
-          </HStack>
-          <TwoColumnGrid separator>
-            <HGrid columns={1} gap="space-8">
-              <HGrid columns={{ xl: 2 }} gap="space-16">
-                <VStack gap="space-16" className="flex-1">
-                  <MetadataHGrid
-                    label={tilsagnTekster.bestillingsnummer.label}
-                    value={bestillingsnummer}
-                  />
-                  <MetadataHGrid
-                    label={tilsagnTekster.kostnadssted.label}
-                    value={`${kostnadssted.enhetsnummer} ${kostnadssted.navn}`}
-                  />
-                  <MetadataHGrid
-                    label={tilsagnTekster.periode.label}
-                    value={formaterPeriode(periode)}
-                  />
-                </VStack>
-                <VStack gap="space-16" className="flex-1">
-                  <MetadataHGrid
-                    label={tilsagnTekster.status.label}
-                    value={<TilsagnTag status={status} />}
-                  />
-                  <MetadataHGrid
-                    label={tilsagnTekster.type.label}
-                    value={avtaletekster.tilsagn.type(type)}
-                  />
-                </VStack>
-              </HGrid>
-              <Separator />
+      <VStack gap="space-24" padding="space-16" className="rounded-lg border-ax-neutral-400 border">
+        <HStack>
+          <Heading size="medium" level="3">
+            Tilsagn
+          </Heading>
+          <Spacer />
+          <TilsagnHandlingsmeny />
+        </HStack>
+        <TwoColumnGrid separator>
+          <HGrid columns={1} gap="space-8">
+            <HGrid columns={{ xl: 2 }} gap="space-16">
               <VStack gap="space-16" className="flex-1">
-                <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
+                <MetadataVStack
+                  label={tilsagnTekster.bestillingsnummer.label}
+                  value={bestillingsnummer}
+                />
+                <MetadataVStack
+                  label={tilsagnTekster.kostnadssted.label}
+                  value={`${kostnadssted.enhetsnummer} ${kostnadssted.navn}`}
+                />
+                <MetadataVStack
+                  label={tilsagnTekster.periode.label}
+                  value={formaterPeriode(periode)}
+                />
+              </VStack>
+              <VStack gap="space-16" className="flex-1">
+                <MetadataVStack
+                  label={tilsagnTekster.status.label}
+                  value={<TilsagnTag status={status} />}
+                />
+                <MetadataVStack
+                  label={tilsagnTekster.type.label}
+                  value={avtaletekster.tilsagn.type(type)}
+                />
+              </VStack>
+            </HGrid>
+            <Separator />
+            <VStack gap="space-16" className="flex-1">
+              <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
 
-                <MetadataFritekstfelt
-                  label={tilsagnTekster.beskrivelse.label}
-                  value={beskrivelse}
-                />
-              </VStack>
-              <Show below="lg">
+              <MetadataFritekstfelt label={tilsagnTekster.beskrivelse.label} value={beskrivelse} />
+            </VStack>
+            <Show below="lg">
+              <Separator />
+            </Show>
+          </HGrid>
+          <HGrid columns={1} gap="space-8" align="center">
+            {beregning.prismodell.entries.map((entry) => (
+              <MetadataVStack
+                key={entry.label}
+                label={entry.label}
+                value={entry.value ? getDataElement(entry.value) : "-"}
+              />
+            ))}
+            <Separator />
+            <VStack gap="space-16">
+              <MetadataVStack
+                label={tilsagnTekster.beregning.belop.label}
+                value={formaterValuta(beregning.pris.belop, beregning.pris.valuta)}
+              />
+              <MetadataVStack
+                label={tilsagnTekster.belopBrukt.label}
+                value={formaterValuta(tilsagn.belopBrukt.belop, tilsagn.belopBrukt.valuta)}
+              />
+              <MetadataVStack
+                label={tilsagnTekster.belopGjenstaende.label}
+                value={formaterValuta(
+                  tilsagn.belopGjenstaende.belop,
+                  tilsagn.belopGjenstaende.valuta,
+                )}
+              />
+            </VStack>
+            <Separator />
+            <Box>
+              <Heading size="small" spacing>
+                Beregning
+              </Heading>
+              <TilsagnRegnestykke regnestykke={beregning.regnestykke} />
+            </Box>
+            {[TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT].includes(status.type) && (
+              <>
                 <Separator />
-              </Show>
-            </HGrid>
-            <HGrid columns={1} gap="space-8" align="center">
-              <DataDetails {...beregning.prismodell} />
-              <Separator />
-              <VStack gap="space-16">
-                <MetadataHGrid
-                  label={tilsagnTekster.beregning.belop.label}
-                  value={formaterValuta(beregning.pris.belop, beregning.pris.valuta)}
-                />
-                <MetadataHGrid
-                  label={tilsagnTekster.belopBrukt.label}
-                  value={formaterValuta(tilsagn.belopBrukt.belop, tilsagn.belopBrukt.valuta)}
-                />
-                <MetadataHGrid
-                  label={tilsagnTekster.belopGjenstaende.label}
-                  value={formaterValuta(
-                    tilsagn.belopGjenstaende.belop,
-                    tilsagn.belopGjenstaende.valuta,
-                  )}
-                />
-              </VStack>
-              <Separator />
-              <Box>
-                <Heading size="small" spacing>
-                  Beregning
+                <Heading level="4" spacing size="small">
+                  {status.type === TilsagnStatus.ANNULLERT
+                    ? "Begrunnelse for annullering"
+                    : "Begrunnelse for oppgjør"}
                 </Heading>
-                <TilsagnRegnestykke regnestykke={beregning.regnestykke} />
-              </Box>
-              {[TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT].includes(status.type) && (
-                <>
-                  <Separator />
-                  <Heading level="4" spacing size="small">
-                    {status.type === TilsagnStatus.ANNULLERT
-                      ? "Begrunnelse for annullering"
-                      : "Begrunnelse for oppgjør"}
-                  </Heading>
-                  <MetadataHGrid
-                    label={"Årsaker"}
-                    value={(tilOppgjor?.aarsaker || annullering?.aarsaker)
-                      ?.map((arsak) => tilsagnAarsakTilTekst(arsak as TilsagnStatusAarsak))
-                      .join(", ")}
-                  />
-                  <MetadataFritekstfelt
-                    label={"Forklaring"}
-                    value={tilOppgjor?.forklaring ?? annullering?.forklaring}
-                  />
-                </>
-              )}
-            </HGrid>
-          </TwoColumnGrid>
-        </>
+                <MetadataVStack
+                  label={"Årsaker"}
+                  value={(tilOppgjor?.aarsaker || annullering?.aarsaker)
+                    ?.map((arsak) => tilsagnAarsakTilTekst(arsak as TilsagnStatusAarsak))
+                    .join(", ")}
+                />
+                <MetadataFritekstfelt
+                  label={"Forklaring"}
+                  value={tilOppgjor?.forklaring ?? annullering?.forklaring}
+                />
+              </>
+            )}
+          </HGrid>
+        </TwoColumnGrid>
         <HStack gap="space-8" justify={"end"}>
           {handlinger.includes(TilsagnHandling.RETURNER) && (
             <Button
@@ -417,32 +291,6 @@ export function TilsagnDetaljer() {
           )}
         </HStack>
         <AarsakerOgForklaringModal<TilsagnStatusAarsak>
-          aarsaker={tilAnnuleringAarsaker}
-          header="Annuller tilsagn med forklaring"
-          buttonLabel="Send til godkjenning"
-          errors={errors}
-          open={tilAnnulleringModalOpen}
-          onClose={() => setTilAnnulleringModalOpen(false)}
-          onConfirm={tilAnnullering}
-        />
-        <AarsakerOgForklaringModal<TilsagnStatusAarsak>
-          aarsaker={[
-            {
-              value: TilsagnStatusAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
-              label: "Arrangør har ikke sendt krav",
-            },
-            { value: TilsagnStatusAarsak.ANNET, label: "Annet" },
-          ]}
-          header="Gjør opp tilsagn med forklaring"
-          ingress={
-            <BodyShort>Gjenstående beløp gjøres opp uten at det gjøres en utbetaling</BodyShort>
-          }
-          buttonLabel="Send til godkjenning"
-          open={tilOppgjorModalOpen}
-          onClose={() => setTilOppgjorModalOpen(false)}
-          onConfirm={upsertTilOppgjor}
-        />
-        <AarsakerOgForklaringModal<TilsagnStatusAarsak>
           aarsaker={[
             {
               value: TilsagnStatusAarsak.FEIL_ANTALL_PLASSER,
@@ -480,30 +328,6 @@ export function TilsagnDetaljer() {
           onClose={() => setAvvisOppgjorModalOpen(false)}
           errors={errors}
           onConfirm={returnerTilsagn}
-        />
-        <VarselModal
-          headingIconType="warning"
-          headingText="Slette tilsagnet?"
-          open={slettTilsagnModalOpen}
-          handleClose={() => setSlettTilsagnModalOpen(false)}
-          body={
-            <p>
-              Er du sikker på at du vil slette tilsagnet?
-              <br /> Denne operasjonen kan ikke angres
-            </p>
-          }
-          primaryButton={
-            <Button
-              data-color="danger"
-              variant="primary"
-              onClick={slettTilsagn}
-              icon={<TrashFillIcon />}
-            >
-              Ja, jeg vil slette tilsagnet
-            </Button>
-          }
-          secondaryButton
-          secondaryButtonHandleAction={() => setSlettTilsagnModalOpen(false)}
         />
       </VStack>
     </>
