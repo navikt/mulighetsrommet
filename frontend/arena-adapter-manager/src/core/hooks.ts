@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
-import { ScheduledTask, Topic } from "../domain";
-import { ApiBase, getArenaTables, getFailedScheduledTasks, getTopics } from "./api";
+import { KafkaConsumerRecord, ScheduledTask, Topic } from "../domain";
+import {
+  ApiBase,
+  getArenaTables,
+  getFailedKafkaConsumerRecords,
+  getFailedScheduledTasks,
+  getTopics,
+} from "./api";
 
 export function useTopics(base: ApiBase) {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -42,4 +48,18 @@ export function useFailedScheduledTasks(base: ApiBase) {
     fetchScheduledTasks();
   }, []);
   return { isLoading, tasks };
+}
+
+export function useFailedKafkaConsumerRecords(base: ApiBase) {
+  const [records, setRecords] = useState<KafkaConsumerRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const fetchScheduledTasks = async () => {
+      const data = await getFailedKafkaConsumerRecords(base);
+      setRecords(data);
+      setIsLoading(false);
+    };
+    fetchScheduledTasks();
+  }, []);
+  return { isLoading, records };
 }

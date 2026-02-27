@@ -17,31 +17,35 @@ function FailedScheduledTasksOverview({ base }: Props) {
       isLoading={isLoading}
       loadingText="Fetching tasks..."
     >
-      <Table>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>Name</Table.HeaderCell>
-            <Table.HeaderCell>Instance</Table.HeaderCell>
-            <Table.HeaderCell>Consecutive failures</Table.HeaderCell>
-            <Table.HeaderCell>Next execution time</Table.HeaderCell>
-            <Table.HeaderCell></Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {tasks.map((task) => (
-            <Table.ExpandableRow
-              togglePlacement="right"
-              key={task.taskInstance}
-              content={<ExpandedRow task={task} />}
-            >
-              <Table.DataCell>{task.taskName}</Table.DataCell>
-              <Table.DataCell>{task.taskInstance}</Table.DataCell>
-              <Table.DataCell>{task.consecutiveFailures}</Table.DataCell>
-              <Table.DataCell>{formatUTCDate(task.executionTime)}</Table.DataCell>
-            </Table.ExpandableRow>
-          ))}
-        </Table.Body>
-      </Table>
+      {tasks.length === 0 ? (
+        <p>No failed tasks 🎉</p>
+      ) : (
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Instance</Table.HeaderCell>
+              <Table.HeaderCell>Consecutive failures</Table.HeaderCell>
+              <Table.HeaderCell>Next execution time</Table.HeaderCell>
+              <Table.HeaderCell></Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {tasks.map((task) => (
+              <Table.ExpandableRow
+                togglePlacement="right"
+                key={task.taskInstance}
+                content={<ExpandedRow task={task} />}
+              >
+                <Table.DataCell>{task.taskName}</Table.DataCell>
+                <Table.DataCell>{task.taskInstance}</Table.DataCell>
+                <Table.DataCell>{task.consecutiveFailures}</Table.DataCell>
+                <Table.DataCell>{formatUTCDate(task.executionTime)}</Table.DataCell>
+              </Table.ExpandableRow>
+            ))}
+          </Table.Body>
+        </Table>
+      )}
     </Section>
   );
 }

@@ -24,3 +24,17 @@ export interface ScheduledTask {
   version: number;
   priority: number | null;
 }
+
+export interface KafkaConsumerRecord {
+  id: number;
+  topic: string;
+  partition: number;
+  recordOffset: number;
+  retries: number;
+  lastRetry: string | null;
+  key: string | null;
+  value: string | null;
+  headersJson: string | null;
+  recordTimestamp: string | null;
+  createdAt: string;
+}
