@@ -3,6 +3,7 @@ import { Section } from "../components/Section";
 import { ApiBase } from "../core/api";
 import { useFailedScheduledTasks } from "../core/hooks";
 import { BodyShort, Box, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { formatUTCDate } from "src/utils";
 
 interface Props {
   base: ApiBase;
@@ -77,18 +78,6 @@ function ExpandedRow({ task }: ExpandedRowProps) {
       </Box>
     </VStack>
   );
-}
-
-function formatUTCDate(str: string | null) {
-  if (!str) {
-    return "";
-  }
-  const date = new Date(str);
-  return new Intl.DateTimeFormat("nb-NO", {
-    dateStyle: "short",
-    timeStyle: "medium",
-    timeZone: "Europe/Oslo",
-  }).format(date);
 }
 
 export default FailedScheduledTasksOverview;
