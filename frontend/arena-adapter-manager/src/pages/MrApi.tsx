@@ -5,11 +5,13 @@ import { BodyShort, Link } from "@navikt/ds-react";
 import { TiltakstyperOrIdsForm } from "../components/forms/TiltakstyperOrIdsForm";
 import { TextInputForm } from "../components/forms/TextInputForm";
 import { DatePickerForm } from "../components/forms/DatePickerForm";
+import FailedScheduledTasksOverview from "../sections/FailedScheduledTasksOverview.tsx";
 
 export function MrApi() {
   return (
     <>
       <TopicOverview base={ApiBase.MR_API} />
+      <FailedScheduledTasksOverview base={ApiBase.MR_API} />
 
       <RunTask base={ApiBase.MR_API} task="initial-load-tiltakstyper">
         <BodyShort>Starter en initial load av alle relevante tiltakstyper.</BodyShort>
