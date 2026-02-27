@@ -3,7 +3,7 @@ import { Section } from "../components/Section";
 import { ApiBase } from "../core/api";
 import { useFailedScheduledTasks } from "../core/hooks";
 import { BodyShort, Box, Heading, HStack, Table, VStack } from "@navikt/ds-react";
-import { formatUTCDate } from "src/utils";
+import { formatUTCDate } from "../utils";
 
 interface Props {
   base: ApiBase;
