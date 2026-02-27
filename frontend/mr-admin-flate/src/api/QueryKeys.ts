@@ -55,6 +55,8 @@ export const QueryKeys = {
     statuser,
   ],
   getTilsagn: (id?: string) => ["tilsagn", id],
+  tilsagnHistorikk: (id?: string) => ["tilsagn", id, "historikk"],
+  tilsagnRequest: (id?: string) => ["tilsagn", id, "request"],
   godkjennTilsagn: () => ["tilsagn", "godkjenn"],
   returnerTilsagn: () => ["tilsagn", "returner"],
   annullerTilsagn: () => ["tilsagn", "annuller"],

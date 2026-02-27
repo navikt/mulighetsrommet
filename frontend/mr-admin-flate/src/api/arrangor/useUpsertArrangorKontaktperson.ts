@@ -31,6 +31,11 @@ export function useUpsertArrangorKontaktperson(arrangorId: string) {
           } else return kontaktpersoner.concat(kontaktperson.data);
         },
       );
+
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: QueryKeys.avtaler() }),
+        queryClient.invalidateQueries({ queryKey: QueryKeys.gjennomforinger() }),
+      ]);
     },
   });
 }

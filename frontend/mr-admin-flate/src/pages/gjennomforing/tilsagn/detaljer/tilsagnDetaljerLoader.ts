@@ -13,7 +13,7 @@ export function useTilsagn(id: string) {
 
 export function useTilsagnRequest(id: string) {
   return useApiSuspenseQuery({
-    queryKey: ["tilsagn", id, "request"],
+    queryKey: QueryKeys.tilsagnRequest(id),
     queryFn: async () => {
       return TilsagnService.getTilsagnRequest({ path: { id } });
     },
@@ -22,7 +22,7 @@ export function useTilsagnRequest(id: string) {
 
 export function useTilsagnEndringshistorikk(id: string) {
   return useApiSuspenseQuery({
-    queryKey: ["tilsagn", id, "historikk"],
+    queryKey: QueryKeys.tilsagnHistorikk(id),
     queryFn: async () => TilsagnService.getTilsagnEndringshistorikk({ path: { id } }),
   });
 }

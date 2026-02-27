@@ -14,9 +14,17 @@ export function useDeleteRammedetaljer(avtaleId: string) {
     },
 
     onSuccess() {
-      return queryClient.invalidateQueries({
-        queryKey: QueryKeys.avtaleRammedetaljer(avtaleId),
-      });
+      return Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.avtaleRammedetaljer(avtaleId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.avtale(avtaleId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.avtaler(),
+        }),
+      ]);
     },
   });
 }
