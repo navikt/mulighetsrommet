@@ -55,7 +55,7 @@ export const utbetalingTekster = {
     aarsak: {
       modal: {
         header: "Send i retur med forklaring",
-        ingress: "Automatisk returnert som følge av at en annen utbetalingslinje ble returnert",
+        ingress: "Ved å sende en linje i retur vil andre linjer også returneres",
         button: {
           label: "Send i retur",
         },
