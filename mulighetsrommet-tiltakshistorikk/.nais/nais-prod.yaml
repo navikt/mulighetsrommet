@@ -88,6 +88,12 @@ spec:
           permissions:
             roles:
               - tiltakshistorikk-read
+        - application: veilarboppfolging
+          namespace: poao
+          cluster: prod-gcp
+          permissions:
+            roles:
+              - tiltakshistorikk-read
     outbound:
       rules:
         - application: tiltak-datadeling
