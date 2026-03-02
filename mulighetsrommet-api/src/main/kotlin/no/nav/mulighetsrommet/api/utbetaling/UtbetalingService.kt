@@ -273,7 +273,7 @@ class UtbetalingService(
         request: OpprettDelutbetalingerRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        val utbetaling = getOrError(request.utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAquireLock(request.utbetalingId)
 
         val delutbetalingTilsagn = request.delutbetalinger.associate { req ->
             val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
@@ -329,8 +329,8 @@ class UtbetalingService(
         id: UUID,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        validateAccessToDelutbetaling(id, navIdent).flatMap { delutbetaling ->
-            godkjennDelutbetaling(delutbetaling, navIdent)
+        validateAccessAndLockUtbetaling(id, navIdent).flatMap { (utbetaling, delutbetaling) ->
+            godkjennDelutbetaling(utbetaling, delutbetaling, navIdent)
         }
     }
 
@@ -340,14 +340,15 @@ class UtbetalingService(
         forklaring: String?,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        validateAccessToDelutbetaling(id, navIdent).map { delutbetaling ->
+        validateAccessAndLockUtbetaling(id, navIdent).map { (_, delutbetaling) ->
             returnerDelutbetaling(delutbetaling, aarsaker, forklaring, navIdent)
         }
     }
 
-    private fun QueryContext.validateAccessToDelutbetaling(id: UUID, navIdent: NavIdent) = validation {
+    private fun QueryContext.validateAccessAndLockUtbetaling(id: UUID, navIdent: NavIdent) = validation {
         val delutbetaling = queries.delutbetaling.getOrError(id)
-        validate(delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING) {
+        val utbetaling = queries.utbetaling.getAndAquireLock(delutbetaling.utbetalingId)
+        validate(utbetaling.status == UtbetalingStatusType.TIL_ATTESTERING && delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING) {
             FieldError.of("Utbetaling er ikke satt til attestering")
         }
 
@@ -357,11 +358,11 @@ class UtbetalingService(
             FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
         }
 
-        delutbetaling
+        Pair(utbetaling, delutbetaling)
     }
 
     fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = db.transaction {
-        val utbetaling = getOrError(id)
+        val utbetaling = queries.utbetaling.getAndAquireLock(id)
         when (utbetaling.status) {
             UtbetalingStatusType.RETURNERT,
             UtbetalingStatusType.INNSENDT,
@@ -373,10 +374,9 @@ class UtbetalingService(
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
             UtbetalingStatusType.AVBRUTT,
-            ->
-                return FieldError.root(
-                    "Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}",
-                ).nel().left()
+            -> return FieldError.root("Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}")
+                .nel()
+                .left()
         }
         if (UtbetalingType.from(utbetaling) != UtbetalingType.KORRIGERING) {
             return FieldError.root("Kan kun slette korreksjoner").nel().left()
@@ -535,7 +535,7 @@ class UtbetalingService(
         )
 
         val delutbetaling = queries.delutbetaling.getOrError(delutbetalingId)
-        godkjennDelutbetaling(delutbetaling, Tiltaksadministrasjon)
+        godkjennDelutbetaling(utbetaling, delutbetaling, Tiltaksadministrasjon)
             .map { AutomatiskUtbetalingResult.GODKJENT }
             .getOrElse { throw AttesterUtbetalingException(it) }
     }
@@ -598,6 +598,7 @@ class UtbetalingService(
     }
 
     private fun TransactionalQueryContext.godkjennDelutbetaling(
+        utbetaling: Utbetaling,
         delutbetaling: Delutbetaling,
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
@@ -638,7 +639,7 @@ class UtbetalingService(
         return if (delutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
             godkjennUtbetaling(delutbetaling.utbetalingId, delutbetalinger)
         } else {
-            getOrError(delutbetaling.utbetalingId)
+            utbetaling
         }.right()
     }
 
