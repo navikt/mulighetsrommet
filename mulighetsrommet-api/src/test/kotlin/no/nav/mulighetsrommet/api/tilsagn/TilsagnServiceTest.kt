@@ -697,6 +697,7 @@ class TilsagnServiceTest : FunSpec({
 
         test("kan avvise eget oppgjør") {
             service.upsert(request, ansatt1).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
             service.godkjennTilsagn(
                 id = requestId,
                 navIdent = ansatt2,
@@ -707,6 +708,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt1,
                 request = AarsakerOgForklaringRequest(aarsaker = emptyList(), forklaring = null),
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
+
             service.returnerTilsagn(
                 id = requestId,
                 navIdent = ansatt1,

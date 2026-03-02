@@ -142,8 +142,7 @@ class TilsagnService(
     }
 
     fun slettTilsagn(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
-        val tilsagn = queries.tilsagn.getOrError(id)
-
+        val tilsagn = queries.tilsagn.getAndAquireLock(id)
         if (tilsagn.status != TilsagnStatus.RETURNERT) {
             return FieldError.of("Kan ikke slette tilsagn som er godkjent").nel().left()
         }
@@ -163,8 +162,7 @@ class TilsagnService(
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
     ): Tilsagn = db.transaction {
-        val tilsagn = queries.tilsagn.getOrError(id)
-
+        val tilsagn = queries.tilsagn.getAndAquireLock(id)
         setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
@@ -173,7 +171,14 @@ class TilsagnService(
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
     ): Tilsagn = db.transaction {
-        setTilOppgjor(id, navIdent, request.aarsaker.map { it.name }, request.forklaring, "Sendt til oppgjør")
+        val tilsagn = queries.tilsagn.getAndAquireLock(id)
+        setTilOppgjor(
+            tilsagn,
+            navIdent,
+            aarsaker = request.aarsaker.map { it.name },
+            forklaring = request.forklaring,
+            operation = "Sendt til oppgjør",
+        )
     }
 
     fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
@@ -292,7 +297,7 @@ class TilsagnService(
         id: UUID,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
-        validateAccessToTilsagn(id, navIdent).flatMap { tilsagn ->
+        validateAccessAndLockTilsagn(id, navIdent).flatMap { tilsagn ->
             when (tilsagn.status) {
                 TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT,
                 -> FieldError.of("Tilsagnet kan ikke godkjennes fordi det har status ${tilsagn.status.beskrivelse}")
@@ -320,7 +325,7 @@ class TilsagnService(
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
-        validateAccessToTilsagn(id, navIdent).flatMap { tilsagn ->
+        validateAccessAndLockTilsagn(id, navIdent).flatMap { tilsagn ->
             when (tilsagn.status) {
                 TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT,
                 -> FieldError.of("Tilsagnet kan ikke returneres fordi det har status ${tilsagn.status.beskrivelse}")
@@ -336,8 +341,8 @@ class TilsagnService(
         }
     }
 
-    private fun QueryContext.validateAccessToTilsagn(id: UUID, navIdent: NavIdent) = validation {
-        val tilsagn = queries.tilsagn.getOrError(id)
+    private fun QueryContext.validateAccessAndLockTilsagn(id: UUID, navIdent: NavIdent) = validation {
+        val tilsagn = queries.tilsagn.getAndAquireLock(id)
 
         val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
         validate(ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
@@ -507,14 +512,12 @@ class TilsagnService(
 
     context(tx: TransactionalQueryContext)
     fun setTilOppgjor(
-        id: UUID,
+        tilsagn: Tilsagn,
         agent: Agent,
         aarsaker: List<String>,
         forklaring: String?,
         operation: String,
     ): Tilsagn = with(tx) {
-        val tilsagn = queries.tilsagn.getOrError(id)
-
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Kan bare gjøre opp godkjente tilsagn"
         }
@@ -571,12 +574,12 @@ class TilsagnService(
         return dto.right()
     }
 
-    private fun avvisOppgjor(
+    private fun QueryContext.avvisOppgjor(
         tilsagn: Tilsagn,
         besluttetAv: NavIdent,
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
-    ): Either<List<FieldError>, Tilsagn> = db.transaction {
+    ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal avvises")
                 .nel()

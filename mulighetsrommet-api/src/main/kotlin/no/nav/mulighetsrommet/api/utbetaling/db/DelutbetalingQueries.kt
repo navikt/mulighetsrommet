@@ -128,22 +128,6 @@ class DelutbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setStatusForDelutbetalingerForBetaling(utbetalingId: UUID, status: DelutbetalingStatus) {
-        @Language("PostgreSQL")
-        val query = """
-            update delutbetaling
-            set status = :status::delutbetaling_status
-            where utbetaling_id = :utbetalingId::uuid
-        """.trimIndent()
-
-        val params = mapOf(
-            "utbetalingId" to utbetalingId,
-            "status" to status.name,
-        )
-
-        session.execute(queryOf(query, params))
-    }
-
     fun setSendtTilOkonomi(utbetalingId: UUID, tilsagnId: UUID, tidspunkt: Instant) {
         @Language("PostgreSQL")
         val query = """

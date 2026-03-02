@@ -514,7 +514,7 @@ class UtbetalingService(
             return AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN
         }
 
-        val tilsagn = relevanteTilsagn[0]
+        val tilsagn = queries.tilsagn.getAndAquireLock(relevanteTilsagn[0].id)
         if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.pris) {
             return AutomatiskUtbetalingResult.IKKE_NOK_PENGER
         }
@@ -622,22 +622,22 @@ class UtbetalingService(
             ),
         )
 
-        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
-
-        delutbetalinger.forEach { delutbetaling ->
-            val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
-            if (tilsagn.status != TilsagnStatus.GODKJENT) {
-                return returnerDelutbetaling(
-                    delutbetaling,
-                    listOf(DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS),
-                    null,
-                    Tiltaksadministrasjon,
-                ).right()
+        val linjer = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
+            .associateWith { delutbetaling ->
+                val tilsagn = queries.tilsagn.getAndAquireLock(delutbetaling.tilsagnId)
+                if (tilsagn.status != TilsagnStatus.GODKJENT) {
+                    return returnerDelutbetaling(
+                        delutbetaling,
+                        listOf(DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS),
+                        null,
+                        Tiltaksadministrasjon,
+                    ).right()
+                }
+                tilsagn
             }
-        }
 
-        return if (delutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
-            godkjennUtbetaling(delutbetaling.utbetalingId, delutbetalinger)
+        return if (linjer.all { it.key.status == DelutbetalingStatus.GODKJENT }) {
+            godkjennUtbetaling(delutbetaling.utbetalingId, linjer)
         } else {
             utbetaling
         }.right()
@@ -645,17 +645,16 @@ class UtbetalingService(
 
     private fun TransactionalQueryContext.godkjennUtbetaling(
         id: UUID,
-        delutbetalinger: List<Delutbetaling>,
+        linjer: Map<Delutbetaling, Tilsagn>,
     ): Utbetaling {
-        queries.delutbetaling.setStatusForDelutbetalingerForBetaling(id, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
+        linjer.forEach { (delutbetaling, tilsagn) ->
+            queries.delutbetaling.setStatus(delutbetaling.id, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
 
-        delutbetalinger.forEach { delutbetaling ->
-            val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
             val benyttetBelop = tilsagn.belopBrukt + delutbetaling.pris
             queries.tilsagn.setBruktBelop(tilsagn.id, benyttetBelop)
 
             if (delutbetaling.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.pris) {
-                gjorOppTilsagnForDelutbetaling(delutbetaling)
+                gjorOppTilsagnForDelutbetaling(delutbetaling.id, tilsagn)
             }
             publishOpprettFaktura(delutbetaling)
         }
@@ -664,10 +663,10 @@ class UtbetalingService(
         return logEndring("Overført til utbetaling", getOrError(id), Tiltaksadministrasjon)
     }
 
-    private fun TransactionalQueryContext.gjorOppTilsagnForDelutbetaling(delutbetaling: Delutbetaling) {
-        val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+    private fun TransactionalQueryContext.gjorOppTilsagnForDelutbetaling(delutbetalingId: UUID, tilsagn: Tilsagn) {
+        val opprettelse = queries.totrinnskontroll.getOrError(delutbetalingId, Totrinnskontroll.Type.OPPRETT)
         val tilsagnTilOppgjor = tilsagnService.setTilOppgjor(
-            delutbetaling.tilsagnId,
+            tilsagn,
             opprettelse.behandletAv,
             aarsaker = listOf(),
             forklaring = null,
