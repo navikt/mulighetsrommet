@@ -4,7 +4,7 @@ import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Heading, Spacer, Tabs } from "@navikt/ds-react";
+import { Heading, Tabs } from "@navikt/ds-react";
 import React from "react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -28,6 +28,7 @@ export function GjennomforingPage() {
       tittel: "Gjennomføring",
       lenke: currentTab === "detaljer" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
     },
+    currentTab === "tilskuddsbehandling" ? { tittel: "Tilskuddsbehandling" } : undefined,
     currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
     currentTab === "redaksjonelt-innhold" ? { tittel: "Informasjon til veilederene" } : undefined,
     currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
@@ -44,7 +45,6 @@ export function GjennomforingPage() {
           {gjennomforing.navn}
         </Heading>
         <DataElementStatusTag {...gjennomforing.status.status} />
-        <Spacer />
       </Header>
       <Tabs value={currentTab}>
         <Tabs.List className="bg-ax-bg-default">
@@ -72,72 +72,59 @@ interface Tab {
   onClick: () => void;
 }
 
+interface TabConfig {
+  key: string;
+  label: string;
+}
+
+const GRUPPETILTAK_TABS: TabConfig[] = [
+  { key: "detaljer", label: "Detaljer" },
+  { key: "redaksjonelt-innhold", label: "Informasjon for veiledere" },
+  { key: "tilsagn", label: "Tilsagn" },
+  { key: "utbetalinger", label: "Utbetalinger" },
+  { key: "deltakerliste", label: "Deltakerliste" },
+];
+
+const STANDARD_TABS: TabConfig[] = [
+  { key: "detaljer", label: "Detaljer" },
+  {
+    key: "tilskuddsbehandling",
+    label: "Tilskuddsbehandling",
+  },
+  { key: "tilsagn", label: "Tilsagn" },
+  { key: "utbetalinger", label: "Utbetalinger" },
+];
+
+const TAB_KEYS = [
+  "tilskuddsbehandling",
+  "tilsagn",
+  "redaksjonelt-innhold",
+  "deltakerliste",
+  "utbetalinger",
+] as const;
+
+function createTabUrl(gjennomforingId: string, tabKey: string): string {
+  return tabKey === "detaljer"
+    ? `/gjennomforinger/${gjennomforingId}`
+    : `/gjennomforinger/${gjennomforingId}/${tabKey}`;
+}
+
+function getCurrentTab(pathname: string): string {
+  const tabKey = TAB_KEYS.find((key) => pathname.includes(key));
+  return tabKey || "detaljer";
+}
+
 function useTabs(gjennomforing: GjennomforingDto): [string, Tab[]] {
   const { pathname } = useLocation();
   const currentTab = getCurrentTab(pathname);
-
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const tabs = isGruppetiltak(gjennomforing)
-    ? [
-        {
-          key: "detaljer",
-          label: "Detaljer",
-          onClick: () => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}`),
-        },
-        {
-          key: "redaksjonelt-innhold",
-          label: "Informasjon for veiledere",
-          onClick: () =>
-            navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/redaksjonelt-innhold`),
-        },
-        {
-          key: "tilsagn",
-          label: "Tilsagn",
-          onClick: () => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/tilsagn`),
-        },
-        {
-          key: "utbetalinger",
-          label: "Utbetalinger",
-          onClick: () => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`),
-        },
-        {
-          key: "deltakerliste",
-          label: "Deltakerliste",
-          onClick: () =>
-            navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/deltakerliste`),
-        },
-      ]
-    : [
-        {
-          key: "detaljer",
-          label: "Detaljer",
-          onClick: () => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}`),
-        },
-        {
-          key: "tilsagn",
-          label: "Tilsagn",
-          onClick: () => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/tilsagn`),
-        },
-        {
-          key: "utbetalinger",
-          label: "Utbetalinger",
-          onClick: () => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`),
-        },
-      ];
+
+  const tabConfigs = isGruppetiltak(gjennomforing) ? GRUPPETILTAK_TABS : STANDARD_TABS;
+  const tabs: Tab[] = tabConfigs.map(({ key, label }) => ({
+    key,
+    label,
+    onClick: () => navigateAndReplaceUrl(createTabUrl(gjennomforing.id, key)),
+  }));
 
   return [currentTab, tabs];
-}
-
-function getCurrentTab(pathname: string) {
-  if (pathname.includes("tilsagn")) {
-    return "tilsagn";
-  } else if (pathname.includes("redaksjonelt-innhold")) {
-    return "redaksjonelt-innhold";
-  } else if (pathname.includes("deltakerliste")) {
-    return "deltakerliste";
-  } else if (pathname.includes("utbetalinger")) {
-    return "utbetalinger";
-  } else {
-    return "detaljer";
-  }
 }

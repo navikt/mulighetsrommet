@@ -4,7 +4,13 @@ import { DeltakerlisteContainer } from "@/pages/gjennomforing/deltakerliste/Delt
 import { TilsagnForGjennomforingPage } from "@/pages/gjennomforing/tilsagn/TilsagnForGjennomforingPage";
 import { getWebInstrumentations, initializeFaro, InternalLoggerLevel } from "@grafana/faro-web-sdk";
 import { Page, Theme } from "@navikt/ds-react";
-import { createBrowserRouter, Outlet, RouteObject, RouterProvider } from "react-router";
+import {
+  createBrowserRouter,
+  NonIndexRouteObject,
+  Outlet,
+  RouteObject,
+  RouterProvider,
+} from "react-router";
 import { ForsidePage } from "./pages/forside/ForsidePage";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { NotifikasjonerList } from "./components/notifikasjoner/NotifikasjonerList";
@@ -46,6 +52,7 @@ import { AvtalePersonvernForm } from "./components/avtaler/AvtalePersonvernForm"
 import { AvtaleInformasjonForVeiledereForm } from "./components/avtaler/AvtaleInformasjonForVeiledereForm";
 import { OpprettUtbetalingAnskaffelsePage } from "@/pages/gjennomforing/utbetaling/OpprettUtbetalingAnskaffelsePage";
 import { UtbetalingPage } from "@/pages/gjennomforing/utbetaling/UtbetalingPage";
+import { Behandlingsoversikt } from "./pages/gjennomforing/Tilskuddsbehandling/Behandlingsoversikt";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -106,6 +113,70 @@ function AppLayout() {
   );
 }
 
+function route(config: Omit<NonIndexRouteObject, "errorElement">): NonIndexRouteObject {
+  return { errorElement: <ErrorPage />, ...config };
+}
+
+const AVTALE_ROUTES: RouteObject[] = [
+  { index: true, element: <AvtaleDetaljer /> },
+  { path: "personvern", element: <AvtalePersonvern /> },
+  { path: "veilederinformasjon", element: <RedaksjoneltInnholdPreview /> },
+  { path: "gjennomforinger", element: <GjennomforingerForAvtalePage /> },
+];
+
+const AVTALE_FORM_ROUTES: RouteObject[] = [
+  { index: true, element: <AvtaleDetaljerForm />, errorElement: <ErrorPage /> },
+  { path: "personvern", element: <AvtalePersonvernForm />, errorElement: <ErrorPage /> },
+  {
+    path: "veilederinformasjon",
+    element: <AvtaleInformasjonForVeiledereForm />,
+    errorElement: <ErrorPage />,
+  },
+];
+
+const GJENNOMFORING_ROUTES: RouteObject[] = [
+  { index: true, element: <GjennomforingDetaljer /> },
+  { path: "redaksjonelt-innhold", element: <RedaksjoneltInnholdGjennomforing /> },
+  { path: "deltakerliste/*", element: <DeltakerlisteContainer /> },
+  { path: "tilskuddsbehandling", element: <Behandlingsoversikt /> },
+  { path: "tilsagn", element: <TilsagnForGjennomforingPage /> },
+  { path: "utbetalinger", element: <UtbetalingerForGjennomforingContainer /> },
+  { path: "opprett-korreksjon", element: <OpprettUtbetalingKorreksjonPage /> },
+  { path: "opprett-utbetaling", element: <OpprettUtbetalingAnskaffelsePage /> },
+  { path: ":utbetalingId", element: <UtbetalingDetaljerPage /> },
+];
+
+const TILSAGN_ROUTES: RouteObject[] = [
+  { path: "opprett-tilsagn", element: <OpprettTilsagnFormPage /> },
+  { path: ":tilsagnId", element: <TilsagnDetaljer /> },
+  { path: ":tilsagnId/rediger-tilsagn", element: <RedigerTilsagnFormPage /> },
+];
+
+const OPPGAVEOVERSIKT_ROUTES: RouteObject[] = [
+  {
+    path: "notifikasjoner",
+    element: <NotifikasjonerList lest={false} />,
+  },
+  {
+    path: "tidligere-notifikasjoner",
+    element: <NotifikasjonerList lest={true} />,
+  },
+  {
+    path: "oppgaver",
+    element: <OppgaverPage />,
+    children: [
+      {
+        index: true,
+        element: <NotifikasjonerList lest={false} />,
+      },
+      {
+        path: "fullforte",
+        element: <NotifikasjonerList lest={true} />,
+      },
+    ],
+  },
+];
+
 const routes: RouteObject[] = [
   {
     path: "/",
@@ -116,187 +187,64 @@ const routes: RouteObject[] = [
         index: true,
         element: <ForsidePage />,
       },
-      {
+      route({
         path: "error",
         element: <ErrorPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
+      }),
+      route({
         path: "tiltakstyper",
         element: <TiltakstyperPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
+      }),
+      route({
         path: "tiltakstyper/:tiltakstypeId",
         element: <DetaljerTiltakstypePage />,
-        errorElement: <ErrorPage />,
-      },
-      {
+      }),
+      route({
         path: "avtaler",
         element: <AvtalerPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "avtaler/:avtaleId",
-        element: <AvtalePage />,
-        errorElement: <ErrorPage />,
-        children: [
-          {
-            index: true,
-            element: <AvtaleDetaljer />,
-          },
-          {
-            path: "personvern",
-            element: <AvtalePersonvern />,
-          },
-          {
-            path: "veilederinformasjon",
-            element: <RedaksjoneltInnholdPreview />,
-          },
-          {
-            path: "gjennomforinger",
-            element: <GjennomforingerForAvtalePage />,
-          },
-        ],
-      },
-      {
-        path: "avtaler/opprett-avtale",
-        element: <OpprettAvtaleFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
+      }),
+      route({ path: "avtaler/:avtaleId", element: <AvtalePage />, children: AVTALE_ROUTES }),
+      route({ path: "avtaler/opprett-avtale", element: <OpprettAvtaleFormPage /> }),
+      route({
         path: "avtaler/:avtaleId/skjema",
         element: <AvtaleFormPage />,
-        errorElement: <ErrorPage />,
-        children: [
-          {
-            index: true,
-            element: <AvtaleDetaljerForm />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "personvern",
-            element: <AvtalePersonvernForm />,
-            errorElement: <ErrorPage />,
-          },
-          {
-            path: "veilederinformasjon",
-            element: <AvtaleInformasjonForVeiledereForm />,
-            errorElement: <ErrorPage />,
-          },
-        ],
-      },
-      {
+        children: AVTALE_FORM_ROUTES,
+      }),
+      route({
         path: "avtaler/:avtaleId/gjennomforinger/skjema",
         element: <OpprettGjennomforingFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "gjennomforinger/",
-        element: <GjennomforingerPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
+      }),
+      route({ path: "gjennomforinger/", element: <GjennomforingerPage /> }),
+      route({
         path: "gjennomforinger/:gjennomforingId",
         element: <GjennomforingPage />,
-        errorElement: <ErrorPage />,
-        children: [
-          {
-            index: true,
-            element: <GjennomforingDetaljer />,
-          },
-          {
-            path: "redaksjonelt-innhold",
-            element: <RedaksjoneltInnholdGjennomforing />,
-          },
-          {
-            path: "deltakerliste/*",
-            element: <DeltakerlisteContainer />,
-          },
-          {
-            path: "tilsagn",
-            element: <TilsagnForGjennomforingPage />,
-          },
-          {
-            path: "utbetalinger",
-            element: <UtbetalingerForGjennomforingContainer />,
-          },
-        ],
-      },
-      {
+        children: GJENNOMFORING_ROUTES,
+      }),
+      route({
         path: "gjennomforinger/:gjennomforingId/tilsagn",
         element: <TilsagnPage />,
-        errorElement: <ErrorPage />,
-        children: [
-          { path: "opprett-tilsagn", element: <OpprettTilsagnFormPage /> },
-          { path: ":tilsagnId", element: <TilsagnDetaljer /> },
-          { path: ":tilsagnId/rediger-tilsagn", element: <RedigerTilsagnFormPage /> },
-        ],
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/utbetalinger",
-        element: <UtbetalingPage />,
-        errorElement: <ErrorPage />,
-        children: [
-          { path: "opprett-korreksjon", element: <OpprettUtbetalingKorreksjonPage /> },
-          { path: "opprett-utbetaling", element: <OpprettUtbetalingAnskaffelsePage /> },
-          { path: ":utbetalingId", element: <UtbetalingDetaljerPage /> },
-        ],
-      },
-      {
+        children: TILSAGN_ROUTES,
+      }),
+      route({
         path: "gjennomforinger/:gjennomforingId/skjema",
         element: <RedigerGjennomforingFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
+      }),
+      route({
         path: "gjennomforinger/:gjennomforingId/redaksjonelt-innhold/skjema",
         element: <RedigerGjennomforingFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "arrangorer",
-        element: <ArrangorerPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "arrangorer/:arrangorId",
-        element: <ArrangorPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
+      }),
+      route({
+        path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
+        element: <UtbetalingPage />,
+      }),
+      route({ path: "arrangorer", element: <ArrangorerPage /> }),
+      route({ path: "arrangorer/:arrangorId", element: <ArrangorPage /> }),
+      route({
         path: "oppgaveoversikt",
         element: <OppgaveoversiktPage />,
-        errorElement: <ErrorPage />,
-        children: [
-          {
-            path: "notifikasjoner",
-            element: <NotifikasjonerList lest={false} />,
-          },
-          {
-            path: "tidligere-notifikasjoner",
-            element: <NotifikasjonerList lest={true} />,
-          },
-          {
-            path: "oppgaver",
-            element: <OppgaverPage />,
-            children: [
-              {
-                index: true,
-                element: <NotifikasjonerList lest={false} />,
-              },
-              {
-                path: "fullforte",
-                element: <NotifikasjonerList lest={true} />,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        path: "innsendingsoversikt",
-        element: <InnsendingoversiktPage />,
-        errorElement: <ErrorPage />,
-      },
+        children: OPPGAVEOVERSIKT_ROUTES,
+      }),
+      route({ path: "innsendingsoversikt", element: <InnsendingoversiktPage /> }),
     ],
   },
 ];
