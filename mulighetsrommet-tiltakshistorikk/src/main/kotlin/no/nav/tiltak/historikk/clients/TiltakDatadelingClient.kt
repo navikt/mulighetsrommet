@@ -41,11 +41,11 @@ class TiltakDatadelingClient(
     private val client = httpJsonClient(engine).config {
         install(HttpCache)
         install(HttpRequestRetry) {
-            retryOnException(maxRetries = 0, retryOnTimeout = true)
+            retryOnException(maxRetries = 5, retryOnTimeout = true)
             exponentialDelay()
         }
         install(HttpTimeout) {
-            requestTimeoutMillis = 5000
+            requestTimeoutMillis = 2000
         }
     }
 
@@ -209,6 +209,7 @@ data class Avtale(
         INKLUDERINGSTILSKUDD,
         SOMMERJOBB,
         VTAO,
+        FIREARIG_LONNSTILSKUDD,
     }
 
     enum class Status {
