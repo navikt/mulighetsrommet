@@ -1,5 +1,5 @@
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import { Alert, BodyShort, Table, VStack, Link } from "@navikt/ds-react";
+import { Alert, BodyShort, SortState, Table, VStack, Link } from "@navikt/ds-react";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useGetInnsendinger } from "@/api/utbetaling/useFiltrerteInnsendinger";
 import { InnsendingFilterType } from "./filter";
@@ -7,6 +7,17 @@ import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { useInnsendingerSavedFilterState } from "@/filter/useSavedFiltersState";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
+import { useMemo, useState } from "react";
+import { InnsendingKompaktDto } from "@tiltaksadministrasjon/api-client";
+
+function sortByStatus(
+  a: InnsendingKompaktDto,
+  b: InnsendingKompaktDto,
+  direction: "ascending" | "descending" | "none",
+): number {
+  const cmp = a.status.type.localeCompare(b.status.type);
+  return direction === "descending" ? -cmp : cmp;
+}
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
@@ -17,22 +28,40 @@ export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
   const { filter } = useInnsendingerSavedFilterState();
   const { data: innsendinger } = useGetInnsendinger(filter.values);
 
-  const sort = filter.values.sortering.tableSort;
+  const backendSort = filter.values.sortering.tableSort;
+  const [clientSort, setClientSort] = useState<SortState | undefined>(undefined);
+
+  const sort = clientSort ?? backendSort;
+
+  const sortedInnsendinger = useMemo(() => {
+    if (clientSort?.orderBy === "status") {
+      const dir = clientSort.direction;
+      return [...innsendinger].sort((a, b) => sortByStatus(a, b, dir));
+    }
+    return innsendinger;
+  }, [innsendinger, clientSort]);
 
   const handleSort = (sortKey: string) => {
-    // Hvis man bytter sortKey starter vi med ascending
     const direction =
       sort.orderBy === sortKey
         ? sort.direction === "descending"
           ? "ascending"
           : "descending"
         : "ascending";
-    updateFilter({
-      sortering: {
-        sortString: `${sortKey}-${direction}`,
-        tableSort: { orderBy: sortKey, direction },
-      },
-    });
+
+    if (sortKey === "status") {
+      setClientSort({ orderBy: sortKey, direction });
+      return;
+    } else {
+      setClientSort(undefined);
+
+      updateFilter({
+        sortering: {
+          sortString: `${sortKey}-${direction}`,
+          tableSort: { orderBy: sortKey, direction },
+        },
+      });
+    }
   };
 
   return (
@@ -72,7 +101,7 @@ export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {innsendinger.map((innsending, index) => (
+              {sortedInnsendinger.map((innsending, index) => (
                 <Table.Row key={index}>
                   <Table.HeaderCell
                     aria-label={`Virksomhetsnavn: ${innsending.arrangor}`}
@@ -157,7 +186,7 @@ const headers: ColumnHeader[] = [
   {
     sortKey: "belop",
     tittel: "Beløp",
-    sortable: true,
+    sortable: false,
     width: "1fr",
   },
   {
