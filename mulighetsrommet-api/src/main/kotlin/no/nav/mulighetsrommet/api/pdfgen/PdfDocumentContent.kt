@@ -149,5 +149,5 @@ enum class WordFormat {
 data class Regards(
     val intro: String,
     val subject: String,
-    val others: List<String> = emptyList()
+    val others: List<String> = emptyList(),
 )

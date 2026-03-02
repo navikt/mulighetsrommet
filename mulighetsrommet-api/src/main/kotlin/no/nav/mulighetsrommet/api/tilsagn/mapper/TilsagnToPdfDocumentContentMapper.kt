@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.pdfgen.Regards
 import no.nav.mulighetsrommet.api.pdfgen.SectionBuilder
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.ValutaBelop
 import org.threeten.bp.LocalDate
 import java.text.NumberFormat
@@ -14,6 +15,7 @@ import java.util.Locale
 object TilsagnToPdfDocumentContentMapper {
     fun toTilsagnsbrev(
         tilsagn: Tilsagn,
+        kontonummer: Kontonummer,
         deltaker: DeltakerPersonalia,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Tilsagnsbrev",
@@ -27,14 +29,15 @@ object TilsagnToPdfDocumentContentMapper {
                 addressedTo = "Brev til ${tilsagn.arrangor.navn}",
                 date = LocalDate.now().toString(),
                 reference = "Ref. ${tilsagn.bestilling.bestillingsnummer}",
-            )
+            ),
         )
 
         mainSection("Bekreftelse på bestilling") {
             paragraph { regular("Nav og dere har blitt enige om dette:") }
             descriptionList {
                 text(
-                    "Tiltaket", tilsagn.gjennomforing.navn
+                    "Tiltaket",
+                    tilsagn.gjennomforing.navn,
                 )
                 text("Deltakeren", "${deltaker.navn} (${deltaker.norskIdent.value})")
                 text("Utbetalingsperioden", tilsagn.periode.formatPeriode())
@@ -48,7 +51,7 @@ object TilsagnToPdfDocumentContentMapper {
             paragraph { regular("Følgende informasjon er registrert hos NAV:") }
             descriptionList {
                 text("Bedriftsnummer", tilsagn.arrangor.organisasjonsnummer)
-                text("Kontonummer", "12345678910")
+                text("Kontonummer", kontonummer)
             }
             paragraph {
                 regular("Hvis kontonummeret er feil, må dere oppdatere det via Navs hjemmeside under ")
@@ -63,8 +66,8 @@ object TilsagnToPdfDocumentContentMapper {
             Regards(
                 "Hilsen",
                 "Nav Arbeidsmarkedstiltak",
-                listOf("Beslutters navn", "Saksbehandlers navn")
-            )
+                listOf("Beslutters navn", "Saksbehandlers navn"),
+            ),
         )
     }
 
@@ -87,5 +90,5 @@ object TilsagnToPdfDocumentContentMapper {
 
 private fun formatCurrency(pris: ValutaBelop): String {
     val formatter: NumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("no-NO"))
-    return "${formatter.format(pris.belop)} ${pris.valuta.name}";
+    return "${formatter.format(pris.belop)} ${pris.valuta.name}"
 }

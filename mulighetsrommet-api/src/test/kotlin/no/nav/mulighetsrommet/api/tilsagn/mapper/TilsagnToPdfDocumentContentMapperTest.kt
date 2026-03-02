@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -44,6 +45,8 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         adressebeskyttelse = PdlGradering.UGRADERT,
         oppfolgingEnhet = NavEnhetFixtures.Sel.enhetsnummer,
     )
+
+    val kontonummer = Kontonummer("12345678910")
 
     val tilsagn = Tilsagn(
         id = UUID.fromString("72c45b92-4452-4b44-b1cd-9cfe7be86222"),
@@ -82,32 +85,31 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         beskrivelse = null,
         journalpost = null,
         beregning =
-            TilsagnBeregningFri(
-                input = TilsagnBeregningFri.Input(
-                    listOf(
-                        TilsagnBeregningFri.InputLinje(
-                            id = UUID.randomUUID(),
-                            beskrivelse = "1234",
-                            pris = 1234.withValuta(Valuta.NOK),
-                            antall = 1,
-                        ),
+        TilsagnBeregningFri(
+            input = TilsagnBeregningFri.Input(
+                listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "1234",
+                        pris = 1234.withValuta(Valuta.NOK),
+                        antall = 1,
                     ),
-                    prisbetingelser = null,
                 ),
-                output = TilsagnBeregningFri.Output(
-                    pris = 1234.withValuta(Valuta.NOK),
-                ),
+                prisbetingelser = null,
             ),
+            output = TilsagnBeregningFri.Output(
+                pris = 1234.withValuta(Valuta.NOK),
+            ),
+        ),
 
-        )
+    )
 
     context("pdf-content for tilsagnsbrev til arrangør") {
         test("annen avtalt pris") {
-            val pdfContent = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(tilsagn, deltaker)
+            val pdfContent = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(tilsagn, kontonummer, deltaker)
 
             jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedUtbetalingsdetaljerFastSatsContent
         }
-
     }
 })
 
