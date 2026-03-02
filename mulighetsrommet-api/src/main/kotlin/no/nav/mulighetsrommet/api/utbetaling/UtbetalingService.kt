@@ -827,6 +827,28 @@ class UtbetalingService(
         return queries.utbetaling.getOrError(id)
     }
 
+    fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
+        return when (utbetaling.status) {
+            UtbetalingStatusType.GENERERT -> {
+                val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
+                val deltakere = queries.deltaker
+                    .getByGjennomforingId(utbetaling.gjennomforing.id)
+                    .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
+
+                UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
+            }
+
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.RETURNERT,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
+            -> emptyList()
+        }
+    }
+
     companion object {
         fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
             UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {

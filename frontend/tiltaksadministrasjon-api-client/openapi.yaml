@@ -6219,6 +6219,25 @@ components:
       required:
       - handlinger
       - utbetaling
+    DeltakerAdvarselDto:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+        beskrivelse:
+          type: string
+        type:
+          $ref: "#/components/schemas/DeltakerAdvarselType"
+      required:
+      - beskrivelse
+      - deltakerId
+      - type
+    DeltakerAdvarselType:
+      type: string
+      enum:
+      - RelevanteForslag
+      - FeilSluttDato
     UtbetalingBeregningDto:
       type: object
       properties:
@@ -6238,7 +6257,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DataDetails"
+        advarsler:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakerAdvarselDto"
       required:
+      - advarsler
       - deltakerRegioner
       - deltakerTableData
       - heading

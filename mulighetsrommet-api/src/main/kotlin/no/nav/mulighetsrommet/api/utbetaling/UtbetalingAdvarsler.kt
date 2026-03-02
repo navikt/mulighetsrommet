@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+import kotlinx.serialization.Serializable
 import no.nav.amt.model.AmtArrangorMelding
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
@@ -7,6 +8,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.collections.component1
@@ -119,4 +121,23 @@ data class DeltakerAdvarsel(
 enum class DeltakerAdvarselType {
     RelevanteForslag,
     FeilSluttDato,
+}
+
+@Serializable
+data class DeltakerAdvarselDto(
+    @Serializable(with = UUIDSerializer::class)
+    val deltakerId: UUID,
+    val beskrivelse: String,
+    val type: DeltakerAdvarselType,
+) {
+    companion object {
+        fun from(advarsel: DeltakerAdvarsel, navn: String?) = DeltakerAdvarselDto(
+            deltakerId = advarsel.deltakerId,
+            beskrivelse = when (advarsel.type) {
+                DeltakerAdvarselType.RelevanteForslag -> "$navn har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg"
+                DeltakerAdvarselType.FeilSluttDato -> "$navn har avsluttende status og sluttdato frem i tid"
+            },
+            type = advarsel.type,
+        )
+    }
 }

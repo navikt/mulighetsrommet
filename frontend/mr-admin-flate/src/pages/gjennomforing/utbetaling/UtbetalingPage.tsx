@@ -13,7 +13,17 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
-import { Accordion, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
+import {
+  Accordion,
+  BodyShort,
+  CopyButton,
+  Heading,
+  HGrid,
+  HStack,
+  InfoCard,
+  List,
+  VStack,
+} from "@navikt/ds-react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
@@ -196,6 +206,24 @@ export function UtbetalingPage() {
                   </EndringshistorikkPopover>
                 </HStack>
               </HGrid>
+              {beregning.advarsler.length > 0 && (
+                <InfoCard data-color="warning">
+                  <InfoCard.Header>
+                    <InfoCard.Title>Viktig informasjon om deltakere</InfoCard.Title>
+                  </InfoCard.Header>
+                  <InfoCard.Content>
+                    <BodyShort spacing>
+                      Det finnes advarsler på følgende personer. Disse må først fikses før
+                      utbetalingen kan sendes inn.
+                    </BodyShort>
+                    <List data-aksel-migrated-v8>
+                      {beregning.advarsler.map((advarsel) => (
+                        <List.Item key={advarsel.deltakerId}>{advarsel.beskrivelse}</List.Item>
+                      ))}
+                    </List>
+                  </InfoCard.Content>
+                </InfoCard>
+              )}
               <Accordion>
                 <Accordion.Item>
                   <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>

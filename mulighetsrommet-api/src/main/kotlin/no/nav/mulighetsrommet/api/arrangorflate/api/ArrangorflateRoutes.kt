@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.DeltakerAdvarselType
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
@@ -502,14 +501,6 @@ data class GodkjennUtbetaling(
 @Serializable
 data class AvbrytUtbetaling(
     val begrunnelse: String?,
-)
-
-@Serializable
-data class DeltakerAdvarselDto(
-    @Serializable(with = UUIDSerializer::class)
-    val deltakerId: UUID,
-    val beskrivelse: String,
-    val type: DeltakerAdvarselType,
 )
 
 @Serializable

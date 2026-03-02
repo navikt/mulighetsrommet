@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
@@ -253,11 +254,16 @@ fun Route.utbetalingRoutes() {
                         .filter { filter.navEnheter.isEmpty() || it.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
                         .associateBy { it.deltakerId }
 
+                    val advarsler = utbetalingService.getAdvarsler(utbetaling)
+
                     UtbetalingBeregningDto.from(
                         utbetaling.beregning,
                         deltakelsePersoner,
                         kontorstruktur,
                         utbetalingPeriode = utbetaling.periode,
+                        advarsler = advarsler.map { advarsel ->
+                            DeltakerAdvarselDto.from(advarsel, deltakelsePersoner[advarsel.deltakerId]?.navn)
+                        },
                     )
                 }
 
