@@ -206,6 +206,7 @@ sealed class TiltakshistorikkV1Dto {
             INKLUDERINGSTILSKUDD,
             SOMMERJOBB,
             VTAO,
+            FIREARIG_LONNSTILSKUDD,
         }
     }
 }

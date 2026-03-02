@@ -158,6 +158,7 @@ private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: TiltakstypeDbo, arbe
             Avtale.Tiltakstype.INKLUDERINGSTILSKUDD -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.INKLUDERINGSTILSKUDD
             Avtale.Tiltakstype.SOMMERJOBB -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.SOMMERJOBB
             Avtale.Tiltakstype.VTAO -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.VTAO
+            Avtale.Tiltakstype.FIREARIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.FIREARIG_LONNSTILSKUDD
         },
         navn = tiltakstype.navn,
     ),

@@ -209,6 +209,7 @@ data class Avtale(
         INKLUDERINGSTILSKUDD,
         SOMMERJOBB,
         VTAO,
+        FIREARIG_LONNSTILSKUDD,
     }
 
     enum class Status {
