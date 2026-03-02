@@ -105,9 +105,8 @@ class AvtaleService(
                 navIdent,
             )
 
-            val dto = logEndring("Opprettet avtale", avtaleDbo.id, navIdent)
-            schedulePublishGjennomforingerForAvtale(dto)
-            dto
+            logEndring("Opprettet avtale", avtaleDbo.id, navIdent)
+                .also { schedulePublishGjennomforingerForAvtale(it) }
         }
     }
 
@@ -154,9 +153,8 @@ class AvtaleService(
             queries.avtale.updateDetaljer(avtaleId, dbo)
             dispatchNotificationToNewAdministrators(avtaleId, dbo.navn, dbo.administratorer, navIdent)
 
-            val dto = logEndring("Detaljer oppdatert", avtaleId, navIdent)
-            schedulePublishGjennomforingerForAvtale(dto)
-            dto
+            logEndring("Detaljer oppdatert", avtaleId, navIdent)
+                .also { schedulePublishGjennomforingerForAvtale(it) }
         }
     }
 
@@ -171,9 +169,8 @@ class AvtaleService(
 
             queries.avtale.updatePersonvern(previous.id, dbo)
 
-            val dto = logEndring("Personvern oppdatert", previous.id, navIdent)
-            schedulePublishGjennomforingerForAvtale(dto)
-            dto
+            logEndring("Personvern oppdatert", previous.id, navIdent)
+                .also { schedulePublishGjennomforingerForAvtale(it) }
         }
     }
 
@@ -199,9 +196,8 @@ class AvtaleService(
 
             queries.avtale.updateVeilederinfo(previous.id, dbo)
 
-            val dto = logEndring("Veilederinformasjon oppdatert", previous.id, navIdent)
-            schedulePublishGjennomforingerForAvtale(dto)
-            dto
+            logEndring("Veilederinformasjon oppdatert", previous.id, navIdent)
+                .also { schedulePublishGjennomforingerForAvtale(it) }
         }
     }
 
@@ -232,9 +228,8 @@ class AvtaleService(
                 queries.prismodell.deletePrismodell(prismodell.id)
             }
 
-            val dto = logEndring("Prismodell oppdatert", id, navIdent)
-            schedulePublishGjennomforingerForAvtale(dto)
-            dto
+            logEndring("Prismodell oppdatert", id, navIdent)
+                .also { schedulePublishGjennomforingerForAvtale(it) }
         }
     }
 
@@ -242,7 +237,7 @@ class AvtaleService(
         id: UUID,
         request: RammedetaljerRequest,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, Unit> = db.transaction {
+    ): Either<List<FieldError>, Avtale> = db.transaction {
         val avtale = getOrError(id)
 
         RammedetaljerValidator.validateRammedetaljer(
@@ -251,7 +246,6 @@ class AvtaleService(
         ).map { rammedetalerDbo ->
             queries.rammedetaljer.upsert(rammedetalerDbo)
             logEndring("Rammedetaljer oppdatert", id, navIdent)
-            Unit
         }
     }
 
@@ -328,15 +322,13 @@ class AvtaleService(
         request: OpprettOpsjonLoggRequest,
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
-    ): Either<List<FieldError>, Avtale> = either {
-        db.transaction {
-            val avtale = getOrError(avtaleId)
+    ): Either<List<FieldError>, Avtale> = db.transaction {
+        val avtale = getOrError(avtaleId)
 
-            val dbo = AvtaleValidator.validateOpprettOpsjonLoggRequest(
-                AvtaleValidator.ValidateOpprettOpsjonContext(avtale, navIdent),
-                request,
-            ).bind()
-
+        AvtaleValidator.validateOpprettOpsjonLoggRequest(
+            AvtaleValidator.ValidateOpprettOpsjonContext(avtale, navIdent),
+            request,
+        ).map { dbo ->
             queries.opsjoner.insert(dbo)
 
             if (dbo.sluttDato != null) {

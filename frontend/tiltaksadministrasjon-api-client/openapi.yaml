@@ -856,10 +856,6 @@ paths:
         "200":
           description: Oppdatert rammedetaljer
           headers: {}
-          content:
-            application/json:
-              schema:
-                type: "null"
         "400":
           description: Valideringsfeil
           headers: {}

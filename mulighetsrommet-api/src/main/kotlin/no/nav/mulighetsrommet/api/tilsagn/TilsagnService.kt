@@ -130,10 +130,7 @@ class TilsagnService(
                 queries.tilsagn.upsert(dbo)
                 queries.totrinnskontroll.upsert(totrinnskontroll)
 
-                val dto = queries.tilsagn.getOrError(dbo.id)
-
-                logEndring("Sendt til godkjenning", dto, navIdent)
-                dto
+                logEndring("Sendt til godkjenning", dbo.id, navIdent)
             }
     }
 
@@ -381,9 +378,7 @@ class TilsagnService(
         queries.totrinnskontroll.upsert(besluttetOpprettelse)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-        val dto = queries.tilsagn.getOrError(tilsagn.id)
-        logEndring("Tilsagn godkjent", dto, besluttetAv)
-        return dto.right()
+        return logEndring("Tilsagn godkjent", tilsagn.id, besluttetAv).right()
     }
 
     private fun QueryContext.returnerTilsagn(
@@ -413,9 +408,7 @@ class TilsagnService(
         queries.totrinnskontroll.upsert(avvistOpprettelse)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
 
-        val dto = queries.tilsagn.getOrError(tilsagn.id)
-        logEndring("Tilsagn returnert", dto, besluttetAv)
-        return dto.right()
+        return logEndring("Tilsagn returnert", tilsagn.id, besluttetAv).right()
     }
 
     private fun QueryContext.setTilAnnullering(
@@ -445,9 +438,7 @@ class TilsagnService(
         queries.totrinnskontroll.upsert(totrinnskontroll)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
 
-        val dto = queries.tilsagn.getOrError(tilsagn.id)
-        logEndring("Sendt til annullering", dto, behandletAv)
-        return dto
+        return logEndring("Sendt til annullering", tilsagn.id, behandletAv)
     }
 
     private fun QueryContext.annullerTilsagn(
@@ -473,9 +464,7 @@ class TilsagnService(
         queries.totrinnskontroll.upsert(besluttetAnnullering)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
 
-        val dto = queries.tilsagn.getOrError(tilsagn.id)
-        logEndring("Tilsagn annullert", dto, besluttetAv)
-        return dto.right()
+        return logEndring("Tilsagn annullert", tilsagn.id, besluttetAv).right()
     }
 
     private fun QueryContext.avvisAnnullering(
@@ -505,9 +494,7 @@ class TilsagnService(
             sendNotifikasjonOmAvvistAnnullering(tilsagn, besluttetAv, annullering.behandletAv)
         }
 
-        val dto = queries.tilsagn.getOrError(tilsagn.id)
-        logEndring("Annullering avvist", dto, besluttetAv)
-        return dto.right()
+        return logEndring("Annullering avvist", tilsagn.id, besluttetAv).right()
     }
 
     context(tx: TransactionalQueryContext)
@@ -539,9 +526,7 @@ class TilsagnService(
         queries.totrinnskontroll.upsert(totrinnskontroll)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_OPPGJOR)
 
-        val dto = queries.tilsagn.getOrError(tilsagn.id)
-        logEndring(operation, dto, agent)
-        return dto
+        return logEndring(operation, tilsagn.id, agent)
     }
 
     context(tx: TransactionalQueryContext)
@@ -569,9 +554,7 @@ class TilsagnService(
         queries.totrinnskontroll.upsert(godkjentOppgjor)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
 
-        val dto = queries.tilsagn.getOrError(tilsagn.id)
-        logEndring(operation, dto, besluttetAv)
-        return dto.right()
+        return logEndring(operation, tilsagn.id, besluttetAv).right()
     }
 
     private fun QueryContext.avvisOppgjor(
@@ -601,9 +584,7 @@ class TilsagnService(
             sendNotifikasjonOmAvvistOppgjor(tilsagn, besluttetAv, oppgjor.behandletAv)
         }
 
-        val dto = queries.tilsagn.getOrError(tilsagn.id)
-        logEndring("Oppgjør avvist", dto, besluttetAv)
-        return dto.right()
+        return logEndring("Oppgjør avvist", tilsagn.id, besluttetAv).right()
     }
 
     private fun QueryContext.sendNotifikasjonOmAvvistAnnullering(
@@ -779,18 +760,20 @@ class TilsagnService(
 
     private fun QueryContext.logEndring(
         operation: String,
-        dto: Tilsagn,
+        tilsagnId: UUID,
         endretAv: Agent,
-    ) {
+    ): Tilsagn {
+        val tilsagn = queries.tilsagn.getOrError(tilsagnId)
         queries.endringshistorikk.logEndring(
             DocumentClass.TILSAGN,
             operation,
             endretAv,
-            dto.id,
+            tilsagnId,
             LocalDateTime.now(),
         ) {
-            Json.encodeToJsonElement(dto)
+            Json.encodeToJsonElement(tilsagn)
         }
+        return tilsagn
     }
 
     private fun TransactionalQueryContext.storeOkonomiMelding(
