@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
@@ -92,22 +93,22 @@ class UtbetalingService(
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         kid: Kid?,
-    ): Either<List<FieldError>, AutomatiskUtbetalingResult> = db.transaction {
-        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
-        if (utbetaling.status != UtbetalingStatusType.GENERERT) {
-            return FieldError.of("Utbetaling er allerede godkjent").nel().left()
+    ): Either<List<FieldError>, AutomatiskUtbetalingResult> {
+        db.transaction {
+            val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
+            if (utbetaling.status != UtbetalingStatusType.GENERERT) {
+                return FieldError.of("Utbetaling er allerede godkjent").nel().left()
+            }
+
+            queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
+            queries.utbetaling.setKid(utbetalingId, kid)
+            queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.INNSENDT)
+            logEndring("Utbetaling sendt inn", getOrError(utbetalingId), Arrangor)
+
+            scheduleJournalforUtbetaling(utbetalingId, vedlegg = emptyList())
         }
 
-        queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
-        queries.utbetaling.setKid(utbetalingId, kid)
-        queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.INNSENDT)
-        logEndring("Utbetaling sendt inn", getOrError(utbetalingId), Arrangor)
-
-        scheduleJournalforUtbetaling(utbetalingId, vedlegg = emptyList())
-
-        automatiskUtbetaling(utbetalingId)
-            .also { result -> log.info("Automatisk utbetaling for utbetaling=$utbetalingId resulterte i: $result") }
-            .right()
+        return tryAutomatiskUtbetaling(utbetalingId).right()
     }
 
     suspend fun opprettUtbetaling(
@@ -274,7 +275,7 @@ class UtbetalingService(
         request: OpprettDelutbetalingerRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        val utbetaling = getOrError(request.utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAquireLock(request.utbetalingId)
 
         val delutbetalingTilsagn = request.delutbetalinger.associate { req ->
             val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
@@ -329,9 +330,9 @@ class UtbetalingService(
     fun godkjennDelutbetaling(
         id: UUID,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, Delutbetaling> = db.transaction {
-        validateAccessToDelutbetaling(id, navIdent).flatMap { delutbetaling ->
-            godkjennDelutbetaling(delutbetaling, navIdent).map { queries.delutbetaling.getOrError(id) }
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        validateAccessAndLockUtbetaling(id, navIdent).flatMap { (utbetaling, delutbetaling) ->
+            godkjennDelutbetaling(utbetaling, delutbetaling, navIdent)
         }
     }
 
@@ -340,16 +341,16 @@ class UtbetalingService(
         aarsaker: List<DelutbetalingReturnertAarsak>,
         forklaring: String?,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, Delutbetaling> = db.transaction {
-        validateAccessToDelutbetaling(id, navIdent).map { delutbetaling ->
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        validateAccessAndLockUtbetaling(id, navIdent).map { (_, delutbetaling) ->
             returnerDelutbetaling(delutbetaling, aarsaker, forklaring, navIdent)
-            queries.delutbetaling.getOrError(id)
         }
     }
 
-    private fun QueryContext.validateAccessToDelutbetaling(id: UUID, navIdent: NavIdent) = validation {
+    private fun QueryContext.validateAccessAndLockUtbetaling(id: UUID, navIdent: NavIdent) = validation {
         val delutbetaling = queries.delutbetaling.getOrError(id)
-        validate(delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING) {
+        val utbetaling = queries.utbetaling.getAndAquireLock(delutbetaling.utbetalingId)
+        validate(utbetaling.status == UtbetalingStatusType.TIL_ATTESTERING && delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING) {
             FieldError.of("Utbetaling er ikke satt til attestering")
         }
 
@@ -359,11 +360,11 @@ class UtbetalingService(
             FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
         }
 
-        delutbetaling
+        Pair(utbetaling, delutbetaling)
     }
 
     fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = db.transaction {
-        val utbetaling = getOrError(id)
+        val utbetaling = queries.utbetaling.getAndAquireLock(id)
         when (utbetaling.status) {
             UtbetalingStatusType.RETURNERT,
             UtbetalingStatusType.INNSENDT,
@@ -375,10 +376,9 @@ class UtbetalingService(
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
             UtbetalingStatusType.AVBRUTT,
-            ->
-                return FieldError.root(
-                    "Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}",
-                ).nel().left()
+            -> return FieldError.root("Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}")
+                .nel()
+                .left()
         }
         if (UtbetalingType.from(utbetaling) != UtbetalingType.KORRIGERING) {
             return FieldError.root("Kan kun slette korreksjoner").nel().left()
@@ -394,15 +394,25 @@ class UtbetalingService(
         queries.utbetaling.delete(id).right()
     }
 
-    fun avbrytUtbetaling(utbetalingId: UUID, begrunnelse: String): Unit = db.transaction {
-        queries.utbetaling.avbrytUtbetaling(
-            utbetalingId,
-            begrunnelse,
-            Instant.now(),
-        )
-        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
-        logEndring("Utbetaling avbrutt", utbetaling, Arrangor)
-        return
+    fun avbrytUtbetaling(utbetalingId: UUID, begrunnelse: String, agent: Agent): Either<List<FieldError>, Utbetaling> = db.transaction {
+        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
+        when (utbetaling.status) {
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
+            -> return FieldError.root("Utbetalingen kan ikke avbrytes").nel().left()
+
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.RETURNERT,
+            -> Unit
+        }
+
+        queries.utbetaling.avbrytUtbetaling(utbetalingId, begrunnelse, Instant.now())
+
+        logEndring("Utbetaling avbrutt", getOrError(utbetaling.id), agent).right()
     }
 
     fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {
@@ -480,8 +490,19 @@ class UtbetalingService(
         }
     }
 
-    private fun TransactionalQueryContext.automatiskUtbetaling(utbetalingId: UUID): AutomatiskUtbetalingResult {
-        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
+    private fun tryAutomatiskUtbetaling(utbetalingId: UUID): AutomatiskUtbetalingResult {
+        return try {
+            automatiskUtbetaling(utbetalingId).also { result ->
+                log.info("Automatisk utbetaling for utbetaling=$utbetalingId resulterte i: $result")
+            }
+        } catch (error: AttesterUtbetalingException) {
+            log.error("Uventet valideringsfeil oppsto under automatisk utbetaling: ${error.errors}")
+            AutomatiskUtbetalingResult.VALIDERINGSFEIL
+        }
+    }
+
+    private fun automatiskUtbetaling(utbetalingId: UUID): AutomatiskUtbetalingResult = db.transaction {
+        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
 
         when (utbetaling.beregning) {
             is UtbetalingBeregningFri,
@@ -505,7 +526,7 @@ class UtbetalingService(
             return AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN
         }
 
-        val tilsagn = relevanteTilsagn[0]
+        val tilsagn = queries.tilsagn.getAndAquireLock(relevanteTilsagn[0].id)
         if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.pris) {
             return AutomatiskUtbetalingResult.IKKE_NOK_PENGER
         }
@@ -526,13 +547,9 @@ class UtbetalingService(
         )
 
         val delutbetaling = queries.delutbetaling.getOrError(delutbetalingId)
-        return godkjennDelutbetaling(delutbetaling, Tiltaksadministrasjon).fold(
-            { errors ->
-                log.error("Uventet valideringsfeil oppsto under automatisk utbetaling: $errors")
-                AutomatiskUtbetalingResult.VALIDERINGSFEIL
-            },
-            { AutomatiskUtbetalingResult.GODKJENT },
-        )
+        godkjennDelutbetaling(utbetaling, delutbetaling, Tiltaksadministrasjon)
+            .map { AutomatiskUtbetalingResult.GODKJENT }
+            .getOrElse { throw AttesterUtbetalingException(it) }
     }
 
     private fun TransactionalQueryContext.upsertDelutbetaling(
@@ -593,6 +610,7 @@ class UtbetalingService(
     }
 
     private fun TransactionalQueryContext.godkjennDelutbetaling(
+        utbetaling: Utbetaling,
         delutbetaling: Delutbetaling,
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
@@ -616,51 +634,63 @@ class UtbetalingService(
             ),
         )
 
-        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
-
-        delutbetalinger.forEach {
-            val tilsagn = queries.tilsagn.getOrError(it.tilsagnId)
-            if (tilsagn.status != TilsagnStatus.GODKJENT) {
-                return returnerDelutbetaling(
-                    it,
-                    listOf(DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS),
-                    null,
-                    Tiltaksadministrasjon,
-                ).right()
+        val linjer = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
+            .associateWith { delutbetaling ->
+                val tilsagn = queries.tilsagn.getAndAquireLock(delutbetaling.tilsagnId)
+                if (tilsagn.status != TilsagnStatus.GODKJENT) {
+                    return returnerDelutbetaling(
+                        delutbetaling,
+                        listOf(DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS),
+                        null,
+                        Tiltaksadministrasjon,
+                    ).right()
+                }
+                tilsagn
             }
-        }
 
-        return if (delutbetalinger.all { it.status == DelutbetalingStatus.GODKJENT }) {
-            godkjennUtbetaling(delutbetaling.utbetalingId, delutbetalinger)
+        return if (linjer.all { it.key.status == DelutbetalingStatus.GODKJENT }) {
+            godkjennUtbetaling(delutbetaling.utbetalingId, linjer)
         } else {
-            getOrError(delutbetaling.utbetalingId)
+            utbetaling
         }.right()
     }
 
     private fun TransactionalQueryContext.godkjennUtbetaling(
         id: UUID,
-        delutbetalinger: List<Delutbetaling>,
+        linjer: Map<Delutbetaling, Tilsagn>,
     ): Utbetaling {
-        queries.delutbetaling.setStatusForDelutbetalingerForBetaling(id, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
+        linjer.forEach { (delutbetaling, tilsagn) ->
+            queries.delutbetaling.setStatus(delutbetaling.id, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
 
-        delutbetalinger.forEach { delutbetaling ->
-            val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
             val benyttetBelop = tilsagn.belopBrukt + delutbetaling.pris
-            val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
             queries.tilsagn.setBruktBelop(tilsagn.id, benyttetBelop)
+
             if (delutbetaling.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.pris) {
-                tilsagnService.gjorOppTilsagnVedUtbetaling(
-                    delutbetaling.tilsagnId,
-                    behandletAv = opprettelse.behandletAv,
-                    besluttetAv = requireNotNull(opprettelse.besluttetAv),
-                    this,
-                )
+                gjorOppTilsagnForDelutbetaling(delutbetaling.id, tilsagn)
             }
             publishOpprettFaktura(delutbetaling)
         }
 
         queries.utbetaling.setStatus(id, UtbetalingStatusType.FERDIG_BEHANDLET)
         return logEndring("Overført til utbetaling", getOrError(id), Tiltaksadministrasjon)
+    }
+
+    private fun TransactionalQueryContext.gjorOppTilsagnForDelutbetaling(delutbetalingId: UUID, tilsagn: Tilsagn) {
+        val opprettelse = queries.totrinnskontroll.getOrError(delutbetalingId, Totrinnskontroll.Type.OPPRETT)
+        val tilsagnTilOppgjor = tilsagnService.setTilOppgjor(
+            tilsagn,
+            opprettelse.behandletAv,
+            aarsaker = listOf(),
+            forklaring = null,
+            operation = "Sendt til oppgjør ved behandling av utbetaling",
+        )
+        tilsagnService.gjorOppTilsagn(
+            tilsagnTilOppgjor,
+            requireNotNull(opprettelse.besluttetAv),
+            operation = "Tilsagn oppgjort ved attestering av utbetaling",
+        ).onLeft { errors ->
+            throw AttesterUtbetalingException(errors)
+        }
     }
 
     private fun TransactionalQueryContext.returnerDelutbetaling(
@@ -938,3 +968,12 @@ class UtbetalingService(
         }
     }
 }
+
+/**
+ * Ved unntakstilfeller så kan attestering av utbetalinger feile pga. uventede valideringsfeil. Årsaker
+ * kan f.eks. være samtidighetsproblemer, glemte preconditions/låser eller andre bugs/mangler i koden.
+ *
+ * Disse blir kastet som exceptions i stedet for returneres som en [Either.Left] fordi det integrerer bedre med
+ * automatisk rollback av database-transaksjoner.
+ */
+private class AttesterUtbetalingException(val errors: List<FieldError>) : Exception()

@@ -11,6 +11,10 @@ compileKotlin.compilerOptions {
     freeCompilerArgs.set(listOf("-Xcontext-parameters"))
 }
 
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.compilerOptions {
+    freeCompilerArgs.set(listOf("-Xcontext-parameters"))
+}
 application {
     mainClass.set("no.nav.mulighetsrommet.api.ApplicationKt")
 }

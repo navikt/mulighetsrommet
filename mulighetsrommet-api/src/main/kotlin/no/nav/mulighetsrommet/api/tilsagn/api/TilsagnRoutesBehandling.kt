@@ -109,7 +109,7 @@ fun Route.tilsagnRoutesBehandling() {
             request.validate()
                 .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
                 .onRight {
-                    service.tilGjorOppRequest(id, navIdent, it)
+                    service.tilOppgjorRequest(id, navIdent, it)
                     call.respond(HttpStatusCode.OK)
                 }
         }

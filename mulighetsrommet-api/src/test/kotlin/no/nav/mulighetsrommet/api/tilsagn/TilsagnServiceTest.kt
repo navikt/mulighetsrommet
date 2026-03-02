@@ -40,7 +40,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
@@ -680,7 +679,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            service.tilGjorOppRequest(
+            service.tilOppgjorRequest(
                 id = requestId,
                 navIdent = ansatt1,
                 request = AarsakerOgForklaringRequest(aarsaker = emptyList(), forklaring = null),
@@ -698,16 +697,18 @@ class TilsagnServiceTest : FunSpec({
 
         test("kan avvise eget oppgjør") {
             service.upsert(request, ansatt1).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
             service.godkjennTilsagn(
                 id = requestId,
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            service.tilGjorOppRequest(
+            service.tilOppgjorRequest(
                 id = requestId,
                 navIdent = ansatt1,
                 request = AarsakerOgForklaringRequest(aarsaker = emptyList(), forklaring = null),
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
+
             service.returnerTilsagn(
                 id = requestId,
                 navIdent = ansatt1,
@@ -726,7 +727,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
             val bestillingsnummer = database.run { queries.tilsagn.getOrError(requestId).bestilling.bestillingsnummer }
 
-            service.tilGjorOppRequest(
+            service.tilOppgjorRequest(
                 id = requestId,
                 navIdent = ansatt1,
                 request = AarsakerOgForklaringRequest(
@@ -766,31 +767,6 @@ class TilsagnServiceTest : FunSpec({
                     it.behandletAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt1)
                     it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
                 }
-        }
-
-        test("systemet kan gjøre opp tilsagnet uten en ekstra part i totrinnskontroll") {
-            service.upsert(request, ansatt1)
-                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
-
-            service.godkjennTilsagn(
-                id = requestId,
-                navIdent = ansatt2,
-            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
-
-            database.run {
-                service.gjorOppTilsagnVedUtbetaling(id = requestId, Tiltaksadministrasjon, Tiltaksadministrasjon, this)
-            }.status shouldBe TilsagnStatus.OPPGJORT
-
-            database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.GJOR_OPP).should {
-                    it.behandletAv shouldBe Tiltaksadministrasjon
-                    it.besluttetAv shouldBe Tiltaksadministrasjon
-                    it.besluttelse shouldBe Besluttelse.GODKJENT
-                }
-
-                // Verifiser at det ikke blir sendt oppgjør-melding til økonomi ved automatisk oppgjør
-                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1)
-            }
         }
     }
 })

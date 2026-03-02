@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptyListOf
@@ -143,8 +142,7 @@ class TilsagnService(
     }
 
     fun slettTilsagn(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
-        val tilsagn = queries.tilsagn.getOrError(id)
-
+        val tilsagn = queries.tilsagn.getAndAquireLock(id)
         if (tilsagn.status != TilsagnStatus.RETURNERT) {
             return FieldError.of("Kan ikke slette tilsagn som er godkjent").nel().left()
         }
@@ -164,19 +162,23 @@ class TilsagnService(
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
     ): Tilsagn = db.transaction {
-        val tilsagn = queries.tilsagn.getOrError(id)
-
+        val tilsagn = queries.tilsagn.getAndAquireLock(id)
         setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun tilGjorOppRequest(
+    fun tilOppgjorRequest(
         id: UUID,
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
     ): Tilsagn = db.transaction {
-        val tilsagn = queries.tilsagn.getOrError(id)
-
-        setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring, "Sendt til oppgjør")
+        val tilsagn = queries.tilsagn.getAndAquireLock(id)
+        setTilOppgjor(
+            tilsagn,
+            navIdent,
+            aarsaker = request.aarsaker.map { it.name },
+            forklaring = request.forklaring,
+            operation = "Sendt til oppgjør",
+        )
     }
 
     fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
@@ -295,7 +297,7 @@ class TilsagnService(
         id: UUID,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
-        validateAccessToTilsagn(id, navIdent).flatMap { tilsagn ->
+        validateAccessAndLockTilsagn(id, navIdent).flatMap { tilsagn ->
             when (tilsagn.status) {
                 TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT,
                 -> FieldError.of("Tilsagnet kan ikke godkjennes fordi det har status ${tilsagn.status.beskrivelse}")
@@ -323,7 +325,7 @@ class TilsagnService(
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
-        validateAccessToTilsagn(id, navIdent).flatMap { tilsagn ->
+        validateAccessAndLockTilsagn(id, navIdent).flatMap { tilsagn ->
             when (tilsagn.status) {
                 TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT,
                 -> FieldError.of("Tilsagnet kan ikke returneres fordi det har status ${tilsagn.status.beskrivelse}")
@@ -339,8 +341,8 @@ class TilsagnService(
         }
     }
 
-    private fun QueryContext.validateAccessToTilsagn(id: UUID, navIdent: NavIdent) = validation {
-        val tilsagn = queries.tilsagn.getOrError(id)
+    private fun QueryContext.validateAccessAndLockTilsagn(id: UUID, navIdent: NavIdent) = validation {
+        val tilsagn = queries.tilsagn.getAndAquireLock(id)
 
         val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
         validate(ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
@@ -354,30 +356,6 @@ class TilsagnService(
         val tilsagn = queries.tilsagn.getOrError(bestillingsnummer)
         publishOpprettBestilling(tilsagn)
         tilsagn
-    }
-
-    fun gjorOppTilsagnVedUtbetaling(
-        id: UUID,
-        behandletAv: Agent,
-        besluttetAv: Agent,
-        queryContext: QueryContext,
-    ): Tilsagn {
-        var tilsagn = queryContext.queries.tilsagn.getOrError(id)
-        tilsagn = queryContext.setTilOppgjort(
-            tilsagn,
-            behandletAv,
-            aarsaker = emptyList(),
-            forklaring = null,
-            operation = "Sendt til oppgjør ved behandling av utbetaling",
-        )
-        return queryContext.gjorOppTilsagn(
-            tilsagn,
-            besluttetAv,
-            operation = "Tilsagn oppgjort ved attestering av utbetaling",
-        ).getOrElse {
-            // TODO returner valideringsfeil i stedet for å kaste exception
-            throw IllegalStateException(it.first().detail)
-        }
     }
 
     private fun QueryContext.godkjennTilsagn(
@@ -532,13 +510,14 @@ class TilsagnService(
         return dto.right()
     }
 
-    private fun QueryContext.setTilOppgjort(
+    context(tx: TransactionalQueryContext)
+    fun setTilOppgjor(
         tilsagn: Tilsagn,
         agent: Agent,
         aarsaker: List<String>,
         forklaring: String?,
         operation: String,
-    ): Tilsagn {
+    ): Tilsagn = with(tx) {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Kan bare gjøre opp godkjente tilsagn"
         }
@@ -565,11 +544,12 @@ class TilsagnService(
         return dto
     }
 
-    private fun QueryContext.gjorOppTilsagn(
+    context(tx: TransactionalQueryContext)
+    fun gjorOppTilsagn(
         tilsagn: Tilsagn,
         besluttetAv: Agent,
         operation: String,
-    ): Either<List<FieldError>, Tilsagn> {
+    ): Either<List<FieldError>, Tilsagn> = with(tx) {
         if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal godkjennes")
                 .nel()
@@ -594,12 +574,12 @@ class TilsagnService(
         return dto.right()
     }
 
-    private fun avvisOppgjor(
+    private fun QueryContext.avvisOppgjor(
         tilsagn: Tilsagn,
         besluttetAv: NavIdent,
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
-    ): Either<List<FieldError>, Tilsagn> = db.transaction {
+    ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal avvises")
                 .nel()
@@ -813,7 +793,10 @@ class TilsagnService(
         }
     }
 
-    private fun TransactionalQueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
+    private fun TransactionalQueryContext.storeOkonomiMelding(
+        bestillingsnummer: String,
+        message: OkonomiBestillingMelding,
+    ) {
         val record = StoredProducerRecord(
             config.bestillingTopic,
             bestillingsnummer.toByteArray(),

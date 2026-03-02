@@ -134,7 +134,7 @@ object UtbetalingValidator {
             periodeStart = periode.start,
             periodeSlutt = periode.getLastInclusiveDate(),
             pris = ValutaBelop(request.pris.belop, request.pris.valuta),
-            kidNummer = request.kidNummer ?. let { Kid.parseOrThrow(it) },
+            kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             beskrivelse = request.beskrivelse,
             vedlegg = emptyList(),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -191,7 +191,7 @@ object UtbetalingValidator {
             FieldError.of("Begrunnelse må være satt", AvbrytUtbetaling::begrunnelse)
         }
         validate(request.begrunnelse.length <= 100) {
-            FieldError.of("Begrunnelse ikke være lengre enn 100 tegn", AvbrytUtbetaling::begrunnelse)
+            FieldError.of("Begrunnelse kan ikke være lengre enn 100 tegn", AvbrytUtbetaling::begrunnelse)
         }
         request.begrunnelse
     }

@@ -249,6 +249,17 @@ class TilsagnQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, gjennomforingId)) { it.int("lopenummer") }
     }
 
+    fun getAndAquireLock(id: UUID): Tilsagn {
+        @Language("PostgreSQL")
+        val query = """
+            select id from tilsagn where id = ?::uuid for update
+        """.trimIndent()
+
+        session.execute(queryOf(query, id))
+
+        return getOrError(id)
+    }
+
     fun getOrError(id: UUID): Tilsagn {
         return checkNotNull(get(id)) { "Tilsagn med id $id finnes ikke" }
     }
