@@ -20,13 +20,12 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Valuta
 import org.koin.ktor.ext.inject
 import java.util.UUID
-import kotlin.getValue
 
 @Serializable
 data class ValutaLongBelop(
@@ -118,6 +117,7 @@ fun Route.rammedetaljerRoutes() {
                 call.respond(HttpStatusCode.NoContent)
             }
         }
+
         authorize(Rolle.AVTALER_SKRIV) {
             put({
                 tags = setOf("Avtale")
@@ -129,7 +129,6 @@ fun Route.rammedetaljerRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Oppdatert rammedetaljer"
-                        body<Unit>()
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
@@ -145,10 +144,13 @@ fun Route.rammedetaljerRoutes() {
                 val id: UUID by call.parameters
                 val request = call.receive<RammedetaljerRequest>()
 
-                val result = avtaleService.upsertRammedetaljer(id, request, navIdent)
-                    .mapLeft { ValidationError(errors = it) }
-
-                call.respondWithStatusResponse(result)
+                avtaleService.upsertRammedetaljer(id, request, navIdent)
+                    .onRight {
+                        call.respond(HttpStatusCode.OK)
+                    }
+                    .onLeft {
+                        call.respondWithProblemDetail(ValidationError(errors = it))
+                    }
             }
 
             delete({

@@ -103,9 +103,10 @@ class UtbetalingService(
             queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
             queries.utbetaling.setKid(utbetalingId, kid)
             queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.INNSENDT)
-            logEndring("Utbetaling sendt inn", getOrError(utbetalingId), Arrangor)
 
             scheduleJournalforUtbetaling(utbetalingId, vedlegg = emptyList())
+
+            logEndring("Utbetaling sendt inn", utbetalingId, Arrangor)
         }
 
         return tryAutomatiskUtbetaling(utbetalingId).right()
@@ -260,13 +261,11 @@ class UtbetalingService(
 
         queries.utbetaling.upsert(utbetaling)
 
-        val dto = logEndring("Utbetaling sendt inn", getOrError(utbetaling.id), agent)
-
         if (agent is Arrangor) {
-            scheduleJournalforUtbetaling(dto.id, vedlegg)
+            scheduleJournalforUtbetaling(utbetaling.id, vedlegg)
         }
 
-        return dto.right()
+        return logEndring("Utbetaling sendt inn", utbetaling.id, agent).right()
     }
 
     fun opprettDelutbetalinger(
@@ -321,7 +320,7 @@ class UtbetalingService(
                 queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
                 queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
 
-                logEndring("Utbetaling sendt til attestering", getOrError(utbetaling.id), navIdent)
+                logEndring("Utbetaling sendt til attestering", utbetaling.id, navIdent)
             }
     }
 
@@ -410,7 +409,7 @@ class UtbetalingService(
 
         queries.utbetaling.avbrytUtbetaling(utbetalingId, begrunnelse, Instant.now())
 
-        logEndring("Utbetaling avbrutt", getOrError(utbetaling.id), agent).right()
+        logEndring("Utbetaling avbrutt", utbetaling.id, agent).right()
     }
 
     fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {
@@ -462,11 +461,9 @@ class UtbetalingService(
         fakturaStatusSistOppdatert: LocalDateTime?,
     ) {
         val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
-        val utbetaling = queries.utbetaling.getOrError(delutbetaling.utbetalingId)
-
         logEndring(
             "Betaling for tilsagn ${tilsagn.bestilling.bestillingsnummer} er utbetalt",
-            utbetaling,
+            delutbetaling.utbetalingId,
             Tiltaksadministrasjon,
             fakturaStatusSistOppdatert ?: LocalDateTime.now(),
         )
@@ -670,7 +667,7 @@ class UtbetalingService(
         }
 
         queries.utbetaling.setStatus(id, UtbetalingStatusType.FERDIG_BEHANDLET)
-        return logEndring("Overført til utbetaling", getOrError(id), Tiltaksadministrasjon)
+        return logEndring("Overført til utbetaling", id, Tiltaksadministrasjon)
     }
 
     private fun TransactionalQueryContext.gjorOppTilsagnForDelutbetaling(delutbetalingId: UUID, tilsagn: Tilsagn) {
@@ -712,11 +709,7 @@ class UtbetalingService(
             }
 
         queries.utbetaling.setStatus(delutbetaling.utbetalingId, UtbetalingStatusType.RETURNERT)
-        return logEndring(
-            "Utbetaling returnert",
-            getOrError(delutbetaling.utbetalingId),
-            besluttetAv,
-        )
+        return logEndring("Utbetaling returnert", delutbetaling.utbetalingId, besluttetAv)
     }
 
     private fun TransactionalQueryContext.setReturnertDelutbetaling(
@@ -740,20 +733,21 @@ class UtbetalingService(
 
     private fun TransactionalQueryContext.logEndring(
         operation: String,
-        dto: Utbetaling,
+        utbetalingId: UUID,
         endretAv: Agent,
         timestamp: LocalDateTime = LocalDateTime.now(),
     ): Utbetaling {
+        val utbetaling = getOrError(utbetalingId)
         queries.endringshistorikk.logEndring(
             DocumentClass.UTBETALING,
             operation,
             endretAv,
-            dto.id,
+            utbetalingId,
             timestamp,
         ) {
-            Json.encodeToJsonElement(dto)
+            Json.encodeToJsonElement(utbetaling)
         }
-        return dto
+        return utbetaling
     }
 
     private fun TransactionalQueryContext.scheduleJournalforUtbetaling(utbetalingId: UUID, vedlegg: List<Vedlegg>) {
