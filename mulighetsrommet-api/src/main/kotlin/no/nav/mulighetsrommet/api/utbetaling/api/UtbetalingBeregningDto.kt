@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDeta
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerUtenFaktor
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.utbetaling.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
@@ -32,6 +33,7 @@ data class UtbetalingBeregningDto(
     val deltakerTableData: DataDrivenTableDto?,
     val pris: ValutaBelop,
     val satsDetaljer: List<DataDetails>,
+    val advarsler: List<DeltakerAdvarselDto>,
 ) {
     companion object {
         fun from(
@@ -39,6 +41,7 @@ data class UtbetalingBeregningDto(
             personaliaById: Map<UUID, DeltakerPersonaliaMedGeografiskEnhet>,
             regioner: List<Kontorstruktur>,
             utbetalingPeriode: Periode,
+            advarsler: List<DeltakerAdvarselDto>,
         ): UtbetalingBeregningDto {
             return when (beregning) {
                 is UtbetalingBeregningFri -> UtbetalingBeregningDto(
@@ -47,6 +50,7 @@ data class UtbetalingBeregningDto(
                     deltakerTableData = null,
                     pris = beregning.output.pris,
                     satsDetaljer = emptyList(),
+                    advarsler = advarsler,
                 )
 
                 is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
@@ -74,6 +78,7 @@ data class UtbetalingBeregningDto(
                             deltakelser = beregning.output.deltakelser(),
                             faktorLabel = "Antall månedsverk",
                         ),
+                        advarsler = advarsler,
                     )
                 }
 
@@ -102,6 +107,7 @@ data class UtbetalingBeregningDto(
                             deltakelser = beregning.output.deltakelser(),
                             faktorLabel = "Antall månedsverk",
                         ),
+                        advarsler = advarsler,
                     )
                 }
 
@@ -130,6 +136,7 @@ data class UtbetalingBeregningDto(
                             deltakelser = beregning.output.deltakelser(),
                             faktorLabel = "Antall ukesverk",
                         ),
+                        advarsler = advarsler,
                     )
                 }
 
@@ -158,6 +165,7 @@ data class UtbetalingBeregningDto(
                             deltakelser = beregning.output.deltakelser(),
                             faktorLabel = "Antall ukesverk",
                         ),
+                        advarsler = advarsler,
                     )
                 }
 
@@ -173,6 +181,7 @@ data class UtbetalingBeregningDto(
                             satser,
                             "Avtalt pris per time oppfølging",
                         ),
+                        advarsler = advarsler,
                     )
                 }
             }

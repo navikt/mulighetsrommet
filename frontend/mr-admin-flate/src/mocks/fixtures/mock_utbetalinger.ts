@@ -496,4 +496,5 @@ export const mockBeregning: UtbetalingBeregningDto = {
       ],
     },
   ],
+  advarsler: [],
 };
