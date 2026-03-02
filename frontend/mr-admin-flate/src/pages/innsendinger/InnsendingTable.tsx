@@ -6,6 +6,7 @@ import { InnsendingFilterType } from "./filter";
 import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { useInnsendingerSavedFilterState } from "@/filter/useSavedFiltersState";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
@@ -98,7 +99,7 @@ export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
                     <BodyShort>{formaterPeriode(innsending.periode)} </BodyShort>
                   </Table.DataCell>
                   <Table.DataCell aria-label={`Beløp: ${innsending.pris?.belop}`}>
-                    {innsending.pris?.belop ?? "-"}
+                    {innsending.pris ? formaterValutaBelop(innsending.pris) : "-"}
                   </Table.DataCell>
                   <Table.DataCell aria-label={`Status: ${innsending.status}`}>
                     <UtbetalingStatusTag status={innsending.status} />
@@ -156,13 +157,13 @@ const headers: ColumnHeader[] = [
   {
     sortKey: "belop",
     tittel: "Beløp",
-    sortable: false,
+    sortable: true,
     width: "1fr",
   },
   {
     sortKey: "status",
     tittel: "Status",
-    sortable: false,
+    sortable: true,
     width: "2fr",
   },
   {
