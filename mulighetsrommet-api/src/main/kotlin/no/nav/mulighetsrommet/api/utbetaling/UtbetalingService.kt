@@ -273,7 +273,7 @@ class UtbetalingService(
         request: OpprettDelutbetalingerRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        val utbetaling = getOrError(request.utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAquireLock(request.utbetalingId)
 
         val delutbetalingTilsagn = request.delutbetalinger.associate { req ->
             val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
@@ -329,7 +329,7 @@ class UtbetalingService(
         id: UUID,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        validateAccessToDelutbetaling(id, navIdent).flatMap { delutbetaling ->
+        validateAccessAndLockUtbetaling(id, navIdent).flatMap { delutbetaling ->
             godkjennDelutbetaling(delutbetaling, navIdent)
         }
     }
@@ -340,14 +340,15 @@ class UtbetalingService(
         forklaring: String?,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        validateAccessToDelutbetaling(id, navIdent).map { delutbetaling ->
+        validateAccessAndLockUtbetaling(id, navIdent).map { delutbetaling ->
             returnerDelutbetaling(delutbetaling, aarsaker, forklaring, navIdent)
         }
     }
 
-    private fun QueryContext.validateAccessToDelutbetaling(id: UUID, navIdent: NavIdent) = validation {
+    private fun QueryContext.validateAccessAndLockUtbetaling(id: UUID, navIdent: NavIdent) = validation {
         val delutbetaling = queries.delutbetaling.getOrError(id)
-        validate(delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING) {
+        val utbetaling = queries.utbetaling.getAndAquireLock(delutbetaling.utbetalingId)
+        validate(utbetaling.status == UtbetalingStatusType.TIL_ATTESTERING && delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING) {
             FieldError.of("Utbetaling er ikke satt til attestering")
         }
 
@@ -361,7 +362,7 @@ class UtbetalingService(
     }
 
     fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = db.transaction {
-        val utbetaling = getOrError(id)
+        val utbetaling = queries.utbetaling.getAndAquireLock(id)
         when (utbetaling.status) {
             UtbetalingStatusType.RETURNERT,
             UtbetalingStatusType.INNSENDT,
@@ -373,10 +374,9 @@ class UtbetalingService(
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
             UtbetalingStatusType.AVBRUTT,
-            ->
-                return FieldError.root(
-                    "Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}",
-                ).nel().left()
+            -> return FieldError.root("Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}")
+                .nel()
+                .left()
         }
         if (UtbetalingType.from(utbetaling) != UtbetalingType.KORRIGERING) {
             return FieldError.root("Kan kun slette korreksjoner").nel().left()

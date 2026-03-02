@@ -209,7 +209,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
                 delutbetalinger = listOf(delutbetaling1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
@@ -837,7 +837,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1, tilsagn2),
-                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
                 delutbetalinger = listOf(delutbetaling1, delutbetaling2),
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
@@ -1036,7 +1036,7 @@ class UtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
                 delutbetalinger = listOf(delutbetaling1),
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
@@ -1081,7 +1081,7 @@ class UtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(tilsagn1),
                 utbetalinger = listOf(
                     utbetaling1.copy(
-                        status = UtbetalingStatusType.INNSENDT,
+                        status = UtbetalingStatusType.TIL_ATTESTERING,
                         utbetalesTidligstTidspunkt = februarNorskTid,
                     ),
                 ),
