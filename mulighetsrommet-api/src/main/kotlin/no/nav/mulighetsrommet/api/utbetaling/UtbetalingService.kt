@@ -392,15 +392,25 @@ class UtbetalingService(
         queries.utbetaling.delete(id).right()
     }
 
-    fun avbrytUtbetaling(utbetalingId: UUID, begrunnelse: String): Unit = db.transaction {
-        queries.utbetaling.avbrytUtbetaling(
-            utbetalingId,
-            begrunnelse,
-            Instant.now(),
-        )
-        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
-        logEndring("Utbetaling avbrutt", utbetaling, Arrangor)
-        return
+    fun avbrytUtbetaling(utbetalingId: UUID, begrunnelse: String, agent: Agent): Either<List<FieldError>, Utbetaling> = db.transaction {
+        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
+        when (utbetaling.status) {
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
+            -> return FieldError.root("Utbetalingen kan ikke avbrytes").nel().left()
+
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.RETURNERT,
+            -> Unit
+        }
+
+        queries.utbetaling.avbrytUtbetaling(utbetalingId, begrunnelse, Instant.now())
+
+        logEndring("Utbetaling avbrutt", getOrError(utbetaling.id), agent).right()
     }
 
     fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {

@@ -50,6 +50,7 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -345,12 +346,12 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
             UtbetalingValidator
                 .validerAvbrytUtbetaling(request, utbetaling)
+                .map { utbetalingService.avbrytUtbetaling(utbetaling.id, it, Arrangor) }
+                .onRight {
+                    call.respond(HttpStatusCode.OK)
+                }
                 .onLeft {
                     call.respondWithProblemDetail(ValidationError(errors = it))
-                }
-                .onRight {
-                    utbetalingService.avbrytUtbetaling(utbetaling.id, it)
-                    call.respond(HttpStatusCode.OK)
                 }
         }
 
