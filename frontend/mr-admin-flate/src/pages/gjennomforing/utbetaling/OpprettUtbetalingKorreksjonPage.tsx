@@ -1,5 +1,5 @@
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { OpprettUtbetalingForm } from "./OpprettUtbetalingForm";
+import { OpprettUtbetalingKorreksjonForm } from "./OpprettUtbetalingKorreksjonForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
 import { Heading, VStack } from "@navikt/ds-react";
@@ -14,7 +14,7 @@ export function OpprettUtbetalingKorreksjonPage() {
       <Heading size="medium" level="2">
         Opprett korreksjon
       </Heading>
-      <OpprettUtbetalingForm
+      <OpprettUtbetalingKorreksjonForm
         gjennomforing={gjennomforing}
         prismodell={prismodell}
         betalingsinformasjon={betalingsinformasjon}

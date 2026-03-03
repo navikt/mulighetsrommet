@@ -32,7 +32,11 @@ interface Props {
   betalingsinformasjon?: Betalingsinformasjon;
 }
 
-export function OpprettUtbetalingForm({ gjennomforing, prismodell, betalingsinformasjon }: Props) {
+export function OpprettUtbetalingAnskaffelseForm({
+  gjennomforing,
+  prismodell,
+  betalingsinformasjon,
+}: Props) {
   const form = useForm<OpprettUtbetalingRequest>({
     resolver: async (values) => ({ values, errors: {} }),
   });
@@ -104,10 +108,18 @@ export function OpprettUtbetalingForm({ gjennomforing, prismodell, betalingsinfo
                 error={errors.pris?.belop?.message}
               />
             </VStack>
+            <VStack align={"start"}>
+              <TextField
+                size="small"
+                label={"Journalpost-ID i Gosys"}
+                {...register("journalpostId")}
+                error={errors.journalpostId?.message}
+              />
+            </VStack>
             <HStack>
               <Textarea
                 size="small"
-                label="Begrunnelse for utbetaling"
+                label="Kommentar"
                 {...register("beskrivelse")}
                 error={errors.beskrivelse?.message}
                 resize
