@@ -8,8 +8,8 @@ import no.nav.mulighetsrommet.api.pdfgen.TopSection
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.ValutaBelop
-import org.threeten.bp.LocalDate
 import java.text.NumberFormat
+import java.time.LocalDate
 import java.util.Locale
 
 object TilsagnToPdfDocumentContentMapper {
@@ -17,6 +17,7 @@ object TilsagnToPdfDocumentContentMapper {
         tilsagn: Tilsagn,
         kontonummer: Kontonummer,
         deltaker: DeltakerPersonalia,
+        referanseDato: LocalDate = LocalDate.now(),
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Tilsagnsbrev",
         subject = "Tilsagnsbrev til ${tilsagn.arrangor.navn}",
@@ -27,7 +28,7 @@ object TilsagnToPdfDocumentContentMapper {
             TopSection(
                 publicExemption = true,
                 addressedTo = "Brev til ${tilsagn.arrangor.navn}",
-                date = LocalDate.now().toString(),
+                date = referanseDato.toString(),
                 reference = "Ref. ${tilsagn.bestilling.bestillingsnummer}",
             ),
         )

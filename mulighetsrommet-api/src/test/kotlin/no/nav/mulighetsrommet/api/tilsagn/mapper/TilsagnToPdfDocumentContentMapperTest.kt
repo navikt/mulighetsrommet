@@ -85,28 +85,33 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         beskrivelse = null,
         journalpost = null,
         beregning =
-        TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(
-                listOf(
-                    TilsagnBeregningFri.InputLinje(
-                        id = UUID.randomUUID(),
-                        beskrivelse = "1234",
-                        pris = 1234.withValuta(Valuta.NOK),
-                        antall = 1,
+            TilsagnBeregningFri(
+                input = TilsagnBeregningFri.Input(
+                    listOf(
+                        TilsagnBeregningFri.InputLinje(
+                            id = UUID.randomUUID(),
+                            beskrivelse = "1234",
+                            pris = 1234.withValuta(Valuta.NOK),
+                            antall = 1,
+                        ),
                     ),
+                    prisbetingelser = null,
                 ),
-                prisbetingelser = null,
+                output = TilsagnBeregningFri.Output(
+                    pris = 1234.withValuta(Valuta.NOK),
+                ),
             ),
-            output = TilsagnBeregningFri.Output(
-                pris = 1234.withValuta(Valuta.NOK),
-            ),
-        ),
 
-    )
+        )
 
     context("pdf-content for tilsagnsbrev til arrangør") {
         test("annen avtalt pris") {
-            val pdfContent = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(tilsagn, kontonummer, deltaker)
+            val pdfContent = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                tilsagn,
+                kontonummer,
+                deltaker,
+                LocalDate.of(2026, 3, 1)
+            )
 
             jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedUtbetalingsdetaljerFastSatsContent
         }
@@ -123,7 +128,7 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
   "topSection": {
     "publicExemption": true,
     "addressedTo": "Brev til AKSEPTABEL EMPIRISK TIGER AS",
-    "date": "2026-03-02",
+    "date": "2026-03-01",
     "reference": "Ref. A-2026/9999-1"
   },
   "sections": [
