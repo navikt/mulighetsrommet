@@ -142,6 +142,7 @@ object UtbetalingValidator {
             pris = ValutaBelop(request.pris.belop, request.pris.valuta),
             kid = request.kidNummer?.let { Kid.parseOrThrow(it) },
             beskrivelse = request.beskrivelse,
+            kommentar = request.kommentar,
             vedlegg = emptyList(),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         )

@@ -69,7 +69,7 @@ export function OpprettUtbetalingAnskaffelseForm({ gjennomforing, prismodell }: 
               label="Journalpost-ID i Gosys"
               name="journalpostId"
             />
-            <TextareaInput<OpprettUtbetalingRequest> label="Kommentar" name="beskrivelse" />
+            <TextareaInput<OpprettUtbetalingRequest> label="Kommentar" name="kommentar" />
           </FormGroup>
           <FormGroup>
             <ArrangorBetalingsinformasjon arrangorId={gjennomforing.arrangor.id} />

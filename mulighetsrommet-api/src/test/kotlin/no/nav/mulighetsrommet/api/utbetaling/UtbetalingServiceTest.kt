@@ -123,6 +123,7 @@ class UtbetalingServiceTest : FunSpec({
             journalpostId = null,
             beskrivelse = "Arrangør trenger penger",
             kid = null,
+            kommentar = null,
             pris = 10.withValuta(Valuta.NOK),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             vedlegg = listOf(),

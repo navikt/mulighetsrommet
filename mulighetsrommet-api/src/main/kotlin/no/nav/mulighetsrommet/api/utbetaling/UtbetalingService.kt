@@ -171,7 +171,6 @@ class UtbetalingService(
         val dbo = UtbetalingDbo(
             id = UUID.randomUUID(),
             gjennomforingId = utbetalingKrav.gjennomforingId,
-            korreksjonGjelderUtbetalingId = null,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = Betalingsinformasjon.BBan(utbetalingKrav.kontonummer, utbetalingKrav.kidNummer),
             valuta = gjennomforing.prismodell.valuta,
@@ -185,6 +184,8 @@ class UtbetalingService(
             ),
             periode = periode,
             innsender = agent,
+            kommentar = null,
+            korreksjonGjelderUtbetalingId = null,
             korreksjonBegrunnelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             journalpostId = null,
@@ -250,7 +251,6 @@ class UtbetalingService(
         val dbo = UtbetalingDbo(
             id = opprett.id,
             gjennomforingId = opprett.gjennomforingId,
-            korreksjonGjelderUtbetalingId = korrigererUtbetaling,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = betalingsinformasjon,
             valuta = opprett.pris.valuta,
@@ -259,6 +259,8 @@ class UtbetalingService(
             ),
             periode = periode,
             innsender = agent,
+            kommentar = opprett.kommentar,
+            korreksjonGjelderUtbetalingId = korrigererUtbetaling,
             korreksjonBegrunnelse = opprett.beskrivelse,
             tilskuddstype = opprett.tilskuddstype,
             journalpostId = opprett.journalpostId,
