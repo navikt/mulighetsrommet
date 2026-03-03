@@ -18,7 +18,7 @@ import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
-import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
+import { OpprettUtbetalingKorreksjonPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingKorreksjonPage";
 import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
@@ -44,6 +44,7 @@ import { Head } from "@unhead/react";
 import { AvtaleDetaljerForm } from "./components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "./components/avtaler/AvtalePersonvernForm";
 import { AvtaleInformasjonForVeiledereForm } from "./components/avtaler/AvtaleInformasjonForVeiledereForm";
+import { OpprettUtbetalingAnskaffelsePage } from "@/pages/gjennomforing/utbetaling/OpprettUtbetalingAnskaffelsePage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -218,11 +219,11 @@ const routes: RouteObject[] = [
           },
           {
             path: "utbetalinger/opprett-korreksjon",
-            element: <OpprettUtbetalingPage />,
+            element: <OpprettUtbetalingKorreksjonPage />,
           },
           {
             path: "utbetalinger/opprett-utbetaling",
-            element: <OpprettUtbetalingPage />,
+            element: <OpprettUtbetalingAnskaffelsePage />,
           },
         ],
       },
