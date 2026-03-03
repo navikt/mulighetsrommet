@@ -95,7 +95,6 @@ class UtbetalingServiceTest : FunSpec({
         TilsagnService.Config("bestilling-topic", mapOf()),
         db = database.db,
         navAnsattService = mockk(),
-        journalforEnkeltplassTilsagnsbrev = mockk(),
     )
 
     fun createUtbetalingService(
