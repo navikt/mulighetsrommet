@@ -21,7 +21,6 @@ import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { addDuration } from "@mr/frontend-common/utils/date";
-import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
@@ -72,92 +71,86 @@ export function OpprettUtbetalingForm({ gjennomforing, prismodell, betalingsinfo
 
   const errors = formState.errors;
   return (
-    <>
-      <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-      <div className="w-3/4">
-        <FormProvider {...form}>
-          <form onSubmit={handleSubmit(postData)}>
-            <FormGroup>
-              <Heading size="medium" level="2">
-                Utbetalingsinformasjon
-              </Heading>
-              <HStack gap="space-8">
-                <ControlledDateInput
-                  label="Periodestart"
-                  fromDate={new Date(gjennomforing.startDato)}
-                  toDate={addDuration(new Date(), { years: 5 })}
-                  onChange={(val) => setValue("periodeStart", val)}
-                  defaultSelected={getValues("periodeStart")}
-                  error={errors.periodeStart?.message}
-                />
-                <ControlledDateInput
-                  label="Periodeslutt"
-                  fromDate={new Date(gjennomforing.startDato)}
-                  toDate={addDuration(new Date(), { years: 5 })}
-                  onChange={(val) => setValue("periodeSlutt", val)}
-                  defaultSelected={getValues("periodeSlutt")}
-                  error={errors.periodeSlutt?.message}
-                />
-              </HStack>
-              <VStack align={"start"}>
-                <TextField
-                  size="small"
-                  label={`Beløp (${prismodell?.valuta})`}
-                  type="number"
-                  {...register("pris.belop", {
-                    valueAsNumber: true,
-                  })}
-                  error={errors.pris?.belop?.message}
-                />
-              </VStack>
-              <HStack>
-                <Textarea
-                  size="small"
-                  label="Begrunnelse for utbetaling"
-                  {...register("beskrivelse")}
-                  error={errors.beskrivelse?.message}
-                  resize
-                  cols={93}
-                />
-              </HStack>
-              <Separator />
-              <Heading size="small" level="2">
-                Betalingsinformasjon
-              </Heading>
-              {betalingsinformasjon && (
-                <BetalingsinformasjonView betalingsinformasjon={betalingsinformasjon} />
-              )}
-              {!betalingsinformasjon ? (
-                <Alert variant="warning" className="my-5">
-                  <VStack align="start" gap="space-8">
-                    <Heading spacing size="xsmall" level="3">
-                      Kontonummer mangler for arrangør
-                    </Heading>
-                    <p className="text-balance">
-                      Arrangøren har ikke registrert et kontonummer for utbetaling i Altinn.
-                      Arrangør må legge inn kontonummer før du kan opprette utbetaling til
-                      arrangøren. Les mer om <EndreKontonummerLink /> her.
-                    </p>
-                  </VStack>
-                </Alert>
-              ) : null}
-              <HStack align={"start"} justify={"end"} gap="space-8">
-                <Button
-                  size="small"
-                  variant="tertiary"
-                  onClick={() => navigate(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)}
-                >
-                  Avbryt
-                </Button>
-                <Button size="small" type="submit">
-                  Opprett
-                </Button>
-              </HStack>
-            </FormGroup>
-          </form>
-        </FormProvider>
-      </div>
-    </>
+    <div className="w-3/4">
+      <FormProvider {...form}>
+        <form onSubmit={handleSubmit(postData)}>
+          <FormGroup>
+            <HStack gap="space-8">
+              <ControlledDateInput
+                label="Periodestart"
+                fromDate={new Date(gjennomforing.startDato)}
+                toDate={addDuration(new Date(), { years: 5 })}
+                onChange={(val) => setValue("periodeStart", val)}
+                defaultSelected={getValues("periodeStart")}
+                error={errors.periodeStart?.message}
+              />
+              <ControlledDateInput
+                label="Periodeslutt"
+                fromDate={new Date(gjennomforing.startDato)}
+                toDate={addDuration(new Date(), { years: 5 })}
+                onChange={(val) => setValue("periodeSlutt", val)}
+                defaultSelected={getValues("periodeSlutt")}
+                error={errors.periodeSlutt?.message}
+              />
+            </HStack>
+            <VStack align={"start"}>
+              <TextField
+                size="small"
+                label={`Beløp (${prismodell?.valuta})`}
+                type="number"
+                {...register("pris.belop", {
+                  valueAsNumber: true,
+                })}
+                error={errors.pris?.belop?.message}
+              />
+            </VStack>
+            <HStack>
+              <Textarea
+                size="small"
+                label="Begrunnelse for utbetaling"
+                {...register("beskrivelse")}
+                error={errors.beskrivelse?.message}
+                resize
+                cols={93}
+              />
+            </HStack>
+            <Separator />
+            <Heading size="small" level="2">
+              Betalingsinformasjon
+            </Heading>
+            {betalingsinformasjon && (
+              <BetalingsinformasjonView betalingsinformasjon={betalingsinformasjon} />
+            )}
+            {!betalingsinformasjon ? (
+              <Alert variant="warning" className="my-5">
+                <VStack align="start" gap="space-8">
+                  <Heading spacing size="xsmall" level="3">
+                    Kontonummer mangler for arrangør
+                  </Heading>
+                  <p className="text-balance">
+                    Arrangøren har ikke registrert et kontonummer for utbetaling i Altinn. Arrangør
+                    må legge inn kontonummer før du kan opprette utbetaling til arrangøren. Les mer
+                    om <EndreKontonummerLink /> her.
+                  </p>
+                </VStack>
+              </Alert>
+            ) : null}
+            <HStack align={"start"} justify={"end"} gap="space-8">
+              <Button
+                size="small"
+                variant="tertiary"
+                onClick={() => navigate(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)}
+              >
+                Avbryt
+              </Button>
+              <Button size="small" type="submit">
+                Opprett
+              </Button>
+            </HStack>
+          </FormGroup>
+        </form>
+      </FormProvider>
+    </div>
   );
 }
 
