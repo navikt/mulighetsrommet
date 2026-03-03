@@ -53,13 +53,18 @@ export function useFailedScheduledTasks(base: ApiBase) {
 export function useFailedKafkaConsumerRecords(base: ApiBase) {
   const [records, setRecords] = useState<KafkaConsumerRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const fetchScheduledTasks = async () => {
+    const data = await getFailedKafkaConsumerRecords(base);
+    setRecords(data);
+    setIsLoading(false);
+  };
   useEffect(() => {
-    const fetchScheduledTasks = async () => {
-      const data = await getFailedKafkaConsumerRecords(base);
-      setRecords(data);
-      setIsLoading(false);
-    };
     fetchScheduledTasks();
   }, []);
-  return { isLoading, records };
+  function refetch() {
+    setIsLoading(true);
+    fetchScheduledTasks();
+  }
+  return { isLoading, records, refetch };
 }

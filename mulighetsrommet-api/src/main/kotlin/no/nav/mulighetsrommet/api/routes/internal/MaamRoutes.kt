@@ -29,10 +29,13 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.UUID
 
 fun Route.maamRoutes() {
@@ -183,6 +186,15 @@ fun Route.maamRoutes() {
                     call.respond(failedRecords)
                 }
             }
+            put("/failed-records") {
+                val request = call.receive<RetryKafkaRecordRequest>()
+                db.transaction {
+                    queries.kafkaConsumerRecords.retryAt(
+                        request.id, request.topic, request.executionTime.toInstant(ZoneOffset.UTC)
+                    )
+                }
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 }
@@ -300,3 +312,11 @@ fun KafkaConsumerRecordDbo.toDto(): KafkaConsumerRecordDto {
         createdAt = createdAt.toString(),
     )
 }
+
+@Serializable
+data class RetryKafkaRecordRequest(
+    val id: Long,
+    val topic: String,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val executionTime: LocalDateTime,
+)
