@@ -3,7 +3,7 @@ import {
   OpprettKravDeltakereGuidePanelType,
   StengtPeriode,
 } from "@api-client";
-import { BodyShort, GuidePanel, Heading, Link, LocalAlert, VStack } from "@navikt/ds-react";
+import { BodyShort, GuidePanel, Heading, Link, InfoCard, VStack } from "@navikt/ds-react";
 import { LabeledDataElementList } from "../common/Definisjonsliste";
 import { DataDrivenTable } from "@mr/frontend-common";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
@@ -32,11 +32,11 @@ export default function DeltakereSteg({ deltakere, deltakerlisteUrl }: Deltakere
       />
       <VStack gap="space-16">
         {deltakere.stengtHosArrangor.length > 0 && (
-          <LocalAlert status="announcement" size="small">
-            <LocalAlert.Header>
-              <LocalAlert.Title as="h4">Stengte perioder</LocalAlert.Title>
-            </LocalAlert.Header>
-            <LocalAlert.Content>
+          <InfoCard data-color="info" size="small">
+            <InfoCard.Header>
+              <InfoCard.Title as="h4">Stengte perioder</InfoCard.Title>
+            </InfoCard.Header>
+            <InfoCard.Content>
               <BodyShort spacing>{tekster.bokmal.utbetaling.beregning.stengtHosArrangor}</BodyShort>
               <ul>
                 {deltakere.stengtHosArrangor.map(({ periode, beskrivelse }: StengtPeriode) => (
@@ -45,8 +45,8 @@ export default function DeltakereSteg({ deltakere, deltakerlisteUrl }: Deltakere
                   </li>
                 ))}
               </ul>
-            </LocalAlert.Content>
-          </LocalAlert>
+            </InfoCard.Content>
+          </InfoCard>
         )}
         <DataDrivenTable data={deltakere.tabell} />
         <VStack gap="space-8">

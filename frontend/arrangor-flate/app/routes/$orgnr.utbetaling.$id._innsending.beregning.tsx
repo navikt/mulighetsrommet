@@ -5,7 +5,7 @@ import {
   Heading,
   HStack,
   Link,
-  LocalAlert,
+  InfoCard,
   VStack,
 } from "@navikt/ds-react";
 import type { MetaFunction } from "react-router";
@@ -55,11 +55,11 @@ export default function UtbetalingBeregning() {
       </Heading>
       <VStack gap="space-16">
         {utbetaling.beregning.stengt.length > 0 && (
-          <LocalAlert status="announcement" size="small">
-            <LocalAlert.Header>
-              <LocalAlert.Title as="h4">Stengte perioder</LocalAlert.Title>
-            </LocalAlert.Header>
-            <LocalAlert.Content>
+          <InfoCard data-color="info" size="small">
+            <InfoCard.Header>
+              <InfoCard.Title as="h4">Stengte perioder</InfoCard.Title>
+            </InfoCard.Header>
+            <InfoCard.Content>
               <BodyShort spacing>{tekster.bokmal.utbetaling.beregning.stengtHosArrangor}</BodyShort>
               <ul>
                 {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
@@ -68,8 +68,8 @@ export default function UtbetalingBeregning() {
                   </li>
                 ))}
               </ul>
-            </LocalAlert.Content>
-          </LocalAlert>
+            </InfoCard.Content>
+          </InfoCard>
         )}
         <DeltakelserTable
           beregning={utbetaling.beregning}
