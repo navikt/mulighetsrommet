@@ -80,9 +80,8 @@ class JournalforEnkeltplassTilsagnsbrev(
             logger.info("Tilsagn med id $tilsagnId er allrede journalført med id ${tilsagn.journalpost.id}")
             return@transaction Either.Right(tilsagn.journalpost.id)
         }
-        val totrinn = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
-            ?: return@transaction Either.Left("Fant ingen totrinnskontroll for tilsagn ${tilsagn.id}")
-        val behandlere = listOf(totrinn.besluttetAvNavn, totrinn.behandletAvNavn).filterNotNull()
+        val totrinn = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+        val behandlere = listOfNotNull(totrinn.besluttetAvNavn, totrinn.behandletAvNavn)
 
         val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
         val deltakere = queries.deltaker.getByGjennomforingId(enkeltplass.id)
