@@ -37,6 +37,27 @@ export const getFailedKafkaConsumerRecords = async (
     .then(parseJson)
     .catch((error) => toastError("Klarte ikke laste failed kafka consumer records", error));
 
+export interface RetryFailedKafkaRecord {
+  id: number;
+  topic: string;
+  executionTime: Date;
+}
+export const putRetryFailedKafkaRecord = (base: ApiBase, payload: RetryFailedKafkaRecord) =>
+  fetch(`${base}/topics/failed-records`, {
+    method: "PUT",
+    headers: {
+      ...getDefaultHeaders(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      ...payload,
+      executionTime: payload.executionTime.toISOString().substring(0, 19),
+    }),
+  })
+    .then(checkOk)
+    .then(() => toast.success("Topics oppdatert"))
+    .catch((error) => toastError("Klarte ikke oppdatere topics", error));
+
 export const getArenaTables = () =>
   fetch("/mulighetsrommet-arena-adapter/arena-tables", {
     method: "GET",

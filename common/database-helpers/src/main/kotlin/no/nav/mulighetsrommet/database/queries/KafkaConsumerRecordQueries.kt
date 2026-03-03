@@ -15,7 +15,7 @@ data class KafkaConsumerRecordDbo(
     val key: ByteArray?,
     val value: ByteArray?,
     val headersJson: String?,
-    val recordTimestamp: Instant?,
+    val recordTimestamp: Long?,
     val createdAt: Instant,
 )
 
@@ -25,6 +25,7 @@ class KafkaConsumerRecordQueries(private val session: Session) {
         val query = """
                     select * from kafka_consumer_record
                     where retries > 0
+                    order by id
         """.trimIndent()
 
         return session.list(queryOf(query, emptyMap())) { row ->
@@ -38,9 +39,25 @@ class KafkaConsumerRecordQueries(private val session: Session) {
                 key = row.bytesOrNull("key"),
                 value = row.bytesOrNull("value"),
                 headersJson = row.stringOrNull("headers_json"),
-                recordTimestamp = row.instantOrNull("record_timestamp"),
+                recordTimestamp = row.long("record_timestamp"),
                 createdAt = row.instant("created_at"),
             )
         }
+    }
+
+    fun retryAt(id: Long, topic: String, executionTime: Instant) {
+        @Language("PostgreSQL")
+        val query = """
+                    update kafka_consumer_record
+                      set last_retry = :last_retry
+                    where id = :id and topic = :topic
+        """.trimIndent()
+
+        val params = mapOf(
+            "last_retry" to executionTime,
+            "id" to id,
+            "topic" to topic,
+        )
+        session.execute(queryOf(query, params))
     }
 }

@@ -2,7 +2,7 @@ import { ScheduledTask } from "src/domain";
 import { Section } from "../components/Section";
 import { ApiBase } from "../core/api";
 import { useFailedScheduledTasks } from "../core/hooks";
-import { BodyShort, Box, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { BodyShort, Box, HStack, Label, Table, VStack } from "@navikt/ds-react";
 import { formatUTCDate } from "../utils";
 
 interface Props {
@@ -60,20 +60,20 @@ function ExpandedRow({ task }: ExpandedRowProps) {
     <VStack gap="space-8">
       <HStack gap="space-4" justify="space-between">
         <Box padding="space-6">
-          <Heading size="xsmall">Last Failure</Heading>
+          <Label size="small">Last Failure</Label>
           <BodyShort>{formatUTCDate(task.lastFailure)}</BodyShort>
         </Box>
         <Box padding="space-6">
-          <Heading size="xsmall">Picked</Heading>
+          <Label size="small">Picked</Label>
           <BodyShort>{task.picked}</BodyShort>
         </Box>
         <Box padding="space-6">
-          <Heading size="xsmall">Picked by</Heading>
+          <Label size="small">Picked by</Label>
           <BodyShort>{task.pickedBy}</BodyShort>
         </Box>
       </HStack>
       <Box background="sunken" padding="space-4">
-        <Heading size="small">Data</Heading>
+        <Label size="small">Data</Label>
         <pre>{task.taskData}</pre>
       </Box>
     </VStack>
