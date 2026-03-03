@@ -1,13 +1,13 @@
-import { BodyShort, LocalAlert, VStack } from "@navikt/ds-react";
+import { BodyShort, InfoCard, VStack } from "@navikt/ds-react";
 
 export function UtbetalingManglendeTilsagnAlert() {
   return (
     <VStack align="start">
-      <LocalAlert status="warning" size="small">
-        <LocalAlert.Header>
-          <LocalAlert.Title as="h4">Tilsagn mangler</LocalAlert.Title>
-        </LocalAlert.Header>
-        <LocalAlert.Content>
+      <InfoCard data-color="warning" size="small">
+        <InfoCard.Header>
+          <InfoCard.Title as="h4">Tilsagn mangler</InfoCard.Title>
+        </InfoCard.Header>
+        <InfoCard.Content>
           <BodyShort>
             Det finnes ingen godkjente tilsagn tilgjengelig for denne utbetalingen.
           </BodyShort>
@@ -15,8 +15,8 @@ export function UtbetalingManglendeTilsagnAlert() {
             Dere kan ikke sende inn kravet før Nav har godkjent et tilsagn for utbetalingsperioden.
           </BodyShort>
           Vennligst ta kontakt med Nav.
-        </LocalAlert.Content>
-      </LocalAlert>
+        </InfoCard.Content>
+      </InfoCard>
     </VStack>
   );
 }

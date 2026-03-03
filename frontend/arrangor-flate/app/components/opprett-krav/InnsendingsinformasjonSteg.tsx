@@ -14,7 +14,7 @@ import {
   HStack,
   Label,
   Link,
-  LocalAlert,
+  InfoCard,
   Select,
   useDatepicker,
   VStack,
@@ -115,13 +115,13 @@ export default function InnsendingsinformasjonSteg({
               Hva som blir utbetalt avhenger imidlertid av faktisk forbruk i perioden.
             </BodyShort>
             {relevanteTilsagn.length < 1 ? (
-              <LocalAlert status="warning" size="small">
-                <LocalAlert.Header>
-                  <LocalAlert.Title>
+              <InfoCard data-color="warning" size="small">
+                <InfoCard.Header>
+                  <InfoCard.Title>
                     Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
-                  </LocalAlert.Title>
-                </LocalAlert.Header>
-              </LocalAlert>
+                  </InfoCard.Title>
+                </InfoCard.Header>
+              </InfoCard>
             ) : (
               <>
                 {relevanteTilsagn.map((tilsagn) => (

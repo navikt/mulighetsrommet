@@ -1,4 +1,4 @@
-import { LocalAlert, BodyShort, Box, Heading, Tabs, Link, VStack } from "@navikt/ds-react";
+import { InfoCard, BodyShort, Box, Heading, Tabs, Link, VStack } from "@navikt/ds-react";
 import { ArrangorInnsendingRadDto, TiltaksoversiktType } from "api-client";
 import { Suspense } from "react";
 import { Link as ReactRouterLink, MetaFunction } from "react-router";
@@ -72,17 +72,17 @@ function TiltaksOversiktContent({ type }: { type: TiltaksoversiktType }) {
   if (sortedData.length === 0) {
     return (
       <Box marginBlock="space-16">
-        <LocalAlert status="warning" className="my-10">
-          <LocalAlert.Header>
-            <LocalAlert.Title>Fant ingen registrerte tiltak</LocalAlert.Title>
-          </LocalAlert.Header>
-          <LocalAlert.Content>
+        <InfoCard data-color="warning" className="my-10">
+          <InfoCard.Header>
+            <InfoCard.Title>Fant ingen registrerte tiltak</InfoCard.Title>
+          </InfoCard.Header>
+          <InfoCard.Content>
             <BodyShort spacing>
               Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
             </BodyShort>
             <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
-          </LocalAlert.Content>
-        </LocalAlert>
+          </InfoCard.Content>
+        </InfoCard>
       </Box>
     );
   }
