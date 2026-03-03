@@ -9,6 +9,7 @@ import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { GavelSoundBlockFillIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Tabs } from "@navikt/ds-react";
 import { Saksopplysninger } from "./Saksopplysninger";
+import { Vilkarsvurdering } from "./Vilkarsvurdering";
 
 const tabs = [
   { key: "Saksopplysninger", label: "Saksopplysninger" },
@@ -54,7 +55,7 @@ export function BehandlingPage() {
         <WhitePaddedBox>
           <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
           <Separator />
-          <Tabs value="Vilkårsvurdering">
+          <Tabs value="Vilkarsvurdering">
             <Tabs.List>
               {tabs.map((tab) => (
                 <Tabs.Tab key={tab.key} value={tab.key} label={tab.label} />
@@ -62,6 +63,9 @@ export function BehandlingPage() {
             </Tabs.List>
             <Tabs.Panel value="Saksopplysninger">
               <Saksopplysninger />
+            </Tabs.Panel>
+            <Tabs.Panel value="Vilkarsvurdering">
+              <Vilkarsvurdering />
             </Tabs.Panel>
           </Tabs>
           <Separator />
