@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
@@ -70,8 +71,8 @@ class JournalforUtbetaling(
                     .opprettJournalpost(journalpost, AccessType.M2M)
                     .mapLeft { error -> "Feil fra dokark: ${error.message}" }
             }
-            .onRight {
-                queries.utbetaling.setJournalpostId(id, it.journalpostId)
+            .onRight { response ->
+                queries.utbetaling.setJournalpostId(id, JournalpostId(response.journalpostId))
             }
     }
 

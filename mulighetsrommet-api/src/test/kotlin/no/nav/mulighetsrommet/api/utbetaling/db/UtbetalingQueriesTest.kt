@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUke
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -79,11 +80,12 @@ class UtbetalingQueriesTest : FunSpec({
         status = UtbetalingStatusType.GENERERT,
         valuta = Valuta.NOK,
         beregning = friBeregning,
-        betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), kid = Kid.parseOrThrow("006402710013")),
+        betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), Kid.parseOrThrow("006402710013")),
         periode = periode,
         innsender = NavIdent("Z123456"),
         beskrivelse = "En beskrivelse",
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        journalpostId = JournalpostId("12345"),
         godkjentAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
         blokkeringer = emptySet(),
@@ -114,7 +116,7 @@ class UtbetalingQueriesTest : FunSpec({
                     it.kontonummer shouldBe Kontonummer("11111111111")
                     it.kid shouldBe Kid.parseOrThrow("006402710013")
                 }
-                utbetaling.journalpostId shouldBe null
+                utbetaling.journalpostId shouldBe JournalpostId("12345")
                 utbetaling.periode shouldBe periode
                 utbetaling.godkjentAvArrangorTidspunkt shouldBe null
                 utbetaling.utbetalesTidligstTidspunkt shouldBe utbetalesTidligstTidspunkt
@@ -144,9 +146,9 @@ class UtbetalingQueriesTest : FunSpec({
 
             queries.utbetaling.upsert(utbetaling)
 
-            queries.utbetaling.setJournalpostId(utbetaling.id, "123")
+            queries.utbetaling.setJournalpostId(utbetaling.id, JournalpostId("123"))
 
-            queries.utbetaling.getOrError(utbetaling.id).journalpostId shouldBe "123"
+            queries.utbetaling.getOrError(utbetaling.id).journalpostId shouldBe JournalpostId("123")
         }
     }
 
@@ -201,13 +203,21 @@ class UtbetalingQueriesTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakelse1Id,
                                 setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 20_205.withValuta(Valuta.NOK)),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                        periode,
+                                        1.0,
+                                        20_205.withValuta(Valuta.NOK),
+                                    ),
                                 ),
                             ),
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakelse2Id,
                                 setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 20_205.withValuta(Valuta.NOK)),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                        periode,
+                                        1.0,
+                                        20_205.withValuta(Valuta.NOK),
+                                    ),
                                 ),
                             ),
                         ),

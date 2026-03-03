@@ -38,7 +38,7 @@ export function UtbetalingerForGjennomforingContainer() {
                     navigate("opprett-utbetaling");
                   }}
                 >
-                  Opprett utbetaling
+                  Opprett utbetaling for anskaffelse
                 </Dropdown.Menu.GroupedList.Item>
               )}
             </Dropdown.Menu.GroupedList>

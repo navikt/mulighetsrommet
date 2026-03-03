@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -18,6 +19,7 @@ data class UtbetalingDbo(
     val gjennomforingId: UUID,
     val status: UtbetalingStatusType,
     val valuta: Valuta,
+    val journalpostId: JournalpostId?,
     val beregning: UtbetalingBeregning,
     val betalingsinformasjon: Betalingsinformasjon?,
     val periode: Periode,

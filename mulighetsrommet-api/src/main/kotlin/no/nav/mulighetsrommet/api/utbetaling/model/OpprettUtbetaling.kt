@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import no.nav.mulighetsrommet.clamav.Vedlegg
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.ValutaBelop
@@ -23,6 +24,7 @@ data class OpprettUtbetalingAnnenAvtaltPris(
     val gjennomforingId: UUID,
     val periodeStart: LocalDate,
     val periodeSlutt: LocalDate,
+    val journalpostId: JournalpostId?,
     val beskrivelse: String?,
     val kidNummer: Kid?,
     val pris: ValutaBelop,
@@ -40,6 +42,7 @@ fun OpprettUtbetaling.toAnnenAvtaltPris(
         tilskuddstype = tilskuddstype,
         periodeStart = periodeStart,
         periodeSlutt = periodeSlutt,
+        journalpostId = null,
         beskrivelse = null,
         kidNummer = kidNummer,
         pris = pris,
