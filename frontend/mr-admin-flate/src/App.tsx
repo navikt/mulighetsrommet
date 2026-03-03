@@ -52,6 +52,7 @@ import { AvtaleInformasjonForVeiledereForm } from "./components/avtaler/AvtaleIn
 import { OpprettUtbetalingAnskaffelsePage } from "@/pages/gjennomforing/utbetaling/OpprettUtbetalingAnskaffelsePage";
 import { UtbetalingPage } from "@/pages/gjennomforing/utbetaling/UtbetalingPage";
 import { Behandlingsoversikt } from "./pages/gjennomforing/Tilskuddsbehandling/Behandlingsoversikt";
+import { BehandlingPage } from "./pages/gjennomforing/Tilskuddsbehandling/BehandlingPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -137,7 +138,7 @@ const GJENNOMFORING_ROUTES: RouteObject[] = [
   { index: true, element: <GjennomforingDetaljer /> },
   { path: "redaksjonelt-innhold", element: <RedaksjoneltInnholdGjennomforing /> },
   { path: "deltakerliste/*", element: <DeltakerlisteContainer /> },
-  { path: "tilskuddsbehandling", element: <Behandlingsoversikt /> },
+  { path: "tilskuddsbehandlinger", element: <Behandlingsoversikt /> },
   { path: "tilsagn", element: <TilsagnForGjennomforingPage /> },
   { path: "utbetalinger", element: <UtbetalingerForGjennomforingContainer /> },
   { path: "opprett-korreksjon", element: <OpprettUtbetalingKorreksjonPage /> },
@@ -224,6 +225,17 @@ const routes: RouteObject[] = [
         element: <TilsagnPage />,
         children: TILSAGN_ROUTES,
       }),
+      {
+        path: "gjennomforinger/:gjennomforingId/tilskuddsbehandlinger",
+        element: <BehandlingPage />,
+        children: [
+          {
+            path: "opprett-behandling",
+            element: <BehandlingPage />,
+          },
+        ],
+      },
+
       route({
         path: "gjennomforinger/:gjennomforingId/skjema",
         element: <RedigerGjennomforingFormPage />,

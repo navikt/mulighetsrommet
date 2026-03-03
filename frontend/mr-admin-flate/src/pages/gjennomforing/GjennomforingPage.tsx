@@ -28,7 +28,7 @@ export function GjennomforingPage() {
       tittel: "Gjennomføring",
       lenke: currentTab === "detaljer" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
     },
-    currentTab === "tilskuddsbehandling" ? { tittel: "Tilskuddsbehandling" } : undefined,
+    currentTab === "tilskuddsbehandlinger" ? { tittel: "Tilskuddsbehandlinger" } : undefined,
     currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
     currentTab === "redaksjonelt-innhold" ? { tittel: "Informasjon til veilederene" } : undefined,
     currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
@@ -88,15 +88,15 @@ const GRUPPETILTAK_TABS: TabConfig[] = [
 const STANDARD_TABS: TabConfig[] = [
   { key: "detaljer", label: "Detaljer" },
   {
-    key: "tilskuddsbehandling",
-    label: "Tilskuddsbehandling",
+    key: "tilskuddsbehandlinger",
+    label: "Tilskuddsbehandlinger",
   },
   { key: "tilsagn", label: "Tilsagn" },
   { key: "utbetalinger", label: "Utbetalinger" },
 ];
 
 const TAB_KEYS = [
-  "tilskuddsbehandling",
+  "tilskuddsbehandlinger",
   "tilsagn",
   "redaksjonelt-innhold",
   "deltakerliste",
