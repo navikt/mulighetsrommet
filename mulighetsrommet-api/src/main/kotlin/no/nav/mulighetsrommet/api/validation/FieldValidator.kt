@@ -58,6 +58,16 @@ class FieldValidator(
         }
     }
 
+    @ExperimentalContracts
+    fun <A> requireNotNull(value: A?, error: (() -> FieldError)? = null): A {
+        contract { returns() implies (value != null) }
+        if (value == null) {
+            if (error != null) errors.add(error())
+            raise.raise(errors)
+        }
+        return value
+    }
+
     fun <A> Either<List<FieldError>, A>.bind(): A = when (this) {
         is Either.Left -> {
             errors.addAll(this.value)

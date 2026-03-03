@@ -119,6 +119,7 @@ class UtbetalingServiceTest : FunSpec({
             gjennomforingId = AFT1.id,
             periodeStart = LocalDate.of(2025, 1, 1),
             periodeSlutt = LocalDate.of(2025, 1, 31),
+            journalpostId = null,
             beskrivelse = "Arrangør trenger penger",
             kidNummer = null,
             pris = 10.withValuta(Valuta.NOK),

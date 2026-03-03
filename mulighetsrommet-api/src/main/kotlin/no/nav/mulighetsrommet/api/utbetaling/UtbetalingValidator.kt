@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUke
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
@@ -128,11 +129,17 @@ object UtbetalingValidator {
         requireValid(request.pris.belop != null)
         val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
 
+        val journalpostId = request.journalpostId?.let { value ->
+            requireNotNull(JournalpostId.parse(value)) {
+                FieldError.of("JournalpostId er på ugyldig format", OpprettUtbetalingRequest::journalpostId)
+            }
+        }
         OpprettUtbetalingAnnenAvtaltPris(
             id = id,
             gjennomforingId = request.gjennomforingId,
             periodeStart = periode.start,
             periodeSlutt = periode.getLastInclusiveDate(),
+            journalpostId = journalpostId,
             pris = ValutaBelop(request.pris.belop, request.pris.valuta),
             kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             beskrivelse = request.beskrivelse,

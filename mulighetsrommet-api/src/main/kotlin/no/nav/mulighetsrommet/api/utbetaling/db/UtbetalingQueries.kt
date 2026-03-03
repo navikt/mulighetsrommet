@@ -33,6 +33,7 @@ import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -48,7 +49,6 @@ import org.intellij.lang.annotations.Language
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.collections.ifEmpty
 
 class UtbetalingQueries(private val session: Session) {
     fun upsert(dbo: UtbetalingDbo) = withTransaction(session) {
@@ -69,6 +69,7 @@ class UtbetalingQueries(private val session: Session) {
                 valuta,
                 innsender,
                 tilskuddstype,
+                journalpost_id,
                 beskrivelse,
                 godkjent_av_arrangor_tidspunkt,
                 utbetales_tidligst_tidspunkt,
@@ -90,6 +91,7 @@ class UtbetalingQueries(private val session: Session) {
                 :valuta::currency,
                 :innsender,
                 :tilskuddstype::tilskuddstype,
+                :journalpost_id,
                 :beskrivelse,
                 :godkjent_av_arrangor_tidspunkt,
                 :utbetales_tidligst_tidspunkt,
@@ -135,6 +137,7 @@ class UtbetalingQueries(private val session: Session) {
             "innsender" to dbo.innsender?.textRepr(),
             "beskrivelse" to dbo.beskrivelse,
             "tilskuddstype" to dbo.tilskuddstype.name,
+            "journalpost_id" to dbo.journalpostId?.value,
             "godkjent_av_arrangor_tidspunkt" to dbo.godkjentAvArrangorTidspunkt,
             "utbetales_tidligst_tidspunkt" to dbo.utbetalesTidligstTidspunkt,
             "status" to dbo.status.name,
@@ -476,7 +479,7 @@ class UtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, kid?.value, id))
     }
 
-    fun setJournalpostId(id: UUID, journalpostId: String) {
+    fun setJournalpostId(id: UUID, journalpostId: JournalpostId) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling
@@ -484,7 +487,7 @@ class UtbetalingQueries(private val session: Session) {
             where id = :id::uuid
         """.trimIndent()
 
-        val params = mapOf("id" to id, "journalpost_id" to journalpostId)
+        val params = mapOf("id" to id, "journalpost_id" to journalpostId.value)
 
         session.execute(queryOf(query, params))
     }
@@ -692,7 +695,7 @@ class UtbetalingQueries(private val session: Session) {
             valuta = valuta,
             beregning = beregning,
             betalingsinformasjon = this.toBankKonto(),
-            journalpostId = stringOrNull("journalpost_id"),
+            journalpostId = stringOrNull("journalpost_id")?.let { JournalpostId.parse(it) },
             periode = periode("periode"),
             innsender = innsender,
             createdAt = localDateTime("created_at"),

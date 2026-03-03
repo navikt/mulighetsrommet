@@ -6352,6 +6352,10 @@ components:
           - "null"
           - string
           format: date
+        journalpostId:
+          type:
+          - "null"
+          - string
         beskrivelse:
           type:
           - "null"
@@ -6367,6 +6371,7 @@ components:
       required:
       - beskrivelse
       - gjennomforingId
+      - journalpostId
       - kidNummer
       - periodeSlutt
       - periodeStart
