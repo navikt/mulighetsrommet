@@ -15,6 +15,9 @@ import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordQueries
 import no.nav.mulighetsrommet.database.queries.ScheduledTaskDbo
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
+import java.time.LocalDateTime
+import java.time.ZoneOffset.UTC
 
 @Resource("/maam")
 class Maam {
@@ -40,6 +43,17 @@ fun Routing.maamRoutes(
         val failedRecords = db.session { KafkaConsumerRecordQueries(it).getFailedRecords() }
             .map { it.toDto() }
         call.respond(failedRecords)
+    }
+
+    put<Maam.Topics.FailedConsumerRecords> {
+        val request = call.receive<RetryKafkaRecordRequest>()
+        db.transaction { tx ->
+            KafkaConsumerRecordQueries(tx).retryAt(
+                id = request.id,
+                topic = request.topic,
+                executionTime = request.executionTime.toInstant(UTC),
+            )
+        }
     }
 
     put<Maam.Topics> {
@@ -112,3 +126,11 @@ fun KafkaConsumerRecordDbo.toDto(): KafkaConsumerRecordDto {
         createdAt = createdAt.toString(),
     )
 }
+
+@Serializable
+data class RetryKafkaRecordRequest(
+    val id: Long,
+    val topic: String,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val executionTime: LocalDateTime,
+)

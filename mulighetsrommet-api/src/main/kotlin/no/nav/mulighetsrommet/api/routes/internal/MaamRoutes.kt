@@ -190,7 +190,9 @@ fun Route.maamRoutes() {
                 val request = call.receive<RetryKafkaRecordRequest>()
                 db.transaction {
                     queries.kafkaConsumerRecords.retryAt(
-                        request.id, request.topic, request.executionTime.toInstant(ZoneOffset.UTC)
+                        request.id,
+                        request.topic,
+                        request.executionTime.toInstant(ZoneOffset.UTC),
                     )
                 }
                 call.respond(HttpStatusCode.OK)
