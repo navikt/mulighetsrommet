@@ -17,6 +17,7 @@ object TilsagnToPdfDocumentContentMapper {
         tilsagn: Tilsagn,
         kontonummer: Kontonummer,
         deltaker: DeltakerPersonalia,
+        behandlere: List<String> = emptyList(),
         referanseDato: LocalDate = LocalDate.now(),
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Tilsagnsbrev",
@@ -67,7 +68,7 @@ object TilsagnToPdfDocumentContentMapper {
             Regards(
                 "Hilsen",
                 "Nav Arbeidsmarkedstiltak",
-                listOf("Beslutters navn", "Saksbehandlers navn"),
+                behandlere,
             ),
         )
     }

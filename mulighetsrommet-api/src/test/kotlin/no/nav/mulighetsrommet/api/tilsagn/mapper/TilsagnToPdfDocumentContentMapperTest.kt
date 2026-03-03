@@ -85,24 +85,24 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         beskrivelse = null,
         journalpost = null,
         beregning =
-            TilsagnBeregningFri(
-                input = TilsagnBeregningFri.Input(
-                    listOf(
-                        TilsagnBeregningFri.InputLinje(
-                            id = UUID.randomUUID(),
-                            beskrivelse = "1234",
-                            pris = 1234.withValuta(Valuta.NOK),
-                            antall = 1,
-                        ),
+        TilsagnBeregningFri(
+            input = TilsagnBeregningFri.Input(
+                listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "1234",
+                        pris = 1234.withValuta(Valuta.NOK),
+                        antall = 1,
                     ),
-                    prisbetingelser = null,
                 ),
-                output = TilsagnBeregningFri.Output(
-                    pris = 1234.withValuta(Valuta.NOK),
-                ),
+                prisbetingelser = null,
             ),
+            output = TilsagnBeregningFri.Output(
+                pris = 1234.withValuta(Valuta.NOK),
+            ),
+        ),
 
-        )
+    )
 
     context("pdf-content for tilsagnsbrev til arrangør") {
         test("annen avtalt pris") {
@@ -110,7 +110,8 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
                 tilsagn,
                 kontonummer,
                 deltaker,
-                LocalDate.of(2026, 3, 1)
+                behandlere = listOf("Beslutters navn", "Saksbehandlers navn"),
+                LocalDate.of(2026, 3, 1),
             )
 
             jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedUtbetalingsdetaljerFastSatsContent

@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.JournalpostId
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -79,6 +80,9 @@ class JournalforEnkeltplassTilsagnsbrev(
             logger.info("Tilsagn med id $tilsagnId er allrede journalført med id ${tilsagn.journalpost.id}")
             return@transaction Either.Right(tilsagn.journalpost.id)
         }
+        val totrinn = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+            ?: return@transaction Either.Left("Fant ingen totrinnskontroll for tilsagn ${tilsagn.id}")
+        val behandlere = listOf(totrinn.besluttetAvNavn, totrinn.behandletAvNavn).filterNotNull()
 
         val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
         val deltakere = queries.deltaker.getByGjennomforingId(enkeltplass.id)
@@ -102,7 +106,7 @@ class JournalforEnkeltplassTilsagnsbrev(
 
         val fagsakId = enkeltplass.arena?.tiltaksnummer?.value ?: enkeltplass.lopenummer.value
 
-        val journalpostResult = generatePdf(tilsagn, personalia, kontonummer)
+        val journalpostResult = generatePdf(tilsagn, personalia, kontonummer, behandlere)
             .flatMap { pdf ->
                 val journalpost = tilsagnJournalpost(
                     pdf = pdf,
@@ -125,11 +129,17 @@ class JournalforEnkeltplassTilsagnsbrev(
         }
     }
 
-    private suspend fun generatePdf(tilsagn: Tilsagn, deltaker: DeltakerPersonalia, kontonummer: Kontonummer): Either<String, ByteArray> {
+    private suspend fun generatePdf(
+        tilsagn: Tilsagn,
+        deltaker: DeltakerPersonalia,
+        kontonummer: Kontonummer,
+        behandlere: List<String>,
+    ): Either<String, ByteArray> {
         val content = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
             tilsagn,
             kontonummer,
             deltaker,
+            behandlere,
         )
         return pdf
             .getPdfDocument(content)
