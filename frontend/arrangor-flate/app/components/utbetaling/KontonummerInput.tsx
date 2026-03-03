@@ -4,7 +4,7 @@ import {
   HelpText,
   HStack,
   Link,
-  LocalAlert,
+  InfoCard,
   TextField,
   VStack,
 } from "@navikt/ds-react";
@@ -19,11 +19,11 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
   return (
     <VStack gap="space-8" align="start">
       {!kontonummer ? (
-        <LocalAlert status="error" size="small">
-          <LocalAlert.Header>
-            <LocalAlert.Title as="h4">Fant ikke kontonummer</LocalAlert.Title>
-          </LocalAlert.Header>
-          <LocalAlert.Content>
+        <InfoCard data-color="danger" size="small">
+          <InfoCard.Header>
+            <InfoCard.Title as="h4">Fant ikke kontonummer</InfoCard.Title>
+          </InfoCard.Header>
+          <InfoCard.Content>
             <BodyShort spacing>
               Vi fant ikke noe kontonummer for din organisasjon. Her kan du lese om{" "}
               <EndreKontonummerLink />.
@@ -32,8 +32,8 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
               Når du har registrert kontonummer kan du prøve på nytt ved å trykke på knappen{" "}
               <b>"Synkroniser kontonummer"</b>.
             </BodyShort>
-          </LocalAlert.Content>
-        </LocalAlert>
+          </InfoCard.Content>
+        </InfoCard>
       ) : null}
       <HStack gap="space-8" align="end">
         <TextField

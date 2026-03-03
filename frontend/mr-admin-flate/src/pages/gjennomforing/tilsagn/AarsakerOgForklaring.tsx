@@ -1,5 +1,5 @@
 import { MetadataFritekstfelt } from "@mr/frontend-common/components/datadriven/Metadata";
-import { BodyShort, Heading, List, Box, LocalAlert } from "@navikt/ds-react";
+import { BodyShort, Heading, List, Box, InfoCard } from "@navikt/ds-react";
 
 type Props = {
   heading: string;
@@ -11,11 +11,11 @@ type Props = {
 
 export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, forklaring }: Props) {
   return (
-    <LocalAlert status="warning">
-      <LocalAlert.Header>
-        <LocalAlert.Title>{heading}</LocalAlert.Title>
-      </LocalAlert.Header>
-      <LocalAlert.Content>
+    <InfoCard data-color="warning">
+      <InfoCard.Header>
+        <InfoCard.Title>{heading}</InfoCard.Title>
+      </InfoCard.Header>
+      <InfoCard.Content>
         {ingress && <BodyShort className="mb-4">{ingress}</BodyShort>}
         {tekster &&
           tekster.map((tekst, index) => (
@@ -34,7 +34,7 @@ export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, fork
           </List>
         </Box>
         {forklaring && <MetadataFritekstfelt label="Forklaring" value={forklaring} />}
-      </LocalAlert.Content>
-    </LocalAlert>
+      </InfoCard.Content>
+    </InfoCard>
   );
 }

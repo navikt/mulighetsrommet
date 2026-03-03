@@ -1,14 +1,6 @@
 import { Suspense } from "react";
 import { Laster } from "~/components/common/Laster";
-import {
-  BodyLong,
-  BodyShort,
-  Box,
-  ExpansionCard,
-  Link,
-  LocalAlert,
-  VStack,
-} from "@navikt/ds-react";
+import { BodyLong, BodyShort, Box, ExpansionCard, Link, InfoCard, VStack } from "@navikt/ds-react";
 import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { tekster } from "~/tekster";
 import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
@@ -46,14 +38,14 @@ function UtbetalingKvitteringContent({ id }: { id: string }) {
             url: pathTo.utbetalinger,
           }}
         />
-        <LocalAlert status="success">
-          <LocalAlert.Header>
-            <LocalAlert.Title>Innsendingen er mottatt</LocalAlert.Title>
-          </LocalAlert.Header>
-          <LocalAlert.Content>
+        <InfoCard data-color="success">
+          <InfoCard.Header>
+            <InfoCard.Title>Innsendingen er mottatt</InfoCard.Title>
+          </InfoCard.Header>
+          <InfoCard.Content>
             <BodyShort>{tekster.bokmal.utbetaling.kvittering.successMelding}</BodyShort>
-          </LocalAlert.Content>
-        </LocalAlert>
+          </InfoCard.Content>
+        </InfoCard>
         <ExpansionCard
           defaultOpen
           aria-label={tekster.bokmal.utbetaling.kvittering.kvitteringTitle}

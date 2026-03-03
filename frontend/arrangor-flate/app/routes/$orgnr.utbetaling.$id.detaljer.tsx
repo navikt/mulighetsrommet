@@ -10,7 +10,7 @@ import {
   HelpText,
   HStack,
   InlineMessage,
-  LocalAlert,
+  InfoCard,
   Modal,
   Spacer,
   Textarea,
@@ -238,11 +238,11 @@ function DeltakerModal({ utbetaling, deltakerlisteUrl, open, setOpen }: Deltaker
       <Modal.Body>
         <VStack gap="space-8">
           {utbetaling.beregning.stengt.length > 0 && (
-            <LocalAlert status="announcement" size="small">
-              <LocalAlert.Header>
-                <LocalAlert.Title as="h4">Stengte perioder</LocalAlert.Title>
-              </LocalAlert.Header>
-              <LocalAlert.Content>
+            <InfoCard data-color="info" size="small">
+              <InfoCard.Header>
+                <InfoCard.Title as="h4">Stengte perioder</InfoCard.Title>
+              </InfoCard.Header>
+              <InfoCard.Content>
                 <BodyShort spacing>
                   {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
                 </BodyShort>
@@ -253,8 +253,8 @@ function DeltakerModal({ utbetaling, deltakerlisteUrl, open, setOpen }: Deltaker
                     </li>
                   ))}
                 </ul>
-              </LocalAlert.Content>
-            </LocalAlert>
+              </InfoCard.Content>
+            </InfoCard>
           )}
           <DeltakelserTable
             beregning={utbetaling.beregning}
@@ -316,19 +316,19 @@ function AvbrytModal({ id, open, setOpen }: AvbrytModalProps) {
       <Modal.Body>
         <form onSubmit={handleSubmit}>
           <VStack gap="space-16">
-            <LocalAlert status={"announcement"}>
-              <LocalAlert.Header>
-                <LocalAlert.Title>Hva betyr det å avbryte en innsending?</LocalAlert.Title>
-              </LocalAlert.Header>
-              <LocalAlert.Content>
+            <InfoCard data-color="info">
+              <InfoCard.Header>
+                <InfoCard.Title>Hva betyr det å avbryte en innsending?</InfoCard.Title>
+              </InfoCard.Header>
+              <InfoCard.Content>
                 Hvis kravet avbrytes, vil det ikke behandles av Nav og det vil ikke utbetales noe.
                 Det kan være aktuelt hvis dere oppdager noe feil i innsendingen.
                 <br />
                 <br />
                 Dere kan selv starte en ny innsending med korrekte opplysninger etter at kravet er
                 avbrutt. Vær oppmerksom på at et avbrutt krav fremdeles vil være arkivert hos Nav.
-              </LocalAlert.Content>
-            </LocalAlert>
+              </InfoCard.Content>
+            </InfoCard>
             <Textarea
               name="begrunnelse"
               description="Oppgi årsaken til at behandlingen av kravet skal avbrytes. Begrunnelsen blir lagret hos Nav"
