@@ -35,6 +35,6 @@ export interface KafkaConsumerRecord {
   key: string | null;
   value: string | null;
   headersJson: string | null;
-  recordTimestamp: string | null;
+  recordTimestamp: number | null;
   createdAt: string;
 }

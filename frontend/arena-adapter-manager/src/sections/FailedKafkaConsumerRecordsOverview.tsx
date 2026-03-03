@@ -2,7 +2,7 @@ import { KafkaConsumerRecord } from "src/domain";
 import { Section } from "../components/Section";
 import { ApiBase } from "../core/api";
 import { useFailedKafkaConsumerRecords } from "../core/hooks";
-import { BodyShort, Box, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { BodyShort, Box, HStack, Label, Table, VStack } from "@navikt/ds-react";
 import { formatUTCDate } from "../utils";
 
 interface Props {
@@ -60,28 +60,28 @@ function ExpandedRow({ record }: ExpandedRowProps) {
     <VStack gap="space-8">
       <HStack gap="space-4" justify="space-between">
         <Box padding="space-6">
-          <Heading size="xsmall">Partition</Heading>
+          <Label size="small">Partition</Label>
           <BodyShort>{record.partition}</BodyShort>
         </Box>
         <Box padding="space-6">
-          <Heading size="xsmall">Record offset</Heading>
+          <Label size="small">Record offset</Label>
           <BodyShort>{record.recordOffset}</BodyShort>
         </Box>
         <Box padding="space-6">
-          <Heading size="xsmall">Created at</Heading>
+          <Label size="small">Created at</Label>
           <BodyShort>{formatUTCDate(record.createdAt)}</BodyShort>
         </Box>
         <Box padding="space-6">
-          <Heading size="xsmall">Record timestamp</Heading>
-          <BodyShort>{formatUTCDate(record.recordTimestamp)}</BodyShort>
+          <Label size="small">Record timestamp</Label>
+          <BodyShort>{record.recordTimestamp}</BodyShort>
         </Box>
       </HStack>
       <Box background="sunken" padding="space-4">
-        <Heading size="small">Key</Heading>
+        <Label size="small">Key</Label>
         <pre>{record.key}</pre>
       </Box>
       <Box background="sunken" padding="space-4">
-        <Heading size="small">Value</Heading>
+        <Label className="font-bold">Value</Label>
         <pre>{record.value}</pre>
       </Box>
     </VStack>

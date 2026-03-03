@@ -15,7 +15,7 @@ data class KafkaConsumerRecordDbo(
     val key: ByteArray?,
     val value: ByteArray?,
     val headersJson: String?,
-    val recordTimestamp: Instant?,
+    val recordTimestamp: Long?,
     val createdAt: Instant,
 )
 
@@ -38,7 +38,7 @@ class KafkaConsumerRecordQueries(private val session: Session) {
                 key = row.bytesOrNull("key"),
                 value = row.bytesOrNull("value"),
                 headersJson = row.stringOrNull("headers_json"),
-                recordTimestamp = row.instantOrNull("record_timestamp"),
+                recordTimestamp = row.long("record_timestamp"),
                 createdAt = row.instant("created_at"),
             )
         }
