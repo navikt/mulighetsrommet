@@ -66,7 +66,7 @@ export function OpprettUtbetalingKorreksjonForm({ gjennomforing, prismodell }: P
             />
             <TextareaInput<OpprettUtbetalingRequest>
               label="Begrunnelse for utbetaling"
-              name="beskrivelse"
+              name="korreksjonBegrunnelse"
             />
           </FormGroup>
           <FormGroup>

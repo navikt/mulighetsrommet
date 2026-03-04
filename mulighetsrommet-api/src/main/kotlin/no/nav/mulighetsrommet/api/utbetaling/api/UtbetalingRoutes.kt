@@ -540,7 +540,7 @@ data class OpprettUtbetalingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate? = null,
     val journalpostId: String? = null,
-    val beskrivelse: String? = null,
+    val korreksjonBegrunnelse: String? = null,
     val kommentar: String? = null,
     val kidNummer: String? = null,
     val pris: ValutaBelopRequest? = null,

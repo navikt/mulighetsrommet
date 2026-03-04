@@ -111,38 +111,60 @@ object UtbetalingValidator {
         validate(request.pris?.belop != null && request.pris.belop >= 1) {
             FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris, ValutaBelopRequest::belop)
         }
-        requireNotNull(request.pris?.valuta)
-        validate(request.beskrivelse != null && request.beskrivelse.length >= 10) {
-            FieldError.of("Beskrivelse må være minst 10 tegn", OpprettUtbetalingRequest::beskrivelse)
-        }
-        validate(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {
-            FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer)
-        }
-        requireValid(request.periodeSlutt != null && request.periodeStart != null)
-        validate(request.periodeStart.isBefore(request.periodeSlutt)) {
-            FieldError.of("Periodeslutt må være etter periodestart", OpprettUtbetalingRequest::periodeSlutt)
-        }
-        requireValid(request.periodeStart.isBefore(request.periodeSlutt))
-        requireValid(request.kidNummer == null || Kid.parse(request.kidNummer) != null)
-        requireValid(request.pris.belop != null)
-        val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
 
-        val journalpostId = request.journalpostId?.let { value ->
-            requireNotNull(JournalpostId.parse(value)) {
-                FieldError.of("JournalpostId er på ugyldig format", OpprettUtbetalingRequest::journalpostId)
+        val kid = request.kidNummer?.let { value ->
+            validateNotNull(Kid.parse(value)) {
+                FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer)
             }
         }
+
+        val journalpostId = when (request.korrigererUtbetaling) {
+            null -> validateNotNull(request.journalpostId?.let { JournalpostId.parse(it) }) {
+                FieldError.of("Journalpost-ID er på ugyldig format", OpprettUtbetalingRequest::journalpostId)
+            }
+
+            else -> null
+        }
+
+        val kommentar = request.kommentar?.trim()?.takeIf { it.isNotEmpty() }?.also { value ->
+            validate(value.length >= 10) {
+                FieldError.of("Kommentar må være minst 10 tegn", OpprettUtbetalingRequest::kommentar)
+            }
+        }
+
+        val korreksjonBegrunnelse = when (request.korrigererUtbetaling) {
+            null -> null
+
+            else -> request.korreksjonBegrunnelse?.trim().also { value ->
+                validate(value != null && value.length >= 10) {
+                    FieldError.of(
+                        "Begrunnelse for korreksjon må være minst 10 tegn",
+                        OpprettUtbetalingRequest::korreksjonBegrunnelse,
+                    )
+                }
+            }
+        }
+
+        requireValid(requireNotNull(request.periodeStart).isBefore(requireNotNull(request.periodeSlutt))) {
+            FieldError.of("Periodeslutt må være etter periodestart", OpprettUtbetalingRequest::periodeSlutt)
+        }
+        val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+
+        val pris = requireNotNull(request.pris).let { (belop, valuta) ->
+            ValutaBelop(requireNotNull(belop), requireNotNull(valuta))
+        }
+
         OpprettUtbetalingAnnenAvtaltPris(
             id = request.id,
             gjennomforingId = request.gjennomforingId,
-            korrigererUtbetaling = request.korrigererUtbetaling,
-            periodeStart = periode.start,
             periodeSlutt = periode.getLastInclusiveDate(),
             journalpostId = journalpostId,
-            pris = ValutaBelop(request.pris.belop, request.pris.valuta),
-            kid = request.kidNummer?.let { Kid.parseOrThrow(it) },
-            beskrivelse = request.beskrivelse,
-            kommentar = request.kommentar,
+            pris = pris,
+            kid = kid,
+            korreksjonGjelderUtbetalingId = request.korrigererUtbetaling,
+            periodeStart = periode.start,
+            korreksjonBegrunnelse = korreksjonBegrunnelse,
+            kommentar = kommentar,
             vedlegg = emptyList(),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         )

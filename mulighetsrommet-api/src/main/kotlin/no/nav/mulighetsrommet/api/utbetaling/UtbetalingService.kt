@@ -223,7 +223,7 @@ class UtbetalingService(
             periode,
         )
 
-        val korrigererUtbetaling = opprett.korrigererUtbetaling?.also {
+        val korreksjonGjelderUtbetalingId = opprett.korreksjonGjelderUtbetalingId?.also {
             val utbetaling = queries.utbetaling.get(it)
                 ?: return FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
 
@@ -260,8 +260,8 @@ class UtbetalingService(
             periode = periode,
             innsender = agent,
             kommentar = opprett.kommentar,
-            korreksjonGjelderUtbetalingId = korrigererUtbetaling,
-            korreksjonBegrunnelse = opprett.beskrivelse,
+            korreksjonGjelderUtbetalingId = korreksjonGjelderUtbetalingId,
+            korreksjonBegrunnelse = opprett.korreksjonBegrunnelse,
             tilskuddstype = opprett.tilskuddstype,
             journalpostId = opprett.journalpostId,
             godkjentAvArrangorTidspunkt = if (agent is Arrangor) {

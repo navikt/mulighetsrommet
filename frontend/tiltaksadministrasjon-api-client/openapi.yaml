@@ -6245,7 +6245,11 @@ components:
           type:
           - "null"
           - string
-        beskrivelse:
+        korreksjonBegrunnelse:
+          type:
+          - "null"
+          - string
+        kommentar:
           type:
           - "null"
           - string
@@ -6258,11 +6262,12 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/ValutaBelopRequest"
       required:
-      - beskrivelse
       - gjennomforingId
       - id
       - journalpostId
       - kidNummer
+      - kommentar
+      - korreksjonBegrunnelse
       - korrigererUtbetaling
       - periodeSlutt
       - periodeStart
