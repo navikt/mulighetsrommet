@@ -87,6 +87,28 @@ export const getFailedScheduledTasks = async (base: ApiBase): Promise<ScheduledT
     .then(parseJson)
     .catch((error) => toastError("Klarte ikke laste failed shceduled tasks", error));
 
+export interface RetryScheduledTask {
+  taskName: string;
+  taskInstance: string;
+  executionTime: Date;
+}
+
+export const putRetryScheduledTask = (base: ApiBase, payload: RetryScheduledTask) =>
+  fetch(`${base}/tasks/scheduled/retry`, {
+    method: "PUT",
+    headers: {
+      ...getDefaultHeaders(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      ...payload,
+      executionTime: payload.executionTime.toISOString().substring(0, 19),
+    }),
+  })
+    .then(checkOk)
+    .then(() => toast.success("Den e' go' 🎉"))
+    .catch((error) => toastError("Klarte ikke oppdatere skedulert tid", error));
+
 export const replayEvents = (arenaTable: string | null, status: string | null) =>
   fetch("/mulighetsrommet-arena-adapter/events/replay", {
     method: "PUT",

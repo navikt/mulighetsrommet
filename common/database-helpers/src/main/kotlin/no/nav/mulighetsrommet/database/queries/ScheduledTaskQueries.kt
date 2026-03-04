@@ -45,4 +45,21 @@ class ScheduledTaskQueries(private val session: Session) {
             )
         }
     }
+
+    fun retryAt(taskName: String, taskInstance: String, executionTime: Instant) {
+        @Language("PostgreSQL")
+        val query = """
+            update scheduled_tasks
+            set execution_time = :execution_time
+            where task_name = :task_name and task_instance = :task_instance
+        """.trimIndent()
+
+        val params = mapOf(
+            "execution_time" to executionTime,
+            "task_name" to taskName,
+            "task_instance" to taskInstance,
+        )
+
+        session.update(queryOf(query, params))
+    }
 }
