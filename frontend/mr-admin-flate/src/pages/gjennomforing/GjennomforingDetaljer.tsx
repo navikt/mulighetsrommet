@@ -112,7 +112,7 @@ export function GjennomforingDetaljer() {
           />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
-          {prismodell && <PrismodellDetaljer prismodeller={[prismodell]} />}
+          <PrismodellDetaljer prismodeller={[prismodell]} />
         </DetaljerLayout>
         <DetaljerLayout>
           {isGruppetiltak(gjennomforing) && (

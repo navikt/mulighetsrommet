@@ -5071,9 +5071,7 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/GjennomforingVeilederinfoDto"
         prismodell:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/PrismodellDto"
+          $ref: "#/components/schemas/PrismodellDto"
         amoKategorisering:
           oneOf:
           - type: "null"
