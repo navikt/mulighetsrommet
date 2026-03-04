@@ -63,6 +63,18 @@ fun Route.maamRoutes() {
                         call.respond(failedTasks)
                     }
                 }
+
+                put("retry") {
+                    val request = call.receive<RetryScheduledTaskRequest>()
+                    db.transaction {
+                        queries.scheduledTask.retryAt(
+                            taskName = request.taskName,
+                            taskInstance = request.taskInstance,
+                            executionTime = request.executionTime.toInstant(ZoneOffset.UTC),
+                        )
+                    }
+                    call.respond(HttpStatusCode.OK)
+                }
             }
 
             post("initial-load-gjennomforinger") {
@@ -283,6 +295,14 @@ fun ScheduledTaskDbo.toDto(): ScheduledTaskDto {
         priority = priority,
     )
 }
+
+@Serializable
+data class RetryScheduledTaskRequest(
+    val taskName: String,
+    val taskInstance: String,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val executionTime: LocalDateTime,
+)
 
 @Serializable
 data class KafkaConsumerRecordDto(
