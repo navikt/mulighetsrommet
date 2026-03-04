@@ -7,16 +7,7 @@ import {
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import {
-  Alert,
-  Button,
-  Heading,
-  HStack,
-  Link,
-  Textarea,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
+import { Alert, Button, Heading, HStack, Link, TextField, VStack } from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
@@ -25,6 +16,9 @@ import { FormGroup } from "@/components/skjema/FormGroup";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useOpprettUtbetaling } from "@/api/utbetaling/mutations";
+import { NumberInput } from "@/components/skjema/NumberInput";
+import { TextInput } from "@/components/skjema/TextInput";
+import { TextareaInput } from "@/components/skjema/TextareaInput";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -43,7 +37,13 @@ export function OpprettUtbetalingAnskaffelseForm({
   const navigate = useNavigate();
   const utbetalingId = useRef(window.crypto.randomUUID());
 
-  const { register, formState, handleSubmit, setError, setValue, getValues } = form;
+  const {
+    formState: { errors },
+    handleSubmit,
+    setError,
+    setValue,
+    getValues,
+  } = form;
 
   const mutation = useOpprettUtbetaling(utbetalingId.current);
 
@@ -73,7 +73,6 @@ export function OpprettUtbetalingAnskaffelseForm({
     );
   }
 
-  const errors = formState.errors;
   return (
     <div className="w-3/4">
       <FormProvider {...form}>
@@ -98,30 +97,21 @@ export function OpprettUtbetalingAnskaffelseForm({
               />
             </HStack>
             <VStack align={"start"}>
-              <TextField
-                size="small"
+              <NumberInput<OpprettUtbetalingRequest>
                 label={`Beløp (${prismodell?.valuta})`}
-                type="number"
-                {...register("pris.belop", {
-                  valueAsNumber: true,
-                })}
-                error={errors.pris?.belop?.message}
+                name="pris.belop"
               />
             </VStack>
             <VStack align={"start"}>
-              <TextField
-                size="small"
-                label={"Journalpost-ID i Gosys"}
-                {...register("journalpostId")}
-                error={errors.journalpostId?.message}
+              <TextInput<OpprettUtbetalingRequest>
+                label="Journalpost-ID i Gosys"
+                name="journalpostId"
               />
             </VStack>
             <HStack>
-              <Textarea
-                size="small"
+              <TextareaInput<OpprettUtbetalingRequest>
                 label="Kommentar"
-                {...register("beskrivelse")}
-                error={errors.beskrivelse?.message}
+                name="beskrivelse"
                 resize
                 cols={93}
               />
@@ -183,11 +173,6 @@ function BetalingsinformasjonView({
 }: {
   betalingsinformasjon: Betalingsinformasjon;
 }) {
-  const form = useForm<OpprettUtbetalingRequest>({
-    resolver: async (values) => ({ values, errors: {} }),
-  });
-  const { register, formState } = form;
-
   switch (betalingsinformasjon.type) {
     case "BBan":
       return (
@@ -203,11 +188,9 @@ function BetalingsinformasjonView({
             Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Les mer her om{" "}
             <EndreKontonummerLink />.
           </small>
-          <TextField
-            size="small"
+          <TextInput<OpprettUtbetalingRequest>
             label="Valgfritt KID-nummer"
-            {...register("kidNummer")}
-            error={formState.errors.kidNummer?.message}
+            name="kidNummer"
           />
         </VStack>
       );
