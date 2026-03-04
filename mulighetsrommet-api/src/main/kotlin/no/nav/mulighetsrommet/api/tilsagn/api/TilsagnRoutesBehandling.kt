@@ -51,7 +51,7 @@ fun Route.tilsagnRoutesBehandling() {
 
             val result = service.upsert(request, navIdent)
                 .mapLeft { ValidationError(errors = it) }
-                .map { TilsagnDto.fromTilsagn(it) }
+                .map { TilsagnDto.from(it, service.toTilsagnDeltakerPersonalia(it.deltakere)) }
 
             call.respondWithStatusResponse(result)
         }

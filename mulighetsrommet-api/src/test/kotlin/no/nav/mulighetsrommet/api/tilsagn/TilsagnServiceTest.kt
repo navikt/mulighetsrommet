@@ -127,6 +127,7 @@ class TilsagnServiceTest : FunSpec({
             ),
             navAnsattService = navAnsattService,
             journalforEnkeltplassTilsagnsbrev = journalforEnkeltplassTilsagnsbrev,
+            personaliaService = mockk(relaxed = true),
         )
     }
 

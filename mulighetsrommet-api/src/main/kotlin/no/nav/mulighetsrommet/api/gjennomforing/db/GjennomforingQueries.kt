@@ -494,7 +494,8 @@ class GjennomforingQueries(private val session: Session) {
                    prismodell.prismodell_type,
                    prismodell.valuta as prismodell_valuta,
                    prismodell.prisbetingelser as prismodell_prisbetingelser,
-                   prismodell.satser as prismodell_satser
+                   prismodell.satser as prismodell_satser,
+                   prismodell.med_deltakere as prismodell_med_deltakere
             from gjennomforing
                 join prismodell on prismodell.id = gjennomforing.prismodell_id
             where gjennomforing.id = ?::uuid

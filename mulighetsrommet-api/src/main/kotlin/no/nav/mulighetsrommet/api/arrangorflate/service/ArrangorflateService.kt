@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingSta
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
@@ -185,7 +184,10 @@ class ArrangorflateService(
         queries.delutbetaling.getByUtbetalingId(utbetalingId)
             .map { delutbetaling ->
                 val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
-                    TilsagnDto.fromTilsagn(it)
+                    ArrangorflateTilsagnSummary(
+                        id = it.id,
+                        bestillingsnummer = it.bestilling.bestillingsnummer,
+                    )
                 }
 
                 ArrangforflateUtbetalingLinje(
@@ -193,10 +195,7 @@ class ArrangorflateService(
                     pris = delutbetaling.pris,
                     status = delutbetaling.status,
                     statusSistOppdatert = delutbetaling.faktura.statusSistOppdatert,
-                    tilsagn = ArrangorflateTilsagnSummary(
-                        id = tilsagn.id,
-                        bestillingsnummer = tilsagn.bestillingsnummer,
-                    ),
+                    tilsagn = tilsagn,
                 )
             }
     }

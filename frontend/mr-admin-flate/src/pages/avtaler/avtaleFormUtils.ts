@@ -29,6 +29,7 @@ export function toPrismodellRequest({ data }: { data: PrismodellValues }): Prism
     ...prismodell,
     id: prismodell.id ?? v4(),
     satser: prismodell.satser ?? [],
+    medDeltakere: prismodell.medDeltakere,
   }));
 }
 

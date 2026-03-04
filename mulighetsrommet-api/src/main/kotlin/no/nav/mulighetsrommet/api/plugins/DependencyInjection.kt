@@ -462,6 +462,7 @@ private fun services(appConfig: AppConfig) = module {
             db = get(),
             navAnsattService = get(),
             journalforEnkeltplassTilsagnsbrev = get(),
+            personaliaService = get(),
         )
     }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }

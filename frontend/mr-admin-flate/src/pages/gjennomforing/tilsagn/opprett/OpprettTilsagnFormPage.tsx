@@ -51,6 +51,7 @@ function useHentData(gjennomforingId: string) {
     kostnadssted: kostnadssted || null,
     kommentar: null,
     beskrivelse: null,
+    deltakere: [],
   });
 
   const kostnadssteder = useRelevanteKostnadssteder(

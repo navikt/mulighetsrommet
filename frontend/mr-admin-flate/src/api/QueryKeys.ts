@@ -8,6 +8,7 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 
 export const QueryKeys = {
+  tilsagnValgbareDeltakere: (req: string) => ["tilsagn-valgbare-deltakere", req] as const,
   beregnTilsagn: (req: string) => ["beregn-tilsagn", req] as const,
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
   tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,

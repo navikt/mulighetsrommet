@@ -3,6 +3,7 @@ import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
   FieldError,
+  TilsagnDeltakerPersonalia,
   TilsagnHandling,
   TilsagnStatus,
   TilsagnStatusAarsak,
@@ -69,6 +70,7 @@ export function TilsagnDetaljer() {
   }
   const { bestillingsnummer, status, periode, type, kostnadssted, kommentar, beskrivelse } =
     tilsagn;
+  const deltakere: TilsagnDeltakerPersonalia[] = [];
 
   return (
     <>
@@ -164,6 +166,18 @@ export function TilsagnDetaljer() {
                   label={tilsagnTekster.type.label}
                   value={avtaletekster.tilsagn.type(type)}
                 />
+                {deltakere.length > 0 && (
+                  <MetadataVStack
+                    label={tilsagnTekster.deltakere.label}
+                    value={
+                      <ul>
+                        {deltakere.map((d) => {
+                          return <li key={d.deltakerId}>{d.navn}</li>;
+                        })}
+                      </ul>
+                    }
+                  />
+                )}
               </VStack>
             </HGrid>
             <Separator />

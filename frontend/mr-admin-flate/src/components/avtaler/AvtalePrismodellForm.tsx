@@ -7,6 +7,7 @@ import {
   HStack,
   Textarea,
   InlineMessage,
+  Checkbox,
 } from "@navikt/ds-react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -48,7 +49,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     setValue(`prismodeller.${index}.type`, type);
     setValue(
       `prismodeller.${index}.satser`,
-      type === PrismodellType.ANNEN_AVTALT_PRIS
+      PrismodellType.ANNEN_AVTALT_PRIS === type
         ? []
         : [{ gjelderTil: null, gjelderFra: "", pris: 0 }],
     );
@@ -59,6 +60,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
       {fields.map((field, index) => {
         const type = watch(`prismodeller.${index}.type`);
         const selectedValuta = watch(`prismodeller.${index}.valuta`);
+        const medDeltakere = watch(`prismodeller.${index}.medDeltakere`);
         const beskrivelse = prismodellTyper.find((p) => p.type === type)?.beskrivelse;
         return (
           <Box
@@ -105,6 +107,13 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                       </option>
                     ))}
                   </Select>
+                  <Checkbox
+                    checked={medDeltakere}
+                    onChange={() => setValue(`prismodeller.${index}.medDeltakere`, !medDeltakere)}
+                    size="small"
+                  >
+                    Kan velge deltakere på tilsagn
+                  </Checkbox>
                 </HStack>
 
                 {beskrivelse &&
@@ -151,6 +160,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
               valuta: Valuta.NOK,
               satser: [],
               prisbetingelser: null,
+              medDeltakere: false,
             })
           }
         >

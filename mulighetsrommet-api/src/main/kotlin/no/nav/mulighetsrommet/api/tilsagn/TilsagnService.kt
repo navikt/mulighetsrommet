@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerPersonalia
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
@@ -42,6 +43,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -67,6 +69,7 @@ class TilsagnService(
     val config: Config,
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
+    private val personaliaService: PersonaliaService,
     private val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev,
 ) {
     data class Config(
@@ -124,6 +127,7 @@ class TilsagnService(
                     beregning = validated.beregning,
                     kommentar = request.kommentar?.trim(),
                     beskrivelse = request.beskrivelse?.trim(),
+                    deltakere = request.deltakere ?: emptyList(),
                 )
             }
             .map { dbo ->
@@ -788,6 +792,18 @@ class TilsagnService(
         )
         queries.kafkaProducerRecord.storeRecord(record)
     }
+
+    suspend fun toTilsagnDeltakerPersonalia(deltakere: List<UUID>) = personaliaService.getPersonaliaMedGeografiskEnhet(deltakere.toSet())
+        .distinctBy { it.norskIdent }
+        .map {
+            TilsagnDeltakerPersonalia(
+                deltakerId = it.deltakerId,
+                norskIdent = it.norskIdent,
+                navn = it.navn,
+                oppfolgingEnhet = it.oppfolgingEnhet,
+                geografiskEnhet = it.geografiskEnhet,
+            )
+        }
 
     fun handlinger(tilsagn: Tilsagn, ansatt: NavAnsatt): Set<TilsagnHandling> = db.session {
         val status = tilsagn.status

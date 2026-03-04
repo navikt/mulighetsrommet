@@ -96,6 +96,7 @@ class UtbetalingServiceTest : FunSpec({
         db = database.db,
         navAnsattService = mockk(),
         journalforEnkeltplassTilsagnsbrev = mockk(),
+        personaliaService = mockk(relaxed = true),
     )
 
     fun createUtbetalingService(

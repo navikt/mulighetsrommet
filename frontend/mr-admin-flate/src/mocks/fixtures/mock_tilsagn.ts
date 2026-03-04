@@ -29,11 +29,13 @@ export const mockTilsagn: TilsagnDto[] = [
     },
     kommentar: null,
     beskrivelse: null,
+    deltakere: [],
   },
   {
     type: TilsagnType.TILSAGN,
     pris: { belop: 14_000, valuta: Valuta.NOK },
     belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
+    deltakere: [],
     belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
     id: "fd1825aa-1951-4de2-9b72-12d22f121e92",
     kostnadssted: {
@@ -77,12 +79,14 @@ export const mockTilsagn: TilsagnDto[] = [
     bestillingsnummer: "A-2024/123",
     kommentar: "min kommentar",
     beskrivelse: null,
+    deltakere: [],
   },
   {
     type: TilsagnType.TILSAGN,
     pris: { belop: 14_000, valuta: Valuta.NOK },
     belopBrukt: { belop: 4_000, valuta: Valuta.NOK },
     belopGjenstaende: { belop: 10_000, valuta: Valuta.NOK },
+    deltakere: [],
     id: "c7cd1ac0-34cd-46f2-b441-6d8c7318ee05",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -105,6 +109,7 @@ export const mockTilsagn: TilsagnDto[] = [
     beskrivelse: null,
   },
   {
+    deltakere: [],
     type: TilsagnType.TILSAGN,
     pris: { belop: 14_000, valuta: Valuta.NOK },
     belopBrukt: { belop: 4_000, valuta: Valuta.NOK },

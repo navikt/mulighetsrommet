@@ -1989,6 +1989,35 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/tilsagn/valgbare-deltakere:
+    post:
+      tags:
+      - Tilsagn
+      description: Hent valgbare deltakere for tilsagn
+      operationId: getTilsagnValgbareDeltakere
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnDeltakereRequest"
+        required: false
+      responses:
+        "200":
+          description: Valgbare deltakere for tilsagn
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnDeltakereResponse"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/tilsagn/beregn:
     post:
       tags:
@@ -2218,38 +2247,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EndringshistorikkDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/utbetaling/{id}/tilsagn:
-    get:
-      tags:
-      - Utbetaling
-      operationId: getTilsagnTilUtbetaling
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Tilsagn til utbetaling
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TilsagnDto"
         default:
           description: Problem details
           headers: {}
@@ -3762,8 +3759,13 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AvtaltSatsRequest"
+        medDeltakere:
+          type:
+          - "null"
+          - boolean
       required:
       - id
+      - medDeltakere
       - prisbetingelser
       - satser
       - type
@@ -4179,6 +4181,8 @@ components:
           type:
           - "null"
           - string
+        medDeltakere:
+          type: boolean
         navn:
           type: string
         beskrivelse:
@@ -4188,6 +4192,7 @@ components:
       required:
       - beskrivelse
       - id
+      - medDeltakere
       - navn
       - prisbetingelser
       - satser
@@ -5581,11 +5586,16 @@ components:
           type:
           - "null"
           - string
+        deltakere:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnDeltakerPersonalia"
       required:
       - belopBrukt
       - belopGjenstaende
       - beskrivelse
       - bestillingsnummer
+      - deltakere
       - id
       - kommentar
       - kostnadssted
@@ -5631,6 +5641,83 @@ components:
       required:
       - status
       - type
+    TilsagnDeltakerPersonalia:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+        norskIdent:
+          type:
+          - "null"
+          - string
+        navn:
+          type: string
+        oppfolgingEnhet:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/NavEnhetDto"
+        geografiskEnhet:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/NavEnhetDto"
+      required:
+      - deltakerId
+      - geografiskEnhet
+      - navn
+      - norskIdent
+      - oppfolgingEnhet
+    NavEnhetDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+        type:
+          $ref: "#/components/schemas/NavEnhetType"
+        overordnetEnhet:
+          type:
+          - "null"
+          - string
+      required:
+      - enhetsnummer
+      - navn
+      - overordnetEnhet
+      - type
+    NavEnhetType:
+      type: string
+      enum:
+      - KO
+      - FYLKE
+      - TILTAK
+      - AAREG
+      - ALS
+      - ARK
+      - DIR
+      - DOKSENTER
+      - EKSTERN
+      - FORVALTNING
+      - FPY
+      - HELFO
+      - HMS
+      - INNKREV
+      - INTRO
+      - IT
+      - KLAGE
+      - KONTAKT
+      - KONTROLL
+      - LOKAL
+      - OKONOMI
+      - OTENESTE
+      - OPPFUTLAND
+      - OTENESE
+      - RIKSREV
+      - ROBOT
+      - ROL
+      - TILLIT
+      - UTLAND
+      - YTA
     TilsagnBeregningDto:
       type: object
       properties:
@@ -5913,9 +6000,17 @@ components:
           type:
           - "null"
           - string
+        deltakere:
+          type:
+          - "null"
+          - array
+          items:
+            type: string
+            format: uuid
       required:
       - beregning
       - beskrivelse
+      - deltakere
       - gjennomforingId
       - id
       - kommentar
@@ -5948,6 +6043,38 @@ components:
       required:
       - aarsaker
       - forklaring
+    TilsagnDeltakereRequest:
+      type: object
+      properties:
+        gjennomforingId:
+          type: string
+          format: uuid
+        periodeStart:
+          type:
+          - "null"
+          - string
+          format: date
+        periodeSlutt:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - gjennomforingId
+      - periodeSlutt
+      - periodeStart
+    TilsagnDeltakereResponse:
+      type: object
+      properties:
+        medDeltakere:
+          type: boolean
+        deltakere:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnDeltakerPersonalia"
+      required:
+      - deltakere
+      - medDeltakere
     BeregnTilsagnRequest:
       type: object
       properties:

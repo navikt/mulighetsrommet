@@ -230,6 +230,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
   {
     id: "456e4567-e89b-12d3-a456-426614174000",
     tilsagn: {
+      deltakere: [],
       id: "10e393b0-1b7c-4c68-9a42-b541b2f114b8",
       type: TilsagnType.TILSAGN,
       periode: {
@@ -280,6 +281,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
     id: "456e4567-e89b-12d3-a456-426614174001",
     tilsagn: {
+      deltakere: [],
       id: "fd1825aa-1951-4de2-9b72-12d22f121e92",
       type: TilsagnType.TILSAGN,
       periode: {
@@ -332,6 +334,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     tilsagn: {
       id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
       type: TilsagnType.TILSAGN,
+      deltakere: [],
       periode: {
         start: "2025-01-01",
         slutt: "2025-03-31",
@@ -378,6 +381,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     tilsagn: {
       id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
       type: TilsagnType.TILSAGN,
+      deltakere: [],
       periode: {
         start: "2025-01-01",
         slutt: "2025-06-30",
@@ -425,6 +429,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     tilsagn: {
       id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
       type: TilsagnType.TILSAGN,
+      deltakere: [],
       periode: {
         start: "2025-03-01",
         slutt: "2025-03-31",

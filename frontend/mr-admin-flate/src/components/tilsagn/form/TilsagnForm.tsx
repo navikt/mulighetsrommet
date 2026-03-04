@@ -1,6 +1,7 @@
 import { KostnadsstedOption, VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
 import {
   GjennomforingDto,
+  TilsagnDeltakerPersonalia,
   TilsagnRequest,
   TilsagnType,
   ValidationError,
@@ -15,9 +16,10 @@ import {
   HStack,
   Textarea,
   TextField,
+  UNSAFE_Combobox,
   VStack,
 } from "@navikt/ds-react";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { Controller, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement } from "react";
@@ -28,6 +30,7 @@ import { tilsagnTekster } from "../TilsagnTekster";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 import { useOpprettTilsagn } from "@/api/tilsagn/mutations";
+import { useTilsagnValgbareDeltakere } from "@/api/tilsagn/useTilsagnValgbareDeltakere";
 
 interface Props {
   onSuccess: () => void;
@@ -46,7 +49,6 @@ export function TilsagnForm(props: Props) {
     (searchParams.get("type") as TilsagnType | null) || TilsagnType.TILSAGN;
 
   const mutation = useOpprettTilsagn();
-
   const forhandsvalgKostnadssted =
     kostnadssteder.length === 1 ? kostnadssteder[0].enhetsnummer : defaultValues.kostnadssted;
   const form = useForm<TilsagnRequest>({
@@ -55,6 +57,18 @@ export function TilsagnForm(props: Props) {
       kostnadssted: forhandsvalgKostnadssted,
     } as TilsagnRequest,
   });
+  const { watch } = form;
+
+  const periodeStart = watch("periodeStart");
+  const periodeSlutt = watch("periodeSlutt");
+
+  const {
+    data: { medDeltakere, deltakere },
+  } = useTilsagnValgbareDeltakere({
+    gjennomforingId: gjennomforing.id,
+    periodeStart,
+    periodeSlutt,
+  });
 
   const {
     handleSubmit,
@@ -62,6 +76,7 @@ export function TilsagnForm(props: Props) {
     register,
     clearErrors,
     formState: { errors },
+    control,
   } = form;
 
   const postData: SubmitHandler<TilsagnRequest> = async (data): Promise<void> => {
@@ -141,6 +156,35 @@ export function TilsagnForm(props: Props) {
                   maxLength={250}
                   {...register("beskrivelse")}
                 />
+                {medDeltakere && (
+                  <Controller
+                    control={control}
+                    name="deltakere"
+                    render={({ field }) => (
+                      <UNSAFE_Combobox
+                        size="small"
+                        id="arrangorKontaktpersoner"
+                        label="Deltakere"
+                        placeholder="Velg deltakere"
+                        isMultiSelect
+                        name={field.name}
+                        error={errors.deltakere?.message}
+                        options={deltakere.map((deltaker: TilsagnDeltakerPersonalia) => ({
+                          label: `${deltaker.navn} - ${deltaker.norskIdent}`,
+                          value: deltaker.deltakerId,
+                        }))}
+                        onToggleSelected={(option, isSelected) => {
+                          const currentValues = field.value ?? [];
+                          if (isSelected) {
+                            field.onChange([...currentValues, option]);
+                          } else {
+                            field.onChange(currentValues.filter((v) => v !== option));
+                          }
+                        }}
+                      />
+                    )}
+                  />
+                )}
               </VStack>
               <TilsagnBeregningPreview />
             </TwoColumnGrid>
