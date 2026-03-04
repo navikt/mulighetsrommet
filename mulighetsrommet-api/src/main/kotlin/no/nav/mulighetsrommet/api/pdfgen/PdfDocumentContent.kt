@@ -11,7 +11,9 @@ data class PdfDocumentContent(
     val subject: String,
     val description: String,
     val author: String,
+    val topSection: TopSection? = null,
     val sections: List<Section>,
+    val regards: Regards? = null,
 ) {
     companion object {
         fun create(
@@ -27,6 +29,14 @@ data class PdfDocumentContent(
         }
     }
 }
+
+@Serializable
+data class TopSection(
+    val publicExemption: Boolean? = false,
+    val addressedTo: String? = null,
+    val date: String? = null,
+    val reference: String? = null,
+)
 
 @Serializable
 data class Section(
@@ -120,3 +130,24 @@ enum class Format {
     PERCENT,
     STATUS_SUCCESS,
 }
+
+@Serializable
+@SerialName("paragraph")
+data class ParagraphBlock(
+    override val description: String? = null,
+    val words: List<Word>? = null,
+) : Block() {
+    @Serializable
+    data class Word(val text: String, val format: WordFormat? = null)
+}
+
+enum class WordFormat {
+    BOLD,
+}
+
+@Serializable
+data class Regards(
+    val intro: String,
+    val subject: String,
+    val others: List<String> = emptyList(),
+)

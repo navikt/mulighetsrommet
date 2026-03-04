@@ -12,12 +12,15 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.JournalpostId
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -35,6 +38,7 @@ class JournalforEnkeltplassTilsagnsbrev(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val pdf: PdfGenClient,
     private val distribuerTilsagnsbrev: DistribuerTilsagnsbrev,
+    private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -76,6 +80,8 @@ class JournalforEnkeltplassTilsagnsbrev(
             logger.info("Tilsagn med id $tilsagnId er allrede journalført med id ${tilsagn.journalpost.id}")
             return@transaction Either.Right(tilsagn.journalpost.id)
         }
+        val totrinn = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+        val behandlere = listOfNotNull(totrinn.besluttetAvNavn, totrinn.behandletAvNavn)
 
         val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
         val deltakere = queries.deltaker.getByGjennomforingId(enkeltplass.id)
@@ -91,9 +97,15 @@ class JournalforEnkeltplassTilsagnsbrev(
         val arrangor = queries.arrangor.get(tilsagn.arrangor.organisasjonsnummer)
             ?: return@transaction Either.Left("Fant ikke arrangør med organisasjonsnummer ${tilsagn.arrangor.organisasjonsnummer}")
 
+        val kontonummer = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
+            .map { kontonummer -> Kontonummer(kontonummer.kontonr) }
+            .getOrElse {
+                return@transaction Either.Left("Kunne ikke hente kontonummer for arrangør ${arrangor.organisasjonsnummer.value}: $it")
+            }
+
         val fagsakId = enkeltplass.arena?.tiltaksnummer?.value ?: enkeltplass.lopenummer.value
 
-        val journalpostResult = generatePdf(tilsagn, personalia)
+        val journalpostResult = generatePdf(tilsagn, personalia, kontonummer, behandlere)
             .flatMap { pdf ->
                 val journalpost = tilsagnJournalpost(
                     pdf = pdf,
@@ -116,10 +128,17 @@ class JournalforEnkeltplassTilsagnsbrev(
         }
     }
 
-    private suspend fun generatePdf(tilsagn: Tilsagn, deltaker: DeltakerPersonalia): Either<String, ByteArray> {
+    private suspend fun generatePdf(
+        tilsagn: Tilsagn,
+        deltaker: DeltakerPersonalia,
+        kontonummer: Kontonummer,
+        behandlere: List<String>,
+    ): Either<String, ByteArray> {
         val content = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
             tilsagn,
+            kontonummer,
             deltaker,
+            behandlere,
         )
         return pdf
             .getPdfDocument(content)

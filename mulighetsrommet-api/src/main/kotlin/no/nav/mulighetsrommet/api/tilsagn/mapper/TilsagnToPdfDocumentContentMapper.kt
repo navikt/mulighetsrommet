@@ -1,71 +1,96 @@
 package no.nav.mulighetsrommet.api.tilsagn.mapper
 
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
-import no.nav.mulighetsrommet.api.pdfgen.Format
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
-import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
+import no.nav.mulighetsrommet.api.pdfgen.Regards
+import no.nav.mulighetsrommet.api.pdfgen.SectionBuilder
+import no.nav.mulighetsrommet.api.pdfgen.TopSection
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.ValutaBelop
+import java.text.NumberFormat
+import java.time.LocalDate
+import java.util.Locale
 
 object TilsagnToPdfDocumentContentMapper {
     fun toTilsagnsbrev(
         tilsagn: Tilsagn,
+        kontonummer: Kontonummer,
         deltaker: DeltakerPersonalia,
+        behandlere: List<String> = emptyList(),
+        referanseDato: LocalDate = LocalDate.now(),
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Tilsagnsbrev",
         subject = "Tilsagnsbrev til ${tilsagn.arrangor.navn}",
         description = "Detaljer om tilsagn for gjennomføring av ${tilsagn.tiltakstype.navn}",
         author = "Nav",
     ) {
-        mainSection("Detaljer om tilsagn")
+        topSection(
+            TopSection(
+                publicExemption = true,
+                addressedTo = "Brev til ${tilsagn.arrangor.navn}",
+                date = referanseDato.toString(),
+                reference = "Ref. ${tilsagn.bestilling.bestillingsnummer}",
+            ),
+        )
 
-        addTilsagnSection(tilsagn)
-        addDeltakerSection(deltaker)
-    }
-
-    private fun PdfDocumentContentBuilder.addTilsagnSection(tilsagn: Tilsagn) {
-        require(tilsagn.beregning is TilsagnBeregningFri) { "Tilsagnsbrev støttes bare for frimodellen" }
-        section("Tilsagn") {
+        mainSection("Bekreftelse på bestilling") {
+            paragraph { regular("Nav og dere har blitt enige om dette:") }
             descriptionList {
-                text("Tilsagnsperiode", tilsagn.periode.formatPeriode())
-            }
-
-            descriptionList {
-                money("Beløp", tilsagn.beregning.output.pris)
+                text(
+                    "Tiltaket",
+                    tilsagn.gjennomforing.navn,
+                )
+                text("Deltakeren", "${deltaker.navn} (${deltaker.norskIdent.value})")
+                text("Utbetalingsperioden", tilsagn.periode.formatPeriode())
+                text("Støtten fra Nav", "Opptil ${formatCurrency(tilsagn.beregning.output.pris)}")
             }
         }
+
+        section("Hvordan kan dere få utbetalt pengene?") {
+            addInvoiceInfo()
+            paragraph { regular("Vi kan kontrollere om pengene som blir utbetalt blir brukt riktig.") }
+            paragraph { regular("Følgende informasjon er registrert hos NAV:") }
+            descriptionList {
+                text("Bedriftsnummer", tilsagn.arrangor.organisasjonsnummer)
+                text("Kontonummer", kontonummer)
+            }
+            paragraph {
+                regular("Hvis kontonummeret er feil, må dere oppdatere det via Navs hjemmeside under ")
+                bold("Arbeidsgiver")
+                regular(" og ")
+                bold("Endre kontonummer")
+                regular(".")
+            }
+        }
+
+        regards(
+            Regards(
+                "Hilsen",
+                "Nav Arbeidsmarkedstiltak",
+                behandlere,
+            ),
+        )
     }
 
-    private fun PdfDocumentContentBuilder.addDeltakerSection(
-        personalia: DeltakerPersonalia,
-    ) {
-        section("Deltaker") {
-            descriptionList {
-                text(
-                    "Navn",
-                    if (personalia.erSkjermet) "Skjermet" else personalia.navn,
-                )
-                text(
-                    "Fødselsnr.",
-                    if (personalia.erSkjermet) null else personalia.norskIdent.value,
-                )
-            }
+    private fun SectionBuilder.addInvoiceInfo() {
+        paragraph {
+            regular("Gå inn på Navs hjemmesider, velg ")
+            bold("Samarbeidspartner")
+            regular(", ")
+            bold("Tiltaksarrangør")
+            regular(" og ")
+            bold("Skjema og søknad")
+            regular(". Velg så ")
+            bold("Opplæring")
+            regular(" og ")
+            bold("Faktura")
+            regular(". Send inn faktura til Nav med førsteside.")
         }
     }
 }
 
-private fun DataElement.Text.Format.toPdfDocumentContentFormat(): Format? = when (this) {
-    DataElement.Text.Format.DATE -> Format.DATE
-    DataElement.Text.Format.NUMBER -> null
-}
-
-private fun DataElement.toPdfDocumentValue(): String? = when (this) {
-    is DataElement.Link -> this.text
-    is DataElement.MathOperator -> this.operator.toString()
-    is DataElement.MultiLinkModal -> this.buttonText
-    is DataElement.Periode -> "${this.start} - ${this.slutt}"
-    is DataElement.Status -> this.value
-    is DataElement.Text -> this.value
-    is DataElement.MoneyAmount -> this.value
+private fun formatCurrency(pris: ValutaBelop): String {
+    val formatter: NumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("no-NO"))
+    return "${formatter.format(pris.belop)} ${pris.valuta.name}"
 }

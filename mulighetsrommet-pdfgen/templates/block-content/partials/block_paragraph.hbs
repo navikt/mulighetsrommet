@@ -1,0 +1,13 @@
+<p>
+    {{#each words}}
+        {{#if text}}
+            {{#if format}}
+                {{#eq format "BOLD"}}
+                    <b>{{text}}</b>
+                {{/eq}}
+            {{else}}
+                {{text}}
+            {{/if}}
+        {{/if}}
+    {{/each}}
+</p>

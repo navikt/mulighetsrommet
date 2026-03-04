@@ -11,10 +11,18 @@
 </head>
 
 <body>
-{{> block-content/partials/navlogo}}
+
+{{#with topSection }}
+  {{> block-content/partials/top-section}}
+{{else}}
+  {{> block-content/partials/navlogo}}
+{{/with}}
 {{#each sections}}
     {{> block-content/partials/section}}
 {{/each}}
+{{#with regards}}
+    {{> block-content/partials/regards}}
+{{/with}}
 </body>
 
 </html>

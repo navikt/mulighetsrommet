@@ -9,7 +9,13 @@ class PdfDocumentContentBuilder(
     private val description: String,
     private val author: String,
 ) {
+    private var topSection: TopSection? = null
     private val sections = mutableListOf<Section>()
+    private var regards: Regards? = null
+
+    fun topSection(section: TopSection) {
+        topSection = section
+    }
 
     fun mainSection(title: String, init: SectionBuilder.() -> Unit = {}) {
         section(title, level = 1, init)
@@ -21,12 +27,18 @@ class PdfDocumentContentBuilder(
         sections.add(builder.build())
     }
 
+    fun regards(greet: Regards) {
+        regards = greet
+    }
+
     fun build() = PdfDocumentContent(
         title = title,
         subject = subject,
         description = description,
         author = author,
+        topSection = topSection,
         sections = sections,
+        regards = regards,
     )
 }
 
@@ -47,6 +59,12 @@ class SectionBuilder(private val header: Header) {
 
     fun itemList(init: ItemListBlockBuilder.() -> Unit) {
         val builder = ItemListBlockBuilder()
+        builder.init()
+        blocks.add(builder.build())
+    }
+
+    fun paragraph(init: ParagraphBlockBuilder.() -> Unit) {
+        val builder = ParagraphBlockBuilder()
         builder.init()
         blocks.add(builder.build())
     }
@@ -106,5 +124,23 @@ class TableBlockBuilder {
     fun build(): TableBlock = TableBlock(
         description = description,
         table = TableBlock.Table(columns, rows),
+    )
+}
+
+class ParagraphBlockBuilder {
+    var description: String? = null
+    var words = mutableListOf<ParagraphBlock.Word>()
+
+    fun regular(text: String) {
+        words.add(ParagraphBlock.Word(text))
+    }
+
+    fun bold(text: String) {
+        words.add(ParagraphBlock.Word(text, format = WordFormat.BOLD))
+    }
+
+    fun build(): ParagraphBlock = ParagraphBlock(
+        description = description,
+        words = words,
     )
 }

@@ -500,7 +500,7 @@ private fun tasks(config: AppConfig) = module {
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
-    single { JournalforEnkeltplassTilsagnsbrev(get(), get(), get(), get(), get()) }
+    single { JournalforEnkeltplassTilsagnsbrev(get(), get(), get(), get(), get(), get()) }
     single { DistribuerTilsagnsbrev(get(), get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(

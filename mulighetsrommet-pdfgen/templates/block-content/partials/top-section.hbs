@@ -1,0 +1,21 @@
+{{#if publicExemption}}
+    {{> block-content/partials/unntatt-offentlighet }}
+{{/if}}
+{{> block-content/partials/navlogo}}
+{{#if date}}
+    <div id="reference">
+        <div>{{date}}</div>
+        {{#if reference}}
+            <div>{{reference}}</div>
+        {{/if}}
+    </div>
+{{/if}}
+
+{{#if addressedTo }}
+    <table>
+        <tr>
+            <td>{{addressedTo}}</td>
+        </tr>
+    </table>
+    <br/>
+{{/if}}
