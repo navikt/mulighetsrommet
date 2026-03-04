@@ -1,19 +1,14 @@
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
-import { TilsagnBeregningType, TilsagnType, Valuta } from "@tiltaksadministrasjon/api-client";
+import { TilsagnBeregningType, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { useSearchParams } from "react-router";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagnDefaults } from "./opprettTilsagnLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { GjennomforingManglerPrismodellWarning } from "@/pages/gjennomforing/tilsagn/GjennomforingManglerPrismodellWarning";
 import { useRelevanteKostnadssteder } from "@/pages/gjennomforing/tilsagn/useRelevanteKostnadssteder";
 
 export function OpprettTilsagnFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { gjennomforing, prismodell, kostnadssteder, defaults } = useHentData(gjennomforingId);
-
-  if (!prismodell) {
-    return <GjennomforingManglerPrismodellWarning />;
-  }
 
   return (
     <TilsagnFormContainer
@@ -42,7 +37,7 @@ function useHentData(gjennomforingId: string) {
     // Denne blir bestemt av backend men er påkrevd
     beregning: {
       type: TilsagnBeregningType.FRI,
-      valuta: prismodell?.valuta ?? Valuta.NOK,
+      valuta: prismodell.valuta,
       antallPlasser: null,
       prisbetingelser: null,
       antallTimerOppfolgingPerDeltaker: null,

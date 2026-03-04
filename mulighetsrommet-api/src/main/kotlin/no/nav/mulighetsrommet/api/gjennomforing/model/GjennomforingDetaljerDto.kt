@@ -27,7 +27,7 @@ data class GjennomforingDetaljerDto(
     val tiltakstype: Gjennomforing.Tiltakstype,
     val gjennomforing: GjennomforingDto,
     val veilederinfo: GjennomforingVeilederinfoDto?,
-    val prismodell: PrismodellDto?,
+    val prismodell: PrismodellDto,
     val amoKategorisering: AmoKategoriseringDto?,
     val utdanningslop: UtdanningslopDto?,
 )
