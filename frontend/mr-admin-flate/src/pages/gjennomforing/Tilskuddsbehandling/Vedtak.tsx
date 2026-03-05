@@ -1,89 +1,74 @@
-import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { UthevetBox } from "@/layouts/UthevetBox";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
-import {
-  Box,
-  Heading,
-  VStack,
-  TextField,
-  HStack,
-  Textarea,
-  Radio,
-  RadioGroup,
-  Stack,
-  Spacer,
-} from "@navikt/ds-react";
+import { Box, Heading, VStack, TextField, HStack, Radio, Spacer } from "@navikt/ds-react";
+import { useFormContext } from "react-hook-form";
+import { FormTextarea } from "@/components/skjema/FormTextarea";
+import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
+import type { BehandlingFormData } from "./schema";
 
 export function Vedtak() {
+  const { watch } = useFormContext<BehandlingFormData>();
+
+  const tilskudd = watch("tilskudd");
+  const totalBelop = tilskudd.reduce((sum, t) => {
+    const belop = parseInt(t.belopTilUtbetaling || t.belop || "0");
+    return sum + (isNaN(belop) ? 0 : belop);
+  }, 0);
+
   return (
-    <TwoColumnGrid separator>
-      <Box marginBlock="space-16">
-        <Heading size="medium" level="3" spacing>
-          Vedtak
-        </Heading>
-        <VStack gap="space-20" align="start">
-          <UthevetBox>
+    <>
+      <Heading size="medium" level="3" spacing>
+        Vedtak
+      </Heading>
+      <VStack gap="space-20" align="start">
+        {tilskudd.map((tilskuddItem, index) => (
+          <UthevetBox key={index}>
             <HStack gap="space-24" align="start" justify="space-between">
-              <MetadataVStack label="Tilskuddstype" value="Skolepenger" />
-              <MetadataVStack label="Beløp til utbetaling" value="40000 NOK" />
+              <MetadataVStack
+                label="Tilskuddstype"
+                value={tilskuddItem.tilskuddstype || "Ikke valgt"}
+              />
+              <MetadataVStack
+                label="Beløp til utbetaling"
+                value={`${tilskuddItem.belopTilUtbetaling || tilskuddItem.belop || 0} NOK`}
+              />
               <Spacer />
-              <RadioGroup legend="Vedtaksresultat">
-                <Stack gap="space-0 space-24" direction={{ xs: "column", sm: "row" }} wrap={false}>
-                  <Radio value="yes">Innvilgelse</Radio>
-                  <Radio value="no">Avslag</Radio>
-                </Stack>
-              </RadioGroup>
+              <ControlledRadioGroup
+                name={`tilskudd.${index}.vedtaksresultat`}
+                legend="Vedtaksresultat"
+                horisontal
+                rules={{ required: "Velg vedtaksresultat" }}
+              >
+                <Radio value="innvilgelse">Innvilgelse</Radio>
+                <Radio value="avslag">Avslag</Radio>
+              </ControlledRadioGroup>
             </HStack>
           </UthevetBox>
-          <TextField label="Totalt beløp til utbetaling" size="small" value="40000" readOnly />
-          <RadioGroup legend="Hvem skal motta utbetalingen?" size="small">
-            <Stack gap="space-0 space-24" direction={{ xs: "column", sm: "row" }} wrap={false}>
-              <Radio value="yes">Deltaker</Radio>
-              <Radio value="no">Arrangør</Radio>
-            </Stack>
-          </RadioGroup>
-          <Box width="100%">
-            <Textarea label="Kommentarer til deltaker (vil vises i vedtaksbrev)" size="small" />
-          </Box>
-        </VStack>
-      </Box>
-      <Box marginBlock="space-16">
-        <Heading size="medium" level="3" spacing>
-          Oppsummering
-        </Heading>
-        <VStack gap="space-16" align="start">
-          <MetadataVStack label="Deltakerinformasjon" value="Navn Navnesen / F.nr: XXXXXXXXXXXX" />
-
-          <MetadataVStack label="JournalpostID" value="24/23123" />
-          <MetadataVStack label="Søknadstidspunkt" value="01.01.2025" />
-          <Heading size="small" level="4">
-            Vilkårsvurdering
-          </Heading>
-          <Box asChild padding="space-16" borderColor="neutral" borderWidth="1" borderRadius="4">
-            <HStack gap="space-24" align="start">
-              <MetadataVStack label="Tilskudd" value="Skolepenger" />
-              <MetadataVStack label="Nødvendig for opplæring" value="Ja" />
-              <MetadataVStack
-                label="Begrunnelse"
-                value="Må betale skolepenger for å begynne på studiet. Har ikke andre midler til å dekke dette."
-              />
-            </HStack>
-          </Box>
-          <Box
-            asChild
-            padding="space-16"
-            width="100%"
-            borderColor="neutral"
-            borderRadius="4"
-            borderWidth="1"
-          >
-            <HStack gap="space-24" align="start">
-              <MetadataVStack label="Utbetaling innenfor maksbeløp?" value="Ja" />
-              <MetadataVStack label="Begrunnelse" value="Summen er innenfor maksgrensen" />
-            </HStack>
-          </Box>
-        </VStack>
-      </Box>
-    </TwoColumnGrid>
+        ))}
+        <TextField
+          label="Totalt beløp til utbetaling"
+          size="small"
+          value={totalBelop || "0"}
+          readOnly
+        />
+        <ControlledRadioGroup
+          name="mottakerAvUtbetaling"
+          legend="Hvem skal motta utbetalingen?"
+          size="small"
+          horisontal
+          rules={{ required: "Velg mottaker" }}
+        >
+          <Radio value="deltaker">Deltaker</Radio>
+          <Radio value="arrangor">Arrangør</Radio>
+        </ControlledRadioGroup>
+        <Box width="100%">
+          <FormTextarea
+            label="Kommentarer til deltaker (vil vises i vedtaksbrev)"
+            size="small"
+            name="kommentarerTilDeltaker"
+          />
+        </Box>
+      </VStack>
+    </>
   );
 }

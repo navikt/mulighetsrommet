@@ -1,83 +1,95 @@
-import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { UthevetBox } from "@/layouts/UthevetBox";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
-import {
-  Box,
-  Heading,
-  VStack,
-  TextField,
-  HStack,
-  Textarea,
-  Radio,
-  RadioGroup,
-  Stack,
-} from "@navikt/ds-react";
+import { Box, Heading, VStack, TextField, HStack, Radio } from "@navikt/ds-react";
+import { useFormContext } from "react-hook-form";
+import { FormTextField } from "@/components/skjema/FormTextField";
+import { FormTextarea } from "@/components/skjema/FormTextarea";
+import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
+import type { BehandlingFormData } from "./schema";
 
 export function Vilkarsvurdering() {
+  const { watch } = useFormContext<BehandlingFormData>();
+
+  const tilskudd = watch("tilskudd");
+  const totalBelop = tilskudd.reduce((sum, t) => {
+    const belop = parseInt(t.belopTilUtbetaling || t.belop || "0");
+    return sum + (isNaN(belop) ? 0 : belop);
+  }, 0);
+
   return (
-    <TwoColumnGrid separator>
-      <Box>
-        <Heading size="medium" level="3" spacing>
-          Vilkårsvurdering av tilskudd
-        </Heading>
-        <UthevetBox>
-          <HStack gap="space-24" align="start">
-            <MetadataVStack label="Tilskuddstype" value="Skolepenger" />
-            <MetadataVStack label="Innsendt beløp" value="40000 NOK" />
-          </HStack>
-          <TextField label="Beløp til utbetaling" size="small" />
-          <RadioGroup legend="Er tilskuddet nødvendig for opplæring?" size="small">
-            <Stack gap="space-0 space-24" direction={{ xs: "column", sm: "row" }} wrap={false}>
+    <>
+      <Heading size="medium" level="3" spacing>
+        Vilkårsvurdering av tilskudd
+      </Heading>
+      <VStack gap="space-20">
+        {tilskudd.map((tilskuddItem, index) => (
+          <UthevetBox key={index}>
+            <HStack gap="space-24">
+              <MetadataVStack
+                label="Tilskuddstype"
+                value={tilskuddItem.tilskuddstype || "Ikke valgt"}
+              />
+              <MetadataVStack label="Innsendt beløp" value={`${tilskuddItem.belop || 0} NOK`} />
+            </HStack>
+            <FormTextField
+              label="Beløp til utbetaling"
+              size="small"
+              name={`tilskudd.${index}.belopTilUtbetaling`}
+            />
+            <ControlledRadioGroup
+              name={`tilskudd.${index}.nodvendigForOpplaring`}
+              legend="Er tilskuddet nødvendig for opplæring?"
+              size="small"
+              horisontal
+              rules={{ required: "Velg Ja eller Nei" }}
+            >
               <Radio value="yes">Ja</Radio>
               <Radio value="no">Nei</Radio>
-            </Stack>
-          </RadioGroup>
-          <Box width="100%">
-            <Textarea label="Begrunnelse" size="small" />
-          </Box>
-        </UthevetBox>
-        <Box marginBlock="space-16 space-0">
-          <Heading size="small" level="4" spacing>
-            Maksbeløp
-          </Heading>
-          <VStack gap="space-20" align="start">
-            <TextField label="Totalt beløp til utbetaling" size="small" value="40000" readOnly />
-            <RadioGroup
-              legend="Er beløpet innenfor maksgrense for utdanningsår og utdanningsløp?"
-              description="Krever en forklaring her om det man må vudere osv"
-              size="small"
-            >
-              <Stack gap="space-0 space-24" direction={{ xs: "column", sm: "row" }} wrap={false}>
-                <Radio value="yes">Ja</Radio>
-                <Radio value="no">Nei</Radio>
-              </Stack>
-            </RadioGroup>
-            <RadioGroup
-              legend="Er det vurdert unntak fra maksgrensen?"
-              description="Krever en forklaring her om det man må vurdere osv"
-              size="small"
-            >
-              <Stack gap="space-0 space-24" direction={{ xs: "column", sm: "row" }} wrap={false}>
-                <Radio value="yes">Ja</Radio>
-                <Radio value="no">Nei</Radio>
-              </Stack>
-            </RadioGroup>
+            </ControlledRadioGroup>
             <Box width="100%">
-              <Textarea label="Begrunnelse" size="small" />
+              <FormTextarea
+                label="Begrunnelse"
+                size="small"
+                name={`tilskudd.${index}.begrunnelse`}
+              />
             </Box>
-          </VStack>
-        </Box>
-      </Box>
-      <Box>
-        <Heading size="medium" level="2" spacing>
-          Fra søknad
+          </UthevetBox>
+        ))}
+        <Heading size="small" level="4">
+          Maksbeløp
         </Heading>
-        <VStack gap="space-16" align="start">
-          <MetadataVStack label="Deltakerinformasjon" value="Navn Navnesen / F.nr: XXXXXXXXXXXX" />
-          <MetadataVStack label="JournalpostID" value="24/23123" />
-          <MetadataVStack label="Søknadstidspunkt" value="01.01.2025" />
-        </VStack>
-      </Box>
-    </TwoColumnGrid>
+        <TextField
+          label="Totalt beløp til utbetaling"
+          size="small"
+          value={totalBelop || "0"}
+          readOnly
+        />
+        <ControlledRadioGroup
+          name="belopInnenforMaksgrense"
+          legend="Er beløpet innenfor maksgrense for utdanningsår og utdanningsløp?"
+          description="Krever en forklaring her om det man må vudere osv"
+          size="small"
+          horisontal
+          rules={{ required: "Velg Ja eller Nei" }}
+        >
+          <Radio value="yes">Ja</Radio>
+          <Radio value="no">Nei</Radio>
+        </ControlledRadioGroup>
+        <ControlledRadioGroup
+          name="unntakVurdert"
+          legend="Er det vurdert unntak fra maksgrensen?"
+          description="Krever en forklaring her om det man må vurdere osv"
+          size="small"
+          horisontal
+          rules={{ required: "Velg Ja eller Nei" }}
+        >
+          <Radio value="yes">Ja</Radio>
+          <Radio value="no">Nei</Radio>
+        </ControlledRadioGroup>
+        <Box width="100%">
+          <FormTextarea label="Begrunnelse" size="small" name="maksbelopBegrunnelse" />
+        </Box>
+      </VStack>
+    </>
   );
 }
