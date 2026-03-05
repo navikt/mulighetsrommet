@@ -93,7 +93,7 @@ class GjennomforingValidatorTest : FunSpec({
                 id = UUID.randomUUID(),
                 valuta = Valuta.NOK,
                 prisbetingelser = null,
-                medDeltakere = false,
+                tilsagnPerDeltaker = false,
             ),
         ),
         opsjonerRegistrert = emptyList(),

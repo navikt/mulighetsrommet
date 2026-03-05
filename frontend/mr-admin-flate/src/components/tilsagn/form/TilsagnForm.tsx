@@ -64,7 +64,7 @@ export function TilsagnForm(props: Props) {
   const periodeSlutt = watch("periodeSlutt");
 
   const {
-    data: { medDeltakere, deltakere },
+    data: { tilsagnPerDeltaker, deltakere },
   } = useTilsagnValgbareDeltakere({
     gjennomforingId: gjennomforing.id,
     periodeStart,
@@ -157,7 +157,7 @@ export function TilsagnForm(props: Props) {
                   maxLength={250}
                   {...register("beskrivelse")}
                 />
-                {medDeltakere && (
+                {tilsagnPerDeltaker && (
                   <Controller
                     control={control}
                     name="deltakere"

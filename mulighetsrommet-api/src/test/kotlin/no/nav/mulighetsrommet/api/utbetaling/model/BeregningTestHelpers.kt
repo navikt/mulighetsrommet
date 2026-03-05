@@ -32,7 +32,7 @@ object BeregningTestHelpers {
             prisbetingelser = null,
             satser = satser,
             valuta = satser.first().pris.valuta,
-            medDeltakere = false,
+            tilsagnPerDeltaker = false,
         ),
         stengt = stengt,
     )
@@ -50,7 +50,7 @@ object BeregningTestHelpers {
             prisbetingelser = null,
             satser = satser,
             valuta = satser.first().pris.valuta,
-            medDeltakere = false,
+            tilsagnPerDeltaker = false,
         ),
         stengt = stengt,
     )
@@ -68,7 +68,7 @@ object BeregningTestHelpers {
             prisbetingelser = null,
             satser = satser,
             valuta = satser.first().pris.valuta,
-            medDeltakere = false,
+            tilsagnPerDeltaker = false,
         ),
         stengt = stengt,
     )
@@ -86,7 +86,7 @@ object BeregningTestHelpers {
             id = UUID.randomUUID(),
             satser = listOf(AvtaltSatsDto(periode.start, sats)),
             valuta = sats.valuta,
-            medDeltakere = false,
+            tilsagnPerDeltaker = false,
         ),
         tiltakskode = tiltakskode,
         stengt = stengt,

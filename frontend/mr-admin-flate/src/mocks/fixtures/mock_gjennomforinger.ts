@@ -127,7 +127,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       beskrivelse: [],
       satser: null,
       prisbetingelser: "Maskert prisbetingelser",
-      medDeltakere: false,
+      tilsagnPerDeltaker: false,
     },
   },
   {
@@ -178,7 +178,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       beskrivelse: [],
       satser: null,
       prisbetingelser: "Maskert prisbetingelser",
-      medDeltakere: false,
+      tilsagnPerDeltaker: false,
     },
   },
   {
@@ -228,7 +228,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       beskrivelse: [],
       satser: null,
       prisbetingelser: "Maskert prisbetingelser",
-      medDeltakere: false,
+      tilsagnPerDeltaker: false,
     },
   },
 ];

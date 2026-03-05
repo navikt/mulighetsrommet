@@ -25,7 +25,7 @@ class TilsagnValidatorTest : FunSpec({
             id = UUID.randomUUID(),
             valuta = Valuta.NOK,
             prisbetingelser = null,
-            medDeltakere = false,
+            tilsagnPerDeltaker = false,
         )
 
         val forhandsgodkjent = Prismodell.from(
@@ -34,7 +34,7 @@ class TilsagnValidatorTest : FunSpec({
             valuta = Valuta.NOK,
             prisbetingelser = null,
             satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
-            medDeltakere = false,
+            tilsagnPerDeltaker = false,
         )
 
         test("Arrangør slettet") {
@@ -237,7 +237,7 @@ class TilsagnValidatorTest : FunSpec({
             )
         }
 
-        test("medDeltakere krever deltakere") {
+        test("krever deltakere") {
             TilsagnValidator.validate(
                 TilsagnFixtures.TilsagnRequest1.copy(deltakere = emptyList()),
                 previous = null,
@@ -251,7 +251,7 @@ class TilsagnValidatorTest : FunSpec({
                     valuta = Valuta.NOK,
                     prisbetingelser = null,
                     satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
-                    medDeltakere = true,
+                    tilsagnPerDeltaker = true,
                 ),
             ) shouldBeLeft listOf(
                 FieldError(

@@ -3756,15 +3756,15 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AvtaltSatsRequest"
-        medDeltakere:
+        tilsagnPerDeltaker:
           type:
           - "null"
           - boolean
       required:
       - id
-      - medDeltakere
       - prisbetingelser
       - satser
+      - tilsagnPerDeltaker
       - type
       - valuta
     PrismodellType:
@@ -4178,7 +4178,7 @@ components:
           type:
           - "null"
           - string
-        medDeltakere:
+        tilsagnPerDeltaker:
           type: boolean
         navn:
           type: string
@@ -4189,10 +4189,10 @@ components:
       required:
       - beskrivelse
       - id
-      - medDeltakere
       - navn
       - prisbetingelser
       - satser
+      - tilsagnPerDeltaker
       - type
       - valuta
     AvtaltSatsDto:
@@ -6103,7 +6103,7 @@ components:
     TilsagnDeltakereResponse:
       type: object
       properties:
-        medDeltakere:
+        tilsagnPerDeltaker:
           type: boolean
         deltakere:
           type: array
@@ -6111,7 +6111,7 @@ components:
             $ref: "#/components/schemas/TilsagnDeltakerPersonalia"
       required:
       - deltakere
-      - medDeltakere
+      - tilsagnPerDeltaker
     BeregnTilsagnRequest:
       type: object
       properties:

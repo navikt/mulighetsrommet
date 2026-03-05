@@ -273,7 +273,7 @@ object TilsagnValidator {
         }
     }
 
-    private fun FieldValidator.validateDeltakere(deltakere: List<UUID>?, prismodell: Prismodell) = when (prismodell.medDeltakere) {
+    private fun FieldValidator.validateDeltakere(deltakere: List<UUID>?, prismodell: Prismodell) = when (prismodell.tilsagnPerDeltaker) {
         false -> Unit
 
         true -> {

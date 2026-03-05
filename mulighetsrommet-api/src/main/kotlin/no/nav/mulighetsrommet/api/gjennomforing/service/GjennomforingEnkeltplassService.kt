@@ -120,7 +120,7 @@ class GjennomforingEnkeltplassService(
                 prisbetingelser = null,
                 satser = null,
                 systemId = null,
-                medDeltakere = false,
+                tilsagnPerDeltaker = false,
             )
             queries.prismodell.upsert(prismodellDbo)
             prismodellDbo.id
