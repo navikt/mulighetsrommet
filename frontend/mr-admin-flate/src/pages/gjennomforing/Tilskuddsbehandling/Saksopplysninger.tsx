@@ -1,4 +1,5 @@
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import { UthevetBox } from "@/layouts/UthevetBox";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import {
   BodyShort,
@@ -22,22 +23,15 @@ export function Saksopplysninger() {
   return (
     <TwoColumnGrid separator>
       <Box marginBlock="space-16">
-        <Heading size="small" level="2" spacing>
+        <Heading size="medium" level="3" spacing>
           Opplysninger fra søknad
         </Heading>
-        <VStack gap="space-16" align="start">
+        <VStack gap="space-20" align="start">
           <TextField label="JournalpostID" size="small" />
           <DatePicker {...datepickerProps}>
             <DatePicker.Input {...inputProps} label="Søknadstidspunkt" size="small" />
           </DatePicker>
-          <Box
-            asChild
-            width="100%"
-            background="sunken"
-            borderColor="neutral-subtle"
-            borderWidth="1"
-            padding="space-16"
-          >
+          <UthevetBox>
             <HStack gap="space-24" align="start">
               <Select label="Tilskuddstype" size="small">
                 <option value="">-- Velg tilskuddstype --</option>
@@ -58,14 +52,14 @@ export function Saksopplysninger() {
                 Fjern
               </Button>
             </HStack>
-          </Box>
+          </UthevetBox>
           <Button size="small" variant="secondary" icon={<PlusIcon aria-hidden />}>
             Legg til tilskudd
           </Button>
         </VStack>
       </Box>
       <Box marginBlock="space-16">
-        <Heading size="small" level="2" spacing>
+        <Heading size="medium" level="3" spacing>
           Deltakerinformasjon
         </Heading>
         <BodyShort>
