@@ -58,7 +58,7 @@ data class DelutbetalingStatusDto(
                         -> DataElement.Status.Variant.SUCCESS
 
                         DelutbetalingStatus.TIL_ATTESTERING,
-                        -> DataElement.Status.Variant.WARNING
+                        -> DataElement.Status.Variant.INFO
 
                         DelutbetalingStatus.RETURNERT,
                         -> DataElement.Status.Variant.ERROR
