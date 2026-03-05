@@ -227,14 +227,11 @@ sealed class RammedetaljerDto {
                         belop = belop.sumOf { it.belop },
                     )
                 }
-            val totaltUtbetalt = ValutaLongBelop(
-                belop = totalUtbetaltTiltaksadmin.sumOf { it.belop },
-                valuta = totalUtbetaltTiltaksadmin.firstOrNull()?.valuta ?: Valuta.NOK,
-            )
+
             return TotaltUtbetalt(
                 utbetaltArena = null,
                 utbetaltTiltaksadmin = totalUtbetaltTiltaksadmin,
-                totaltUtbetalt = totaltUtbetalt,
+                totaltUtbetalt = null,
                 reservert = reservert,
             )
         }
