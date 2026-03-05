@@ -39,9 +39,6 @@ export const utbetalingTekster = {
       ingenTilsagn: "Det finnes ingen godkjente tilsagn for utbetalingsperioden",
     },
     handlinger: {
-      button: {
-        label: "Handlinger",
-      },
       opprettTilsagn: (tilsagnsType: TilsagnType) => {
         const typeTekst = avtaletekster.tilsagn.type(tilsagnsType);
         return `Opprett ${typeTekst}`;

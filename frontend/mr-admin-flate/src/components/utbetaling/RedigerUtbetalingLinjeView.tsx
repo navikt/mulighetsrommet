@@ -35,6 +35,7 @@ import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useOpprettDelutbetalinger, useSlettKorreksjon } from "@/api/utbetaling/mutations";
+import { Handlinger } from "@/components/handlinger/Handlinger";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -116,31 +117,22 @@ export function RedigerUtbetalingLinjeView({
               {utbetalingTekster.delutbetaling.header}
             </Heading>
             <Spacer />
-            <ActionMenu>
-              <ActionMenu.Trigger>
-                <Button variant="secondary" size="small">
-                  {utbetalingTekster.delutbetaling.handlinger.button.label}
-                </Button>
-              </ActionMenu.Trigger>
-              <ActionMenu.Content>
-                <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
-                  {utbetalingTekster.delutbetaling.handlinger.opprettTilsagn(
-                    tilsagnsTypeFraTilskudd,
-                  )}
+            <Handlinger>
+              <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
+                {utbetalingTekster.delutbetaling.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd)}
+              </ActionMenu.Item>
+              <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={oppdaterLinjer}>
+                {utbetalingTekster.delutbetaling.handlinger.hentGodkjenteTilsagn}
+              </ActionMenu.Item>
+              {handlinger.includes(UtbetalingHandling.SLETT) && (
+                <ActionMenu.Item
+                  icon={<TrashFillIcon />}
+                  onSelect={() => setSlettKorreksjonModalOpen(true)}
+                >
+                  Slett utbetaling
                 </ActionMenu.Item>
-                <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={oppdaterLinjer}>
-                  {utbetalingTekster.delutbetaling.handlinger.hentGodkjenteTilsagn}
-                </ActionMenu.Item>
-                {handlinger.includes(UtbetalingHandling.SLETT) && (
-                  <ActionMenu.Item
-                    icon={<TrashFillIcon />}
-                    onSelect={() => setSlettKorreksjonModalOpen(true)}
-                  >
-                    Slett utbetaling
-                  </ActionMenu.Item>
-                )}
-              </ActionMenu.Content>
-            </ActionMenu>
+              )}
+            </Handlinger>
           </HStack>
 
           <UtbetalingLinjeTable

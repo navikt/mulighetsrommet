@@ -30,6 +30,7 @@ import { utbetalingTekster } from "./UtbetalingTekster";
 import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
 import { PlusCircleIcon } from "@navikt/aksel-icons";
 import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjonModal";
+import { Handlinger } from "@/components/handlinger/Handlinger";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -94,23 +95,16 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger, oppdaterLin
           {utbetalingTekster.delutbetaling.header}
         </Heading>
         <Spacer />
-        <ActionMenu>
-          <ActionMenu.Trigger>
-            <Button variant="secondary" size="small">
-              {utbetalingTekster.delutbetaling.handlinger.button.label}
-            </Button>
-          </ActionMenu.Trigger>
-          <ActionMenu.Content>
-            {handlinger.includes(UtbetalingHandling.OPPRETT_KORREKSJON) && (
-              <ActionMenu.Item
-                icon={<PlusCircleIcon />}
-                onSelect={() => setOpprettKorreksjonModalOpen(true)}
-              >
-                Opprett korreksjon
-              </ActionMenu.Item>
-            )}
-          </ActionMenu.Content>
-        </ActionMenu>
+        <Handlinger>
+          {handlinger.includes(UtbetalingHandling.OPPRETT_KORREKSJON) && (
+            <ActionMenu.Item
+              icon={<PlusCircleIcon />}
+              onSelect={() => setOpprettKorreksjonModalOpen(true)}
+            >
+              Opprett korreksjon
+            </ActionMenu.Item>
+          )}
+        </Handlinger>
       </HStack>
       <UtbetalingLinjeTable
         linjer={linjer.filter((l) => l.status !== null)}

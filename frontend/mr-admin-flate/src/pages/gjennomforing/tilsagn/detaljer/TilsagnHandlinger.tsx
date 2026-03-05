@@ -1,14 +1,14 @@
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { PencilFillIcon, TrashIcon, EraserIcon, TrashFillIcon } from "@navikt/aksel-icons";
-import { HStack, ActionMenu, Button, BodyShort } from "@navikt/ds-react";
+import { Handlinger } from "@/components/handlinger/Handlinger";
+import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
+import { ActionMenu, BodyShort, Button, HStack } from "@navikt/ds-react";
 import {
-  TilsagnStatus,
+  AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  FieldError,
   TilsagnHandling,
   TilsagnStatusAarsak,
-  AarsakerOgForklaringRequestTilsagnStatusAarsak,
   ValidationError,
-  FieldError,
 } from "@tiltaksadministrasjon/api-client";
 import { Link, useNavigate } from "react-router";
 import { useTilsagn, useTilsagnEndringshistorikk } from "./tilsagnDetaljerLoader";
@@ -16,9 +16,11 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useState } from "react";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { useSlettTilsagn } from "@/api/tilsagn/mutations";
-import { useTilsagnTilAnnullering } from "@/api/tilsagn/mutations";
-import { useTilsagnTilOppgjor } from "@/api/tilsagn/mutations";
+import {
+  useSlettTilsagn,
+  useTilsagnTilAnnullering,
+  useTilsagnTilOppgjor,
+} from "@/api/tilsagn/mutations";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 
 const tilAnnuleringAarsaker = [
@@ -31,7 +33,7 @@ const tilAnnuleringAarsaker = [
   label: tilsagnAarsakTilTekst(aarsak),
 }));
 
-export function TilsagnHandlingsmeny() {
+export function TilsagnHandlinger() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
   const { data: historikk } = useTilsagnEndringshistorikk(tilsagnId);
   const { data: tilsagn } = useTilsagn(tilsagnId);
@@ -75,51 +77,42 @@ export function TilsagnHandlingsmeny() {
       <EndringshistorikkPopover>
         <ViewEndringshistorikk historikk={historikk} />
       </EndringshistorikkPopover>
-      {[TilsagnStatus.RETURNERT, TilsagnStatus.GODKJENT].includes(tilsagn.tilsagn.status.type) && (
-        <ActionMenu>
-          <ActionMenu.Trigger>
-            <Button variant="secondary" size="small">
-              Handlinger
-            </Button>
-          </ActionMenu.Trigger>
-          <ActionMenu.Content>
-            {tilsagn.handlinger.includes(TilsagnHandling.REDIGER) && (
-              <ActionMenu.Item icon={<PencilFillIcon />}>
-                <Link className="no-underline" to="./rediger-tilsagn">
-                  Rediger tilsagn
-                </Link>
-              </ActionMenu.Item>
-            )}
-            {tilsagn.handlinger.includes(TilsagnHandling.SLETT) && (
-              <ActionMenu.Item
-                variant="danger"
-                onSelect={() => setSlettTilsagnModalOpen(true)}
-                icon={<TrashIcon />}
-              >
-                Slett tilsagn
-              </ActionMenu.Item>
-            )}
-            {tilsagn.handlinger.includes(TilsagnHandling.ANNULLER) && (
-              <ActionMenu.Item
-                variant="danger"
-                onSelect={() => setTilAnnulleringModalOpen(true)}
-                icon={<EraserIcon />}
-              >
-                Annuller tilsagn
-              </ActionMenu.Item>
-            )}
-            {tilsagn.handlinger.includes(TilsagnHandling.GJOR_OPP) && (
-              <ActionMenu.Item
-                variant="danger"
-                onSelect={() => setTilOppgjorModalOpen(true)}
-                icon={<EraserIcon />}
-              >
-                Gjør opp tilsagn
-              </ActionMenu.Item>
-            )}
-          </ActionMenu.Content>
-        </ActionMenu>
-      )}
+      <Handlinger>
+        {tilsagn.handlinger.includes(TilsagnHandling.REDIGER) && (
+          <ActionMenu.Item icon={<PencilFillIcon />}>
+            <Link className="no-underline" to="./rediger-tilsagn">
+              Rediger tilsagn
+            </Link>
+          </ActionMenu.Item>
+        )}
+        {tilsagn.handlinger.includes(TilsagnHandling.SLETT) && (
+          <ActionMenu.Item
+            variant="danger"
+            onSelect={() => setSlettTilsagnModalOpen(true)}
+            icon={<TrashIcon />}
+          >
+            Slett tilsagn
+          </ActionMenu.Item>
+        )}
+        {tilsagn.handlinger.includes(TilsagnHandling.ANNULLER) && (
+          <ActionMenu.Item
+            variant="danger"
+            onSelect={() => setTilAnnulleringModalOpen(true)}
+            icon={<EraserIcon />}
+          >
+            Annuller tilsagn
+          </ActionMenu.Item>
+        )}
+        {tilsagn.handlinger.includes(TilsagnHandling.GJOR_OPP) && (
+          <ActionMenu.Item
+            variant="danger"
+            onSelect={() => setTilOppgjorModalOpen(true)}
+            icon={<EraserIcon />}
+          >
+            Gjør opp tilsagn
+          </ActionMenu.Item>
+        )}
+      </Handlinger>
       <VarselModal
         headingIconType="warning"
         headingText="Slette tilsagnet?"

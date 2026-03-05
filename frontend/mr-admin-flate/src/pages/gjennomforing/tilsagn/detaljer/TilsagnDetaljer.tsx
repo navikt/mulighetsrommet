@@ -30,7 +30,7 @@ import {
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { getDataElement } from "@mr/frontend-common";
 import { useGodkjennTilsagn, useReturnerTilsagn } from "@/api/tilsagn/mutations";
-import { TilsagnHandlingsmeny } from "./TilsagnHandlingsmeny";
+import { TilsagnHandlinger } from "./TilsagnHandlinger";
 
 export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
@@ -144,7 +144,7 @@ export function TilsagnDetaljer() {
             Tilsagn
           </Heading>
           <Spacer />
-          <TilsagnHandlingsmeny />
+          <TilsagnHandlinger />
         </HStack>
         <TwoColumnGrid separator>
           <HGrid columns={1} gap="space-8">
