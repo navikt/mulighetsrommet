@@ -1,11 +1,12 @@
 import { GjennomforingHandling } from "@tiltaksadministrasjon/api-client";
-import { Alert, Button, Dropdown } from "@navikt/ds-react";
+import { ActionMenu, Alert } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { useUtbetalingerByGjennomforing } from "@/api/utbetaling/useUtbetalingerByGjennomforing";
 import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { Handlinger } from "@/components/handlinger/Handlinger";
 
 export function UtbetalingerForGjennomforingContainer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -17,33 +18,26 @@ export function UtbetalingerForGjennomforingContainer() {
   return (
     <>
       <KnapperadContainer>
-        <Dropdown>
-          <Button size="small" variant="secondary" as={Dropdown.Toggle}>
-            Handlinger
-          </Button>
-          <Dropdown.Menu>
-            <Dropdown.Menu.GroupedList>
-              {handlinger.includes(GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING) && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    navigate("opprett-korreksjon");
-                  }}
-                >
-                  Opprett korreksjon på utbetaling
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-              {handlinger.includes(GjennomforingHandling.OPPRETT_UTBETALING) && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    navigate("opprett-utbetaling");
-                  }}
-                >
-                  Opprett utbetaling for anskaffelse
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-            </Dropdown.Menu.GroupedList>
-          </Dropdown.Menu>
-        </Dropdown>
+        <Handlinger>
+          {handlinger.includes(GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING) && (
+            <ActionMenu.Item
+              onClick={() => {
+                navigate("opprett-korreksjon");
+              }}
+            >
+              Opprett korreksjon på utbetaling
+            </ActionMenu.Item>
+          )}
+          {handlinger.includes(GjennomforingHandling.OPPRETT_UTBETALING) && (
+            <ActionMenu.Item
+              onClick={() => {
+                navigate("opprett-utbetaling");
+              }}
+            >
+              Opprett utbetaling for anskaffelse
+            </ActionMenu.Item>
+          )}
+        </Handlinger>
       </KnapperadContainer>
       {utbetalinger.length > 0 ? (
         <UtbetalingTable gjennomforingId={gjennomforingId} utbetalinger={utbetalinger} />

@@ -2077,48 +2077,22 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/innsendinger:
-    get:
+  /api/tiltaksadministrasjon/utbetaling/opprett:
+    post:
       tags:
       - Utbetaling
-      description: Hent filtrerte innsendinger
-      operationId: getInnsendinger
-      parameters:
-      - name: tiltakstyper
-        in: query
+      operationId: opprettUtbetaling
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpprettUtbetalingRequest"
         required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: sort
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
       responses:
-        "200":
-          description: Alle innsendinger for gitte filtre
+        "201":
+          description: Utbetalingen ble opprettet
           headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/InnsendingKompaktDto"
         default:
           description: Problem details
           headers: {}
@@ -2284,30 +2258,48 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/utbetaling/{id}/opprett-utbetaling:
-    post:
+  /api/tiltaksadministrasjon/innsendinger:
+    get:
       tags:
       - Utbetaling
-      operationId: opprettUtbetaling
+      description: Hent filtrerte innsendinger
+      operationId: getInnsendinger
       parameters:
-      - name: id
-        in: path
-        required: true
+      - name: tiltakstyper
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: navEnheter
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: sort
+        in: query
+        required: false
         deprecated: false
         explode: false
         schema:
           type: string
-          format: uuid
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OpprettUtbetalingRequest"
-        required: false
       responses:
-        "201":
-          description: Utbetalingen ble opprettet
+        "200":
+          description: Alle innsendinger for gitte filtre
           headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InnsendingKompaktDto"
         default:
           description: Problem details
           headers: {}
@@ -6210,7 +6202,22 @@ components:
       - displayName
       - displayNameLong
       - tagName
-    InnsendingKompaktDto:
+    ValutaBelopRequest:
+      type: object
+      properties:
+        belop:
+          type:
+          - "null"
+          - integer
+          format: int32
+        valuta:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Valuta"
+      required:
+      - belop
+      - valuta
+    OpprettUtbetalingRequest:
       type: object
       properties:
         id:
@@ -6219,45 +6226,54 @@ components:
         gjennomforingId:
           type: string
           format: uuid
-        periode:
-          $ref: "#/components/schemas/Periode"
-        kostnadssteder:
-          type: array
-          items:
-            $ref: "#/components/schemas/KostnadsstedDto"
+        korrigererUtbetaling:
+          type:
+          - "null"
+          - string
+          format: uuid
+        periodeStart:
+          type:
+          - "null"
+          - string
+          format: date
+        periodeSlutt:
+          type:
+          - "null"
+          - string
+          format: date
+        journalpostId:
+          type:
+          - "null"
+          - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        kidNummer:
+          type:
+          - "null"
+          - string
         pris:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/ValutaBelop"
-        arrangor:
-          type: string
-        tiltakstype:
-          $ref: "#/components/schemas/Utbetaling.Tiltakstype"
-        status:
-          $ref: "#/components/schemas/UtbetalingStatusDto"
+          - $ref: "#/components/schemas/ValutaBelopRequest"
       required:
-      - arrangor
+      - beskrivelse
       - gjennomforingId
       - id
-      - kostnadssteder
-      - periode
+      - journalpostId
+      - kidNummer
+      - korrigererUtbetaling
+      - periodeSlutt
+      - periodeStart
       - pris
-      - status
-      - tiltakstype
-    Utbetaling.Tiltakstype:
-      type: object
-      properties:
-        navn:
-          type: string
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-      required:
-      - navn
-      - tiltakskode
     UtbetalingDto:
       type: object
       properties:
         id:
+          type: string
+          format: uuid
+        gjennomforingId:
           type: string
           format: uuid
         status:
@@ -6309,6 +6325,7 @@ components:
       - begrunnelseMindreBetalt
       - beskrivelse
       - betalingsinformasjon
+      - gjennomforingId
       - id
       - innsendtAv
       - innsendtAvArrangorDato
@@ -6366,6 +6383,7 @@ components:
       enum:
       - SEND_TIL_ATTESTERING
       - SLETT
+      - OPPRETT_KORREKSJON
     UtbetalingDetaljerDto:
       type: object
       properties:
@@ -6485,61 +6503,50 @@ components:
       - ATTESTER
       - RETURNER
       - SEND_TIL_ATTESTERING
-    ValutaBelopRequest:
+    InnsendingKompaktDto:
       type: object
       properties:
-        belop:
-          type:
-          - "null"
-          - integer
-          format: int32
-        valuta:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Valuta"
-      required:
-      - belop
-      - valuta
-    OpprettUtbetalingRequest:
-      type: object
-      properties:
+        id:
+          type: string
+          format: uuid
         gjennomforingId:
           type: string
           format: uuid
-        periodeStart:
-          type:
-          - "null"
-          - string
-          format: date
-        periodeSlutt:
-          type:
-          - "null"
-          - string
-          format: date
-        journalpostId:
-          type:
-          - "null"
-          - string
-        beskrivelse:
-          type:
-          - "null"
-          - string
-        kidNummer:
-          type:
-          - "null"
-          - string
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssteder:
+          type: array
+          items:
+            $ref: "#/components/schemas/KostnadsstedDto"
         pris:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/ValutaBelopRequest"
+          - $ref: "#/components/schemas/ValutaBelop"
+        arrangor:
+          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/Utbetaling.Tiltakstype"
+        status:
+          $ref: "#/components/schemas/UtbetalingStatusDto"
       required:
-      - beskrivelse
+      - arrangor
       - gjennomforingId
-      - journalpostId
-      - kidNummer
-      - periodeSlutt
-      - periodeStart
+      - id
+      - kostnadssteder
+      - periode
       - pris
+      - status
+      - tiltakstype
+    Utbetaling.Tiltakstype:
+      type: object
+      properties:
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - navn
+      - tiltakskode
     DelutbetalingRequest:
       type: object
       properties:

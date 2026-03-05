@@ -223,6 +223,7 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
     case UtbetalingStatusDtoType.UBEHANDLET_FORSLAG:
     case UtbetalingStatusDtoType.AVBRUTT:
       return null;
+
     case UtbetalingStatusDtoType.RETURNERT:
     case UtbetalingStatusDtoType.KLAR_TIL_BEHANDLING:
       return (
@@ -233,11 +234,18 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
           oppdaterLinjer={oppdaterLinjer}
         />
       );
+
     case UtbetalingStatusDtoType.TIL_ATTESTERING:
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
     case UtbetalingStatusDtoType.DELVIS_UTBETALT:
     case UtbetalingStatusDtoType.UTBETALT:
-      return <BesluttUtbetalingLinjeView utbetaling={utbetaling} oppdaterLinjer={oppdaterLinjer} />;
+      return (
+        <BesluttUtbetalingLinjeView
+          utbetaling={utbetaling}
+          handlinger={handlinger}
+          oppdaterLinjer={oppdaterLinjer}
+        />
+      );
   }
 }
 

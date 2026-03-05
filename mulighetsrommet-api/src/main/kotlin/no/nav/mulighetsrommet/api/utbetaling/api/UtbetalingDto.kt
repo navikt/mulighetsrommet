@@ -22,6 +22,8 @@ import java.util.UUID
 data class UtbetalingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID,
     val status: UtbetalingStatusDto,
     val periode: Periode,
     val pris: ValutaBelop,
@@ -30,6 +32,7 @@ data class UtbetalingDto(
     @Serializable(with = LocalDateSerializer::class)
     val utbetalesTidligstDato: LocalDate?,
     val betalingsinformasjon: Betalingsinformasjon?,
+    // TODO: gjelder kun korreksjoner. Gjør om ifm. migrering til ny korreksjonsmodell
     val beskrivelse: String?,
     val begrunnelseMindreBetalt: String?,
     val avbruttBegrunnelse: String?,
@@ -42,12 +45,13 @@ data class UtbetalingDto(
         fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingDto {
             return UtbetalingDto(
                 id = utbetaling.id,
+                gjennomforingId = utbetaling.gjennomforing.id,
                 status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer),
                 periode = utbetaling.periode,
                 innsendtAvArrangorDato = utbetaling.godkjentAvArrangorTidspunkt?.toLocalDate(),
                 utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
-                beskrivelse = utbetaling.beskrivelse,
+                beskrivelse = utbetaling.korreksjon?.begrunnelse,
                 begrunnelseMindreBetalt = utbetaling.begrunnelseMindreBetalt,
                 pris = utbetaling.beregning.output.pris,
                 innsendtAv = formaterInnsendtAv(utbetaling.innsender),

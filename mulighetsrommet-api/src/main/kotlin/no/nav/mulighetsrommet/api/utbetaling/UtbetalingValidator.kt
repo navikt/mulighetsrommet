@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.model.compareTo
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
-import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
@@ -101,7 +100,6 @@ object UtbetalingValidator {
     }
 
     fun validateOpprettUtbetalingRequest(
-        id: UUID,
         request: OpprettUtbetalingRequest,
     ): Either<List<FieldError>, OpprettUtbetalingAnnenAvtaltPris> = validation {
         validateNotNull(request.periodeStart) {
@@ -135,13 +133,14 @@ object UtbetalingValidator {
             }
         }
         OpprettUtbetalingAnnenAvtaltPris(
-            id = id,
+            id = request.id,
             gjennomforingId = request.gjennomforingId,
+            korrigererUtbetaling = request.korrigererUtbetaling,
             periodeStart = periode.start,
             periodeSlutt = periode.getLastInclusiveDate(),
             journalpostId = journalpostId,
             pris = ValutaBelop(request.pris.belop, request.pris.valuta),
-            kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
+            kid = request.kidNummer?.let { Kid.parseOrThrow(it) },
             beskrivelse = request.beskrivelse,
             vedlegg = emptyList(),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,

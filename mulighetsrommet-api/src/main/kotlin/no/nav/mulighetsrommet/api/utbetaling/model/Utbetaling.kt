@@ -30,6 +30,7 @@ data class Utbetaling(
     val tiltakstype: Tiltakstype,
     val gjennomforing: Gjennomforing,
     val arrangor: Arrangor,
+    val korreksjon: Korreksjon?,
     val valuta: Valuta,
     val beregning: UtbetalingBeregning,
     val betalingsinformasjon: Betalingsinformasjon?,
@@ -43,7 +44,6 @@ data class Utbetaling(
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime,
-    val beskrivelse: String?,
     val begrunnelseMindreBetalt: String?,
     val tilskuddstype: Tilskuddstype,
     val status: UtbetalingStatusType,
@@ -91,6 +91,13 @@ data class Utbetaling(
     data class Tiltakstype(
         val navn: String,
         val tiltakskode: Tiltakskode,
+    )
+
+    @Serializable
+    data class Korreksjon(
+        @Serializable(with = UUIDSerializer::class)
+        val gjelderUtbetalingId: UUID?,
+        val begrunnelse: String,
     )
 
     @Serializable

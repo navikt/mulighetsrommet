@@ -39,6 +39,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
   {
     avbruttBegrunnelse: null,
     id: "123e4567-e89b-12d3-a456-426614174000",
+    gjennomforingId: "a7d63fb0-4366-412c-84b7-7c15518ee361",
     periode: {
       start: "2024-01-01",
       slutt: "2024-06-30",
@@ -68,6 +69,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174001",
+    gjennomforingId: "a7d63fb0-4366-412c-84b7-7c15518ee361",
     periode: {
       start: "2025-01-01",
       slutt: "2025-06-30",
@@ -99,6 +101,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
   {
     avbruttBegrunnelse: null,
     id: "123e4567-e89b-12d3-a456-426614174002",
+    gjennomforingId: "a7d63fb0-4366-412c-84b7-7c15518ee361",
     periode: {
       start: "2025-01-01",
       slutt: "2025-03-31",
@@ -125,6 +128,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
   {
     avbruttBegrunnelse: null,
     id: "129e4567-e89b-12d3-a456-426614174002",
+    gjennomforingId: "a7d63fb0-4366-412c-84b7-7c15518ee361",
     periode: {
       start: "2025-03-01",
       slutt: "2025-03-31",

@@ -22,11 +22,12 @@ data class OpprettUtbetaling(
 data class OpprettUtbetalingAnnenAvtaltPris(
     val id: UUID,
     val gjennomforingId: UUID,
+    val korrigererUtbetaling: UUID?,
     val periodeStart: LocalDate,
     val periodeSlutt: LocalDate,
     val journalpostId: JournalpostId?,
     val beskrivelse: String?,
-    val kidNummer: Kid?,
+    val kid: Kid?,
     val pris: ValutaBelop,
     val tilskuddstype: Tilskuddstype,
     val vedlegg: List<Vedlegg>,
@@ -39,12 +40,13 @@ fun OpprettUtbetaling.toAnnenAvtaltPris(
     return OpprettUtbetalingAnnenAvtaltPris(
         id = UUID.randomUUID(),
         gjennomforingId = gjennomforingId,
+        korrigererUtbetaling = null,
         tilskuddstype = tilskuddstype,
         periodeStart = periodeStart,
         periodeSlutt = periodeSlutt,
         journalpostId = null,
         beskrivelse = null,
-        kidNummer = kidNummer,
+        kid = kidNummer,
         pris = pris,
         vedlegg = vedlegg,
     )

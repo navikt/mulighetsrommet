@@ -95,11 +95,12 @@ class UtbetalingRoutesTest : FunSpec({
                 val id = UUID.randomUUID()
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
-                val response = client.post("/api/tiltaksadministrasjon/utbetaling/$id/opprett-utbetaling") {
+                val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpprettUtbetalingRequest(
+                            id = id,
                             gjennomforingId = AFT1.id,
                             periodeStart = LocalDate.now(),
                             periodeSlutt = LocalDate.now().plusDays(1),
@@ -121,11 +122,12 @@ class UtbetalingRoutesTest : FunSpec({
                 val id = UUID.randomUUID()
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantUtbetalingRolle))
 
-                val response = client.post("/api/tiltaksadministrasjon/utbetaling/$id/opprett-utbetaling") {
+                val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpprettUtbetalingRequest(
+                            id = id,
                             gjennomforingId = AFT1.id,
                             periodeStart = LocalDate.now(),
                             periodeSlutt = LocalDate.now().plusDays(1),
@@ -145,11 +147,12 @@ class UtbetalingRoutesTest : FunSpec({
                 val id = UUID.randomUUID()
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
-                val response = client.post("/api/tiltaksadministrasjon/utbetaling/$id/opprett-utbetaling") {
+                val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
                         OpprettUtbetalingRequest(
+                            id = id,
                             gjennomforingId = AFT1.id,
                             periodeStart = LocalDate.now(),
                             periodeSlutt = LocalDate.now().plusDays(1),

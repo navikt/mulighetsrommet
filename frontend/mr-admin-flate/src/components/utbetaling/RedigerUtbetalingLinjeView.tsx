@@ -34,8 +34,8 @@ import { RedigerUtbetalingLinjeFormValues, toDelutbetaling } from "./helpers";
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useOpprettDelutbetalinger, useSlettKorreksjon } from "@/api/utbetaling/mutations";
+import { Handlinger } from "@/components/handlinger/Handlinger";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -51,7 +51,6 @@ export function RedigerUtbetalingLinjeView({
   utbetalingLinjer: apiLinjer,
   oppdaterLinjer,
 }: Props) {
-  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const navigate = useNavigate();
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
@@ -81,7 +80,7 @@ export function RedigerUtbetalingLinjeView({
   function opprettEkstraTilsagn() {
     const defaultTilsagn = apiLinjer.length === 1 ? apiLinjer[0].tilsagn : undefined;
     return navigate(
-      `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
+      `/gjennomforinger/${utbetaling.gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
         `&periodeStart=${utbetaling.periode.start}` +
         `&periodeSlutt=${yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 }))}` +
@@ -118,31 +117,22 @@ export function RedigerUtbetalingLinjeView({
               {utbetalingTekster.delutbetaling.header}
             </Heading>
             <Spacer />
-            <ActionMenu>
-              <ActionMenu.Trigger>
-                <Button variant="secondary" size="small">
-                  {utbetalingTekster.delutbetaling.handlinger.button.label}
-                </Button>
-              </ActionMenu.Trigger>
-              <ActionMenu.Content>
-                <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
-                  {utbetalingTekster.delutbetaling.handlinger.opprettTilsagn(
-                    tilsagnsTypeFraTilskudd,
-                  )}
+            <Handlinger>
+              <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
+                {utbetalingTekster.delutbetaling.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd)}
+              </ActionMenu.Item>
+              <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={oppdaterLinjer}>
+                {utbetalingTekster.delutbetaling.handlinger.hentGodkjenteTilsagn}
+              </ActionMenu.Item>
+              {handlinger.includes(UtbetalingHandling.SLETT) && (
+                <ActionMenu.Item
+                  icon={<TrashFillIcon />}
+                  onSelect={() => setSlettKorreksjonModalOpen(true)}
+                >
+                  Slett utbetaling
                 </ActionMenu.Item>
-                <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={oppdaterLinjer}>
-                  {utbetalingTekster.delutbetaling.handlinger.hentGodkjenteTilsagn}
-                </ActionMenu.Item>
-                {handlinger.includes(UtbetalingHandling.SLETT) && (
-                  <ActionMenu.Item
-                    icon={<TrashFillIcon />}
-                    onSelect={() => setSlettKorreksjonModalOpen(true)}
-                  >
-                    Slett utbetaling
-                  </ActionMenu.Item>
-                )}
-              </ActionMenu.Content>
-            </ActionMenu>
+              )}
+            </Handlinger>
           </HStack>
 
           <UtbetalingLinjeTable
@@ -151,7 +141,7 @@ export function RedigerUtbetalingLinjeView({
             renderRow={(linje: UtbetalingLinje, index: number) => (
               <UtbetalingLinjeRow
                 key={`${linje.id}-${linje.status?.type}`}
-                gjennomforingId={gjennomforingId}
+                gjennomforingId={utbetaling.gjennomforingId}
                 linje={linje}
                 belopInput={
                   <TextField
