@@ -198,7 +198,7 @@ object AvtaleFixtures {
                     satser = (prismodell.satser ?: listOf()).map {
                         AvtaltSatsRequest(it.gjelderFra, it.sats.belop)
                     },
-                    medDeltakere = false,
+                    tilsagnPerDeltaker = false,
                 )
             },
         )

@@ -79,7 +79,7 @@ export function AvtaleDetaljerForm() {
             valuta: Valuta.NOK,
             satser: [],
             prisbetingelser: null,
-            medDeltakere: false,
+            tilsagnPerDeltaker: false,
           },
         ]);
       }

@@ -284,7 +284,7 @@ object AvtaleValidator {
                 prisbetingelser = prismodell.prisbetingelser,
                 satser = satser,
                 valuta = prismodell.valuta,
-                medDeltakere = prismodell.medDeltakere ?: false,
+                tilsagnPerDeltaker = prismodell.tilsagnPerDeltaker ?: false,
             )
         }
     }

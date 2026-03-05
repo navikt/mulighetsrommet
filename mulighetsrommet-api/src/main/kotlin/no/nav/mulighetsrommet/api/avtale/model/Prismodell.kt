@@ -12,14 +12,14 @@ sealed class Prismodell {
     abstract val id: UUID
     abstract val type: PrismodellType
     abstract val valuta: Valuta
-    abstract val medDeltakere: Boolean
+    abstract val tilsagnPerDeltaker: Boolean
 
     @Serializable
     data class AnnenAvtaltPris(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val medDeltakere: Boolean,
+        override val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
     ) : Prismodell() {
         @Transient
@@ -31,7 +31,7 @@ sealed class Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val medDeltakere: Boolean,
+        override val tilsagnPerDeltaker: Boolean,
         val satser: List<AvtaltSatsDto>,
     ) : Prismodell() {
         @Transient
@@ -43,7 +43,7 @@ sealed class Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val medDeltakere: Boolean,
+        override val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
     ) : Prismodell() {
@@ -56,7 +56,7 @@ sealed class Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val medDeltakere: Boolean,
+        override val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
     ) : Prismodell() {
@@ -69,7 +69,7 @@ sealed class Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val medDeltakere: Boolean,
+        override val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
     ) : Prismodell() {
@@ -82,7 +82,7 @@ sealed class Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val medDeltakere: Boolean,
+        override val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
     ) : Prismodell() {
@@ -97,7 +97,7 @@ sealed class Prismodell {
             valuta: Valuta,
             prisbetingelser: String?,
             satser: List<AvtaltSats>?,
-            medDeltakere: Boolean,
+            tilsagnPerDeltaker: Boolean,
         ): Prismodell {
             val satser = (satser ?: listOf()).windowed(size = 2, partialWindows = true).map { sats ->
                 val nextSats = sats.getOrNull(1)
@@ -108,14 +108,14 @@ sealed class Prismodell {
                     id = id,
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
-                    medDeltakere = medDeltakere,
+                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
 
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> ForhandsgodkjentPrisPerManedsverk(
                     id = id,
                     valuta = valuta,
                     satser = satser,
-                    medDeltakere = medDeltakere,
+                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> AvtaltPrisPerManedsverk(
@@ -123,7 +123,7 @@ sealed class Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     satser = satser,
-                    medDeltakere = medDeltakere,
+                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK -> AvtaltPrisPerUkesverk(
@@ -131,7 +131,7 @@ sealed class Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     satser = satser,
-                    medDeltakere = medDeltakere,
+                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> AvtaltPrisPerHeleUkesverk(
@@ -139,7 +139,7 @@ sealed class Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     satser = satser,
-                    medDeltakere = medDeltakere,
+                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> AvtaltPrisPerTimeOppfolgingPerDeltaker(
@@ -147,7 +147,7 @@ sealed class Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     satser = satser,
-                    medDeltakere = medDeltakere,
+                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
             }
         }

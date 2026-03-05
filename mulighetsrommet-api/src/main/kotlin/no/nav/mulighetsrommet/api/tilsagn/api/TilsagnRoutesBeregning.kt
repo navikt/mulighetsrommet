@@ -146,9 +146,9 @@ fun Route.tilsagnRoutesBeregning() {
         val gjennomforing = gjennomforinger.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
             ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig gjennomforingId=${request.gjennomforingId}")
 
-        val medDeltakere = gjennomforing.prismodell.medDeltakere
+        val tilsagnPerDeltaker = gjennomforing.prismodell.tilsagnPerDeltaker
 
-        val deltakere = if (request.periodeStart != null && request.periodeSlutt != null && medDeltakere) {
+        val deltakere = if (request.periodeStart != null && request.periodeSlutt != null && tilsagnPerDeltaker) {
             val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
 
             val deltakelser = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
@@ -161,7 +161,7 @@ fun Route.tilsagnRoutesBeregning() {
             emptyList()
         }
 
-        call.respond(TilsagnDeltakereResponse(medDeltakere, deltakere))
+        call.respond(TilsagnDeltakereResponse(tilsagnPerDeltaker, deltakere))
     }
 
     post("/beregn", {
@@ -394,6 +394,6 @@ data class TilsagnDeltakereRequest(
 
 @Serializable
 data class TilsagnDeltakereResponse(
-    val medDeltakere: Boolean,
+    val tilsagnPerDeltaker: Boolean,
     val deltakere: List<TilsagnDeltakerPersonalia>,
 )

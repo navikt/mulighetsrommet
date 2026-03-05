@@ -63,7 +63,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
       {fields.map((field, index) => {
         const type = watch(`prismodeller.${index}.type`);
         const selectedValuta = watch(`prismodeller.${index}.valuta`);
-        const medDeltakere = watch(`prismodeller.${index}.medDeltakere`);
+        const tilsagnPerDeltaker = watch(`prismodeller.${index}.tilsagnPerDeltaker`);
         const beskrivelse = prismodellTyper.find((p) => p.type === type)?.beskrivelse;
         return (
           <Box
@@ -114,8 +114,10 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                 {enabledMedDeltakereCheckbox && (
                   <HStack align="center" gap="space-8">
                     <Checkbox
-                      checked={medDeltakere}
-                      onChange={() => setValue(`prismodeller.${index}.medDeltakere`, !medDeltakere)}
+                      checked={tilsagnPerDeltaker}
+                      onChange={() =>
+                        setValue(`prismodeller.${index}.tilsagnPerDeltaker`, !tilsagnPerDeltaker)
+                      }
                       size="small"
                     >
                       Tilsagn skal knyttes til deltakere
@@ -170,7 +172,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
               valuta: Valuta.NOK,
               satser: [],
               prisbetingelser: null,
-              medDeltakere: false,
+              tilsagnPerDeltaker: false,
             })
           }
         >

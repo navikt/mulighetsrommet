@@ -105,7 +105,7 @@ function defaultValues(prismodeller: PrismodellDto[]): PrismodellValues {
           gjelderTil: sats.gjelderTil,
           pris: sats.pris.belop,
         })) ?? [],
-      medDeltakere: prismodell.medDeltakere,
+      tilsagnPerDeltaker: prismodell.tilsagnPerDeltaker,
     })),
   };
 }

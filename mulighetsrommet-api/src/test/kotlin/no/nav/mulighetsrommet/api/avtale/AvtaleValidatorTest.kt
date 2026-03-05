@@ -75,7 +75,7 @@ class AvtaleValidatorTest : FunSpec({
         Tiltakskode.OPPFOLGING,
         avtaletype = Avtaletype.RAMMEAVTALE,
     )
-    val prismodell = Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), valuta = Valuta.NOK, prisbetingelser = "", medDeltakere = false)
+    val prismodell = Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), valuta = Valuta.NOK, prisbetingelser = "", tilsagnPerDeltaker = false)
     val ctx = Ctx(
         previous = null,
         arrangor = ArrangorFixtures.hovedenhet.copy(
@@ -505,7 +505,7 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = emptyList(),
-                        medDeltakere = false,
+                        tilsagnPerDeltaker = false,
                     ),
                 ),
                 getContext(TiltakstypeFixtures.Oppfolging),
@@ -523,7 +523,7 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = emptyList(),
-                        medDeltakere = false,
+                        tilsagnPerDeltaker = false,
                     ),
                 ),
                 getContext(TiltakstypeFixtures.AFT, avtaletype = Avtaletype.FORHANDSGODKJENT),
@@ -539,7 +539,7 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = emptyList(),
-                        medDeltakere = false,
+                        tilsagnPerDeltaker = false,
                     ),
                 ),
                 getContext(TiltakstypeFixtures.Oppfolging),
@@ -559,7 +559,7 @@ class AvtaleValidatorTest : FunSpec({
                             pris = 1,
                         ),
                     ),
-                    medDeltakere = false,
+                    tilsagnPerDeltaker = false,
                 ),
             )
 
@@ -598,7 +598,7 @@ class AvtaleValidatorTest : FunSpec({
                                 pris = 1,
                             ),
                         ),
-                        medDeltakere = false,
+                        tilsagnPerDeltaker = false,
                     ),
                 ),
                 getContext(
@@ -616,7 +616,7 @@ class AvtaleValidatorTest : FunSpec({
                 valuta = Valuta.NOK,
                 prisbetingelser = null,
                 satser = listOf(),
-                medDeltakere = false,
+                tilsagnPerDeltaker = false,
             )
 
             AvtaleValidator.validatePrismodeller(
@@ -703,7 +703,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
-                        medDeltakere = false,
+                        tilsagnPerDeltaker = false,
                     ),
                     PrismodellRequest(
                         id = UUID.randomUUID(),
@@ -714,7 +714,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
-                        medDeltakere = false,
+                        tilsagnPerDeltaker = false,
                     ),
                 ),
                 getContext(),
@@ -734,7 +734,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
-                        medDeltakere = false,
+                        tilsagnPerDeltaker = false,
                     ),
                 ),
                 getContext(),
@@ -757,7 +757,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
-                        medDeltakere = false,
+                        tilsagnPerDeltaker = false,
                     ),
                 ),
                 getContext(),
@@ -930,7 +930,7 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.NOK,
                         satser = emptyList(),
                         prisbetingelser = null,
-                        medDeltakere = false,
+                        tilsagnPerDeltaker = false,
                     ),
                 )
 

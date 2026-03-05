@@ -16,5 +16,5 @@ data class PrismodellDbo(
     val prisbetingelser: String?,
     val satser: List<AvtaltSats>?,
     val systemId: String?,
-    val medDeltakere: Boolean,
+    val tilsagnPerDeltaker: Boolean,
 )
