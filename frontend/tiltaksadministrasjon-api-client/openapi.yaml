@@ -4504,8 +4504,13 @@ components:
             $ref: "#/components/schemas/ValutaLongBelop"
         gjenstaendeRamme:
           $ref: "#/components/schemas/ValutaLongBelop"
+        reservert:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValutaLongBelop"
       required:
       - gjenstaendeRamme
+      - reservert
       - totalRamme
       - utbetaltArena
       - utbetaltTiltaksadmin
@@ -4532,8 +4537,15 @@ components:
           items:
             $ref: "#/components/schemas/ValutaLongBelop"
         totaltUtbetalt:
-          $ref: "#/components/schemas/ValutaLongBelop"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaLongBelop"
+        reservert:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValutaLongBelop"
       required:
+      - reservert
       - totaltUtbetalt
       - utbetaltArena
       - utbetaltTiltaksadmin

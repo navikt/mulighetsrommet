@@ -1,4 +1,4 @@
-import { MetadataHStack } from "@mr/frontend-common/components/datadriven/Metadata";
+import { MetadataHStack, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { Heading, VStack } from "@navikt/ds-react";
 import { RammedetaljerDto, TotalRamme, TotaltUtbetalt } from "@tiltaksadministrasjon/api-client";
@@ -45,10 +45,19 @@ function TotalRammeDetaljer({ detaljer }: TotalRammeDetaljerProps) {
             value={formaterValutaBelop(utbetalt)}
           />
         ))}
+        <Separator />
         <MetadataHStack
           label={avtaletekster.rammedetaljer.gjenstaendeRamme}
           value={formaterValutaBelop(detaljer.gjenstaendeRamme)}
         />
+        <Separator />
+        {detaljer.reservert.map((reservert) => (
+          <MetadataHStack
+            key={reservert.valuta}
+            label={avtaletekster.rammedetaljer.reservert}
+            value={formaterValutaBelop(reservert)}
+          />
+        ))}
       </VStack>
     </>
   );
@@ -78,10 +87,23 @@ function TotaltUtbetaltDetaljer({ detaljer }: TotaltUtbetaltDetaljerProps) {
             value={formaterValutaBelop(utbetalt)}
           />
         ))}
-        <MetadataHStack
-          label={avtaletekster.rammedetaljer.totaltUtbetalt}
-          value={formaterValutaBelop(detaljer.totaltUtbetalt)}
-        />
+        {detaljer.totaltUtbetalt && (
+          <>
+            <Separator />
+            <MetadataHStack
+              label={avtaletekster.rammedetaljer.totaltUtbetalt}
+              value={formaterValutaBelop(detaljer.totaltUtbetalt)}
+            />
+          </>
+        )}
+        <Separator />
+        {detaljer.reservert.map((reservert) => (
+          <MetadataHStack
+            key={reservert.valuta}
+            label={avtaletekster.rammedetaljer.reservert}
+            value={formaterValutaBelop(reservert)}
+          />
+        ))}
       </VStack>
     </>
   );
