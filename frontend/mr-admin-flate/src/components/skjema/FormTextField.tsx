@@ -1,4 +1,4 @@
-import { TextField, type TextFieldProps } from "@navikt/ds-react";
+import { TextField, VStack, type TextFieldProps } from "@navikt/ds-react";
 import {
   useController,
   useFormContext,
@@ -24,6 +24,13 @@ export function FormTextField<TFieldValues extends FieldValues>({
   const { field, fieldState } = useController({ name, control, rules });
 
   return (
-    <TextField {...props} {...field} value={field.value ?? ""} error={fieldState.error?.message} />
+    <VStack align="start">
+      <TextField
+        {...props}
+        {...field}
+        value={field.value ?? ""}
+        error={fieldState.error?.message}
+      />
+    </VStack>
   );
 }

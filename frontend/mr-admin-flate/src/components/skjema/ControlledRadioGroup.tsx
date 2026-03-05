@@ -1,4 +1,4 @@
-import { RadioGroup } from "@navikt/ds-react";
+import { RadioGroup, Stack } from "@navikt/ds-react";
 import { ReactNode, forwardRef } from "react";
 import { Controller, type Control, type FieldValues, type RegisterOptions } from "react-hook-form";
 
@@ -12,6 +12,7 @@ export interface Props {
   name: string;
   rules?: RegisterOptions;
   control?: Control<FieldValues>;
+  horisontal?: boolean;
 }
 
 export const ControlledRadioGroup = forwardRef(function ControlledRadioGroup(
@@ -29,6 +30,7 @@ export const ControlledRadioGroup = forwardRef(function ControlledRadioGroup(
     name,
     control,
     rules,
+    horisontal = false,
     ...rest
   } = props;
   return (
@@ -50,7 +52,15 @@ export const ControlledRadioGroup = forwardRef(function ControlledRadioGroup(
               value={value}
               error={error?.message as string}
             >
-              {children}
+              <Stack
+                gap="space-0 space-24"
+                direction={
+                  horisontal ? { xs: "column", sm: "row" } : { xs: "column", sm: "column" }
+                }
+                wrap={false}
+              >
+                {children}
+              </Stack>
             </RadioGroup>
           );
         }}
