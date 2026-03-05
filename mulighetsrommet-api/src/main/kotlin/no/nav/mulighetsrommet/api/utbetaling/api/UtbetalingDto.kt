@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -33,7 +34,7 @@ data class UtbetalingDto(
     val begrunnelseMindreBetalt: String?,
     val avbruttBegrunnelse: String?,
     val innsendtAv: String?,
-    val journalpostId: String?,
+    val journalpostId: JournalpostId?,
     val tilskuddstype: Tilskuddstype,
     val type: UtbetalingTypeDto,
 ) {

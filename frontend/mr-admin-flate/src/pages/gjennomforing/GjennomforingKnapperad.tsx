@@ -23,6 +23,7 @@ import {
 import { DeepPartial } from "react-hook-form";
 import { AvbrytGjennomforingModal } from "@/components/gjennomforing/AvbrytGjennomforingModal";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
+import { previewArbeidsmarkedstiltakUrl } from "@/constants";
 
 interface Props {
   ansatt: NavAnsattDto;
@@ -115,7 +116,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
           {handlinger.includes(GjennomforingHandling.FORHANDSVIS_I_MODIA) && (
             <ActionMenu.Item
               as="a"
-              href="https://nav.no"
+              href={`${previewArbeidsmarkedstiltakUrl()}/tiltak/${gjennomforing.id}`}
               target="_blank"
               icon={<ExternalLinkIcon aria-hidden />}
             >

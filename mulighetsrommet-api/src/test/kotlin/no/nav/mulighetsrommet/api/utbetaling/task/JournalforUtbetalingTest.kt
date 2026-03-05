@@ -24,23 +24,14 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
-import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.UUID
 
 class JournalforUtbetalingTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -48,30 +39,9 @@ class JournalforUtbetalingTest : FunSpec({
     val hovedenhet = ArrangorFixtures.hovedenhet
     val underenhet = ArrangorFixtures.underenhet1
 
-    val utbetaling = UtbetalingDbo(
-        id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
+    val utbetaling = UtbetalingFixtures.utbetaling1.copy(
         status = UtbetalingStatusType.INNSENDT,
-        valuta = Valuta.NOK,
-        beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-            input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2024, 8, 1)), 20205.withValuta(Valuta.NOK))),
-                stengt = setOf(),
-                deltakelser = emptySet(),
-            ),
-            output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
-                pris = 0.withValuta(Valuta.NOK),
-                deltakelser = emptySet(),
-            ),
-        ),
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("12312312312"), null),
-        periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
-        innsender = Arrangor,
-        beskrivelse = null,
-        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-        godkjentAvArrangorTidspunkt = LocalDateTime.now(),
-        utbetalesTidligstTidspunkt = null,
-        blokkeringer = emptySet(),
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -91,9 +61,9 @@ class JournalforUtbetalingTest : FunSpec({
         domain.initialize(database.db)
     }
 
-    val pdfGenClient = mockk<PdfGenClient>(relaxed = true)
-    val dokarkClient = mockk<DokarkClient>(relaxed = true)
-    val amtDeltakerClient = mockk<AmtDeltakerClient>(relaxed = true)
+    val pdfGenClient = mockk<PdfGenClient>()
+    val dokarkClient = mockk<DokarkClient>()
+    val amtDeltakerClient = mockk<AmtDeltakerClient>()
 
     coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
 
@@ -141,7 +111,7 @@ class JournalforUtbetalingTest : FunSpec({
         }
 
         database.run {
-            queries.utbetaling.getOrError(utbetaling.id).journalpostId shouldBe "123"
+            queries.utbetaling.getOrError(utbetaling.id).journalpostId shouldBe JournalpostId("123")
         }
     }
 
@@ -149,15 +119,14 @@ class JournalforUtbetalingTest : FunSpec({
         val task = createTask()
 
         val exception = shouldThrowExactly<Exception> {
-            database.run { tx ->
-                task.schedule(utbetaling.id, Instant.now(), tx, emptyList())
+            database.db.transaction {
+                task.schedule(utbetaling.id, Instant.now(), session, emptyList())
                 throw Exception("Test")
             }
         }
         exception.message shouldBe "Test"
 
-        database.assertTable("scheduled_tasks")
-            .hasNumberOfRows(0)
+        database.assertTable("scheduled_tasks").hasNumberOfRows(0)
     }
 
     test("task scheduleres hvis transaction går bra") {

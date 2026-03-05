@@ -40,7 +40,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
@@ -70,7 +69,6 @@ class TilsagnService(
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
     private val personaliaService: PersonaliaService,
-    private val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev,
 ) {
     data class Config(
         val bestillingTopic: String,

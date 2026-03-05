@@ -34,7 +34,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -113,7 +112,6 @@ class TilsagnServiceTest : FunSpec({
 
     fun createTilsagnService(
         navAnsattService: NavAnsattService = mockk(relaxed = true),
-        journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev = mockk(relaxed = true),
     ): TilsagnService {
         return TilsagnService(
             db = database.db,
@@ -126,7 +124,6 @@ class TilsagnServiceTest : FunSpec({
                 ),
             ),
             navAnsattService = navAnsattService,
-            journalforEnkeltplassTilsagnsbrev = journalforEnkeltplassTilsagnsbrev,
             personaliaService = mockk(relaxed = true),
         )
     }
@@ -423,34 +420,6 @@ class TilsagnServiceTest : FunSpec({
                         LocalDate.parse(request.periodeSlutt!!),
                     )
                 }
-        }
-
-        xtest("godkjent enkeltplass tilsagn trigger skedulering av tilsagnsbrev") {
-            val journalforEnkeltplassTilsagnsbrev = mockk<JournalforEnkeltplassTilsagnsbrev>(relaxed = true)
-            val service2 = createTilsagnService(journalforEnkeltplassTilsagnsbrev = journalforEnkeltplassTilsagnsbrev)
-            service2.upsert(request.copy(gjennomforingId = GjennomforingFixtures.EnkelAmo.id), ansatt1).shouldBeRight()
-                .should {
-                    it.status shouldBe TilsagnStatus.TIL_GODKJENNING
-                    it.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1))
-                }
-            service2.godkjennTilsagn(id = requestId, navIdent = ansatt2)
-                .shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
-
-            verify(exactly = 1) { journalforEnkeltplassTilsagnsbrev.schedule(requestId, any()) }
-        }
-
-        test("godkjent gruppe tilsagn skal ikke trigge skedulering av tilsagnsbrev") {
-            val journalforEnkeltplassTilsagnsbrev = mockk<JournalforEnkeltplassTilsagnsbrev>(relaxed = true)
-            val service2 = createTilsagnService(journalforEnkeltplassTilsagnsbrev = journalforEnkeltplassTilsagnsbrev)
-            service2.upsert(request.copy(gjennomforingId = GjennomforingFixtures.AFT1.id), ansatt1).shouldBeRight()
-                .should {
-                    it.status shouldBe TilsagnStatus.TIL_GODKJENNING
-                    it.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1))
-                }
-            service2.godkjennTilsagn(id = requestId, navIdent = ansatt2)
-                .shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
-
-            verify(exactly = 0) { journalforEnkeltplassTilsagnsbrev.schedule(requestId, any()) }
         }
 
         test("totrinnskontroll blir oppdatert i forbindelse med opprettelse av tilsagn") {

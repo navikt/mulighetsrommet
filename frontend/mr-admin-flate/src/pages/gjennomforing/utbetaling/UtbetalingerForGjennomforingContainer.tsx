@@ -2,7 +2,7 @@ import { GjennomforingHandling } from "@tiltaksadministrasjon/api-client";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
-import { useUtbetalingerByGjennomforing } from "./utbetalingerForGjennomforingLoader";
+import { useUtbetalingerByGjennomforing } from "@/api/utbetaling/useUtbetalingerByGjennomforing";
 import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -38,7 +38,7 @@ export function UtbetalingerForGjennomforingContainer() {
                     navigate("opprett-utbetaling");
                   }}
                 >
-                  Opprett utbetaling
+                  Opprett utbetaling for anskaffelse
                 </Dropdown.Menu.GroupedList.Item>
               )}
             </Dropdown.Menu.GroupedList>

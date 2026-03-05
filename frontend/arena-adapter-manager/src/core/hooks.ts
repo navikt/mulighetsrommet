@@ -39,27 +39,39 @@ export function useArenaTables() {
 export function useFailedScheduledTasks(base: ApiBase) {
   const [tasks, setTasks] = useState<ScheduledTask[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const fetchScheduledTasks = async () => {
+    const data = await getFailedScheduledTasks(base);
+    setTasks(data);
+    setIsLoading(false);
+  };
+
+  const refetch = () => {
+    setIsLoading(true);
+    fetchScheduledTasks();
+  };
+
   useEffect(() => {
-    const fetchScheduledTasks = async () => {
-      const data = await getFailedScheduledTasks(base);
-      setTasks(data);
-      setIsLoading(false);
-    };
     fetchScheduledTasks();
   }, []);
-  return { isLoading, tasks };
+  return { isLoading, tasks, refetch };
 }
 
 export function useFailedKafkaConsumerRecords(base: ApiBase) {
   const [records, setRecords] = useState<KafkaConsumerRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const fetchScheduledTasks = async () => {
+    const data = await getFailedKafkaConsumerRecords(base);
+    setRecords(data);
+    setIsLoading(false);
+  };
   useEffect(() => {
-    const fetchScheduledTasks = async () => {
-      const data = await getFailedKafkaConsumerRecords(base);
-      setRecords(data);
-      setIsLoading(false);
-    };
     fetchScheduledTasks();
   }, []);
-  return { isLoading, records };
+  const refetch = () => {
+    setIsLoading(true);
+    fetchScheduledTasks();
+  };
+  return { isLoading, records, refetch };
 }

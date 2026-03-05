@@ -38,7 +38,6 @@ import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhe
 import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
@@ -536,6 +535,7 @@ data class OpprettUtbetalingRequest(
     val periodeStart: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate? = null,
+    val journalpostId: String? = null,
     val beskrivelse: String? = null,
     val kidNummer: String? = null,
     val pris: ValutaBelopRequest? = null,

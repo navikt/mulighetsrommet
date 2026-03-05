@@ -130,7 +130,7 @@ object AvtaleValidator {
     ): Either<List<FieldError>, DetaljerDbo> = validation(OpprettAvtaleRequest::detaljer) {
         val amoKategorisering = validateDetaljer(request, ctx).bind()
 
-        val previous = requireNotNull(ctx.previous) { "Avtalen finnes ikke" }
+        val previous = requireNotNull(ctx.previous) { FieldError.of("Avtalen finnes ikke") }
 
         validate(request.tiltakskode == previous.tiltakskode) {
             FieldError.of(

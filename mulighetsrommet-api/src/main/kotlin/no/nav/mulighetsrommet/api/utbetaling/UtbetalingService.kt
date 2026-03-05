@@ -186,6 +186,7 @@ class UtbetalingService(
             innsender = agent,
             beskrivelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            journalpostId = null,
             godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
                 LocalDateTime.now()
             } else {
@@ -207,12 +208,12 @@ class UtbetalingService(
     )
 
     private suspend fun opprettAnnenAvtaltPrisUtbetaling(
-        request: OpprettUtbetalingAnnenAvtaltPris,
+        opprett: OpprettUtbetalingAnnenAvtaltPris,
         agent: Agent,
         periode: Periode,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
-        val arrangor = requireNotNull(queries.arrangor.getByGjennomforingId(request.gjennomforingId))
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(opprett.gjennomforingId)
+        val arrangor = requireNotNull(queries.arrangor.getByGjennomforingId(opprett.gjennomforingId))
         val betalingsinformasjon = arrangorService.getBetalingsinformasjon(arrangor.id)
         val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
             gjennomforing.tiltakstype.tiltakskode,
@@ -220,26 +221,27 @@ class UtbetalingService(
         )
 
         val dbo = UtbetalingDbo(
-            id = request.id,
-            gjennomforingId = request.gjennomforingId,
+            id = opprett.id,
+            gjennomforingId = opprett.gjennomforingId,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = when (betalingsinformasjon) {
                 is Betalingsinformasjon.BBan ->
                     Betalingsinformasjon.BBan(
                         kontonummer = betalingsinformasjon.kontonummer,
-                        kid = request.kidNummer,
+                        kid = opprett.kidNummer,
                     )
 
                 is Betalingsinformasjon.IBan -> betalingsinformasjon
             },
-            valuta = request.pris.valuta,
+            valuta = opprett.pris.valuta,
             beregning = UtbetalingBeregningFri.beregn(
-                input = UtbetalingBeregningFri.Input(request.pris),
+                input = UtbetalingBeregningFri.Input(opprett.pris),
             ),
             periode = periode,
             innsender = agent,
-            beskrivelse = request.beskrivelse,
-            tilskuddstype = request.tilskuddstype,
+            beskrivelse = opprett.beskrivelse,
+            tilskuddstype = opprett.tilskuddstype,
+            journalpostId = opprett.journalpostId,
             godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
                 LocalDateTime.now()
             } else {
@@ -249,7 +251,7 @@ class UtbetalingService(
             blokkeringer = emptySet(),
         )
 
-        return opprettUtbetalingTransaction(dbo, request.vedlegg, agent)
+        return opprettUtbetalingTransaction(dbo, opprett.vedlegg, agent)
     }
 
     private fun TransactionalQueryContext.opprettUtbetalingTransaction(

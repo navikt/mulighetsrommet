@@ -18,14 +18,14 @@ import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
-import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
+import { OpprettUtbetalingKorreksjonPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingKorreksjonPage";
 import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { Suspense } from "react";
 import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
-import { UtbetalingPage } from "./pages/gjennomforing/utbetaling/UtbetalingPage";
+import { UtbetalingDetaljerPage } from "./pages/gjennomforing/utbetaling/UtbetalingDetaljerPage";
 import { OpprettAvtaleFormPage } from "./pages/avtaler/OpprettAvtaleFormPage";
 import { OpprettGjennomforingFormPage } from "./pages/gjennomforing/OpprettGjennomforingFormPage";
 import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
@@ -44,6 +44,8 @@ import { Head } from "@unhead/react";
 import { AvtaleDetaljerForm } from "./components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "./components/avtaler/AvtalePersonvernForm";
 import { AvtaleInformasjonForVeiledereForm } from "./components/avtaler/AvtaleInformasjonForVeiledereForm";
+import { OpprettUtbetalingAnskaffelsePage } from "@/pages/gjennomforing/utbetaling/OpprettUtbetalingAnskaffelsePage";
+import { UtbetalingPage } from "@/pages/gjennomforing/utbetaling/UtbetalingPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -211,18 +213,13 @@ const routes: RouteObject[] = [
             path: "deltakerliste/*",
             element: <DeltakerlisteContainer />,
           },
-          { path: "tilsagn", element: <TilsagnForGjennomforingPage /> },
+          {
+            path: "tilsagn",
+            element: <TilsagnForGjennomforingPage />,
+          },
           {
             path: "utbetalinger",
             element: <UtbetalingerForGjennomforingContainer />,
-          },
-          {
-            path: "utbetalinger/opprett-korreksjon",
-            element: <OpprettUtbetalingPage />,
-          },
-          {
-            path: "utbetalinger/opprett-utbetaling",
-            element: <OpprettUtbetalingPage />,
           },
         ],
       },
@@ -237,6 +234,16 @@ const routes: RouteObject[] = [
         ],
       },
       {
+        path: "gjennomforinger/:gjennomforingId/utbetalinger",
+        element: <UtbetalingPage />,
+        errorElement: <ErrorPage />,
+        children: [
+          { path: "opprett-korreksjon", element: <OpprettUtbetalingKorreksjonPage /> },
+          { path: "opprett-utbetaling", element: <OpprettUtbetalingAnskaffelsePage /> },
+          { path: ":utbetalingId", element: <UtbetalingDetaljerPage /> },
+        ],
+      },
+      {
         path: "gjennomforinger/:gjennomforingId/skjema",
         element: <RedigerGjennomforingFormPage />,
         errorElement: <ErrorPage />,
@@ -244,11 +251,6 @@ const routes: RouteObject[] = [
       {
         path: "gjennomforinger/:gjennomforingId/redaksjonelt-innhold/skjema",
         element: <RedigerGjennomforingFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
-        element: <UtbetalingPage />,
         errorElement: <ErrorPage />,
       },
       {

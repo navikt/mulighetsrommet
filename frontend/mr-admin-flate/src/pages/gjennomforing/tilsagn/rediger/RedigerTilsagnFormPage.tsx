@@ -3,7 +3,6 @@ import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagn, useTilsagnRequest } from "../detaljer/tilsagnDetaljerLoader";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { GjennomforingManglerPrismodellWarning } from "@/pages/gjennomforing/tilsagn/GjennomforingManglerPrismodellWarning";
 import { useRelevanteKostnadssteder } from "@/pages/gjennomforing/tilsagn/useRelevanteKostnadssteder";
 
 function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
@@ -28,10 +27,6 @@ export function RedigerTilsagnFormPage() {
 
   const { gjennomforing, prismodell, kostnadssteder, defaults, opprettelse } =
     useRedigerTilsagnFormData(gjennomforingId, tilsagnId);
-
-  if (!prismodell) {
-    return <GjennomforingManglerPrismodellWarning />;
-  }
 
   return (
     <>
