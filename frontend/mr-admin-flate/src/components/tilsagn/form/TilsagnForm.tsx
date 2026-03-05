@@ -31,6 +31,7 @@ import { ValideringsfeilOppsummering } from "@/components/skjema/Valideringsfeil
 import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 import { useOpprettTilsagn } from "@/api/tilsagn/mutations";
 import { useTilsagnValgbareDeltakere } from "@/api/tilsagn/useTilsagnValgbareDeltakere";
+import { formatTilsagnDeltaker } from "@/utils/Utils";
 
 interface Props {
   onSuccess: () => void;
@@ -170,7 +171,7 @@ export function TilsagnForm(props: Props) {
                         name={field.name}
                         error={errors.deltakere?.message}
                         options={deltakere.map((deltaker: TilsagnDeltakerPersonalia) => ({
-                          label: `${deltaker.navn} - ${deltaker.norskIdent}`,
+                          label: formatTilsagnDeltaker(deltaker),
                           value: deltaker.deltakerId,
                         }))}
                         onToggleSelected={(option, isSelected) => {

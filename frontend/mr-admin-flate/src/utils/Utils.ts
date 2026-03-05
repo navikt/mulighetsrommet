@@ -11,6 +11,7 @@ import {
   AvbrytGjennomforingAarsak,
   AmoKategoriseringDto,
   AmoKurstype,
+  TilsagnDeltakerPersonalia,
 } from "@tiltaksadministrasjon/api-client";
 
 export function capitalize(text?: string): string {
@@ -281,4 +282,11 @@ export function avbrytGjennomforingAarsakTilTekst(aarsak: AvbrytGjennomforingAar
     case AvbrytGjennomforingAarsak.ANNET:
       return "Annet";
   }
+}
+
+export function formatTilsagnDeltaker(deltaker: TilsagnDeltakerPersonalia): string {
+  const enhet = deltaker.oppfolgingEnhet
+    ? deltaker.oppfolgingEnhet.navn
+    : deltaker.geografiskEnhet?.navn;
+  return `${deltaker.navn} · ${deltaker.norskIdent} · ${enhet}`;
 }

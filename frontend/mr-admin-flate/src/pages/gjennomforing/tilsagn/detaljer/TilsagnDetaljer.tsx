@@ -1,9 +1,8 @@
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { formatTilsagnDeltaker, tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
   FieldError,
-  TilsagnDeltakerPersonalia,
   TilsagnHandling,
   TilsagnStatus,
   TilsagnStatusAarsak,
@@ -68,9 +67,16 @@ export function TilsagnDetaljer() {
       },
     );
   }
-  const { bestillingsnummer, status, periode, type, kostnadssted, kommentar, beskrivelse } =
-    tilsagn;
-  const deltakere: TilsagnDeltakerPersonalia[] = [];
+  const {
+    bestillingsnummer,
+    status,
+    periode,
+    type,
+    kostnadssted,
+    kommentar,
+    beskrivelse,
+    deltakere,
+  } = tilsagn;
 
   return (
     <>
@@ -172,7 +178,7 @@ export function TilsagnDetaljer() {
                     value={
                       <ul>
                         {deltakere.map((d) => {
-                          return <li key={d.deltakerId}>{d.navn}</li>;
+                          return <li key={d.deltakerId}>{formatTilsagnDeltaker(d)}</li>;
                         })}
                       </ul>
                     }
