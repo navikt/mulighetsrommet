@@ -9,7 +9,10 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerDbo
@@ -33,23 +36,76 @@ data class ValutaLongBelop(
     val valuta: Valuta,
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class RammedetaljerDto(
-    val totalRamme: ValutaLongBelop,
-    val utbetaltArena: ValutaLongBelop?,
-    val utbetaltTiltaksadmin: List<ValutaLongBelop>,
-    val gjenstaendeRamme: ValutaLongBelop,
-)
+@JsonClassDiscriminator("type")
+sealed class RammedetaljerDto {
+    abstract val utbetaltTiltaksadmin: List<ValutaLongBelop>
+
+    @Serializable
+    @SerialName("TOTAL_RAMME")
+    data class TotalRamme(
+        val totalRamme: ValutaLongBelop,
+        val utbetaltArena: ValutaLongBelop?,
+        override val utbetaltTiltaksadmin: List<ValutaLongBelop>,
+        val gjenstaendeRamme: ValutaLongBelop,
+    ) : RammedetaljerDto()
+
+    @Serializable
+    @SerialName("TOTALT_UTBETALT")
+    data class TotaltUtbetalt(
+        val utbetaltArena: ValutaLongBelop?,
+        override val utbetaltTiltaksadmin: List<ValutaLongBelop>,
+        val totaltUtbetalt: ValutaLongBelop,
+    ) : RammedetaljerDto()
+
+    companion object {
+        fun utbetaltTotalt(utbetaltFraTiltaksadmin: List<ValutaLongBelop>): RammedetaljerDto {
+            val totalUtbetaltTiltaksadmin = utbetaltFraTiltaksadmin
+                .groupBy { it.valuta }
+                .map { (valuta, belop) ->
+                    ValutaLongBelop(
+                        valuta = valuta,
+                        belop = belop.sumOf { it.belop },
+                    )
+                }
+            val totaltUtbetalt = ValutaLongBelop(
+                belop = totalUtbetaltTiltaksadmin.sumOf { it.belop },
+                valuta = totalUtbetaltTiltaksadmin.firstOrNull()?.valuta ?: Valuta.NOK,
+            )
+            return TotaltUtbetalt(
+                utbetaltArena = null,
+                utbetaltTiltaksadmin = totalUtbetaltTiltaksadmin,
+                totaltUtbetalt = totaltUtbetalt,
+            )
+        }
+    }
+}
 
 fun RammedetaljerDbo.toDto(utbetaltFraTiltaksadmin: List<ValutaLongBelop>): RammedetaljerDto {
     val tiltaksAdminSum = utbetaltFraTiltaksadmin
         .filter { it.valuta == this.valuta }
         .sumOf { it.belop }
-    return RammedetaljerDto(
-        totalRamme = ValutaLongBelop(
-            belop = totalRamme,
-            valuta = valuta,
-        ),
+    if (totalRamme != null) {
+        return RammedetaljerDto.TotalRamme(
+            totalRamme = ValutaLongBelop(
+                belop = totalRamme,
+                valuta = valuta,
+            ),
+            utbetaltArena = utbetaltArena?.let {
+                ValutaLongBelop(
+                    belop = it,
+                    valuta = valuta,
+                )
+            },
+            utbetaltTiltaksadmin = utbetaltFraTiltaksadmin,
+            gjenstaendeRamme = ValutaLongBelop(
+                belop = totalRamme - (utbetaltArena ?: 0) - tiltaksAdminSum,
+                valuta = valuta,
+            ),
+        )
+    }
+    return RammedetaljerDto.TotaltUtbetalt(
         utbetaltArena = utbetaltArena?.let {
             ValutaLongBelop(
                 belop = it,
@@ -57,8 +113,8 @@ fun RammedetaljerDbo.toDto(utbetaltFraTiltaksadmin: List<ValutaLongBelop>): Ramm
             )
         },
         utbetaltTiltaksadmin = utbetaltFraTiltaksadmin,
-        gjenstaendeRamme = ValutaLongBelop(
-            belop = totalRamme - (utbetaltArena ?: 0) - tiltaksAdminSum,
+        totaltUtbetalt = ValutaLongBelop(
+            belop = (utbetaltArena ?: 0) + tiltaksAdminSum,
             valuta = valuta,
         ),
     )
@@ -78,10 +134,7 @@ fun Route.rammedetaljerRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Rammedetaljer for avtale"
-                    body<RammedetaljerDto?>()
-                }
-                code(HttpStatusCode.NoContent) {
-                    description = "Avtalen har ikke rammedetaljer"
+                    body<RammedetaljerDto>()
                 }
                 default {
                     description = "Problem details"
@@ -90,8 +143,8 @@ fun Route.rammedetaljerRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-            val result = db.session {
-                val rammedetaljer = queries.rammedetaljer.get(id) ?: return@session null
+            val result: RammedetaljerDto = db.session {
+                val rammedetaljer = queries.rammedetaljer.get(id)
 
                 val utbetaltFraTiltaksadmin = queries.delutbetaling.getByAvtale(
                     id,
@@ -108,14 +161,10 @@ fun Route.rammedetaljerRoutes() {
                             valuta = valuta,
                         )
                     }
-                return@session rammedetaljer.toDto(utbetaltFraTiltaksadmin)
+                rammedetaljer?.toDto(utbetaltFraTiltaksadmin) ?: RammedetaljerDto.utbetaltTotalt(utbetaltFraTiltaksadmin)
             }
 
-            if (result != null) {
-                call.respond(result)
-            } else {
-                call.respond(HttpStatusCode.NoContent)
-            }
+            call.respond(result)
         }
 
         authorize(Rolle.AVTALER_SKRIV) {
@@ -203,7 +252,7 @@ fun Route.rammedetaljerRoutes() {
                     val valuta = prismodeller.first().valuta
                     RammedetaljerDefaults(
                         valuta,
-                        totalRamme = rammedetaljer?.totalRamme ?: 0,
+                        totalRamme = rammedetaljer?.totalRamme,
                         utbetaltArena = rammedetaljer?.utbetaltArena,
                     )
                 }

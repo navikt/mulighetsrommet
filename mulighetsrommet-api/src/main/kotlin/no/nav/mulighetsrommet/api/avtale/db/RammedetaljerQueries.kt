@@ -70,7 +70,7 @@ fun Row.toDbo(): RammedetaljerDbo {
     return RammedetaljerDbo(
         avtaleId = uuid("avtale_id"),
         valuta = string("valuta").let { Valuta.valueOf(it) },
-        totalRamme = long("total_ramme"),
+        totalRamme = longOrNull("total_ramme"),
         utbetaltArena = longOrNull("utbetalt_arena"),
     )
 }

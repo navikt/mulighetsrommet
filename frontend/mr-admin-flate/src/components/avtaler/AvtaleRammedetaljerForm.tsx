@@ -1,18 +1,13 @@
-import { Box, TextField, VStack } from "@navikt/ds-react";
-import { useFormContext } from "react-hook-form";
+import { Box, VStack } from "@navikt/ds-react";
 import { RammedetaljerRequest, Valuta } from "@tiltaksadministrasjon/api-client";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { NumberInput } from "../skjema/NumberInput";
 
 interface Props {
   valuta: Valuta;
 }
 
 export default function AvtaleRammedetaljerForm({ valuta }: Props) {
-  const {
-    formState: { errors },
-    register,
-  } = useFormContext<RammedetaljerRequest>();
-
   return (
     <Box
       borderWidth="1"
@@ -22,21 +17,13 @@ export default function AvtaleRammedetaljerForm({ valuta }: Props) {
       background="sunken"
     >
       <VStack gap="space-8">
-        <TextField
+        <NumberInput<RammedetaljerRequest>
           label={withValuta(avtaletekster.rammedetaljer.totalRamme, valuta)}
-          size="small"
-          type="number"
-          error={errors.totalRamme?.message}
-          {...register("totalRamme", { required: true })}
+          name="totalRamme"
         />
-        <TextField
+        <NumberInput<RammedetaljerRequest>
           label={withValuta(avtaletekster.rammedetaljer.utbetaltArena, valuta)}
-          size="small"
-          type="number"
-          error={errors.utbetaltArena?.message}
-          {...register("utbetaltArena", {
-            valueAsNumber: true,
-          })}
+          name="utbetaltArena"
         />
       </VStack>
     </Box>

@@ -148,7 +148,7 @@ export function AvtaleDetaljer() {
         {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
         {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         <PrismodellDetaljer prismodeller={avtale.prismodeller} />
-        {rammedetaljer?.totalRamme && <AvtaleRammedetaljer rammedetaljer={rammedetaljer} />}
+        <AvtaleRammedetaljer rammedetaljer={rammedetaljer} />
       </DetaljerLayout>
       <DetaljerLayout>
         <Definisjonsliste title="Administratorer" definitions={administratorMeta} />

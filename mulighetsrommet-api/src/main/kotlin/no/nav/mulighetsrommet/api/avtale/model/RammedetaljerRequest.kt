@@ -5,13 +5,13 @@ import no.nav.mulighetsrommet.model.Valuta
 
 @Serializable
 data class RammedetaljerRequest(
-    val totalRamme: Long,
+    val totalRamme: Long?,
     val utbetaltArena: Long?,
 )
 
 @Serializable
 data class RammedetaljerDefaults(
     val valuta: Valuta,
-    val totalRamme: Long,
+    val totalRamme: Long?,
     val utbetaltArena: Long?,
 )
