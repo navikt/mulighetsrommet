@@ -90,6 +90,7 @@ export const mockAvtaler: AvtaleDto[] = [
 
         20 deltakere:
         Teori en uke: 56 771,- (55 117,-)                     Praksis en uke: 45 695,- (44 364,-)                       Kombinasjon en uke: 47 344,- (45 965,-)`,
+        medDeltakere: false,
       },
     ],
   },
@@ -153,6 +154,7 @@ export const mockAvtaler: AvtaleDto[] = [
         beskrivelse: [],
         satser: null,
         prisbetingelser: "Maskert prisbetingelser",
+        medDeltakere: false,
       },
     ],
   },
@@ -212,6 +214,7 @@ export const mockAvtaler: AvtaleDto[] = [
         beskrivelse: [],
         satser: null,
         prisbetingelser: "Maskert prisbetingelser",
+        medDeltakere: false,
       },
     ],
   },
@@ -271,6 +274,7 @@ export const mockAvtaler: AvtaleDto[] = [
         beskrivelse: [],
         satser: null,
         prisbetingelser: "Maskert prisbetingelser",
+        medDeltakere: false,
       },
     ],
   },

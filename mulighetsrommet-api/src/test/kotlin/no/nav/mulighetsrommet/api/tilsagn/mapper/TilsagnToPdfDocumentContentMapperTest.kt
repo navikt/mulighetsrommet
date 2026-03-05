@@ -84,8 +84,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         kommentar = null,
         beskrivelse = null,
         journalpost = null,
-        beregning =
-        TilsagnBeregningFri(
+        beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(
                 listOf(
                     TilsagnBeregningFri.InputLinje(
@@ -101,7 +100,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
                 pris = 1234.withValuta(Valuta.NOK),
             ),
         ),
-
+        deltakere = emptyList(),
     )
 
     context("pdf-content for tilsagnsbrev til arrangør") {

@@ -250,6 +250,7 @@ class AvtaleServiceTest : FunSpec({
                 valuta = Valuta.NOK,
                 satser = emptyList(),
                 prisbetingelser = null,
+                medDeltakere = false,
             )
             val prismodell2Request = PrismodellRequest(
                 id = UUID.randomUUID(),
@@ -257,6 +258,7 @@ class AvtaleServiceTest : FunSpec({
                 valuta = Valuta.NOK,
                 satser = emptyList(),
                 prisbetingelser = null,
+                medDeltakere = false,
             )
 
             avtaleService
@@ -288,6 +290,7 @@ class AvtaleServiceTest : FunSpec({
                 valuta = Valuta.NOK,
                 prisbetingelser = null,
                 satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100)),
+                medDeltakere = false,
             )
 
             avtaleService.upsertPrismodell(AvtaleFixtures.oppfolging.id, listOf(request), bertilNavIdent)
@@ -328,6 +331,7 @@ class AvtaleServiceTest : FunSpec({
                     valuta = Valuta.NOK,
                     satser = emptyList(),
                     prisbetingelser = null,
+                    medDeltakere = false,
                 ),
             )
 

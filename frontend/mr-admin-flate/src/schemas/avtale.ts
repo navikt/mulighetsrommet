@@ -24,6 +24,7 @@ export const PrismodellSchema = z.object({
         prisbetingelser: z.string().nullable(),
         type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
         valuta: z.enum(Valuta, { error: "Du må velge en valuta" }),
+        medDeltakere: z.boolean(),
         satser: z
           .array(
             z.object({
@@ -38,7 +39,7 @@ export const PrismodellSchema = z.object({
       })
       .superRefine((data, ctx) => {
         if (
-          data.type !== PrismodellType.ANNEN_AVTALT_PRIS &&
+          ![PrismodellType.ANNEN_AVTALT_PRIS].includes(data.type) &&
           (!data.satser || data.satser.length === 0)
         ) {
           ctx.addIssue({

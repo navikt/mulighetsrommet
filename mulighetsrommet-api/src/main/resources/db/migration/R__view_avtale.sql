@@ -53,7 +53,8 @@ from avtale
                                                    'type', prismodell_type,
                                                    'valuta', valuta,
                                                    'prisbetingelser', prisbetingelser,
-                                                   'satser', satser
+                                                   'satser', satser,
+                                                   'medDeltakere', med_deltakere
                                            )
                                            order by id
                                    ) as prismodeller_json

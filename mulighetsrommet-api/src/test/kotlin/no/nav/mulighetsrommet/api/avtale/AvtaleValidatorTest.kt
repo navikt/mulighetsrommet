@@ -75,7 +75,7 @@ class AvtaleValidatorTest : FunSpec({
         Tiltakskode.OPPFOLGING,
         avtaletype = Avtaletype.RAMMEAVTALE,
     )
-    val prismodell = Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), valuta = Valuta.NOK, prisbetingelser = "")
+    val prismodell = Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), valuta = Valuta.NOK, prisbetingelser = "", medDeltakere = false)
     val ctx = Ctx(
         previous = null,
         arrangor = ArrangorFixtures.hovedenhet.copy(
@@ -505,6 +505,7 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = emptyList(),
+                        medDeltakere = false,
                     ),
                 ),
                 getContext(TiltakstypeFixtures.Oppfolging),
@@ -522,6 +523,7 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = emptyList(),
+                        medDeltakere = false,
                     ),
                 ),
                 getContext(TiltakstypeFixtures.AFT, avtaletype = Avtaletype.FORHANDSGODKJENT),
@@ -537,6 +539,7 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.NOK,
                         prisbetingelser = null,
                         satser = emptyList(),
+                        medDeltakere = false,
                     ),
                 ),
                 getContext(TiltakstypeFixtures.Oppfolging),
@@ -556,6 +559,7 @@ class AvtaleValidatorTest : FunSpec({
                             pris = 1,
                         ),
                     ),
+                    medDeltakere = false,
                 ),
             )
 
@@ -594,6 +598,7 @@ class AvtaleValidatorTest : FunSpec({
                                 pris = 1,
                             ),
                         ),
+                        medDeltakere = false,
                     ),
                 ),
                 getContext(
@@ -611,6 +616,7 @@ class AvtaleValidatorTest : FunSpec({
                 valuta = Valuta.NOK,
                 prisbetingelser = null,
                 satser = listOf(),
+                medDeltakere = false,
             )
 
             AvtaleValidator.validatePrismodeller(
@@ -697,6 +703,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
+                        medDeltakere = false,
                     ),
                     PrismodellRequest(
                         id = UUID.randomUUID(),
@@ -707,6 +714,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
+                        medDeltakere = false,
                     ),
                 ),
                 getContext(),
@@ -726,6 +734,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
+                        medDeltakere = false,
                     ),
                 ),
                 getContext(),
@@ -748,6 +757,7 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
                             AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                         ),
+                        medDeltakere = false,
                     ),
                 ),
                 getContext(),
@@ -920,6 +930,7 @@ class AvtaleValidatorTest : FunSpec({
                         valuta = Valuta.NOK,
                         satser = emptyList(),
                         prisbetingelser = null,
+                        medDeltakere = false,
                     ),
                 )
 

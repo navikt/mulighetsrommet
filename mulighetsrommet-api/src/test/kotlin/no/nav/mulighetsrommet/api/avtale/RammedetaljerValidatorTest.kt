@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.model.Valuta
 
 class RammedetaljerValidatorTest : FunSpec({
-    fun PrismodellDbo.toPrismodell() = Prismodell.from(this.type, this.id, this.valuta, this.prisbetingelser, this.satser ?: emptyList())
+    fun PrismodellDbo.toPrismodell() = Prismodell.from(this.type, this.id, this.valuta, this.prisbetingelser, this.satser ?: emptyList(), false)
 
     context("rammedetaljer") {
         test("må være anskaffet tiltak") {

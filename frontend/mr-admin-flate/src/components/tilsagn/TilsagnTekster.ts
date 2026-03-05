@@ -28,6 +28,9 @@ export const tilsagnTekster = {
   type: {
     label: "Tilsagnstype",
   },
+  deltakere: {
+    label: "Deltakere",
+  },
   status: {
     label: "Status",
   },

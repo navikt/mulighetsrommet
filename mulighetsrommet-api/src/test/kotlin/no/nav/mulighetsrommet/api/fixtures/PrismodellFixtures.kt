@@ -23,6 +23,7 @@ object PrismodellFixtures {
         type = type,
         prisbetingelser = prisbetingelser,
         satser = satser,
+        medDeltakere = false,
     )
 
     val ForhandsgodkjentAft = PrismodellDbo(
@@ -35,6 +36,7 @@ object PrismodellFixtures {
             AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK)),
             AvtaltSats(LocalDate.of(2026, 1, 1), 21_730.withValuta(Valuta.NOK)),
         ),
+        medDeltakere = false,
     )
 
     val ForhandsgodkjentVta = PrismodellDbo(
@@ -47,6 +49,7 @@ object PrismodellFixtures {
             AvtaltSats(LocalDate.of(2025, 1, 1), 16_848.withValuta(Valuta.NOK)),
             AvtaltSats(LocalDate.of(2026, 1, 1), 17_455.withValuta(Valuta.NOK)),
         ),
+        medDeltakere = false,
     )
 
     val AvtaltPrisPerTimeOppfolging = createPrismodellDbo(

@@ -36,7 +36,8 @@ object ArrangorflateUtbetalingValidator {
                 opprettKravPeriodeSluttDato,
             )
 
-            PrismodellType.ANNEN_AVTALT_PRIS -> opprettKravPeriodeSluttDato
+            PrismodellType.ANNEN_AVTALT_PRIS,
+            -> opprettKravPeriodeSluttDato
 
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,

@@ -55,7 +55,7 @@ fun Route.tilsagnRoutesGet() {
                 val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.toDto()
 
                 TilsagnDetaljerDto(
-                    tilsagn = TilsagnDto.fromTilsagn(tilsagn),
+                    tilsagn = TilsagnDto.from(tilsagn, service.toTilsagnDeltakerPersonalia(tilsagn.deltakere)),
                     beregning = TilsagnBeregningDto.from(tilsagn.beregning),
                     opprettelse = opprettelse,
                     annullering = annullering,

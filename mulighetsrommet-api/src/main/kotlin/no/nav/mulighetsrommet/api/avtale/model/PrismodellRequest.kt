@@ -15,6 +15,7 @@ data class PrismodellRequest(
     val valuta: Valuta,
     val prisbetingelser: String?,
     val satser: List<AvtaltSatsRequest>,
+    val medDeltakere: Boolean?,
 )
 
 @Serializable

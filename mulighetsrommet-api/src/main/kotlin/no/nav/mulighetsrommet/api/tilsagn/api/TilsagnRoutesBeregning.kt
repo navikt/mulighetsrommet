@@ -7,6 +7,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getValue
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.OkonomiConfig
@@ -34,7 +35,10 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
+import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 import java.util.UUID
@@ -119,6 +123,47 @@ fun Route.tilsagnRoutesBeregning() {
         call.respond(HttpStatusCode.OK, defaults)
     }
 
+    post("/valgbare-deltakere", {
+        description = "Hent valgbare deltakere for tilsagn"
+        tags = setOf("Tilsagn")
+        operationId = "getTilsagnValgbareDeltakere"
+        request {
+            body<TilsagnDeltakereRequest>()
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Valgbare deltakere for tilsagn"
+                body<TilsagnDeltakereResponse>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
+        }
+    }) {
+        val request = call.receive<TilsagnDeltakereRequest>()
+
+        val gjennomforing = gjennomforinger.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
+            ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig gjennomforingId=${request.gjennomforingId}")
+
+        val medDeltakere = gjennomforing.prismodell.medDeltakere
+
+        val deltakere = if (request.periodeStart != null && request.periodeSlutt != null && medDeltakere) {
+            val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+
+            val deltakelser = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
+                .filter {
+                    it.startDato == null || it.sluttDato == null ||
+                        periode.intersects(Periode.fromInclusiveDates(it.startDato, it.sluttDato))
+                }
+            service.toTilsagnDeltakerPersonalia(deltakelser.map { it.id })
+        } else {
+            emptyList()
+        }
+
+        call.respond(TilsagnDeltakereResponse(medDeltakere, deltakere))
+    }
+
     post("/beregn", {
         description = "Beregn tilsagn"
         tags = setOf("Tilsagn")
@@ -197,6 +242,7 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
         beskrivelse = tilsagn.beskrivelse,
         periodeStart = tilsagn.periode.start.toString(),
         periodeSlutt = tilsagn.periode.getLastInclusiveDate().toString(),
+        deltakere = tilsagn.deltakere,
     )
 }
 
@@ -248,6 +294,7 @@ fun resolveTilsagnDefaults(
         periodeSlutt = periode?.getLastInclusiveDate()?.toString(),
         kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
         beregning = beregning,
+        deltakere = emptyList(),
     )
 }
 
@@ -334,3 +381,19 @@ private fun resolveBeregningTypeAndPrisbetingelser(
     is Prismodell.AvtaltPrisPerHeleUkesverk -> TilsagnBeregningType.PRIS_PER_HELE_UKESVERK to prismodell.prisbetingelser
     is Prismodell.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
 }
+
+@Serializable
+data class TilsagnDeltakereRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStart: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate?,
+)
+
+@Serializable
+data class TilsagnDeltakereResponse(
+    val medDeltakere: Boolean,
+    val deltakere: List<TilsagnDeltakerPersonalia>,
+)
