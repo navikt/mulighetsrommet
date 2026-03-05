@@ -15,12 +15,10 @@ import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
-import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -28,6 +26,7 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -39,7 +38,6 @@ import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhe
 import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
@@ -57,6 +55,7 @@ import java.util.UUID
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
     val utbetalingService: UtbetalingService by inject()
+    val tilsagnService: TilsagnService by inject()
     val personaliaService: PersonaliaService by inject()
 
     get("/utbetaling", {
@@ -294,38 +293,6 @@ fun Route.utbetalingRoutes() {
             call.respond(historikk)
         }
 
-        get("/tilsagn", {
-            tags = setOf("Utbetaling")
-            operationId = "getTilsagnTilUtbetaling"
-            request {
-                pathParameterUuid("id")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Tilsagn til utbetaling"
-                    body<List<TilsagnDto>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-
-            val tilsagn = db.session {
-                val utbetaling = queries.utbetaling.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
-
-                queries.tilsagn.getAll(
-                    gjennomforingId = utbetaling.gjennomforing.id,
-                    periodeIntersectsWith = utbetaling.periode,
-                    typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
-                ).map { TilsagnDto.fromTilsagn(it) }
-            }
-
-            call.respond(tilsagn)
-        }
-
         authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
             get("/linjer", {
                 tags = setOf("Utbetaling")
@@ -353,7 +320,27 @@ fun Route.utbetalingRoutes() {
                         ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
                     val linjer = queries.delutbetaling.getByUtbetalingId(id)
-                        .map { delutbetalingToUtbetalingLinje(it, ansatt) }
+                        .map { delutbetaling ->
+                            val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
+
+                            val opprettelse = queries.totrinnskontroll
+                                .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+
+                            UtbetalingLinje(
+                                id = delutbetaling.id,
+                                gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
+                                pris = delutbetaling.pris,
+                                status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
+                                tilsagn = TilsagnDto.from(tilsagn, tilsagnService.toTilsagnDeltakerPersonalia(tilsagn.deltakere)),
+                                opprettelse = opprettelse.toDto(),
+                                handlinger = UtbetalingService.linjeHandlinger(
+                                    delutbetaling,
+                                    opprettelse,
+                                    tilsagn.kostnadssted.enhetsnummer,
+                                    ansatt,
+                                ),
+                            )
+                        }
 
                     val nyeLinjer = queries.tilsagn
                         .getAll(
@@ -367,7 +354,7 @@ fun Route.utbetalingRoutes() {
                         .map {
                             UtbetalingLinje(
                                 id = UUID.randomUUID(),
-                                tilsagn = TilsagnDto.fromTilsagn(it),
+                                tilsagn = TilsagnDto.from(it, tilsagnService.toTilsagnDeltakerPersonalia(it.deltakere)),
                                 status = null,
                                 pris = 0.withValuta(utbetaling.valuta),
                                 gjorOppTilsagn = false,
@@ -502,31 +489,6 @@ fun Route.utbetalingRoutes() {
             }
         }
     }
-}
-
-private fun QueryContext.delutbetalingToUtbetalingLinje(
-    delutbetaling: Delutbetaling,
-    navAnsatt: NavAnsatt,
-): UtbetalingLinje {
-    val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
-
-    val opprettelse = queries.totrinnskontroll
-        .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-
-    return UtbetalingLinje(
-        id = delutbetaling.id,
-        gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
-        pris = delutbetaling.pris,
-        status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
-        tilsagn = TilsagnDto.fromTilsagn(tilsagn),
-        opprettelse = opprettelse.toDto(),
-        handlinger = UtbetalingService.linjeHandlinger(
-            delutbetaling,
-            opprettelse,
-            tilsagn.kostnadssted.enhetsnummer,
-            navAnsatt,
-        ),
-    )
 }
 
 data class AdminInnsendingerFilter(

@@ -25,6 +25,7 @@ class TilsagnValidatorTest : FunSpec({
             id = UUID.randomUUID(),
             valuta = Valuta.NOK,
             prisbetingelser = null,
+            medDeltakere = false,
         )
 
         val forhandsgodkjent = Prismodell.from(
@@ -33,6 +34,7 @@ class TilsagnValidatorTest : FunSpec({
             valuta = Valuta.NOK,
             prisbetingelser = null,
             satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
+            medDeltakere = false,
         )
 
         test("Arrangør slettet") {
@@ -231,6 +233,30 @@ class TilsagnValidatorTest : FunSpec({
                 FieldError(
                     pointer = "/periodeSlutt",
                     detail = "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
+                ),
+            )
+        }
+
+        test("medDeltakere krever deltakere") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1.copy(deltakere = emptyList()),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = LocalDate.of(2025, 10, 1),
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                prismodell = Prismodell.from(
+                    type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                    id = UUID.randomUUID(),
+                    valuta = Valuta.NOK,
+                    prisbetingelser = null,
+                    satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
+                    medDeltakere = true,
+                ),
+            ) shouldBeLeft listOf(
+                FieldError(
+                    pointer = "/deltakere",
+                    detail = "Du må velge en deltaker",
                 ),
             )
         }

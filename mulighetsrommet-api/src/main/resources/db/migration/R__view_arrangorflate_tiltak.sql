@@ -21,7 +21,8 @@ select gjennomforing.id,
        prismodell.valuta            as prismodell_valuta,
        prismodell.prismodell_type   as prismodell_type,
        prismodell.prisbetingelser   as prismodell_prisbetingelser,
-       prismodell.satser            as prismodell_satser
+       prismodell.satser            as prismodell_satser,
+       prismodell.med_deltakere     as prismodell_med_deltakere
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id

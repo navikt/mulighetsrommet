@@ -46,6 +46,7 @@ object TilsagnFixtures {
         ),
         kommentar = null,
         beskrivelse = null,
+        deltakere = emptyList(),
     )
 
     val Tilsagn2 = TilsagnDbo(
@@ -76,6 +77,7 @@ object TilsagnFixtures {
         ),
         kommentar = null,
         beskrivelse = null,
+        deltakere = emptyList(),
     )
 
     val Tilsagn3 = TilsagnDbo(
@@ -106,6 +108,7 @@ object TilsagnFixtures {
         ),
         kommentar = null,
         beskrivelse = null,
+        deltakere = emptyList(),
     )
 
     val Tilsagn4 = TilsagnDbo(
@@ -136,6 +139,7 @@ object TilsagnFixtures {
         ),
         kommentar = null,
         beskrivelse = null,
+        deltakere = emptyList(),
     )
 
     val TilsagnRequest1 = TilsagnRequest(

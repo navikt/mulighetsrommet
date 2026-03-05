@@ -44,56 +44,12 @@ export function TilsagnFormContainer({
     case TilsagnBeregningType.PRIS_PER_UKESVERK:
     case TilsagnBeregningType.PRIS_PER_HELE_UKESVERK:
     case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
-      return (
-        <TilsagnFormPrisPerManedsverk
-          defaultValues={{
-            ...defaults,
-            beregning: {
-              ...defaults.beregning,
-              type: beregning,
-            },
-          }}
-          {...props}
-        />
-      );
+      return <TilsagnFormPrisPerManedsverk defaultValues={defaults} {...props} />;
     case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
-      return (
-        <TilsagnFormFastSatsPerTiltaksplassPerManed
-          defaultValues={{
-            ...defaults,
-            beregning: {
-              ...defaults.beregning,
-              type: beregning,
-            },
-          }}
-          {...props}
-        />
-      );
+      return <TilsagnFormFastSatsPerTiltaksplassPerManed defaultValues={defaults} {...props} />;
     case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
-      return (
-        <TilsagnFormPrisPerTimeOppfolging
-          defaultValues={{
-            ...defaults,
-            beregning: {
-              ...defaults.beregning,
-              type: beregning,
-            },
-          }}
-          {...props}
-        />
-      );
+      return <TilsagnFormPrisPerTimeOppfolging defaultValues={defaults} {...props} />;
     case TilsagnBeregningType.FRI:
-      return (
-        <TilsagnFormFri
-          defaultValues={{
-            ...defaults,
-            beregning: {
-              ...defaults.beregning,
-              type: beregning,
-            },
-          }}
-          {...props}
-        />
-      );
+      return <TilsagnFormFri defaultValues={defaults} {...props} />;
   }
 }

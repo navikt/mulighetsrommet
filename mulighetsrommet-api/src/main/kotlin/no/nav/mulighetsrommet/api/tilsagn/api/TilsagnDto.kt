@@ -1,10 +1,12 @@
 package no.nav.mulighetsrommet.api.tilsagn.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -24,9 +26,10 @@ data class TilsagnDto(
     val status: TilsagnStatusDto,
     val kommentar: String?,
     val beskrivelse: String?,
+    val deltakere: List<TilsagnDeltakerPersonalia>,
 ) {
     companion object {
-        fun fromTilsagn(tilsagn: Tilsagn) = TilsagnDto(
+        fun from(tilsagn: Tilsagn, deltakere: List<TilsagnDeltakerPersonalia>) = TilsagnDto(
             id = tilsagn.id,
             type = tilsagn.type,
             periode = tilsagn.periode,
@@ -38,9 +41,20 @@ data class TilsagnDto(
             status = TilsagnStatusDto(tilsagn.status),
             kommentar = tilsagn.kommentar,
             beskrivelse = tilsagn.beskrivelse,
+            deltakere = deltakere,
         )
     }
 }
+
+@Serializable
+data class TilsagnDeltakerPersonalia(
+    @Serializable(with = UUIDSerializer::class)
+    val deltakerId: UUID,
+    val norskIdent: NorskIdent?,
+    val navn: String,
+    val oppfolgingEnhet: NavEnhetDto?,
+    val geografiskEnhet: NavEnhetDto?,
+)
 
 @Serializable
 data class TilsagnStatusDto(

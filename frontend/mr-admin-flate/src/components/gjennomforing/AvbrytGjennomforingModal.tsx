@@ -1,4 +1,4 @@
-import { Alert } from "@navikt/ds-react";
+import { InfoCard } from "@navikt/ds-react";
 import { useState } from "react";
 import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomforing";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
@@ -53,10 +53,15 @@ export function AvbrytGjennomforingModal({
       buttonLabel="Ja, jeg vil avbryte gjennomføringen"
       ingress={
         deltakerSummary.antallDeltakere > 0 && (
-          <Alert variant="warning">
-            {`Det finnes ${deltakerSummary.antallDeltakere} deltaker${deltakerSummary.antallDeltakere > 1 ? "e" : ""} på gjennomføringen. Ved å
+          <InfoCard data-color="warning">
+            <InfoCard.Header>
+              <InfoCard.Title>Advarsel</InfoCard.Title>
+            </InfoCard.Header>
+            <InfoCard.Content>
+              {`Det finnes ${deltakerSummary.antallDeltakere} deltaker${deltakerSummary.antallDeltakere > 1 ? "e" : ""} på gjennomføringen. Ved å
            avbryte denne vil det føre til statusendring på alle deltakere som har en aktiv status.`}
-          </Alert>
+            </InfoCard.Content>
+          </InfoCard>
         )
       }
       aarsaker={[

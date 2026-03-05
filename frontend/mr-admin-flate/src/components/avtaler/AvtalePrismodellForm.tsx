@@ -7,6 +7,8 @@ import {
   HStack,
   Textarea,
   InlineMessage,
+  Checkbox,
+  HelpText,
 } from "@navikt/ds-react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -15,6 +17,7 @@ import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import { AvtalteSatserForm } from "./AvtalteSatserForm";
 import { PrismodellType, Tiltakskode, Valuta } from "@tiltaksadministrasjon/api-client";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
+import { isProduction } from "@/environment";
 
 interface Props {
   tiltakskode: Tiltakskode;
@@ -48,17 +51,19 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     setValue(`prismodeller.${index}.type`, type);
     setValue(
       `prismodeller.${index}.satser`,
-      type === PrismodellType.ANNEN_AVTALT_PRIS
+      PrismodellType.ANNEN_AVTALT_PRIS === type
         ? []
         : [{ gjelderTil: null, gjelderFra: "", pris: 0 }],
     );
   };
+  const enabledMedDeltakereCheckbox = !isProduction();
 
   return (
     <VStack gap="space-16">
       {fields.map((field, index) => {
         const type = watch(`prismodeller.${index}.type`);
         const selectedValuta = watch(`prismodeller.${index}.valuta`);
+        const medDeltakere = watch(`prismodeller.${index}.medDeltakere`);
         const beskrivelse = prismodellTyper.find((p) => p.type === type)?.beskrivelse;
         return (
           <Box
@@ -106,7 +111,21 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                     ))}
                   </Select>
                 </HStack>
-
+                {enabledMedDeltakereCheckbox && (
+                  <HStack align="center" gap="space-8">
+                    <Checkbox
+                      checked={medDeltakere}
+                      onChange={() => setValue(`prismodeller.${index}.medDeltakere`, !medDeltakere)}
+                      size="small"
+                    >
+                      Tilsagn skal knyttes til deltakere
+                    </Checkbox>
+                    <HelpText title="Hva betyr dette?">
+                      Når denne er huket av må alle tilsagn kobles til en eller flere deltakere i
+                      perioden.
+                    </HelpText>
+                  </HStack>
+                )}
                 {beskrivelse &&
                   beskrivelse.map((tekst, i) => <BodyShort key={i}>{tekst}</BodyShort>)}
                 {prismodellerMedSatser.includes(type) && (
@@ -151,6 +170,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
               valuta: Valuta.NOK,
               satser: [],
               prisbetingelser: null,
+              medDeltakere: false,
             })
           }
         >

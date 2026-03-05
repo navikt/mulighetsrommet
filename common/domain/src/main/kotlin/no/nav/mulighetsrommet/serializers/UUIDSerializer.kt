@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.serializers
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -18,3 +19,5 @@ object UUIDSerializer : KSerializer<UUID> {
         encoder.encodeString(value.toString())
     }
 }
+
+object UUIDListSerializer : KSerializer<List<UUID>> by ListSerializer(UUIDSerializer)

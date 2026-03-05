@@ -1,5 +1,5 @@
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { formatTilsagnDeltaker, tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
   FieldError,
@@ -67,8 +67,16 @@ export function TilsagnDetaljer() {
       },
     );
   }
-  const { bestillingsnummer, status, periode, type, kostnadssted, kommentar, beskrivelse } =
-    tilsagn;
+  const {
+    bestillingsnummer,
+    status,
+    periode,
+    type,
+    kostnadssted,
+    kommentar,
+    beskrivelse,
+    deltakere,
+  } = tilsagn;
 
   return (
     <>
@@ -164,6 +172,18 @@ export function TilsagnDetaljer() {
                   label={tilsagnTekster.type.label}
                   value={avtaletekster.tilsagn.type(type)}
                 />
+                {deltakere.length > 0 && (
+                  <MetadataVStack
+                    label={tilsagnTekster.deltakere.label}
+                    value={
+                      <ul>
+                        {deltakere.map((d) => {
+                          return <li key={d.deltakerId}>{formatTilsagnDeltaker(d)}</li>;
+                        })}
+                      </ul>
+                    }
+                  />
+                )}
               </VStack>
             </HGrid>
             <Separator />

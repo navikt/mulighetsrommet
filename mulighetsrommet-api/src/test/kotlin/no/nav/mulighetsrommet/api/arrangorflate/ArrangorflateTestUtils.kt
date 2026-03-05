@@ -100,6 +100,7 @@ object ArrangorflateTestUtils {
         bestillingStatus = BestillingStatusType.AKTIV,
         kommentar = null,
         beskrivelse = null,
+        deltakere = emptyList(),
     )
 
     fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo {

@@ -123,6 +123,12 @@ class PersonaliaService(
     }
 }
 
+data class DeltakerPersonalia(
+    val deltakerId: UUID,
+    val norskIdent: NorskIdent?,
+    val navn: String,
+)
+
 data class DeltakerPersonaliaMedGeografiskEnhet(
     val deltakerId: UUID,
     val norskIdent: NorskIdent?,
