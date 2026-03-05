@@ -6,6 +6,6 @@ import java.util.UUID
 data class RammedetaljerDbo(
     val avtaleId: UUID,
     val valuta: Valuta,
-    val totalRamme: Long,
+    val totalRamme: Long?,
     val utbetaltArena: Long?,
 )

@@ -822,9 +822,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RammedetaljerDto"
-        "204":
-          description: Avtalen har ikke rammedetaljer
-          headers: {}
         default:
           description: Problem details
           headers: {}
@@ -4497,18 +4494,7 @@ components:
             $ref: "#/components/schemas/EndringshistorikkDto.Entry"
       required:
       - entries
-    ValutaLongBelop:
-      type: object
-      properties:
-        belop:
-          type: integer
-          format: int64
-        valuta:
-          $ref: "#/components/schemas/Valuta"
-      required:
-      - belop
-      - valuta
-    RammedetaljerDto:
+    TOTAL_RAMME:
       type: object
       properties:
         totalRamme:
@@ -4523,16 +4509,67 @@ components:
             $ref: "#/components/schemas/ValutaLongBelop"
         gjenstaendeRamme:
           $ref: "#/components/schemas/ValutaLongBelop"
+        reservert:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValutaLongBelop"
       required:
       - gjenstaendeRamme
+      - reservert
       - totalRamme
       - utbetaltArena
       - utbetaltTiltaksadmin
+    ValutaLongBelop:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int64
+        valuta:
+          $ref: "#/components/schemas/Valuta"
+      required:
+      - belop
+      - valuta
+    TOTALT_UTBETALT:
+      type: object
+      properties:
+        utbetaltArena:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaLongBelop"
+        utbetaltTiltaksadmin:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValutaLongBelop"
+        totaltUtbetalt:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaLongBelop"
+        reservert:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValutaLongBelop"
+      required:
+      - reservert
+      - totaltUtbetalt
+      - utbetaltArena
+      - utbetaltTiltaksadmin
+    RammedetaljerDto:
+      anyOf:
+      - $ref: "#/components/schemas/TOTAL_RAMME"
+      - $ref: "#/components/schemas/TOTALT_UTBETALT"
+      discriminator:
+        propertyName: type
+        mapping:
+          TOTAL_RAMME: "#/components/schemas/TOTAL_RAMME"
+          TOTALT_UTBETALT: "#/components/schemas/TOTALT_UTBETALT"
     RammedetaljerRequest:
       type: object
       properties:
         totalRamme:
-          type: integer
+          type:
+          - "null"
+          - integer
           format: int64
         utbetaltArena:
           type:
@@ -4548,7 +4585,9 @@ components:
         valuta:
           $ref: "#/components/schemas/Valuta"
         totalRamme:
-          type: integer
+          type:
+          - "null"
+          - integer
           format: int64
         utbetaltArena:
           type:

@@ -33,11 +33,13 @@ object RammedetaljerValidator {
                 RammedetaljerRequest::totalRamme,
             )
         }
-        validate(request.totalRamme > 0) {
-            FieldError.of(
-                "Total ramme må være et positivt beløp",
-                RammedetaljerRequest::totalRamme,
-            )
+        request.totalRamme?.let { totalRamme ->
+            validate(totalRamme > 0) {
+                FieldError.of(
+                    "Total ramme må være et positivt beløp",
+                    RammedetaljerRequest::totalRamme,
+                )
+            }
         }
         request.utbetaltArena?.let { utbetaltArena ->
             validate(utbetaltArena >= 0) {

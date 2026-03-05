@@ -9,7 +9,10 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerDbo
@@ -20,49 +23,13 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Valuta
 import org.koin.ktor.ext.inject
 import java.util.UUID
-
-@Serializable
-data class ValutaLongBelop(
-    val belop: Long,
-    val valuta: Valuta,
-)
-
-@Serializable
-data class RammedetaljerDto(
-    val totalRamme: ValutaLongBelop,
-    val utbetaltArena: ValutaLongBelop?,
-    val utbetaltTiltaksadmin: List<ValutaLongBelop>,
-    val gjenstaendeRamme: ValutaLongBelop,
-)
-
-fun RammedetaljerDbo.toDto(utbetaltFraTiltaksadmin: List<ValutaLongBelop>): RammedetaljerDto {
-    val tiltaksAdminSum = utbetaltFraTiltaksadmin
-        .filter { it.valuta == this.valuta }
-        .sumOf { it.belop }
-    return RammedetaljerDto(
-        totalRamme = ValutaLongBelop(
-            belop = totalRamme,
-            valuta = valuta,
-        ),
-        utbetaltArena = utbetaltArena?.let {
-            ValutaLongBelop(
-                belop = it,
-                valuta = valuta,
-            )
-        },
-        utbetaltTiltaksadmin = utbetaltFraTiltaksadmin,
-        gjenstaendeRamme = ValutaLongBelop(
-            belop = totalRamme - (utbetaltArena ?: 0) - tiltaksAdminSum,
-            valuta = valuta,
-        ),
-    )
-}
 
 fun Route.rammedetaljerRoutes() {
     val avtaleService: AvtaleService by inject()
@@ -78,10 +45,7 @@ fun Route.rammedetaljerRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Rammedetaljer for avtale"
-                    body<RammedetaljerDto?>()
-                }
-                code(HttpStatusCode.NoContent) {
-                    description = "Avtalen har ikke rammedetaljer"
+                    body<RammedetaljerDto>()
                 }
                 default {
                     description = "Problem details"
@@ -90,8 +54,8 @@ fun Route.rammedetaljerRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-            val result = db.session {
-                val rammedetaljer = queries.rammedetaljer.get(id) ?: return@session null
+            val result: RammedetaljerDto = db.session {
+                val rammedetaljer = queries.rammedetaljer.get(id)
 
                 val utbetaltFraTiltaksadmin = queries.delutbetaling.getByAvtale(
                     id,
@@ -108,14 +72,19 @@ fun Route.rammedetaljerRoutes() {
                             valuta = valuta,
                         )
                     }
-                return@session rammedetaljer.toDto(utbetaltFraTiltaksadmin)
+                val gjenstaendeTilsagn = queries.tilsagn.getByAvtaleId(id, listOf(TilsagnStatus.GODKJENT))
+                    .groupBy { it.belopBrukt.valuta }
+                    .map { (valuta, tilsagn) ->
+                        ValutaLongBelop(
+                            belop = tilsagn.sumOf { it.gjenstaendeBelop().belop.toLong() },
+                            valuta = valuta,
+                        )
+                    }
+                rammedetaljer?.toDto(utbetaltFraTiltaksadmin, gjenstaendeTilsagn)
+                    ?: RammedetaljerDto.utbetaltTotalt(utbetaltFraTiltaksadmin, gjenstaendeTilsagn)
             }
 
-            if (result != null) {
-                call.respond(result)
-            } else {
-                call.respond(HttpStatusCode.NoContent)
-            }
+            call.respond(result)
         }
 
         authorize(Rolle.AVTALER_SKRIV) {
@@ -203,7 +172,7 @@ fun Route.rammedetaljerRoutes() {
                     val valuta = prismodeller.first().valuta
                     RammedetaljerDefaults(
                         valuta,
-                        totalRamme = rammedetaljer?.totalRamme ?: 0,
+                        totalRamme = rammedetaljer?.totalRamme,
                         utbetaltArena = rammedetaljer?.utbetaltArena,
                     )
                 }
@@ -211,4 +180,111 @@ fun Route.rammedetaljerRoutes() {
             }
         }
     }
+}
+
+@Serializable
+data class ValutaLongBelop(
+    val belop: Long,
+    val valuta: Valuta,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonClassDiscriminator("type")
+sealed class RammedetaljerDto {
+    abstract val utbetaltTiltaksadmin: List<ValutaLongBelop>
+    abstract val reservert: List<ValutaLongBelop>
+
+    @Serializable
+    @SerialName("TOTAL_RAMME")
+    data class TotalRamme(
+        val totalRamme: ValutaLongBelop,
+        val utbetaltArena: ValutaLongBelop?,
+        override val utbetaltTiltaksadmin: List<ValutaLongBelop>,
+        val gjenstaendeRamme: ValutaLongBelop,
+        override val reservert: List<ValutaLongBelop>,
+    ) : RammedetaljerDto()
+
+    @Serializable
+    @SerialName("TOTALT_UTBETALT")
+    data class TotaltUtbetalt(
+        val utbetaltArena: ValutaLongBelop?,
+        override val utbetaltTiltaksadmin: List<ValutaLongBelop>,
+        val totaltUtbetalt: ValutaLongBelop?,
+        override val reservert: List<ValutaLongBelop>,
+    ) : RammedetaljerDto()
+
+    companion object {
+        fun utbetaltTotalt(
+            utbetaltFraTiltaksadmin: List<ValutaLongBelop>,
+            reservert: List<ValutaLongBelop>,
+        ): RammedetaljerDto {
+            val totalUtbetaltTiltaksadmin = utbetaltFraTiltaksadmin
+                .groupBy { it.valuta }
+                .map { (valuta, belop) ->
+                    ValutaLongBelop(
+                        valuta = valuta,
+                        belop = belop.sumOf { it.belop },
+                    )
+                }
+
+            return TotaltUtbetalt(
+                utbetaltArena = null,
+                utbetaltTiltaksadmin = totalUtbetaltTiltaksadmin,
+                totaltUtbetalt = null,
+                reservert = reservert,
+            )
+        }
+    }
+}
+
+fun RammedetaljerDbo.toDto(
+    utbetaltFraTiltaksadmin: List<ValutaLongBelop>,
+    reservert: List<ValutaLongBelop>,
+): RammedetaljerDto {
+    val tiltaksAdminSum = utbetaltFraTiltaksadmin
+        .filter { it.valuta == this.valuta }
+        .sumOf { it.belop }
+
+    val reservertTilsagn = reservert.ifEmpty {
+        listOf(ValutaLongBelop(0, this.valuta))
+    }
+
+    if (totalRamme != null) {
+        return RammedetaljerDto.TotalRamme(
+            totalRamme = ValutaLongBelop(
+                belop = totalRamme,
+                valuta = valuta,
+            ),
+            utbetaltArena = utbetaltArena?.let {
+                ValutaLongBelop(
+                    belop = it,
+                    valuta = valuta,
+                )
+            },
+            utbetaltTiltaksadmin = utbetaltFraTiltaksadmin,
+            gjenstaendeRamme = ValutaLongBelop(
+                belop = totalRamme - (utbetaltArena ?: 0) - tiltaksAdminSum,
+                valuta = valuta,
+            ),
+            reservert = reservertTilsagn,
+        )
+    }
+
+    return RammedetaljerDto.TotaltUtbetalt(
+        utbetaltArena = utbetaltArena?.let {
+            ValutaLongBelop(
+                belop = it,
+                valuta = valuta,
+            )
+        },
+        utbetaltTiltaksadmin = utbetaltFraTiltaksadmin,
+        totaltUtbetalt = utbetaltArena?.let { arenaUtbetalt ->
+            ValutaLongBelop(
+                belop = arenaUtbetalt + tiltaksAdminSum,
+                valuta = valuta,
+            )
+        },
+        reservert = reservertTilsagn,
+    )
 }

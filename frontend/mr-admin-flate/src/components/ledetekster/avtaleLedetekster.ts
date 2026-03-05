@@ -62,11 +62,13 @@ export const avtaletekster = {
     },
   },
   rammedetaljer: {
-    heading: "Rammedetaljer",
+    heading: "Forbruk",
     totalRamme: "Total ramme",
     utbetaltArena: "Utbetalt fra Arena",
     utbetaltTiltaksadmin: "Utbetalt fra Tiltaksadministrasjon",
-    gjenstaendeRamme: "Gjenstående",
+    gjenstaendeRamme: "Gjenstående på ramme",
+    totaltUtbetalt: "Totalt utbetalt",
+    reservert: "Reservert i tilsagn",
   },
   tilsagn: {
     type: (type: TilsagnType): string => {

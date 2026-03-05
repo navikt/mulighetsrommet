@@ -237,22 +237,25 @@ class AvtaleService(
         id: UUID,
         request: RammedetaljerRequest,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, Avtale> = db.transaction {
+    ): Either<List<FieldError>, Unit> = db.transaction {
         val avtale = getOrError(id)
-
+        if (request.totalRamme == null && request.utbetaltArena == null) {
+            return@transaction Either.Right(deleteRammedetaljer(id, navIdent))
+        }
         RammedetaljerValidator.validateRammedetaljer(
             context = RammedetaljerValidator.Ctx(avtale.id, avtale.prismodeller),
             request,
         ).map { rammedetalerDbo ->
             queries.rammedetaljer.upsert(rammedetalerDbo)
             logEndring("Rammedetaljer oppdatert", id, navIdent)
+            Unit
         }
     }
 
     fun deleteRammedetaljer(
         id: UUID,
         navIdent: NavIdent,
-    ): Avtale = db.transaction {
+    ): Unit = db.transaction {
         queries.rammedetaljer.delete(id)
         logEndring("Rammedetaljer slettet", id, navIdent)
     }

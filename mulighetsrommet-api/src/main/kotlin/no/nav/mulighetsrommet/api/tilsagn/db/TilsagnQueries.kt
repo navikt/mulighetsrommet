@@ -354,6 +354,24 @@ class TilsagnQueries(private val session: Session) {
         return session.list(queryOf(query, params)) { it.toTilsagn() }
     }
 
+    fun getByAvtaleId(avtaleId: UUID, statuser: List<TilsagnStatus>? = null): List<Tilsagn> {
+        @Language("PostgreSQL")
+        val query = """
+            select vt.*
+            from view_tilsagn vt
+            inner join gjennomforing g on gjennomforing_id = g.id
+            where g.avtale_id = :avtale_id::uuid
+            and (:statuser::tilsagn_status[] is null or vt.status = any(:statuser::tilsagn_status[]))
+        """.trimIndent()
+
+        val params = mapOf(
+            "avtale_id" to avtaleId,
+            "statuser" to statuser?.let { session.createArrayOfTilsagnStatus(it) },
+        )
+
+        return session.list(queryOf(query, params)) { it.toTilsagn() }
+    }
+
     fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """

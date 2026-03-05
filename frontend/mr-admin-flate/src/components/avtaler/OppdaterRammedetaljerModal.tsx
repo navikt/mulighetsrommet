@@ -80,7 +80,7 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
                 </Button>
                 <ValideringsfeilOppsummering />
               </HStack>
-              {rammeDetaljerDefaults.totalRamme > 0 && (
+              {rammeDetaljerDefaults.totalRamme && rammeDetaljerDefaults.totalRamme > 0 && (
                 <Button
                   type="button"
                   size="small"
