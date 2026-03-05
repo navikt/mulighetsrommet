@@ -117,11 +117,12 @@ class UtbetalingServiceTest : FunSpec({
         val opprettAnnenAvtaltPrisUtbetaling = OpprettUtbetalingAnnenAvtaltPris(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
+            korrigererUtbetaling = null,
             periodeStart = LocalDate.of(2025, 1, 1),
             periodeSlutt = LocalDate.of(2025, 1, 31),
             journalpostId = null,
             beskrivelse = "Arrangør trenger penger",
-            kidNummer = null,
+            kid = null,
             pris = 10.withValuta(Valuta.NOK),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             vedlegg = listOf(),

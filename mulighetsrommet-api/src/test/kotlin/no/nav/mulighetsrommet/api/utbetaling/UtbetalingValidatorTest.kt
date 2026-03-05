@@ -21,6 +21,7 @@ class UtbetalingValidatorTest : FunSpec({
     context("opprett utbetaling") {
         test("Skal validere forespørsel om oppretting av utbetaling") {
             val request = OpprettUtbetalingRequest(
+                id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = LocalDate.now(),
                 periodeSlutt = LocalDate.now().plusDays(1),
@@ -29,12 +30,13 @@ class UtbetalingValidatorTest : FunSpec({
                 pris = ValutaBelopRequest(150, Valuta.NOK),
             )
 
-            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
+            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
             result.shouldBeRight()
         }
 
         test("valider opprett utbetaling akumulerer feil") {
             val request = OpprettUtbetalingRequest(
+                id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = LocalDate.now(),
                 periodeSlutt = null,
@@ -43,7 +45,7 @@ class UtbetalingValidatorTest : FunSpec({
                 pris = ValutaBelopRequest(-5, Valuta.NOK),
             )
 
-            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
+            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
             result.shouldBeLeft().shouldContainAll(
                 FieldError.of("Periodeslutt må være satt", OpprettUtbetalingRequest::periodeSlutt),
                 FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris, ValutaBelopRequest::belop),
@@ -53,6 +55,7 @@ class UtbetalingValidatorTest : FunSpec({
 
         test("Periodeslutt må være etter periodestart") {
             val request = OpprettUtbetalingRequest(
+                id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = LocalDate.now().plusDays(5),
                 periodeSlutt = LocalDate.now().plusDays(1),
@@ -61,7 +64,7 @@ class UtbetalingValidatorTest : FunSpec({
                 pris = ValutaBelopRequest(150, Valuta.NOK),
             )
 
-            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
+            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
             result.shouldBeLeft().shouldContainAll(
                 listOf(
                     FieldError.of(
@@ -74,6 +77,7 @@ class UtbetalingValidatorTest : FunSpec({
 
         test("Beløp må være større enn kroner 0") {
             val request = OpprettUtbetalingRequest(
+                id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = LocalDate.now(),
                 periodeSlutt = LocalDate.now().plusDays(1),
@@ -82,7 +86,7 @@ class UtbetalingValidatorTest : FunSpec({
                 pris = ValutaBelopRequest(0, Valuta.NOK),
             )
 
-            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
+            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
             result.shouldBeLeft().shouldContainAll(
                 listOf(
                     FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris, ValutaBelopRequest::belop),
@@ -92,6 +96,7 @@ class UtbetalingValidatorTest : FunSpec({
 
         test("Beskrivelse må være mer enn 10 tegn") {
             val request = OpprettUtbetalingRequest(
+                id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = LocalDate.now(),
                 periodeSlutt = LocalDate.now().plusDays(1),
@@ -100,7 +105,7 @@ class UtbetalingValidatorTest : FunSpec({
                 pris = ValutaBelopRequest(150, Valuta.NOK),
             )
 
-            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
+            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
             result.shouldBeLeft().shouldContainAll(
                 listOf(
                     FieldError.of("Beskrivelse må være minst 10 tegn", OpprettUtbetalingRequest::beskrivelse),

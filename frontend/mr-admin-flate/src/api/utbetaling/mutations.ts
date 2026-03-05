@@ -36,11 +36,11 @@ export function useOpprettDelutbetalinger(utbetalingId: string) {
   });
 }
 
-export function useOpprettUtbetaling(utbetalingId: string) {
+export function useOpprettUtbetaling() {
   const queryClient = useQueryClient();
 
   return useApiMutation<unknown, ProblemDetail, OpprettUtbetalingRequest>({
-    mutationFn: (body) => UtbetalingService.opprettUtbetaling({ path: { id: utbetalingId }, body }),
+    mutationFn: (body) => UtbetalingService.opprettUtbetaling({ body }),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetalingerByGjennomforing() });
     },

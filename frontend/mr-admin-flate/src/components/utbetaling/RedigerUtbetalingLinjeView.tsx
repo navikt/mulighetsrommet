@@ -34,7 +34,6 @@ import { RedigerUtbetalingLinjeFormValues, toDelutbetaling } from "./helpers";
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useOpprettDelutbetalinger, useSlettKorreksjon } from "@/api/utbetaling/mutations";
 
 export interface Props {
@@ -51,7 +50,6 @@ export function RedigerUtbetalingLinjeView({
   utbetalingLinjer: apiLinjer,
   oppdaterLinjer,
 }: Props) {
-  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const navigate = useNavigate();
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
@@ -81,7 +79,7 @@ export function RedigerUtbetalingLinjeView({
   function opprettEkstraTilsagn() {
     const defaultTilsagn = apiLinjer.length === 1 ? apiLinjer[0].tilsagn : undefined;
     return navigate(
-      `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
+      `/gjennomforinger/${utbetaling.gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
         `&periodeStart=${utbetaling.periode.start}` +
         `&periodeSlutt=${yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 }))}` +
@@ -151,7 +149,7 @@ export function RedigerUtbetalingLinjeView({
             renderRow={(linje: UtbetalingLinje, index: number) => (
               <UtbetalingLinjeRow
                 key={`${linje.id}-${linje.status?.type}`}
-                gjennomforingId={gjennomforingId}
+                gjennomforingId={utbetaling.gjennomforingId}
                 linje={linje}
                 belopInput={
                   <TextField

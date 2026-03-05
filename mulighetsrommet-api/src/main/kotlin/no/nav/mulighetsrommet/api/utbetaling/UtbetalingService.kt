@@ -214,27 +214,45 @@ class UtbetalingService(
         periode: Periode,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(opprett.gjennomforingId)
-        val arrangor = requireNotNull(queries.arrangor.getByGjennomforingId(opprett.gjennomforingId))
-        val betalingsinformasjon = arrangorService.getBetalingsinformasjon(arrangor.id)
+
+        val betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, opprett.kid)
+
         val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
             gjennomforing.tiltakstype.tiltakskode,
             periode,
         )
 
+        val korrigererUtbetaling = opprett.korrigererUtbetaling?.also {
+            val utbetaling = queries.utbetaling.get(it)
+                ?: return FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
+
+            if (utbetaling.gjennomforing.id != opprett.gjennomforingId) {
+                return FieldError.of("Korrigering må gjelde samme gjennomføring").nel().left()
+            }
+
+            when (utbetaling.status) {
+                UtbetalingStatusType.RETURNERT,
+                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.GENERERT,
+                UtbetalingStatusType.TIL_ATTESTERING,
+                UtbetalingStatusType.AVBRUTT,
+                -> return FieldError.of("Utbetaling kan ikke korrigeres når den har status ${utbetaling.status}")
+                    .nel()
+                    .left()
+
+                UtbetalingStatusType.FERDIG_BEHANDLET,
+                UtbetalingStatusType.DELVIS_UTBETALT,
+                UtbetalingStatusType.UTBETALT,
+                -> Unit
+            }
+        }
+
         val dbo = UtbetalingDbo(
             id = opprett.id,
             gjennomforingId = opprett.gjennomforingId,
-            korreksjonGjelderUtbetalingId = null,
+            korreksjonGjelderUtbetalingId = korrigererUtbetaling,
             status = UtbetalingStatusType.INNSENDT,
-            betalingsinformasjon = when (betalingsinformasjon) {
-                is Betalingsinformasjon.BBan ->
-                    Betalingsinformasjon.BBan(
-                        kontonummer = betalingsinformasjon.kontonummer,
-                        kid = opprett.kidNummer,
-                    )
-
-                is Betalingsinformasjon.IBan -> betalingsinformasjon
-            },
+            betalingsinformasjon = betalingsinformasjon,
             valuta = opprett.pris.valuta,
             beregning = UtbetalingBeregningFri.beregn(
                 input = UtbetalingBeregningFri.Input(opprett.pris),
@@ -254,6 +272,13 @@ class UtbetalingService(
         )
 
         return opprettUtbetalingTransaction(dbo, opprett.vedlegg, agent)
+    }
+
+    private suspend fun getUtbetalingsinformasjon(arrangorId: UUID, kid: Kid?): Betalingsinformasjon {
+        return when (val betalingsinformasjon = arrangorService.getBetalingsinformasjon(arrangorId)) {
+            is Betalingsinformasjon.BBan -> Betalingsinformasjon.BBan(betalingsinformasjon.kontonummer, kid)
+            is Betalingsinformasjon.IBan -> betalingsinformasjon
+        }
     }
 
     private fun TransactionalQueryContext.opprettUtbetalingTransaction(
@@ -909,6 +934,21 @@ class UtbetalingService(
                     -> false
                 }
             },
+            UtbetalingHandling.OPPRETT_KORREKSJON.takeIf {
+                utbetaling.korreksjon == null && when (utbetaling.status) {
+                    UtbetalingStatusType.RETURNERT,
+                    UtbetalingStatusType.INNSENDT,
+                    UtbetalingStatusType.GENERERT,
+                    UtbetalingStatusType.TIL_ATTESTERING,
+                    UtbetalingStatusType.AVBRUTT,
+                    -> false
+
+                    UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
+                    -> true
+                }
+            },
         )
             .filter {
                 tilgangTilHandling(handling = it, ansatt = ansatt)
@@ -940,6 +980,7 @@ class UtbetalingService(
             return when (handling) {
                 UtbetalingHandling.SEND_TIL_ATTESTERING -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
                 UtbetalingHandling.SLETT -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+                UtbetalingHandling.OPPRETT_KORREKSJON -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
             }
         }
 

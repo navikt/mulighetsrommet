@@ -22,6 +22,8 @@ import java.util.UUID
 data class UtbetalingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID,
     val status: UtbetalingStatusDto,
     val periode: Periode,
     val pris: ValutaBelop,
@@ -43,6 +45,7 @@ data class UtbetalingDto(
         fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingDto {
             return UtbetalingDto(
                 id = utbetaling.id,
+                gjennomforingId = utbetaling.gjennomforing.id,
                 status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer),
                 periode = utbetaling.periode,
                 innsendtAvArrangorDato = utbetaling.godkjentAvArrangorTidspunkt?.toLocalDate(),

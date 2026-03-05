@@ -120,6 +120,37 @@ fun Route.utbetalingRoutes() {
         call.respond(utbetalinger)
     }
 
+    route("/utbetaling") {
+        authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
+            post("/opprett", {
+                tags = setOf("Utbetaling")
+                operationId = "opprettUtbetaling"
+                request {
+                    body<OpprettUtbetalingRequest>()
+                }
+                response {
+                    code(HttpStatusCode.Created) {
+                        description = "Utbetalingen ble opprettet"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val request = call.receive<OpprettUtbetalingRequest>()
+                val navIdent = getNavIdent()
+
+                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
+                    .flatMap { utbetalingService.opprettAnnenAvtaltPrisUtbetaling(it, navIdent) }
+                    .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
+                    .map { HttpStatusCode.Created }
+
+                call.respondWithStatusResponse(result)
+            }
+        }
+    }
+
     get("/innsendinger", {
         description = "Hent filtrerte innsendinger"
         tags = setOf("Utbetaling")
@@ -369,37 +400,6 @@ fun Route.utbetalingRoutes() {
                 call.respond(utbetalingsLinjer)
             }
         }
-
-        authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
-            post("/opprett-utbetaling", {
-                tags = setOf("Utbetaling")
-                operationId = "opprettUtbetaling"
-                request {
-                    pathParameterUuid("id")
-                    body<OpprettUtbetalingRequest>()
-                }
-                response {
-                    code(HttpStatusCode.Created) {
-                        description = "Utbetalingen ble opprettet"
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val id: UUID by call.parameters
-                val request = call.receive<OpprettUtbetalingRequest>()
-                val navIdent = getNavIdent()
-
-                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(id, request)
-                    .flatMap { utbetalingService.opprettAnnenAvtaltPrisUtbetaling(it, navIdent) }
-                    .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
-                    .map { HttpStatusCode.Created }
-
-                call.respondWithStatusResponse(result)
-            }
-        }
     }
 
     route("/delutbetalinger") {
@@ -530,7 +530,11 @@ data class OpprettDelutbetalingerRequest(
 @Serializable
 data class OpprettUtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val korrigererUtbetaling: UUID? = null,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)

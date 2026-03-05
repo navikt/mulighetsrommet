@@ -4,11 +4,21 @@ import {
   DelutbetalingReturnertAarsak,
   FieldError,
   UtbetalingDto,
+  UtbetalingHandling,
   UtbetalingLinje,
   UtbetalingLinjeHandling,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { BodyShort, Button, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
+import {
+  ActionMenu,
+  BodyShort,
+  Button,
+  Heading,
+  HStack,
+  Spacer,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
@@ -18,17 +28,19 @@ import { isBesluttet } from "@/utils/totrinnskontroll";
 import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
-import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { PlusCircleIcon } from "@navikt/aksel-icons";
+import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjonModal";
 
 export interface Props {
   utbetaling: UtbetalingDto;
+  handlinger: UtbetalingHandling[];
   oppdaterLinjer: () => Promise<void>;
 }
 
-export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props) {
-  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+export function BesluttUtbetalingLinjeView({ utbetaling, handlinger, oppdaterLinjer }: Props) {
   const { data: linjer } = useUtbetalingsLinjer(utbetaling.id);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
+  const [opprettKorreksjonModalOpen, setOpprettKorreksjonModalOpen] = useState<boolean>(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
   const attesterDelutbetalingMutation = useAttesterDelutbetaling();
   const returnerDelutbetalingMutation = useReturnerDelutbetaling();
@@ -77,9 +89,29 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
 
   return (
     <VStack gap="space-8">
-      <Heading spacing size="medium">
-        {utbetalingTekster.delutbetaling.header}
-      </Heading>
+      <HStack align="end">
+        <Heading spacing size="medium" level="2">
+          {utbetalingTekster.delutbetaling.header}
+        </Heading>
+        <Spacer />
+        <ActionMenu>
+          <ActionMenu.Trigger>
+            <Button variant="secondary" size="small">
+              {utbetalingTekster.delutbetaling.handlinger.button.label}
+            </Button>
+          </ActionMenu.Trigger>
+          <ActionMenu.Content>
+            {handlinger.includes(UtbetalingHandling.OPPRETT_KORREKSJON) && (
+              <ActionMenu.Item
+                icon={<PlusCircleIcon />}
+                onSelect={() => setOpprettKorreksjonModalOpen(true)}
+              >
+                Opprett korreksjon
+              </ActionMenu.Item>
+            )}
+          </ActionMenu.Content>
+        </ActionMenu>
+      </HStack>
       <UtbetalingLinjeTable
         linjer={linjer.filter((l) => l.status !== null)}
         utbetaling={utbetaling}
@@ -87,7 +119,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
           return (
             <UtbetalingLinjeRow
               key={`${linje.id}-${linje.status?.type}`}
-              gjennomforingId={gjennomforingId}
+              gjennomforingId={utbetaling.gjennomforingId}
               linje={linje}
               grayBackground
               rowOpen={openRow(linje)}
@@ -170,6 +202,11 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
             />
           );
         }}
+      />
+      <OpprettKorreksjonModal
+        utbetaling={utbetaling}
+        open={opprettKorreksjonModalOpen}
+        close={() => setOpprettKorreksjonModalOpen(false)}
       />
     </VStack>
   );
