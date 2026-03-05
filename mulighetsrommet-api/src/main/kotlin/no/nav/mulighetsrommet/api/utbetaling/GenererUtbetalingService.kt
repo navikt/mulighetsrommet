@@ -260,6 +260,7 @@ class GenererUtbetalingService(
         return UtbetalingDbo(
             id = utbetalingId,
             gjennomforingId = gjennomforing.id,
+            korreksjonGjelderUtbetalingId = null,
             status = UtbetalingStatusType.GENERERT,
             valuta = beregning.output.pris.valuta,
             beregning = beregning,
@@ -271,7 +272,7 @@ class GenererUtbetalingService(
             },
             periode = periode,
             innsender = null,
-            beskrivelse = null,
+            korreksjonBegrunnelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             journalpostId = null,
             godkjentAvArrangorTidspunkt = null,
@@ -280,7 +281,11 @@ class GenererUtbetalingService(
         )
     }
 
-    private fun blokkeringer(periode: Periode, beregning: UtbetalingBeregning, forslag: Map<UUID, List<DeltakerForslag>>): Set<Utbetaling.Blokkering> {
+    private fun blokkeringer(
+        periode: Periode,
+        beregning: UtbetalingBeregning,
+        forslag: Map<UUID, List<DeltakerForslag>>,
+    ): Set<Utbetaling.Blokkering> {
         val relevanteForslag = UtbetalingAdvarsler.relevanteForslag(periode, beregning, forslag)
 
         return setOfNotNull(
@@ -400,7 +405,8 @@ private fun UtbetalingDbo.isNotEqualTo(utbetaling: Utbetaling): Boolean = this !
     beregning = utbetaling.beregning,
     betalingsinformasjon = utbetaling.betalingsinformasjon,
     periode = utbetaling.periode,
-    beskrivelse = utbetaling.beskrivelse,
+    korreksjonGjelderUtbetalingId = utbetaling.korreksjon?.gjelderUtbetalingId,
+    korreksjonBegrunnelse = utbetaling.korreksjon?.begrunnelse,
     tilskuddstype = utbetaling.tilskuddstype,
     journalpostId = utbetaling.journalpostId,
     godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,

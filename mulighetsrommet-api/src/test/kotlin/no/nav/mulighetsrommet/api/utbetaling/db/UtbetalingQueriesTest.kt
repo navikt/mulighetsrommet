@@ -83,7 +83,8 @@ class UtbetalingQueriesTest : FunSpec({
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), Kid.parseOrThrow("006402710013")),
         periode = periode,
         innsender = NavIdent("Z123456"),
-        beskrivelse = "En beskrivelse",
+        korreksjonGjelderUtbetalingId = null,
+        korreksjonBegrunnelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         journalpostId = JournalpostId("12345"),
         godkjentAvArrangorTidspunkt = null,
@@ -121,8 +122,28 @@ class UtbetalingQueriesTest : FunSpec({
                 utbetaling.godkjentAvArrangorTidspunkt shouldBe null
                 utbetaling.utbetalesTidligstTidspunkt shouldBe utbetalesTidligstTidspunkt
                 utbetaling.innsender shouldBe NavIdent("Z123456")
-                utbetaling.beskrivelse shouldBe "En beskrivelse"
+                utbetaling.korreksjon shouldBe null
             }
+        }
+    }
+
+    test("opprett utbetaling som korreksjon") {
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            queries.utbetaling.upsert(utbetaling)
+
+            val korreksjon = utbetaling.copy(
+                id = UUID.randomUUID(),
+                korreksjonBegrunnelse = "Fordi",
+                korreksjonGjelderUtbetalingId = utbetaling.id,
+            )
+            queries.utbetaling.upsert(korreksjon)
+
+            queries.utbetaling.getOrError(korreksjon.id).korreksjon shouldBe Utbetaling.Korreksjon(
+                gjelderUtbetalingId = utbetaling.id,
+                begrunnelse = "Fordi",
+            )
         }
     }
 

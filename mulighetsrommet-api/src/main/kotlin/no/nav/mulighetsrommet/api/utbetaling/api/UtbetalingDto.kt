@@ -30,6 +30,7 @@ data class UtbetalingDto(
     @Serializable(with = LocalDateSerializer::class)
     val utbetalesTidligstDato: LocalDate?,
     val betalingsinformasjon: Betalingsinformasjon?,
+    // TODO: gjelder kun korreksjoner. Gjør om ifm. migrering til ny korreksjonsmodell
     val beskrivelse: String?,
     val begrunnelseMindreBetalt: String?,
     val avbruttBegrunnelse: String?,
@@ -47,7 +48,7 @@ data class UtbetalingDto(
                 innsendtAvArrangorDato = utbetaling.godkjentAvArrangorTidspunkt?.toLocalDate(),
                 utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
-                beskrivelse = utbetaling.beskrivelse,
+                beskrivelse = utbetaling.korreksjon?.begrunnelse,
                 begrunnelseMindreBetalt = utbetaling.begrunnelseMindreBetalt,
                 pris = utbetaling.beregning.output.pris,
                 innsendtAv = formaterInnsendtAv(utbetaling.innsender),

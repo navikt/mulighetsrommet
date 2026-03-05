@@ -68,6 +68,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             navn = "Nav",
             slettet = false,
         ),
+        korreksjon = null,
         valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
             input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
@@ -152,7 +153,6 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         innsender = Arrangor,
         journalpostId = null,
-        beskrivelse = null,
         begrunnelseMindreBetalt = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         avbruttBegrunnelse = null,
@@ -181,6 +181,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             navn = "Nav",
             slettet = false,
         ),
+        korreksjon = null,
         valuta = Valuta.NOK,
         beregning = UtbetalingBeregningPrisPerTimeOppfolging(
             input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
@@ -215,7 +216,6 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         innsender = Arrangor,
         journalpostId = null,
-        beskrivelse = null,
         begrunnelseMindreBetalt = null,
         avbruttBegrunnelse = null,
         avbruttTidspunkt = null,
