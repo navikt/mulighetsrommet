@@ -1,6 +1,6 @@
 import { RadioGroup } from "@navikt/ds-react";
 import { ReactNode, forwardRef } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, type Control, type FieldValues, type RegisterOptions } from "react-hook-form";
 
 export interface Props {
   readOnly?: boolean;
@@ -10,6 +10,8 @@ export interface Props {
   hideLegend?: boolean;
   children: ReactNode;
   name: string;
+  rules?: RegisterOptions;
+  control?: Control<FieldValues>;
 }
 
 export const ControlledRadioGroup = forwardRef(function ControlledRadioGroup(
@@ -25,12 +27,16 @@ export const ControlledRadioGroup = forwardRef(function ControlledRadioGroup(
     description,
     children,
     name,
+    control,
+    rules,
     ...rest
   } = props;
   return (
     <div>
       <Controller
         name={name}
+        control={control}
+        rules={rules}
         {...rest}
         render={({ field: { onChange, value }, fieldState: { error } }) => {
           return (
