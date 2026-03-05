@@ -96,7 +96,7 @@ data class Utbetaling(
     @Serializable
     data class Korreksjon(
         @Serializable(with = UUIDSerializer::class)
-        val gjelderUtbetalingId: UUID,
+        val gjelderUtbetalingId: UUID?,
         val begrunnelse: String,
     )
 

@@ -695,10 +695,10 @@ class UtbetalingQueries(private val session: Session) {
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             ),
-            korreksjon = uuidOrNull("korreksjon_gjelder_utbetaling_id")?.let { id ->
+            korreksjon = stringOrNull("korreksjon_begrunnelse")?.let { begrunnelse ->
                 Utbetaling.Korreksjon(
-                    gjelderUtbetalingId = id,
-                    begrunnelse = string("korreksjon_begrunnelse"),
+                    gjelderUtbetalingId = uuidOrNull("korreksjon_gjelder_utbetaling_id"),
+                    begrunnelse = begrunnelse,
                 )
             },
             status = UtbetalingStatusType.valueOf(string("status")),
