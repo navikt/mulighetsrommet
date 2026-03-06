@@ -59,8 +59,7 @@ class ArrangorflateUtbetalingService(
             opprett = OpprettUtbetaling(
                 id = UUID.randomUUID(),
                 gjennomforingId = gjennomforing.id,
-                periodeStart = opprett.periode.start,
-                periodeSlutt = opprett.periode.getLastInclusiveDate(),
+                periode = opprett.periode,
                 beregning = beregning,
                 kid = opprett.kidNummer,
                 tilskuddstype = tilskuddstype,

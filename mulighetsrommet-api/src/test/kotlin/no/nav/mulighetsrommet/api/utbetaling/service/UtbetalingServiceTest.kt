@@ -117,8 +117,7 @@ class UtbetalingServiceTest : FunSpec({
         val opprett = OpprettUtbetaling(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
-            periodeStart = LocalDate.of(2025, 1, 1),
-            periodeSlutt = LocalDate.of(2025, 1, 31),
+            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             journalpostId = null,
             korreksjonGjelderUtbetalingId = null,
             korreksjonBegrunnelse = null,

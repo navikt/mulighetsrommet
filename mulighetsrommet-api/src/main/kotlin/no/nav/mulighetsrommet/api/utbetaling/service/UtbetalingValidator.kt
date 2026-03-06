@@ -158,12 +158,11 @@ object UtbetalingValidator {
         OpprettUtbetaling(
             id = request.id,
             gjennomforingId = request.gjennomforingId,
-            periodeSlutt = periode.getLastInclusiveDate(),
+            periode = periode,
             journalpostId = journalpostId,
             beregning = UtbetalingBeregningFri.belop(pris),
             kid = kid,
             korreksjonGjelderUtbetalingId = request.korrigererUtbetaling,
-            periodeStart = periode.start,
             korreksjonBegrunnelse = korreksjonBegrunnelse,
             kommentar = kommentar,
             vedlegg = emptyList(),

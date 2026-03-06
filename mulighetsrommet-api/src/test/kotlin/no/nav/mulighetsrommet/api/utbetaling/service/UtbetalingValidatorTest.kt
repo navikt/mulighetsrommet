@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.JournalpostId
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
@@ -43,8 +44,7 @@ class UtbetalingValidatorTest : FunSpec({
             UtbetalingValidator.validateOpprettUtbetalingRequest(request) shouldBeRight OpprettUtbetaling(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
-                periodeStart = periodeStart,
-                periodeSlutt = periodeSlutt,
+                periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt),
                 journalpostId = JournalpostId("123"),
                 kommentar = null,
                 korreksjonGjelderUtbetalingId = null,
@@ -72,8 +72,7 @@ class UtbetalingValidatorTest : FunSpec({
             UtbetalingValidator.validateOpprettUtbetalingRequest(request) shouldBeRight OpprettUtbetaling(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
-                periodeStart = periodeStart,
-                periodeSlutt = periodeSlutt,
+                periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt),
                 journalpostId = null,
                 kommentar = "En lang kommentar",
                 korreksjonGjelderUtbetalingId = request.korrigererUtbetaling,

@@ -56,7 +56,6 @@ import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.compareTo
@@ -114,10 +113,9 @@ class UtbetalingService(
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(opprett.gjennomforingId)
 
-        val periode = Periode.fromInclusiveDates(opprett.periodeStart, opprett.periodeSlutt)
         val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
             gjennomforing.tiltakstype.tiltakskode,
-            periode,
+            opprett.periode,
         )
 
         val korreksjonGjelderUtbetalingId = opprett.korreksjonGjelderUtbetalingId?.also {
@@ -154,7 +152,7 @@ class UtbetalingService(
             betalingsinformasjon = betalingsinformasjon,
             valuta = opprett.beregning.output.pris.valuta,
             beregning = opprett.beregning,
-            periode = periode,
+            periode = opprett.periode,
             innsender = agent,
             kommentar = opprett.kommentar,
             korreksjonGjelderUtbetalingId = korreksjonGjelderUtbetalingId,
