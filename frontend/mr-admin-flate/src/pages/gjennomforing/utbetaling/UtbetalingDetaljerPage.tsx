@@ -144,6 +144,12 @@ export function UtbetalingDetaljerPage() {
                 value={utbetaling.begrunnelseMindreBetalt}
               />
             )}
+            {utbetaling.kommentar && (
+              <MetadataFritekstfelt
+                label={utbetalingTekster.metadata.kommentar}
+                value={utbetaling.kommentar}
+              />
+            )}
           </VStack>
         </VStack>
         <VStack gap="space-16">
