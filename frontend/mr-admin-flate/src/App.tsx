@@ -18,7 +18,6 @@ import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
-import { OpprettUtbetalingKorreksjonPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingKorreksjonPage";
 import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
@@ -238,7 +237,6 @@ const routes: RouteObject[] = [
         element: <UtbetalingPage />,
         errorElement: <ErrorPage />,
         children: [
-          { path: "opprett-korreksjon", element: <OpprettUtbetalingKorreksjonPage /> },
           { path: "opprett-utbetaling", element: <OpprettUtbetalingAnskaffelsePage /> },
           { path: ":utbetalingId", element: <UtbetalingDetaljerPage /> },
         ],

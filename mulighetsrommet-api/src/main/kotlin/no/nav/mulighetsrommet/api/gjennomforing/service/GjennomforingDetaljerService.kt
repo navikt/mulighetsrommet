@@ -140,7 +140,6 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.OPPRETT_TILSAGN,
                 GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
                 GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
-                GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
                 GjennomforingHandling.OPPRETT_UTBETALING,
                 -> saksbehandlerOkonomi
             }
