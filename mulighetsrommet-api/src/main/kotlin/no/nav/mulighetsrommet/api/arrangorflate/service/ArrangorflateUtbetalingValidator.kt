@@ -4,12 +4,11 @@ import arrow.core.Either
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
+import no.nav.mulighetsrommet.api.arrangorflate.model.OpprettUtbetaling
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
@@ -55,7 +54,6 @@ object ArrangorflateUtbetalingValidator {
         request: OpprettKravUtbetalingRequest,
         gjennomforing: ArrangorflateTiltak,
         okonomiConfig: OkonomiConfig,
-        kontonummer: Kontonummer,
     ): Either<List<FieldError>, OpprettUtbetaling> = validation {
         val start = try {
             LocalDate.parse(request.periodeStart)
@@ -113,7 +111,6 @@ object ArrangorflateUtbetalingValidator {
             periodeStart = LocalDate.parse(request.periodeStart),
             periodeSlutt = LocalDate.parse(request.periodeSlutt),
             pris = request.belop.withValuta(gjennomforing.prismodell.valuta),
-            kontonummer = kontonummer,
             kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             vedlegg = request.vedlegg,
         )

@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
-import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -8,29 +7,6 @@ import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
 object UtbetalingInputHelper {
-    fun QueryContext.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(
-        gjennomforing: GjennomforingAvtale,
-        periode: Periode,
-    ): AvtaltPrisPerTimeOppfolgingPerDeltaker {
-        val satser = resolveAvtalteSatser(gjennomforing, periode)
-        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
-        val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, periode)
-        return AvtaltPrisPerTimeOppfolgingPerDeltaker(
-            satser,
-            stengtHosArrangor,
-            deltakere,
-            deltakelsePerioder,
-        )
-    }
-
-    data class AvtaltPrisPerTimeOppfolgingPerDeltaker(
-        val satser: Set<SatsPeriode>,
-        val stengtHosArrangor: Set<StengtPeriode>,
-        val deltakere: List<Deltaker>,
-        val deltakelsePerioder: Set<DeltakelsePeriode>,
-    )
-
     fun resolveAvtalteSatser(gjennomforing: GjennomforingAvtale, periode: Periode): Set<SatsPeriode> {
         val periodeStart = if (gjennomforing.startDato.isBefore(periode.slutt)) {
             maxOf(gjennomforing.startDato, periode.start)

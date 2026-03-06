@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.clamav.Vedlegg
-import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
@@ -26,7 +25,6 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
 
     context("opprett krav") {
         val today = LocalDate.now()
-        val kontonummer = Kontonummer("12345678910")
         val okonomiConfig = mockk<OkonomiConfig>(relaxed = true)
         val gjennomforing = mockk<ArrangorflateTiltak>(relaxed = true)
         val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
@@ -63,7 +61,6 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
                 request,
                 gjennomforing,
                 okonomiConfig,
-                kontonummer,
             ).shouldBeRight()
         }
 
@@ -94,7 +91,6 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
                 request,
                 gjennomforing,
                 okonomiConfig,
-                kontonummer,
             ).shouldBeLeft()
         }
 
@@ -125,7 +121,6 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
                 request,
                 gjennomforing,
                 okonomiConfig,
-                kontonummer,
             ).shouldBeRight()
         }
 
@@ -157,7 +152,6 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
                     request,
                     gjennomforing,
                     okonomiConfig,
-                    kontonummer,
                 )
             result.shouldBeRight()
         }
@@ -190,7 +184,6 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
                     request,
                     gjennomforing,
                     okonomiConfig,
-                    kontonummer,
                 )
             result.shouldBeLeft()
         }

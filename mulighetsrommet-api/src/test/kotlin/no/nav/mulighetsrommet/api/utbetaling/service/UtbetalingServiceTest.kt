@@ -145,8 +145,8 @@ class UtbetalingServiceTest : FunSpec({
         test("utbetaling blir opprettet med fri-beregning") {
             val service = createUtbetalingService()
 
-            val utbetaling = service.opprettAnnenAvtaltPrisUtbetaling(
-                request = opprettAnnenAvtaltPrisUtbetaling,
+            val utbetaling = service.opprettUtbetaling(
+                opprett = opprettAnnenAvtaltPrisUtbetaling,
                 agent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
@@ -161,15 +161,15 @@ class UtbetalingServiceTest : FunSpec({
         test("utbetaling kan ikke endres hvis den først har blitt opprettet") {
             val service = createUtbetalingService()
 
-            service.opprettAnnenAvtaltPrisUtbetaling(
-                request = opprettAnnenAvtaltPrisUtbetaling.copy(
+            service.opprettUtbetaling(
+                opprett = opprettAnnenAvtaltPrisUtbetaling.copy(
                     pris = 5.withValuta(Valuta.NOK),
                 ),
                 agent = Arrangor,
             ).shouldBeRight()
 
-            service.opprettAnnenAvtaltPrisUtbetaling(
-                request = opprettAnnenAvtaltPrisUtbetaling.copy(
+            service.opprettUtbetaling(
+                opprett = opprettAnnenAvtaltPrisUtbetaling.copy(
                     pris = 10.withValuta(Valuta.NOK),
                 ),
                 agent = Arrangor,
@@ -183,8 +183,8 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
 
-            service.opprettAnnenAvtaltPrisUtbetaling(
-                request = opprettAnnenAvtaltPrisUtbetaling,
+            service.opprettUtbetaling(
+                opprett = opprettAnnenAvtaltPrisUtbetaling,
                 agent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.INNSENDT
 
@@ -196,8 +196,8 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
 
-            val utbetaling = service.opprettAnnenAvtaltPrisUtbetaling(
-                request = opprettAnnenAvtaltPrisUtbetaling,
+            val utbetaling = service.opprettUtbetaling(
+                opprett = opprettAnnenAvtaltPrisUtbetaling,
                 agent = Arrangor,
             ).shouldBeRight()
 

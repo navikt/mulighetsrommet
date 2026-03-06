@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.getOrElse
-import arrow.core.nel
 import arrow.core.raise.either
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -31,6 +30,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflatePersonalia
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingValidator
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerUtenFaktor
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonCells
@@ -45,8 +45,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
-import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
@@ -56,7 +54,6 @@ import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -76,8 +73,8 @@ import java.util.UUID
 
 fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     val db: ApiDatabase by inject()
-    val utbetalingService: UtbetalingService by inject()
-    val arrangorFlateService: ArrangorflateService by inject()
+    val arrangorflateUtbetalingService: ArrangorflateUtbetalingService by inject()
+    val arrangorflateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
 
@@ -188,7 +185,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             } else {
                 listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
             }
-            val tilsagn = arrangorFlateService.getTilsagn(
+            val tilsagn = arrangorflateService.getTilsagn(
                 arrangorer = setOf(tiltak.arrangor.organisasjonsnummer),
                 typer = tilsagnstyper,
                 statuser = listOf(TilsagnStatus.GODKJENT),
@@ -204,7 +201,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 tidligereUtbetalinger = emptyList(),
             )
 
-            val kontonummer = arrangorFlateService.getKontonummer(tiltak.arrangor.organisasjonsnummer)
+            val kontonummer = arrangorflateService.getKontonummer(tiltak.arrangor.organisasjonsnummer)
                 .onLeft { return@get call.respondWithProblemDetail(InternalServerError("Klarte ikke å hente kontonummeret")) }
                 .getOrElse { throw IllegalStateException("unreachable") }
 
@@ -243,17 +240,13 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             }
         }) {
             val tiltak = requireArrangorflateTiltak()
-
             val periode = getPeriodeFromQuery()
 
-            val avtaltPrisPerTimeOppfolgingPerDeltaker = db.session {
-                val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(tiltak.id)
-                resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
-            }
+            val avtaltPrisPerTimeOppfolgingPerDeltaker = arrangorflateUtbetalingService
+                .getAvtaltPrisPerTimeOppfolgingData(tiltak.id, periode)
 
-            val personalia = arrangorFlateService.getPersonalia(
-                avtaltPrisPerTimeOppfolgingPerDeltaker
-                    .deltakelsePerioder.map { it.deltakelseId }.toSet(),
+            val personalia = arrangorflateService.getPersonalia(
+                avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.map { it.deltakelseId }.toSet(),
             )
 
             call.respond(
@@ -301,17 +294,9 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                         return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
                     }
 
-                    arrangorFlateService.getKontonummer(tiltak.arrangor.organisasjonsnummer)
-                        .mapLeft { FieldError("/kontonummer", "Klarte ikke hente kontonummer").nel() }
-                        .flatMap { kontonummer ->
-                            ArrangorflateUtbetalingValidator.validateOpprettKravArrangorflate(
-                                request,
-                                tiltak,
-                                okonomiConfig,
-                                kontonummer,
-                            )
-                        }
-                        .flatMap { utbetalingService.opprettUtbetaling(it, Arrangor) }
+                    ArrangorflateUtbetalingValidator
+                        .validateOpprettKravArrangorflate(request, tiltak, okonomiConfig)
+                        .flatMap { arrangorflateUtbetalingService.opprettUtbetaling(it) }
                         .onLeft { errors ->
                             call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
                         }

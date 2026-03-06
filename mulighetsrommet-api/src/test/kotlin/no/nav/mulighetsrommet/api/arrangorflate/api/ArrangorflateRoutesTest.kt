@@ -6,23 +6,16 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.engine.mock.respondError
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.forms.formData
-import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.http.ContentDisposition
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.http.headersOf
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
@@ -31,7 +24,6 @@ import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.nav.tiltak.okonomi.Tilskuddstype
 
 class ArrangorflateRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -249,43 +241,6 @@ class ArrangorflateRoutesTest : FunSpec({
                     "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.",
                 ),
             )
-        }
-    }
-
-    test("opprett krav om utbetaling (med vedlegg)") {
-        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val gjennomforingId = GjennomforingFixtures.AFT1.id
-            val response = client.submitFormWithBinaryData(
-                url = "/api/arrangorflate/arrangor/$orgnr/gjennomforing/$gjennomforingId/opprett-krav",
-                formData = formData {
-                    append("gjennomforingId", gjennomforingId.toString())
-                    append("tilsagnId", TilsagnFixtures.Tilsagn1.id.toString())
-                    append("beskrivelse", "test beskrivelse")
-                    append("kidNummer", "006402710013")
-                    append("belop", 1000)
-                    append("periodeStart", "2024-01-01")
-                    append("periodeSlutt", "2024-01-31")
-                    append("tilskuddstype", Tilskuddstype.TILTAK_INVESTERINGER.name)
-
-                    append(
-                        key = "vedlegg",
-                        value = "PDF_CONTENT".toByteArray(),
-                        headers = headersOf(
-                            HttpHeaders.ContentDisposition to listOf(
-                                ContentDisposition.File.withParameter(
-                                    ContentDisposition.Parameters.FileName,
-                                    "test.pdf",
-                                ).toString(),
-                            ),
-                            HttpHeaders.ContentType to listOf(ContentType.Application.Pdf.toString()),
-                        ),
-                    )
-                },
-            ) {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-            }
-
-            response.status shouldBe HttpStatusCode.OK
         }
     }
 })
