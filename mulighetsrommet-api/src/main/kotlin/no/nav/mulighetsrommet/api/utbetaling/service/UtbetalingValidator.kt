@@ -235,6 +235,7 @@ object UtbetalingValidator {
         request.begrunnelse
     }
 
+    // TODO: inline i GenererUtbetalingService
     fun validerRegenererUtbetaling(utbetaling: Utbetaling): Either<List<FieldError>, Unit> = validation {
         validate(utbetaling.status == UtbetalingStatusType.AVBRUTT) {
             FieldError.root("Utbetalingen kan ikke regenereres")

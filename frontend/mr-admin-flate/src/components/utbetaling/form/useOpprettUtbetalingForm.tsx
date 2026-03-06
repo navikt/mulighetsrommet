@@ -2,8 +2,8 @@ import { OpprettUtbetalingRequest, ValidationError } from "@tiltaksadministrasjo
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { useRef } from "react";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useOpprettUtbetaling } from "@/api/utbetaling/mutations";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 export function useOpprettUtbetalingForm(defaults: Partial<OpprettUtbetalingRequest>) {
   const navigate = useNavigate();
@@ -18,27 +18,17 @@ export function useOpprettUtbetalingForm(defaults: Partial<OpprettUtbetalingRequ
 
   function submit(data: OpprettUtbetalingRequest) {
     mutation.mutate(
-      {
-        ...data,
-        id: utbetalingId.current,
-        kidNummer: data.kidNummer || null,
-      },
+      { ...data, id: utbetalingId.current },
       {
         onSuccess: () => {
-          form.reset();
           navigate(
             `/gjennomforinger/${defaults.gjennomforingId}/utbetalinger/${utbetalingId.current}`,
           );
         },
-        onValidationError: (error: ValidationError) => {
-          error.errors.forEach((error) => {
-            const name = jsonPointerToFieldPath(error.pointer) as keyof OpprettUtbetalingRequest;
-            form.setError(name, { type: "custom", message: error.detail });
-          });
-        },
+        onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
       },
     );
   }
 
-  return { form, onSubmit: form.handleSubmit(submit) };
+  return { form, submit };
 }

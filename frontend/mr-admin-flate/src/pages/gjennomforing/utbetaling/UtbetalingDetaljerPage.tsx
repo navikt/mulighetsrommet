@@ -27,7 +27,7 @@ import {
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { BetalingsinformasjonDetaljer } from "@/components/utbetaling/ArrangorBetalingsinformasjon";
+import { BetalingsinformasjonDetaljer } from "@/components/utbetaling/BetalingsinformasjonDetaljer";
 import { MetadataContainer } from "@/layouts/MetadataContainer";
 
 function useUtbetalingDetaljerData() {

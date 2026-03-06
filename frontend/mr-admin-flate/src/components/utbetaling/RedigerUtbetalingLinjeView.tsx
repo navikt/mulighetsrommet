@@ -7,7 +7,7 @@ import {
   UtbetalingLinje,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { FileCheckmarkIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
+import { FileCheckmarkIcon, PencilIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import {
   ActionMenu,
   Alert,
@@ -41,6 +41,7 @@ import { Handlinger } from "@/components/handlinger/Handlinger";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { extractValidationErrors } from "@/utils/Utils";
+import { RedigerUtbetalingModal } from "@/components/utbetaling/RedigerUtbetalingModal";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -52,6 +53,8 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
   const navigate = useNavigate();
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const [slettKorreksjonModalOpen, setSlettKorreksjonModalOpen] = useState<boolean>(false);
+  const [redigerUtbetalingModalOpen, setRedigerUtbetalingModalOpen] = useState<boolean>(false);
+
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
 
   const methods = useForm<OpprettDelutbetalingerRequest>({
@@ -158,6 +161,14 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
             </Heading>
             <Spacer />
             <Handlinger>
+              {handlinger.includes(UtbetalingHandling.REDIGER) && (
+                <ActionMenu.Item
+                  icon={<PencilIcon />}
+                  onSelect={() => setRedigerUtbetalingModalOpen(true)}
+                >
+                  Rediger utbetaling
+                </ActionMenu.Item>
+              )}
               <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
                 {utbetalingTekster.delutbetaling.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd)}
               </ActionMenu.Item>
@@ -219,7 +230,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
               />
             )}
           />
-          {!!delutbetalinger.length && (
+          {delutbetalinger.length > 0 && (
             <HStack gap="space-8" justify="end">
               <ValideringsfeilOppsummering />
               {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
@@ -244,6 +255,11 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
           belopInnsendt={beregning}
         />
       </form>
+      <RedigerUtbetalingModal
+        utbetaling={utbetaling}
+        open={redigerUtbetalingModalOpen}
+        close={() => setRedigerUtbetalingModalOpen(false)}
+      />
       <SlettUtbetalingModal
         utbetalingId={utbetaling.id}
         open={slettKorreksjonModalOpen}

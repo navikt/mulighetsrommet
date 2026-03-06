@@ -17,9 +17,10 @@ data class UtbetalingDetaljerDto(
 
 @Serializable
 enum class UtbetalingHandling {
+    OPPRETT_KORREKSJON,
+    REDIGER,
     SEND_TIL_ATTESTERING,
     SLETT,
-    OPPRETT_KORREKSJON,
 }
 
 @Serializable

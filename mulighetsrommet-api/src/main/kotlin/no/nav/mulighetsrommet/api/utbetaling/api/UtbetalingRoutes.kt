@@ -148,6 +148,33 @@ fun Route.utbetalingRoutes() {
 
                 call.respondWithStatusResponse(result)
             }
+
+            post("/rediger", {
+                tags = setOf("Utbetaling")
+                operationId = "redigerUtbetaling"
+                request {
+                    body<OpprettUtbetalingRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetalingen ble redigert"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val request = call.receive<OpprettUtbetalingRequest>()
+                val navIdent = getNavIdent()
+
+                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
+                    .flatMap { utbetalingService.redigerUtbetaling(it, navIdent) }
+                    .mapLeft { ValidationError("Klarte ikke redigere utbetaling", it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
+            }
         }
     }
 

@@ -47,6 +47,17 @@ export function useOpprettUtbetaling() {
   });
 }
 
+export function useRedigerUtbetaling() {
+  const queryClient = useQueryClient();
+
+  return useApiMutation<unknown, ProblemDetail, OpprettUtbetalingRequest>({
+    mutationFn: (body) => UtbetalingService.redigerUtbetaling({ body }),
+    async onSuccess(_, request) {
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(request.id) });
+    },
+  });
+}
+
 export function useReturnerDelutbetaling() {
   const queryClient = useQueryClient();
 

@@ -1,37 +1,30 @@
+import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingDto } from "@tiltaksadministrasjon/api-client";
-import { Button, HStack, InfoCard, Modal, VStack } from "@navikt/ds-react";
+import { Button, HStack, InfoCard, Link, Modal, VStack } from "@navikt/ds-react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { formaterPeriode, subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { MetadataHGrid } from "@mr/frontend-common/components/datadriven/Metadata";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
-import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { useOpprettUtbetalingForm } from "@/components/utbetaling/form/useOpprettUtbetalingForm";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { useRedigerUtbetalingForm } from "@/components/utbetaling/form/useRedigerUtbetalingForm";
 import { FormProvider } from "react-hook-form";
 import { UtbetalingForm } from "@/components/utbetaling/form/UtbetalingForm";
 
-interface OpprettKorreksjonModalProps {
+interface RedigerUtbetalingModalProps {
   utbetaling: UtbetalingDto;
   open: boolean;
   close: () => void;
 }
 
-export function OpprettKorreksjonModal({ utbetaling, open, close }: OpprettKorreksjonModalProps) {
+export function RedigerUtbetalingModal({ utbetaling, open, close }: RedigerUtbetalingModalProps) {
   const { gjennomforing } = useGjennomforing(utbetaling.gjennomforingId);
+  const { form, submit } = useRedigerUtbetalingForm(utbetaling, { onSuccess: close });
 
-  const { form, submit } = useOpprettUtbetalingForm({
-    gjennomforingId: gjennomforing.id,
-    korrigererUtbetaling: utbetaling.id,
-    periodeStart: utbetaling.periode.start,
-    periodeSlutt: yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 })),
-    pris: { belop: null, valuta: utbetaling.beregning.valuta },
-  });
-
-  const formId = "opprett-korreksjon";
+  const formId = "rediger-utbetaling";
   return (
-    <Modal onClose={close} open={open} header={{ heading: "Opprett korreksjon" }} width={1200}>
+    <Modal onClose={close} open={open} header={{ heading: "Rediger utbetaling" }} width={1200}>
       <Modal.Body>
         <VStack gap="space-24">
-          <KorreksjonInfoCard utbetaling={utbetaling} />
+          {utbetaling.korreksjon && <KorreksjonInfoCard utbetaling={utbetaling} />}
           <FormProvider {...form}>
             <UtbetalingForm
               id={formId}
@@ -48,7 +41,7 @@ export function OpprettKorreksjonModal({ utbetaling, open, close }: OpprettKorre
             Avbryt
           </Button>
           <Button size="small" form={formId}>
-            Opprett
+            Lagre
           </Button>
         </HStack>
       </Modal.Footer>
@@ -60,19 +53,26 @@ function KorreksjonInfoCard({ utbetaling }: { utbetaling: UtbetalingDto }) {
   return (
     <InfoCard>
       <InfoCard.Header>
-        <InfoCard.Title>
-          Du er i ferd med å opprette en korreksjon på en eksisterende utbetaling
-        </InfoCard.Title>
+        <InfoCard.Title>Dette er en korreksjon for følgende utbetaling</InfoCard.Title>
       </InfoCard.Header>
       <InfoCard.Content>
         <MetadataHGrid
           label={utbetalingTekster.metadata.periode}
           value={formaterPeriode(utbetaling.periode)}
         />
-        <MetadataHGrid
-          label={utbetalingTekster.utbetalt.label}
-          value={utbetaling.utbetalt ? formaterValutaBelop(utbetaling.utbetalt) : null}
-        />
+        {utbetaling.korreksjon?.opprinneligUtbetaling && (
+          <MetadataHGrid
+            label={utbetalingTekster.korreksjon.gjelderUtbetaling}
+            value={
+              <Link
+                as={ReactRouterLink}
+                to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
+              >
+                Opprinnelig utbetaling
+              </Link>
+            }
+          />
+        )}
       </InfoCard.Content>
     </InfoCard>
   );
