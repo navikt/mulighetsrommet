@@ -10,14 +10,19 @@ import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
+import { FeatureToggle, GjennomforingDto } from "@tiltaksadministrasjon/api-client";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { gjennomforing } = useGjennomforing(gjennomforingId);
-  const [currentTab, tabs] = useTabs(gjennomforing);
+
+  const { data: enableTilskuddsbehandling } = useFeatureToggle(
+    FeatureToggle.TILTAKSADMINISTRASJON_VIS_TILSKUDDSBEHANDLING,
+  );
+  const [currentTab, tabs] = useTabs(gjennomforing, !!enableTilskuddsbehandling);
 
   const brodsmuler: (Brodsmule | undefined)[] = [
     {
@@ -114,13 +119,20 @@ function getCurrentTab(pathname: string): string {
   return tabKey || "detaljer";
 }
 
-function useTabs(gjennomforing: GjennomforingDto): [string, Tab[]] {
+function useTabs(
+  gjennomforing: GjennomforingDto,
+  enableTilskuddsbehandling: boolean,
+): [string, Tab[]] {
   const { pathname } = useLocation();
   const currentTab = getCurrentTab(pathname);
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
 
   const tabConfigs = isGruppetiltak(gjennomforing) ? GRUPPETILTAK_TABS : STANDARD_TABS;
-  const tabs: Tab[] = tabConfigs.map(({ key, label }) => ({
+  const filteredTabConfigs = enableTilskuddsbehandling
+    ? tabConfigs
+    : tabConfigs.filter((tab) => tab.key !== "tilskuddsbehandlinger");
+
+  const tabs: Tab[] = filteredTabConfigs.map(({ key, label }) => ({
     key,
     label,
     onClick: () => navigateAndReplaceUrl(createTabUrl(gjennomforing.id, key)),
