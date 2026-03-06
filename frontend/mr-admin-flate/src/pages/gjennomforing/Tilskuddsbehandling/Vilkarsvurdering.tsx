@@ -33,7 +33,6 @@ export function Vilkarsvurdering() {
             </HStack>
             <FormTextField
               label="Beløp til utbetaling"
-              size="small"
               name={`tilskudd.${index}.belopTilUtbetaling`}
             />
             <ControlledRadioGroup
@@ -47,11 +46,7 @@ export function Vilkarsvurdering() {
               <Radio value="no">Nei</Radio>
             </ControlledRadioGroup>
             <Box width="100%">
-              <FormTextarea
-                label="Begrunnelse"
-                size="small"
-                name={`tilskudd.${index}.begrunnelse`}
-              />
+              <FormTextarea label="Begrunnelse" name={`tilskudd.${index}.begrunnelse`} />
             </Box>
           </UthevetBox>
         ))}
@@ -67,7 +62,7 @@ export function Vilkarsvurdering() {
         <ControlledRadioGroup
           name="belopInnenforMaksgrense"
           legend="Er beløpet innenfor maksgrense for utdanningsår og utdanningsløp?"
-          description="Krever en forklaring her om det man må vudere osv"
+          description="Krever en forklaring her om det man må vurdere osv"
           size="small"
           horisontal
           rules={{ required: "Velg Ja eller Nei" }}
@@ -87,7 +82,7 @@ export function Vilkarsvurdering() {
           <Radio value="no">Nei</Radio>
         </ControlledRadioGroup>
         <Box width="100%">
-          <FormTextarea label="Begrunnelse" size="small" name="maksbelopBegrunnelse" />
+          <FormTextarea label="Begrunnelse" name="maksbelopBegrunnelse" />
         </Box>
       </VStack>
     </>

@@ -18,6 +18,7 @@ type FormTextFieldProps<TFieldValues extends FieldValues> = Omit<
 export function FormTextField<TFieldValues extends FieldValues>({
   name,
   rules,
+  size = "small",
   ...props
 }: FormTextFieldProps<TFieldValues>) {
   const { control } = useFormContext<TFieldValues>();
@@ -28,6 +29,7 @@ export function FormTextField<TFieldValues extends FieldValues>({
       <TextField
         {...props}
         {...field}
+        size={size}
         value={field.value ?? ""}
         error={fieldState.error?.message}
       />

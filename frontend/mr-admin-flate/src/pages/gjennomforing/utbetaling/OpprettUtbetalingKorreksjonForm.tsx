@@ -6,14 +6,14 @@ import {
 import { Button, HGrid, HStack } from "@navikt/ds-react";
 import { addDuration } from "@mr/frontend-common/utils/date";
 import { FormGroup } from "@/components/skjema/FormGroup";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { NumberInput } from "@/components/skjema/NumberInput";
-import { TextareaInput } from "@/components/skjema/TextareaInput";
 import { FormProvider } from "react-hook-form";
 import { useOpprettUtbetalingForm } from "@/pages/gjennomforing/utbetaling/useOpprettUtbetalingForm";
 import { useNavigate } from "react-router";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorBetalingsinformasjon } from "@/pages/gjennomforing/utbetaling/ArrangorBetalingsinformasjon";
+import { FormTextarea } from "@/components/skjema/FormTextarea";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -28,43 +28,30 @@ export function OpprettUtbetalingKorreksjonForm({ gjennomforing, prismodell }: P
     pris: { belop: null, valuta: prismodell.valuta },
   });
 
-  const {
-    formState: { errors },
-    clearErrors,
-    setValue,
-    getValues,
-  } = form;
-
   return (
     <FormProvider {...form}>
       <form onSubmit={onSubmit}>
         <TwoColumnGrid separator>
           <FormGroup>
             <HGrid columns={2}>
-              <ControlledDateInput
+              <FormDateInput
+                name="periodeStart"
                 label="Periodestart"
                 fromDate={new Date(gjennomforing.startDato)}
                 toDate={addDuration(new Date(), { years: 5 })}
-                onChange={(val) => setValue("periodeStart", val)}
-                defaultSelected={getValues("periodeStart")}
-                clearErrors={() => clearErrors("periodeStart")}
-                error={errors.periodeStart?.message}
               />
-              <ControlledDateInput
+              <FormDateInput
+                name="periodeSlutt"
                 label="Periodeslutt"
                 fromDate={new Date(gjennomforing.startDato)}
                 toDate={addDuration(new Date(), { years: 5 })}
-                onChange={(val) => setValue("periodeSlutt", val)}
-                defaultSelected={getValues("periodeSlutt")}
-                clearErrors={() => clearErrors("periodeSlutt")}
-                error={errors.periodeSlutt?.message}
               />
             </HGrid>
             <NumberInput<OpprettUtbetalingRequest>
               label={`Beløp (${prismodell.valuta})`}
               name="pris.belop"
             />
-            <TextareaInput<OpprettUtbetalingRequest>
+            <FormTextarea<OpprettUtbetalingRequest>
               label="Begrunnelse for utbetaling"
               name="beskrivelse"
             />

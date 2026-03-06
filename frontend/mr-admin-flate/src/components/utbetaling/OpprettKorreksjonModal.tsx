@@ -5,11 +5,10 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { ArrangorBetalingsinformasjon } from "@/pages/gjennomforing/utbetaling/ArrangorBetalingsinformasjon";
 import { NumberInput } from "@/components/skjema/NumberInput";
-import { TextareaInput } from "@/components/skjema/TextareaInput";
 import { FormProvider } from "react-hook-form";
 import { useOpprettUtbetalingForm } from "@/pages/gjennomforing/utbetaling/useOpprettUtbetalingForm";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-
+import { FormTextarea } from "@/components/skjema/FormTextarea";
 interface OpprettKorreksjonModalProps {
   utbetaling: UtbetalingDto;
   open: boolean;
@@ -38,7 +37,7 @@ export function OpprettKorreksjonModal({ utbetaling, open, close }: OpprettKorre
                   label={`Beløp (${prismodell.valuta})`}
                   name="pris.belop"
                 />
-                <TextareaInput<OpprettUtbetalingRequest>
+                <FormTextarea<OpprettUtbetalingRequest>
                   label="Begrunnelse for utbetaling"
                   name="beskrivelse"
                 />

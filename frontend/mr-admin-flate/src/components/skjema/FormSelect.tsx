@@ -18,12 +18,19 @@ type FormSelectProps<TFieldValues extends FieldValues> = Omit<
 export function FormSelect<TFieldValues extends FieldValues>({
   name,
   rules,
+  size = "small",
   ...props
 }: FormSelectProps<TFieldValues>) {
   const { control } = useFormContext<TFieldValues>();
   const { field, fieldState } = useController({ name, control, rules });
 
   return (
-    <Select {...props} {...field} value={field.value ?? ""} error={fieldState.error?.message} />
+    <Select
+      size={size}
+      {...props}
+      {...field}
+      value={field.value ?? ""}
+      error={fieldState.error?.message}
+    />
   );
 }

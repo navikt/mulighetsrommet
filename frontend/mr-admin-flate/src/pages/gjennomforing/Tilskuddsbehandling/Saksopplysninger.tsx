@@ -32,15 +32,12 @@ export function Saksopplysninger() {
       <VStack gap="space-20" align="start">
         <FormTextField
           label="JournalpostID"
-          size="small"
           name="journalpostId"
           rules={{ required: "JournalpostID er påkrevd" }}
         />
         <FormDateInput
           name="soknadstidspunkt"
           label="Søknadstidspunkt"
-          size="small"
-          fromDate={new Date("Aug 23 2019")}
           rules={{ required: "Søknadstidspunkt er påkrevd" }}
         />
         {fields.map((field, index) => (
@@ -48,7 +45,6 @@ export function Saksopplysninger() {
             <HStack gap="space-24" align="start">
               <FormSelect
                 label="Tilskuddstype"
-                size="small"
                 name={`tilskudd.${index}.tilskuddstype`}
                 rules={{ required: "Tilskuddstype er påkrevd" }}
               >
@@ -61,7 +57,6 @@ export function Saksopplysninger() {
               </FormSelect>
               <FormTextField
                 label="Beløp"
-                size="small"
                 name={`tilskudd.${index}.belop`}
                 rules={{ required: "Beløp er påkrevd" }}
               />
