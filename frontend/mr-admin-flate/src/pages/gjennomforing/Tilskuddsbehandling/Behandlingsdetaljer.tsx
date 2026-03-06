@@ -2,7 +2,7 @@ import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metada
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Box, Heading, HStack, VStack } from "@navikt/ds-react";
 
-export function Søknadsinfo({
+export function Behandlingsdetaljer({
   journalpostId,
   soknadstidspunkt,
   tilskudd = [],

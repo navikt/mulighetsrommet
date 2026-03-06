@@ -16,7 +16,7 @@ import { Vedtak } from "./Vedtak";
 import { Link, useNavigate } from "react-router";
 import type { BehandlingFormData } from "./schema";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { Søknadsinfo } from "./Søknadsinfo";
+import { Behandlingsdetaljer } from "./Behandlingsdetaljer";
 
 const tabs = [
   { key: "Saksopplysninger", label: "Saksopplysninger" },
@@ -127,7 +127,7 @@ export function BehandlingPage() {
                   <Heading size="medium" level="3" spacing>
                     Oppsummering
                   </Heading>
-                  <Søknadsinfo
+                  <Behandlingsdetaljer
                     journalpostId={methods.watch("journalpostId")}
                     soknadstidspunkt={methods.watch("soknadstidspunkt")}
                     tilskudd={methods.watch("tilskudd")}
