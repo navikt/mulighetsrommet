@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.util.UUID
 
-data class OpprettUtbetaling(
+data class ArrangorflateOpprettUtbetaling(
     val gjennomforingId: UUID,
     val periode: Periode,
     val kidNummer: Kid?,

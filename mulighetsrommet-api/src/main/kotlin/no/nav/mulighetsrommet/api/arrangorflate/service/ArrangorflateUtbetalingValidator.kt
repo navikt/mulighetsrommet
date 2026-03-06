@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
-import no.nav.mulighetsrommet.api.arrangorflate.model.OpprettUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.validation
@@ -60,7 +60,7 @@ object ArrangorflateUtbetalingValidator {
     fun validateOpprettKravArrangorflate(
         ctx: ValidateOpprettUtbetalingContext,
         request: OpprettKravUtbetalingRequest,
-    ): Either<List<FieldError>, OpprettUtbetaling> = validation {
+    ): Either<List<FieldError>, ArrangorflateOpprettUtbetaling> = validation {
         val start = try {
             LocalDate.parse(request.periodeStart)
         } catch (_: DateTimeParseException) {
@@ -116,7 +116,7 @@ object ArrangorflateUtbetalingValidator {
             )
         }
 
-        OpprettUtbetaling(
+        ArrangorflateOpprettUtbetaling(
             gjennomforingId = ctx.gjennomforingId,
             periode = Periode(LocalDate.parse(request.periodeStart), LocalDate.parse(request.periodeSlutt)),
             pris = request.belop.withValuta(ctx.valuta),

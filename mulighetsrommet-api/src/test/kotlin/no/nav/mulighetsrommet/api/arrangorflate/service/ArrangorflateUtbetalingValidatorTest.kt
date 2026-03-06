@@ -7,7 +7,7 @@ import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
-import no.nav.mulighetsrommet.api.arrangorflate.model.OpprettUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Vedlegg
@@ -44,7 +44,7 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
             ArrangorflateUtbetalingValidator.validateOpprettKravArrangorflate(
                 ctx,
                 request,
-            ) shouldBeRight OpprettUtbetaling(
+            ) shouldBeRight ArrangorflateOpprettUtbetaling(
                 gjennomforingId = ctx.gjennomforingId,
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 kidNummer = null,

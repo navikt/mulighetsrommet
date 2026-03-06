@@ -56,7 +56,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -114,17 +114,17 @@ class UtbetalingServiceTest : FunSpec({
     )
 
     context("opprett utbetaling - annen avtalt pris") {
-        val opprettAnnenAvtaltPrisUtbetaling = OpprettUtbetalingAnnenAvtaltPris(
+        val opprett = OpprettUtbetaling(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
-            korreksjonGjelderUtbetalingId = null,
             periodeStart = LocalDate.of(2025, 1, 1),
             periodeSlutt = LocalDate.of(2025, 1, 31),
             journalpostId = null,
-            korreksjonBegrunnelse = "Arrangør trenger penger",
+            korreksjonGjelderUtbetalingId = null,
+            korreksjonBegrunnelse = null,
             kid = null,
-            kommentar = null,
-            pris = 10.withValuta(Valuta.NOK),
+            beregning = UtbetalingBeregningFri.belop(10.withValuta(Valuta.NOK)),
+            kommentar = "Arrangør trenger penger",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             vedlegg = listOf(),
         )
@@ -146,7 +146,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             val utbetaling = service.opprettUtbetaling(
-                opprett = opprettAnnenAvtaltPrisUtbetaling,
+                opprett = opprett,
                 agent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
@@ -162,15 +162,15 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.opprettUtbetaling(
-                opprett = opprettAnnenAvtaltPrisUtbetaling.copy(
-                    pris = 5.withValuta(Valuta.NOK),
+                opprett = opprett.copy(
+                    beregning = UtbetalingBeregningFri.belop(5.withValuta(Valuta.NOK)),
                 ),
                 agent = Arrangor,
             ).shouldBeRight()
 
             service.opprettUtbetaling(
-                opprett = opprettAnnenAvtaltPrisUtbetaling.copy(
-                    pris = 10.withValuta(Valuta.NOK),
+                opprett = opprett.copy(
+                    beregning = UtbetalingBeregningFri.belop(10.withValuta(Valuta.NOK)),
                 ),
                 agent = Arrangor,
             ) shouldBeLeft listOf(
@@ -184,7 +184,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
 
             service.opprettUtbetaling(
-                opprett = opprettAnnenAvtaltPrisUtbetaling,
+                opprett = opprett,
                 agent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.INNSENDT
 
@@ -197,7 +197,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
 
             val utbetaling = service.opprettUtbetaling(
-                opprett = opprettAnnenAvtaltPrisUtbetaling,
+                opprett = opprett,
                 agent = Arrangor,
             ).shouldBeRight()
 

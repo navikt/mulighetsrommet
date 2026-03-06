@@ -12,7 +12,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Valuta
@@ -39,7 +40,7 @@ class UtbetalingValidatorTest : FunSpec({
                 korreksjonBegrunnelse = "Begrunnelse som kun gjelder for korreksjoner",
             )
 
-            UtbetalingValidator.validateOpprettUtbetalingRequest(request) shouldBeRight OpprettUtbetalingAnnenAvtaltPris(
+            UtbetalingValidator.validateOpprettUtbetalingRequest(request) shouldBeRight OpprettUtbetaling(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
                 periodeStart = periodeStart,
@@ -48,8 +49,8 @@ class UtbetalingValidatorTest : FunSpec({
                 kommentar = null,
                 korreksjonGjelderUtbetalingId = null,
                 korreksjonBegrunnelse = null,
+                beregning = UtbetalingBeregningFri.belop(ValutaBelop(150, Valuta.NOK)),
                 kid = null,
-                pris = ValutaBelop(150, Valuta.NOK),
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                 vedlegg = listOf(),
             )
@@ -68,7 +69,7 @@ class UtbetalingValidatorTest : FunSpec({
                 korreksjonBegrunnelse = "Begrunnelse som kun gjelder for korreksjoner",
             )
 
-            UtbetalingValidator.validateOpprettUtbetalingRequest(request) shouldBeRight OpprettUtbetalingAnnenAvtaltPris(
+            UtbetalingValidator.validateOpprettUtbetalingRequest(request) shouldBeRight OpprettUtbetaling(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
                 periodeStart = periodeStart,
@@ -77,8 +78,8 @@ class UtbetalingValidatorTest : FunSpec({
                 kommentar = "En lang kommentar",
                 korreksjonGjelderUtbetalingId = request.korrigererUtbetaling,
                 korreksjonBegrunnelse = "Begrunnelse som kun gjelder for korreksjoner",
+                beregning = UtbetalingBeregningFri.belop(ValutaBelop(150, Valuta.NOK)),
                 kid = null,
-                pris = ValutaBelop(150, Valuta.NOK),
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                 vedlegg = listOf(),
             )

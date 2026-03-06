@@ -37,7 +37,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
@@ -109,7 +109,7 @@ class UtbetalingService(
     }
 
     suspend fun opprettUtbetaling(
-        opprett: OpprettUtbetalingAnnenAvtaltPris,
+        opprett: OpprettUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(opprett.gjennomforingId)
@@ -152,10 +152,8 @@ class UtbetalingService(
             gjennomforingId = opprett.gjennomforingId,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = betalingsinformasjon,
-            valuta = opprett.pris.valuta,
-            beregning = UtbetalingBeregningFri.beregn(
-                input = UtbetalingBeregningFri.Input(opprett.pris),
-            ),
+            valuta = opprett.beregning.output.pris.valuta,
+            beregning = opprett.beregning,
             periode = periode,
             innsender = agent,
             kommentar = opprett.kommentar,

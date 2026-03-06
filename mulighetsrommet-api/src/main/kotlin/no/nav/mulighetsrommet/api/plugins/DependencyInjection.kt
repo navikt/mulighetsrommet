@@ -470,17 +470,7 @@ private fun services(appConfig: AppConfig) = module {
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get()) }
     single { ArrangorflateService(get(), get(), get()) }
-    single {
-        ArrangorflateUtbetalingService(
-            // TODO: Refaktorer "Opprett utbetaling" slik at vi ikke trenger å duplisere logikk for utledning av "tidligstTidspunktForUtbetaling"
-            config = ArrangorflateUtbetalingService.Config(
-                tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
-            ),
-            get(),
-            get(),
-            get(),
-        )
-    }
+    single { ArrangorflateUtbetalingService(get(), get()) }
     single {
         ClamAvClient(
             baseUrl = appConfig.clamav.url,
