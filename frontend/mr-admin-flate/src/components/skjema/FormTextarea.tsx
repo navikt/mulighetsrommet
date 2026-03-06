@@ -18,12 +18,19 @@ type FormTextareaProps<TFieldValues extends FieldValues> = Omit<
 export function FormTextarea<TFieldValues extends FieldValues>({
   name,
   rules,
+  size = "small",
   ...props
 }: FormTextareaProps<TFieldValues>) {
   const { control } = useFormContext<TFieldValues>();
   const { field, fieldState } = useController({ name, control, rules });
 
   return (
-    <Textarea {...props} {...field} value={field.value ?? ""} error={fieldState.error?.message} />
+    <Textarea
+      size={size}
+      {...props}
+      {...field}
+      value={field.value ?? ""}
+      error={fieldState.error?.message}
+    />
   );
 }

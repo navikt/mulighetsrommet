@@ -9,7 +9,7 @@ interface FormDateInputProps extends Omit<
   rules?: RegisterOptions;
 }
 
-export function FormDateInput({ name, rules, ...props }: FormDateInputProps) {
+export function FormDateInput({ name, rules, size = "small", ...props }: FormDateInputProps) {
   const { control } = useFormContext();
 
   return (
@@ -20,6 +20,7 @@ export function FormDateInput({ name, rules, ...props }: FormDateInputProps) {
       render={({ field, fieldState: { error } }) => (
         <ControlledDateInput
           {...props}
+          size={size}
           error={error?.message}
           onChange={(dateString) => {
             field.onChange(dateString ? new Date(dateString) : undefined);

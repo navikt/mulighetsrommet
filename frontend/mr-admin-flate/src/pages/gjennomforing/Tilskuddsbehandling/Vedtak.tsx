@@ -64,7 +64,6 @@ export function Vedtak() {
         <Box width="100%">
           <FormTextarea
             label="Kommentarer til deltaker (vil vises i vedtaksbrev)"
-            size="small"
             name="kommentarerTilDeltaker"
           />
         </Box>
