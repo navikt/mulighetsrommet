@@ -108,7 +108,6 @@ object ArrangorflateTestUtils {
         return UtbetalingDbo(
             id = UUID.randomUUID(),
             gjennomforingId = GjennomforingFixtures.AFT1.id,
-            korreksjonGjelderUtbetalingId = null,
             status = UtbetalingStatusType.GENERERT,
             valuta = Valuta.NOK,
             beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
@@ -148,6 +147,8 @@ object ArrangorflateTestUtils {
             betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("12312312312"), null),
             periode = periode,
             innsender = null,
+            kommentar = null,
+            korreksjonGjelderUtbetalingId = null,
             korreksjonBegrunnelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             journalpostId = null,
@@ -160,7 +161,6 @@ object ArrangorflateTestUtils {
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        korreksjonGjelderUtbetalingId = null,
         status = UtbetalingStatusType.GENERERT,
         valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFri(
@@ -170,7 +170,9 @@ object ArrangorflateTestUtils {
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("12312312312"), null),
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
         innsender = null,
-        korreksjonBegrunnelse = "Test utbetaling",
+        kommentar = null,
+        korreksjonGjelderUtbetalingId = null,
+        korreksjonBegrunnelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         journalpostId = null,
         godkjentAvArrangorTidspunkt = null,

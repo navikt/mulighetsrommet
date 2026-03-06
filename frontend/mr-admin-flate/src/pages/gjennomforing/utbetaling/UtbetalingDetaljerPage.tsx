@@ -16,10 +16,11 @@ import {
   HGrid,
   HStack,
   InfoCard,
+  Link,
   List,
   VStack,
 } from "@navikt/ds-react";
-
+import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import UtbetalingBeregningView from "@/components/utbetaling/beregning/UtbetalingBeregningView";
@@ -95,17 +96,6 @@ export function UtbetalingDetaljerPage() {
               label={utbetalingTekster.metadata.utbetalesTidligstDato}
               value={formaterDato(utbetaling.utbetalesTidligstDato)}
             />
-            {utbetaling.type.tagName && (
-              <MetadataHGrid
-                label={utbetalingTekster.metadata.type}
-                value={
-                  <HStack gap="space-4">
-                    {utbetaling.type.displayName}
-                    <UtbetalingTypeTag type={utbetaling.type.displayName} />
-                  </HStack>
-                }
-              />
-            )}
             <MetadataHGrid
               label={utbetalingTekster.metadata.innsendtDato}
               value={formaterDato(utbetaling.innsendtAvArrangorDato)}
@@ -118,10 +108,34 @@ export function UtbetalingDetaljerPage() {
               label={utbetalingTekster.beregning.belop.label}
               value={formaterValutaBelop(utbetaling.pris)}
             />
-            {utbetaling.beskrivelse && (
+            {utbetaling.type.tagName && (
+              <MetadataHGrid
+                label={utbetalingTekster.metadata.type}
+                value={
+                  <HStack gap="space-4">
+                    {utbetaling.type.displayName}
+                    <UtbetalingTypeTag type={utbetaling.type.displayName} />
+                  </HStack>
+                }
+              />
+            )}
+            {utbetaling.korreksjon?.opprinneligUtbetaling && (
+              <MetadataHGrid
+                label={utbetalingTekster.korreksjon.gjelderUtbetaling}
+                value={
+                  <Link
+                    as={ReactRouterLink}
+                    to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
+                  >
+                    Opprinnelig utbetaling
+                  </Link>
+                }
+              />
+            )}
+            {utbetaling.korreksjon && (
               <MetadataFritekstfelt
-                label={utbetalingTekster.metadata.beskrivelse}
-                value={utbetaling.beskrivelse}
+                label={utbetalingTekster.korreksjon.begrunnelse}
+                value={utbetaling.korreksjon.begrunnelse}
               />
             )}
             {utbetaling.begrunnelseMindreBetalt && (

@@ -171,7 +171,6 @@ class UtbetalingService(
         val dbo = UtbetalingDbo(
             id = UUID.randomUUID(),
             gjennomforingId = utbetalingKrav.gjennomforingId,
-            korreksjonGjelderUtbetalingId = null,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = Betalingsinformasjon.BBan(utbetalingKrav.kontonummer, utbetalingKrav.kidNummer),
             valuta = gjennomforing.prismodell.valuta,
@@ -185,6 +184,8 @@ class UtbetalingService(
             ),
             periode = periode,
             innsender = agent,
+            kommentar = null,
+            korreksjonGjelderUtbetalingId = null,
             korreksjonBegrunnelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             journalpostId = null,
@@ -222,7 +223,7 @@ class UtbetalingService(
             periode,
         )
 
-        val korrigererUtbetaling = opprett.korrigererUtbetaling?.also {
+        val korreksjonGjelderUtbetalingId = opprett.korreksjonGjelderUtbetalingId?.also {
             val utbetaling = queries.utbetaling.get(it)
                 ?: return FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
 
@@ -250,7 +251,6 @@ class UtbetalingService(
         val dbo = UtbetalingDbo(
             id = opprett.id,
             gjennomforingId = opprett.gjennomforingId,
-            korreksjonGjelderUtbetalingId = korrigererUtbetaling,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = betalingsinformasjon,
             valuta = opprett.pris.valuta,
@@ -259,7 +259,9 @@ class UtbetalingService(
             ),
             periode = periode,
             innsender = agent,
-            korreksjonBegrunnelse = opprett.beskrivelse,
+            kommentar = opprett.kommentar,
+            korreksjonGjelderUtbetalingId = korreksjonGjelderUtbetalingId,
+            korreksjonBegrunnelse = opprett.korreksjonBegrunnelse,
             tilskuddstype = opprett.tilskuddstype,
             journalpostId = opprett.journalpostId,
             godkjentAvArrangorTidspunkt = if (agent is Arrangor) {

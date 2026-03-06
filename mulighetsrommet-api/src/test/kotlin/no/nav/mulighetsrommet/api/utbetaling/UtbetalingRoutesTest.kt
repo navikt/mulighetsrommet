@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -90,33 +91,6 @@ class UtbetalingRoutesTest : FunSpec({
     )
 
     context("opprett utbetaling") {
-        test("Skal returnere 400 Bad Request når det er valideringsfeil") {
-            withTestApplication(appConfig()) {
-                val id = UUID.randomUUID()
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
-
-                val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
-                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        OpprettUtbetalingRequest(
-                            id = id,
-                            gjennomforingId = AFT1.id,
-                            periodeStart = LocalDate.now(),
-                            periodeSlutt = LocalDate.now().plusDays(1),
-                            beskrivelse = "Kort besk..",
-                            kidNummer = null,
-                            pris = ValutaBelopRequest(0, Valuta.NOK),
-                        ),
-                    )
-                }
-                response.status shouldBe HttpStatusCode.BadRequest
-                response.body<ValidationError>().errors shouldBe listOf(
-                    FieldError("/pris/belop", "Beløp må være positivt"),
-                )
-            }
-        }
-
         test("403 Forbidden uten saksbehandler-tilgang") {
             withTestApplication(appConfig()) {
                 val id = UUID.randomUUID()
@@ -131,14 +105,36 @@ class UtbetalingRoutesTest : FunSpec({
                             gjennomforingId = AFT1.id,
                             periodeStart = LocalDate.now(),
                             periodeSlutt = LocalDate.now().plusDays(1),
-                            beskrivelse = "Bla bla bla bla bla",
-                            kidNummer = null,
                             pris = ValutaBelopRequest(150, Valuta.NOK),
                         ),
                     )
                 }
+
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.SAKSBEHANDLER_OKONOMI)
+            }
+        }
+
+        test("validerer påkrevde felter") {
+            withTestApplication(appConfig()) {
+                val id = UUID.randomUUID()
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+
+                val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        OpprettUtbetalingRequest(id = id, gjennomforingId = AFT1.id),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                response.body<ValidationError>().errors shouldContainExactlyInAnyOrder listOf(
+                    FieldError("/periodeStart", "Periodestart må være satt"),
+                    FieldError("/periodeSlutt", "Periodeslutt må være satt"),
+                    FieldError("/pris/belop", "Beløp må være positivt"),
+                    FieldError("/journalpostId", "Journalpost-ID er på ugyldig format"),
+                )
             }
         }
 
@@ -156,12 +152,12 @@ class UtbetalingRoutesTest : FunSpec({
                             gjennomforingId = AFT1.id,
                             periodeStart = LocalDate.now(),
                             periodeSlutt = LocalDate.now().plusDays(1),
-                            beskrivelse = "Bla bla bla bla bla",
-                            kidNummer = null,
                             pris = ValutaBelopRequest(150, Valuta.NOK),
+                            journalpostId = "123",
                         ),
                     )
                 }
+
                 response.status shouldBe HttpStatusCode.Created
             }
         }

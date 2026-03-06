@@ -23,6 +23,7 @@ data class UtbetalingDbo(
     val beregning: UtbetalingBeregning,
     val betalingsinformasjon: Betalingsinformasjon?,
     val periode: Periode,
+    val kommentar: String?,
     val korreksjonGjelderUtbetalingId: UUID?,
     val korreksjonBegrunnelse: String?,
     val tilskuddstype: Tilskuddstype,

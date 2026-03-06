@@ -40,7 +40,7 @@ export function OpprettKorreksjonModal({ utbetaling, open, close }: OpprettKorre
                 />
                 <TextareaInput<OpprettUtbetalingRequest>
                   label="Begrunnelse for utbetaling"
-                  name="beskrivelse"
+                  name="korreksjonBegrunnelse"
                 />
               </FormGroup>
               <FormGroup>
