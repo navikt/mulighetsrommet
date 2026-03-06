@@ -6,6 +6,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.arenaadapter.arenaAdapterRoutes
+import no.nav.mulighetsrommet.api.arrangor.arrangorPublicRoutes
 import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
 import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorFeatureToggleRoutes
 import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorflateRoutes
@@ -34,6 +35,7 @@ import no.nav.mulighetsrommet.api.veilederflate.routes.delMedBrukerRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.regionRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.veilederRoutes
 import no.nav.mulighetsrommet.featuretoggle.api.featureTogglesRoute
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.notifications.notificationRoutes
 import no.nav.mulighetsrommet.oppgaver.oppgaverRoutes
 import no.nav.mulighetsrommet.utdanning.utdanningRoutes
@@ -63,6 +65,7 @@ fun Route.apiRoutes(config: AppConfig) {
 
         authenticate(AuthProvider.NAIS_APP_GJENNOMFORING_ACCESS) {
             gjennomforingPublicRoutes()
+            arrangorPublicRoutes()
         }
     }
 
