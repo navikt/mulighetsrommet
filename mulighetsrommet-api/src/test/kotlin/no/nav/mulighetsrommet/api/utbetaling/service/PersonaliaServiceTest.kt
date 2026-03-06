@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling
+package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
