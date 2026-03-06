@@ -294,8 +294,15 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                         return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
                     }
 
+                    val ctx = ArrangorflateUtbetalingValidator.ValidateOpprettUtbetalingContext(
+                        gjennomforingId = tiltak.id,
+                        tiltakskode = tiltak.tiltakstype.tiltakskode,
+                        prismodell = tiltak.prismodell.type,
+                        valuta = tiltak.prismodell.valuta,
+                        gyldigTilsagnPeriode = okonomiConfig.gyldigTilsagnPeriode,
+                    )
                     ArrangorflateUtbetalingValidator
-                        .validateOpprettKravArrangorflate(request, tiltak, okonomiConfig)
+                        .validateOpprettKravArrangorflate(ctx, request)
                         .flatMap { arrangorflateUtbetalingService.opprettUtbetaling(it) }
                         .onLeft { errors ->
                             call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
@@ -478,8 +485,8 @@ sealed class DatoVelger {
                 -> {
                     return DatoRange(
                         ArrangorflateUtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
-                            tiltak,
-                            okonomiConfig,
+                            prismodell = tiltak.prismodell.type,
+                            periode = okonomiConfig.gyldigTilsagnPeriode[tiltak.tiltakstype.tiltakskode],
                         ),
                     )
                 }

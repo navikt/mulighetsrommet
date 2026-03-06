@@ -1,17 +1,19 @@
 package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import arrow.core.Either
-import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
 import no.nav.mulighetsrommet.api.arrangorflate.model.OpprettUtbetaling
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
+import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
@@ -19,21 +21,18 @@ object ArrangorflateUtbetalingValidator {
     const val MIN_ANTALL_VEDLEGG_OPPRETT_KRAV = 1
 
     fun maksUtbetalingsPeriodeSluttDato(
-        gjennomforing: ArrangorflateTiltak,
-        okonomiConfig: OkonomiConfig,
-        relativeDate: LocalDate = LocalDate.now(),
+        prismodell: PrismodellType,
+        periode: Periode?,
+        today: LocalDate = LocalDate.now(),
     ): LocalDate {
-        val opprettKravPeriodeSluttDato =
-            okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.slutt
-                ?: invalidGjennomforingOpprettKrav(gjennomforing)
+        val opprettKravPeriodeSluttDato = periode?.slutt ?: invalidGjennomforingOpprettKrav(prismodell)
 
-        return when (gjennomforing.prismodell.type) {
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> minOf(relativeDate, opprettKravPeriodeSluttDato)
+        return when (prismodell) {
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            -> minOf(today, opprettKravPeriodeSluttDato)
 
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> minOf(
-                relativeDate.withDayOfMonth(1),
-                opprettKravPeriodeSluttDato,
-            )
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+            -> minOf(today.withDayOfMonth(1), opprettKravPeriodeSluttDato)
 
             PrismodellType.ANNEN_AVTALT_PRIS,
             -> opprettKravPeriodeSluttDato
@@ -41,19 +40,26 @@ object ArrangorflateUtbetalingValidator {
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-            -> invalidGjennomforingOpprettKrav(gjennomforing)
+            -> invalidGjennomforingOpprettKrav(prismodell)
         }
     }
 
     @Throws(IllegalArgumentException::class)
-    private fun invalidGjennomforingOpprettKrav(gjennomforing: ArrangorflateTiltak): Nothing {
-        throw IllegalArgumentException("Kan ikke opprette utbetalingskrav for ${gjennomforing.tiltakstype.navn} med prismodell ${gjennomforing.prismodell.type.navn}")
+    private fun invalidGjennomforingOpprettKrav(prismodell: PrismodellType): Nothing {
+        throw IllegalArgumentException("Kan ikke opprette utbetalingskrav for $prismodell")
     }
 
+    data class ValidateOpprettUtbetalingContext(
+        val gjennomforingId: UUID,
+        val tiltakskode: Tiltakskode,
+        val prismodell: PrismodellType,
+        val valuta: Valuta,
+        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+    )
+
     fun validateOpprettKravArrangorflate(
+        ctx: ValidateOpprettUtbetalingContext,
         request: OpprettKravUtbetalingRequest,
-        gjennomforing: ArrangorflateTiltak,
-        okonomiConfig: OkonomiConfig,
     ): Either<List<FieldError>, OpprettUtbetaling> = validation {
         val start = try {
             LocalDate.parse(request.periodeStart)
@@ -86,7 +92,11 @@ object ArrangorflateUtbetalingValidator {
             )
         }
 
-        validate(!slutt.isAfter(maksUtbetalingsPeriodeSluttDato(gjennomforing, okonomiConfig))) {
+        val maksSluttdato = maksUtbetalingsPeriodeSluttDato(
+            prismodell = ctx.prismodell,
+            periode = ctx.gyldigTilsagnPeriode[ctx.tiltakskode],
+        )
+        validate(!slutt.isAfter(maksSluttdato)) {
             FieldError.of(
                 "Du kan ikke sende inn for valgt periode før perioden er passert",
                 OpprettKravUtbetalingRequest::periodeSlutt,
@@ -107,10 +117,9 @@ object ArrangorflateUtbetalingValidator {
         }
 
         OpprettUtbetaling(
-            gjennomforingId = gjennomforing.id,
-            periodeStart = LocalDate.parse(request.periodeStart),
-            periodeSlutt = LocalDate.parse(request.periodeSlutt),
-            pris = request.belop.withValuta(gjennomforing.prismodell.valuta),
+            gjennomforingId = ctx.gjennomforingId,
+            periode = Periode(LocalDate.parse(request.periodeStart), LocalDate.parse(request.periodeSlutt)),
+            pris = request.belop.withValuta(ctx.valuta),
             kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             vedlegg = request.vedlegg,
         )

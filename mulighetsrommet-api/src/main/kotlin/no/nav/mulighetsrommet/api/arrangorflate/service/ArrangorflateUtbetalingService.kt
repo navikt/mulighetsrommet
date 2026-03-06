@@ -86,8 +86,7 @@ class ArrangorflateUtbetalingService(
         opprett: OpprettUtbetaling,
         gjennomforing: GjennomforingAvtale,
     ): UtbetalingBeregningPrisPerTimeOppfolging {
-        val periode = Periode(opprett.periodeStart, opprett.periodeSlutt)
-        val (satser, stengt, _, deltakelsePerioder) = getAvtaltPrisPerTimeOppfolgingData(gjennomforing, periode)
+        val (satser, stengt, _, deltakelsePerioder) = getAvtaltPrisPerTimeOppfolgingData(gjennomforing, opprett.periode)
         return UtbetalingBeregningPrisPerTimeOppfolging.beregn(
             input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
                 satser = satser,
@@ -115,10 +114,9 @@ class ArrangorflateUtbetalingService(
         beregning: UtbetalingBeregning,
         tilskuddstype: Tilskuddstype,
     ): Either<List<FieldError>, Utbetaling> {
-        val periode = Periode(opprett.periodeStart, opprett.periodeSlutt)
         val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
             gjennomforing.tiltakstype.tiltakskode,
-            periode,
+            opprett.periode,
         )
 
         val betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, opprett.kidNummer)
@@ -131,7 +129,7 @@ class ArrangorflateUtbetalingService(
             betalingsinformasjon = betalingsinformasjon,
             valuta = gjennomforing.prismodell.valuta,
             beregning = beregning,
-            periode = periode,
+            periode = opprett.periode,
             innsender = Arrangor,
             kommentar = null,
             korreksjonGjelderUtbetalingId = null,
