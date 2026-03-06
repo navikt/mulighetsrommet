@@ -16,6 +16,10 @@ export const utbetalingTekster = {
     begrunnelseMindreBetalt: "Begrunnelse for mindre utbetalt",
     avbruttBegrunnelse: "Avbrutt av arrangør begrunnelse",
   },
+  korreksjon: {
+    gjelderUtbetaling: "Korrigerer",
+    begrunnelse: "Begrunnelse for korreksjon",
+  },
   periode: {
     label: "Periode",
     start: {

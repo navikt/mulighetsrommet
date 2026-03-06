@@ -6301,10 +6301,10 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Betalingsinformasjon"
-        beskrivelse:
-          type:
-          - "null"
-          - string
+        korreksjon:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtbetalingDto.Korreksjon"
         begrunnelseMindreBetalt:
           type:
           - "null"
@@ -6328,13 +6328,13 @@ components:
       required:
       - avbruttBegrunnelse
       - begrunnelseMindreBetalt
-      - beskrivelse
       - betalingsinformasjon
       - gjennomforingId
       - id
       - innsendtAv
       - innsendtAvArrangorDato
       - journalpostId
+      - korreksjon
       - periode
       - pris
       - status
@@ -6378,6 +6378,19 @@ components:
       - bankNavn
       - bic
       - iban
+    UtbetalingDto.Korreksjon:
+      type: object
+      properties:
+        opprinneligUtbetaling:
+          type:
+          - "null"
+          - string
+          format: uuid
+        begrunnelse:
+          type: string
+      required:
+      - begrunnelse
+      - opprinneligUtbetaling
     Tilskuddstype:
       type: string
       enum:
