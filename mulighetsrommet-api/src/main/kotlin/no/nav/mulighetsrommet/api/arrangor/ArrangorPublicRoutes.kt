@@ -28,11 +28,11 @@ private fun Route.enhetRoutes() {
         }
         response {
             code(HttpStatusCode.OK) {
-                description = "Gjennomføringen"
+                description = "Liste av hovedenheter"
                 body<List<BrregHovedenhet>>()
             }
             code(HttpStatusCode.NotFound) {
-                description = "Gjennomføringen ble ikke funnet"
+                description = "Hovedenheter ble ikke funnet"
             }
         }
     }) {
@@ -50,11 +50,11 @@ private fun Route.enhetRoutes() {
         }
         response {
             code(HttpStatusCode.OK) {
-                description = "Gjennomføringen"
+                description = "Liste av underenheter"
                 body<List<BrregUnderenhet>>()
             }
             code(HttpStatusCode.NotFound) {
-                description = "Gjennomføringen ble ikke funnet"
+                description = "Underenheter ble ikke funnet"
             }
         }
     }) {
