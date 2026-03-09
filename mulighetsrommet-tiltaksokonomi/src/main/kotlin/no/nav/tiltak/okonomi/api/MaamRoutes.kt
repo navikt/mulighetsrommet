@@ -67,7 +67,7 @@ fun Routing.maamRoutes(
 data class ScheduledTaskDto(
     val taskName: String,
     val taskInstance: String,
-    val taskData: String,
+    val taskData: String?,
     val executionTime: String,
     val picked: Boolean,
     val pickedBy: String?,
@@ -83,7 +83,7 @@ fun ScheduledTaskDbo.toDto(): ScheduledTaskDto {
     return ScheduledTaskDto(
         taskName = taskName,
         taskInstance = taskInstance,
-        taskData = taskData.decodeToString(),
+        taskData = taskData?.decodeToString(),
         executionTime = executionTime.toString(),
         picked = picked,
         pickedBy = pickedBy,
