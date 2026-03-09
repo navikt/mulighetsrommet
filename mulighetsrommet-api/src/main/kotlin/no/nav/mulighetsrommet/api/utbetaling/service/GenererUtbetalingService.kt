@@ -358,6 +358,7 @@ class GenererUtbetalingService(
                 join prismodell on prismodell.id = gjennomforing.prismodell_id
             where gjennomforing.status != 'AVLYST'
                 and prismodell.prismodell_type = :prismodell::prismodell_type
+                and (gjennomforing.slutt_dato is null or gjennomforing.start_dato <= gjennomforing.slutt_dato)
                 and daterange(gjennomforing.start_dato, gjennomforing.slutt_dato, '[]') && :periode::daterange
                 $notExistsClause
         """.trimIndent()
