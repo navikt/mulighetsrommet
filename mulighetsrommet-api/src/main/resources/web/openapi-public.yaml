@@ -129,6 +129,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/v1/arrangor/hovedenhet/{orgnr}/underenheter:
     get:
@@ -153,15 +160,22 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/BrregUnderenhetDto"
-        "404":
+        "400":
           description: Fant ikke bedrift med gitt orgnr i Brreg
           headers: {}
-        "400":
+        "410":
           description: Fjernet av juridiske årsaker fra Brreg
           headers: {}
         "500":
           description: Feil oppstod ved henting av underenheter fra Brreg
           headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
 components:
   schemas:

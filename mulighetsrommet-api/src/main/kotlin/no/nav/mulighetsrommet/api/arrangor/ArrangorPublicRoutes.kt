@@ -45,10 +45,15 @@ private fun Route.enhetRoutes() {
                 description = "Internal server error ved kall mot Brreg"
                 body<ProblemDetail>()
             }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
         }
     }) {
         val term: String by call.parameters
         val result = arrangorService.brregSok(term)
+            .mapLeft { it.toProblemDetail() }
         call.respondWithStatusResponse(result)
     }
 
@@ -63,19 +68,24 @@ private fun Route.enhetRoutes() {
                 description = "Liste av underenheter"
                 body<List<BrregUnderenhetDto>>()
             }
-            code(HttpStatusCode.NotFound) {
+            code(HttpStatusCode.BadRequest) {
                 description = "Fant ikke bedrift med gitt orgnr i Brreg"
             }
-            code(HttpStatusCode.BadRequest) {
+            code(HttpStatusCode.Gone) {
                 description = "Fjernet av juridiske årsaker fra Brreg"
             }
             code(HttpStatusCode.InternalServerError) {
                 description = "Feil oppstod ved henting av underenheter fra Brreg"
             }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
         }
     }) {
         val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
         val result = arrangorService.brregUnderenheter(orgnr)
+            .mapLeft { it.toProblemDetail(orgnr) }
         call.respondWithStatusResponse(result)
     }
 }

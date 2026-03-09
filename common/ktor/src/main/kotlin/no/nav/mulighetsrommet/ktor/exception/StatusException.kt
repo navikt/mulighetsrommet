@@ -76,6 +76,16 @@ data class NotFound(
     override val instance = null
 }
 
+data class Gone(
+    override val detail: String,
+    override val extensions: Map<String, Any?>? = null,
+) : ProblemDetail() {
+    override val type = "gone"
+    override val title = HttpStatusCode.Gone.description
+    override val status: Int = HttpStatusCode.Gone.value
+    override val instance = null
+}
+
 data class Forbidden(
     override val detail: String,
     override val extensions: Map<String, Any?>? = null,
