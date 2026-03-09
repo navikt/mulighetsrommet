@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
 fun Route.arrangorPublicRoutes() {
@@ -34,6 +35,15 @@ private fun Route.enhetRoutes() {
             }
             code(HttpStatusCode.NotFound) {
                 description = "Hovedenheter ble ikke funnet"
+                body<ProblemDetail>()
+            }
+            code(HttpStatusCode.BadRequest) {
+                description = "Søket er blankt, eller bedriften er fjernet av juridiske årsaker fra Brreg"
+                body<ProblemDetail>()
+            }
+            code(HttpStatusCode.InternalServerError) {
+                description = "Internal server error ved kall mot Brreg"
+                body<ProblemDetail>()
             }
         }
     }) {
@@ -54,7 +64,13 @@ private fun Route.enhetRoutes() {
                 body<List<BrregUnderenhetDto>>()
             }
             code(HttpStatusCode.NotFound) {
-                description = "Underenheter ble ikke funnet"
+                description = "Fant ikke bedrift med gitt orgnr i Brreg"
+            }
+            code(HttpStatusCode.BadRequest) {
+                description = "Fjernet av juridiske årsaker fra Brreg"
+            }
+            code(HttpStatusCode.InternalServerError) {
+                description = "Feil oppstod ved henting av underenheter fra Brreg"
             }
         }
     }) {

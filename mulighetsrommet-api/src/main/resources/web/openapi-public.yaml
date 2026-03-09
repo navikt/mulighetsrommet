@@ -110,6 +110,25 @@ paths:
         "404":
           description: Hovedenheter ble ikke funnet
           headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "400":
+          description: "Søket er blankt, eller bedriften er fjernet av juridiske å\
+            rsaker fra Brreg"
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Internal server error ved kall mot Brreg
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/v1/arrangor/hovedenhet/{orgnr}/underenheter:
     get:
@@ -135,7 +154,13 @@ paths:
                 items:
                   $ref: "#/components/schemas/BrregUnderenhetDto"
         "404":
-          description: Underenheter ble ikke funnet
+          description: Fant ikke bedrift med gitt orgnr i Brreg
+          headers: {}
+        "400":
+          description: Fjernet av juridiske årsaker fra Brreg
+          headers: {}
+        "500":
+          description: Feil oppstod ved henting av underenheter fra Brreg
           headers: {}
       deprecated: false
 components:
@@ -360,6 +385,25 @@ components:
       - landkode
       - postnummer
       - poststed
+    ProblemDetail:
+      type: object
+      additionalProperties: {}
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+      - detail
+      - status
+      - title
+      - type
     BrregUnderenhetDto:
       type: object
       properties:
