@@ -28,11 +28,17 @@ class ArrangorPublicRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val oauth = MockOAuth2Server()
+    val utenlandskArrangor =
+        ArrangorFixtures.Utenlandsk.hovedenhet
 
     val domain = MulighetsrommetTestDomain(
         navEnheter = listOf(NavEnhetFixtures.Innlandet),
         ansatte = listOf(NavAnsattFixture.DonaldDuck),
-        arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+        arrangorer = listOf(
+            ArrangorFixtures.hovedenhet,
+            ArrangorFixtures.underenhet1,
+            utenlandskArrangor,
+        ),
         avtaler = emptyList(),
         gjennomforinger = emptyList(),
     )
@@ -41,6 +47,14 @@ class ArrangorPublicRoutesTest : FunSpec({
         oauth.start()
 
         domain.initialize(database.db)
+    }
+
+    beforeEach {
+        domain.initialize(database.db)
+    }
+
+    afterEach {
+        database.truncateAll()
     }
 
     afterSpec {
@@ -57,7 +71,7 @@ class ArrangorPublicRoutesTest : FunSpec({
 
             test("401 når påkrevde claims mangler fra token") {
                 withTestApplication(appConfig()) {
-                    val term = "Tiger"
+                    val term = "Bedrift"
                     val response = client.get(sokUrl(term)) {
                         bearerAuth(
                             oauth.issueToken(claims = withApplicationRoles()).serialize(),
@@ -77,7 +91,7 @@ class ArrangorPublicRoutesTest : FunSpec({
                     },
                 )
                 withTestApplication(localAppConfig) {
-                    val term = "Tiger"
+                    val term = "Bedrift"
                     val response = client.get(sokUrl(term)) {
                         bearerAuth(
                             oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
@@ -100,7 +114,7 @@ class ArrangorPublicRoutesTest : FunSpec({
                     },
                 )
                 withTestApplication(localAppConfig) {
-                    val term = "Tiger"
+                    val term = "Bedrift"
                     val response = client.get(sokUrl(term)) {
                         bearerAuth(
                             oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
@@ -111,6 +125,29 @@ class ArrangorPublicRoutesTest : FunSpec({
 
                     val responseBody = response.body<List<BrregHovedenhetDto>>()
                     responseBody.size shouldBe 0
+                }
+            }
+
+            test("200 inkluder utenlandske arrangører i søket") {
+                val localAppConfig = appConfig().copy(
+                    engine = createMockEngine {
+                        get("https://data.brreg.no/enhetsregisteret/api/enheter") {
+                            respondJson(BrregFixtures.SOK_ENHET)
+                        }
+                    },
+                )
+                withTestApplication(localAppConfig) {
+                    val term = "001"
+                    val response = client.get(sokUrl(term)) {
+                        bearerAuth(
+                            oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
+                        )
+                    }
+
+                    response.status shouldBe HttpStatusCode.OK
+
+                    val responseBody = response.body<List<BrregHovedenhetDto>>()
+                    responseBody.size shouldBe 2
                 }
             }
         }
