@@ -16,8 +16,6 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.tokenprovider.TokenReponse
-import no.nav.tiltak.okonomi.avstemming.SftpClient
-import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.ByteArraySerializer
@@ -90,18 +88,6 @@ val ApplicationConfigLocal = AppConfig(
     ),
     clients = ClientConfig(
         oebsPoAp = AuthenticatedHttpClientConfig(url = "http://localhost", scope = "default"),
-    ),
-    avstemming = AvstemmingConfig(
-        sftpProperties = SftpClient.SftpProperties(
-            username = "todo",
-            host = "todo",
-            port = 8080,
-            privateKey = "todo",
-            directory = "todo",
-        ),
-        dailyTask = DailyAvstemming.Config(
-            disabled = true,
-        ),
     ),
     slack = SlackConfig(
         token = System.getenv("SLACK_TOKEN") ?: "",

@@ -7,8 +7,6 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
-import no.nav.tiltak.okonomi.avstemming.SftpClient
-import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
 import java.time.LocalDateTime
@@ -24,7 +22,6 @@ data class AppConfig(
     val auth: AuthConfig,
     val kafka: KafkaConfig,
     val clients: ClientConfig,
-    val avstemming: AvstemmingConfig,
     val slack: SlackConfig,
     val faktura: FakturaConfig,
 )
@@ -68,11 +65,6 @@ data class AuthProvider(
 data class AuthenticatedHttpClientConfig(
     val url: String,
     val scope: String,
-)
-
-data class AvstemmingConfig(
-    val sftpProperties: SftpClient.SftpProperties,
-    val dailyTask: DailyAvstemming.Config,
 )
 
 data class SlackConfig(
