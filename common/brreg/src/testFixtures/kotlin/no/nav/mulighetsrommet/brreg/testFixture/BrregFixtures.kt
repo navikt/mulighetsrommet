@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.brreg
+package no.nav.mulighetsrommet.brreg.testFixture
 
 import org.intellij.lang.annotations.Language
 

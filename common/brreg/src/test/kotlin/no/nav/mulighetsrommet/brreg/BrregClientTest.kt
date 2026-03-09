@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
+import no.nav.mulighetsrommet.brreg.testFixture.BrregFixtures
 
 class BrregClientTest : FunSpec({
 
