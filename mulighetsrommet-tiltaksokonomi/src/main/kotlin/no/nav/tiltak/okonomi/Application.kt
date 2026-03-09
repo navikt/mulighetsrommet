@@ -39,9 +39,6 @@ import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
 import no.nav.mulighetsrommet.tokenprovider.AzureAdTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.okonomi.api.configureApi
-import no.nav.tiltak.okonomi.avstemming.AvstemmingService
-import no.nav.tiltak.okonomi.avstemming.SftpClient
-import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.kafka.OkonomiBestillingConsumer
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
@@ -198,18 +195,12 @@ private fun configureDbScheduler(
     config: AppConfig,
     db: OkonomiDatabase,
 ) {
-    val sftpClient = SftpClient(properties = config.avstemming.sftpProperties)
-    val avstemmingService = AvstemmingService(db = db, sftpClient)
-    val dailyAvstemming = DailyAvstemming(config = config.avstemming.dailyTask, avstemmingService)
     val slackNotifier = SlackNotifierImpl(config.slack.token, config.slack.channel, config.slack.enable)
 
     Scheduler
         .create(db.getDatasource())
         .addSchedulerListener(SlackNotifierSchedulerListener(slackNotifier))
         .addSchedulerListener(OpenTelemetrySchedulerListener())
-        .startTasks(
-            dailyAvstemming.task,
-        )
         .serializer(DbSchedulerKotlinSerializer())
         .registerShutdownHook()
         .build()

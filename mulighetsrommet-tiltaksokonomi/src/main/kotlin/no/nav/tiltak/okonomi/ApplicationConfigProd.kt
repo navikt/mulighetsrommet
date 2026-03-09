@@ -5,8 +5,6 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
-import no.nav.tiltak.okonomi.avstemming.SftpClient
-import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
 
 val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
@@ -33,20 +31,6 @@ val ApplicationConfigProd = AppConfig(
         oebsPoAp = AuthenticatedHttpClientConfig(
             url = "https://oebs-po-ap-api.prod-fss-pub.nais.io",
             scope = "api://prod-fss.team-oebs.oebs-po-ap-api/.default",
-        ),
-    ),
-    avstemming = AvstemmingConfig(
-        sftpProperties = SftpClient.SftpProperties(
-            username = "todo",
-            host = "todo",
-            port = 8080,
-            privateKey = "todo",
-            directory = "todo",
-        ),
-        dailyTask = DailyAvstemming.Config(
-            // TODO: Disabled til vi får sftp credentials.
-            // cronPattern = "0 0 6 * * *",
-            disabled = true,
         ),
     ),
     slack = SlackConfig(
