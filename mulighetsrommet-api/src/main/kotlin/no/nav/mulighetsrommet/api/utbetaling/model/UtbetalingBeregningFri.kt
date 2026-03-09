@@ -20,10 +20,10 @@ data class UtbetalingBeregningFri(
     }
 
     companion object {
-        fun beregn(input: Input): UtbetalingBeregningFri {
+        fun from(belop: ValutaBelop): UtbetalingBeregningFri {
             return UtbetalingBeregningFri(
-                input = input,
-                output = Output(pris = input.pris),
+                input = Input(belop),
+                output = Output(belop),
             )
         }
     }

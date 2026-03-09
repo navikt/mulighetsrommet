@@ -92,9 +92,7 @@ class GenererUtbetalingService(
             }
             .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
-                val dto = getOrError(utbetaling.id)
-                logEndring("Utbetaling opprettet", dto, Tiltaksadministrasjon)
-                dto
+                logEndring("Utbetaling opprettet", utbetaling.id, Tiltaksadministrasjon)
             }
     }
 
@@ -147,9 +145,7 @@ class GenererUtbetalingService(
             }
             .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
-                val dto = getOrError(utbetaling.id)
-                logEndring("Utbetaling beregning oppdatert", dto, Tiltaksadministrasjon)
-                dto
+                logEndring("Utbetaling beregning oppdatert", utbetaling.id, Tiltaksadministrasjon)
             }
     }
 
@@ -190,9 +186,7 @@ class GenererUtbetalingService(
         }
 
         queries.utbetaling.upsert(nyUtbetaling)
-        val dto = getOrError(nyUtbetaling.id)
-        logEndring("Utbetaling opprettet", dto, Tiltaksadministrasjon)
-        dto
+        logEndring("Utbetaling opprettet", nyUtbetaling.id, Tiltaksadministrasjon)
     }
 
     private fun QueryContext.hentGenererteUtbetalinger(gjennomforingId: UUID): List<Utbetaling> {
@@ -358,6 +352,7 @@ class GenererUtbetalingService(
                 join prismodell on prismodell.id = gjennomforing.prismodell_id
             where gjennomforing.status != 'AVLYST'
                 and prismodell.prismodell_type = :prismodell::prismodell_type
+                and (gjennomforing.slutt_dato is null or gjennomforing.start_dato <= gjennomforing.slutt_dato)
                 and daterange(gjennomforing.start_dato, gjennomforing.slutt_dato, '[]') && :periode::daterange
                 $notExistsClause
         """.trimIndent()
@@ -379,18 +374,20 @@ class GenererUtbetalingService(
 
     private fun QueryContext.logEndring(
         operation: String,
-        dto: Utbetaling,
+        id: UUID,
         endretAv: Agent,
-    ) {
+    ): Utbetaling {
+        val utbetaling = getOrError(id)
         queries.endringshistorikk.logEndring(
             DocumentClass.UTBETALING,
             operation,
             endretAv,
-            dto.id,
+            id,
             LocalDateTime.now(),
         ) {
-            Json.encodeToJsonElement(dto)
+            Json.encodeToJsonElement(utbetaling)
         }
+        return utbetaling
     }
 
     private fun QueryContext.getOrError(id: UUID): Utbetaling {

@@ -3,13 +3,21 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 import io.kotest.assertions.shouldFail
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
+import io.ktor.http.ContentDisposition
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import no.nav.mulighetsrommet.api.ApplicationConfigLocal
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
@@ -24,8 +32,10 @@ import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 
 class ArrangorflateOpprettKravRoutesTest : FunSpec({
@@ -172,6 +182,46 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
                 is DatoVelger.DatoRange ->
                     data.innsendingSteg.datoVelger.maksSluttdato shouldBe LocalDate.now() // Eksklusiv maks dato
+            }
+        }
+    }
+
+    test("opprett krav om utbetaling (med vedlegg)") {
+        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
+            val gjennomforingId = GjennomforingFixtures.AFT1.id
+            val response = client.submitFormWithBinaryData(
+                url = "/api/arrangorflate/arrangor/$orgnr/gjennomforing/$gjennomforingId/opprett-krav",
+                formData = formData {
+                    append("periodeStart", "2024-01-01")
+                    append("periodeSlutt", "2024-02-01")
+                    append("kidNummer", "006402710013")
+                    append("belop", 1000)
+                    append(
+                        key = "vedlegg",
+                        value = "PDF_CONTENT".toByteArray(),
+                        headers = headersOf(
+                            HttpHeaders.ContentDisposition to listOf(
+                                ContentDisposition.File.withParameter(
+                                    ContentDisposition.Parameters.FileName,
+                                    "test.pdf",
+                                ).toString(),
+                            ),
+                            HttpHeaders.ContentType to listOf(ContentType.Application.Pdf.toString()),
+                        ),
+                    )
+                },
+            ) {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+            }
+
+            response.status shouldBe HttpStatusCode.OK
+
+            database.run {
+                queries.utbetaling.getByGjennomforing(gjennomforingId).shouldHaveSize(1).first().should {
+                    it.periode shouldBe Periode.forMonthOf(LocalDate.of(2024, 1, 1))
+                    it.beregning.output.pris.belop shouldBe 1000
+                    it.tilskuddstype shouldBe Tilskuddstype.TILTAK_INVESTERINGER
+                }
             }
         }
     }

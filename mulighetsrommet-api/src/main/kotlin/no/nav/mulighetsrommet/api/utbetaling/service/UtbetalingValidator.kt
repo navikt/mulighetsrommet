@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -102,7 +102,7 @@ object UtbetalingValidator {
 
     fun validateOpprettUtbetalingRequest(
         request: OpprettUtbetalingRequest,
-    ): Either<List<FieldError>, OpprettUtbetalingAnnenAvtaltPris> = validation {
+    ): Either<List<FieldError>, OpprettUtbetaling> = validation {
         validateNotNull(request.periodeStart) {
             FieldError.of("Periodestart må være satt", OpprettUtbetalingRequest::periodeStart)
         }
@@ -155,15 +155,14 @@ object UtbetalingValidator {
             ValutaBelop(requireNotNull(belop), requireNotNull(valuta))
         }
 
-        OpprettUtbetalingAnnenAvtaltPris(
+        OpprettUtbetaling(
             id = request.id,
             gjennomforingId = request.gjennomforingId,
-            periodeSlutt = periode.getLastInclusiveDate(),
+            periode = periode,
             journalpostId = journalpostId,
-            pris = pris,
+            beregning = UtbetalingBeregningFri.from(pris),
             kid = kid,
             korreksjonGjelderUtbetalingId = request.korrigererUtbetaling,
-            periodeStart = periode.start,
             korreksjonBegrunnelse = korreksjonBegrunnelse,
             kommentar = kommentar,
             vedlegg = emptyList(),
