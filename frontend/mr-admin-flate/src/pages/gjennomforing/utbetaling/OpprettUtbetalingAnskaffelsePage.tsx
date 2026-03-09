@@ -1,5 +1,5 @@
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { OpprettUtbetalingAnskaffelseForm } from "@/pages/gjennomforing/utbetaling/OpprettUtbetalingAnskaffelseForm";
+import { OpprettUtbetalingAnskaffelseForm } from "@/components/utbetaling/OpprettUtbetalingAnskaffelseForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Heading, VStack } from "@navikt/ds-react";
 
