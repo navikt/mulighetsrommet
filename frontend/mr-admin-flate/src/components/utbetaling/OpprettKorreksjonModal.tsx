@@ -3,11 +3,11 @@ import { Button, HStack, Modal } from "@navikt/ds-react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { FormGroup } from "@/components/skjema/FormGroup";
-import { ArrangorBetalingsinformasjon } from "@/pages/gjennomforing/utbetaling/ArrangorBetalingsinformasjon";
+import { ArrangorBetalingsinformasjon } from "@/components/utbetaling/ArrangorBetalingsinformasjon";
+import { useOpprettUtbetalingForm } from "@/components/utbetaling/form/useOpprettUtbetalingForm";
 import { NumberInput } from "@/components/skjema/NumberInput";
 import { TextareaInput } from "@/components/skjema/TextareaInput";
 import { FormProvider } from "react-hook-form";
-import { useOpprettUtbetalingForm } from "@/pages/gjennomforing/utbetaling/useOpprettUtbetalingForm";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 
 interface OpprettKorreksjonModalProps {

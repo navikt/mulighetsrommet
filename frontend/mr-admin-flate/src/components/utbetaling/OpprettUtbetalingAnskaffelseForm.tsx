@@ -11,10 +11,10 @@ import { NumberInput } from "@/components/skjema/NumberInput";
 import { TextInput } from "@/components/skjema/TextInput";
 import { TextareaInput } from "@/components/skjema/TextareaInput";
 import { FormProvider } from "react-hook-form";
-import { useOpprettUtbetalingForm } from "@/pages/gjennomforing/utbetaling/useOpprettUtbetalingForm";
 import { useNavigate } from "react-router";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { ArrangorBetalingsinformasjon } from "@/pages/gjennomforing/utbetaling/ArrangorBetalingsinformasjon";
+import { useOpprettUtbetalingForm } from "@/components/utbetaling/form/useOpprettUtbetalingForm";
+import { ArrangorBetalingsinformasjon } from "@/components/utbetaling/ArrangorBetalingsinformasjon";
 
 interface Props {
   gjennomforing: GjennomforingDto;
