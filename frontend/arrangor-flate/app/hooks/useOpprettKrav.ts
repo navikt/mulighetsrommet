@@ -6,7 +6,6 @@ interface OpprettKravParams {
   orgnr: string;
   gjennomforingId: string;
   belop: number;
-  tilsagnId: string;
   periodeStart: string;
   periodeSlutt: string;
   kidNummer: string | null;
@@ -25,7 +24,6 @@ export function useOpprettKrav() {
       orgnr,
       gjennomforingId,
       belop,
-      tilsagnId,
       periodeStart,
       periodeSlutt,
       kidNummer,
@@ -35,7 +33,6 @@ export function useOpprettKrav() {
         path: { orgnr, gjennomforingId },
         body: {
           belop,
-          tilsagnId,
           periodeStart,
           periodeSlutt,
           kidNummer,

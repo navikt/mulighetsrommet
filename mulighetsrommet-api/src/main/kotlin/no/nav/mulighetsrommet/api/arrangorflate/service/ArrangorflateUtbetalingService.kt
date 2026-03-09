@@ -7,7 +7,6 @@ import arrow.core.nel
 import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.AvtaltPrisPerTimeOppfolgingData
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
@@ -75,10 +74,7 @@ class ArrangorflateUtbetalingService(
             is Prismodell.AvtaltPrisPerManedsverk,
             is Prismodell.AvtaltPrisPerUkesverk,
             is Prismodell.AvtaltPrisPerHeleUkesverk,
-            -> FieldError.of(
-                "Kan ikke opprette utbetaling for denne tiltaksgjennomføringen",
-                OpprettKravUtbetalingRequest::tilsagnId,
-            ).nel().left()
+            -> FieldError.of("Kan ikke opprette utbetaling for denne tiltaksgjennomføringen").nel().left()
         }
     }
 

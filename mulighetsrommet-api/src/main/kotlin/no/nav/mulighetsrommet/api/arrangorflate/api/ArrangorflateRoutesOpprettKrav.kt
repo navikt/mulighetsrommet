@@ -627,8 +627,6 @@ data class OpprettKravUtbetalingSteg(
 
 @Serializable
 data class OpprettKravUtbetalingRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val tilsagnId: UUID,
     val periodeStart: String,
     val periodeSlutt: String,
     val kidNummer: String? = null,
@@ -637,7 +635,6 @@ data class OpprettKravUtbetalingRequest(
 )
 
 private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either<List<FieldError>, OpprettKravUtbetalingRequest> = either {
-    var tilsagnId: UUID? = null
     var periodeStart: String? = null
     var periodeSlutt: String? = null
     var kidNummer: String? = null
@@ -649,7 +646,6 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either
         when (part) {
             is PartData.FormItem -> {
                 when (part.name) {
-                    "tilsagnId" -> tilsagnId = UUID.fromString(part.value)
                     "kidNummer" -> kidNummer = part.value
                     "belop" -> belop = part.value.toInt()
                     "periodeStart" -> periodeStart = part.value
@@ -672,7 +668,6 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either
     val validatedVedlegg = vedlegg.validateVedlegg()
 
     OpprettKravUtbetalingRequest(
-        tilsagnId = requireNotNull(tilsagnId) { "Mangler tilsagnId" },
         periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
         periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
         kidNummer = kidNummer,

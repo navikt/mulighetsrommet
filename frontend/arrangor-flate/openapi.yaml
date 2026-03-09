@@ -1258,9 +1258,6 @@ components:
     OpprettKravUtbetalingRequest:
       type: object
       properties:
-        tilsagnId:
-          type: string
-          format: uuid
         periodeStart:
           type: string
         periodeSlutt:
@@ -1282,7 +1279,6 @@ components:
       - kidNummer
       - periodeSlutt
       - periodeStart
-      - tilsagnId
       - vedlegg
     OpprettKravUtbetalingResponse:
       type: object

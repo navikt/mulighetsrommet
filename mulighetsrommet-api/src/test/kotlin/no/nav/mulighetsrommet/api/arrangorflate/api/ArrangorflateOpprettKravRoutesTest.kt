@@ -3,8 +3,10 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 import io.kotest.assertions.shouldFail
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -25,12 +27,12 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -190,15 +192,10 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             val response = client.submitFormWithBinaryData(
                 url = "/api/arrangorflate/arrangor/$orgnr/gjennomforing/$gjennomforingId/opprett-krav",
                 formData = formData {
-                    append("gjennomforingId", gjennomforingId.toString())
-                    append("tilsagnId", TilsagnFixtures.Tilsagn1.id.toString())
-                    append("beskrivelse", "test beskrivelse")
+                    append("periodeStart", "2024-01-01")
+                    append("periodeSlutt", "2024-02-01")
                     append("kidNummer", "006402710013")
                     append("belop", 1000)
-                    append("periodeStart", "2024-01-01")
-                    append("periodeSlutt", "2024-01-31")
-                    append("tilskuddstype", Tilskuddstype.TILTAK_INVESTERINGER.name)
-
                     append(
                         key = "vedlegg",
                         value = "PDF_CONTENT".toByteArray(),
@@ -218,6 +215,14 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
+
+            database.run {
+                queries.utbetaling.getByGjennomforing(gjennomforingId).shouldHaveSize(1).first().should {
+                    it.periode shouldBe Periode.forMonthOf(LocalDate.of(2024, 1, 1))
+                    it.beregning.output.pris.belop shouldBe 1000
+                    it.tilskuddstype shouldBe Tilskuddstype.TILTAK_INVESTERINGER
+                }
+            }
         }
     }
 })

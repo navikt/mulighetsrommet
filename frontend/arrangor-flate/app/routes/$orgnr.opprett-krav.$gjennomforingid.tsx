@@ -265,7 +265,6 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
       orgnr,
       gjennomforingId,
       belop: Number(formState.belop),
-      tilsagnId: formState.tilsagnId!,
       periodeStart: formState.periodeStart!,
       periodeSlutt: formState.periodeSlutt!,
       kidNummer: formState.kid || null,

@@ -35,7 +35,6 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
             )
 
             val request = OpprettKravUtbetalingRequest(
-                tilsagnId = UUID.randomUUID(),
                 periodeStart = "2025-01-01",
                 periodeSlutt = "2025-02-01",
                 belop = 1234,
@@ -57,7 +56,6 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
             val ctx = createContext(Tiltakskode.AVKLARING, PrismodellType.ANNEN_AVTALT_PRIS)
 
             val request = OpprettKravUtbetalingRequest(
-                tilsagnId = UUID.randomUUID(),
                 periodeStart = "2025-06-01",
                 periodeSlutt = "2025-07-01",
                 belop = 1234,
@@ -73,7 +71,6 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
             )
 
             val request = OpprettKravUtbetalingRequest(
-                tilsagnId = UUID.randomUUID(),
                 periodeStart = "2025-06-01",
                 periodeSlutt = "2025-07-01",
                 kidNummer = null,
