@@ -122,7 +122,7 @@ class UtbetalingServiceTest : FunSpec({
             korreksjonGjelderUtbetalingId = null,
             korreksjonBegrunnelse = null,
             kid = null,
-            beregning = UtbetalingBeregningFri.belop(10.withValuta(Valuta.NOK)),
+            beregning = UtbetalingBeregningFri.from(10.withValuta(Valuta.NOK)),
             kommentar = "Arrangør trenger penger",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             vedlegg = listOf(),
@@ -162,14 +162,14 @@ class UtbetalingServiceTest : FunSpec({
 
             service.opprettUtbetaling(
                 opprett = opprett.copy(
-                    beregning = UtbetalingBeregningFri.belop(5.withValuta(Valuta.NOK)),
+                    beregning = UtbetalingBeregningFri.from(5.withValuta(Valuta.NOK)),
                 ),
                 agent = Arrangor,
             ).shouldBeRight()
 
             service.opprettUtbetaling(
                 opprett = opprett.copy(
-                    beregning = UtbetalingBeregningFri.belop(10.withValuta(Valuta.NOK)),
+                    beregning = UtbetalingBeregningFri.from(10.withValuta(Valuta.NOK)),
                 ),
                 agent = Arrangor,
             ) shouldBeLeft listOf(

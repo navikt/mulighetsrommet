@@ -60,10 +60,10 @@ class ArrangorflateUtbetalingService(
         val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(opprett.gjennomforingId)
         return when (gjennomforing.prismodell) {
             is Prismodell.ForhandsgodkjentPrisPerManedsverk,
-            -> Pair(Tilskuddstype.TILTAK_INVESTERINGER, UtbetalingBeregningFri.belop(opprett.pris)).right()
+            -> Pair(Tilskuddstype.TILTAK_INVESTERINGER, UtbetalingBeregningFri.from(opprett.pris)).right()
 
             is Prismodell.AnnenAvtaltPris,
-            -> Pair(Tilskuddstype.TILTAK_DRIFTSTILSKUDD, UtbetalingBeregningFri.belop(opprett.pris)).right()
+            -> Pair(Tilskuddstype.TILTAK_DRIFTSTILSKUDD, UtbetalingBeregningFri.from(opprett.pris)).right()
 
             is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
             -> Pair(
@@ -82,15 +82,8 @@ class ArrangorflateUtbetalingService(
         opprett: ArrangorflateOpprettUtbetaling,
         gjennomforing: GjennomforingAvtale,
     ): UtbetalingBeregningPrisPerTimeOppfolging {
-        val (satser, stengt, _, deltakelsePerioder) = getAvtaltPrisPerTimeOppfolgingData(gjennomforing, opprett.periode)
-        return UtbetalingBeregningPrisPerTimeOppfolging.beregn(
-            input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
-                satser = satser,
-                pris = opprett.pris,
-                stengt = stengt,
-                deltakelser = deltakelsePerioder,
-            ),
-        )
+        val (satser, stengt, _, deltakelser) = getAvtaltPrisPerTimeOppfolgingData(gjennomforing, opprett.periode)
+        return UtbetalingBeregningPrisPerTimeOppfolging.from(satser, stengt, deltakelser, opprett.pris)
     }
 
     private fun QueryContext.getAvtaltPrisPerTimeOppfolgingData(

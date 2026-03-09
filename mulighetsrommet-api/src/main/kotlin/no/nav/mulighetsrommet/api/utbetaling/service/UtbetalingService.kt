@@ -159,16 +159,29 @@ class UtbetalingService(
             korreksjonBegrunnelse = opprett.korreksjonBegrunnelse,
             tilskuddstype = opprett.tilskuddstype,
             journalpostId = opprett.journalpostId,
-            godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
-                LocalDateTime.now()
-            } else {
-                null
+            godkjentAvArrangorTidspunkt = when (agent) {
+                is Arrangor -> LocalDateTime.now()
+                else -> null
             },
             utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
             blokkeringer = emptySet(),
         )
 
-        return opprettUtbetalingTransaction(dbo, opprett.vedlegg, agent)
+        if (queries.utbetaling.get(dbo.id) != null) {
+            return listOf(FieldError.of("Utbetalingen er allerede opprettet")).left()
+        }
+
+        queries.utbetaling.upsert(dbo)
+
+        if (agent is Arrangor) {
+            scheduleJournalforUtbetaling(dbo.id, opprett.vedlegg)
+        }
+
+        val operation = when (agent) {
+            is Arrangor -> "Utbetaling sendt inn"
+            else -> "Utbetaling opprettet"
+        }
+        return logEndring(operation, dbo.id, agent).right()
     }
 
     private suspend fun getUtbetalingsinformasjon(arrangorId: UUID, kid: Kid?): Betalingsinformasjon {
@@ -176,24 +189,6 @@ class UtbetalingService(
             is Betalingsinformasjon.BBan -> Betalingsinformasjon.BBan(betalingsinformasjon.kontonummer, kid)
             is Betalingsinformasjon.IBan -> betalingsinformasjon
         }
-    }
-
-    private fun TransactionalQueryContext.opprettUtbetalingTransaction(
-        utbetaling: UtbetalingDbo,
-        vedlegg: List<Vedlegg>,
-        agent: Agent,
-    ): Either<List<FieldError>, Utbetaling> {
-        if (queries.utbetaling.get(utbetaling.id) != null) {
-            return listOf(FieldError.of("Utbetalingen er allerede opprettet")).left()
-        }
-
-        queries.utbetaling.upsert(utbetaling)
-
-        if (agent is Arrangor) {
-            scheduleJournalforUtbetaling(utbetaling.id, vedlegg)
-        }
-
-        return logEndring("Utbetaling sendt inn", utbetaling.id, agent).right()
     }
 
     fun opprettDelutbetalinger(
