@@ -141,15 +141,18 @@ const GJENNOMFORING_ROUTES: RouteObject[] = [
   { path: "tilskuddsbehandlinger", element: <Behandlingsoversikt /> },
   { path: "tilsagn", element: <TilsagnForGjennomforingPage /> },
   { path: "utbetalinger", element: <UtbetalingerForGjennomforingContainer /> },
-  { path: "opprett-korreksjon", element: <OpprettUtbetalingKorreksjonPage /> },
-  { path: "opprett-utbetaling", element: <OpprettUtbetalingAnskaffelsePage /> },
-  { path: ":utbetalingId", element: <UtbetalingDetaljerPage /> },
 ];
 
 const TILSAGN_ROUTES: RouteObject[] = [
   { path: "opprett-tilsagn", element: <OpprettTilsagnFormPage /> },
   { path: ":tilsagnId", element: <TilsagnDetaljer /> },
   { path: ":tilsagnId/rediger-tilsagn", element: <RedigerTilsagnFormPage /> },
+];
+
+const UTBETALING_ROUTES: RouteObject[] = [
+  { path: "opprett-korreksjon", element: <OpprettUtbetalingKorreksjonPage /> },
+  { path: "opprett-utbetaling", element: <OpprettUtbetalingAnskaffelsePage /> },
+  { path: ":utbetalingId", element: <UtbetalingDetaljerPage /> },
 ];
 
 const OPPGAVEOVERSIKT_ROUTES: RouteObject[] = [
@@ -245,8 +248,9 @@ const routes: RouteObject[] = [
         element: <RedigerGjennomforingFormPage />,
       }),
       route({
-        path: "gjennomforinger/:gjennomforingId/utbetalinger/:utbetalingId",
+        path: "gjennomforinger/:gjennomforingId/utbetalinger",
         element: <UtbetalingPage />,
+        children: UTBETALING_ROUTES,
       }),
       route({ path: "arrangorer", element: <ArrangorerPage /> }),
       route({ path: "arrangorer/:arrangorId", element: <ArrangorPage /> }),
