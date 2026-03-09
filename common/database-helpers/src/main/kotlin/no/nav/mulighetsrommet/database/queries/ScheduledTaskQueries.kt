@@ -5,7 +5,7 @@ import kotliquery.queryOf
 import org.intellij.lang.annotations.Language
 import java.time.Instant
 
-data class ScheduledTaskDbo(
+class ScheduledTaskDbo(
     val taskName: String,
     val taskInstance: String,
     val taskData: ByteArray?,
