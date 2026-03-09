@@ -84,6 +84,60 @@ paths:
           description: Gjennomføringen ble ikke funnet
           headers: {}
       deprecated: false
+  /api/v1/arrangor/hovedenhet/sok/{term}:
+    get:
+      tags:
+      - ""
+      operationId: sokHovedenhet
+      parameters:
+      - name: term
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Liste av hovedenheter
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BrregHovedenhetDto"
+        "404":
+          description: Hovedenheter ble ikke funnet
+          headers: {}
+      deprecated: false
+  /api/v1/arrangor/hovedenhet/{orgnr}/underenheter:
+    get:
+      tags:
+      - ""
+      operationId: hentUnderenheter
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Liste av underenheter
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BrregUnderenhetDto"
+        "404":
+          description: Underenheter ble ikke funnet
+          headers: {}
+      deprecated: false
 components:
   schemas:
     OpenApiVersion:
@@ -252,5 +306,75 @@ components:
       required:
       - lopenr
       - opprettetAar
+    BrregHovedenhetDto:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        organisasjonsform:
+          type: string
+        navn:
+          type: string
+        postadresse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/BrregAdresse"
+        forretningsadresse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/BrregAdresse"
+        overordnetEnhet:
+          type:
+          - "null"
+          - string
+      required:
+      - forretningsadresse
+      - navn
+      - organisasjonsform
+      - organisasjonsnummer
+      - overordnetEnhet
+      - postadresse
+    BrregAdresse:
+      type: object
+      properties:
+        landkode:
+          type:
+          - "null"
+          - string
+        postnummer:
+          type:
+          - "null"
+          - string
+        poststed:
+          type:
+          - "null"
+          - string
+        adresse:
+          type:
+          - "null"
+          - array
+          items:
+            type: string
+      required:
+      - adresse
+      - landkode
+      - postnummer
+      - poststed
+    BrregUnderenhetDto:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        organisasjonsform:
+          type: string
+        navn:
+          type: string
+        overordnetEnhet:
+          type: string
+      required:
+      - navn
+      - organisasjonsform
+      - organisasjonsnummer
+      - overordnetEnhet
   examples: {}
 webhooks: {}
