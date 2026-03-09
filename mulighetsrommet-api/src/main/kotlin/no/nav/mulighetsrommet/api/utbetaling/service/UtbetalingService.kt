@@ -15,8 +15,6 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -40,7 +38,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
@@ -49,10 +46,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHel
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.model.toAnnenAvtaltPris
-import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.clamav.Vedlegg
@@ -62,7 +56,6 @@ import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.compareTo
@@ -70,7 +63,6 @@ import no.nav.mulighetsrommet.model.plus
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
-import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import org.apache.kafka.common.header.internals.RecordHeaders
 import org.slf4j.Logger
@@ -116,114 +108,14 @@ class UtbetalingService(
     }
 
     suspend fun opprettUtbetaling(
-        utbetalingKrav: OpprettUtbetaling,
+        opprett: OpprettUtbetaling,
         agent: Agent,
-    ): Either<List<FieldError>, Utbetaling> {
-        val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
-        val prismodell = db.session { queries.gjennomforing.getPrismodell(utbetalingKrav.gjennomforingId) }
-        return when (prismodell?.type) {
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-            -> opprettAnnenAvtaltPrisUtbetaling(
-                utbetalingKrav.toAnnenAvtaltPris(
-                    gjennomforingId = utbetalingKrav.gjennomforingId,
-                    tilskuddstype = Tilskuddstype.TILTAK_INVESTERINGER,
-                ),
-                agent,
-                periode,
-            )
-
-            PrismodellType.ANNEN_AVTALT_PRIS,
-            -> opprettAnnenAvtaltPrisUtbetaling(
-                utbetalingKrav.toAnnenAvtaltPris(
-                    gjennomforingId = utbetalingKrav.gjennomforingId,
-                    tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                ),
-                agent,
-                periode,
-            )
-
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            -> opprettAvtaltPrisPerTimeOppfolging(utbetalingKrav, agent)
-
-            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-            PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-            null,
-            -> Either.Left(
-                listOf(
-                    FieldError.of(
-                        "Kan ikke opprette utbetaling for denne gjennomføringen manuelt",
-                        OpprettKravUtbetalingRequest::tilsagnId,
-                    ),
-                ),
-            )
-        }
-    }
-
-    fun opprettAvtaltPrisPerTimeOppfolging(
-        utbetalingKrav: OpprettUtbetaling,
-        agent: Agent,
-    ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetalingKrav.gjennomforingId)
-        val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
-        val utbetalingInfo = resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
-        val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
-            gjennomforing.tiltakstype.tiltakskode,
-            periode,
-        )
-        val dbo = UtbetalingDbo(
-            id = UUID.randomUUID(),
-            gjennomforingId = utbetalingKrav.gjennomforingId,
-            status = UtbetalingStatusType.INNSENDT,
-            betalingsinformasjon = Betalingsinformasjon.BBan(utbetalingKrav.kontonummer, utbetalingKrav.kidNummer),
-            valuta = gjennomforing.prismodell.valuta,
-            beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
-                input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
-                    satser = utbetalingInfo.satser,
-                    pris = utbetalingKrav.pris,
-                    stengt = utbetalingInfo.stengtHosArrangor,
-                    deltakelser = utbetalingInfo.deltakelsePerioder,
-                ),
-            ),
-            periode = periode,
-            innsender = agent,
-            kommentar = null,
-            korreksjonGjelderUtbetalingId = null,
-            korreksjonBegrunnelse = null,
-            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-            journalpostId = null,
-            godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
-                LocalDateTime.now()
-            } else {
-                null
-            },
-            utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
-            blokkeringer = emptySet(),
-        )
-        return opprettUtbetalingTransaction(dbo, utbetalingKrav.vedlegg, agent)
-    }
-
-    suspend fun opprettAnnenAvtaltPrisUtbetaling(
-        request: OpprettUtbetalingAnnenAvtaltPris,
-        agent: Agent,
-    ): Either<List<FieldError>, Utbetaling> = opprettAnnenAvtaltPrisUtbetaling(
-        request,
-        agent,
-        Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
-    )
-
-    private suspend fun opprettAnnenAvtaltPrisUtbetaling(
-        opprett: OpprettUtbetalingAnnenAvtaltPris,
-        agent: Agent,
-        periode: Periode,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(opprett.gjennomforingId)
 
-        val betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, opprett.kid)
-
         val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
             gjennomforing.tiltakstype.tiltakskode,
-            periode,
+            opprett.periode,
         )
 
         val korreksjonGjelderUtbetalingId = opprett.korreksjonGjelderUtbetalingId?.also {
@@ -251,16 +143,16 @@ class UtbetalingService(
             }
         }
 
+        val betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, opprett.kid)
+
         val dbo = UtbetalingDbo(
             id = opprett.id,
             gjennomforingId = opprett.gjennomforingId,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = betalingsinformasjon,
-            valuta = opprett.pris.valuta,
-            beregning = UtbetalingBeregningFri.beregn(
-                input = UtbetalingBeregningFri.Input(opprett.pris),
-            ),
-            periode = periode,
+            valuta = opprett.beregning.output.pris.valuta,
+            beregning = opprett.beregning,
+            periode = opprett.periode,
             innsender = agent,
             kommentar = opprett.kommentar,
             korreksjonGjelderUtbetalingId = korreksjonGjelderUtbetalingId,
