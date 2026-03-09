@@ -1,11 +1,14 @@
 package no.nav.mulighetsrommet.api.arrangor.api
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainAnyOf
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
+import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -23,6 +26,7 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import org.intellij.lang.annotations.Language
 
 class ArrangorPublicRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -45,12 +49,13 @@ class ArrangorPublicRoutesTest : FunSpec({
 
     beforeSpec {
         oauth.start()
-
-        domain.initialize(database.db)
     }
 
     beforeEach {
         domain.initialize(database.db)
+        database.db.session {
+            setUtenlandskArrangor(utenlandskArrangor.organisasjonsnummer)
+        }
     }
 
     afterEach {
@@ -137,7 +142,7 @@ class ArrangorPublicRoutesTest : FunSpec({
                     },
                 )
                 withTestApplication(localAppConfig) {
-                    val term = "001"
+                    val term = "utenlandsk"
                     val response = client.get(sokUrl(term)) {
                         bearerAuth(
                             oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
@@ -148,6 +153,7 @@ class ArrangorPublicRoutesTest : FunSpec({
 
                     val responseBody = response.body<List<BrregHovedenhetDto>>()
                     responseBody.size shouldBe 2
+                    responseBody.map { it.organisasjonsnummer }.shouldContainAnyOf(utenlandskArrangor.organisasjonsnummer)
                 }
             }
         }
@@ -215,6 +221,22 @@ class ArrangorPublicRoutesTest : FunSpec({
                     responseBody.size shouldBe 0
                 }
             }
+
+            test("returnerer bare den utenlandske arranøren om orgnr er det samme") {
+                withTestApplication(appConfig()) {
+                    val response = client.get(underenhetUrl(utenlandskArrangor.organisasjonsnummer)) {
+                        bearerAuth(
+                            oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
+                        )
+                    }
+
+                    response.status shouldBe HttpStatusCode.OK
+
+                    val responseBody = response.body<List<BrregUnderenhetDto>>()
+                    responseBody.size shouldBe 1
+                    responseBody[0].organisasjonsnummer shouldBe utenlandskArrangor.organisasjonsnummer
+                }
+            }
         }
     }
 })
@@ -222,3 +244,14 @@ class ArrangorPublicRoutesTest : FunSpec({
 private fun withApplicationRoles(roles: String? = null): Map<String, List<String>> = mapOf(
     "roles" to listOfNotNull(AppRoles.ACCESS_AS_APPLICATION, roles),
 )
+
+private fun QueryContext.setUtenlandskArrangor(organisasjonsnummer: Organisasjonsnummer) {
+    @Language("PostgreSQL")
+    val query = """
+            update arrangor
+            set er_utenlandsk_virksomhet = true
+            where organisasjonsnummer = ?
+    """.trimIndent()
+
+    session.execute(queryOf(query, organisasjonsnummer.value))
+}
