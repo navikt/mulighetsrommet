@@ -31,10 +31,15 @@ data class UtbetalingBeregningPrisPerTimeOppfolging(
     }
 
     companion object {
-        fun beregn(input: Input): UtbetalingBeregningPrisPerTimeOppfolging {
+        fun from(
+            satser: Set<SatsPeriode>,
+            stengt: Set<StengtPeriode>,
+            deltakelser: Set<DeltakelsePeriode>,
+            pris: ValutaBelop,
+        ): UtbetalingBeregningPrisPerTimeOppfolging {
             return UtbetalingBeregningPrisPerTimeOppfolging(
-                input = input,
-                output = Output(pris = input.pris),
+                input = Input(satser, pris, stengt, deltakelser),
+                output = Output(pris),
             )
         }
     }

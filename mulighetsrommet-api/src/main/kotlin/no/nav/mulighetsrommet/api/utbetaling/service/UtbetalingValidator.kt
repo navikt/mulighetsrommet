@@ -160,7 +160,7 @@ object UtbetalingValidator {
             gjennomforingId = request.gjennomforingId,
             periode = periode,
             journalpostId = journalpostId,
-            beregning = UtbetalingBeregningFri.belop(pris),
+            beregning = UtbetalingBeregningFri.from(pris),
             kid = kid,
             korreksjonGjelderUtbetalingId = request.korrigererUtbetaling,
             korreksjonBegrunnelse = korreksjonBegrunnelse,
