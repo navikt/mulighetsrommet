@@ -90,6 +90,29 @@ class ArrangorPublicRoutesTest : FunSpec({
                     responseBody.size shouldBe 1
                 }
             }
+
+            test("200 tom liste ved tomt resultat") {
+                val localAppConfig = appConfig().copy(
+                    engine = createMockEngine {
+                        get("https://data.brreg.no/enhetsregisteret/api/enheter") {
+                            respondJson(BrregFixtures.SOK_ENHET_INGEN_TREFF)
+                        }
+                    },
+                )
+                withTestApplication(localAppConfig) {
+                    val term = "Tiger"
+                    val response = client.get(sokUrl(term)) {
+                        bearerAuth(
+                            oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
+                        )
+                    }
+
+                    response.status shouldBe HttpStatusCode.OK
+
+                    val responseBody = response.body<List<BrregHovedenhetDto>>()
+                    responseBody.size shouldBe 0
+                }
+            }
         }
 
         context("hent underenheter") {
@@ -108,9 +131,7 @@ class ArrangorPublicRoutesTest : FunSpec({
                 }
             }
 
-            test("200 når søk returneres") {
-                val orgnr = Organisasjonsnummer("924203617")
-
+            test("200 ved treff på søk") {
                 val localAppConfig = appConfig().copy(
                     engine = createMockEngine {
                         get("https://data.brreg.no/enhetsregisteret/api/underenheter") {
@@ -118,6 +139,8 @@ class ArrangorPublicRoutesTest : FunSpec({
                         }
                     },
                 )
+
+                val orgnr = Organisasjonsnummer("924203618")
                 withTestApplication(localAppConfig) {
                     val response = client.get(underenhetUrl(orgnr)) {
                         bearerAuth(
@@ -129,6 +152,30 @@ class ArrangorPublicRoutesTest : FunSpec({
 
                     val responseBody = response.body<List<BrregUnderenhetDto>>()
                     responseBody.size shouldBe 1
+                }
+            }
+
+            test("200 tom liste hvis ingen treff på søk") {
+                val localAppConfig = appConfig().copy(
+                    engine = createMockEngine {
+                        get("https://data.brreg.no/enhetsregisteret/api/underenheter") {
+                            respondJson(BrregFixtures.SOK_UNDERENHET_INGEN_TREFF)
+                        }
+                    },
+                )
+
+                val orgnr = Organisasjonsnummer("924203618")
+                withTestApplication(localAppConfig) {
+                    val response = client.get(underenhetUrl(orgnr)) {
+                        bearerAuth(
+                            oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
+                        )
+                    }
+
+                    response.status shouldBe HttpStatusCode.OK
+
+                    val responseBody = response.body<List<BrregUnderenhetDto>>()
+                    responseBody.size shouldBe 0
                 }
             }
         }

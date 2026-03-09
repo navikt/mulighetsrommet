@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.arrangor.kafka
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
+import no.nav.mulighetsrommet.api.arrangor.ArrangorError
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.ArrangorServiceError
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -36,7 +36,7 @@ class AmtVirksomheterV1KafkaConsumer(
 
     private suspend fun updateVirksomhet(amtVirksomhet: AmtVirksomhetV1Dto) {
         arrangorService.syncArrangorFromBrreg(amtVirksomhet.organisasjonsnummer).onLeft { err ->
-            if (err is ArrangorServiceError.BrregError &&
+            if (err is ArrangorError.BrregError &&
                 err.error is BrregError.FjernetAvJuridiskeArsaker
             ) {
                 logger.warn("Virksomhet med orgnr=${amtVirksomhet.organisasjonsnummer} er fjernet fra Brreg")

@@ -8,8 +8,8 @@ import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 
-fun ArrangorServiceError.toProblemDetail(orgnr: Organisasjonsnummer? = null): ProblemDetail = when (this) {
-    is ArrangorServiceError.BrregError -> {
+fun ArrangorError.toProblemDetail(orgnr: Organisasjonsnummer? = null): ProblemDetail = when (this) {
+    is ArrangorError.BrregError -> {
         if (orgnr != null) {
             this.error.toProblemDetail(orgnr)
         } else {
@@ -17,7 +17,7 @@ fun ArrangorServiceError.toProblemDetail(orgnr: Organisasjonsnummer? = null): Pr
         }
     }
 
-    is ArrangorServiceError.TomtSok ->
+    is ArrangorError.TomtSok ->
         BadRequest(this.message)
 
     else -> InternalServerError("Ukjent feil oppsto ved henting av arrangør")
@@ -31,7 +31,6 @@ fun BrregError.toProblemDetail(orgnr: Organisasjonsnummer): ProblemDetail = when
 
 fun BrregError.toProblemDetail() = when (this) {
     is BrregError.NotFound -> NotFound("Not Found fra Brreg")
-    is BrregError.FjernetAvJuridiskeArsaker -> BadRequest("Fjernet av juridiske årsaker fra Brreg ${this.enhet.slettetDato}")
-    is BrregError.BadRequest -> BadRequest("Bad Request mot Brreg")
-    is BrregError.Error -> InternalServerError("Internal server error fra Brreg")
+    is BrregError.FjernetAvJuridiskeArsaker -> Gone("Fjernet av juridiske årsaker fra Brreg ${this.enhet.slettetDato}")
+    is BrregError.BadRequest, is BrregError.Error -> InternalServerError("Feil oppsto ved henting fra Brreg")
 }

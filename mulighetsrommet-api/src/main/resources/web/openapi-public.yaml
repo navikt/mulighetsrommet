@@ -107,13 +107,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/BrregHovedenhetDto"
-        "404":
-          description: Hovedenheter ble ikke funnet
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
         "400":
           description: "Søket er blankt, eller bedriften er fjernet av juridiske å\
             rsaker fra Brreg"
@@ -161,10 +154,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/BrregUnderenhetDto"
         "400":
-          description: Fant ikke bedrift med gitt orgnr i Brreg
-          headers: {}
-        "410":
-          description: Fjernet av juridiske årsaker fra Brreg
+          description: Feil format på organisasjonsnummer
           headers: {}
         "500":
           description: Feil oppstod ved henting av underenheter fra Brreg

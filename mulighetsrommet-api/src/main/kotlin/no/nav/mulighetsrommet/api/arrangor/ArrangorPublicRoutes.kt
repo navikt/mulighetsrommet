@@ -33,10 +33,6 @@ private fun Route.enhetRoutes() {
                 description = "Liste av hovedenheter"
                 body<List<BrregHovedenhetDto>>()
             }
-            code(HttpStatusCode.NotFound) {
-                description = "Hovedenheter ble ikke funnet"
-                body<ProblemDetail>()
-            }
             code(HttpStatusCode.BadRequest) {
                 description = "Søket er blankt, eller bedriften er fjernet av juridiske årsaker fra Brreg"
                 body<ProblemDetail>()
@@ -69,10 +65,7 @@ private fun Route.enhetRoutes() {
                 body<List<BrregUnderenhetDto>>()
             }
             code(HttpStatusCode.BadRequest) {
-                description = "Fant ikke bedrift med gitt orgnr i Brreg"
-            }
-            code(HttpStatusCode.Gone) {
-                description = "Fjernet av juridiske årsaker fra Brreg"
+                description = "Feil format på organisasjonsnummer"
             }
             code(HttpStatusCode.InternalServerError) {
                 description = "Feil oppstod ved henting av underenheter fra Brreg"

@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 import no.nav.mulighetsrommet.brreg.BrregError as BrregClientError
 
-interface ArrangorServiceError {
-    data class BrregError(val error: BrregClientError) : ArrangorServiceError
-    data class TomtSok(val message: String = "'sok' kan ikke være en tom streng") : ArrangorServiceError
+interface ArrangorError {
+    data class BrregError(val error: BrregClientError) : ArrangorError
+    data class TomtSok(val message: String = "'sok' kan ikke være en tom streng") : ArrangorError
 }
 
 class ArrangorService(
@@ -39,9 +39,9 @@ class ArrangorService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    suspend fun brregSok(sok: String): Either<ArrangorServiceError, List<BrregHovedenhet>> {
+    suspend fun brregSok(sok: String): Either<ArrangorError, List<BrregHovedenhet>> {
         if (sok.isBlank()) {
-            return ArrangorServiceError.TomtSok().left()
+            return ArrangorError.TomtSok().left()
         }
 
         return brregClient.sokHovedenhet(sok)
@@ -54,10 +54,10 @@ class ArrangorService(
                 // Kombinerer resultat med utenlandske virksomheter siden de ikke finnes i brreg
                 hovedenheter + utenlandskeVirksomheter
             }
-            .mapLeft { ArrangorServiceError.BrregError(it) }
+            .mapLeft { ArrangorError.BrregError(it) }
     }
 
-    suspend fun brregUnderenheter(orgnr: Organisasjonsnummer): Either<ArrangorServiceError, List<BrregUnderenhet>> {
+    suspend fun brregUnderenheter(orgnr: Organisasjonsnummer): Either<ArrangorError, List<BrregUnderenhet>> {
         val arrangor = db.session { queries.arrangor.get(orgnr) }
         if (arrangor != null && arrangor.erUtenlandsk) {
             return listOf(
@@ -80,21 +80,21 @@ class ArrangorService(
                 // Kombinerer resultat med virksomheter som er slettet fra brreg for å støtte avtaler/gjennomføringer som henger etter
                 underenheter + slettedeVirksomheter
             }
-            .mapLeft { ArrangorServiceError.BrregError(it) }
+            .mapLeft { ArrangorError.BrregError(it) }
     }
 
     fun getArrangor(orgnr: Organisasjonsnummer): ArrangorDto? = db.session {
         queries.arrangor.get(orgnr)
     }
 
-    suspend fun getArrangorOrSyncFromBrreg(orgnr: Organisasjonsnummer): Either<ArrangorServiceError, ArrangorDto> {
+    suspend fun getArrangorOrSyncFromBrreg(orgnr: Organisasjonsnummer): Either<ArrangorError, ArrangorDto> {
         return getArrangor(orgnr)?.right() ?: syncArrangorFromBrreg(orgnr)
     }
 
-    suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<ArrangorServiceError, ArrangorDto> {
+    suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<ArrangorError, ArrangorDto> {
         log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
         return brregClient.getBrregEnhet(orgnr)
-            .mapLeft { ArrangorServiceError.BrregError(it) }
+            .mapLeft { ArrangorError.BrregError(it) }
             .flatMap { virksomhet ->
                 when (virksomhet) {
                     is BrregUnderenhetDto -> getArrangorOrSyncFromBrreg(virksomhet.overordnetEnhet).map { virksomhet }
@@ -105,7 +105,7 @@ class ArrangorService(
                 syncToDatbase(virksomhet)
             }
             .onLeft { err ->
-                if (err is ArrangorServiceError.BrregError && err.error is BrregClientError.FjernetAvJuridiskeArsaker) {
+                if (err is ArrangorError.BrregError && err.error is BrregClientError.FjernetAvJuridiskeArsaker) {
                     syncToDatabase(err.error.enhet)
                 }
             }
