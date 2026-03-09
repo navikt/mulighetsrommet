@@ -5,10 +5,10 @@ import kotliquery.queryOf
 import org.intellij.lang.annotations.Language
 import java.time.Instant
 
-data class ScheduledTaskDbo(
+class ScheduledTaskDbo(
     val taskName: String,
     val taskInstance: String,
-    val taskData: ByteArray,
+    val taskData: ByteArray?,
     val executionTime: Instant,
     val picked: Boolean,
     val pickedBy: String?,
@@ -32,7 +32,7 @@ class ScheduledTaskQueries(private val session: Session) {
             ScheduledTaskDbo(
                 taskName = row.string("task_name"),
                 taskInstance = row.string("task_instance"),
-                taskData = row.bytes("task_data"),
+                taskData = row.bytesOrNull("task_data"),
                 executionTime = row.instant("execution_time"),
                 picked = row.boolean("picked"),
                 pickedBy = row.stringOrNull("picked_by"),

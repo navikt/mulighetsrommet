@@ -230,9 +230,23 @@ sealed class RammedetaljerDto {
 
             return TotaltUtbetalt(
                 utbetaltArena = null,
-                utbetaltTiltaksadmin = totalUtbetaltTiltaksadmin,
+                utbetaltTiltaksadmin = totalUtbetaltTiltaksadmin.ifEmpty {
+                    listOf(
+                        ValutaLongBelop(
+                            0,
+                            reservert.firstOrNull()?.valuta ?: Valuta.NOK,
+                        ),
+                    )
+                },
                 totaltUtbetalt = null,
-                reservert = reservert,
+                reservert = reservert.ifEmpty {
+                    listOf(
+                        ValutaLongBelop(
+                            0,
+                            totalUtbetaltTiltaksadmin.firstOrNull()?.valuta ?: Valuta.NOK,
+                        ),
+                    )
+                },
             )
         }
     }
@@ -246,6 +260,7 @@ fun RammedetaljerDbo.toDto(
         .filter { it.valuta == this.valuta }
         .sumOf { it.belop }
 
+    val utbetaltTiltaksAdmin = utbetaltFraTiltaksadmin.ifEmpty { listOf(ValutaLongBelop(0, this.valuta)) }
     val reservertTilsagn = reservert.ifEmpty {
         listOf(ValutaLongBelop(0, this.valuta))
     }
@@ -262,7 +277,7 @@ fun RammedetaljerDbo.toDto(
                     valuta = valuta,
                 )
             },
-            utbetaltTiltaksadmin = utbetaltFraTiltaksadmin,
+            utbetaltTiltaksadmin = utbetaltTiltaksAdmin,
             gjenstaendeRamme = ValutaLongBelop(
                 belop = totalRamme - (utbetaltArena ?: 0) - tiltaksAdminSum,
                 valuta = valuta,
@@ -278,7 +293,7 @@ fun RammedetaljerDbo.toDto(
                 valuta = valuta,
             )
         },
-        utbetaltTiltaksadmin = utbetaltFraTiltaksadmin,
+        utbetaltTiltaksadmin = utbetaltTiltaksAdmin,
         totaltUtbetalt = utbetaltArena?.let { arenaUtbetalt ->
             ValutaLongBelop(
                 belop = arenaUtbetalt + tiltaksAdminSum,

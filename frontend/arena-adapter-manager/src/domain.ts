@@ -13,7 +13,7 @@ export interface Topic {
 export interface ScheduledTask {
   taskName: string;
   taskInstance: string;
-  taskData: string;
+  taskData: string | null;
   executionTime: string;
   picked: boolean;
   pickedBy: string | null;

@@ -19,15 +19,6 @@ export function UtbetalingerForGjennomforingContainer() {
     <>
       <KnapperadContainer>
         <Handlinger>
-          {handlinger.includes(GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING) && (
-            <ActionMenu.Item
-              onClick={() => {
-                navigate("opprett-korreksjon");
-              }}
-            >
-              Opprett korreksjon på utbetaling
-            </ActionMenu.Item>
-          )}
           {handlinger.includes(GjennomforingHandling.OPPRETT_UTBETALING) && (
             <ActionMenu.Item
               onClick={() => {

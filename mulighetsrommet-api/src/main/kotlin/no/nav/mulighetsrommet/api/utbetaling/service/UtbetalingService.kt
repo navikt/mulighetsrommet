@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling
+package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
 import arrow.core.flatMap
@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
@@ -35,6 +34,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
@@ -42,14 +42,17 @@ import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.model.toAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.clamav.Vedlegg
@@ -171,7 +174,6 @@ class UtbetalingService(
         val dbo = UtbetalingDbo(
             id = UUID.randomUUID(),
             gjennomforingId = utbetalingKrav.gjennomforingId,
-            korreksjonGjelderUtbetalingId = null,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = Betalingsinformasjon.BBan(utbetalingKrav.kontonummer, utbetalingKrav.kidNummer),
             valuta = gjennomforing.prismodell.valuta,
@@ -185,6 +187,8 @@ class UtbetalingService(
             ),
             periode = periode,
             innsender = agent,
+            kommentar = null,
+            korreksjonGjelderUtbetalingId = null,
             korreksjonBegrunnelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             journalpostId = null,
@@ -222,7 +226,7 @@ class UtbetalingService(
             periode,
         )
 
-        val korrigererUtbetaling = opprett.korrigererUtbetaling?.also {
+        val korreksjonGjelderUtbetalingId = opprett.korreksjonGjelderUtbetalingId?.also {
             val utbetaling = queries.utbetaling.get(it)
                 ?: return FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
 
@@ -250,7 +254,6 @@ class UtbetalingService(
         val dbo = UtbetalingDbo(
             id = opprett.id,
             gjennomforingId = opprett.gjennomforingId,
-            korreksjonGjelderUtbetalingId = korrigererUtbetaling,
             status = UtbetalingStatusType.INNSENDT,
             betalingsinformasjon = betalingsinformasjon,
             valuta = opprett.pris.valuta,
@@ -259,7 +262,9 @@ class UtbetalingService(
             ),
             periode = periode,
             innsender = agent,
-            korreksjonBegrunnelse = opprett.beskrivelse,
+            kommentar = opprett.kommentar,
+            korreksjonGjelderUtbetalingId = korreksjonGjelderUtbetalingId,
+            korreksjonBegrunnelse = opprett.korreksjonBegrunnelse,
             tilskuddstype = opprett.tilskuddstype,
             journalpostId = opprett.journalpostId,
             godkjentAvArrangorTidspunkt = if (agent is Arrangor) {

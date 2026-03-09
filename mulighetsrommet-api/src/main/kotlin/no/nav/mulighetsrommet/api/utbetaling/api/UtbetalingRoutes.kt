@@ -33,14 +33,14 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.DeltakerAdvarselDto
-import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhet
-import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
-import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
-import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.DeltakerPersonaliaMedGeografiskEnhet
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -540,7 +540,8 @@ data class OpprettUtbetalingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate? = null,
     val journalpostId: String? = null,
-    val beskrivelse: String? = null,
+    val korreksjonBegrunnelse: String? = null,
+    val kommentar: String? = null,
     val kidNummer: String? = null,
     val pris: ValutaBelopRequest? = null,
 )

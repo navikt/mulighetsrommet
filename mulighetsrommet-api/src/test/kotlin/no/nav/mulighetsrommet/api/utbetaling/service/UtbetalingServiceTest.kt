@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling
+package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.left
 import arrow.core.nel
@@ -117,12 +117,13 @@ class UtbetalingServiceTest : FunSpec({
         val opprettAnnenAvtaltPrisUtbetaling = OpprettUtbetalingAnnenAvtaltPris(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
-            korrigererUtbetaling = null,
+            korreksjonGjelderUtbetalingId = null,
             periodeStart = LocalDate.of(2025, 1, 1),
             periodeSlutt = LocalDate.of(2025, 1, 31),
             journalpostId = null,
-            beskrivelse = "Arrangør trenger penger",
+            korreksjonBegrunnelse = "Arrangør trenger penger",
             kid = null,
+            kommentar = null,
             pris = 10.withValuta(Valuta.NOK),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             vedlegg = listOf(),

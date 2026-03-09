@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
-import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordDbo
@@ -267,7 +267,7 @@ data class TilsagnIdRequest(
 data class ScheduledTaskDto(
     val taskName: String,
     val taskInstance: String,
-    val taskData: String,
+    val taskData: String?,
     val executionTime: String,
     val picked: Boolean,
     val pickedBy: String?,
@@ -283,7 +283,7 @@ fun ScheduledTaskDbo.toDto(): ScheduledTaskDto {
     return ScheduledTaskDto(
         taskName = taskName,
         taskInstance = taskInstance,
-        taskData = taskData.decodeToString(),
+        taskData = taskData?.decodeToString(),
         executionTime = executionTime.toString(),
         picked = picked,
         pickedBy = pickedBy,

@@ -3209,7 +3209,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 1
+        - 2
     TiltakstypeDto:
       type: object
       properties:
@@ -5317,7 +5317,6 @@ components:
       - OPPRETT_TILSAGN
       - OPPRETT_EKSTRATILSAGN
       - OPPRETT_TILSAGN_FOR_INVESTERINGER
-      - OPPRETT_KORREKSJON_PA_UTBETALING
       - OPPRETT_UTBETALING
     PrismodellInfo:
       type: object
@@ -6245,7 +6244,11 @@ components:
           type:
           - "null"
           - string
-        beskrivelse:
+        korreksjonBegrunnelse:
+          type:
+          - "null"
+          - string
+        kommentar:
           type:
           - "null"
           - string
@@ -6258,11 +6261,12 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/ValutaBelopRequest"
       required:
-      - beskrivelse
       - gjennomforingId
       - id
       - journalpostId
       - kidNummer
+      - kommentar
+      - korreksjonBegrunnelse
       - korrigererUtbetaling
       - periodeSlutt
       - periodeStart
@@ -6296,10 +6300,14 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Betalingsinformasjon"
-        beskrivelse:
+        kommentar:
           type:
           - "null"
           - string
+        korreksjon:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtbetalingDto.Korreksjon"
         begrunnelseMindreBetalt:
           type:
           - "null"
@@ -6323,13 +6331,14 @@ components:
       required:
       - avbruttBegrunnelse
       - begrunnelseMindreBetalt
-      - beskrivelse
       - betalingsinformasjon
       - gjennomforingId
       - id
       - innsendtAv
       - innsendtAvArrangorDato
       - journalpostId
+      - kommentar
+      - korreksjon
       - periode
       - pris
       - status
@@ -6373,6 +6382,19 @@ components:
       - bankNavn
       - bic
       - iban
+    UtbetalingDto.Korreksjon:
+      type: object
+      properties:
+        opprinneligUtbetaling:
+          type:
+          - "null"
+          - string
+          format: uuid
+        begrunnelse:
+          type: string
+      required:
+      - begrunnelse
+      - opprinneligUtbetaling
     Tilskuddstype:
       type: string
       enum:

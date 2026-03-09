@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling
+package no.nav.mulighetsrommet.api.utbetaling.service
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.SystemgenerertPrismodell
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
@@ -260,7 +261,6 @@ class GenererUtbetalingService(
         return UtbetalingDbo(
             id = utbetalingId,
             gjennomforingId = gjennomforing.id,
-            korreksjonGjelderUtbetalingId = null,
             status = UtbetalingStatusType.GENERERT,
             valuta = beregning.output.pris.valuta,
             beregning = beregning,
@@ -272,6 +272,8 @@ class GenererUtbetalingService(
             },
             periode = periode,
             innsender = null,
+            kommentar = null,
+            korreksjonGjelderUtbetalingId = null,
             korreksjonBegrunnelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             journalpostId = null,
@@ -405,6 +407,7 @@ private fun UtbetalingDbo.isNotEqualTo(utbetaling: Utbetaling): Boolean = this !
     beregning = utbetaling.beregning,
     betalingsinformasjon = utbetaling.betalingsinformasjon,
     periode = utbetaling.periode,
+    kommentar = utbetaling.kommentar,
     korreksjonGjelderUtbetalingId = utbetaling.korreksjon?.gjelderUtbetalingId,
     korreksjonBegrunnelse = utbetaling.korreksjon?.begrunnelse,
     tilskuddstype = utbetaling.tilskuddstype,

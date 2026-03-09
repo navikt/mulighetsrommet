@@ -94,7 +94,9 @@ class GjennomforingDetaljerService(
             administratorNavIdent = filter.administratorNavIdent,
             koordinatorNavIdent = filter.koordinatorNavIdent,
             publisert = filter.publisert,
-            typer = filter.gjennomforingTyper.ifEmpty { listOf(GjennomforingType.AVTALE, GjennomforingType.ENKELTPLASS) },
+            typer = filter.gjennomforingTyper.ifEmpty {
+                listOf(GjennomforingType.AVTALE, GjennomforingType.ENKELTPLASS)
+            },
         ).let { (totalCount, items) ->
             val data = items.map { it.toKompaktDto() }
             PaginatedResponse.of(pagination, totalCount, data)
@@ -138,7 +140,6 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.OPPRETT_TILSAGN,
                 GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
                 GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
-                GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
                 GjennomforingHandling.OPPRETT_UTBETALING,
                 -> saksbehandlerOkonomi
             }
@@ -152,6 +153,7 @@ private fun getHandlingerGruppetiltak(
 ): Set<GjennomforingHandling> {
     val statusGjennomfores = gjennomforing.status == GjennomforingStatusType.GJENNOMFORES
     return setOfNotNull(
+        GjennomforingHandling.DUPLISER,
         GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
         GjennomforingHandling.FORHANDSVIS_I_MODIA.takeIf { statusGjennomfores },
         GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
@@ -162,9 +164,10 @@ private fun getHandlingerGruppetiltak(
         GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
             gjennomforing.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER)
         },
-
-        GjennomforingHandling.DUPLISER,
-        GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
+        // FIXME: midlertidig hack for å tillate "Opprett utbetaling" for utenlandske bedifter
+        GjennomforingHandling.OPPRETT_UTBETALING.takeIf {
+            gjennomforing.arrangor.organisasjonsnummer.value.startsWith("1")
+        },
         GjennomforingHandling.OPPRETT_TILSAGN,
         GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
     )

@@ -45,8 +45,11 @@ class FieldValidator(
         if (!condition) errors += error()
     }
 
-    fun <A> validateNotNull(value: A?, error: () -> FieldError) {
-        if (value == null) errors += error()
+    fun <A> validateNotNull(value: A?, error: () -> FieldError): A? {
+        if (value == null) {
+            errors += error()
+        }
+        return value
     }
 
     @ExperimentalContracts

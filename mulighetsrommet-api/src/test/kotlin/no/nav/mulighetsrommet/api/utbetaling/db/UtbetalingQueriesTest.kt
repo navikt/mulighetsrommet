@@ -83,6 +83,7 @@ class UtbetalingQueriesTest : FunSpec({
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), Kid.parseOrThrow("006402710013")),
         periode = periode,
         innsender = NavIdent("Z123456"),
+        kommentar = "En kommentar",
         korreksjonGjelderUtbetalingId = null,
         korreksjonBegrunnelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -123,6 +124,7 @@ class UtbetalingQueriesTest : FunSpec({
                 utbetaling.utbetalesTidligstTidspunkt shouldBe utbetalesTidligstTidspunkt
                 utbetaling.innsender shouldBe NavIdent("Z123456")
                 utbetaling.korreksjon shouldBe null
+                utbetaling.kommentar shouldBe "En kommentar"
             }
         }
     }

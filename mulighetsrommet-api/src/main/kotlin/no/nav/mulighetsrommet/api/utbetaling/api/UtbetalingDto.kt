@@ -32,8 +32,8 @@ data class UtbetalingDto(
     @Serializable(with = LocalDateSerializer::class)
     val utbetalesTidligstDato: LocalDate?,
     val betalingsinformasjon: Betalingsinformasjon?,
-    // TODO: gjelder kun korreksjoner. Gjør om ifm. migrering til ny korreksjonsmodell
-    val beskrivelse: String?,
+    val kommentar: String?,
+    val korreksjon: Korreksjon?,
     val begrunnelseMindreBetalt: String?,
     val avbruttBegrunnelse: String?,
     val innsendtAv: String?,
@@ -41,6 +41,13 @@ data class UtbetalingDto(
     val tilskuddstype: Tilskuddstype,
     val type: UtbetalingTypeDto,
 ) {
+    @Serializable
+    data class Korreksjon(
+        @Serializable(with = UUIDSerializer::class)
+        val opprinneligUtbetaling: UUID?,
+        val begrunnelse: String,
+    )
+
     companion object {
         fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingDto {
             return UtbetalingDto(
@@ -51,7 +58,8 @@ data class UtbetalingDto(
                 innsendtAvArrangorDato = utbetaling.godkjentAvArrangorTidspunkt?.toLocalDate(),
                 utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
-                beskrivelse = utbetaling.korreksjon?.begrunnelse,
+                kommentar = utbetaling.kommentar,
+                korreksjon = utbetaling.korreksjon?.let { Korreksjon(it.gjelderUtbetalingId, it.begrunnelse) },
                 begrunnelseMindreBetalt = utbetaling.begrunnelseMindreBetalt,
                 pris = utbetaling.beregning.output.pris,
                 innsendtAv = formaterInnsendtAv(utbetaling.innsender),
