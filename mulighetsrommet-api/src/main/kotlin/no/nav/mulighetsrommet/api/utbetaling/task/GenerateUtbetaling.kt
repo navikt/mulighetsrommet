@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.task
 
+import com.github.kagkarlsson.scheduler.task.FailureHandler
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
@@ -9,6 +10,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.tasks.executeSuspend
+import java.time.Duration
 import java.time.LocalDate
 
 class GenerateUtbetaling(
@@ -30,6 +32,7 @@ class GenerateUtbetaling(
 
     val task: RecurringTask<Void> = Tasks
         .recurring(javaClass.simpleName, config.toSchedule())
+        .onFailure(FailureHandler.ExponentialBackoffFailureHandler(Duration.ofHours(1)))
         .executeSuspend { _, _ ->
             val periode = Periode.forMonthOf(LocalDate.now().minusMonths(1))
             runTask(periode)
