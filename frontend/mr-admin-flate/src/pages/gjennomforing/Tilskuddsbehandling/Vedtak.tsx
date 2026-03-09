@@ -1,10 +1,10 @@
-import { UthevetBox } from "@/layouts/UthevetBox";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { Box, Heading, VStack, TextField, HStack, Radio, Spacer } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import type { BehandlingFormData } from "./schema";
+import { FormGroup } from "@/layouts/FormGroup";
 
 export function Vedtak() {
   const { watch } = useFormContext<BehandlingFormData>();
@@ -22,7 +22,7 @@ export function Vedtak() {
       </Heading>
       <VStack gap="space-20" align="start">
         {tilskudd.map((tilskuddItem, index) => (
-          <UthevetBox key={index}>
+          <FormGroup key={index}>
             <HStack gap="space-24" align="start" justify="space-between">
               <MetadataVStack
                 label="Tilskuddstype"
@@ -43,7 +43,7 @@ export function Vedtak() {
                 <Radio value="avslag">Avslag</Radio>
               </ControlledRadioGroup>
             </HStack>
-          </UthevetBox>
+          </FormGroup>
         ))}
         <TextField
           label="Totalt beløp til utbetaling"

@@ -13,7 +13,7 @@ import { Controller, DeepPartial, useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "@/components/arrangor/ArrangorKontaktpersonerModal";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { FormGroup } from "@/components/skjema/FormGroup";
+import { FormGroup } from "@/layouts/FormGroup";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { useSokBrregHovedenhet } from "@/api/virksomhet/useSokBrregHovedenhet";
 import { useBrregUnderenheter } from "@/api/virksomhet/useBrregUnderenheter";

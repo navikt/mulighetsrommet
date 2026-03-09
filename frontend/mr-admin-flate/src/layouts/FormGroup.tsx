@@ -1,6 +1,7 @@
+import { PropsWithChildren } from "react";
 import { Box, VStack } from "@navikt/ds-react";
 
-export function UthevetBox({ children }: { children: React.ReactNode }) {
+export function FormGroup({ children }: PropsWithChildren) {
   return (
     <Box
       asChild

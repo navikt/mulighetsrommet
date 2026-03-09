@@ -1,4 +1,3 @@
-import { UthevetBox } from "@/layouts/UthevetBox";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -6,6 +5,7 @@ import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import type { BehandlingFormData } from "./schema";
+import { FormGroup } from "@/layouts/FormGroup";
 
 const tomtTilskudd = {
   tilskuddstype: "",
@@ -41,7 +41,7 @@ export function Saksopplysninger() {
           rules={{ required: "Søknadstidspunkt er påkrevd" }}
         />
         {fields.map((field, index) => (
-          <UthevetBox key={field.id}>
+          <FormGroup key={field.id}>
             <HStack gap="space-24" align="start">
               <FormSelect
                 label="Tilskuddstype"
@@ -73,7 +73,7 @@ export function Saksopplysninger() {
                 </Button>
               )}
             </HStack>
-          </UthevetBox>
+          </FormGroup>
         ))}
         <Button
           size="small"

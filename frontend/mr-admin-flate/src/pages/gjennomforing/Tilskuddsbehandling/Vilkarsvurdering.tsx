@@ -1,4 +1,3 @@
-import { UthevetBox } from "@/layouts/UthevetBox";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { Box, Heading, VStack, TextField, HStack, Radio } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
@@ -6,16 +5,17 @@ import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import type { BehandlingFormData } from "./schema";
+import { FormGroup } from "@/layouts/FormGroup";
 
 export function Vilkarsvurdering() {
   const { watch } = useFormContext<BehandlingFormData>();
 
   const tilskudd = watch("tilskudd");
+  const belopInnenforMaksgrense = watch("belopInnenforMaksgrense");
   const totalBelop = tilskudd.reduce((sum, t) => {
     const belop = parseInt(t.belopTilUtbetaling || t.belop || "0");
     return sum + (isNaN(belop) ? 0 : belop);
   }, 0);
-
   return (
     <>
       <Heading size="medium" level="3" spacing>
@@ -23,7 +23,7 @@ export function Vilkarsvurdering() {
       </Heading>
       <VStack gap="space-20">
         {tilskudd.map((tilskuddItem, index) => (
-          <UthevetBox key={index}>
+          <FormGroup key={index}>
             <HStack gap="space-24">
               <MetadataVStack
                 label="Tilskuddstype"
@@ -42,13 +42,13 @@ export function Vilkarsvurdering() {
               horisontal
               rules={{ required: "Velg Ja eller Nei" }}
             >
-              <Radio value="yes">Ja</Radio>
-              <Radio value="no">Nei</Radio>
+              <Radio value={true}>Ja</Radio>
+              <Radio value={false}>Nei</Radio>
             </ControlledRadioGroup>
             <Box width="100%">
               <FormTextarea label="Begrunnelse" name={`tilskudd.${index}.begrunnelse`} />
             </Box>
-          </UthevetBox>
+          </FormGroup>
         ))}
         <Heading size="small" level="4">
           Maksbeløp
@@ -67,20 +67,22 @@ export function Vilkarsvurdering() {
           horisontal
           rules={{ required: "Velg Ja eller Nei" }}
         >
-          <Radio value="yes">Ja</Radio>
-          <Radio value="no">Nei</Radio>
+          <Radio value={true}>Ja</Radio>
+          <Radio value={false}>Nei</Radio>
         </ControlledRadioGroup>
-        <ControlledRadioGroup
-          name="unntakVurdert"
-          legend="Er det vurdert unntak fra maksgrensen?"
-          description="Krever en forklaring her om det man må vurdere osv"
-          size="small"
-          horisontal
-          rules={{ required: "Velg Ja eller Nei" }}
-        >
-          <Radio value="yes">Ja</Radio>
-          <Radio value="no">Nei</Radio>
-        </ControlledRadioGroup>
+        {belopInnenforMaksgrense === false && (
+          <ControlledRadioGroup
+            name="unntakVurdert"
+            legend="Er det vurdert unntak fra maksgrensen?"
+            description="Krever en forklaring her om det man må vurdere osv"
+            size="small"
+            horisontal
+            rules={{ required: "Velg Ja eller Nei" }}
+          >
+            <Radio value={true}>Ja</Radio>
+            <Radio value={false}>Nei</Radio>
+          </ControlledRadioGroup>
+        )}
         <Box width="100%">
           <FormTextarea label="Begrunnelse" name="maksbelopBegrunnelse" />
         </Box>
