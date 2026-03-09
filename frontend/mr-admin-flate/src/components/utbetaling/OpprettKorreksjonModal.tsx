@@ -41,6 +41,7 @@ export function OpprettKorreksjonModal({ utbetaling, open, close }: OpprettKorre
                 <TextareaInput<OpprettUtbetalingRequest>
                   label="Begrunnelse for utbetaling"
                   name="korreksjonBegrunnelse"
+                  maxLength={250}
                 />
               </FormGroup>
               <FormGroup>

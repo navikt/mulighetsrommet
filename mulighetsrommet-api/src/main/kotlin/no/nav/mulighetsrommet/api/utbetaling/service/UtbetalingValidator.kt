@@ -131,15 +131,27 @@ object UtbetalingValidator {
             validate(value.length >= 10) {
                 FieldError.of("Kommentar må være minst 10 tegn", OpprettUtbetalingRequest::kommentar)
             }
+
+            validate(value.length <= 250) {
+                FieldError.of("Kommentar kan ikke være mer enn 250 tegn", OpprettUtbetalingRequest::kommentar)
+            }
         }
 
         val korreksjonBegrunnelse = when (request.korrigererUtbetaling) {
             null -> null
 
             else -> request.korreksjonBegrunnelse?.trim().also { value ->
-                validate(value != null && value.length >= 10) {
+                val length = value.orEmpty().length
+                validate(length >= 10) {
                     FieldError.of(
                         "Begrunnelse for korreksjon må være minst 10 tegn",
+                        OpprettUtbetalingRequest::korreksjonBegrunnelse,
+                    )
+                }
+
+                validate(length <= 250) {
+                    FieldError.of(
+                        "Begrunnelse for korreksjon kan ikke være mer enn 250 tegn",
                         OpprettUtbetalingRequest::korreksjonBegrunnelse,
                     )
                 }
