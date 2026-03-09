@@ -42,7 +42,7 @@ jobs:
           service_account: terraform@team-mulighetsrommet-dev-a2d7.iam.gserviceaccount.com
 
       - name: Run 'terraform setup'
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
       - run: terraform init
       - run: terraform fmt -check
@@ -71,7 +71,7 @@ jobs:
           service_account: terraform@team-mulighetsrommet-prod-5492.iam.gserviceaccount.com
 
       - name: Run 'terraform setup'
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
       - run: terraform init
       - run: terraform fmt -check
@@ -111,7 +111,7 @@ jobs:
           service_account: terraform@team-mulighetsrommet-dev-a2d7.iam.gserviceaccount.com
 
       - name: Run 'terraform setup'
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
       - run: terraform init
       - run: terraform apply -auto-approve
@@ -141,7 +141,7 @@ jobs:
           service_account: terraform@team-mulighetsrommet-prod-5492.iam.gserviceaccount.com
 
       - name: Run 'terraform setup'
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
       - run: terraform init
       - run: terraform apply -auto-approve
