@@ -150,7 +150,6 @@ const TILSAGN_ROUTES: RouteObject[] = [
 ];
 
 const UTBETALING_ROUTES: RouteObject[] = [
-  { path: "opprett-korreksjon", element: <OpprettUtbetalingKorreksjonPage /> },
   { path: "opprett-utbetaling", element: <OpprettUtbetalingAnskaffelsePage /> },
   { path: ":utbetalingId", element: <UtbetalingDetaljerPage /> },
 ];
