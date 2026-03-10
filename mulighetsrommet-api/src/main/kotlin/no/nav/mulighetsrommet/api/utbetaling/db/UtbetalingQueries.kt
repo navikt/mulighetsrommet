@@ -701,7 +701,7 @@ class UtbetalingQueries(private val session: Session) {
                     begrunnelse = begrunnelse,
                 )
             },
-            innsending = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt")?.let { tidspunkt ->
+            innsending = localDateTimeOrNull("innsendt_av_arrangor_tidspunkt")?.let { tidspunkt ->
                 Utbetaling.Innsending(tidspunkt)
             },
             status = UtbetalingStatusType.valueOf(string("status")),
