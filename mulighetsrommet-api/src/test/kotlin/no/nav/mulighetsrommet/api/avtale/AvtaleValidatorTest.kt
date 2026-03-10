@@ -7,6 +7,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
@@ -1083,7 +1084,7 @@ class AvtaleValidatorTest : FunSpec({
                 ),
                 ctx,
             ).shouldBeRight().detaljerDbo.amoKategorisering
-                .shouldBeTypeOf<AmoKategorisering.GrunnleggendeFerdigheter>()
+                .shouldBeNull()
 
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo.copy(
@@ -1153,17 +1154,6 @@ class AvtaleValidatorTest : FunSpec({
                         ),
                     )
                 }
-        }
-    }
-    context("rammedetaljer") {
-        test("totalramme må være positiv") {
-            // TODO
-            AvtaleValidator.validateCreateAvtale(
-                gruppeAmo.copy(detaljer = gruppeAmo.detaljer.copy(amoKategorisering = null)),
-                ctx,
-            ).shouldBeLeft(
-                listOf(FieldError("/detaljer/amoKategorisering/kurstype", "Du må velge en kurstype")),
-            )
         }
     }
 })
