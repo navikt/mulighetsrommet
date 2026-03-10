@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.utbetaling.service.tidligstTidspunktForUtbetalingDev
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -90,7 +91,7 @@ val ApplicationConfigLocal = AppConfig(
             PrismodellType.ANNEN_AVTALT_PRIS,
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
         ),
-        tidligstTidspunktForUtbetaling = { _, _ -> null },
+        tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
     ),
     database = DatabaseConfig(
         jdbcUrl = "jdbc:postgresql://localhost:5442/mr-api?user=valp&password=valp",

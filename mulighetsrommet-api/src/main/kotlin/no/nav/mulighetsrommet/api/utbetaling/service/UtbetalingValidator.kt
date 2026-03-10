@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
@@ -241,7 +240,7 @@ object UtbetalingValidator {
         validate(utbetaling.status == UtbetalingStatusType.AVBRUTT) {
             FieldError.root("Utbetalingen kan ikke regenereres")
         }
-        validate(utbetaling.innsender == Arrangor) {
+        validateNotNull(utbetaling.innsending) {
             FieldError.root("Utbetalingen kan ikke regenereres")
         }
         when (utbetaling.beregning) {

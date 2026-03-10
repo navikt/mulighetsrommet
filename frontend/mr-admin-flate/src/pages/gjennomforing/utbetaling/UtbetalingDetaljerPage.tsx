@@ -101,10 +101,6 @@ export function UtbetalingDetaljerPage() {
               value={formaterDato(utbetaling.innsendtAvArrangorDato)}
             />
             <MetadataHGrid
-              label={utbetalingTekster.metadata.innsendtAv}
-              value={utbetaling.innsendtAv}
-            />
-            <MetadataHGrid
               label={utbetalingTekster.beregning.belop.label}
               value={formaterValutaBelop(utbetaling.pris)}
             />

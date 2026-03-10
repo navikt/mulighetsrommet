@@ -25,8 +25,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.UUID
 
 class ArrangorflateServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -44,10 +42,6 @@ class ArrangorflateServiceTest : FunSpec({
     )
     val amtDeltakerClient = mockk<AmtDeltakerClient>()
     coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
-
-    fun getUtbetaling(id: UUID): Utbetaling = database.db.session {
-        queries.utbetaling.getOrError(id)
-    }
 
     beforeEach {
         domain.initialize(database.db)
@@ -113,7 +107,7 @@ class ArrangorflateServiceTest : FunSpec({
     test("getAdvarsler should return empty list when no advarsler exists") {
         val arrangorflateService = createService()
 
-        val utbetalingDto = getUtbetaling(utbetaling.id)
+        val utbetalingDto = arrangorflateService.getUtbetaling(utbetaling.id)!!
         val result = arrangorflateService.getAdvarsler(utbetalingDto)
         result shouldHaveSize 0
     }
@@ -141,10 +135,11 @@ class ArrangorflateServiceTest : FunSpec({
     test("toArrangorflateUtbetaling should map successfully with kanViseBeregning = true for recently approved utbetaling") {
         val arrangorflateService = createService()
 
-        val date = LocalDateTime.now()
-        val godkjentAvArrangorUtbetaling =
-            getUtbetaling(utbetaling.id).copy(godkjentAvArrangorTidspunkt = date.minusDays(1))
-        val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = date)
+        val date = LocalDate.now()
+        val godkjentAvArrangorUtbetaling = arrangorflateService.getUtbetaling(utbetaling.id)!!.copy(
+            innsending = Utbetaling.Innsending(date.atStartOfDay().minusDays(1)),
+        )
+        val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, today = date)
 
         result.shouldNotBeNull()
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
@@ -157,10 +152,11 @@ class ArrangorflateServiceTest : FunSpec({
     test("toArrangorflateUtbetaling should map successfully with kanViseBeregning = false for 12 weeks old approved utbetaling") {
         val arrangorflateService = createService()
 
-        val now = LocalDateTime.now()
-        val godkjentAvArrangorUtbetaling =
-            getUtbetaling(utbetaling.id).copy(godkjentAvArrangorTidspunkt = now.minusWeeks(12))
-        val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = now)
+        val date = LocalDate.now()
+        val godkjentAvArrangorUtbetaling = arrangorflateService.getUtbetaling(utbetaling.id)!!.copy(
+            innsending = Utbetaling.Innsending(date.atStartOfDay().minusWeeks(12)),
+        )
+        val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, today = date)
 
         result.shouldNotBeNull()
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING

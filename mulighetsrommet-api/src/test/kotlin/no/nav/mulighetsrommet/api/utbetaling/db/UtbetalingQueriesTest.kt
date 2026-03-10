@@ -39,11 +39,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
@@ -82,7 +80,6 @@ class UtbetalingQueriesTest : FunSpec({
         beregning = friBeregning,
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), Kid.parseOrThrow("006402710013")),
         periode = periode,
-        innsender = NavIdent("Z123456"),
         kommentar = "En kommentar",
         korreksjonGjelderUtbetalingId = null,
         korreksjonBegrunnelse = null,
@@ -120,10 +117,9 @@ class UtbetalingQueriesTest : FunSpec({
                 }
                 utbetaling.journalpostId shouldBe JournalpostId("12345")
                 utbetaling.periode shouldBe periode
-                utbetaling.godkjentAvArrangorTidspunkt shouldBe null
                 utbetaling.utbetalesTidligstTidspunkt shouldBe utbetalesTidligstTidspunkt
-                utbetaling.innsender shouldBe NavIdent("Z123456")
                 utbetaling.korreksjon shouldBe null
+                utbetaling.innsending shouldBe null
                 utbetaling.kommentar shouldBe "En kommentar"
             }
         }
@@ -153,13 +149,16 @@ class UtbetalingQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            queries.utbetaling.upsert(utbetaling.copy(innsender = null))
+            queries.utbetaling.upsert(utbetaling)
 
-            queries.utbetaling.getOrError(utbetaling.id).innsender shouldBe null
+            queries.utbetaling.getOrError(utbetaling.id).innsending shouldBe null
 
-            queries.utbetaling.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
+            val tidspunkt = LocalDateTime.of(2026, 1, 1, 0, 0, 0)
+            queries.utbetaling.setGodkjentAvArrangor(utbetaling.id, tidspunkt)
 
-            queries.utbetaling.getOrError(utbetaling.id).innsender shouldBe Arrangor
+            queries.utbetaling.getOrError(utbetaling.id).innsending shouldBe Utbetaling.Innsending(
+                tidspunkt = tidspunkt,
+            )
         }
     }
 

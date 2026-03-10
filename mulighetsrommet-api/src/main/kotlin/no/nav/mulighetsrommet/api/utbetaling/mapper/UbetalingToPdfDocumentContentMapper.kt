@@ -130,17 +130,9 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Utbetalin
                 "Arrangør",
                 "${utbetaling.arrangor.navn} (${utbetaling.arrangor.organisasjonsnummer.value})",
             )
-            utbetaling.godkjentAvArrangorTidspunkt
-                ?.let {
-                    text(
-                        "Dato innsendt av arrangør",
-                        it.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
-                    )
-                }
-                ?: text(
-                    "Dato opprettet hos Nav",
-                    utbetaling.createdAt.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
-                )
+            utbetaling.innsending
+                ?.let { text("Dato innsendt av arrangør", it.tidspunkt.toLocalDate(), Format.DATE) }
+                ?: text("Dato opprettet hos Nav", utbetaling.createdAt.toLocalDate(), Format.DATE)
             text("Tiltakstype", utbetaling.tiltakstype.navn)
             if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
                 text(

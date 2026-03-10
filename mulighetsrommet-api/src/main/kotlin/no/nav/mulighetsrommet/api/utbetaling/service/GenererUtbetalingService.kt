@@ -265,7 +265,6 @@ class GenererUtbetalingService(
                 )
             },
             periode = periode,
-            innsender = null,
             kommentar = null,
             korreksjonGjelderUtbetalingId = null,
             korreksjonBegrunnelse = null,
@@ -397,7 +396,6 @@ class GenererUtbetalingService(
 
 private fun UtbetalingDbo.isNotEqualTo(utbetaling: Utbetaling): Boolean = this != UtbetalingDbo(
     id = utbetaling.id,
-    innsender = utbetaling.innsender,
     gjennomforingId = utbetaling.gjennomforing.id,
     status = utbetaling.status,
     valuta = utbetaling.valuta,
@@ -409,7 +407,7 @@ private fun UtbetalingDbo.isNotEqualTo(utbetaling: Utbetaling): Boolean = this !
     korreksjonBegrunnelse = utbetaling.korreksjon?.begrunnelse,
     tilskuddstype = utbetaling.tilskuddstype,
     journalpostId = utbetaling.journalpostId,
-    godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+    godkjentAvArrangorTidspunkt = utbetaling.innsending?.tidspunkt,
     utbetalesTidligstTidspunkt = utbetaling.utbetalesTidligstTidspunkt,
     blokkeringer = utbetaling.blokkeringer,
 )
