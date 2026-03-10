@@ -97,7 +97,7 @@ class UtbetalingQueries(private val session: Session) {
                 :korreksjon_begrunnelse,
                 :innsendt_av_arrangor_tidspunkt,
                 :utbetales_tidligst_tidspunkt,
-                :status::utbetaling_status,
+                :status,
                 :datastream_periode_start::date,
                 :datastream_periode_slutt::date
             ) on conflict (id) do update set
@@ -402,7 +402,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling set
-                status = :status::utbetaling_status
+                status = :status
             where id = :id::uuid
         """.trimIndent()
 
@@ -545,7 +545,7 @@ class UtbetalingQueries(private val session: Session) {
             select *
             from view_utbetaling
             where arrangor_organisasjonsnummer = any (?)
-            and status = any (?::utbetaling_status[])
+            and status = any (?)
             order by arrangor_navn, tiltakskode desc
         """.trimIndent()
         val orgnrListe = session.createArrayOfValue(arrangorer) { it.value }
@@ -562,12 +562,12 @@ class UtbetalingQueries(private val session: Session) {
             select *
             from view_utbetaling
             where gjennomforing_id = :id::uuid
-            and (:statuser::utbetaling_status[] is null or status = any (:statuser::utbetaling_status[]))
+            and (:statuser::text[] is null or status = any (:statuser))
         """.trimIndent()
 
         val params = mapOf(
             "id" to gjennomforingId,
-            "statuser" to statuser?.ifEmpty { null }?.let { createArrayOfValue(it) { it } },
+            "statuser" to statuser?.ifEmpty { null }?.let { createTextArray(it) },
         )
 
         return list(queryOf(query, params)) { it.toUtbetaling() }
