@@ -59,7 +59,7 @@ class AvtaleValidatorTest : FunSpec({
     val gruppeAmo = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-        amo = AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING),
+        amo = AmoKategoriseringRequest(kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER, innholdElementer = listOf(AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER)),
     )
     val forhaandsgodkjent = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -1066,13 +1066,13 @@ class AvtaleValidatorTest : FunSpec({
                 gruppeAmo,
                 ctx,
             ).shouldBeRight().detaljerDbo.amoKategorisering
-                .shouldBeTypeOf<AmoKategorisering.Studiespesialisering>()
+                .shouldBeTypeOf<AmoKategorisering.GrunnleggendeFerdigheter>()
 
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo,
                 ctx,
             ).shouldBeRight().detaljerDbo.amoKategorisering
-                .shouldBeTypeOf<AmoKategorisering.Studiespesialisering>()
+                .shouldBeTypeOf<AmoKategorisering.GrunnleggendeFerdigheter>()
 
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo.copy(
@@ -1083,7 +1083,7 @@ class AvtaleValidatorTest : FunSpec({
                 ),
                 ctx,
             ).shouldBeRight().detaljerDbo.amoKategorisering
-                .shouldBeTypeOf<AmoKategorisering.Studiespesialisering>()
+                .shouldBeTypeOf<AmoKategorisering.GrunnleggendeFerdigheter>()
 
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo.copy(

@@ -79,7 +79,7 @@ object AvtaleFixtures {
             tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
             navn = "Gruppe Amo",
             avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-            amoKategorisering = AmoKategorisering.Studiespesialisering,
+            amoKategorisering = AmoKategorisering.GrunnleggendeFerdigheter(innholdElementer = listOf(AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER)),
         ),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),

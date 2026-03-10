@@ -126,9 +126,6 @@ function GruppeAmoForm() {
         <option value={AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE}>
           {kurstypeToString(AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE)}
         </option>
-        <option value={AmoKurstype.STUDIESPESIALISERING}>
-          {kurstypeToString(AmoKurstype.STUDIESPESIALISERING)}
-        </option>
       </Select>
       {amoKategorisering?.kurstype === AmoKurstype.BRANSJE_OG_YRKESRETTET && (
         <AvtaleBransjeForm tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING} />

@@ -32,6 +32,7 @@ fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.HOYERE_UTDANNING,
         Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+        Tiltakskode.STUDIESPESIALISERING,
         -> null
 
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> when (this) {
@@ -57,10 +58,6 @@ fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
                 kurstype = AmoKurstype.NORSKOPPLAERING,
                 norskprove = this.norskprove,
                 innholdElementer = this.innholdElementer,
-            )
-
-            AmoKategorisering.Studiespesialisering -> AmoKategoriseringDto(
-                kurstype = AmoKurstype.STUDIESPESIALISERING,
             )
         }
 
@@ -92,11 +89,8 @@ fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
                 innholdElementer = this.innholdElementer,
             )
 
-            AmoKategorisering.Studiespesialisering,
             is AmoKategorisering.BransjeOgYrkesrettet,
             -> throw IllegalStateException("amoKategorisering har feil verdier")
         }
-
-        Tiltakskode.STUDIESPESIALISERING -> AmoKategoriseringDto(kurstype = AmoKurstype.STUDIESPESIALISERING)
     }
 }

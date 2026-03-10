@@ -95,7 +95,6 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
 
         test("henter Gruppe AMO med amo-kategorisering") {
-            val studiespesialisering = AmoKategorisering.Studiespesialisering
             val fov = AmoKategorisering.ForberedendeOpplaeringForVoksne(
                 innholdElementer = listOf(
                     AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING,
@@ -126,14 +125,12 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     GruppeAmo1.copy(id = UUID.randomUUID()),
                     GruppeAmo1.copy(id = UUID.randomUUID()),
                     GruppeAmo1.copy(id = UUID.randomUUID()),
-                    GruppeAmo1.copy(id = UUID.randomUUID()),
                 ),
             ) { domain ->
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[0].id, studiespesialisering)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[1].id, fov)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[2].id, grunnleggende)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[3].id, norskopplaering)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[4].id, bransje)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[0].id, fov)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[1].id, grunnleggende)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[2].id, norskopplaering)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[3].id, bransje)
             }
 
             database.runAndRollback { session ->
@@ -141,21 +138,17 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[0].id)
                     .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(studiespesialisering)
+                    .amoKategorisering.shouldNotBeNull().shouldBe(fov)
 
                 queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[1].id)
                     .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(fov)
+                    .amoKategorisering.shouldNotBeNull().shouldBe(grunnleggende)
 
                 queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[2].id)
                     .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(grunnleggende)
-
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[3].id)
-                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                     .amoKategorisering.shouldNotBeNull().shouldBe(norskopplaering)
 
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[4].id)
+                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[3].id)
                     .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                     .amoKategorisering.shouldNotBeNull().shouldBe(bransje)
             }

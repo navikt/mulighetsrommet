@@ -502,6 +502,7 @@ object GjennomforingValidator {
             Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.STUDIESPESIALISERING,
             -> null
 
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
@@ -545,9 +546,6 @@ object GjennomforingValidator {
                 }
                 amoKategorisering
             }
-
-            Tiltakskode.STUDIESPESIALISERING,
-            -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
         }?.toDbo()
     }
 }

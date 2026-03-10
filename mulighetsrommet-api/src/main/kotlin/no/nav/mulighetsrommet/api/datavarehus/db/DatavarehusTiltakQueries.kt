@@ -142,8 +142,6 @@ private fun Row.toAmoKategorisering(
                 .toList()
                 .map { AmoKategorisering.InnholdElement.valueOf(it) },
         )
-
-        AmoKurstype.STUDIESPESIALISERING -> AmoKategorisering.Studiespesialisering
     }
 }
 

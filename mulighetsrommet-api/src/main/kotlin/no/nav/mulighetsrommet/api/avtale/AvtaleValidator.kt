@@ -543,6 +543,7 @@ object AvtaleValidator {
         Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.STUDIESPESIALISERING,
         ->
             null
 
@@ -600,9 +601,6 @@ object AvtaleValidator {
             }
             amoKategorisering
         }
-
-        Tiltakskode.STUDIESPESIALISERING,
-        -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
     }?.toDbo().right()
 
     private fun FieldValidator.validateUtdanningslop(

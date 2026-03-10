@@ -3659,7 +3659,6 @@ components:
       - NORSKOPPLAERING
       - GRUNNLEGGENDE_FERDIGHETER
       - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
-      - STUDIESPESIALISERING
     AmoKategorisering.BransjeOgYrkesrettet.Bransje:
       type: string
       enum:

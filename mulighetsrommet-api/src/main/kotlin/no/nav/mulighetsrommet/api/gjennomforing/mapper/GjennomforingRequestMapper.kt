@@ -86,10 +86,6 @@ object GjennomforingRequestMapper {
                 kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
                 innholdElementer = innholdElementer,
             )
-
-            is AmoKategorisering.Studiespesialisering -> AmoKategoriseringRequest(
-                kurstype = AmoKurstype.STUDIESPESIALISERING,
-            )
         }
     }
 

@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.model.AmoKategorisering.BransjeOgYrkesrettet
 import no.nav.mulighetsrommet.model.AmoKategorisering.ForberedendeOpplaeringForVoksne
 import no.nav.mulighetsrommet.model.AmoKategorisering.GrunnleggendeFerdigheter
 import no.nav.mulighetsrommet.model.AmoKategorisering.Norskopplaering
-import no.nav.mulighetsrommet.model.AmoKategorisering.Studiespesialisering
 import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import java.util.UUID
@@ -152,8 +151,6 @@ fun AmoKategoriseringRequest.toDbo(): AmoKategorisering {
         AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> ForberedendeOpplaeringForVoksne(
             innholdElementer = this.innholdElementer ?: emptyList(),
         )
-
-        AmoKurstype.STUDIESPESIALISERING -> Studiespesialisering
 
         else -> throw IllegalArgumentException("Kurstype må være satt")
     }

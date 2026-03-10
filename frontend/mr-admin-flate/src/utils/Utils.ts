@@ -153,8 +153,6 @@ export function kurstypeToString(kurstype: AmoKategoriseringDto["kurstype"]): st
       return "Bransje";
     case AmoKurstype.NORSKOPPLAERING:
       return "Norskopplæring";
-    case AmoKurstype.STUDIESPESIALISERING:
-      return "Studiespesialisering";
     case AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
       return "FOV (Forberedende opplæring for voksne)";
     case AmoKurstype.GRUNNLEGGENDE_FERDIGHETER:

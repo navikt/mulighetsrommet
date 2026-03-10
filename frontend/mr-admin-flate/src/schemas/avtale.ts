@@ -139,15 +139,6 @@ export function amoKategoriseringRequest(
         sertifiseringer: null,
         forerkort: null,
       };
-    case AmoKurstype.STUDIESPESIALISERING:
-      return {
-        kurstype: AmoKurstype.STUDIESPESIALISERING,
-        innholdElementer: null,
-        norskprove: null,
-        bransje: null,
-        sertifiseringer: null,
-        forerkort: null,
-      };
 
     case null:
     case undefined:

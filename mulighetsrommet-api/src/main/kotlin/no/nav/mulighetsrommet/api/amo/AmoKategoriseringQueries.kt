@@ -155,10 +155,6 @@ object AmoKategoriseringQueries {
             "norskprove" to norskprove,
             "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
-
-        AmoKategorisering.Studiespesialisering -> mapOf(
-            "kurstype" to AmoKurstype.STUDIESPESIALISERING.name,
-        )
     }
 }
 

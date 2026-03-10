@@ -10,7 +10,6 @@ enum class AmoKurstype {
     NORSKOPPLAERING,
     GRUNNLEGGENDE_FERDIGHETER,
     FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-    STUDIESPESIALISERING,
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -81,10 +80,6 @@ sealed class AmoKategorisering {
     data class ForberedendeOpplaeringForVoksne(
         val innholdElementer: List<InnholdElement>,
     ) : AmoKategorisering()
-
-    @Serializable
-    @SerialName("STUDIESPESIALISERING")
-    data object Studiespesialisering : AmoKategorisering()
 
     enum class InnholdElement {
         GRUNNLEGGENDE_FERDIGHETER,
