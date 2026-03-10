@@ -42,7 +42,7 @@ object UtbetalingValidator {
     ): Either<List<FieldError>, List<OpprettDelutbetaling>> = validation {
         validate(
             when (utbetaling.status) {
-                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.TIL_BEHANDLING,
                 UtbetalingStatusType.RETURNERT,
                 -> true
 
@@ -190,7 +190,7 @@ object UtbetalingValidator {
         when (utbetaling.status) {
             UtbetalingStatusType.GENERERT -> Unit
 
-            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_BEHANDLING,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
             UtbetalingStatusType.FERDIG_BEHANDLET,

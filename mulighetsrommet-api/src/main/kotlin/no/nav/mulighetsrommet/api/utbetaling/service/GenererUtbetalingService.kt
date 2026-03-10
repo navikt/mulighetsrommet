@@ -192,7 +192,7 @@ class GenererUtbetalingService(
     private fun QueryContext.hentGenererteUtbetalinger(gjennomforingId: UUID): List<Utbetaling> {
         return queries.utbetaling.getByGjennomforing(gjennomforingId).filter {
             when (it.status) {
-                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.TIL_BEHANDLING,
                 UtbetalingStatusType.TIL_ATTESTERING,
                 UtbetalingStatusType.RETURNERT,
                 UtbetalingStatusType.FERDIG_BEHANDLET,

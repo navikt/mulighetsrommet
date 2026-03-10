@@ -97,7 +97,7 @@ class UtbetalingService(
 
             queries.utbetaling.setInnsendtAvArrangor(utbetalingId, LocalDateTime.now())
             queries.utbetaling.setKid(utbetalingId, kid)
-            queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.INNSENDT)
+            queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.TIL_BEHANDLING)
 
             scheduleJournalforUtbetaling(utbetalingId, vedlegg = emptyList())
 
@@ -128,7 +128,7 @@ class UtbetalingService(
 
             when (utbetaling.status) {
                 UtbetalingStatusType.RETURNERT,
-                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.TIL_BEHANDLING,
                 UtbetalingStatusType.GENERERT,
                 UtbetalingStatusType.TIL_ATTESTERING,
                 UtbetalingStatusType.AVBRUTT,
@@ -148,7 +148,7 @@ class UtbetalingService(
         val dbo = UtbetalingDbo(
             id = opprett.id,
             gjennomforingId = opprett.gjennomforingId,
-            status = UtbetalingStatusType.INNSENDT,
+            status = UtbetalingStatusType.TIL_BEHANDLING,
             betalingsinformasjon = betalingsinformasjon,
             valuta = opprett.beregning.output.pris.valuta,
             beregning = opprett.beregning,
@@ -286,7 +286,7 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
         when (utbetaling.status) {
             UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_BEHANDLING,
             -> Unit
 
             UtbetalingStatusType.GENERERT,
@@ -324,7 +324,7 @@ class UtbetalingService(
             UtbetalingStatusType.AVBRUTT,
             -> return FieldError.root("Utbetalingen kan ikke avbrytes").nel().left()
 
-            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_BEHANDLING,
             UtbetalingStatusType.RETURNERT,
             -> Unit
         }
@@ -782,7 +782,7 @@ class UtbetalingService(
                 UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
             }
 
-            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_BEHANDLING,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
             UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -797,7 +797,7 @@ class UtbetalingService(
         fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
             UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
                 when (utbetaling.status) {
-                    UtbetalingStatusType.INNSENDT,
+                    UtbetalingStatusType.TIL_BEHANDLING,
                     UtbetalingStatusType.RETURNERT,
                     -> true
 
@@ -813,7 +813,7 @@ class UtbetalingService(
             UtbetalingHandling.SLETT.takeIf {
                 when (utbetaling.status) {
                     UtbetalingStatusType.RETURNERT,
-                    UtbetalingStatusType.INNSENDT,
+                    UtbetalingStatusType.TIL_BEHANDLING,
                     -> UtbetalingType.from(utbetaling) == UtbetalingType.KORRIGERING
 
                     UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -828,7 +828,7 @@ class UtbetalingService(
             UtbetalingHandling.OPPRETT_KORREKSJON.takeIf {
                 utbetaling.korreksjon == null && when (utbetaling.status) {
                     UtbetalingStatusType.RETURNERT,
-                    UtbetalingStatusType.INNSENDT,
+                    UtbetalingStatusType.TIL_BEHANDLING,
                     UtbetalingStatusType.GENERERT,
                     UtbetalingStatusType.TIL_ATTESTERING,
                     UtbetalingStatusType.AVBRUTT,

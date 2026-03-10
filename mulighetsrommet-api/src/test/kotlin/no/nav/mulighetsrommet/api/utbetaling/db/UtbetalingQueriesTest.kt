@@ -529,7 +529,7 @@ class UtbetalingQueriesTest : FunSpec({
                 val utbetaling1 = utbetaling1.copy(
                     status = UtbetalingStatusType.GENERERT,
                 )
-                val utbetaling2 = UtbetalingFixtures.utbetaling2.copy(status = UtbetalingStatusType.INNSENDT)
+                val utbetaling2 = UtbetalingFixtures.utbetaling2.copy(status = UtbetalingStatusType.TIL_BEHANDLING)
                 val utbetaling3 = UtbetalingFixtures.utbetaling3.copy(
                     status = UtbetalingStatusType.GENERERT,
                     gjennomforingId = AFT1.id,

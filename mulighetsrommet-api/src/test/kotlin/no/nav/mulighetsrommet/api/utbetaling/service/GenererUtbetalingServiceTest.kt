@@ -428,7 +428,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(
                     utbetaling1.copy(
                         gjennomforingId = oppfolging.id,
-                        status = UtbetalingStatusType.INNSENDT,
+                        status = UtbetalingStatusType.TIL_BEHANDLING,
                         beregning = UtbetalingBeregningFri(
                             input = UtbetalingBeregningFri.Input(1000.withValuta(Valuta.NOK)),
                             output = UtbetalingBeregningFri.Output(1000.withValuta(Valuta.NOK)),
@@ -685,7 +685,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                         gjennomforingId = gjennomforing.id,
                         periode = periode,
                         beregning = beregning,
-                        status = UtbetalingStatusType.INNSENDT,
+                        status = UtbetalingStatusType.TIL_BEHANDLING,
                     ),
                 ),
                 deltakere = listOf(deltaker),

@@ -20,3 +20,7 @@ alter table utbetaling
     add foreign key (status) references utbetaling_status_type (value) on update cascade;
 
 drop type utbetaling_status;
+
+update utbetaling_status_type
+set value = 'TIL_BEHANDLING'
+where value = 'INNSENDT';
