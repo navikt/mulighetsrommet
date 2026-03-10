@@ -265,6 +265,12 @@ object AvtaleValidator {
                     "${prismodell.type.navn} er ikke tillatt for tiltakstype ${context.tiltakstypeNavn}",
                 )
             }
+            validate(prismodell.tilsagnPerDeltaker != true || prismodell.type == PrismodellType.ANNEN_AVTALT_PRIS) {
+                FieldError(
+                    "/prismodeller/$index/type",
+                    "${prismodell.type.navn} kan ikke ha tilsagn per deltaker",
+                )
+            }
 
             val satser = when (prismodell.type) {
                 PrismodellType.ANNEN_AVTALT_PRIS,

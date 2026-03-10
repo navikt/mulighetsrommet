@@ -387,9 +387,9 @@ data class TilsagnDeltakereRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
     @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate?,
+    val periodeStart: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate?,
+    val periodeSlutt: LocalDate? = null,
 )
 
 @Serializable
