@@ -41,7 +41,7 @@ object UtbetalingFixtures {
         korreksjonBegrunnelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         journalpostId = null,
-        godkjentAvArrangorTidspunkt = null,
+        innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
         blokkeringer = emptySet(),
     )
@@ -103,7 +103,7 @@ object UtbetalingFixtures {
         korreksjonBegrunnelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         journalpostId = null,
-        godkjentAvArrangorTidspunkt = null,
+        innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
         blokkeringer = emptySet(),
     )
@@ -124,7 +124,7 @@ object UtbetalingFixtures {
         korreksjonBegrunnelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         journalpostId = null,
-        godkjentAvArrangorTidspunkt = null,
+        innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
         blokkeringer = emptySet(),
     )

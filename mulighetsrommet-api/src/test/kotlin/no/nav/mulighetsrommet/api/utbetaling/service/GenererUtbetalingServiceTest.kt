@@ -690,7 +690,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
                 deltakere = listOf(deltaker),
             ) {
-                queries.utbetaling.setGodkjentAvArrangor(utbetaling1.id, LocalDateTime.now())
+                queries.utbetaling.setInnsendtAvArrangor(utbetaling1.id, LocalDateTime.now())
             }.initialize(database.db)
 
             service.oppdaterUtbetalingerForGjennomforing(gjennomforing.id).shouldBeEmpty()

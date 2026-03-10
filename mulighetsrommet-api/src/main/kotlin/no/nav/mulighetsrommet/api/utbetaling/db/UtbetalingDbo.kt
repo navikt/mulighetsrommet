@@ -25,7 +25,7 @@ data class UtbetalingDbo(
     val korreksjonGjelderUtbetalingId: UUID?,
     val korreksjonBegrunnelse: String?,
     val tilskuddstype: Tilskuddstype,
-    val godkjentAvArrangorTidspunkt: LocalDateTime?,
+    val innsendtAvArrangorTidspunkt: LocalDateTime?,
     val utbetalesTidligstTidspunkt: Instant?,
     val blokkeringer: Set<Utbetaling.Blokkering>,
 )

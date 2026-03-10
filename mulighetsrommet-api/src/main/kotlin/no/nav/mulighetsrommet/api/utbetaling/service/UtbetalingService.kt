@@ -95,7 +95,7 @@ class UtbetalingService(
                 return FieldError.of("Utbetaling er allerede godkjent").nel().left()
             }
 
-            queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
+            queries.utbetaling.setInnsendtAvArrangor(utbetalingId, LocalDateTime.now())
             queries.utbetaling.setKid(utbetalingId, kid)
             queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.INNSENDT)
 
@@ -158,7 +158,7 @@ class UtbetalingService(
             korreksjonBegrunnelse = opprett.korreksjonBegrunnelse,
             tilskuddstype = opprett.tilskuddstype,
             journalpostId = opprett.journalpostId,
-            godkjentAvArrangorTidspunkt = when (agent) {
+            innsendtAvArrangorTidspunkt = when (agent) {
                 is Arrangor -> LocalDateTime.now()
                 else -> null
             },

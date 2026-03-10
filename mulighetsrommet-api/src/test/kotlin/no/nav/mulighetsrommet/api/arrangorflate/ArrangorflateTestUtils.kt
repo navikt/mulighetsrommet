@@ -151,7 +151,7 @@ object ArrangorflateTestUtils {
             korreksjonBegrunnelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             journalpostId = null,
-            godkjentAvArrangorTidspunkt = null,
+            innsendtAvArrangorTidspunkt = null,
             utbetalesTidligstTidspunkt = null,
             blokkeringer = emptySet(),
         )
@@ -173,7 +173,7 @@ object ArrangorflateTestUtils {
         korreksjonBegrunnelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         journalpostId = null,
-        godkjentAvArrangorTidspunkt = null,
+        innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
         blokkeringer = emptySet(),
     )

@@ -71,7 +71,7 @@ class UtbetalingQueries(private val session: Session) {
                 kommentar,
                 korreksjon_gjelder_utbetaling_id,
                 korreksjon_begrunnelse,
-                godkjent_av_arrangor_tidspunkt,
+                innsendt_av_arrangor_tidspunkt,
                 utbetales_tidligst_tidspunkt,
                 status,
                 datastream_periode_start,
@@ -95,7 +95,7 @@ class UtbetalingQueries(private val session: Session) {
                 :kommentar,
                 :korreksjon_gjelder_utbetaling_id,
                 :korreksjon_begrunnelse,
-                :godkjent_av_arrangor_tidspunkt,
+                :innsendt_av_arrangor_tidspunkt,
                 :utbetales_tidligst_tidspunkt,
                 :status::utbetaling_status,
                 :datastream_periode_start::date,
@@ -117,7 +117,7 @@ class UtbetalingQueries(private val session: Session) {
                 kommentar = excluded.kommentar,
                 korreksjon_gjelder_utbetaling_id = excluded.korreksjon_gjelder_utbetaling_id,
                 korreksjon_begrunnelse = excluded.korreksjon_begrunnelse,
-                godkjent_av_arrangor_tidspunkt = excluded.godkjent_av_arrangor_tidspunkt,
+                innsendt_av_arrangor_tidspunkt = excluded.innsendt_av_arrangor_tidspunkt,
                 utbetales_tidligst_tidspunkt = excluded.utbetales_tidligst_tidspunkt,
                 status = excluded.status,
                 datastream_periode_start = excluded.datastream_periode_start,
@@ -143,7 +143,7 @@ class UtbetalingQueries(private val session: Session) {
             "korreksjon_begrunnelse" to dbo.korreksjonBegrunnelse,
             "tilskuddstype" to dbo.tilskuddstype.name,
             "journalpost_id" to dbo.journalpostId?.value,
-            "godkjent_av_arrangor_tidspunkt" to dbo.godkjentAvArrangorTidspunkt,
+            "innsendt_av_arrangor_tidspunkt" to dbo.innsendtAvArrangorTidspunkt,
             "utbetales_tidligst_tidspunkt" to dbo.utbetalesTidligstTidspunkt,
             "status" to dbo.status.name,
             "datastream_periode_start" to dbo.periode.start,
@@ -428,12 +428,11 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
+    fun setInnsendtAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling set
-                godkjent_av_arrangor_tidspunkt = :tidspunkt,
-                innsender = 'Arrangor'
+                innsendt_av_arrangor_tidspunkt = :tidspunkt
             where id = :id::uuid
         """.trimIndent()
 
@@ -653,7 +652,7 @@ class UtbetalingQueries(private val session: Session) {
             select *
             from view_utbetaling
             where gjennomforing_id = ?::uuid
-            order by godkjent_av_arrangor_tidspunkt desc
+            order by innsendt_av_arrangor_tidspunkt desc
             limit 1
         """.trimIndent()
 
