@@ -4,13 +4,8 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
-import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.Arena
-import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.JournalpostId
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -36,7 +31,6 @@ data class UtbetalingDto(
     val korreksjon: Korreksjon?,
     val begrunnelseMindreBetalt: String?,
     val avbruttBegrunnelse: String?,
-    val innsendtAv: String?,
     val journalpostId: JournalpostId?,
     val tilskuddstype: Tilskuddstype,
     val type: UtbetalingTypeDto,
@@ -55,29 +49,18 @@ data class UtbetalingDto(
                 gjennomforingId = utbetaling.gjennomforing.id,
                 status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer),
                 periode = utbetaling.periode,
-                innsendtAvArrangorDato = utbetaling.godkjentAvArrangorTidspunkt?.toLocalDate(),
+                innsendtAvArrangorDato = utbetaling.innsending?.tidspunkt?.toLocalDate(),
                 utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
                 kommentar = utbetaling.kommentar,
                 korreksjon = utbetaling.korreksjon?.let { Korreksjon(it.gjelderUtbetalingId, it.begrunnelse) },
                 begrunnelseMindreBetalt = utbetaling.begrunnelseMindreBetalt,
                 pris = utbetaling.beregning.output.pris,
-                innsendtAv = formaterInnsendtAv(utbetaling.innsender),
                 journalpostId = utbetaling.journalpostId,
                 tilskuddstype = utbetaling.tilskuddstype,
                 type = UtbetalingType.from(utbetaling).toDto(),
                 avbruttBegrunnelse = utbetaling.avbruttBegrunnelse,
             )
-        }
-
-        private fun formaterInnsendtAv(agent: Agent?): String? {
-            return when (agent) {
-                Arena -> "Arena"
-                Arrangor -> "Arrangør"
-                is NavIdent -> agent.value
-                Tiltaksadministrasjon -> "System"
-                else -> null
-            }
         }
     }
 }

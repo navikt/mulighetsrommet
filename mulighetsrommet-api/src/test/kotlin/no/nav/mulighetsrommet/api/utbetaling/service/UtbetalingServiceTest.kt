@@ -1143,7 +1143,7 @@ class UtbetalingServiceTest : FunSpec({
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight()
 
             database.run {
-                queries.utbetaling.getOrError(utbetaling1Id).innsender shouldBe Arrangor
+                queries.utbetaling.getOrError(utbetaling1Id).innsending.shouldNotBeNull().tidspunkt.toLocalDate() shouldBe LocalDate.now()
             }
 
             verify(exactly = 1) {

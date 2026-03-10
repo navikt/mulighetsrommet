@@ -37,7 +37,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.LabeledDataElement
@@ -45,7 +44,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.util.UUID
 
 val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
@@ -78,7 +77,10 @@ class ArrangorflateService(
         return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
     }
 
-    fun getUtbetalingerByArrangorerAndStatus(arrangorer: Set<Organisasjonsnummer>, statuser: Set<UtbetalingStatusType>): List<ArrangorflateUtbetalingKompakt> = db.session {
+    fun getUtbetalingerByArrangorerAndStatus(
+        arrangorer: Set<Organisasjonsnummer>,
+        statuser: Set<UtbetalingStatusType>,
+    ): List<ArrangorflateUtbetalingKompakt> = db.session {
         queries.utbetaling.getByArrangorerAndStatus(arrangorer, statuser).map { tilArrangorflateUtbetalingKompakt(it) }
     }
 
@@ -147,10 +149,11 @@ class ArrangorflateService(
 
     suspend fun toArrangorflateUtbetaling(
         utbetaling: Utbetaling,
-        relativeDate: LocalDateTime = LocalDateTime.now(),
+        today: LocalDate = LocalDate.now(),
     ): ArrangorflateUtbetalingDto = db.session {
-        val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt
-            ?.let { it.plusWeeks(12) <= relativeDate } ?: false
+        val erTolvUkerEtterInnsending = utbetaling.innsending
+            ?.let { it.tidspunkt.toLocalDate().plusWeeks(12) <= today }
+            ?: false
 
         val deltakere = if (erTolvUkerEtterInnsending) {
             emptyList()
@@ -201,7 +204,7 @@ class ArrangorflateService(
     }
 
     fun QueryContext.kanRegenereres(utbetaling: Utbetaling): Pair<Boolean, UUID?> {
-        if (utbetaling.innsender != Arrangor) {
+        if (utbetaling.innsending == null) {
             return false to null
         }
         if (utbetaling.status != UtbetalingStatusType.AVBRUTT) {
@@ -349,7 +352,7 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetail
 }
 
 fun arrangorAvbrytStatus(utbetaling: Utbetaling): ArrangorAvbrytStatus {
-    if (utbetaling.innsender != Arrangor) {
+    if (utbetaling.innsending == null) {
         return ArrangorAvbrytStatus.HIDDEN
     }
 

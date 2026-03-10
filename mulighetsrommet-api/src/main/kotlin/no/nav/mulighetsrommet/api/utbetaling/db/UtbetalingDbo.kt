@@ -4,7 +4,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
@@ -15,7 +14,6 @@ import java.util.UUID
 
 data class UtbetalingDbo(
     val id: UUID,
-    val innsender: Agent?,
     val gjennomforingId: UUID,
     val status: UtbetalingStatusType,
     val valuta: Valuta,

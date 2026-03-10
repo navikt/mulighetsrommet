@@ -316,22 +316,22 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
-            if (utbetaling.godkjentAvArrangorTidspunkt != null) {
-                call.respond(
-                    ArrangorflateUtbetalingKvittering(
-                        id = utbetaling.id,
-                        mottattDato = utbetaling.godkjentAvArrangorTidspunkt.toLocalDate(),
-                        utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
-                        kontonummer = when (utbetaling.betalingsinformasjon) {
-                            is Betalingsinformasjon.BBan -> utbetaling.betalingsinformasjon.kontonummer
-                            is Betalingsinformasjon.IBan -> null
-                            null -> null
-                        },
-                    ),
-                )
-            } else {
-                call.respondWithProblemDetail(NotFound("Utbetalingskravet er ikke sendt inn. Ingen kvittering tilgjengelig."))
+            if (utbetaling.innsending == null) {
+                return@get call.respondWithProblemDetail(NotFound("Utbetalingskravet er ikke sendt inn. Ingen kvittering tilgjengelig."))
             }
+
+            val kvittering = ArrangorflateUtbetalingKvittering(
+                id = utbetaling.id,
+                mottattDato = utbetaling.innsending.tidspunkt.toLocalDate(),
+                utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
+                kontonummer = when (utbetaling.betalingsinformasjon) {
+                    is Betalingsinformasjon.BBan -> utbetaling.betalingsinformasjon.kontonummer
+                    is Betalingsinformasjon.IBan -> null
+                    null -> null
+                },
+            )
+
+            call.respond(kvittering)
         }
 
         post("/avbryt", {

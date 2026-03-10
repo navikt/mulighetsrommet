@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDelt
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse.BeregnetPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -50,7 +49,6 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
     val utbetalingFastSats = Utbetaling(
         id = UUID.randomUUID(),
         status = UtbetalingStatusType.FERDIG_BEHANDLET,
-        godkjentAvArrangorTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         utbetalesTidligstTidspunkt = null,
         createdAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         updatedAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
@@ -69,6 +67,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             slettet = false,
         ),
         korreksjon = null,
+        innsending = Utbetaling.Innsending(
+            tidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
+        ),
         valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
             input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
@@ -151,7 +152,6 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         ),
         betalingsinformasjon = Betalingsinformasjon.BBan(kontonummer = Kontonummer("12345678901"), null),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-        innsender = Arrangor,
         kommentar = null,
         journalpostId = null,
         begrunnelseMindreBetalt = null,
@@ -164,7 +164,6 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
     val utbetalingPrisPerTimeOppfolging = Utbetaling(
         id = UUID.randomUUID(),
         status = UtbetalingStatusType.FERDIG_BEHANDLET,
-        godkjentAvArrangorTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         utbetalesTidligstTidspunkt = null,
         createdAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         updatedAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
@@ -183,6 +182,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             slettet = false,
         ),
         korreksjon = null,
+        innsending = Utbetaling.Innsending(
+            tidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
+        ),
         valuta = Valuta.NOK,
         beregning = UtbetalingBeregningPrisPerTimeOppfolging(
             input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
@@ -215,7 +217,6 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         ),
         betalingsinformasjon = Betalingsinformasjon.BBan(kontonummer = Kontonummer("12345678901"), null),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-        innsender = Arrangor,
         kommentar = null,
         journalpostId = null,
         begrunnelseMindreBetalt = null,
@@ -277,15 +278,19 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
 
     context("pdf-content for utbetalingsdetaljer til arrangør") {
         test("fast sats per tiltaksplass per maned") {
-            val pdfContent =
-                UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(utbetalingFastSats, linjer)
+            val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
+                utbetalingFastSats,
+                linjer,
+            )
 
             jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedUtbetalingsdetaljerFastSatsContent
         }
 
         test("avtalt pris per time oppfølging per deltaker") {
-            val pdfContent =
-                UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(utbetalingPrisPerTimeOppfolging, linjer)
+            val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
+                utbetalingPrisPerTimeOppfolging,
+                linjer,
+            )
 
             jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedUtbetalingsdetaljerTimesPrisContent
         }
@@ -293,13 +298,18 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
 
     context("pdf-content for journalpost av innsending fra arrangør") {
         test("fast sats per tiltaksplass per maned") {
-            val pdfContent = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(utbetalingFastSats, personalia)
+            val pdfContent = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
+                utbetalingFastSats,
+                personalia,
+            )
 
             jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedJournalpostFastSatsContent
         }
         test("avtalt pris per time oppfølging per deltaker") {
-            val pdfContent =
-                UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(utbetalingPrisPerTimeOppfolging, personalia)
+            val pdfContent = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
+                utbetalingPrisPerTimeOppfolging,
+                personalia,
+            )
 
             jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedJournalpostTimesPrisContent
         }
@@ -337,7 +347,8 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Dato innsendt av arrangør",
-              "value": "02.01.2025"
+              "value": "2025-01-02",
+              "format": "DATE"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
@@ -551,7 +562,8 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
                 {
                   "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Dato innsendt av arrangør",
-                  "value": "02.01.2025"
+                  "value": "2025-01-02",
+                  "format": "DATE"
                 },
                 {
                   "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
@@ -760,7 +772,8 @@ private val expectedJournalpostFastSatsContent = """
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Dato innsendt av arrangør",
-              "value": "02.01.2025"
+              "value": "2025-01-02",
+              "format": "DATE"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
@@ -1083,7 +1096,8 @@ private val expectedJournalpostTimesPrisContent = """
                 {
                   "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
                   "label": "Dato innsendt av arrangør",
-                  "value": "02.01.2025"
+                  "value": "2025-01-02",
+                  "format": "DATE"
                 },
                 {
                   "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
