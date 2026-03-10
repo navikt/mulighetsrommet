@@ -95,6 +95,7 @@ export function UtbetalingDetaljerPage() {
             <MetadataHGrid
               label={utbetalingTekster.metadata.utbetalesTidligstDato}
               value={formaterDato(utbetaling.utbetalesTidligstDato)}
+              fallback={"Ved attestering"}
             />
             <MetadataHGrid
               label={utbetalingTekster.metadata.innsendtDato}
