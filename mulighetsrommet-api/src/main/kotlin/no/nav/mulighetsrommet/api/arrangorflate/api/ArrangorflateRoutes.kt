@@ -54,6 +54,7 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.UUID
 
@@ -68,11 +69,21 @@ suspend fun RoutingContext.respondWithManglerTilgangHosArrangor() = call.respond
     ),
 )
 
-suspend inline fun RoutingContext.orgnrTilganger(
+private val log = LoggerFactory.getLogger("ArrangorflateRoutes")
+
+suspend fun RoutingContext.orgnrTilganger(
     altinnRettigheterService: AltinnRettigheterService,
 ): List<Organisasjonsnummer> {
-    return call.principal<ArrangorflatePrincipal>()?.norskIdent?.let {
-        altinnRettigheterService.getRettigheter(it)
+    val principal = call.principal<ArrangorflatePrincipal>()
+    if (principal == null) {
+        log.error("principal var null")
+    }
+    val norskIdent = principal?.norskIdent
+    if (norskIdent == null) {
+        log.error("norskident var null")
+    }
+    return norskIdent?.let {
+        val r = altinnRettigheterService.getRettigheter(it)
             .getOrElse {
                 when (it) {
                     AltinnError.Error ->
@@ -85,10 +96,17 @@ suspend inline fun RoutingContext.orgnrTilganger(
                             InternalServerError("For mange Altinn tilganger. Vennligst ta kontakt med Nav"),
                         )
                 }
+                log.error("her skal vi ikke ende opp")
                 emptyList()
             }
+
+        val g = r
             .filter { AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING in it.rettigheter }
             .map { it.organisasjonsnummer }
+        if (r.isNotEmpty() && g.isEmpty()) {
+            log.error("hadde retigheter men ikke riktig")
+        }
+        g
     } ?: emptyList()
 }
 
