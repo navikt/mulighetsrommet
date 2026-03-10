@@ -39,6 +39,10 @@ export function PrismodellDetaljer({ prismodeller }: Props) {
         return (
           <VStack key={prismodell.navn} gap="space-16">
             <PrismodellTypenavn type={prismodell.navn} />
+            <MetadataVStack
+              label={avtaletekster.prismodell.tilsagnPerDeltaker.label}
+              value={prismodell.tilsagnPerDeltaker ? "Ja" : "Nei"}
+            />
             <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
           </VStack>
         );
