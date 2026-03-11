@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.arrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
