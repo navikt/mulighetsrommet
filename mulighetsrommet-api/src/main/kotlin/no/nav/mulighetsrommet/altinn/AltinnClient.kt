@@ -102,11 +102,6 @@ class AltinnClient(
             return AltinnError.Error.left()
         }
 
-        if (!response.headers["X-Warning-LimitReached"].isNullOrEmpty()) {
-            log.error("For mange tilganger. Klarte ikke hente tilganger for bruker. response: ${response.status}")
-            return AltinnError.ForMangeTilganger.left()
-        }
-
         response.body()
     }
 
@@ -141,5 +136,4 @@ class AltinnClient(
 
 enum class AltinnError {
     Error,
-    ForMangeTilganger,
 }
