@@ -50,6 +50,11 @@ val ApplicationConfigDev = AppConfig(
                 topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
                 consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltaksokonomi.bestilling.v1"),
             ),
+            okonomiBestillingBrukerConsumer = KafkaTopicConsumer.Config(
+                id = "bestilling-bruker",
+                topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-bruker-v1",
+                consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltaksokonomi.bestillinger-bruker-v1"),
+            ),
             helvedStatusConsumer = KafkaTopicConsumer.Config(
                 id = "helved-status",
                 topic = "helved.status.v1",

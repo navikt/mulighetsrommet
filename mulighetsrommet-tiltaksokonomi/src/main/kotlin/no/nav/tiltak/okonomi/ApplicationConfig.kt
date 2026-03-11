@@ -44,6 +44,7 @@ data class KafkaTopics(
 
 data class KafkaClients(
     val okonomiBestillingConsumer: KafkaTopicConsumer.Config,
+    val okonomiBestillingBrukerConsumer: KafkaTopicConsumer.Config,
     val helvedStatusConsumer: KafkaTopicConsumer.Config,
 )
 
