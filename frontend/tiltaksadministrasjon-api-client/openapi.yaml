@@ -6081,12 +6081,10 @@ components:
           type:
           - "null"
           - string
-          format: date
         periodeSlutt:
           type:
           - "null"
           - string
-          format: date
       required:
       - gjennomforingId
       - periodeSlutt
