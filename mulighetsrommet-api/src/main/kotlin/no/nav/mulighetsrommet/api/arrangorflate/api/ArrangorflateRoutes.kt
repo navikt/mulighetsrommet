@@ -124,7 +124,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     val altinnRettigheterService: AltinnRettigheterService by inject()
     val genererUtbetalingService: GenererUtbetalingService by inject()
 
-    fun RoutingContext.getTilsagnOrRespondNotFound(): ArrangorflateTilsagnDto {
+    suspend fun RoutingContext.getTilsagnOrRespondNotFound(): ArrangorflateTilsagnDto {
         val id: UUID by call.parameters
         return arrangorFlateService.getTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
     }

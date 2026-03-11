@@ -56,6 +56,7 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingSteg = {
   tilsagn: [
     {
       id: "df4553e5-6a42-4a21-85a1-e0db8b5cb70a",
+      deltakere: [],
       tiltakstype: {
         navn: gjennomforingAFT.tiltakstypeNavn,
         tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -162,6 +163,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingSteg = {
   tilsagn: [
     {
       id: "b0a3c090-1f8c-44f3-b334-2b22022b3ce9",
+      deltakere: [],
       tiltakstype: {
         navn: gjennomforingAvklaring.tiltakstypeNavn,
         tiltakskode: Tiltakskode.AVKLARING,
@@ -320,6 +322,7 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingSteg = {
       },
       bestillingsnummer: "A-2025/9123-1",
       beskrivelse: null,
+      deltakere: [],
     },
   ],
   datoVelger: {
