@@ -13,6 +13,7 @@ import {
   AmoKurstype,
   TilsagnDeltakerPersonalia,
 } from "@tiltaksadministrasjon/api-client";
+import { FieldErrors } from "node_modules/react-hook-form/dist/types/errors";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -289,4 +290,31 @@ export function formatTilsagnDeltaker(deltaker: TilsagnDeltakerPersonalia): stri
     ? deltaker.oppfolgingEnhet.navn
     : deltaker.geografiskEnhet?.navn;
   return `${deltaker.navn} · ${deltaker.norskIdent} · ${enhet}`;
+}
+
+export type ValidationMessage = {
+  message: string;
+  ref?: string;
+};
+
+export function extractValidationErrors(errors: FieldErrors): ValidationMessage[] {
+  const messages: ValidationMessage[] = [];
+
+  for (const key in errors) {
+    const error = errors[key];
+
+    if (!error || typeof error !== "object") {
+      continue;
+    }
+
+    if ("message" in error && typeof error.message === "string") {
+      messages.push({
+        message: error.message,
+      });
+    } else {
+      messages.push(...extractValidationErrors(error as FieldErrors));
+    }
+  }
+
+  return messages;
 }

@@ -19,7 +19,7 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
   const differanse = utbetaling.pris.belop - utbetalesTotal;
 
   return (
-    <Box className="overflow-x-scroll">
+    <Box className="overflow-x-auto">
       <Table data-testid="linje-table">
         <Table.Header>
           <Table.Row>

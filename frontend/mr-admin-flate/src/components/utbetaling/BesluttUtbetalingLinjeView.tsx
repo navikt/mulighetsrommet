@@ -5,7 +5,6 @@ import {
   FieldError,
   UtbetalingDto,
   UtbetalingHandling,
-  UtbetalingLinje,
   UtbetalingLinjeHandling,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
@@ -24,7 +23,6 @@ import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
-import { isBesluttet } from "@/utils/totrinnskontroll";
 import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
@@ -35,10 +33,9 @@ import { Handlinger } from "@/components/handlinger/Handlinger";
 export interface Props {
   utbetaling: UtbetalingDto;
   handlinger: UtbetalingHandling[];
-  oppdaterLinjer: () => Promise<void>;
 }
 
-export function BesluttUtbetalingLinjeView({ utbetaling, handlinger, oppdaterLinjer }: Props) {
+export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
   const { data: linjer } = useUtbetalingsLinjer(utbetaling.id);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const [opprettKorreksjonModalOpen, setOpprettKorreksjonModalOpen] = useState<boolean>(false);
@@ -50,7 +47,6 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger, oppdaterLin
     attesterDelutbetalingMutation.mutate(
       { id },
       {
-        onSuccess: oppdaterLinjer,
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
         },
@@ -65,17 +61,11 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger, oppdaterLin
     returnerDelutbetalingMutation.mutate(
       { id, body },
       {
-        onSuccess: oppdaterLinjer,
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
         },
       },
     );
-  }
-
-  function openRow(linje: UtbetalingLinje): boolean {
-    const hasNonBelopErrors = errors.filter((e) => !e.pointer.includes("belop"));
-    return hasNonBelopErrors.length > 0 || isBesluttet(linje.opprettelse);
   }
 
   const returnerAarsakValg = [
@@ -115,8 +105,6 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger, oppdaterLin
               key={`${linje.id}-${linje.status?.type}`}
               gjennomforingId={utbetaling.gjennomforingId}
               linje={linje}
-              grayBackground
-              rowOpen={openRow(linje)}
               checkboxInput={<GjorOppTilsagnCheckbox linje={linje} />}
               belopInput={
                 <TextField

@@ -1,5 +1,4 @@
 import {
-  FieldError,
   OpprettDelutbetalingerRequest,
   TilsagnType,
   Tilskuddstype,
@@ -7,8 +6,6 @@ import {
   UtbetalingHandling,
   UtbetalingLinje,
   ValidationError,
-  Valuta,
-  ValutaBelop,
 } from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import {
@@ -20,65 +17,108 @@ import {
   HStack,
   Modal,
   Spacer,
-  TextField,
   VStack,
+  TextField,
 } from "@navikt/ds-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import MindreBelopModal from "./MindreBelopModal";
-import { FormProvider, useFieldArray, useForm } from "react-hook-form";
-import { isBesluttet } from "@/utils/totrinnskontroll";
-import { RedigerUtbetalingLinjeFormValues, toDelutbetaling } from "./helpers";
+import {
+  FieldPath,
+  FormProvider,
+  useFieldArray,
+  useForm,
+  useFormContext,
+  useWatch,
+} from "react-hook-form";
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useOpprettDelutbetalinger, useSlettKorreksjon } from "@/api/utbetaling/mutations";
 import { Handlinger } from "@/components/handlinger/Handlinger";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
+import { extractValidationErrors } from "@/utils/Utils";
 
 export interface Props {
   utbetaling: UtbetalingDto;
   handlinger: UtbetalingHandling[];
   utbetalingLinjer: UtbetalingLinje[];
-  oppdaterLinjer: () => Promise<void>;
-  reloadLinjer?: boolean;
 }
 
-export function RedigerUtbetalingLinjeView({
-  utbetaling,
-  handlinger,
-  utbetalingLinjer: apiLinjer,
-  oppdaterLinjer,
-}: Props) {
+export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingLinjer }: Props) {
   const navigate = useNavigate();
-  const [errors, setErrors] = useState<FieldError[]>([]);
-  const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
-  const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
   const [slettKorreksjonModalOpen, setSlettKorreksjonModalOpen] = useState<boolean>(false);
+  const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
+
+  const methods = useForm<OpprettDelutbetalingerRequest>({
+    defaultValues: {
+      utbetalingId: utbetaling.id,
+      delutbetalinger: utbetalingLinjer.map((linje) => ({
+        pris: linje.pris,
+        id: linje.id,
+        tilsagnId: linje.tilsagn.id,
+      })),
+      begrunnelseMindreBetalt: null,
+    },
+  });
+  const {
+    handleSubmit,
+    setError,
+    register,
+    clearErrors,
+    getValues,
+    control,
+    setValue,
+    reset,
+    formState: { errors },
+  } = methods;
+
+  useEffect(() => {
+    reset({
+      utbetalingId: utbetaling.id,
+      delutbetalinger: utbetalingLinjer.map((linje) => ({
+        pris: linje.pris,
+        id: linje.id,
+        tilsagnId: linje.tilsagn.id,
+      })),
+      begrunnelseMindreBetalt: null,
+    });
+  }, [utbetaling.id, utbetalingLinjer, reset]);
+
+  const delutbetalinger = useWatch({
+    control,
+    name: "delutbetalinger",
+  });
+
+  const delutbetalingBelop = useWatch({
+    control,
+    name: delutbetalinger.map((_, index) => `delutbetalinger.${index}.pris.belop` as const),
+  });
+
+  const utbetalesTotalBelop = delutbetalingBelop.reduce((acc, belop) => acc + belop, 0) || 0;
 
   function sendTilAttestering(payload: OpprettDelutbetalingerRequest) {
-    setErrors([]);
+    clearErrors();
 
     opprettMutation.mutate(payload, {
-      onSuccess: oppdaterLinjer,
       onValidationError: (error: ValidationError) => {
-        setErrors(error.errors);
+        error.errors.forEach((error) => {
+          const fieldPath = jsonPointerToFieldPath(error.pointer);
+          const name = (fieldPath || "root") as FieldPath<OpprettDelutbetalingerRequest>;
+          setError(name, { type: "custom", message: error.detail });
+        });
       },
     });
   }
 
-  const form = useForm<RedigerUtbetalingLinjeFormValues>({
-    values: { formLinjer: apiLinjer },
-    mode: "onSubmit",
-  });
-  const formLinjer = form.watch("formLinjer");
-
   const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
 
   function opprettEkstraTilsagn() {
-    const defaultTilsagn = apiLinjer.length === 1 ? apiLinjer[0].tilsagn : undefined;
+    const defaultTilsagn = utbetalingLinjer.length === 1 ? utbetalingLinjer[0].tilsagn : undefined;
     return navigate(
       `/gjennomforinger/${utbetaling.gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
@@ -88,28 +128,23 @@ export function RedigerUtbetalingLinjeView({
     );
   }
 
-  function submitHandler(data: RedigerUtbetalingLinjeFormValues) {
-    if (utbetalesTotal(utbetaling.pris.valuta, data.formLinjer).belop < utbetaling.pris.belop) {
+  function submitHandler(data: OpprettDelutbetalingerRequest) {
+    if (utbetalesTotalBelop < utbetaling.pris.belop) {
       setMindreBelopModalOpen(true);
     } else {
-      sendTilAttestering({
-        utbetalingId: utbetaling.id,
-        delutbetalinger: data.formLinjer.map(toDelutbetaling),
-        begrunnelseMindreBetalt,
-      });
+      sendTilAttestering(data);
     }
   }
 
-  function openRow(linje: UtbetalingLinje): boolean {
-    const hasNonBelopErrors = errors.filter((e) => !e.pointer.includes("belop"));
-    return hasNonBelopErrors.length > 0 || isBesluttet(linje.opprettelse);
-  }
+  const aktiveLinjer = utbetalingLinjer.filter((linje) =>
+    delutbetalinger.some((d) => linje.id === d.id),
+  );
 
   return (
-    <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(submitHandler)}>
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(submitHandler)}>
         <VStack gap="space-8">
-          {!formLinjer.length && (
+          {!utbetalingLinjer.length && (
             <Alert variant="info">{utbetalingTekster.delutbetaling.alert.ingenTilsagn}</Alert>
           )}
           <HStack align="end">
@@ -121,7 +156,20 @@ export function RedigerUtbetalingLinjeView({
               <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
                 {utbetalingTekster.delutbetaling.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd)}
               </ActionMenu.Item>
-              <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={oppdaterLinjer}>
+              <ActionMenu.Item
+                icon={<FileCheckmarkIcon />}
+                onSelect={() =>
+                  setValue(
+                    "delutbetalinger",
+                    utbetalingLinjer.map((linje) => ({
+                      id: linje.id,
+                      pris: linje.pris,
+                      tilsagnId: linje.tilsagn.id,
+                      gjorOppTilsagn: linje.gjorOppTilsagn,
+                    })),
+                  )
+                }
+              >
                 {utbetalingTekster.delutbetaling.handlinger.hentGodkjenteTilsagn}
               </ActionMenu.Item>
               {handlinger.includes(UtbetalingHandling.SLETT) && (
@@ -137,7 +185,7 @@ export function RedigerUtbetalingLinjeView({
 
           <UtbetalingLinjeTable
             utbetaling={utbetaling}
-            linjer={formLinjer}
+            linjer={aktiveLinjer}
             renderRow={(linje: UtbetalingLinje, index: number) => (
               <UtbetalingLinjeRow
                 key={`${linje.id}-${linje.status?.type}`}
@@ -149,32 +197,26 @@ export function RedigerUtbetalingLinjeView({
                     style={{ maxWidth: "6rem" }}
                     hideLabel
                     type="text"
-                    error={form.formState.errors.formLinjer?.[index]?.pris?.belop?.message}
+                    error={errors.delutbetalinger?.[index]?.pris?.belop?.message}
                     label={utbetalingTekster.delutbetaling.belop.label}
-                    {...form.register(`formLinjer.${index}.pris.belop`, {
-                      setValueAs: (v) => (v === "" ? null : Number(v)),
-                      validate: (value) => {
+                    {...register(`delutbetalinger.${index}.pris.belop`, {
+                      setValueAs: (v: string) => (v === "" ? null : Number(v)),
+                      validate: (value: number | null) => {
                         if (!Number.isInteger(value)) return "Beløp må være et heltall";
                         return true;
                       },
                     })}
                   />
                 }
+                errors={extractValidationErrors(errors)}
                 checkboxInput={<GjorOppTilsagnFormCheckbox index={index} />}
                 knappeColumn={<FjernUtbetalingLinje index={index} />}
-                grayBackground
-                errors={errors.filter(
-                  (f) => f.pointer.startsWith(`/${index}`) || f.pointer.includes("totalbelop"),
-                )}
-                rowOpen={openRow(linje)}
               />
             )}
           />
-        </VStack>
-
-        <VStack gap="space-8" className="mt-2">
-          {!!formLinjer.length && (
-            <HStack justify="end">
+          {!!delutbetalinger.length && (
+            <HStack gap="space-8" justify="end">
+              <ValideringsfeilOppsummering />
               {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
                 <Button size="small" type="submit">
                   {utbetalingTekster.delutbetaling.handlinger.sendTilAttestering}
@@ -182,13 +224,6 @@ export function RedigerUtbetalingLinjeView({
               )}
             </HStack>
           )}
-          <VStack gap="space-8" align="end">
-            {errors.map((error) => (
-              <Alert variant="error" size="small">
-                {error.detail}
-              </Alert>
-            ))}
-          </VStack>
         </VStack>
 
         <MindreBelopModal
@@ -196,16 +231,11 @@ export function RedigerUtbetalingLinjeView({
           handleClose={() => setMindreBelopModalOpen(false)}
           onConfirm={() => {
             setMindreBelopModalOpen(false);
-            const formLinjer = form.getValues("formLinjer");
-
-            sendTilAttestering({
-              utbetalingId: utbetaling.id,
-              delutbetalinger: formLinjer.map(toDelutbetaling),
-              begrunnelseMindreBetalt,
-            });
+            const formData = getValues();
+            sendTilAttestering(formData);
           }}
-          begrunnelseOnChange={(e: any) => setBegrunnelseMindreBetalt(e.target.value)}
-          belopUtbetaling={utbetalesTotal(utbetaling.pris.valuta, formLinjer)}
+          begrunnelseOnChange={(e) => setValue("begrunnelseMindreBetalt", e.target.value)}
+          belopUtbetaling={{ valuta: utbetaling.pris.valuta, belop: utbetalesTotalBelop }}
           belopInnsendt={utbetaling.pris}
         />
       </form>
@@ -220,14 +250,6 @@ export function RedigerUtbetalingLinjeView({
   );
 }
 
-function utbetalesTotal(valuta: Valuta, formLinjer: UtbetalingLinje[]): ValutaBelop {
-  const totalt = formLinjer.reduce((acc: number, d: UtbetalingLinje) => acc + d.pris.belop, 0);
-  return {
-    belop: totalt,
-    valuta: valuta,
-  };
-}
-
 function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
   switch (tilskuddstype) {
     case Tilskuddstype.TILTAK_DRIFTSTILSKUDD:
@@ -238,16 +260,19 @@ function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
 }
 
 function FjernUtbetalingLinje({ index }: { index: number }) {
-  const { remove } = useFieldArray<RedigerUtbetalingLinjeFormValues>({ name: "formLinjer" });
+  const { control } = useFormContext<OpprettDelutbetalingerRequest>();
+  const { remove } = useFieldArray<OpprettDelutbetalingerRequest>({
+    control,
+    name: "delutbetalinger",
+  });
+
   return (
     <Button
       data-color="neutral"
       size="small"
       variant="secondary"
       type="button"
-      onClick={() => {
-        remove(index);
-      }}
+      onClick={() => remove(index)}
     >
       {utbetalingTekster.delutbetaling.handlinger.fjern}
     </Button>

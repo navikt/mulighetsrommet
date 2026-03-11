@@ -1,22 +1,8 @@
-import { delutbetalingAarsakTilTekst, tilsagnTypeToString } from "@/utils/Utils";
-import {
-  DelutbetalingReturnertAarsak,
-  FieldError,
-  UtbetalingLinje,
-} from "@tiltaksadministrasjon/api-client";
+import { delutbetalingAarsakTilTekst, tilsagnTypeToString, ValidationMessage } from "@/utils/Utils";
+import { DelutbetalingReturnertAarsak, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
-import {
-  Alert,
-  BodyShort,
-  Heading,
-  HStack,
-  List,
-  Table,
-  VStack,
-  Box,
-  Link,
-} from "@navikt/ds-react";
-import React, { useEffect, useState } from "react";
+import { Alert, Heading, HStack, List, Table, VStack, Link, InfoCard } from "@navikt/ds-react";
+import React, { useState } from "react";
 import { Link as ReactRouterLink } from "react-router";
 import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { TilsagnInformasjon } from "./TilsagnInformasjon";
@@ -24,50 +10,36 @@ import { DelutbetalingStatusTag } from "./DelutbetalingStatusTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { isBesluttet } from "@/utils/totrinnskontroll";
-
 interface Props {
   gjennomforingId: string;
   linje: UtbetalingLinje;
   belopInput?: React.ReactNode | null;
   checkboxInput?: React.ReactNode | null;
   knappeColumn?: React.ReactNode;
+  errors?: ValidationMessage[];
   onChange?: (linje: UtbetalingLinje) => void;
-  errors?: FieldError[];
-  grayBackground?: boolean;
-  rowOpen?: boolean;
 }
 
 export function UtbetalingLinjeRow({
   gjennomforingId,
   linje,
-  errors = [],
   knappeColumn,
   belopInput = null,
   checkboxInput = null,
-  grayBackground = false,
-  rowOpen = false,
+  errors = [],
 }: Props) {
-  const [belopError, setBelopError] = useState<string | undefined>();
-  const [openRow, setOpenRow] = useState(rowOpen);
-  const grayBgClass = grayBackground ? "bg-ax-neutral-200" : "";
+  const [opened, setOpened] = useState(isBesluttet(linje.opprettelse) || errors.length > 0);
+  const grayBgClass = "bg-ax-neutral-200";
 
-  useEffect(() => {
-    if (rowOpen) {
-      setOpenRow(rowOpen);
-    }
-  }, [rowOpen]);
-
-  useEffect(() => {
-    setBelopError(errors.find((e) => e.pointer.includes("belop"))?.detail);
-  }, [belopError, errors]);
+  const openRow = opened || isBesluttet(linje.opprettelse) || errors.length > 0;
 
   return (
     <Table.ExpandableRow
       shadeOnHover={false}
       open={openRow}
-      onOpenChange={() => setOpenRow(!openRow)}
+      onOpenChange={() => setOpened(!opened)}
       key={`${linje.id}-${linje.status?.type}`}
-      className={`${grayBackground ? "[&>td:first-child]:bg-ax-neutral-200" : ""}`}
+      className={`[&>td:first-child]:${grayBgClass}`}
       content={
         <VStack gap="space-16">
           {isBesluttet(linje.opprettelse) && linje.opprettelse.besluttelse === "AVVIST" ? (
@@ -89,19 +61,19 @@ export function UtbetalingLinjeRow({
               )}
             </VStack>
           ) : null}
-          {errors.filter((e) => !e.pointer.includes("belop")).length > 0 && (
-            <VStack className="bg-[var(--ax-bg-danger-soft)]">
-              <Alert size="small" variant="error">
-                <BodyShort>Følgende feil må fikses:</BodyShort>
-                <Box marginBlock="space-16" asChild>
-                  <List data-aksel-migrated-v8>
-                    {errors.map((error) => (
-                      <List.Item>{error.detail}</List.Item>
-                    ))}
-                  </List>
-                </Box>
-              </Alert>
-            </VStack>
+          {errors.length > 0 && (
+            <InfoCard size="small" data-color="danger">
+              <InfoCard.Header>
+                <InfoCard.Title>Følgende feil må fikses:</InfoCard.Title>
+              </InfoCard.Header>
+              <InfoCard.Content>
+                <List>
+                  {errors.map((error, index) => (
+                    <List.Item key={index}>{error.message}</List.Item>
+                  ))}
+                </List>
+              </InfoCard.Content>
+            </InfoCard>
           )}
           <HStack gap="space-16" justify="space-between">
             <TilsagnInformasjon tilsagn={linje.tilsagn} />

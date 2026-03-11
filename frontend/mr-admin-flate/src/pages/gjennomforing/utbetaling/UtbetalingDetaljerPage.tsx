@@ -34,8 +34,6 @@ import {
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
-import { QueryKeys } from "@/api/QueryKeys";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   MetadataFritekstfelt,
   MetadataHGrid,
@@ -227,13 +225,6 @@ interface UtbetalingLinjeViewProps {
 
 function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProps) {
   const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetaling.id);
-  const queryClient = useQueryClient();
-
-  async function oppdaterLinjer() {
-    await queryClient.refetchQueries({
-      queryKey: QueryKeys.utbetaling(utbetaling.id),
-    });
-  }
 
   switch (utbetaling.status.type) {
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
@@ -248,7 +239,6 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
           utbetaling={utbetaling}
           handlinger={handlinger}
           utbetalingLinjer={utbetalingLinjer}
-          oppdaterLinjer={oppdaterLinjer}
         />
       );
 
@@ -256,13 +246,7 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
     case UtbetalingStatusDtoType.DELVIS_UTBETALT:
     case UtbetalingStatusDtoType.UTBETALT:
-      return (
-        <BesluttUtbetalingLinjeView
-          utbetaling={utbetaling}
-          handlinger={handlinger}
-          oppdaterLinjer={oppdaterLinjer}
-        />
-      );
+      return <BesluttUtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />;
   }
 }
 
