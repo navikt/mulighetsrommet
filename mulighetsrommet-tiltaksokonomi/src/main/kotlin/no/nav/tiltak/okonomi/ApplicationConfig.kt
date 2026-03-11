@@ -39,10 +39,12 @@ data class KafkaConfig(
 data class KafkaTopics(
     val bestillingStatus: String,
     val fakturaStatus: String,
+    val utbetaling: String,
 )
 
 data class KafkaClients(
     val okonomiBestillingConsumer: KafkaTopicConsumer.Config,
+    val helvedStatusConsumer: KafkaTopicConsumer.Config,
 )
 
 data class ClientConfig(

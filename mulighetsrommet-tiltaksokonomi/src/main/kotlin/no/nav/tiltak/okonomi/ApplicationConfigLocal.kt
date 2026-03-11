@@ -104,6 +104,7 @@ val ApplicationConfigLocal = AppConfig(
         topics = KafkaTopics(
             bestillingStatus = "tiltaksokonomi.bestilling-status-v1",
             fakturaStatus = "tiltaksokonomi.faktura-status-v1",
+            utbetaling = "team-mulighetsrommet.tiltaksokonomi.utbetaling-v1",
         ),
         clients = KafkaClients(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
@@ -112,6 +113,17 @@ val ApplicationConfigLocal = AppConfig(
                 consumerProperties = KafkaPropertiesBuilder.consumerBuilder()
                     .withBaseProperties()
                     .withConsumerGroupId("tiltaksokonomi.v1")
+                    .withBrokerUrl("localhost:29092")
+                    .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+                    .build(),
+            ),
+            helvedStatusConsumer = KafkaTopicConsumer.Config(
+                id = "helved-status",
+                topic = "helved.status.v1",
+                consumerProperties =
+                KafkaPropertiesBuilder.consumerBuilder()
+                    .withBaseProperties()
+                    .withConsumerGroupId("helved.status.v1")
                     .withBrokerUrl("localhost:29092")
                     .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
                     .build(),

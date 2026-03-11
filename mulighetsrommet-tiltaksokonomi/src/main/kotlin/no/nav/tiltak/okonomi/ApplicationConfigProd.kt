@@ -43,12 +43,18 @@ val ApplicationConfigProd = AppConfig(
         topics = KafkaTopics(
             bestillingStatus = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
             fakturaStatus = "team-mulighetsrommet.tiltaksokonomi.faktura-status-v1",
+            utbetaling = "team-mulighetsrommet.tiltaksokonomi.utbetaling-v1",
         ),
         clients = KafkaClients(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",
                 topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
                 consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltaksokonomi.bestilling.v1"),
+            ),
+            helvedStatusConsumer = KafkaTopicConsumer.Config(
+                id = "helved-status",
+                topic = "helved.status.v1",
+                consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("helved.status.v1"),
             ),
         ),
     ),
