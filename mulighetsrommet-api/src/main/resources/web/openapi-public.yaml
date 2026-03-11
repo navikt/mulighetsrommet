@@ -108,8 +108,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/BrregHovedenhetDto"
         "400":
-          description: "Søket er blankt, eller bedriften er fjernet av juridiske å\
-            rsaker fra Brreg"
+          description: Søket er blankt
           headers: {}
           content:
             application/json:
