@@ -25,16 +25,16 @@ export default function MindreBelopModal({
       className="text-left"
       onClose={handleClose}
       header={{
-        heading: "Beløpet er mindre enn innsendt",
-        icon: <InformationSquareFillIcon />,
+        heading: "Beløp til utbetaling er mindre enn innsendt beløp",
+        icon: <InformationSquareFillIcon color="var(--ax-text-info-subtle)" />,
       }}
     >
       <Modal.Body>
         <VStack gap="space-8">
           <VStack>
-            <BodyShort>
-              Beløpet du er i ferd med å sende til attestering er mindre en beløpet på utbetalingen.
-              Er du sikker?
+            <BodyShort spacing>
+              Beløpet du er i ferd med å sende til attestering er mindre enn beløpet på
+              utbetalingen. Er du sikker på at du vil fortsette?
             </BodyShort>
             <BodyShort>Beløp til attestering: {formaterValutaBelop(belopUtbetaling)}</BodyShort>
             <BodyShort>Innsendt beløp: {formaterValutaBelop(belopInnsendt)}</BodyShort>
@@ -42,7 +42,7 @@ export default function MindreBelopModal({
           <Textarea
             label="Begrunnelse"
             onChange={begrunnelseOnChange}
-            description="Oppgi begrunnelse for beløp som utbetales. Begrunnelsen vil kun være synlig for NAV"
+            description="Oppgi begrunnelse for beløpet som utbetales. Begrunnelsen vil kun være synlig for Nav."
           />
         </VStack>
       </Modal.Body>
