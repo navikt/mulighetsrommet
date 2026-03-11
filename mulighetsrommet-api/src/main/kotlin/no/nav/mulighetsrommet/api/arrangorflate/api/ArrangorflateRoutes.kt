@@ -190,27 +190,24 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }
     }
 
-    get(
-        "/utbetaling",
-        {
-            description = "Hent oversikt over utbetalinger for alle arrangører brukeren har tilgang til"
-            tags = setOf("Arrangorflate")
-            operationId = "getArrangorflateUtbetalinger"
-            request {
-                queryParameter<UtbetalingOversiktType>("type")
+    get("/utbetaling", {
+        description = "Hent oversikt over utbetalinger for alle arrangører brukeren har tilgang til"
+        tags = setOf("Arrangorflate")
+        operationId = "getArrangorflateUtbetalinger"
+        request {
+            queryParameter<UtbetalingOversiktType>("type")
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Utbetalinger i tabellformat"
+                body<List<ArrangorInnsendingRadDto>>()
             }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Utbetalinger i tabellformat"
-                    body<List<ArrangorInnsendingRadDto>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
             }
-        },
-    ) {
+        }
+    }) {
         val tilganger = orgnrTilganger(altinnRettigheterService)
         if (tilganger.isEmpty()) {
             respondWithManglerTilgangHosArrangor()
