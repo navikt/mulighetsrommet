@@ -34,7 +34,7 @@ private fun Route.enhetRoutes() {
                 body<List<BrregHovedenhetDto>>()
             }
             code(HttpStatusCode.BadRequest) {
-                description = "Søket er blankt, eller bedriften er fjernet av juridiske årsaker fra Brreg"
+                description = "Søket er blankt"
                 body<ProblemDetail>()
             }
             code(HttpStatusCode.InternalServerError) {
