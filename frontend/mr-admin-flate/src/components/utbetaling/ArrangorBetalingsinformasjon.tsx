@@ -1,8 +1,7 @@
 import { Betalingsinformasjon, OpprettUtbetalingRequest } from "@tiltaksadministrasjon/api-client";
 import { Heading, Link, TextField, VStack } from "@navikt/ds-react";
-import { TextInput } from "@/components/skjema/TextInput";
 import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
-
+import { FormTextField } from "@/components/skjema/FormTextField";
 interface Props {
   arrangorId: string;
 }
@@ -51,7 +50,7 @@ function BetalingsinformasjonView({
             Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Les mer her om{" "}
             <EndreKontonummerLink />.
           </small>
-          <TextInput<OpprettUtbetalingRequest> label="Valgfritt KID-nummer" name="kidNummer" />
+          <FormTextField<OpprettUtbetalingRequest> label="Valgfritt KID-nummer" name="kidNummer" />
         </VStack>
       );
     case "IBan":

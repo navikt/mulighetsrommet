@@ -1,8 +1,8 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useGjennomforingAdministratorer } from "@/api/ansatt/useGjennomforingAdministratorer";
 import { GjennomforingAmoKategoriseringForm } from "@/components/amoKategorisering/GjennomforingAmoKategoriseringForm";
-import { FormGroup } from "@/components/skjema/FormGroup";
-import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
+import { FormGroup } from "@/layouts/FormGroup";
+import { SkjemaKolonne } from "@/layouts/SkjemaKolonne";
 import {
   AvtaleDto,
   GjennomforingDeltakerSummary,

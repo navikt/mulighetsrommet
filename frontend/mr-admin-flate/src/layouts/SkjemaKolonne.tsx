@@ -1,5 +1,6 @@
+import { VStack } from "@navikt/ds-react";
 import { PropsWithChildren } from "react";
 
 export function SkjemaKolonne(props: PropsWithChildren) {
-  return <div className="w-full flex flex-col">{props.children}</div>;
+  return <VStack gap="space-12">{props.children}</VStack>;
 }

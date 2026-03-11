@@ -2,14 +2,13 @@ import { OpprettUtbetalingRequest, UtbetalingDto } from "@tiltaksadministrasjon/
 import { Button, HStack, Modal } from "@navikt/ds-react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { FormGroup } from "@/components/skjema/FormGroup";
 import { ArrangorBetalingsinformasjon } from "@/components/utbetaling/ArrangorBetalingsinformasjon";
 import { useOpprettUtbetalingForm } from "@/components/utbetaling/form/useOpprettUtbetalingForm";
 import { NumberInput } from "@/components/skjema/NumberInput";
-import { TextareaInput } from "@/components/skjema/TextareaInput";
 import { FormProvider } from "react-hook-form";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-
+import { FormTextarea } from "@/components/skjema/FormTextarea";
+import { FormGroup } from "@/layouts/FormGroup";
 interface OpprettKorreksjonModalProps {
   utbetaling: UtbetalingDto;
   open: boolean;
@@ -38,7 +37,7 @@ export function OpprettKorreksjonModal({ utbetaling, open, close }: OpprettKorre
                   label={`Beløp (${prismodell.valuta})`}
                   name="pris.belop"
                 />
-                <TextareaInput<OpprettUtbetalingRequest>
+                <FormTextarea<OpprettUtbetalingRequest>
                   label="Begrunnelse for utbetaling"
                   name="korreksjonBegrunnelse"
                   maxLength={250}

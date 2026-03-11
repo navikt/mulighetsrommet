@@ -30,7 +30,7 @@ export function UtbetalingPage() {
       <title>{utbetalingTekster.title}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <HStack gap="space-8" className="bg-ax-bg-default border-b-2 border-ax-neutral-300 p-2">
-        <BankNoteFillIcon color="#2AA758" className="w-10 h-10" />
+        <BankNoteFillIcon color="#2AA758" width="2.5rem" height="2.5rem" />
         <Heading size="large" level="1">
           {utbetalingTekster.header(gjennomforing.navn)}
         </Heading>
