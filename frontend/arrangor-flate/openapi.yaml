@@ -920,12 +920,17 @@ components:
           type:
           - "null"
           - string
+        deltakere:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorflateTilsagnDto.DeltakerPersonalia"
       required:
       - arrangor
       - beregning
       - beskrivelse
       - bestillingsnummer
       - bruktBelop
+      - deltakere
       - gjennomforing
       - gjenstaendeBelop
       - id
@@ -1033,6 +1038,22 @@ components:
       required:
       - entries
       - header
+    ArrangorflateTilsagnDto.DeltakerPersonalia:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+        norskIdent:
+          type:
+          - "null"
+          - string
+        navn:
+          type: string
+      required:
+      - deltakerId
+      - navn
+      - norskIdent
     DatoVelger:
       anyOf:
       - $ref: "#/components/schemas/DatoVelgerRange"

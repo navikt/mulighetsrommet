@@ -6,7 +6,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst } from "@/utils/Utils";
-import { Avtaletype } from "@tiltaksadministrasjon/api-client";
+import { AmoKurstype, Avtaletype, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   Definisjonsliste,
@@ -41,6 +41,10 @@ export function AvtaleDetaljer() {
     utdanningslop,
     opsjonsmodell,
   } = avtale;
+
+  const visAmoKategorisering =
+    amoKategorisering &&
+    !kursOgTiltakErStudiespesialisering(amoKategorisering.kurstype, tiltakstype.tiltakskode);
 
   const avtaleMeta: Definition[] = [
     { key: avtaletekster.avtalenavnLabel, value: navn },
@@ -146,7 +150,9 @@ export function AvtaleDetaljer() {
         <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
         {avtale.opsjonerRegistrert.length > 0 && <RegistrerteOpsjoner readOnly />}
         {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
-        {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+        {visAmoKategorisering && (
+          <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
+        )}
         <PrismodellDetaljer prismodeller={avtale.prismodeller} />
         <AvtaleRammedetaljer rammedetaljer={rammedetaljer} />
       </DetaljerLayout>
@@ -159,5 +165,11 @@ export function AvtaleDetaljer() {
         )}
       </DetaljerLayout>
     </TwoColumnGrid>
+  );
+}
+
+function kursOgTiltakErStudiespesialisering(amo: AmoKurstype | null, tiltakskode: Tiltakskode) {
+  return (
+    amo === AmoKurstype.STUDIESPESIALISERING && tiltakskode === Tiltakskode.STUDIESPESIALISERING
   );
 }

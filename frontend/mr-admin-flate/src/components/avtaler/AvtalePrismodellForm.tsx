@@ -49,6 +49,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
 
   const onPrismodelltypeChange = (index: number, type: PrismodellType) => {
     setValue(`prismodeller.${index}.type`, type);
+    setValue(`prismodeller.${index}.tilsagnPerDeltaker`, false);
     setValue(
       `prismodeller.${index}.satser`,
       PrismodellType.ANNEN_AVTALT_PRIS === type
@@ -63,6 +64,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
       {fields.map((field, index) => {
         const type = watch(`prismodeller.${index}.type`);
         const selectedValuta = watch(`prismodeller.${index}.valuta`);
+        const selectedType = watch(`prismodeller.${index}.type`);
         const tilsagnPerDeltaker = watch(`prismodeller.${index}.tilsagnPerDeltaker`);
         const beskrivelse = prismodellTyper.find((p) => p.type === type)?.beskrivelse;
         return (
@@ -111,23 +113,24 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                     ))}
                   </Select>
                 </HStack>
-                {enabledMedDeltakereCheckbox && (
-                  <HStack align="center" gap="space-8">
-                    <Checkbox
-                      checked={tilsagnPerDeltaker}
-                      onChange={() =>
-                        setValue(`prismodeller.${index}.tilsagnPerDeltaker`, !tilsagnPerDeltaker)
-                      }
-                      size="small"
-                    >
-                      Tilsagn skal knyttes til deltakere
-                    </Checkbox>
-                    <HelpText title="Hva betyr dette?">
-                      Når denne er huket av må alle tilsagn kobles til en eller flere deltakere i
-                      perioden.
-                    </HelpText>
-                  </HStack>
-                )}
+                {enabledMedDeltakereCheckbox &&
+                  selectedType === PrismodellType.ANNEN_AVTALT_PRIS && (
+                    <HStack align="center" gap="space-8">
+                      <Checkbox
+                        checked={tilsagnPerDeltaker}
+                        onChange={() =>
+                          setValue(`prismodeller.${index}.tilsagnPerDeltaker`, !tilsagnPerDeltaker)
+                        }
+                        size="small"
+                      >
+                        Tilsagn skal knyttes til deltakere
+                      </Checkbox>
+                      <HelpText title="Hva betyr dette?">
+                        Når denne er huket av må alle tilsagn kobles til en eller flere deltakere i
+                        perioden.
+                      </HelpText>
+                    </HStack>
+                  )}
                 {beskrivelse &&
                   beskrivelse.map((tekst, i) => <BodyShort key={i}>{tekst}</BodyShort>)}
                 {prismodellerMedSatser.includes(type) && (

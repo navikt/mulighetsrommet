@@ -6,24 +6,14 @@ import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
-import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
-import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
-import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
@@ -37,16 +27,14 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.util.UUID
+import kotlin.collections.component1
 
 val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.GODKJENT,
@@ -78,7 +66,10 @@ class ArrangorflateService(
         return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
     }
 
-    fun getUtbetalingerByArrangorerAndStatus(arrangorer: Set<Organisasjonsnummer>, statuser: Set<UtbetalingStatusType>): List<ArrangorflateUtbetalingKompakt> = db.session {
+    fun getUtbetalingerByArrangorerAndStatus(
+        arrangorer: Set<Organisasjonsnummer>,
+        statuser: Set<UtbetalingStatusType>,
+    ): List<ArrangorflateUtbetalingKompakt> = db.session {
         queries.utbetaling.getByArrangorerAndStatus(arrangorer, statuser).map { tilArrangorflateUtbetalingKompakt(it) }
     }
 
@@ -86,13 +77,13 @@ class ArrangorflateService(
         return queries.utbetaling.get(id)
     }
 
-    fun getTilsagn(id: UUID): ArrangorflateTilsagnDto? = db.session {
+    suspend fun getTilsagn(id: UUID): ArrangorflateTilsagnDto? = db.session {
         queries.tilsagn.get(id)
             ?.takeIf { it.status in TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR }
-            ?.let { toArrangorflateTilsagn(it) }
+            ?.let { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere.toSet())) }
     }
 
-    fun getTilsagn(
+    suspend fun getTilsagn(
         arrangorer: Set<Organisasjonsnummer>,
         statuser: List<TilsagnStatus>? = null,
         typer: List<TilsagnType>? = null,
@@ -105,10 +96,10 @@ class ArrangorflateService(
                 typer = typer,
                 gjennomforingId = gjennomforingId,
             )
-            .map { toArrangorflateTilsagn(it) }
+            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere.toSet())) }
     }
 
-    fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> = db.session {
+    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
                 gjennomforingId = utbetaling.gjennomforing.id,
@@ -116,7 +107,7 @@ class ArrangorflateService(
                 typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
                 statuser = listOf(TilsagnStatus.GODKJENT),
             )
-            .map { toArrangorflateTilsagn(it) }
+            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere.toSet())) }
     }
 
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
@@ -147,10 +138,11 @@ class ArrangorflateService(
 
     suspend fun toArrangorflateUtbetaling(
         utbetaling: Utbetaling,
-        relativeDate: LocalDateTime = LocalDateTime.now(),
+        today: LocalDate = LocalDate.now(),
     ): ArrangorflateUtbetalingDto = db.session {
-        val erTolvUkerEtterInnsending = utbetaling.godkjentAvArrangorTidspunkt
-            ?.let { it.plusWeeks(12) <= relativeDate } ?: false
+        val erTolvUkerEtterInnsending = utbetaling.innsending
+            ?.let { it.tidspunkt.toLocalDate().plusWeeks(12) <= today }
+            ?: false
 
         val deltakere = if (erTolvUkerEtterInnsending) {
             emptyList()
@@ -201,7 +193,7 @@ class ArrangorflateService(
     }
 
     fun QueryContext.kanRegenereres(utbetaling: Utbetaling): Pair<Boolean, UUID?> {
-        if (utbetaling.innsender != Arrangor) {
+        if (utbetaling.innsending == null) {
             return false to null
         }
         if (utbetaling.status != UtbetalingStatusType.AVBRUTT) {
@@ -265,91 +257,20 @@ class ArrangorflateService(
                 ArrangorflatePersonalia.fromPersonalia(it.value)
             }
     }
-}
 
-fun toArrangorflateTilsagn(
-    tilsagn: Tilsagn,
-): ArrangorflateTilsagnDto {
-    return ArrangorflateTilsagnDto(
-        id = tilsagn.id,
-        gjennomforing = ArrangorflateGjennomforingDto(
-            id = tilsagn.gjennomforing.id,
-            lopenummer = tilsagn.gjennomforing.lopenummer,
-            navn = tilsagn.gjennomforing.navn,
-        ),
-        bruktBelop = tilsagn.belopBrukt,
-        gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
-        tiltakstype = ArrangorflateTiltakstypeDto(
-            navn = tilsagn.tiltakstype.navn,
-            tiltakskode = tilsagn.tiltakstype.tiltakskode,
-        ),
-        type = tilsagn.type,
-        periode = tilsagn.periode,
-        beregning = toArrangorflateTilsagnBeregningDetails(tilsagn),
-        arrangor = ArrangorflateArrangorDto(
-            id = tilsagn.arrangor.id,
-            navn = tilsagn.arrangor.navn,
-            organisasjonsnummer = tilsagn.arrangor.organisasjonsnummer,
-        ),
-        status = tilsagn.status,
-        bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
-        beskrivelse = tilsagn.beskrivelse,
-    )
-}
-
-private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetails {
-    val entries = when (tilsagn.beregning) {
-        is TilsagnBeregningFri -> listOf(
-            LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
-            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.pris),
-            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
-        )
-
-        is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> listOf(
-            LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
-            LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            LabeledDataElement.money("Sats per tiltaksplass per måned", tilsagn.beregning.input.sats),
-            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.pris),
-            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
-        )
-
-        is TilsagnBeregningPrisPerManedsverk -> listOf(
-            LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
-            LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            LabeledDataElement.money("Avtalt månedspris per tiltaksplass", tilsagn.beregning.input.sats),
-            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.pris),
-            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
-        )
-
-        is TilsagnBeregningPrisPerUkesverk -> listOf(
-            LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
-            LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            LabeledDataElement.money("Avtalt ukespris per tiltaksplass", tilsagn.beregning.input.sats),
-            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.pris),
-            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
-        )
-
-        is TilsagnBeregningPrisPerHeleUkesverk -> listOf(
-            LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
-            LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            LabeledDataElement.money("Avtalt ukespris per tiltaksplass", tilsagn.beregning.input.sats),
-            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.pris),
-            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
-        )
-
-        is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> listOf(
-            LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
-            LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            LabeledDataElement.money("Pris per time oppfølging", tilsagn.beregning.input.sats),
-            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.pris),
-            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
-        )
+    suspend fun getTilsagnDeltakerPersonalia(deltakerIds: Set<UUID>): List<ArrangorflateTilsagnDto.DeltakerPersonalia> {
+        return getPersonalia(deltakerIds).map { (deltakerId, p) ->
+            ArrangorflateTilsagnDto.DeltakerPersonalia(
+                deltakerId = deltakerId,
+                norskIdent = p.norskIdent,
+                navn = p.navn,
+            )
+        }
     }
-    return DataDetails(entries = entries)
 }
 
 fun arrangorAvbrytStatus(utbetaling: Utbetaling): ArrangorAvbrytStatus {
-    if (utbetaling.innsender != Arrangor) {
+    if (utbetaling.innsending == null) {
         return ArrangorAvbrytStatus.HIDDEN
     }
 

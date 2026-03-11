@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
@@ -131,15 +130,27 @@ object UtbetalingValidator {
             validate(value.length >= 10) {
                 FieldError.of("Kommentar må være minst 10 tegn", OpprettUtbetalingRequest::kommentar)
             }
+
+            validate(value.length <= 250) {
+                FieldError.of("Kommentar kan ikke være mer enn 250 tegn", OpprettUtbetalingRequest::kommentar)
+            }
         }
 
         val korreksjonBegrunnelse = when (request.korrigererUtbetaling) {
             null -> null
 
             else -> request.korreksjonBegrunnelse?.trim().also { value ->
-                validate(value != null && value.length >= 10) {
+                val length = value.orEmpty().length
+                validate(length >= 10) {
                     FieldError.of(
                         "Begrunnelse for korreksjon må være minst 10 tegn",
+                        OpprettUtbetalingRequest::korreksjonBegrunnelse,
+                    )
+                }
+
+                validate(length <= 250) {
+                    FieldError.of(
+                        "Begrunnelse for korreksjon kan ikke være mer enn 250 tegn",
                         OpprettUtbetalingRequest::korreksjonBegrunnelse,
                     )
                 }
@@ -229,7 +240,7 @@ object UtbetalingValidator {
         validate(utbetaling.status == UtbetalingStatusType.AVBRUTT) {
             FieldError.root("Utbetalingen kan ikke regenereres")
         }
-        validate(utbetaling.innsender == Arrangor) {
+        validateNotNull(utbetaling.innsending) {
             FieldError.root("Utbetalingen kan ikke regenereres")
         }
         when (utbetaling.beregning) {

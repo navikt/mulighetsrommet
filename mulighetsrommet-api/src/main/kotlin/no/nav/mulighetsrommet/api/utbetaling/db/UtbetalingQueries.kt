@@ -41,8 +41,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.textRepr
-import no.nav.mulighetsrommet.model.toAgent
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
@@ -140,7 +138,6 @@ class UtbetalingQueries(private val session: Session) {
             }.name,
             "belop_beregnet" to dbo.beregning.output.pris.belop,
             "valuta" to dbo.beregning.output.pris.valuta.name,
-            "innsender" to dbo.innsender?.textRepr(),
             "kommentar" to dbo.kommentar,
             "korreksjon_gjelder_utbetaling_id" to dbo.korreksjonGjelderUtbetalingId,
             "korreksjon_begrunnelse" to dbo.korreksjonBegrunnelse,
@@ -679,7 +676,6 @@ class UtbetalingQueries(private val session: Session) {
         val id = uuid("id")
         val valuta = string("valuta").let { Valuta.valueOf(it) }
         val beregning = getBeregning(id, valuta, UtbetalingBeregningType.valueOf(string("beregning_type")))
-        val innsender = stringOrNull("innsender")?.toAgent()
         return Utbetaling(
             id = id,
             gjennomforing = Utbetaling.Gjennomforing(
@@ -705,19 +701,20 @@ class UtbetalingQueries(private val session: Session) {
                     begrunnelse = begrunnelse,
                 )
             },
+            innsending = localDateTimeOrNull("innsendt_av_arrangor_tidspunkt")?.let { tidspunkt ->
+                Utbetaling.Innsending(tidspunkt)
+            },
             status = UtbetalingStatusType.valueOf(string("status")),
             valuta = valuta,
             beregning = beregning,
             betalingsinformasjon = this.toBankKonto(),
             journalpostId = stringOrNull("journalpost_id")?.let { JournalpostId.parse(it) },
             periode = periode("periode"),
-            innsender = innsender,
             createdAt = localDateTime("created_at"),
             updatedAt = localDateTime("updated_at"),
             kommentar = stringOrNull("kommentar"),
             begrunnelseMindreBetalt = stringOrNull("begrunnelse_mindre_betalt"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
-            godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
             utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
             avbruttBegrunnelse = stringOrNull("avbrutt_begrunnelse"),
             avbruttTidspunkt = instantOrNull("avbrutt_tidspunkt"),

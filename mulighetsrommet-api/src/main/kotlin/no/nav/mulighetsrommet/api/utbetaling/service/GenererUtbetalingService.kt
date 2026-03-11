@@ -265,7 +265,6 @@ class GenererUtbetalingService(
                 )
             },
             periode = periode,
-            innsender = null,
             kommentar = null,
             korreksjonGjelderUtbetalingId = null,
             korreksjonBegrunnelse = null,
@@ -352,7 +351,6 @@ class GenererUtbetalingService(
                 join prismodell on prismodell.id = gjennomforing.prismodell_id
             where gjennomforing.status != 'AVLYST'
                 and prismodell.prismodell_type = :prismodell::prismodell_type
-                and (gjennomforing.slutt_dato is null or gjennomforing.start_dato <= gjennomforing.slutt_dato)
                 and daterange(gjennomforing.start_dato, gjennomforing.slutt_dato, '[]') && :periode::daterange
                 $notExistsClause
         """.trimIndent()
@@ -397,7 +395,6 @@ class GenererUtbetalingService(
 
 private fun UtbetalingDbo.isNotEqualTo(utbetaling: Utbetaling): Boolean = this != UtbetalingDbo(
     id = utbetaling.id,
-    innsender = utbetaling.innsender,
     gjennomforingId = utbetaling.gjennomforing.id,
     status = utbetaling.status,
     valuta = utbetaling.valuta,
@@ -409,7 +406,7 @@ private fun UtbetalingDbo.isNotEqualTo(utbetaling: Utbetaling): Boolean = this !
     korreksjonBegrunnelse = utbetaling.korreksjon?.begrunnelse,
     tilskuddstype = utbetaling.tilskuddstype,
     journalpostId = utbetaling.journalpostId,
-    godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+    godkjentAvArrangorTidspunkt = utbetaling.innsending?.tidspunkt,
     utbetalesTidligstTidspunkt = utbetaling.utbetalesTidligstTidspunkt,
     blokkeringer = utbetaling.blokkeringer,
 )

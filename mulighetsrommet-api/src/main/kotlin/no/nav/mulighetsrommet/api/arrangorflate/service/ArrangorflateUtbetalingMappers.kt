@@ -66,7 +66,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
 
     val kanViseBeregningMedDeltakelse = beregning.deltakelser?.let { kanViseBeregning } ?: false
 
-    val innsendtAvArrangorDato = utbetaling.godkjentAvArrangorTidspunkt?.toLocalDate()
+    val innsendtAvArrangorDato = utbetaling.innsending?.tidspunkt?.toLocalDate()
     return ArrangorflateUtbetalingDto(
         id = utbetaling.id,
         status = status,

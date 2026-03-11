@@ -46,7 +46,6 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -429,7 +428,6 @@ class GenererUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(
                     utbetaling1.copy(
                         gjennomforingId = oppfolging.id,
-                        innsender = NavIdent("B123456"),
                         status = UtbetalingStatusType.INNSENDT,
                         beregning = UtbetalingBeregningFri(
                             input = UtbetalingBeregningFri.Input(1000.withValuta(Valuta.NOK)),

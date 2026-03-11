@@ -2,14 +2,12 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
-import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.serializers.AgentSerializer
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -19,25 +17,21 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import no.nav.mulighetsrommet.model.Arrangor as ArrangorInnsendt
 
 @Serializable
 data class Utbetaling(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    @Serializable(with = AgentSerializer::class)
-    val innsender: Agent?,
     val tiltakstype: Tiltakstype,
     val gjennomforing: Gjennomforing,
     val arrangor: Arrangor,
     val korreksjon: Korreksjon?,
+    val innsending: Innsending?,
     val valuta: Valuta,
     val beregning: UtbetalingBeregning,
     val betalingsinformasjon: Betalingsinformasjon?,
     val journalpostId: JournalpostId?,
     val periode: Periode,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val godkjentAvArrangorTidspunkt: LocalDateTime?,
     @Serializable(with = InstantSerializer::class)
     val utbetalesTidligstTidspunkt: Instant?,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -60,10 +54,9 @@ data class Utbetaling(
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerTimeOppfolging,
             is UtbetalingBeregningPrisPerUkesverk,
-            ->
-                false
+            -> false
 
-            is UtbetalingBeregningFri -> tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD && innsender is ArrangorInnsendt
+            is UtbetalingBeregningFri -> innsending != null
         }
     }
 
@@ -99,6 +92,12 @@ data class Utbetaling(
         @Serializable(with = UUIDSerializer::class)
         val gjelderUtbetalingId: UUID?,
         val begrunnelse: String,
+    )
+
+    @Serializable
+    data class Innsending(
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val tidspunkt: LocalDateTime,
     )
 
     @Serializable

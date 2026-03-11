@@ -143,26 +143,13 @@ export function TilsagnForm(props: Props) {
                 </HGrid>
                 <VelgKostnadssted kostnadssteder={kostnadssteder} />
                 {props.beregningInput}
-                <Textarea
-                  size="small"
-                  error={errors.kommentar?.message}
-                  label={tilsagnTekster.kommentar.label}
-                  maxLength={500}
-                  {...register("kommentar")}
-                />
-                <Textarea
-                  size="small"
-                  error={errors.beskrivelse?.message}
-                  label={tilsagnTekster.beskrivelse.label}
-                  maxLength={250}
-                  {...register("beskrivelse")}
-                />
                 {tilsagnPerDeltaker && (
                   <Controller
                     control={control}
                     name="deltakere"
                     render={({ field }) => (
                       <UNSAFE_Combobox
+                        description="Filtrert basert på overlappende tilsagn og deltakelsesperiode"
                         size="small"
                         id="arrangorKontaktpersoner"
                         label="Deltakere"
@@ -186,6 +173,20 @@ export function TilsagnForm(props: Props) {
                     )}
                   />
                 )}
+                <Textarea
+                  size="small"
+                  error={errors.kommentar?.message}
+                  label={tilsagnTekster.kommentar.label}
+                  maxLength={500}
+                  {...register("kommentar")}
+                />
+                <Textarea
+                  size="small"
+                  error={errors.beskrivelse?.message}
+                  label={tilsagnTekster.beskrivelse.label}
+                  maxLength={250}
+                  {...register("beskrivelse")}
+                />
               </VStack>
               <TilsagnBeregningPreview />
             </TwoColumnGrid>

@@ -67,6 +67,12 @@ module "grafana_tilsagn_view" {
         description = "Beløp beregnet"
       },
       {
+        name        = "valuta"
+        type        = "STRING"
+        mode        = "NULLABLE"
+        description = "Valuta"
+      },
+      {
         name        = "prismodell"
         type        = "STRING"
         mode        = "NULLABLE"
@@ -140,6 +146,7 @@ SELECT
   tilsagn.status,
   tilsagn.belop_gjenstaende,
   tilsagn.belop_beregnet,
+  tilsagn.valuta,
   tilsagn.prismodell,
   tilsagn.bestilling_status,
   tilsagn.datastream_periode_start,
@@ -177,6 +184,7 @@ module "grafana_utbetaling_view" {
     { name = "tilskuddstype", type = "STRING", mode = "NULLABLE" },
     { name = "begrunnelse_mindre_betalt", type = "STRING", mode = "NULLABLE" },
     { name = "belop_beregnet", type = "INTEGER", mode = "NULLABLE" },
+    { name = "valuta", type = "STRING", mode = "NULLABLE" },
     { name = "beregning_type", type = "STRING", mode = "NULLABLE" },
     { name = "datastream_periode_start", type = "DATE", mode = "NULLABLE" },
     { name = "datastream_periode_slutt", type = "DATE", mode = "NULLABLE" },
@@ -200,6 +208,7 @@ SELECT
   utbetaling.tilskuddstype,
   utbetaling.begrunnelse_mindre_betalt,
   utbetaling.belop_beregnet,
+  utbetaling.valuta,
   utbetaling.beregning_type,
   utbetaling.datastream_periode_start,
   utbetaling.datastream_periode_slutt,
@@ -226,6 +235,7 @@ module "grafana_delutbetaling_view" {
     { name = "utbetaling_id", type = "STRING", mode = "NULLABLE" },
     { name = "tilsagn_id", type = "STRING", mode = "NULLABLE" },
     { name = "belop", type = "INTEGER", mode = "NULLABLE" },
+    { name = "valuta", type = "STRING", mode = "NULLABLE" },
     { name = "created_at", type = "TIMESTAMP", mode = "NULLABLE" },
     { name = "lopenummer", type = "INTEGER", mode = "NULLABLE" },
     { name = "fakturanummer", type = "STRING", mode = "NULLABLE" },
@@ -244,6 +254,7 @@ SELECT
   delutbetaling.utbetaling_id,
   delutbetaling.tilsagn_id,
   delutbetaling.belop,
+  delutbetaling.valuta,
   delutbetaling.created_at,
   delutbetaling.lopenummer,
   delutbetaling.fakturanummer,
@@ -348,7 +359,6 @@ module "grafana_gjennomforing_view" {
     { name = "antall_plasser", type = "INTEGER", mode = "NULLABLE" },
     { name = "avtale_id", type = "STRING", mode = "NULLABLE" },
     { name = "oppstart", type = "STRING", mode = "NULLABLE" },
-    { name = "opphav", type = "STRING", mode = "NULLABLE" },
     { name = "sted_for_gjennomforing", type = "STRING", mode = "NULLABLE" },
     { name = "publisert", type = "BOOLEAN", mode = "NULLABLE" },
     { name = "nav_region", type = "STRING", mode = "NULLABLE" },
@@ -357,9 +367,7 @@ module "grafana_gjennomforing_view" {
     { name = "estimert_ventetid_verdi", type = "INTEGER", mode = "NULLABLE" },
     { name = "estimert_ventetid_enhet", type = "STRING", mode = "NULLABLE" },
     { name = "arrangor_id", type = "STRING", mode = "NULLABLE" },
-    { name = "avbrutt_aarsak", type = "STRING", mode = "NULLABLE" },
     { name = "lopenummer", type = "STRING", mode = "NULLABLE" },
-    { name = "tilgjengelig_for_arrangor_fra_og_med_dato", type = "TIMESTAMP", mode = "NULLABLE" },
     { name = "tilgjengelig_for_arrangor_dato", type = "DATE", mode = "NULLABLE" },
     { name = "status", type = "STRING", mode = "NULLABLE" },
     { name = "avbrutt_aarsaker", type = "JSON", mode = "NULLABLE" },
@@ -378,7 +386,6 @@ SELECT
   gjennomforing.antall_plasser,
   gjennomforing.avtale_id,
   gjennomforing.oppstart,
-  gjennomforing.opphav,
   gjennomforing.sted_for_gjennomforing,
   gjennomforing.publisert,
   gjennomforing.nav_region,
@@ -387,16 +394,14 @@ SELECT
   gjennomforing.estimert_ventetid_verdi,
   gjennomforing.estimert_ventetid_enhet,
   gjennomforing.arrangor_id,
-  gjennomforing.avbrutt_aarsak,
   gjennomforing.lopenummer,
-  gjennomforing.tilgjengelig_for_arrangor_fra_og_med_dato,
   gjennomforing.tilgjengelig_for_arrangor_dato,
   gjennomforing.status,
   gjennomforing.avbrutt_aarsaker,
   gjennomforing.arena_tiltaksnummer,
   gjennomforing.pamelding_type,
-  prismodell.prismodell_type,
   gjennomforing.gjennomforing_type,
+  prismodell.prismodell_type,
   tiltakstype.navn as tiltakstype_navn
 FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` gjennomforing
   INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype

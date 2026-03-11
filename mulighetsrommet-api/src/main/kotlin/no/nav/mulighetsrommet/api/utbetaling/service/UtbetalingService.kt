@@ -153,7 +153,6 @@ class UtbetalingService(
             valuta = opprett.beregning.output.pris.valuta,
             beregning = opprett.beregning,
             periode = opprett.periode,
-            innsender = agent,
             kommentar = opprett.kommentar,
             korreksjonGjelderUtbetalingId = korreksjonGjelderUtbetalingId,
             korreksjonBegrunnelse = opprett.korreksjonBegrunnelse,

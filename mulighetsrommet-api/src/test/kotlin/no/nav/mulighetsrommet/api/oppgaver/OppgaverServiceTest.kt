@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -521,19 +520,16 @@ class OppgaverServiceTest : FunSpec({
                         status = UtbetalingStatusType.INNSENDT,
                         gjennomforingId = AFT1.id,
                         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                        innsender = Arrangor,
                     ),
                     UtbetalingFixtures.utbetaling2.copy(
                         status = UtbetalingStatusType.FERDIG_BEHANDLET,
                         gjennomforingId = AFT1.id,
                         periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
-                        innsender = Arrangor,
                     ),
                     UtbetalingFixtures.utbetaling3.copy(
                         status = UtbetalingStatusType.INNSENDT,
                         gjennomforingId = VTA1.id,
                         periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
-                        innsender = Arrangor,
                     ),
                 ),
                 delutbetalinger = listOf(
