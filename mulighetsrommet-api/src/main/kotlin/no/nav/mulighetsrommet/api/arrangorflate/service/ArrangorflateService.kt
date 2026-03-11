@@ -121,7 +121,7 @@ class ArrangorflateService(
                 UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
             }
 
-            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_BEHANDLING,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
             UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -285,7 +285,7 @@ fun arrangorAvbrytStatus(utbetaling: Utbetaling): ArrangorAvbrytStatus {
         UtbetalingStatusType.AVBRUTT,
         -> ArrangorAvbrytStatus.HIDDEN
 
-        UtbetalingStatusType.INNSENDT,
+        UtbetalingStatusType.TIL_BEHANDLING,
         UtbetalingStatusType.RETURNERT,
         -> ArrangorAvbrytStatus.ACTIVATED
     }

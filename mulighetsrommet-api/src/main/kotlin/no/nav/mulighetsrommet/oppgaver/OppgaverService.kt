@@ -350,7 +350,7 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
         UtbetalingStatusType.AVBRUTT,
         -> null
 
-        UtbetalingStatusType.INNSENDT ->
+        UtbetalingStatusType.TIL_BEHANDLING ->
             Oppgave(
                 id = data.id,
                 type = OppgaveType.UTBETALING_TIL_BEHANDLING,

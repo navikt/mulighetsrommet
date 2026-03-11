@@ -99,7 +99,7 @@ fun Route.utbetalingRoutes() {
                         )
 
                     UtbetalingStatusType.GENERERT,
-                    UtbetalingStatusType.INNSENDT,
+                    UtbetalingStatusType.TIL_BEHANDLING,
                     UtbetalingStatusType.TIL_ATTESTERING,
                     UtbetalingStatusType.RETURNERT,
                     UtbetalingStatusType.AVBRUTT,

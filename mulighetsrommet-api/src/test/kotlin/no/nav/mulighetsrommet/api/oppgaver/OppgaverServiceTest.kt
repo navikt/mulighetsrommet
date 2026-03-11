@@ -517,7 +517,7 @@ class OppgaverServiceTest : FunSpec({
                 ),
                 utbetalinger = listOf(
                     UtbetalingFixtures.utbetaling1.copy(
-                        status = UtbetalingStatusType.INNSENDT,
+                        status = UtbetalingStatusType.TIL_BEHANDLING,
                         gjennomforingId = AFT1.id,
                         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                     ),
@@ -527,7 +527,7 @@ class OppgaverServiceTest : FunSpec({
                         periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
                     ),
                     UtbetalingFixtures.utbetaling3.copy(
-                        status = UtbetalingStatusType.INNSENDT,
+                        status = UtbetalingStatusType.TIL_BEHANDLING,
                         gjennomforingId = VTA1.id,
                         periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
                     ),

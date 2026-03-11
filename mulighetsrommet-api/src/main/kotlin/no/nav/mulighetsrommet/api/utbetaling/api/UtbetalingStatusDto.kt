@@ -19,7 +19,7 @@ data class UtbetalingStatusDto(
                     Type.UBEHANDLET_FORSLAG
                 }
 
-                UtbetalingStatusType.INNSENDT -> Type.KLAR_TIL_BEHANDLING
+                UtbetalingStatusType.TIL_BEHANDLING -> Type.KLAR_TIL_BEHANDLING
 
                 UtbetalingStatusType.TIL_ATTESTERING -> Type.TIL_ATTESTERING
 

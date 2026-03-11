@@ -21,7 +21,7 @@ enum class ArrangorflateUtbetalingStatus {
                 UBEHANDLET_FORSLAG
             }
 
-            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_BEHANDLING,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
             -> BEHANDLES_AV_NAV

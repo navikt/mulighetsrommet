@@ -40,7 +40,7 @@ class JournalforUtbetalingTest : FunSpec({
     val underenhet = ArrangorFixtures.underenhet1
 
     val utbetaling = UtbetalingFixtures.utbetaling1.copy(
-        status = UtbetalingStatusType.INNSENDT,
+        status = UtbetalingStatusType.TIL_BEHANDLING,
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("12312312312"), null),
     )
 

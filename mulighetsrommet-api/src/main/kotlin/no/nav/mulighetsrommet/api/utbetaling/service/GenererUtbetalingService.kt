@@ -192,7 +192,7 @@ class GenererUtbetalingService(
     private fun QueryContext.hentGenererteUtbetalinger(gjennomforingId: UUID): List<Utbetaling> {
         return queries.utbetaling.getByGjennomforing(gjennomforingId).filter {
             when (it.status) {
-                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.TIL_BEHANDLING,
                 UtbetalingStatusType.TIL_ATTESTERING,
                 UtbetalingStatusType.RETURNERT,
                 UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -270,7 +270,7 @@ class GenererUtbetalingService(
             korreksjonBegrunnelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             journalpostId = null,
-            godkjentAvArrangorTidspunkt = null,
+            innsendtAvArrangorTidspunkt = null,
             utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
             blokkeringer = blokkeringer(periode, beregning, forslag),
         )
@@ -406,7 +406,7 @@ private fun UtbetalingDbo.isNotEqualTo(utbetaling: Utbetaling): Boolean = this !
     korreksjonBegrunnelse = utbetaling.korreksjon?.begrunnelse,
     tilskuddstype = utbetaling.tilskuddstype,
     journalpostId = utbetaling.journalpostId,
-    godkjentAvArrangorTidspunkt = utbetaling.innsending?.tidspunkt,
+    innsendtAvArrangorTidspunkt = utbetaling.innsending?.tidspunkt,
     utbetalesTidligstTidspunkt = utbetaling.utbetalesTidligstTidspunkt,
     blokkeringer = utbetaling.blokkeringer,
 )

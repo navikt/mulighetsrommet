@@ -510,7 +510,7 @@ enum class UtbetalingOversiktType {
     fun utbetalingStatuser(): Set<UtbetalingStatusType> = when (this) {
         AKTIVE -> setOf(
             UtbetalingStatusType.GENERERT,
-            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_BEHANDLING,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
         )

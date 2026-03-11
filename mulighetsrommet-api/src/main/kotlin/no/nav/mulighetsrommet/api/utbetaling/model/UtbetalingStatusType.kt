@@ -7,9 +7,9 @@ enum class UtbetalingStatusType {
     GENERERT,
 
     /**
-     * Arrangør eller Nav-ansatt har opprettet utbetalingen.
+     * Utbetalingener har blitt opprettet og er klar til behandling.
      */
-    INNSENDT,
+    TIL_BEHANDLING,
 
     /**
      * Saksbehandler hos Nav har utført kostnadsfordeling og sendt utbetalingen til attestering.
