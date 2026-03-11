@@ -1,6 +1,6 @@
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { InformationSquareFillIcon } from "@navikt/aksel-icons";
-import { BodyShort, Button, Modal, Textarea, VStack } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Button, Modal, Textarea, VStack } from "@navikt/ds-react";
 import { ValutaBelop } from "@tiltaksadministrasjon/api-client";
 import { ChangeEventHandler } from "react";
 
@@ -31,14 +31,23 @@ export default function MindreBelopModal({
     >
       <Modal.Body>
         <VStack gap="space-8">
+          <BodyShort>
+            Beløpet du er i ferd med å sende til attestering er mindre enn beløpet på utbetalingen.
+            Er du sikker på at du vil fortsette?
+          </BodyShort>
           <VStack>
-            <BodyShort spacing>
-              Beløpet du er i ferd med å sende til attestering er mindre enn beløpet på
-              utbetalingen. Er du sikker på at du vil fortsette?
+            <BodyShort weight="semibold">
+              Beløp til attestering: {formaterValutaBelop(belopUtbetaling)}
             </BodyShort>
-            <BodyShort>Beløp til attestering: {formaterValutaBelop(belopUtbetaling)}</BodyShort>
-            <BodyShort>Innsendt beløp: {formaterValutaBelop(belopInnsendt)}</BodyShort>
+            <BodyShort weight="semibold">
+              Innsendt beløp: {formaterValutaBelop(belopInnsendt)}
+            </BodyShort>
           </VStack>
+          <BodyLong color="contrast">
+            Husk at for tiltakene Oppfølging, Avklaring, ARR og Digitalt jobbsøkerkurs skal arrangør
+            alltid få utbetalt for gjennomført aktivitet. Det gjelder også for eventuelle andre
+            tiltak hvor avtalt pris er basert på gjennomført aktivitet.
+          </BodyLong>
           <Textarea
             label="Begrunnelse"
             onChange={begrunnelseOnChange}
