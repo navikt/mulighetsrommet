@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.arrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
@@ -80,19 +81,19 @@ object UtbetalingValidator {
         opprettDelutbetalinger.forEachIndexed { index, req ->
             validate(req.pris != null && req.pris.belop > 0) {
                 FieldError(
-                    "/$index/pris",
+                    "/delutbetalinger/$index/pris/belop",
                     "Beløp må være positivt",
                 )
             }
             validate(req.pris == null || req.pris <= req.tilsagn.gjenstaendeBelop) {
                 FieldError(
-                    "/$index/pris",
-                    "Kan ikke utbetale mer enn gjenstående beløp på tilsagn",
+                    "/delutbetalinger/$index/pris/belop",
+                    "Beløp overstiger gjenstående beløp på tilsagn",
                 )
             }
             validate(req.tilsagn.status == TilsagnStatus.GODKJENT) {
                 FieldError(
-                    "/$index/tilsagnId",
+                    "/delutbetalinger/$index/tilsagnId",
                     "Tilsagnet har status ${req.tilsagn.status.beskrivelse} og kan ikke benyttes, linjen må fjernes",
                 )
             }
