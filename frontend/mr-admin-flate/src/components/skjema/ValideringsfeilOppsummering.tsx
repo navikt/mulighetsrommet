@@ -1,31 +1,17 @@
+import { extractValidationErrors } from "@/utils/Utils";
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Button, ErrorSummary, Popover } from "@navikt/ds-react";
 import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 export function ValideringsfeilOppsummering() {
-  const visValideringsFeilTrekantRef = useRef(null);
-  const [visValideringsfeil, setVisValideringsfeil] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const {
     formState: { errors },
   } = useFormContext();
 
-  const hentUtValideringsfeil = (obj: any): { message: string; ref: string }[] => {
-    let messages: { message: string; ref: string }[] = [];
-    for (const key in obj) {
-      if (obj[key] !== null && typeof obj[key] === "object") {
-        if (obj[key].message) {
-          messages.push({ message: obj[key].message, ref: obj[key]?.ref });
-        } else {
-          messages = messages.concat(hentUtValideringsfeil(obj[key]));
-        }
-      }
-    }
-
-    return messages;
-  };
-
-  const messages = hentUtValideringsfeil(errors);
+  const messages = extractValidationErrors(errors);
 
   if (messages.length === 0) return null;
 
@@ -33,39 +19,24 @@ export function ValideringsfeilOppsummering() {
     <>
       <Button
         data-color="neutral"
+        icon={
+          <ExclamationmarkTriangleFillIcon color="var(--ax-text-danger-subtle)" title="Rediger" />
+        }
         variant="tertiary"
         type="button"
         size="small"
-        aria-live="assertive"
-        tabIndex={0}
-        className="cursor-pointer"
-        onClick={() => setVisValideringsfeil(true)}
-        ref={visValideringsFeilTrekantRef}
-        title="Det er valideringsfeil i skjema. Trykk for å få oversikt over valideringsfeilene."
-      >
-        <ExclamationmarkTriangleFillIcon height={25} width={25} color="#C30000" />
-      </Button>
-      <Popover
-        open={visValideringsfeil}
-        onClose={() => setVisValideringsfeil(false)}
-        anchorEl={visValideringsFeilTrekantRef.current}
-      >
+        onClick={() => setIsOpen(true)}
+        ref={buttonRef}
+        title="Se valideringsfeil"
+      />
+      <Popover open={isOpen} onClose={() => setIsOpen(false)} anchorEl={buttonRef.current}>
         <Popover.Content>
-          <ErrorSummary
-            className="[&>li]:cursor-default [&>li]:text-ax-neutral-1000"
-            heading="Det er valideringsfeil i skjema"
-          >
-            {messages.map((value, key) => {
-              return (
-                <ErrorSummary.Item
-                  as="span"
-                  className="no-underline text-[var(--ax-text-neutral)]"
-                  key={key}
-                >
-                  {value.message}
-                </ErrorSummary.Item>
-              );
-            })}
+          <ErrorSummary heading="Du må rette følgende feil i skjemaet før du kan fortsette:">
+            {messages.map((message, index) => (
+              <ErrorSummary.Item key={index} className="no-underline text-ax-text-accent">
+                {message.message}
+              </ErrorSummary.Item>
+            ))}
           </ErrorSummary>
         </Popover.Content>
       </Popover>
