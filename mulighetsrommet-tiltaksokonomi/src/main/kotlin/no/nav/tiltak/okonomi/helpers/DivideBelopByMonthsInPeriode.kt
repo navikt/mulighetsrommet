@@ -18,5 +18,5 @@ fun divideBelopByMonthsInPeriode(bestillingsperiode: Periode, belop: Int): List<
         belopByMonth[firstPeriod] = belopByMonth.getValue(firstPeriod) + remainder
     }
 
-    return belopByMonth.toList()
+    return belopByMonth.toList().filter { it.second > 0 }
 }
