@@ -87,7 +87,8 @@ paths:
   /api/v1/arrangor/hovedenhet/sok/{term}:
     get:
       tags:
-      - ""
+      - Arrangor
+      description: Søk etter hovedenhet på orgnr eller navn
       operationId: sokHovedenhet
       parameters:
       - name: term
@@ -132,7 +133,8 @@ paths:
   /api/v1/arrangor/hovedenhet/{orgnr}/underenheter:
     get:
       tags:
-      - ""
+      - Arrangor
+      description: Hent underliggende enheter
       operationId: hentUnderenheter
       parameters:
       - name: orgnr

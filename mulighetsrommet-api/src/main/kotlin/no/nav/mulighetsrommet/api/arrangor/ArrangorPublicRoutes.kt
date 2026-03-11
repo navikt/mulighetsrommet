@@ -23,8 +23,9 @@ private fun Route.enhetRoutes() {
     val arrangorService: ArrangorService by inject()
 
     get("/hovedenhet/sok/{term}", {
-        tags = setOf("")
+        tags = setOf("Arrangor")
         operationId = "sokHovedenhet"
+        description = "Søk etter hovedenhet på orgnr eller navn"
         request {
             pathParameter<String>("term")
         }
@@ -54,8 +55,9 @@ private fun Route.enhetRoutes() {
     }
 
     get("/hovedenhet/{orgnr}/underenheter", {
-        tags = setOf("")
+        tags = setOf("Arrangor")
         operationId = "hentUnderenheter"
+        description = "Hent underliggende enheter"
         request {
             pathParameter<Organisasjonsnummer>("orgnr")
         }
