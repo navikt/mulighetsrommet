@@ -12,10 +12,8 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregEnhet
-import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhet
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhet
@@ -23,11 +21,16 @@ import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.brreg.FjernetBrregEnhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
-import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import no.nav.mulighetsrommet.brreg.BrregError as BrregClientError
+
+interface ArrangorError {
+    data class BrregError(val error: BrregClientError) : ArrangorError
+    data class TomtSok(val message: String = "'sok' kan ikke være en tom streng") : ArrangorError
+}
 
 class ArrangorService(
     private val db: ApiDatabase,
@@ -36,9 +39,9 @@ class ArrangorService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    suspend fun brregSok(sok: String): StatusResponse<List<BrregHovedenhet>> {
+    suspend fun brregSok(sok: String): Either<ArrangorError, List<BrregHovedenhet>> {
         if (sok.isBlank()) {
-            return BadRequest("'sok' kan ikke være en tom streng").left()
+            return ArrangorError.TomtSok().left()
         }
 
         return brregClient.sokHovedenhet(sok)
@@ -51,10 +54,10 @@ class ArrangorService(
                 // Kombinerer resultat med utenlandske virksomheter siden de ikke finnes i brreg
                 hovedenheter + utenlandskeVirksomheter
             }
-            .mapLeft { toStatusResponseError(it) }
+            .mapLeft { ArrangorError.BrregError(it) }
     }
 
-    suspend fun brregUnderenheter(orgnr: Organisasjonsnummer): StatusResponse<List<BrregUnderenhet>> {
+    suspend fun brregUnderenheter(orgnr: Organisasjonsnummer): Either<ArrangorError, List<BrregUnderenhet>> {
         val arrangor = db.session { queries.arrangor.get(orgnr) }
         if (arrangor != null && arrangor.erUtenlandsk) {
             return listOf(
@@ -77,20 +80,21 @@ class ArrangorService(
                 // Kombinerer resultat med virksomheter som er slettet fra brreg for å støtte avtaler/gjennomføringer som henger etter
                 underenheter + slettedeVirksomheter
             }
-            .mapLeft { toStatusResponseError(it, orgnr) }
+            .mapLeft { ArrangorError.BrregError(it) }
     }
 
     fun getArrangor(orgnr: Organisasjonsnummer): ArrangorDto? = db.session {
         queries.arrangor.get(orgnr)
     }
 
-    suspend fun getArrangorOrSyncFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
+    suspend fun getArrangorOrSyncFromBrreg(orgnr: Organisasjonsnummer): Either<ArrangorError, ArrangorDto> {
         return getArrangor(orgnr)?.right() ?: syncArrangorFromBrreg(orgnr)
     }
 
-    suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
+    suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Either<ArrangorError, ArrangorDto> {
         log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
         return brregClient.getBrregEnhet(orgnr)
+            .mapLeft { ArrangorError.BrregError(it) }
             .flatMap { virksomhet ->
                 when (virksomhet) {
                     is BrregUnderenhetDto -> getArrangorOrSyncFromBrreg(virksomhet.overordnetEnhet).map { virksomhet }
@@ -100,9 +104,9 @@ class ArrangorService(
             .map { virksomhet ->
                 syncToDatbase(virksomhet)
             }
-            .onLeft { error ->
-                if (error is BrregError.FjernetAvJuridiskeArsaker) {
-                    syncToDatabase(error.enhet)
+            .onLeft { err ->
+                if (err is ArrangorError.BrregError && err.error is BrregClientError.FjernetAvJuridiskeArsaker) {
+                    syncToDatabase(err.error.enhet)
                 }
             }
     }
@@ -111,11 +115,12 @@ class ArrangorService(
         val arrangor = db.session { queries.arrangor.getById(id) }
 
         if (arrangor.erUtenlandsk) {
-            val arrangorUtenlandsk = requireNotNull(db.session { queries.arrangor.getUtenlandskArrangor(arrangor.id) }) {
-                "Fant ikke betalingsinformasjon for utenlandsk bedrift: " +
-                    "orgnr=${arrangor.organisasjonsnummer.value}, navn=${arrangor.navn}. Ta kontakt " +
-                    "med team Valp for å legge inn."
-            }
+            val arrangorUtenlandsk =
+                requireNotNull(db.session { queries.arrangor.getUtenlandskArrangor(arrangor.id) }) {
+                    "Fant ikke betalingsinformasjon for utenlandsk bedrift: " +
+                        "orgnr=${arrangor.organisasjonsnummer.value}, navn=${arrangor.navn}. Ta kontakt " +
+                        "med team Valp for å legge inn."
+                }
 
             return Betalingsinformasjon.IBan(
                 bic = arrangorUtenlandsk.bic,
@@ -124,7 +129,8 @@ class ArrangorService(
                 bankLandKode = arrangorUtenlandsk.landKode,
             )
         } else {
-            val kontonummer = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
+            val kontonummer =
+                kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
 
             return kontonummer
                 .map { Betalingsinformasjon.BBan(Kontonummer(it.kontonr), null) }

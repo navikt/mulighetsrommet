@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.ktor.client.engine.mock.respondError
 import io.ktor.http.HttpStatusCode
+import no.nav.mulighetsrommet.brreg.testFixture.BrregFixtures
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.Organisasjonsnummer

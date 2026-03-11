@@ -49,4 +49,14 @@ object ArrangorFixtures {
         erUtenlandsk = false,
         navn = "Underenhet 2 AS",
     )
+
+    object Utenlandsk {
+        val hovedenhet = ArrangorDto(
+            id = UUID.randomUUID(),
+            organisasjonsnummer = Organisasjonsnummer("100000001"),
+            organisasjonsform = "AS",
+            navn = "Utenlandsk Tiger AS",
+            erUtenlandsk = true,
+        )
+    }
 }
