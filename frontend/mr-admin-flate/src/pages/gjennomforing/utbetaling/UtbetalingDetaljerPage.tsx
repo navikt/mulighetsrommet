@@ -53,7 +53,7 @@ export function UtbetalingDetaljerPage() {
       <HGrid columns="1fr auto" align="start">
         <TwoColumnGrid separator>
           <Box>
-            <Heading size="medium" spacing level="4" data-testid="utbetaling-til-utbetaling">
+            <Heading size="medium" spacing level="3" data-testid="utbetaling-til-utbetaling">
               Detaljer
             </Heading>
             <VStack gap="space-16">
@@ -105,7 +105,7 @@ export function UtbetalingDetaljerPage() {
             </VStack>
           </Box>
           <Box>
-            <Heading size="medium" level="4" spacing>
+            <Heading size="medium" level="3" spacing>
               Betalingsinformasjon
             </Heading>
             <VStack gap="space-16">

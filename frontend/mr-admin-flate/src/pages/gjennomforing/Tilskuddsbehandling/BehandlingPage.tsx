@@ -3,7 +3,6 @@ import { Header } from "@/components/detaljside/Header";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { GavelSoundBlockFillIcon } from "@navikt/aksel-icons";

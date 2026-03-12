@@ -1,5 +1,4 @@
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { ContentBox } from "@/layouts/ContentBox";
 import { useMatch } from "react-router";
 import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
