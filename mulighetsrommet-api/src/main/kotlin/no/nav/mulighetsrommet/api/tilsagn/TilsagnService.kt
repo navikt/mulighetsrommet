@@ -272,7 +272,7 @@ class TilsagnService(
     )
 
     private fun beregnTilsagnFallbackResolver(request: BeregnTilsagnRequest): TilsagnBeregningFallbackResolver? = db.session {
-        if (request.periodeStart == null || request.periodeSlutt == null) {
+        if (request.periodeStart == null || request.periodeSlutt == null || !request.periodeStart.isBefore(request.periodeSlutt)) {
             return null
         }
 
