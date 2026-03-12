@@ -29,7 +29,6 @@ export function UtbetalingLinjeRow({
   errors = [],
 }: Props) {
   const [opened, setOpened] = useState(isBesluttet(linje.opprettelse) || errors.length > 0);
-  const grayBgClass = "bg-ax-neutral-200";
 
   const openRow = opened || isBesluttet(linje.opprettelse) || errors.length > 0;
 
@@ -39,7 +38,7 @@ export function UtbetalingLinjeRow({
       open={openRow}
       onOpenChange={() => setOpened(!opened)}
       key={`${linje.id}-${linje.status?.type}`}
-      className={`[&>td:nth-of-type(-n+5)]:${grayBgClass}`}
+      className={`[&>td:nth-of-type(-n+5)]:bg-ax-neutral-200`}
       content={
         <VStack gap="space-16">
           {isBesluttet(linje.opprettelse) && linje.opprettelse.besluttelse === "AVVIST" ? (
@@ -82,7 +81,7 @@ export function UtbetalingLinjeRow({
         </VStack>
       }
     >
-      <Table.HeaderCell className={grayBgClass}>
+      <Table.HeaderCell className="bg-ax-neutral-200">
         <Link
           as={ReactRouterLink}
           to={`/gjennomforinger/${gjennomforingId}/tilsagn/${linje.tilsagn.id}`}
