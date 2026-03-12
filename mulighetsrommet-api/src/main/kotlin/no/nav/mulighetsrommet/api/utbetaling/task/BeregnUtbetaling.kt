@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.minus
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
