@@ -209,14 +209,15 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val utbetaling = db.session {
-                    val ansatt =
-                        queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
                     val utbetaling = queries.utbetaling.getOrError(id)
+                    val linjer = queries.delutbetaling.getByUtbetalingId(id)
+                    val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
 
-                    UtbetalingDetaljerDto(
-                        utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
-                        handlinger = UtbetalingService.utbetalingHandlinger(utbetaling, ansatt),
-                    )
+                    val ansatt = queries.ansatt.getByNavIdent(navIdent)
+                        ?: throw MrExceptions.navAnsattNotFound(navIdent)
+                    val handlinger = UtbetalingService.utbetalingHandlinger(utbetaling, ansatt)
+
+                    UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
                 }
                 call.respond(utbetaling)
             }
@@ -357,12 +358,13 @@ fun Route.utbetalingRoutes() {
                             val opprettelse = queries.totrinnskontroll
                                 .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
 
+                            val deltakere = tilsagnService.toTilsagnDeltakerPersonalia(tilsagn.deltakere)
                             UtbetalingLinje(
                                 id = delutbetaling.id,
                                 gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
                                 pris = delutbetaling.pris,
                                 status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
-                                tilsagn = TilsagnDto.from(tilsagn, tilsagnService.toTilsagnDeltakerPersonalia(tilsagn.deltakere)),
+                                tilsagn = TilsagnDto.from(tilsagn, deltakere),
                                 opprettelse = opprettelse.toDto(),
                                 handlinger = UtbetalingService.linjeHandlinger(
                                     delutbetaling,
@@ -382,10 +384,11 @@ fun Route.utbetalingRoutes() {
                             valuta = utbetaling.valuta,
                         )
                         .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
-                        .map {
+                        .map { tilsagn ->
+                            val deltakere = tilsagnService.toTilsagnDeltakerPersonalia(tilsagn.deltakere)
                             UtbetalingLinje(
                                 id = UUID.randomUUID(),
-                                tilsagn = TilsagnDto.from(it, tilsagnService.toTilsagnDeltakerPersonalia(it.deltakere)),
+                                tilsagn = TilsagnDto.from(tilsagn, deltakere),
                                 status = null,
                                 pris = 0.withValuta(utbetaling.valuta),
                                 gjorOppTilsagn = false,

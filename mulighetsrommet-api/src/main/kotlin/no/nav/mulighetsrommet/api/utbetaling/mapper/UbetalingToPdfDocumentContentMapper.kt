@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.plus
 import no.nav.mulighetsrommet.model.withValuta
 import java.util.UUID
 

@@ -101,7 +101,7 @@ export function UtbetalingDetaljerPage() {
             />
             <MetadataHGrid
               label={utbetalingTekster.beregning.belop.label}
-              value={formaterValutaBelop(utbetaling.pris)}
+              value={formaterValutaBelop(utbetaling.beregning)}
             />
             {utbetaling.type.tagName && (
               <MetadataHGrid

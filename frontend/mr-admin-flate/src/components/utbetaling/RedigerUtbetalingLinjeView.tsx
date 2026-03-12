@@ -17,8 +17,8 @@ import {
   HStack,
   Modal,
   Spacer,
-  VStack,
   TextField,
+  VStack,
 } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -99,7 +99,12 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
     name: delutbetalinger.map((_, index) => `delutbetalinger.${index}.pris.belop` as const),
   });
 
-  const utbetalesTotalBelop = delutbetalingBelop.reduce((acc, belop) => acc + belop, 0) || 0;
+  const { gjennomforingId, periode, tilskuddstype, beregning } = utbetaling;
+
+  const utbetalesTotalt = {
+    valuta: beregning.valuta,
+    belop: delutbetalingBelop.reduce((acc, belop) => acc + belop, 0),
+  };
 
   function sendTilAttestering(payload: OpprettDelutbetalingerRequest) {
     clearErrors();
@@ -115,21 +120,21 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
     });
   }
 
-  const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
+  const tilsagnsTypeFraTilskudd = tilsagnType(tilskuddstype);
 
   function opprettEkstraTilsagn() {
     const defaultTilsagn = utbetalingLinjer.length === 1 ? utbetalingLinjer[0].tilsagn : undefined;
     return navigate(
-      `/gjennomforinger/${utbetaling.gjennomforingId}/tilsagn/opprett-tilsagn` +
+      `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
-        `&periodeStart=${utbetaling.periode.start}` +
-        `&periodeSlutt=${yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 }))}` +
+        `&periodeStart=${periode.start}` +
+        `&periodeSlutt=${yyyyMMddFormatting(subDuration(periode.slutt, { days: 1 }))}` +
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer || ""}`,
     );
   }
 
   function submitHandler(data: OpprettDelutbetalingerRequest) {
-    if (utbetalesTotalBelop < utbetaling.pris.belop) {
+    if (utbetalesTotalt.belop < beregning.belop) {
       setMindreBelopModalOpen(true);
     } else {
       sendTilAttestering(data);
@@ -235,8 +240,8 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
             sendTilAttestering(formData);
           }}
           begrunnelseOnChange={(e) => setValue("begrunnelseMindreBetalt", e.target.value)}
-          belopUtbetaling={{ valuta: utbetaling.pris.valuta, belop: utbetalesTotalBelop }}
-          belopInnsendt={utbetaling.pris}
+          belopUtbetaling={utbetalesTotalt}
+          belopInnsendt={beregning}
         />
       </form>
       <SlettUtbetalingModal
