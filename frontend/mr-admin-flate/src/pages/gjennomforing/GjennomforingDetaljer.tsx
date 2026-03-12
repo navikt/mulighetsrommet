@@ -27,6 +27,7 @@ import { GjennomforingDetaljerAdministratorer } from "@/pages/gjennomforing/Gjen
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
+import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -111,7 +112,11 @@ export function GjennomforingDetaljer() {
             veilederinfo={veilederinfo}
           />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
-          {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+          {amoKategorisering &&
+            !kursOgTiltakErStudiespesialisering(
+              amoKategorisering.kurstype,
+              tiltakstype.tiltakskode,
+            ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
           <PrismodellDetaljer prismodeller={[prismodell]} />
         </DetaljerLayout>
         <DetaljerLayout>
