@@ -46,8 +46,8 @@ export function OpprettKorreksjonModal({ utbetaling, open, close }: OpprettKorre
                 value={formaterPeriode(utbetaling.periode)}
               />
               <MetadataHGrid
-                label={utbetalingTekster.beregning.belop.label}
-                value={formaterValutaBelop(utbetaling.pris)}
+                label={utbetalingTekster.utbetalt.label}
+                value={utbetaling.utbetalt ? formaterValutaBelop(utbetaling.utbetalt) : null}
               />
             </InfoCard.Content>
           </InfoCard>

@@ -3209,7 +3209,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 3
+        - 4
     TiltakstypeDto:
       type: object
       properties:
@@ -6278,12 +6278,18 @@ components:
         gjennomforingId:
           type: string
           format: uuid
+        type:
+          $ref: "#/components/schemas/UtbetalingTypeDto"
         status:
           $ref: "#/components/schemas/UtbetalingStatusDto"
         periode:
           $ref: "#/components/schemas/Periode"
-        pris:
+        beregning:
           $ref: "#/components/schemas/ValutaBelop"
+        utbetalt:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
         innsendtAvArrangorDato:
           type:
           - "null"
@@ -6320,11 +6326,10 @@ components:
           - string
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
-        type:
-          $ref: "#/components/schemas/UtbetalingTypeDto"
       required:
       - avbruttBegrunnelse
       - begrunnelseMindreBetalt
+      - beregning
       - betalingsinformasjon
       - gjennomforingId
       - id
@@ -6333,11 +6338,11 @@ components:
       - kommentar
       - korreksjon
       - periode
-      - pris
       - status
       - tilskuddstype
       - type
       - utbetalesTidligstDato
+      - utbetalt
     Betalingsinformasjon:
       anyOf:
       - $ref: "#/components/schemas/BBan"
