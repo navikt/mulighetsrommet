@@ -172,20 +172,20 @@ export function TilsagnDetaljer() {
                   label={tilsagnTekster.type.label}
                   value={avtaletekster.tilsagn.type(type)}
                 />
-                {deltakere.length > 0 && (
-                  <MetadataVStack
-                    label={tilsagnTekster.deltakere.label}
-                    value={
-                      <ul>
-                        {deltakere.map((d) => {
-                          return <li key={d.deltakerId}>{formatTilsagnDeltaker(d)}</li>;
-                        })}
-                      </ul>
-                    }
-                  />
-                )}
               </VStack>
             </HGrid>
+            {deltakere.length > 0 && (
+              <MetadataVStack
+                label={tilsagnTekster.deltakere.label}
+                value={
+                  <ul>
+                    {deltakere.map((d) => {
+                      return <li key={d.deltakerId}>{formatTilsagnDeltaker(d)}</li>;
+                    })}
+                  </ul>
+                }
+              />
+            )}
             <Separator />
             <VStack gap="space-16" className="flex-1">
               <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
