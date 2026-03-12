@@ -1,25 +1,12 @@
-import { useEffect } from "react";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import {
-  Betalingsinformasjon,
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingStatusDtoType,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import {
-  Accordion,
-  BodyShort,
-  CopyButton,
-  Heading,
-  HGrid,
-  HStack,
-  InfoCard,
-  Link,
-  List,
-  VStack,
-} from "@navikt/ds-react";
+import { Box, CopyButton, Heading, HGrid, HStack, Link, VStack } from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
@@ -36,9 +23,12 @@ import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbet
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
 import {
   MetadataFritekstfelt,
-  MetadataHGrid,
+  MetadataVStack,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import { BetalingsinformasjonDetaljer } from "@/components/utbetaling/ArrangorBetalingsinformasjon";
+import { MetadataContainer } from "@/layouts/MetadataContainer";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
@@ -46,11 +36,6 @@ function useUtbetalingDetaljerData() {
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
   const { data: utbetalingDetaljer } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
-
-  // @todo: This is quickfix. Figure out why it scrolls to the bottom on page load as a part of the broader frontend improvements
-  useEffect(() => {
-    window.scrollTo(0, 0); // Reset scroll position to the top
-  }, []);
 
   return {
     historikk,
@@ -64,107 +49,73 @@ export function UtbetalingDetaljerPage() {
   const { historikk, utbetaling, handlinger, beregning } = useUtbetalingDetaljerData();
 
   return (
-    <VStack
-      id="kostnadsfordeling"
-      gap="space-24"
-      padding="space-16"
-      className="rounded-lg border-ax-neutral-400 border"
-    >
-      <HGrid columns="1fr 1fr 0.25fr">
-        <VStack>
-          <Heading size="medium" level="2" spacing data-testid="utbetaling-til-utbetaling">
-            {utbetalingTekster.metadata.header}
-          </Heading>
-          <VStack gap="space-4">
-            <MetadataHGrid
-              label={utbetalingTekster.metadata.status}
-              value={<UtbetalingStatusTag status={utbetaling.status} />}
-            />
-            {utbetaling.avbruttBegrunnelse && (
-              <MetadataFritekstfelt
-                label={utbetalingTekster.metadata.avbruttBegrunnelse}
-                value={utbetaling.avbruttBegrunnelse}
-              />
-            )}
-            <MetadataHGrid
-              label={utbetalingTekster.metadata.periode}
-              value={formaterPeriode(utbetaling.periode)}
-            />
-            <MetadataHGrid
-              label={utbetalingTekster.metadata.utbetalesTidligstDato}
-              value={formaterDato(utbetaling.utbetalesTidligstDato)}
-              fallback={"Ved attestering"}
-            />
-            <MetadataHGrid
-              label={utbetalingTekster.metadata.innsendtDato}
-              value={formaterDato(utbetaling.innsendtAvArrangorDato)}
-            />
-            <MetadataHGrid
-              label={utbetalingTekster.beregning.belop.label}
-              value={formaterValutaBelop(utbetaling.beregning)}
-            />
-            {utbetaling.type.tagName && (
-              <MetadataHGrid
-                label={utbetalingTekster.metadata.type}
-                value={
-                  <HStack gap="space-4">
-                    {utbetaling.type.displayName}
-                    <UtbetalingTypeTag type={utbetaling.type.displayName} />
-                  </HStack>
-                }
-              />
-            )}
-            {utbetaling.korreksjon?.opprinneligUtbetaling && (
-              <MetadataHGrid
-                label={utbetalingTekster.korreksjon.gjelderUtbetaling}
-                value={
-                  <Link
-                    as={ReactRouterLink}
-                    to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
-                  >
-                    Opprinnelig utbetaling
-                  </Link>
-                }
-              />
-            )}
-            {utbetaling.korreksjon && (
-              <MetadataFritekstfelt
-                label={utbetalingTekster.korreksjon.begrunnelse}
-                value={utbetaling.korreksjon.begrunnelse}
-              />
-            )}
-            {utbetaling.begrunnelseMindreBetalt && (
-              <MetadataFritekstfelt
-                label={utbetalingTekster.metadata.begrunnelseMindreBetalt}
-                value={utbetaling.begrunnelseMindreBetalt}
-              />
-            )}
-            {utbetaling.kommentar && (
-              <MetadataFritekstfelt
-                label={utbetalingTekster.metadata.kommentar}
-                value={utbetaling.kommentar}
-              />
-            )}
-          </VStack>
-        </VStack>
-        <VStack gap="space-16">
-          <Heading size="medium" level="2">
-            Betalingsinformasjon
-          </Heading>
-          <VStack gap="space-16">
-            {utbetaling.betalingsinformasjon && (
-              <BetalingsinformasjonDetaljer
-                betalingsinformasjon={utbetaling.betalingsinformasjon}
-              />
-            )}
-          </VStack>
-          {utbetaling.journalpostId ? (
-            <>
-              <Heading size="medium" level="2">
-                Journalføring
-              </Heading>
-              <VStack gap="space-16">
-                <MetadataHGrid
+    <VStack gap="space-12">
+      <HGrid columns="1fr auto" align="start">
+        <TwoColumnGrid separator>
+          <Box>
+            <Heading size="medium" spacing level="3" data-testid="utbetaling-til-utbetaling">
+              Detaljer
+            </Heading>
+            <VStack gap="space-16">
+              <MetadataContainer>
+                <MetadataVStack
+                  label={utbetalingTekster.metadata.periode}
+                  value={formaterPeriode(utbetaling.periode)}
+                />
+                <MetadataVStack
+                  label={utbetalingTekster.metadata.status}
+                  value={<UtbetalingStatusTag status={utbetaling.status} />}
+                />
+              </MetadataContainer>
+              <MetadataContainer>
+                {utbetaling.type.tagName && (
+                  <MetadataVStack
+                    label={utbetalingTekster.metadata.type}
+                    value={
+                      <HStack gap="space-4">
+                        {utbetaling.type.displayName}
+                        <UtbetalingTypeTag type={utbetaling.type.displayName} />
+                      </HStack>
+                    }
+                  />
+                )}
+                <MetadataVStack
+                  label={utbetalingTekster.beregning.belop.label}
+                  value={formaterValutaBelop(utbetaling.beregning)}
+                />
+              </MetadataContainer>
+              {(utbetaling.innsendtAvArrangorDato || utbetaling.utbetalesTidligstDato) && (
+                <MetadataContainer>
+                  <MetadataVStack
+                    label={utbetalingTekster.metadata.innsendtDato}
+                    value={formaterDato(utbetaling.innsendtAvArrangorDato)}
+                  />
+                  <MetadataVStack
+                    label={utbetalingTekster.metadata.utbetalesTidligstDato}
+                    value={formaterDato(utbetaling.utbetalesTidligstDato)}
+                  />
+                </MetadataContainer>
+              )}
+              {utbetaling.avbruttBegrunnelse && (
+                <MetadataFritekstfelt
+                  label={utbetalingTekster.metadata.avbruttBegrunnelse}
+                  value={utbetaling.avbruttBegrunnelse}
+                />
+              )}
+            </VStack>
+          </Box>
+          <Box>
+            <Heading size="medium" level="3" spacing>
+              Betalingsinformasjon
+            </Heading>
+            <VStack gap="space-16">
+              {utbetaling.betalingsinformasjon && (
+                <BetalingsinformasjonDetaljer
+                  betalingsinformasjon={utbetaling.betalingsinformasjon}
+                />
+              )}
+              {utbetaling.journalpostId && (
+                <MetadataVStack
                   label="Journalpost-ID i Gosys"
                   value={
                     <HStack align="center">
@@ -177,42 +128,48 @@ export function UtbetalingDetaljerPage() {
                     </HStack>
                   }
                 />
-              </VStack>
-            </>
-          ) : null}
-        </VStack>
-        <HStack justify="end" align="start">
-          <EndringshistorikkPopover>
-            <ViewEndringshistorikk historikk={historikk} />
-          </EndringshistorikkPopover>
-        </HStack>
+              )}
+              <MetadataContainer>
+                {utbetaling.korreksjon?.opprinneligUtbetaling && (
+                  <MetadataVStack
+                    label={utbetalingTekster.korreksjon.gjelderUtbetaling}
+                    value={
+                      <Link
+                        as={ReactRouterLink}
+                        to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
+                      >
+                        Opprinnelig utbetaling
+                      </Link>
+                    }
+                  />
+                )}
+                {utbetaling.korreksjon && (
+                  <MetadataFritekstfelt
+                    label={utbetalingTekster.korreksjon.begrunnelse}
+                    value={utbetaling.korreksjon.begrunnelse}
+                  />
+                )}
+              </MetadataContainer>
+              {utbetaling.begrunnelseMindreBetalt && (
+                <MetadataFritekstfelt
+                  label={utbetalingTekster.metadata.begrunnelseMindreBetalt}
+                  value={utbetaling.begrunnelseMindreBetalt}
+                />
+              )}
+              {utbetaling.kommentar && (
+                <MetadataFritekstfelt
+                  label={utbetalingTekster.metadata.kommentar}
+                  value={utbetaling.kommentar}
+                />
+              )}
+            </VStack>
+          </Box>
+        </TwoColumnGrid>
+        <EndringshistorikkPopover>
+          <ViewEndringshistorikk historikk={historikk} />
+        </EndringshistorikkPopover>
       </HGrid>
-      {beregning.advarsler.length > 0 && (
-        <InfoCard data-color="warning">
-          <InfoCard.Header>
-            <InfoCard.Title>Viktig informasjon om deltakere</InfoCard.Title>
-          </InfoCard.Header>
-          <InfoCard.Content>
-            <BodyShort spacing>
-              Det finnes advarsler på følgende personer. Disse må først fikses før utbetalingen kan
-              sendes inn.
-            </BodyShort>
-            <List data-aksel-migrated-v8>
-              {beregning.advarsler.map((advarsel) => (
-                <List.Item key={advarsel.deltakerId}>{advarsel.beskrivelse}</List.Item>
-              ))}
-            </List>
-          </InfoCard.Content>
-        </InfoCard>
-      )}
-      <Accordion>
-        <Accordion.Item>
-          <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
-          <Accordion.Content>
-            <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
-          </Accordion.Content>
-        </Accordion.Item>
-      </Accordion>
+      <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
       <UtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />
     </VStack>
   );
@@ -247,32 +204,5 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
     case UtbetalingStatusDtoType.DELVIS_UTBETALT:
     case UtbetalingStatusDtoType.UTBETALT:
       return <BesluttUtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />;
-  }
-}
-
-function BetalingsinformasjonDetaljer({
-  betalingsinformasjon,
-}: {
-  betalingsinformasjon: Betalingsinformasjon;
-}) {
-  switch (betalingsinformasjon.type) {
-    case "BBan":
-      return (
-        <VStack gap="space-8">
-          <MetadataHGrid label="Kontonummer" value={betalingsinformasjon.kontonummer} />
-          <MetadataHGrid label="KID (valgfritt)" value={betalingsinformasjon.kid} />
-        </VStack>
-      );
-    case "IBan":
-      return (
-        <VStack gap="space-8">
-          <MetadataHGrid label="IBan" value={betalingsinformasjon.iban} />
-          <MetadataHGrid label="BIC/SWIFT" value={betalingsinformasjon.bic} />
-          <MetadataHGrid label="Banknavn" value={betalingsinformasjon.bankNavn} />
-          <MetadataHGrid label="Bank landkode" value={betalingsinformasjon.bankLandKode} />
-        </VStack>
-      );
-    case undefined:
-      throw Error("unreachable");
   }
 }

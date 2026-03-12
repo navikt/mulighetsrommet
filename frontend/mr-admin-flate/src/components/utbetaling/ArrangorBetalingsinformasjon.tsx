@@ -1,7 +1,8 @@
 import { Betalingsinformasjon, OpprettUtbetalingRequest } from "@tiltaksadministrasjon/api-client";
-import { Heading, Link, TextField, VStack } from "@navikt/ds-react";
+import { Heading, HGrid, Link, TextField, VStack } from "@navikt/ds-react";
 import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
 import { FormTextField } from "@/components/skjema/FormTextField";
+import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 interface Props {
   arrangorId: string;
 }
@@ -13,7 +14,7 @@ export function ArrangorBetalingsinformasjon({ arrangorId }: Props) {
       <Heading size="small" level="2">
         Betalingsinformasjon
       </Heading>
-      <BetalingsinformasjonView betalingsinformasjon={betalingsinformasjon} />
+      <BetalingsinformasjonForm betalingsinformasjon={betalingsinformasjon} />
     </>
   );
 }
@@ -30,7 +31,7 @@ function EndreKontonummerLink() {
   );
 }
 
-function BetalingsinformasjonView({
+function BetalingsinformasjonForm({
   betalingsinformasjon,
 }: {
   betalingsinformasjon: Betalingsinformasjon;
@@ -69,6 +70,33 @@ function BetalingsinformasjonView({
           <small className="text-balance">
             Dersom informasjonen må oppdateres ta kontakt med team Valp.
           </small>
+        </VStack>
+      );
+    case undefined:
+      throw Error("unreachable");
+  }
+}
+
+export function BetalingsinformasjonDetaljer({
+  betalingsinformasjon,
+}: {
+  betalingsinformasjon: Betalingsinformasjon;
+}) {
+  switch (betalingsinformasjon.type) {
+    case "BBan":
+      return (
+        <HGrid columns="1fr 1fr" gap="space-24">
+          <MetadataVStack label="Kontonummer" value={betalingsinformasjon.kontonummer} />
+          <MetadataVStack label="KID (valgfritt)" value={betalingsinformasjon.kid} />
+        </HGrid>
+      );
+    case "IBan":
+      return (
+        <VStack gap="space-8">
+          <MetadataVStack label="IBan" value={betalingsinformasjon.iban} />
+          <MetadataVStack label="BIC/SWIFT" value={betalingsinformasjon.bic} />
+          <MetadataVStack label="Banknavn" value={betalingsinformasjon.bankNavn} />
+          <MetadataVStack label="Bank landkode" value={betalingsinformasjon.bankLandKode} />
         </VStack>
       );
     case undefined:

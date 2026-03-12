@@ -39,7 +39,7 @@ export function UtbetalingLinjeRow({
       open={openRow}
       onOpenChange={() => setOpened(!opened)}
       key={`${linje.id}-${linje.status?.type}`}
-      className={`[&>td:first-child]:${grayBgClass}`}
+      className={`[&>td:nth-of-type(-n+5)]:${grayBgClass}`}
       content={
         <VStack gap="space-16">
           {isBesluttet(linje.opprettelse) && linje.opprettelse.besluttelse === "AVVIST" ? (
@@ -90,14 +90,10 @@ export function UtbetalingLinjeRow({
           {linje.tilsagn.bestillingsnummer}
         </Link>
       </Table.HeaderCell>
-      <Table.DataCell className={grayBgClass}>
-        {tilsagnTypeToString(linje.tilsagn.type)}
-      </Table.DataCell>
-      <Table.DataCell className={grayBgClass}>
-        {formaterPeriode(linje.tilsagn.periode)}
-      </Table.DataCell>
-      <Table.DataCell className={grayBgClass}>{linje.tilsagn.kostnadssted.navn}</Table.DataCell>
-      <Table.DataCell className={grayBgClass}>
+      <Table.DataCell>{tilsagnTypeToString(linje.tilsagn.type)}</Table.DataCell>
+      <Table.DataCell>{formaterPeriode(linje.tilsagn.periode)}</Table.DataCell>
+      <Table.DataCell>{linje.tilsagn.kostnadssted.navn}</Table.DataCell>
+      <Table.DataCell>
         {formaterValuta(
           linje.tilsagn.belopGjenstaende.belop,
           linje.tilsagn.belopGjenstaende.valuta,

@@ -3,7 +3,6 @@ import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Heading } from "@navikt/ds-react";
 import { DataElementStatusTag } from "@mr/frontend-common";
@@ -125,19 +124,17 @@ export function AvtaleFormPage() {
         </Heading>
         <DataElementStatusTag {...avtale.status.status} />
       </Header>
-      <ContentBox>
-        <WhitePaddedBox>
-          <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit)}>
-              <AvtaleFormKnapperad heading={redigeringstittel(pathname)} />
-              <Separator />
-              <Outlet />
-              <Separator />
-              <AvtaleFormKnapperad />
-            </form>
-          </FormProvider>
-        </WhitePaddedBox>
-      </ContentBox>
+      <WhitePaddedBox>
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmit)}>
+            <AvtaleFormKnapperad heading={redigeringstittel(pathname)} />
+            <Separator />
+            <Outlet />
+            <Separator />
+            <AvtaleFormKnapperad />
+          </form>
+        </FormProvider>
+      </WhitePaddedBox>
     </div>
   );
 }
