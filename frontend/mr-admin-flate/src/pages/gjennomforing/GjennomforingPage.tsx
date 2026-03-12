@@ -2,9 +2,8 @@ import { Header } from "@/components/detaljside/Header";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Heading, Tabs } from "@navikt/ds-react";
+import { Box, Heading, Tabs } from "@navikt/ds-react";
 import React from "react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -52,19 +51,19 @@ export function GjennomforingPage() {
         <DataElementStatusTag {...gjennomforing.status.status} />
       </Header>
       <Tabs value={currentTab}>
-        <Tabs.List className="bg-ax-bg-default">
-          {tabs.map((tab) => (
-            <Tabs.Tab key={tab.key} value={tab.key} label={tab.label} onClick={tab.onClick} />
-          ))}
-        </Tabs.List>
+        <Box background="default">
+          <Tabs.List>
+            {tabs.map((tab) => (
+              <Tabs.Tab key={tab.key} value={tab.key} label={tab.label} onClick={tab.onClick} />
+            ))}
+          </Tabs.List>
+        </Box>
         <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
-          <ContentBox>
-            <WhitePaddedBox>
-              <Tabs.Panel value={currentTab} data-testid="gjennomforing_info-container">
-                <Outlet />
-              </Tabs.Panel>
-            </WhitePaddedBox>
-          </ContentBox>
+          <WhitePaddedBox>
+            <Tabs.Panel value={currentTab} data-testid="gjennomforing_info-container">
+              <Outlet />
+            </Tabs.Panel>
+          </WhitePaddedBox>
         </React.Suspense>
       </Tabs>
     </>

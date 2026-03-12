@@ -1,7 +1,7 @@
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { Heading, Tabs } from "@navikt/ds-react";
+import { Box, Heading, Tabs } from "@navikt/ds-react";
 import { useLocation, useMatch } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
@@ -13,7 +13,6 @@ import { AvtalePageLayout } from "./AvtalePageLayout";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { DataElementStatusTag } from "@mr/frontend-common";
-import { useUmami } from "@/sporing/useUmami";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 import { ContentBox } from "@/layouts/ContentBox";
 
@@ -114,7 +113,6 @@ export function AvtalePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: avtale } = useAvtale(avtaleId);
-  const { logUmamiHendelse } = useUmami();
   const currentTab = getCurrentTab(pathname);
 
   const brodsmuler = useAvtaleBrodsmuler(avtale.id);
@@ -131,25 +129,21 @@ export function AvtalePage() {
         <DataElementStatusTag {...avtale.status.status} />
       </Header>
       <Tabs value={currentTab}>
-        <Tabs.List className="bg-ax-bg-default">
-          {getTabLinks(avtale.id).map(({ label, value, href, testId }) => (
-            <Tabs.Tab
-              key={value}
-              label={label}
-              value={value}
-              onClick={() => {
-                logUmamiHendelse({
-                  type: "FANE_BYTTET",
-                  tekst: label,
-                  fraFane: currentTab,
-                  sidenavn: "Avtale",
-                });
-                navigateAndReplaceUrl(href);
-              }}
-              data-testid={testId}
-            />
-          ))}
-        </Tabs.List>
+        <Box background="default">
+          <Tabs.List>
+            {getTabLinks(avtale.id).map(({ label, value, href, testId }) => (
+              <Tabs.Tab
+                key={value}
+                label={label}
+                value={value}
+                onClick={() => {
+                  navigateAndReplaceUrl(href);
+                }}
+                data-testid={testId}
+              />
+            ))}
+          </Tabs.List>
+        </Box>
         <Tabs.Panel value={currentTab}>{getTab(currentTab, avtale)}</Tabs.Panel>
       </Tabs>
     </div>
