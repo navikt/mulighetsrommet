@@ -13,7 +13,7 @@ import {
   AmoKurstype,
   TilsagnDeltakerPersonalia,
 } from "@tiltaksadministrasjon/api-client";
-import { FieldErrors } from "node_modules/react-hook-form/dist/types/errors";
+import { FieldErrors } from "react-hook-form";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
