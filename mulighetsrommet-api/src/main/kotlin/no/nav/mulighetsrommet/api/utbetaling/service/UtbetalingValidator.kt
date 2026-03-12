@@ -84,8 +84,8 @@ object UtbetalingValidator {
             }
             validate(req.pris == null || req.pris <= req.tilsagn.gjenstaendeBelop) {
                 FieldError(
-                    "/delutbetalinger/$index/pris/belop",
-                    "Beløp overstiger gjenstående beløp på tilsagn",
+                    "/delutbetalinger/$index/tilsagnId",
+                    "Beløp overstiger gjenstående beløp på tilsagn. For å utbetale hele beløpet må dere først opprette og godkjenne et ekstratilsagn",
                 )
             }
             validate(req.tilsagn.status == TilsagnStatus.GODKJENT) {
