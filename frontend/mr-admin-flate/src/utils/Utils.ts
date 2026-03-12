@@ -12,6 +12,7 @@ import {
   AmoKategoriseringDto,
   AmoKurstype,
   TilsagnDeltakerPersonalia,
+  Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -317,4 +318,13 @@ export function extractValidationErrors(errors: FieldErrors): ValidationMessage[
   }
 
   return messages;
+}
+
+export function kursOgTiltakErStudiespesialisering(
+  amo: AmoKurstype | null,
+  tiltakskode: Tiltakskode,
+) {
+  return (
+    amo === AmoKurstype.STUDIESPESIALISERING && tiltakskode === Tiltakskode.STUDIESPESIALISERING
+  );
 }
