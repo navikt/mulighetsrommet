@@ -2,13 +2,13 @@ import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useKontorstruktur } from "@/api/enhet/useKontorstruktur";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 import {
   oppgaverFilterAccordionAtom,
   OppgaverFilterType,
 } from "@/pages/oppgaveoversikt/oppgaver/filter";
+import { TiltakskodeFilter } from "@/components/filter/TiltakskodeFilter";
 
 interface Props {
   filter: OppgaverFilterType;
@@ -17,7 +17,6 @@ interface Props {
 
 export function OppgaverFilter({ filter, updateFilter }: Props) {
   const { data: oppgavetyper } = useGetOppgavetyper();
-  const { data: tiltakstyper } = useTiltakstyper();
   const { data: regioner } = useKontorstruktur();
 
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
@@ -94,24 +93,12 @@ export function OppgaverFilter({ filter, updateFilter }: Props) {
             />
           </Accordion.Header>
           <Accordion.Content>
-            <CheckboxGroup
+            <TiltakskodeFilter
               value={filter.tiltakstyper}
-              legend="Velg tiltakstype"
-              onChange={(value) => {
-                updateFilter({
-                  tiltakstyper: [...value],
-                });
+              onChange={(tiltakstyper) => {
+                updateFilter({ tiltakstyper });
               }}
-              hideLegend
-            >
-              {tiltakstyper.map((t) => {
-                return (
-                  <Checkbox size="small" key={t.tiltakskode} value={t.tiltakskode}>
-                    {t.navn}
-                  </Checkbox>
-                );
-              })}
-            </CheckboxGroup>
+            />
           </Accordion.Content>
         </Accordion.Item>
       </Accordion>
