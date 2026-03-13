@@ -52,7 +52,7 @@ data class HelVedUtbetaling(
         // Kan kanskje flytte dette inn i en validator
         require(1 <= sakId.length && sakId.length <= 25) { "På grunn av begrensninger i OS/UR kan ikke sakId være lengre enn 25 tegn" }
         require(1 <= behandlingId.length && behandlingId.length <= 30) { "På grunn av begrensninger i OS/UR kan ikke denne være lengre enn 30 tegn" }
-        require(belop > 0 ) { "Beløp kan ikke være negativt eller 0" }
+        require(belop > 0) { "Beløp kan ikke være negativt eller 0" }
         require(periode.fom.year == periode.tom.year) { "Utbetalingsperioden må være innen samme år" }
         require(periode.fom <= periode.tom) { "Fom-dato på en periode må være før eller lik tom-dato" }
     }

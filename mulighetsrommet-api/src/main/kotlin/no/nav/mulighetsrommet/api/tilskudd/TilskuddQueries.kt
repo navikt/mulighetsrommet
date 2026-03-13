@@ -13,16 +13,16 @@ class TilskuddQueries(private val session: Session) {
         val query = """
             select * from tilskudd
             where id = :id
-            """.trimIndent()
+        """.trimIndent()
 
-        return session.requireSingle(queryOf(query, id)) { it.toTilskudd()};
+        return session.requireSingle(queryOf(query, id)) { it.toTilskudd() }
     }
 
     fun getAll(): List<Tilskudd> {
         @Language("PostgreSQL")
         val query = """
             select * from tilskudd
-            """.trimIndent()
+        """.trimIndent()
 
         return session.list(queryOf(query)) { it.toTilskudd() }
     }

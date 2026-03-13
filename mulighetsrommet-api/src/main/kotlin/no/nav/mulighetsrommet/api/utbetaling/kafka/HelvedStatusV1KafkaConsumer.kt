@@ -27,7 +27,7 @@ class HelvedStatusV1KafkaConsumer(private val db: ApiDatabase) : KafkaTopicConsu
      * Statusmeldingene på helved.status.v1 inneholder en Kafka-header med nøkkelen fagsystem. Denne brukes for å filtrere ut relevante statuser for det aktuelle fagsystemet.
      */
     override fun consume(record: ConsumerRecord<UUID, JsonElement>): ConsumeStatus {
-        val fagsystem = record.headers().lastHeader(FAGSYSTEM_HEADER_NAME).value().let { String(it)}
+        val fagsystem = record.headers().lastHeader(FAGSYSTEM_HEADER_NAME).value().let { String(it) }
         if (fagsystem == EXPECTED_FAGSYSTEM) {
             return super.consume(record)
         }
