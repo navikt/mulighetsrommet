@@ -69,6 +69,7 @@ import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
+import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerDeltakerKafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerFakturaStatusConsumer
@@ -186,6 +187,7 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.replicateBestillingStatus to ReplikerBestillingStatusConsumer(get()),
             config.clients.replicateFakturaStatus to ReplikerFakturaStatusConsumer(get()),
             config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(get()),
+            config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get())
         )
         KafkaConsumerOrchestrator(
             db = get(),
