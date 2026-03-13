@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
+import no.nav.mulighetsrommet.api.tilskudd.TilskuddQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
@@ -89,6 +90,7 @@ open class QueryContext(open val session: Session) {
         val arrangorTiltak = ArrangorflateTiltakQueries(session)
         val scheduledTask = ScheduledTaskQueries(session)
         val kafkaConsumerRecords = KafkaConsumerRecordQueries(session)
+        val tilskudd = TilskuddQueries(session)
     }
 }
 
