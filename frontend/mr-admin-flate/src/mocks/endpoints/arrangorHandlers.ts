@@ -34,7 +34,7 @@ export const arrangorHandlers = [
   ),
 
   http.get<PathParams, undefined, Betalingsinformasjon>(
-    "*/api/tiltaksadministrasjon/arrangorer/:id/bankkonto",
+    "*/api/tiltaksadministrasjon/arrangorer/:id/betalingsinformasjon",
     () => {
       return HttpResponse.json({ type: "BBan", kontonummer: "12345678910", kid: null });
     },
