@@ -104,35 +104,12 @@ val ApplicationConfigLocal = AppConfig(
         topics = KafkaTopics(
             bestillingStatus = "tiltaksokonomi.bestilling-status-v1",
             fakturaStatus = "tiltaksokonomi.faktura-status-v1",
-            utbetaling = "team-mulighetsrommet.tiltaksokonomi.utbetaling-v1",
         ),
         clients = KafkaClients(
             okonomiBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",
                 topic = "tiltaksokonomi.bestillinger-v1",
                 consumerProperties = KafkaPropertiesBuilder.consumerBuilder()
-                    .withBaseProperties()
-                    .withConsumerGroupId("tiltaksokonomi.v1")
-                    .withBrokerUrl("localhost:29092")
-                    .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-                    .build(),
-            ),
-            okonomiBestillingBrukerConsumer = KafkaTopicConsumer.Config(
-                id = "bestilling-bruker",
-                topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-bruker-v1",
-                consumerProperties =
-                KafkaPropertiesBuilder.consumerBuilder()
-                    .withBaseProperties()
-                    .withConsumerGroupId("tiltaksokonomi.v1")
-                    .withBrokerUrl("localhost:29092")
-                    .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
-                    .build(),
-            ),
-            helvedStatusConsumer = KafkaTopicConsumer.Config(
-                id = "helved-status",
-                topic = "helved.status.v1",
-                consumerProperties =
-                KafkaPropertiesBuilder.consumerBuilder()
                     .withBaseProperties()
                     .withConsumerGroupId("tiltaksokonomi.v1")
                     .withBrokerUrl("localhost:29092")

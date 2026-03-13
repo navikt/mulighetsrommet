@@ -101,7 +101,7 @@ class OkonomiServiceTest : FunSpec({
         getTidligstTidspunktForUtbetaling: (Bestilling, Faktura) -> LocalDateTime? = { _, _ -> null },
     ) = OkonomiService(
         config = OkonomiService.Config(
-            topics = KafkaTopics("bestilling-status", "faktura-status", "utbetaling-status"),
+            topics = KafkaTopics("bestilling-status", "faktura-status"),
             faktura = FakturaConfig(getTidligstTidspunktForUtbetaling),
         ),
         db = db,
