@@ -37,6 +37,7 @@ object DeltakerFixtures {
             aarsak = null,
             opprettetTidspunkt = statusOpprettet,
         ),
+        innhold = null,
     )
 
     fun createDeltakerDbo(
@@ -45,6 +46,7 @@ object DeltakerFixtures {
         sluttDato: LocalDate?,
         statusType: DeltakerStatusType,
         statusOpprettet: LocalDateTime = LocalDateTime.now(),
+        innhold: String? = null,
     ) = DeltakerDbo(
         id = UUID.randomUUID(),
         startDato = startDato,
@@ -58,6 +60,7 @@ object DeltakerFixtures {
             aarsak = null,
             opprettetTidspunkt = statusOpprettet,
         ),
+        innhold = innhold,
     )
 
     fun createDeltaker(
@@ -78,6 +81,7 @@ object DeltakerFixtures {
             opprettetTidspunkt = LocalDateTime.now(),
         ),
         deltakelsesmengder = listOf(),
+        innhold = null,
     )
 
     fun createAmtDeltakerDto(

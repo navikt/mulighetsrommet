@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
-import no.nav.mulighetsrommet.serializers.UUIDListSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.util.UUID
@@ -31,8 +30,7 @@ data class Tilsagn(
     val kommentar: String?,
     val beskrivelse: String?,
     val journalpost: Journalpost?,
-    @Serializable(with = UUIDListSerializer::class)
-    val deltakere: List<UUID>,
+    val deltakere: List<Deltaker>,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -67,6 +65,13 @@ data class Tilsagn(
     data class Journalpost(
         val id: String,
         val distribueringId: String?,
+    )
+
+    @Serializable
+    data class Deltaker(
+        @Serializable(with = UUIDSerializer::class)
+        val deltakerId: UUID,
+        val innhold: String?,
     )
 
     fun gjenstaendeBelop(): ValutaBelop = if (status in listOf(TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT)) {

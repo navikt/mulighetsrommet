@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
+import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
@@ -16,6 +17,7 @@ data class Deltaker(
     val endretTidspunkt: LocalDateTime,
     val status: DeltakerStatus,
     val deltakelsesmengder: List<Deltakelsesmengde>,
+    val innhold: AmtDeltakerEksternV1Dto.DeltakelsesinnholdDto?,
 )
 
 @Serializable

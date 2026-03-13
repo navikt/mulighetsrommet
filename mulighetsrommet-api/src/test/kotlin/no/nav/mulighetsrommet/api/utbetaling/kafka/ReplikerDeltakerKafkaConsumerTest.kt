@@ -94,6 +94,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         registrertTidspunkt = opprettetTidspunkt,
                         endretTidspunkt = opprettetTidspunkt,
                         deltakelsesmengder = listOf(),
+                        innhold = amtDeltaker1.innhold,
                     ),
                     Deltaker(
                         id = amtDeltaker2.id,
@@ -108,6 +109,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         registrertTidspunkt = opprettetTidspunkt,
                         endretTidspunkt = opprettetTidspunkt,
                         deltakelsesmengder = listOf(),
+                        innhold = amtDeltaker2.innhold,
                     ),
                 )
             }

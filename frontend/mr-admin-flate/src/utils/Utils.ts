@@ -11,8 +11,8 @@ import {
   AvbrytGjennomforingAarsak,
   AmoKategoriseringDto,
   AmoKurstype,
-  TilsagnDeltakerPersonalia,
   Tiltakskode,
+  TilsagnDeltakerDto,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -286,7 +286,7 @@ export function avbrytGjennomforingAarsakTilTekst(aarsak: AvbrytGjennomforingAar
   }
 }
 
-export function formatTilsagnDeltaker(deltaker: TilsagnDeltakerPersonalia): string {
+export function formatTilsagnDeltaker(deltaker: TilsagnDeltakerDto): string {
   const enhet = deltaker.oppfolgingEnhet
     ? deltaker.oppfolgingEnhet.navn
     : deltaker.geografiskEnhet?.navn;
