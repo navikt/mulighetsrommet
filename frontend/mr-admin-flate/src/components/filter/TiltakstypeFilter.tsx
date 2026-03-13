@@ -10,7 +10,15 @@ interface Props {
 
 export function TiltakstypeFilter({ tiltakstyper, value, onChange }: Props) {
   const groups = useTiltakstyperFilter(tiltakstyper);
-  return <CheckboxGroup value={value} onChange={onChange} groups={groups} />;
+  return (
+    <CheckboxGroup
+      legend="Tiltakstyper"
+      hideLegend
+      value={value}
+      onChange={onChange}
+      groups={groups}
+    />
+  );
 }
 
 function useTiltakstyperFilter(tiltakstyper: TiltakstypeDto[]) {

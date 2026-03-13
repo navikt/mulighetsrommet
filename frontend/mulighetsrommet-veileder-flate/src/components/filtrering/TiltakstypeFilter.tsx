@@ -29,7 +29,15 @@ export function TiltakstypeFilter(props: Props) {
     props.onChange(selected);
   }
 
-  return <CheckboxGroup value={value} onChange={onChange} groups={groups} />;
+  return (
+    <CheckboxGroup
+      legend="Tiltakstyper"
+      hideLegend
+      value={value}
+      onChange={onChange}
+      groups={groups}
+    />
+  );
 }
 
 function useTiltakstyperFilter(tiltakstyper: VeilederflateTiltakstype[]) {

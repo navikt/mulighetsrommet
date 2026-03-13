@@ -13,6 +13,8 @@ export function TiltakskodeFilter({ value, onChange }: Props) {
   const groups = useTiltakskodeFilter(tiltakstyper);
   return (
     <CheckboxGroup
+      legend="Tiltakstyper"
+      hideLegend
       value={value}
       onChange={(tiltakskoder) => onChange(tiltakskoder as Tiltakskode[])}
       groups={groups}

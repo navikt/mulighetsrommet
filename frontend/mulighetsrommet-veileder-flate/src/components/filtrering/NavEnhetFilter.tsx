@@ -10,7 +10,15 @@ interface Props {
 export function NavEnhetFilter({ value, onChange }: Props) {
   const { data: regioner } = useNavKontorstruktur();
   const groups = toCheckboxGroups(regioner);
-  return <CheckboxGroup value={value} onChange={onChange} groups={groups} />;
+  return (
+    <CheckboxGroup
+      legend="Nav-kontorer"
+      hideLegend
+      value={value}
+      onChange={onChange}
+      groups={groups}
+    />
+  );
 }
 
 function toCheckboxGroups(regioner: Kontorstruktur[]): CheckboxGroup[] {

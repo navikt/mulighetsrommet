@@ -1,5 +1,9 @@
 import { ChevronDownIcon } from "@navikt/aksel-icons";
-import { Checkbox } from "@navikt/ds-react";
+import {
+  Checkbox,
+  CheckboxGroup as AkselCheckboxGroup,
+  CheckboxGroupProps as AkselCheckboxGroupProps,
+} from "@navikt/ds-react";
 import classnames from "classnames";
 import { useState } from "react";
 import styles from "./CheckboxGroup.module.scss";
@@ -17,13 +21,13 @@ export interface CheckboxGroupItem {
   erStandardvalg: boolean;
 }
 
-interface CheckboxGroupProps {
+interface CheckboxGroupProps extends Omit<AkselCheckboxGroupProps, "children"> {
   value: string[];
   onChange: (value: string[]) => void;
   groups: CheckboxGroup[];
 }
 
-export function CheckboxGroup({ value, onChange, groups }: CheckboxGroupProps) {
+export function CheckboxGroup({ value, onChange, groups, ...props }: CheckboxGroupProps) {
   const [groupOpen, setGroupOpen] = useState<string[]>([]);
 
   function getSelectedItems(group: CheckboxGroup): string[] {
@@ -66,7 +70,7 @@ export function CheckboxGroup({ value, onChange, groups }: CheckboxGroupProps) {
   }
 
   return (
-    <>
+    <AkselCheckboxGroup {...props}>
       {groups.map((group: CheckboxGroup) => {
         if (group.items.length === 0) {
           return (
@@ -125,6 +129,6 @@ export function CheckboxGroup({ value, onChange, groups }: CheckboxGroupProps) {
           </div>
         );
       })}
-    </>
+    </AkselCheckboxGroup>
   );
 }
