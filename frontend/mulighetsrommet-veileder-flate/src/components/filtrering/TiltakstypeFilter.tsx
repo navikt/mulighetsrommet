@@ -29,7 +29,15 @@ export function TiltakstypeFilter(props: Props) {
     props.onChange(selected);
   }
 
-  return <CheckboxGroup value={value} onChange={onChange} groups={groups} />;
+  return (
+    <CheckboxGroup
+      legend="Tiltakstyper"
+      hideLegend
+      value={value}
+      onChange={onChange}
+      items={groups}
+    />
+  );
 }
 
 function useTiltakstyperFilter(tiltakstyper: VeilederflateTiltakstype[]) {
@@ -41,7 +49,7 @@ function useTiltakstyperFilter(tiltakstyper: VeilederflateTiltakstype[]) {
     return tiltakstyperByGroup
       .flatMap(([gruppe, entries = []]) => {
         if (gruppe === "") {
-          return entries.map((entry) => ({ id: entry.sanityId, navn: entry.navn, items: [] }));
+          return entries.map((entry) => ({ id: entry.sanityId, navn: entry.navn }));
         } else {
           return {
             id: gruppe,
