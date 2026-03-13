@@ -34,7 +34,8 @@ data class HelVedUtbetaling(
     /** Utbetalingsperiode */
     val periode: Periode,
     /** Utbetalingslinjer som inngår i utbetalingen */
-    val linjer: List<UtbetalingLinje>,
+    val belop: Int,
+    val tilskuddstype: Tilskuddstype,
     /** Saksbehandleren som har opprettet utbetalingen */
     val saksbehandler: NavIdent,
     /** Beslutteren som har attestert utbetalingen */
@@ -51,7 +52,7 @@ data class HelVedUtbetaling(
         // Kan kanskje flytte dette inn i en validator
         require(1 <= sakId.length && sakId.length <= 25) { "På grunn av begrensninger i OS/UR kan ikke sakId være lengre enn 25 tegn" }
         require(1 <= behandlingId.length && behandlingId.length <= 30) { "På grunn av begrensninger i OS/UR kan ikke denne være lengre enn 30 tegn" }
-        require(linjer.all { it.belop > 0 }) { "Beløp kan ikke være negativt eller 0" }
+        require(belop > 0 ) { "Beløp kan ikke være negativt eller 0" }
         require(periode.fom.year == periode.tom.year) { "Utbetalingsperioden må være innen samme år" }
         require(periode.fom <= periode.tom) { "Fom-dato på en periode må være før eller lik tom-dato" }
     }
@@ -61,7 +62,7 @@ data class HelVedUtbetaling(
         @Serializable(with = LocalDateSerializer::class)
         val fom: LocalDate,
         @Serializable(with = LocalDateSerializer::class)
-        val tom: LocalDate
+        val tom: LocalDate,
     )
 
     /** Se Tiltaksforskriften § 7-2 */
@@ -85,12 +86,6 @@ data class HelVedUtbetaling(
         /** § 7-2 f */
         HOYERE_UTDANNING,
     }
-
-    @Serializable
-    data class UtbetalingLinje(
-        val belop: Int,
-        val tilskuddstype: Tilskuddstype,
-    )
 
     /** Se Tiltaksforskriften § 7-5 */
     @Serializable
