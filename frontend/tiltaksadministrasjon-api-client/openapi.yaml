@@ -2087,11 +2087,35 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpprettUtbetalingRequest"
+              $ref: "#/components/schemas/UtbetalingRequest"
         required: false
       responses:
         "201":
           description: Utbetalingen ble opprettet
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/rediger:
+    post:
+      tags:
+      - Utbetaling
+      operationId: redigerUtbetaling
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UtbetalingRequest"
+        required: false
+      responses:
+        "200":
+          description: Utbetalingen ble redigert
           headers: {}
         default:
           description: Problem details
@@ -6214,7 +6238,7 @@ components:
       required:
       - belop
       - valuta
-    OpprettUtbetalingRequest:
+    UtbetalingRequest:
       type: object
       properties:
         id:
@@ -6401,9 +6425,10 @@ components:
     UtbetalingHandling:
       type: string
       enum:
+      - OPPRETT_KORREKSJON
+      - REDIGER
       - SEND_TIL_ATTESTERING
       - SLETT
-      - OPPRETT_KORREKSJON
     UtbetalingDetaljerDto:
       type: object
       properties:

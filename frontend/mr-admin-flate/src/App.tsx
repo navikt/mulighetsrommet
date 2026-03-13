@@ -49,10 +49,11 @@ import { Head } from "@unhead/react";
 import { AvtaleDetaljerForm } from "./components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "./components/avtaler/AvtalePersonvernForm";
 import { AvtaleInformasjonForVeiledereForm } from "./components/avtaler/AvtaleInformasjonForVeiledereForm";
-import { OpprettUtbetalingAnskaffelsePage } from "@/pages/gjennomforing/utbetaling/OpprettUtbetalingAnskaffelsePage";
+import { OpprettUtbetalingPage } from "@/pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
 import { UtbetalingPage } from "@/pages/gjennomforing/utbetaling/UtbetalingPage";
 import { Behandlingsoversikt } from "./pages/gjennomforing/Tilskuddsbehandling/Behandlingsoversikt";
 import { BehandlingPage } from "./pages/gjennomforing/Tilskuddsbehandling/BehandlingPage";
+import { RedigerUtbetalingPage } from "@/pages/gjennomforing/utbetaling/RedigerUtbetalingPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -150,8 +151,9 @@ const TILSAGN_ROUTES: RouteObject[] = [
 ];
 
 const UTBETALING_ROUTES: RouteObject[] = [
-  { path: "opprett-utbetaling", element: <OpprettUtbetalingAnskaffelsePage /> },
+  { path: "opprett-utbetaling", element: <OpprettUtbetalingPage /> },
   { path: ":utbetalingId", element: <UtbetalingDetaljerPage /> },
+  { path: ":utbetalingId/rediger-utbetaling", element: <RedigerUtbetalingPage /> },
 ];
 
 const OPPGAVEOVERSIKT_ROUTES: RouteObject[] = [

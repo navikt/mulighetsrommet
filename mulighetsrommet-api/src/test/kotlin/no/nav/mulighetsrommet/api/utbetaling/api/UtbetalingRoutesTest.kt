@@ -98,7 +98,7 @@ class UtbetalingRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        OpprettUtbetalingRequest(
+                        UtbetalingRequest(
                             id = id,
                             gjennomforingId = AFT1.id,
                             periodeStart = LocalDate.now(),
@@ -122,7 +122,7 @@ class UtbetalingRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        OpprettUtbetalingRequest(id = id, gjennomforingId = AFT1.id),
+                        UtbetalingRequest(id = id, gjennomforingId = AFT1.id),
                     )
                 }
 
@@ -145,7 +145,7 @@ class UtbetalingRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        OpprettUtbetalingRequest(
+                        UtbetalingRequest(
                             id = id,
                             gjennomforingId = AFT1.id,
                             periodeStart = LocalDate.now(),
