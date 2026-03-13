@@ -21,7 +21,7 @@ export function NavEnhetFilter({ value, onChange }: Props) {
   );
 }
 
-function toCheckboxGroups(regioner: Kontorstruktur[]): CheckboxGroup[] {
+function toCheckboxGroups(regioner: Kontorstruktur[]) {
   return regioner.map(({ region, kontorer }) => {
     return {
       id: region.enhetsnummer,
