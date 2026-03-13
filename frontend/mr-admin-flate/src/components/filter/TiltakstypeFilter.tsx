@@ -16,7 +16,7 @@ export function TiltakstypeFilter({ tiltakstyper, value, onChange }: Props) {
       hideLegend
       value={value}
       onChange={onChange}
-      groups={groups}
+      items={groups}
     />
   );
 }
@@ -30,7 +30,7 @@ function useTiltakstyperFilter(tiltakstyper: TiltakstypeDto[]) {
     return tiltakstyperByGroup
       .flatMap(([gruppe, entries = []]) => {
         if (gruppe === "") {
-          return entries.map((entry) => ({ id: entry.id, navn: entry.navn, items: [] }));
+          return entries.map((entry) => ({ id: entry.id, navn: entry.navn }));
         } else {
           return {
             id: gruppe,

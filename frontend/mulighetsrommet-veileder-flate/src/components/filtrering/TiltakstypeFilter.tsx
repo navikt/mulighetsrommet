@@ -35,7 +35,7 @@ export function TiltakstypeFilter(props: Props) {
       hideLegend
       value={value}
       onChange={onChange}
-      groups={groups}
+      items={groups}
     />
   );
 }
@@ -49,7 +49,7 @@ function useTiltakstyperFilter(tiltakstyper: VeilederflateTiltakstype[]) {
     return tiltakstyperByGroup
       .flatMap(([gruppe, entries = []]) => {
         if (gruppe === "") {
-          return entries.map((entry) => ({ id: entry.sanityId, navn: entry.navn, items: [] }));
+          return entries.map((entry) => ({ id: entry.sanityId, navn: entry.navn }));
         } else {
           return {
             id: gruppe,

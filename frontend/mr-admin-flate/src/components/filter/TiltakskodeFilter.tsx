@@ -17,7 +17,7 @@ export function TiltakskodeFilter({ value, onChange }: Props) {
       hideLegend
       value={value}
       onChange={(tiltakskoder) => onChange(tiltakskoder as Tiltakskode[])}
-      groups={groups}
+      items={groups}
     />
   );
 }
@@ -31,7 +31,7 @@ function useTiltakskodeFilter(tiltakstyper: TiltakstypeDto[]) {
     return tiltakstyperByGroup
       .flatMap(([gruppe, entries = []]) => {
         if (gruppe === "") {
-          return entries.map((entry) => ({ id: entry.tiltakskode, navn: entry.navn, items: [] }));
+          return entries.map((entry) => ({ id: entry.tiltakskode as string, navn: entry.navn }));
         } else {
           return {
             id: gruppe,

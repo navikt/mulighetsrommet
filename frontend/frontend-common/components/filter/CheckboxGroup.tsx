@@ -9,49 +9,49 @@ import { useState } from "react";
 import styles from "./CheckboxGroup.module.scss";
 import { addOrRemove, addOrRemoveBy } from "../../utils/utils";
 
-export interface CheckboxGroup {
-  id: string;
-  navn: string;
-  items: Array<CheckboxGroupItem>;
+export interface CheckboxGroupProps extends Omit<AkselCheckboxGroupProps, "children"> {
+  value: string[];
+  onChange: (value: string[]) => void;
+  items: CheckboxGroupItem[];
 }
 
 export interface CheckboxGroupItem {
+  id: string;
+  navn: string;
+  items?: Array<CheckboxGroupSubItem>;
+}
+
+export interface CheckboxGroupSubItem {
   navn: string;
   id: string;
   erStandardvalg: boolean;
 }
 
-interface CheckboxGroupProps extends Omit<AkselCheckboxGroupProps, "children"> {
-  value: string[];
-  onChange: (value: string[]) => void;
-  groups: CheckboxGroup[];
-}
-
-export function CheckboxGroup({ value, onChange, groups, ...props }: CheckboxGroupProps) {
+export function CheckboxGroup({ value, onChange, items, ...props }: CheckboxGroupProps) {
   const [groupOpen, setGroupOpen] = useState<string[]>([]);
 
-  function getSelectedItems(group: CheckboxGroup): string[] {
-    return value.filter((id) => group.items.some((item) => item.id === id));
+  function getSelectedItems(items: CheckboxGroupSubItem[]): string[] {
+    return value.filter((id) => items.some((item) => item.id === id));
   }
 
-  function groupIsIndeterminate(group: CheckboxGroup): boolean {
-    const count = getSelectedItems(group).length;
-    return count > 0 && count < group.items.length;
+  function groupIsIndeterminate(items: CheckboxGroupSubItem[]): boolean {
+    const count = getSelectedItems(items).length;
+    return count > 0 && count < items.length;
   }
 
-  function groupIsChecked(group: CheckboxGroup): boolean {
-    return getSelectedItems(group).length === group.items.length;
+  function groupIsChecked(items: CheckboxGroupSubItem[]): boolean {
+    return getSelectedItems(items).length === items.length;
   }
 
-  function groupOnChange(group: CheckboxGroup) {
-    const currentlySelectedInGroup = getSelectedItems(group);
+  function groupOnChange(items: CheckboxGroupSubItem[]) {
+    const currentlySelectedInGroup = getSelectedItems(items);
 
     const nextValue =
       currentlySelectedInGroup.length > 0
         ? value.filter((id) => !currentlySelectedInGroup.includes(id))
         : Array.from(
             new Set(
-              group.items
+              items
                 .filter((item) => item.erStandardvalg)
                 .map((item) => item.id)
                 .concat(value),
@@ -71,35 +71,35 @@ export function CheckboxGroup({ value, onChange, groups, ...props }: CheckboxGro
 
   return (
     <AkselCheckboxGroup {...props}>
-      {groups.map((group: CheckboxGroup) => {
-        if (group.items.length === 0) {
+      {items.map(({ id, navn, items }) => {
+        if (!items || items.length === 0) {
           return (
             <Checkbox
               size="small"
-              key={group.id}
-              checked={itemIsChecked(group.id)}
-              onChange={() => itemOnChange(group.id)}
+              key={id}
+              checked={itemIsChecked(id)}
+              onChange={() => itemOnChange(id)}
             >
-              {group.navn}
+              {navn}
             </Checkbox>
           );
         }
 
         return (
-          <div key={group.id}>
+          <div key={id}>
             <div
               className={styles.checkbox_and_caret}
-              onClick={() => setGroupOpen([...addOrRemove(groupOpen, group.id)])}
+              onClick={() => setGroupOpen([...addOrRemove(groupOpen, id)])}
             >
               <div onClick={(e) => e.stopPropagation()} className={styles.checkbox}>
                 <Checkbox
                   size="small"
-                  key={group.id}
-                  checked={groupIsChecked(group)}
-                  onChange={() => groupOnChange(group)}
-                  indeterminate={groupIsIndeterminate(group)}
+                  key={id}
+                  checked={groupIsChecked(items)}
+                  onChange={() => groupOnChange(items)}
+                  indeterminate={groupIsIndeterminate(items)}
                 >
-                  {group.navn}
+                  {navn}
                 </Checkbox>
               </div>
               <div className={styles.caret_container}>
@@ -107,14 +107,14 @@ export function CheckboxGroup({ value, onChange, groups, ...props }: CheckboxGro
                   aria-label="Ikon ned"
                   fontSize="1.25rem"
                   className={classnames(styles.accordion_down, {
-                    [styles.accordion_down_open]: groupOpen.includes(group.id),
+                    [styles.accordion_down_open]: groupOpen.includes(id),
                   })}
                 />
               </div>
             </div>
-            {groupOpen.includes(group.id) && (
+            {groupOpen.includes(id) && (
               <div style={{ marginLeft: "1rem" }}>
-                {group.items.map(({ id, navn }) => (
+                {items.map(({ id, navn }) => (
                   <Checkbox
                     checked={itemIsChecked(id)}
                     onChange={() => itemOnChange(id)}

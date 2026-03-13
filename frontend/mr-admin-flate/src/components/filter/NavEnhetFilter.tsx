@@ -15,7 +15,7 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
       hideLegend
       value={value}
       onChange={onChange}
-      groups={groups}
+      items={groups}
     />
   );
 }
