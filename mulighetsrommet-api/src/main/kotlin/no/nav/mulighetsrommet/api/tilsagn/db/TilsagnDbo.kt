@@ -21,5 +21,10 @@ data class TilsagnDbo(
     val beregning: TilsagnBeregning,
     val kommentar: String?,
     val beskrivelse: String?,
-    val deltakere: List<UUID>,
-)
+    val deltakere: List<Deltaker>?,
+) {
+    data class Deltaker(
+        val deltakerId: UUID,
+        val innhold: String?,
+    )
+}

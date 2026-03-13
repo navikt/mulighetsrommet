@@ -57,15 +57,15 @@ class PersonaliaServiceTest : FunSpec({
                 type = NavEnhetType.FYLKE,
                 overordnetEnhet = null,
             )
-            service.getPersonaliaMedGeografiskEnhet(setOf()) shouldBe setOf(
-                DeltakerPersonaliaMedGeografiskEnhet(
-                    deltakerId = deltakelseId,
-                    norskIdent = null,
-                    navn = "Skjermet",
-                    oppfolgingEnhet = null,
-                    geografiskEnhet = null,
-                    region = null,
-                ),
+            service.getPersonaliaMedGeografiskEnhet(listOf()) shouldBe mapOf(
+                deltakelseId to
+                    PersonaliaMedGeografiskEnhet(
+                        norskIdent = null,
+                        navn = "Skjermet",
+                        oppfolgingEnhet = null,
+                        geografiskEnhet = null,
+                        region = null,
+                    ),
             )
         }
 
@@ -89,15 +89,15 @@ class PersonaliaServiceTest : FunSpec({
                 overordnetEnhet = null,
             )
 
-            service.getPersonaliaMedGeografiskEnhet(setOf()) shouldBe setOf(
-                DeltakerPersonaliaMedGeografiskEnhet(
-                    deltakerId = deltakelseId,
-                    norskIdent = null,
-                    navn = "Adressebeskyttet",
-                    oppfolgingEnhet = null,
-                    geografiskEnhet = null,
-                    region = null,
-                ),
+            service.getPersonaliaMedGeografiskEnhet(emptyList()) shouldBe mapOf(
+                deltakelseId to
+                    PersonaliaMedGeografiskEnhet(
+                        norskIdent = null,
+                        navn = "Adressebeskyttet",
+                        oppfolgingEnhet = null,
+                        geografiskEnhet = null,
+                        region = null,
+                    ),
             )
         }
 
@@ -123,15 +123,15 @@ class PersonaliaServiceTest : FunSpec({
                 type = NavEnhetType.FYLKE,
                 overordnetEnhet = null,
             )
-            service.getPersonaliaMedGeografiskEnhet(setOf()) shouldBe setOf(
-                DeltakerPersonaliaMedGeografiskEnhet(
-                    deltakerId = deltakelseId,
-                    norskIdent = null,
-                    navn = "Adressebeskyttet",
-                    oppfolgingEnhet = null,
-                    geografiskEnhet = null,
-                    region = null,
-                ),
+            service.getPersonaliaMedGeografiskEnhet(listOf()) shouldBe mapOf(
+                deltakelseId to
+                    PersonaliaMedGeografiskEnhet(
+                        norskIdent = null,
+                        navn = "Adressebeskyttet",
+                        oppfolgingEnhet = null,
+                        geografiskEnhet = null,
+                        region = null,
+                    ),
             )
         }
     }

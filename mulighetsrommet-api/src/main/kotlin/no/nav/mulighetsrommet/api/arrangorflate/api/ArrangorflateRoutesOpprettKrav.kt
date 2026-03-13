@@ -246,7 +246,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 .getAvtaltPrisPerTimeOppfolgingData(tiltak.id, periode)
 
             val personalia = arrangorflateService.getPersonalia(
-                avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.map { it.deltakelseId }.toSet(),
+                avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.map { it.deltakelseId },
             )
 
             call.respond(

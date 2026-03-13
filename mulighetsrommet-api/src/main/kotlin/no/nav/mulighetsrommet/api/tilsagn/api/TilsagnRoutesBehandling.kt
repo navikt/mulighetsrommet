@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
@@ -26,6 +27,7 @@ import java.util.UUID
 
 fun Route.tilsagnRoutesBehandling() {
     val service: TilsagnService by inject()
+    val personaliaService: PersonaliaService by inject()
 
     authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
         put({
@@ -51,7 +53,13 @@ fun Route.tilsagnRoutesBehandling() {
 
             val result = service.upsert(request, navIdent)
                 .mapLeft { ValidationError(errors = it) }
-                .map { TilsagnDto.from(it, service.toTilsagnDeltakerPersonalia(it.deltakere)) }
+                .map {
+                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(it.deltakere.map { it.deltakerId })
+                    val deltakere = it.deltakere.map {
+                        TilsagnDeltakerDto.from(it, personalia.getValue(it.deltakerId))
+                    }
+                    TilsagnDto.from(it, deltakere)
+                }
 
             call.respondWithStatusResponse(result)
         }

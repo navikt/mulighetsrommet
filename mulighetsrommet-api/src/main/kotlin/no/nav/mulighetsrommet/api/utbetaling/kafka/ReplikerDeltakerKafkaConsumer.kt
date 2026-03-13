@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.kafka
 
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.amt.model.AmtDeltakerEksternV1Dto
@@ -77,6 +78,7 @@ class ReplikerDeltakerKafkaConsumer(
             deltakelsesmengder = amtDeltaker.deltakelsesmengder.map {
                 Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble())
             },
+            innhold = amtDeltaker.innhold,
         )
     }
 }
@@ -97,6 +99,7 @@ fun AmtDeltakerEksternV1Dto.toDeltakerDbo(): DeltakerDbo {
                 deltakelsesprosent = it.deltakelsesprosent.toDouble(),
             )
         },
+        innhold = Json.encodeToString(innhold),
     )
 }
 
