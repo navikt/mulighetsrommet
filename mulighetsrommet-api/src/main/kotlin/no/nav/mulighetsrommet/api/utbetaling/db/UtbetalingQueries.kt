@@ -691,10 +691,10 @@ class UtbetalingQueries(private val session: Session) {
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             ),
-            korreksjon = stringOrNull("korreksjon_begrunnelse")?.let { begrunnelse ->
+            korreksjon = uuidOrNull("korreksjon_gjelder_utbetaling_id")?.let { gjelderUtbetalingId ->
                 Utbetaling.Korreksjon(
-                    gjelderUtbetalingId = uuidOrNull("korreksjon_gjelder_utbetaling_id"),
-                    begrunnelse = begrunnelse,
+                    gjelderUtbetalingId = gjelderUtbetalingId,
+                    begrunnelse = string("korreksjon_begrunnelse"),
                 )
             },
             innsending = localDateTimeOrNull("innsendt_av_arrangor_tidspunkt")?.let { tidspunkt ->

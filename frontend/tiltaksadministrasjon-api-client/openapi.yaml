@@ -6408,9 +6408,7 @@ components:
       type: object
       properties:
         opprinneligUtbetaling:
-          type:
-          - "null"
-          - string
+          type: string
           format: uuid
         begrunnelse:
           type: string
