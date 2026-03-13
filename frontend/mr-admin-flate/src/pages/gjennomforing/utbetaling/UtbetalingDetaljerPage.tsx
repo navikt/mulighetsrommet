@@ -34,15 +34,10 @@ function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
 
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
-  const { data: utbetalingDetaljer } = useUtbetaling(utbetalingId);
+  const { utbetaling, handlinger } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
 
-  return {
-    historikk,
-    utbetaling: utbetalingDetaljer.utbetaling,
-    handlinger: utbetalingDetaljer.handlinger,
-    beregning,
-  };
+  return { historikk, utbetaling, handlinger, beregning };
 }
 
 export function UtbetalingDetaljerPage() {

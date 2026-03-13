@@ -1,13 +1,11 @@
 import { UtbetalingDto } from "@tiltaksadministrasjon/api-client";
-import { Button, HStack, InfoCard, Modal, VStack } from "@navikt/ds-react";
+import { Button, HStack, Modal, VStack } from "@navikt/ds-react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { formaterPeriode, subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { MetadataHGrid } from "@mr/frontend-common/components/datadriven/Metadata";
-import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
-import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
+import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useOpprettUtbetalingForm } from "@/components/utbetaling/form/useOpprettUtbetalingForm";
 import { FormProvider } from "react-hook-form";
 import { UtbetalingForm } from "@/components/utbetaling/form/UtbetalingForm";
+import { KorreksjonInfoCard } from "@/components/utbetaling/KorreksjonInfoCard";
 
 interface OpprettKorreksjonModalProps {
   utbetaling: UtbetalingDto;
@@ -31,7 +29,7 @@ export function OpprettKorreksjonModal({ utbetaling, open, close }: OpprettKorre
     <Modal onClose={close} open={open} header={{ heading: "Opprett korreksjon" }} width={1200}>
       <Modal.Body>
         <VStack gap="space-24">
-          <KorreksjonInfoCard utbetaling={utbetaling} />
+          <KorreksjonInfoCard utbetalingId={utbetaling.id} />
           <FormProvider {...form}>
             <UtbetalingForm
               id={formId}
@@ -53,27 +51,5 @@ export function OpprettKorreksjonModal({ utbetaling, open, close }: OpprettKorre
         </HStack>
       </Modal.Footer>
     </Modal>
-  );
-}
-
-function KorreksjonInfoCard({ utbetaling }: { utbetaling: UtbetalingDto }) {
-  return (
-    <InfoCard>
-      <InfoCard.Header>
-        <InfoCard.Title>
-          Du er i ferd med å opprette en korreksjon på en eksisterende utbetaling
-        </InfoCard.Title>
-      </InfoCard.Header>
-      <InfoCard.Content>
-        <MetadataHGrid
-          label={utbetalingTekster.metadata.periode}
-          value={formaterPeriode(utbetaling.periode)}
-        />
-        <MetadataHGrid
-          label={utbetalingTekster.utbetalt.label}
-          value={utbetaling.utbetalt ? formaterValutaBelop(utbetaling.utbetalt) : null}
-        />
-      </InfoCard.Content>
-    </InfoCard>
   );
 }

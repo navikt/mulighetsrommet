@@ -41,7 +41,6 @@ import { Handlinger } from "@/components/handlinger/Handlinger";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { extractValidationErrors } from "@/utils/Utils";
-import { RedigerUtbetalingModal } from "@/components/utbetaling/RedigerUtbetalingModal";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -53,7 +52,6 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
   const navigate = useNavigate();
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const [slettKorreksjonModalOpen, setSlettKorreksjonModalOpen] = useState<boolean>(false);
-  const [redigerUtbetalingModalOpen, setRedigerUtbetalingModalOpen] = useState<boolean>(false);
 
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
 
@@ -68,6 +66,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
       begrunnelseMindreBetalt: null,
     },
   });
+
   const {
     handleSubmit,
     setError,
@@ -164,7 +163,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
               {handlinger.includes(UtbetalingHandling.REDIGER) && (
                 <ActionMenu.Item
                   icon={<PencilIcon />}
-                  onSelect={() => setRedigerUtbetalingModalOpen(true)}
+                  onClick={() => navigate("rediger-utbetaling")}
                 >
                   Rediger utbetaling
                 </ActionMenu.Item>
@@ -255,11 +254,6 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
           belopInnsendt={beregning}
         />
       </form>
-      <RedigerUtbetalingModal
-        utbetaling={utbetaling}
-        open={redigerUtbetalingModalOpen}
-        close={() => setRedigerUtbetalingModalOpen(false)}
-      />
       <SlettUtbetalingModal
         utbetalingId={utbetaling.id}
         open={slettKorreksjonModalOpen}
