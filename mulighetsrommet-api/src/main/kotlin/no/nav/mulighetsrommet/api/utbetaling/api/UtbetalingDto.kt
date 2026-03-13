@@ -41,7 +41,7 @@ data class UtbetalingDto(
     @Serializable
     data class Korreksjon(
         @Serializable(with = UUIDSerializer::class)
-        val opprinneligUtbetaling: UUID?,
+        val opprinneligUtbetaling: UUID,
         val begrunnelse: String,
     )
 
