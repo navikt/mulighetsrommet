@@ -54,7 +54,8 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     innsendtAvArrangorDato: null,
     utbetalesTidligstDato: "2024-08-07",
-    pris: { belop: 15000, valuta: Valuta.NOK },
+    beregning: { belop: 15000, valuta: Valuta.NOK },
+    utbetalt: null,
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",
@@ -84,7 +85,8 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     innsendtAvArrangorDato: "2024-07-02",
     utbetalesTidligstDato: "2024-08-07",
-    pris: { belop: 18000, valuta: Valuta.NOK },
+    beregning: { belop: 18000, valuta: Valuta.NOK },
+    utbetalt: null,
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",
@@ -112,7 +114,8 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     innsendtAvArrangorDato: null,
     utbetalesTidligstDato: "2025-05-07",
-    pris: { belop: 9000, valuta: Valuta.NOK },
+    beregning: { belop: 9000, valuta: Valuta.NOK },
+    utbetalt: null,
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1111.22.33333",
@@ -143,7 +146,8 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     innsendtAvArrangorDato: null,
     utbetalesTidligstDato: "2025-05-07",
-    pris: { belop: 9000, valuta: Valuta.NOK },
+    beregning: { belop: 9000, valuta: Valuta.NOK },
+    utbetalt: { belop: 9000, valuta: Valuta.NOK },
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",

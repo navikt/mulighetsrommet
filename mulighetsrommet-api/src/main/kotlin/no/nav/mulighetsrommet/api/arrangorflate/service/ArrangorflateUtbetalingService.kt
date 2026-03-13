@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.AvtaltPrisPerTimeOppfolgin
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -32,7 +32,7 @@ class ArrangorflateUtbetalingService(
         opprett: ArrangorflateOpprettUtbetaling,
     ): Either<List<FieldError>, Utbetaling> {
         return beregnUtbetaling(opprett).flatMap { (tilskuddstype, beregning) ->
-            val utbetaling = OpprettUtbetaling(
+            val utbetaling = UpsertUtbetaling.Anskaffelse(
                 id = UUID.randomUUID(),
                 gjennomforingId = opprett.gjennomforingId,
                 periode = opprett.periode,
@@ -42,8 +42,6 @@ class ArrangorflateUtbetalingService(
                 vedlegg = opprett.vedlegg,
                 journalpostId = null,
                 kommentar = null,
-                korreksjonGjelderUtbetalingId = null,
-                korreksjonBegrunnelse = null,
             )
             utbetalingService.opprettUtbetaling(utbetaling, Arrangor)
         }

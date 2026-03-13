@@ -37,6 +37,9 @@ export const utbetalingTekster = {
       label: "Utbetales",
     },
   },
+  utbetalt: {
+    label: "Utbetalt",
+  },
   delutbetaling: {
     header: "Utbetalingslinjer",
     alert: {

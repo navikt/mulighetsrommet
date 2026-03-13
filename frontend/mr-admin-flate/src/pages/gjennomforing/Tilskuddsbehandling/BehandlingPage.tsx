@@ -3,7 +3,6 @@ import { Header } from "@/components/detaljside/Header";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { GavelSoundBlockFillIcon } from "@navikt/aksel-icons";
@@ -101,76 +100,74 @@ export function BehandlingPage() {
             Tilskuddsbehandling
           </Heading>
         </Header>
-        <ContentBox>
-          <WhitePaddedBox>
-            <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-            <Separator />
-            <Tabs value={currentTab} onChange={setCurrentTab}>
-              <Tabs.List>
-                {tabs.map((tab) => (
-                  <Tabs.Tab key={tab.key} value={tab.key} label={tab.label} />
-                ))}
-              </Tabs.List>
-              <Box marginBlock="space-16">
-                <TwoColumnGrid separator>
-                  <Box>
-                    <Tabs.Panel value="Saksopplysninger">
-                      <Saksopplysninger />
-                    </Tabs.Panel>
-                    <Tabs.Panel value="vilkarsvurdering">
-                      <Vilkarsvurdering />
-                    </Tabs.Panel>
-                    <Tabs.Panel value="Vedtak">
-                      <Vedtak />
-                    </Tabs.Panel>
-                  </Box>
-                  <Heading size="medium" level="3" spacing>
-                    Oppsummering
-                  </Heading>
-                  <Behandlingsdetaljer
-                    journalpostId={methods.watch("journalpostId")}
-                    soknadstidspunkt={methods.watch("soknadstidspunkt")}
-                    tilskudd={methods.watch("tilskudd")}
-                    belopInnenforMaksgrense={methods.watch("belopInnenforMaksgrense")}
-                    maksbelopBegrunnelse={methods.watch("maksbelopBegrunnelse")}
-                  />
-                </TwoColumnGrid>
-              </Box>
-            </Tabs>
-            <Separator />
-            <HStack gap="space-8" marginBlock="space-16" justify="end">
-              {isFirstTab ? (
-                <Button
-                  as={Link}
-                  to={`/gjennomforinger/${gjennomforingId}/tilskuddsbehandlinger`}
-                  variant="tertiary"
-                  size="small"
-                >
-                  Avbryt
-                </Button>
-              ) : (
-                <Button variant="tertiary" size="small" onClick={goToPreviousTab}>
-                  Tilbake
-                </Button>
-              )}
-              {isLastTab ? (
-                <Button
-                  variant="primary"
-                  size="small"
-                  onClick={() =>
-                    navigate(`/gjennomforinger/${gjennomforingId}/tilskuddsbehandlinger`)
-                  }
-                >
-                  Send til attestering
-                </Button>
-              ) : (
-                <Button variant="primary" size="small" onClick={goToNextTab}>
-                  Neste
-                </Button>
-              )}
-            </HStack>
-          </WhitePaddedBox>
-        </ContentBox>
+        <WhitePaddedBox>
+          <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
+          <Separator />
+          <Tabs value={currentTab} onChange={setCurrentTab}>
+            <Tabs.List>
+              {tabs.map((tab) => (
+                <Tabs.Tab key={tab.key} value={tab.key} label={tab.label} />
+              ))}
+            </Tabs.List>
+            <Box marginBlock="space-16">
+              <TwoColumnGrid separator>
+                <Box>
+                  <Tabs.Panel value="Saksopplysninger">
+                    <Saksopplysninger />
+                  </Tabs.Panel>
+                  <Tabs.Panel value="vilkarsvurdering">
+                    <Vilkarsvurdering />
+                  </Tabs.Panel>
+                  <Tabs.Panel value="Vedtak">
+                    <Vedtak />
+                  </Tabs.Panel>
+                </Box>
+                <Heading size="medium" level="3" spacing>
+                  Oppsummering
+                </Heading>
+                <Behandlingsdetaljer
+                  journalpostId={methods.watch("journalpostId")}
+                  soknadstidspunkt={methods.watch("soknadstidspunkt")}
+                  tilskudd={methods.watch("tilskudd")}
+                  belopInnenforMaksgrense={methods.watch("belopInnenforMaksgrense")}
+                  maksbelopBegrunnelse={methods.watch("maksbelopBegrunnelse")}
+                />
+              </TwoColumnGrid>
+            </Box>
+          </Tabs>
+          <Separator />
+          <HStack gap="space-8" marginBlock="space-16" justify="end">
+            {isFirstTab ? (
+              <Button
+                as={Link}
+                to={`/gjennomforinger/${gjennomforingId}/tilskuddsbehandlinger`}
+                variant="tertiary"
+                size="small"
+              >
+                Avbryt
+              </Button>
+            ) : (
+              <Button variant="tertiary" size="small" onClick={goToPreviousTab}>
+                Tilbake
+              </Button>
+            )}
+            {isLastTab ? (
+              <Button
+                variant="primary"
+                size="small"
+                onClick={() =>
+                  navigate(`/gjennomforinger/${gjennomforingId}/tilskuddsbehandlinger`)
+                }
+              >
+                Send til attestering
+              </Button>
+            ) : (
+              <Button variant="primary" size="small" onClick={goToNextTab}>
+                Neste
+              </Button>
+            )}
+          </HStack>
+        </WhitePaddedBox>
       </>
     </FormProvider>
   );

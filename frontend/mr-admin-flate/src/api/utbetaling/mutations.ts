@@ -1,8 +1,8 @@
 import {
   AarsakerOgForklaringRequestDelutbetalingReturnertAarsak,
   OpprettDelutbetalingerRequest,
-  OpprettUtbetalingRequest,
   ProblemDetail,
+  UtbetalingRequest,
   UtbetalingService,
 } from "@tiltaksadministrasjon/api-client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -39,10 +39,21 @@ export function useOpprettDelutbetalinger(utbetalingId: string) {
 export function useOpprettUtbetaling() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<unknown, ProblemDetail, OpprettUtbetalingRequest>({
+  return useApiMutation<unknown, ProblemDetail, UtbetalingRequest>({
     mutationFn: (body) => UtbetalingService.opprettUtbetaling({ body }),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetalingerByGjennomforing() });
+    },
+  });
+}
+
+export function useRedigerUtbetaling() {
+  const queryClient = useQueryClient();
+
+  return useApiMutation<unknown, ProblemDetail, UtbetalingRequest>({
+    mutationFn: (body) => UtbetalingService.redigerUtbetaling({ body }),
+    async onSuccess(_, request) {
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(request.id) });
     },
   });
 }

@@ -2087,11 +2087,35 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpprettUtbetalingRequest"
+              $ref: "#/components/schemas/UtbetalingRequest"
         required: false
       responses:
         "201":
           description: Utbetalingen ble opprettet
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/rediger:
+    post:
+      tags:
+      - Utbetaling
+      operationId: redigerUtbetaling
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UtbetalingRequest"
+        required: false
+      responses:
+        "200":
+          description: Utbetalingen ble redigert
           headers: {}
         default:
           description: Problem details
@@ -3209,7 +3233,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 3
+        - 4
     TiltakstypeDto:
       type: object
       properties:
@@ -6231,7 +6255,7 @@ components:
       required:
       - belop
       - valuta
-    OpprettUtbetalingRequest:
+    UtbetalingRequest:
       type: object
       properties:
         id:
@@ -6295,12 +6319,18 @@ components:
         gjennomforingId:
           type: string
           format: uuid
+        type:
+          $ref: "#/components/schemas/UtbetalingTypeDto"
         status:
           $ref: "#/components/schemas/UtbetalingStatusDto"
         periode:
           $ref: "#/components/schemas/Periode"
-        pris:
+        beregning:
           $ref: "#/components/schemas/ValutaBelop"
+        utbetalt:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
         innsendtAvArrangorDato:
           type:
           - "null"
@@ -6337,11 +6367,10 @@ components:
           - string
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
-        type:
-          $ref: "#/components/schemas/UtbetalingTypeDto"
       required:
       - avbruttBegrunnelse
       - begrunnelseMindreBetalt
+      - beregning
       - betalingsinformasjon
       - gjennomforingId
       - id
@@ -6350,11 +6379,11 @@ components:
       - kommentar
       - korreksjon
       - periode
-      - pris
       - status
       - tilskuddstype
       - type
       - utbetalesTidligstDato
+      - utbetalt
     Betalingsinformasjon:
       anyOf:
       - $ref: "#/components/schemas/BBan"
@@ -6413,9 +6442,10 @@ components:
     UtbetalingHandling:
       type: string
       enum:
+      - OPPRETT_KORREKSJON
+      - REDIGER
       - SEND_TIL_ATTESTERING
       - SLETT
-      - OPPRETT_KORREKSJON
     UtbetalingDetaljerDto:
       type: object
       properties:

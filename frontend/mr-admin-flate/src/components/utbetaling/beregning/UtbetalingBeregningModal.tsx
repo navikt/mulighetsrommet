@@ -1,4 +1,4 @@
-import { Heading, HGrid, Modal, VStack } from "@navikt/ds-react";
+import { Heading, HStack, Modal, VStack } from "@navikt/ds-react";
 import { Suspense, useState } from "react";
 import { Laster } from "@/components/laster/Laster";
 import UtbetalingBeregning from "./UtbetalingBeregning";
@@ -12,14 +12,10 @@ interface Props {
 }
 
 export function UtbetalingBeregningModal({ utbetalingId, modalOpen, onClose }: Props) {
+  const [navEnheter, setNavEnheter] = useState<string[]>([]);
+  const { data: beregning } = useUtbetalingBeregning({ navEnheter }, utbetalingId);
   return (
-    <Modal
-      open={modalOpen}
-      onClose={onClose}
-      aria-label="modal"
-      width="80rem"
-      className="h-[60rem]"
-    >
+    <Modal open={modalOpen} onClose={onClose} aria-label="modal" width="80rem" className="h-240">
       <Modal.Header closeButton>
         <Heading size="medium" level="2">
           Beregning
@@ -27,40 +23,21 @@ export function UtbetalingBeregningModal({ utbetalingId, modalOpen, onClose }: P
       </Modal.Header>
       <Modal.Body>
         <Suspense fallback={<Laster tekst="Laster..." />}>
-          <ModalBody utbetalingId={utbetalingId} />
+          <HStack gap="space-16" justify="space-between">
+            <VStack>
+              <Heading size="xsmall" level="3" spacing>
+                Oppfølgingsenhet
+              </Heading>
+              <NavEnhetFilter
+                value={navEnheter}
+                onChange={setNavEnheter}
+                regioner={beregning.deltakerRegioner}
+              />
+            </VStack>
+            <UtbetalingBeregning beregning={beregning} />
+          </HStack>
         </Suspense>
       </Modal.Body>
     </Modal>
-  );
-}
-
-interface BodyProps {
-  utbetalingId: string;
-}
-
-function ModalBody({ utbetalingId }: BodyProps) {
-  const [navEnheter, setNavEnheter] = useState<string[]>([]);
-  const { data: beregning } = useUtbetalingBeregning({ navEnheter }, utbetalingId);
-
-  return (
-    <VStack>
-      <HGrid columns="20% 1fr" gap="space-8" align="start">
-        <VStack>
-          <Heading size="xsmall" level="3" spacing>
-            Oppfølgingsenhet
-          </Heading>
-          <NavEnhetFilter
-            value={navEnheter}
-            onChange={setNavEnheter}
-            regioner={beregning.deltakerRegioner}
-          />
-        </VStack>
-        <VStack>
-          <div className={`max-h-[50rem] overflow-y-scroll`}>
-            <UtbetalingBeregning beregning={beregning} />
-          </div>
-        </VStack>
-      </HGrid>
-    </VStack>
   );
 }

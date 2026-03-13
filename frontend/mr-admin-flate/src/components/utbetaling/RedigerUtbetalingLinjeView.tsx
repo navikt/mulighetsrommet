@@ -7,7 +7,7 @@ import {
   UtbetalingLinje,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { FileCheckmarkIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
+import { FileCheckmarkIcon, PencilIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import {
   ActionMenu,
   Alert,
@@ -17,8 +17,8 @@ import {
   HStack,
   Modal,
   Spacer,
-  VStack,
   TextField,
+  VStack,
 } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -52,6 +52,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
   const navigate = useNavigate();
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const [slettKorreksjonModalOpen, setSlettKorreksjonModalOpen] = useState<boolean>(false);
+
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
 
   const methods = useForm<OpprettDelutbetalingerRequest>({
@@ -65,6 +66,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
       begrunnelseMindreBetalt: null,
     },
   });
+
   const {
     handleSubmit,
     setError,
@@ -99,7 +101,12 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
     name: delutbetalinger.map((_, index) => `delutbetalinger.${index}.pris.belop` as const),
   });
 
-  const utbetalesTotalBelop = delutbetalingBelop.reduce((acc, belop) => acc + belop, 0) || 0;
+  const { gjennomforingId, periode, tilskuddstype, beregning } = utbetaling;
+
+  const utbetalesTotalt = {
+    valuta: beregning.valuta,
+    belop: delutbetalingBelop.reduce((acc, belop) => acc + belop, 0),
+  };
 
   function sendTilAttestering(payload: OpprettDelutbetalingerRequest) {
     clearErrors();
@@ -115,21 +122,21 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
     });
   }
 
-  const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
+  const tilsagnsTypeFraTilskudd = tilsagnType(tilskuddstype);
 
   function opprettEkstraTilsagn() {
     const defaultTilsagn = utbetalingLinjer.length === 1 ? utbetalingLinjer[0].tilsagn : undefined;
     return navigate(
-      `/gjennomforinger/${utbetaling.gjennomforingId}/tilsagn/opprett-tilsagn` +
+      `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
-        `&periodeStart=${utbetaling.periode.start}` +
-        `&periodeSlutt=${yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 }))}` +
+        `&periodeStart=${periode.start}` +
+        `&periodeSlutt=${yyyyMMddFormatting(subDuration(periode.slutt, { days: 1 }))}` +
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer || ""}`,
     );
   }
 
   function submitHandler(data: OpprettDelutbetalingerRequest) {
-    if (utbetalesTotalBelop < utbetaling.pris.belop) {
+    if (utbetalesTotalt.belop < beregning.belop) {
       setMindreBelopModalOpen(true);
     } else {
       sendTilAttestering(data);
@@ -153,6 +160,14 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
             </Heading>
             <Spacer />
             <Handlinger>
+              {handlinger.includes(UtbetalingHandling.REDIGER) && (
+                <ActionMenu.Item
+                  icon={<PencilIcon />}
+                  onClick={() => navigate("rediger-utbetaling")}
+                >
+                  Rediger utbetaling
+                </ActionMenu.Item>
+              )}
               <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
                 {utbetalingTekster.delutbetaling.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd)}
               </ActionMenu.Item>
@@ -214,7 +229,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
               />
             )}
           />
-          {!!delutbetalinger.length && (
+          {delutbetalinger.length > 0 && (
             <HStack gap="space-8" justify="end">
               <ValideringsfeilOppsummering />
               {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
@@ -235,8 +250,8 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
             sendTilAttestering(formData);
           }}
           begrunnelseOnChange={(e) => setValue("begrunnelseMindreBetalt", e.target.value)}
-          belopUtbetaling={{ valuta: utbetaling.pris.valuta, belop: utbetalesTotalBelop }}
-          belopInnsendt={utbetaling.pris}
+          belopUtbetaling={utbetalesTotalt}
+          belopInnsendt={beregning}
         />
       </form>
       <SlettUtbetalingModal

@@ -36,7 +36,7 @@ test.describe("Utbetalinger detaljer", () => {
     await returnertUtbetalingRow.locator("a", { hasText: "Behandle" }).click();
 
     // Verify we're on the utbetaling details page
-    await expect(page.locator("h2:has-text('Til utbetaling')")).toBeVisible();
+    await expect(page.getByTestId("utbetaling-til-utbetaling")).toBeVisible();
 
     // Verify the utbetaling linjer are displayed
     await expect(page.locator("a:has-text('A-2025/123')")).toBeVisible();
@@ -66,7 +66,7 @@ test.describe("Utbetalinger detaljer", () => {
 
     // Verify we're on the utbetaling details page
 
-    await expect(page.locator("h2:has-text('Til utbetaling')")).toBeVisible();
+    await expect(page.getByTestId("utbetaling-til-utbetaling")).toBeVisible();
 
     // Verify the status is displayed as RETURNERT
     //await expect(page.locator("span", { hasText: "Returnert" })).toBeVisible();
@@ -97,7 +97,7 @@ test.describe("Utbetalinger detaljer", () => {
 
     // Verify we're on the utbetaling details page
 
-    await expect(page.locator("h2:has-text('Til utbetaling')")).toBeVisible();
+    await expect(page.getByTestId("utbetaling-til-utbetaling")).toBeVisible();
 
     // Verify the utbetaling linjer are displayed
     await expect(page.locator("a:has-text('A-2025/123')")).toBeVisible();

@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 
 export function WhitePaddedBox({ children }: { children: ReactNode }) {
   return (
-    <Box padding="space-16" background="default">
+    <Box padding="space-16" marginBlock="space-16" background="default">
       {children}
     </Box>
   );

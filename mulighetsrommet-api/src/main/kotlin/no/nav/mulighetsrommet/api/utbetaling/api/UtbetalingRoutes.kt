@@ -127,7 +127,7 @@ fun Route.utbetalingRoutes() {
                 tags = setOf("Utbetaling")
                 operationId = "opprettUtbetaling"
                 request {
-                    body<OpprettUtbetalingRequest>()
+                    body<UtbetalingRequest>()
                 }
                 response {
                     code(HttpStatusCode.Created) {
@@ -139,13 +139,40 @@ fun Route.utbetalingRoutes() {
                     }
                 }
             }) {
-                val request = call.receive<OpprettUtbetalingRequest>()
+                val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
                     .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
                     .map { HttpStatusCode.Created }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            post("/rediger", {
+                tags = setOf("Utbetaling")
+                operationId = "redigerUtbetaling"
+                request {
+                    body<UtbetalingRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetalingen ble redigert"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val request = call.receive<UtbetalingRequest>()
+                val navIdent = getNavIdent()
+
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
+                    .flatMap { utbetalingService.redigerUtbetaling(it, navIdent) }
+                    .mapLeft { ValidationError("Klarte ikke redigere utbetaling", it) }
+                    .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
             }
@@ -210,14 +237,15 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val utbetaling = db.session {
-                    val ansatt =
-                        queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
                     val utbetaling = queries.utbetaling.getOrError(id)
+                    val linjer = queries.delutbetaling.getByUtbetalingId(id)
+                    val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
 
-                    UtbetalingDetaljerDto(
-                        utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
-                        handlinger = UtbetalingService.utbetalingHandlinger(utbetaling, ansatt),
-                    )
+                    val ansatt = queries.ansatt.getByNavIdent(navIdent)
+                        ?: throw MrExceptions.navAnsattNotFound(navIdent)
+                    val handlinger = UtbetalingService.utbetalingHandlinger(utbetaling, ansatt)
+
+                    UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
                 }
                 call.respond(utbetaling)
             }
@@ -537,7 +565,7 @@ data class OpprettDelutbetalingerRequest(
 )
 
 @Serializable
-data class OpprettUtbetalingRequest(
+data class UtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)

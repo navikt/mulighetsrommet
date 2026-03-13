@@ -1,4 +1,4 @@
-import { TilsagnDeltakerPersonalia, TilsagnRequest } from "@tiltaksadministrasjon/api-client";
+import { TilsagnDeltakerDto, TilsagnRequest } from "@tiltaksadministrasjon/api-client";
 import { UNSAFE_Combobox } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useTilsagnValgbareDeltakere } from "@/api/tilsagn/useTilsagnValgbareDeltakere";
@@ -44,7 +44,7 @@ export function VelgDeltakere({ gjennomforingId }: Props) {
           isMultiSelect
           name={field.name}
           error={errors.deltakere?.message}
-          options={deltakere.map((deltaker: TilsagnDeltakerPersonalia) => ({
+          options={deltakere.map((deltaker: TilsagnDeltakerDto) => ({
             label: formatTilsagnDeltaker(deltaker),
             value: deltaker.deltakerId,
           }))}
@@ -53,7 +53,7 @@ export function VelgDeltakere({ gjennomforingId }: Props) {
             if (isSelected) {
               field.onChange([...currentValues, option]);
             } else {
-              field.onChange(currentValues.filter((v) => v !== option));
+              field.onChange(currentValues.filter((v) => v.deltakerId !== option));
             }
           }}
         />

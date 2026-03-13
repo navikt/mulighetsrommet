@@ -3,10 +3,11 @@ import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useUtbetaling(id: string) {
-  return useApiSuspenseQuery({
+  const { data } = useApiSuspenseQuery({
     queryKey: QueryKeys.utbetaling(id),
     queryFn: async () => UtbetalingService.getUtbetaling({ path: { id } }),
   });
+  return data;
 }
 
 export function useUtbetalingsLinjer(id: string) {
