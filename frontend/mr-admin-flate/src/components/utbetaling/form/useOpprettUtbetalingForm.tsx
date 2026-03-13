@@ -1,22 +1,22 @@
-import { OpprettUtbetalingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { UtbetalingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { useRef } from "react";
 import { useOpprettUtbetaling } from "@/api/utbetaling/mutations";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 
-export function useOpprettUtbetalingForm(defaults: Partial<OpprettUtbetalingRequest>) {
+export function useOpprettUtbetalingForm(defaults: Partial<UtbetalingRequest>) {
   const navigate = useNavigate();
 
   const mutation = useOpprettUtbetaling();
 
   const utbetalingId = useRef(window.crypto.randomUUID());
 
-  const form = useForm<OpprettUtbetalingRequest>({
+  const form = useForm<UtbetalingRequest>({
     defaultValues: defaults,
   });
 
-  function submit(data: OpprettUtbetalingRequest) {
+  function submit(data: UtbetalingRequest) {
     mutation.mutate(
       { ...data, id: utbetalingId.current },
       {

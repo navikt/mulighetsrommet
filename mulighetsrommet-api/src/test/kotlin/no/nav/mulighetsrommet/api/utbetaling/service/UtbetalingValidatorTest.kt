@@ -9,10 +9,10 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -30,7 +30,7 @@ class UtbetalingValidatorTest : FunSpec({
         val periodeSlutt = periodeStart.plusDays(1)
 
         test("validere forespørsel om oppretting av utbetaling") {
-            val request = OpprettUtbetalingRequest(
+            val request = UtbetalingRequest(
                 id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = periodeStart,
@@ -41,14 +41,12 @@ class UtbetalingValidatorTest : FunSpec({
                 korreksjonBegrunnelse = "Begrunnelse som kun gjelder for korreksjoner",
             )
 
-            UtbetalingValidator.validateOpprettUtbetalingRequest(request) shouldBeRight OpprettUtbetaling(
+            UtbetalingValidator.validateUpsertUtbetaling(request) shouldBeRight UpsertUtbetaling.Anskaffelse(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
                 periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt),
                 journalpostId = JournalpostId("123"),
                 kommentar = null,
-                korreksjonGjelderUtbetalingId = null,
-                korreksjonBegrunnelse = null,
                 beregning = UtbetalingBeregningFri.from(ValutaBelop(150, Valuta.NOK)),
                 kid = null,
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -57,35 +55,33 @@ class UtbetalingValidatorTest : FunSpec({
         }
 
         test("validere forespørsel om oppretting av korreksjon") {
-            val request = OpprettUtbetalingRequest(
+            val korrigererUtbetaling = UUID.randomUUID()
+            val request = UtbetalingRequest(
                 id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = periodeStart,
                 periodeSlutt = periodeSlutt,
-                korrigererUtbetaling = UUID.randomUUID(),
+                korrigererUtbetaling = korrigererUtbetaling,
                 journalpostId = "123",
                 pris = ValutaBelopRequest(150, Valuta.NOK),
                 kommentar = "En lang kommentar",
                 korreksjonBegrunnelse = "Begrunnelse som kun gjelder for korreksjoner",
             )
 
-            UtbetalingValidator.validateOpprettUtbetalingRequest(request) shouldBeRight OpprettUtbetaling(
+            UtbetalingValidator.validateUpsertUtbetaling(request) shouldBeRight UpsertUtbetaling.Korreksjon(
                 id = request.id,
-                gjennomforingId = request.gjennomforingId,
                 periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt),
-                journalpostId = null,
                 kommentar = "En lang kommentar",
-                korreksjonGjelderUtbetalingId = request.korrigererUtbetaling,
+                korreksjonGjelderUtbetalingId = korrigererUtbetaling,
                 korreksjonBegrunnelse = "Begrunnelse som kun gjelder for korreksjoner",
                 beregning = UtbetalingBeregningFri.from(ValutaBelop(150, Valuta.NOK)),
                 kid = null,
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                vedlegg = listOf(),
             )
         }
 
         test("begrunnelse er påkrevd i stedet for journalpost-id for korreksjoner") {
-            val request = OpprettUtbetalingRequest(
+            val request = UtbetalingRequest(
                 id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = periodeStart,
@@ -95,17 +91,17 @@ class UtbetalingValidatorTest : FunSpec({
                 pris = ValutaBelopRequest(150, Valuta.NOK),
             )
 
-            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
+            val result = UtbetalingValidator.validateUpsertUtbetaling(request)
             result.shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
                 FieldError.of(
                     "Begrunnelse for korreksjon må være minst 10 tegn",
-                    OpprettUtbetalingRequest::korreksjonBegrunnelse,
+                    UtbetalingRequest::korreksjonBegrunnelse,
                 ),
             )
         }
 
         test("valider opprett utbetaling akkumulerer feil") {
-            val request = OpprettUtbetalingRequest(
+            val request = UtbetalingRequest(
                 id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = periodeStart,
@@ -115,18 +111,18 @@ class UtbetalingValidatorTest : FunSpec({
                 pris = ValutaBelopRequest(0, Valuta.NOK),
             )
 
-            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
+            val result = UtbetalingValidator.validateUpsertUtbetaling(request)
             result.shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
-                FieldError.of("Periodeslutt må være satt", OpprettUtbetalingRequest::periodeSlutt),
-                FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::pris, ValutaBelopRequest::belop),
-                FieldError.of("Kommentar må være minst 10 tegn", OpprettUtbetalingRequest::kommentar),
-                FieldError.of("Journalpost-ID er på ugyldig format", OpprettUtbetalingRequest::journalpostId),
-                FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer),
+                FieldError.of("Periodeslutt må være satt", UtbetalingRequest::periodeSlutt),
+                FieldError.of("Beløp må være positivt", UtbetalingRequest::pris, ValutaBelopRequest::belop),
+                FieldError.of("Kommentar må være minst 10 tegn", UtbetalingRequest::kommentar),
+                FieldError.of("Journalpost-ID er på ugyldig format", UtbetalingRequest::journalpostId),
+                FieldError.of("Ugyldig kid", UtbetalingRequest::kidNummer),
             )
         }
 
         test("Periodeslutt må være etter periodestart") {
-            val request = OpprettUtbetalingRequest(
+            val request = UtbetalingRequest(
                 id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = periodeStart.plusDays(5),
@@ -135,9 +131,9 @@ class UtbetalingValidatorTest : FunSpec({
                 pris = ValutaBelopRequest(150, Valuta.NOK),
             )
 
-            val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
+            val result = UtbetalingValidator.validateUpsertUtbetaling(request)
             result.shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
-                FieldError.of("Periodeslutt må være etter periodestart", OpprettUtbetalingRequest::periodeSlutt),
+                FieldError.of("Periodeslutt må være etter periodestart", UtbetalingRequest::periodeSlutt),
             )
         }
     }

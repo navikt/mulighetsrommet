@@ -38,7 +38,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
@@ -108,11 +108,11 @@ class UtbetalingService(
     }
 
     suspend fun opprettUtbetaling(
-        opprett: OpprettUtbetaling,
+        opprett: UpsertUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         if (queries.utbetaling.get(opprett.id) != null) {
-            return listOf(FieldError.of("Utbetalingen er allerede opprettet")).left()
+            return FieldError.of("Utbetalingen er allerede opprettet").nel().left()
         }
 
         return upsert(opprett, agent).map {
@@ -125,16 +125,16 @@ class UtbetalingService(
     }
 
     suspend fun redigerUtbetaling(
-        opprett: OpprettUtbetaling,
+        rediger: UpsertUtbetaling,
         agent: Agent,
     ): Validated<Utbetaling> = db.transaction {
-        val utbetaling = queries.utbetaling.getAndAquireLock(opprett.id)
+        val utbetaling = queries.utbetaling.getAndAquireLock(rediger.id)
 
         if (!kanRedigeres(utbetaling)) {
-            return FieldError.of("Utbetaling kan ikke redigeres").nel().left()
+            return FieldError.of("Utbetalingen kan ikke redigeres").nel().left()
         }
 
-        return upsert(opprett, agent).map {
+        return upsert(rediger, agent).map {
             logEndring("Utbetaling redigert", it.id, agent)
         }
     }
@@ -328,69 +328,98 @@ class UtbetalingService(
     }
 
     private suspend fun TransactionalQueryContext.upsert(
-        opprett: OpprettUtbetaling,
+        upsert: UpsertUtbetaling,
+        agent: Agent,
+    ): Either<NonEmptyList<FieldError>, UtbetalingDbo> = when (upsert) {
+        is UpsertUtbetaling.Anskaffelse -> upsertAnskaffelse(upsert, agent)
+        is UpsertUtbetaling.Korreksjon -> upsertKorreksjon(upsert)
+    }
+
+    private suspend fun TransactionalQueryContext.upsertAnskaffelse(
+        upsert: UpsertUtbetaling.Anskaffelse,
         agent: Agent,
     ): Either<NonEmptyList<FieldError>, UtbetalingDbo> {
-        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(opprett.gjennomforingId)
-
-        val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
-            gjennomforing.tiltakstype.tiltakskode,
-            opprett.periode,
-        )
-
-        val korreksjonGjelderUtbetalingId = opprett.korreksjonGjelderUtbetalingId?.also {
-            val utbetaling = queries.utbetaling.get(it)
-                ?: return FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
-
-            if (utbetaling.gjennomforing.id != opprett.gjennomforingId) {
-                return FieldError.of("Korrigering må gjelde samme gjennomføring").nel().left()
-            }
-
-            when (utbetaling.status) {
-                UtbetalingStatusType.RETURNERT,
-                UtbetalingStatusType.TIL_BEHANDLING,
-                UtbetalingStatusType.GENERERT,
-                UtbetalingStatusType.TIL_ATTESTERING,
-                UtbetalingStatusType.AVBRUTT,
-                -> return FieldError.of("Utbetaling kan ikke korrigeres når den har status ${utbetaling.status}")
-                    .nel()
-                    .left()
-
-                UtbetalingStatusType.FERDIG_BEHANDLET,
-                UtbetalingStatusType.DELVIS_UTBETALT,
-                UtbetalingStatusType.UTBETALT,
-                -> Unit
-            }
-        }
-
-        val betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, opprett.kid)
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(upsert.gjennomforingId)
 
         val dbo = UtbetalingDbo(
-            id = opprett.id,
-            gjennomforingId = opprett.gjennomforingId,
+            id = upsert.id,
+            gjennomforingId = upsert.gjennomforingId,
             status = UtbetalingStatusType.TIL_BEHANDLING,
-            betalingsinformasjon = betalingsinformasjon,
-            valuta = opprett.beregning.output.pris.valuta,
-            beregning = opprett.beregning,
-            periode = opprett.periode,
-            kommentar = opprett.kommentar,
-            korreksjonGjelderUtbetalingId = korreksjonGjelderUtbetalingId,
-            korreksjonBegrunnelse = opprett.korreksjonBegrunnelse,
-            tilskuddstype = opprett.tilskuddstype,
-            journalpostId = opprett.journalpostId,
+            valuta = upsert.beregning.output.pris.valuta,
+            beregning = upsert.beregning,
+            periode = upsert.periode,
+            kommentar = upsert.kommentar,
+            korreksjonGjelderUtbetalingId = null,
+            korreksjonBegrunnelse = null,
+            tilskuddstype = upsert.tilskuddstype,
+            journalpostId = upsert.journalpostId,
             innsendtAvArrangorTidspunkt = when (agent) {
                 is Arrangor -> LocalDateTime.now()
                 else -> null
             },
-            utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
+            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
+            utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
+                gjennomforing.tiltakstype.tiltakskode,
+                upsert.periode,
+            ),
             blokkeringer = emptySet(),
         )
 
         queries.utbetaling.upsert(dbo)
 
         if (agent is Arrangor) {
-            scheduleJournalforUtbetaling(dbo.id, opprett.vedlegg)
+            scheduleJournalforUtbetaling(dbo.id, upsert.vedlegg)
         }
+
+        return dbo.right()
+    }
+
+    private suspend fun TransactionalQueryContext.upsertKorreksjon(
+        upsert: UpsertUtbetaling.Korreksjon,
+    ): Either<NonEmptyList<FieldError>, UtbetalingDbo> {
+        val utbetaling = queries.utbetaling.get(upsert.korreksjonGjelderUtbetalingId)
+            ?: return FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
+
+        when (utbetaling.status) {
+            UtbetalingStatusType.RETURNERT,
+            UtbetalingStatusType.TIL_BEHANDLING,
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.AVBRUTT,
+            -> return FieldError.of("Utbetaling kan ikke korrigeres når den har status ${utbetaling.status}")
+                .nel()
+                .left()
+
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
+            -> Unit
+        }
+
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforing.id)
+
+        val dbo = UtbetalingDbo(
+            id = upsert.id,
+            gjennomforingId = gjennomforing.id,
+            status = UtbetalingStatusType.TIL_BEHANDLING,
+            valuta = upsert.beregning.output.pris.valuta,
+            beregning = upsert.beregning,
+            periode = upsert.periode,
+            kommentar = upsert.kommentar,
+            korreksjonGjelderUtbetalingId = upsert.korreksjonGjelderUtbetalingId,
+            korreksjonBegrunnelse = upsert.korreksjonBegrunnelse,
+            tilskuddstype = upsert.tilskuddstype,
+            journalpostId = null,
+            innsendtAvArrangorTidspunkt = null,
+            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
+            utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
+                gjennomforing.tiltakstype.tiltakskode,
+                upsert.periode,
+            ),
+            blokkeringer = emptySet(),
+        )
+
+        queries.utbetaling.upsert(dbo)
 
         return dbo.right()
     }

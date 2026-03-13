@@ -1,6 +1,6 @@
 import {
-  OpprettUtbetalingRequest,
   UtbetalingDto,
+  UtbetalingRequest,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { useForm } from "react-hook-form";
@@ -30,11 +30,11 @@ export function useRedigerUtbetalingForm(
     korreksjonBegrunnelse: utbetaling.korreksjon?.begrunnelse,
   };
 
-  const form = useForm<OpprettUtbetalingRequest>({ defaultValues: defaults });
+  const form = useForm<UtbetalingRequest>({ defaultValues: defaults });
 
   const mutation = useRedigerUtbetaling();
 
-  function submit(data: OpprettUtbetalingRequest) {
+  function submit(data: UtbetalingRequest) {
     mutation.mutate(data, {
       onSuccess: options?.onSuccess,
       onValidationError: (error: ValidationError) => applyValidationErrors(form, error),

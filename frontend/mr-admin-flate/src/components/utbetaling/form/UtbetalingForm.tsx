@@ -8,7 +8,7 @@ import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { addDuration } from "@mr/frontend-common/utils/date";
 import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
-import { Betalingsinformasjon, OpprettUtbetalingRequest } from "@tiltaksadministrasjon/api-client";
+import { Betalingsinformasjon, UtbetalingRequest } from "@tiltaksadministrasjon/api-client";
 
 interface UtbetalingFormProps {
   id: string;
@@ -18,7 +18,7 @@ interface UtbetalingFormProps {
 }
 
 export function UtbetalingForm({ id, onSubmit, arrangorId, startDato }: UtbetalingFormProps) {
-  const korrigererUtbetaling = useWatch<OpprettUtbetalingRequest, "korrigererUtbetaling">({
+  const korrigererUtbetaling = useWatch<UtbetalingRequest, "korrigererUtbetaling">({
     name: "korrigererUtbetaling",
   });
 
@@ -36,7 +36,7 @@ function KorreksjonFields() {
   return (
     <FormGroup>
       <UtbetalingPrisInput />
-      <FormTextarea<OpprettUtbetalingRequest>
+      <FormTextarea<UtbetalingRequest>
         label="Begrunnelse for korreksjon"
         name="korreksjonBegrunnelse"
         maxLength={250}
@@ -63,20 +63,17 @@ function UtbetalingFields({ startDato }: { startDato?: string }) {
         />
       </HGrid>
       <UtbetalingPrisInput />
-      <FormTextField<OpprettUtbetalingRequest>
-        label="Journalpost-ID i Gosys"
-        name="journalpostId"
-      />
-      <FormTextarea<OpprettUtbetalingRequest> label="Kommentar" name="kommentar" maxLength={250} />
+      <FormTextField<UtbetalingRequest> label="Journalpost-ID i Gosys" name="journalpostId" />
+      <FormTextarea<UtbetalingRequest> label="Kommentar" name="kommentar" maxLength={250} />
     </FormGroup>
   );
 }
 
 function UtbetalingPrisInput() {
-  const valuta = useWatch<OpprettUtbetalingRequest, "pris.valuta">({
+  const valuta = useWatch<UtbetalingRequest, "pris.valuta">({
     name: "pris.valuta",
   });
-  return <NumberInput<OpprettUtbetalingRequest> label={`Beløp (${valuta})`} name="pris.belop" />;
+  return <NumberInput<UtbetalingRequest> label={`Beløp (${valuta})`} name="pris.belop" />;
 }
 
 export function BetalingsinformasjonFormGroup({ arrangorId }: { arrangorId: string }) {
@@ -111,7 +108,7 @@ function BetalingsinformasjonFields({
             Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Les mer her om{" "}
             <EndreKontonummerLink />.
           </small>
-          <FormTextField<OpprettUtbetalingRequest> label="Valgfritt KID-nummer" name="kidNummer" />
+          <FormTextField<UtbetalingRequest> label="Valgfritt KID-nummer" name="kidNummer" />
         </VStack>
       );
     case "IBan":

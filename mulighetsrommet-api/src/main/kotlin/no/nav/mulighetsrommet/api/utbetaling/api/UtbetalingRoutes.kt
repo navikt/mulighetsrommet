@@ -126,7 +126,7 @@ fun Route.utbetalingRoutes() {
                 tags = setOf("Utbetaling")
                 operationId = "opprettUtbetaling"
                 request {
-                    body<OpprettUtbetalingRequest>()
+                    body<UtbetalingRequest>()
                 }
                 response {
                     code(HttpStatusCode.Created) {
@@ -138,10 +138,10 @@ fun Route.utbetalingRoutes() {
                     }
                 }
             }) {
-                val request = call.receive<OpprettUtbetalingRequest>()
+                val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
                     .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
                     .map { HttpStatusCode.Created }
@@ -153,7 +153,7 @@ fun Route.utbetalingRoutes() {
                 tags = setOf("Utbetaling")
                 operationId = "redigerUtbetaling"
                 request {
-                    body<OpprettUtbetalingRequest>()
+                    body<UtbetalingRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -165,10 +165,10 @@ fun Route.utbetalingRoutes() {
                     }
                 }
             }) {
-                val request = call.receive<OpprettUtbetalingRequest>()
+                val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
                     .flatMap { utbetalingService.redigerUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke redigere utbetaling", it) }
                     .map { HttpStatusCode.OK }
@@ -558,7 +558,7 @@ data class OpprettDelutbetalingerRequest(
 )
 
 @Serializable
-data class OpprettUtbetalingRequest(
+data class UtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)

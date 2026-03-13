@@ -2087,7 +2087,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpprettUtbetalingRequest"
+              $ref: "#/components/schemas/UtbetalingRequest"
         required: false
       responses:
         "201":
@@ -2111,7 +2111,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpprettUtbetalingRequest"
+              $ref: "#/components/schemas/UtbetalingRequest"
         required: false
       responses:
         "200":
@@ -6238,7 +6238,7 @@ components:
       required:
       - belop
       - valuta
-    OpprettUtbetalingRequest:
+    UtbetalingRequest:
       type: object
       properties:
         id:

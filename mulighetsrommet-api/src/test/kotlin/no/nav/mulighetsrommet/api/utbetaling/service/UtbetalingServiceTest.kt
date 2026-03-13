@@ -56,8 +56,9 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
@@ -65,6 +66,7 @@ import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -113,14 +115,12 @@ class UtbetalingServiceTest : FunSpec({
         arrangorService = arrangorService,
     )
 
-    context("opprett utbetaling - annen avtalt pris") {
-        val opprett = OpprettUtbetaling(
+    context("opprett og rediger utbetaling") {
+        val upsert = UpsertUtbetaling.Anskaffelse(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-            journalpostId = null,
-            korreksjonGjelderUtbetalingId = null,
-            korreksjonBegrunnelse = null,
+            journalpostId = JournalpostId("123123123"),
             kid = null,
             beregning = UtbetalingBeregningFri.from(10.withValuta(Valuta.NOK)),
             kommentar = "Arrangør trenger penger",
@@ -133,6 +133,7 @@ class UtbetalingServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.DonaldDuck),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.GENERERT)),
             ).initialize(database.db)
 
             coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
@@ -145,32 +146,25 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             val utbetaling = service.opprettUtbetaling(
-                opprett = opprett,
+                opprett = upsert,
                 agent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
             utbetaling.id.shouldNotBeNull()
             utbetaling.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
-            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningFri>().should {
-                it.input.pris shouldBe 10.withValuta(Valuta.NOK)
-                it.output.pris shouldBe 10.withValuta(Valuta.NOK)
-            }
+            utbetaling.beregning shouldBe upsert.beregning
         }
 
-        test("utbetaling kan ikke endres hvis den først har blitt opprettet") {
+        test("samme utbetaling kan ikke opprettes to ganger") {
             val service = createUtbetalingService()
 
             service.opprettUtbetaling(
-                opprett = opprett.copy(
-                    beregning = UtbetalingBeregningFri.from(5.withValuta(Valuta.NOK)),
-                ),
+                opprett = upsert,
                 agent = Arrangor,
             ).shouldBeRight()
 
             service.opprettUtbetaling(
-                opprett = opprett.copy(
-                    beregning = UtbetalingBeregningFri.from(10.withValuta(Valuta.NOK)),
-                ),
+                opprett = upsert,
                 agent = Arrangor,
             ) shouldBeLeft listOf(
                 FieldError.of("Utbetalingen er allerede opprettet"),
@@ -183,7 +177,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
 
             service.opprettUtbetaling(
-                opprett = opprett,
+                opprett = upsert,
                 agent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_BEHANDLING
 
@@ -196,11 +190,129 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
 
             val utbetaling = service.opprettUtbetaling(
-                opprett = opprett,
+                opprett = upsert,
                 agent = Arrangor,
             ).shouldBeRight()
 
             verify(exactly = 1) { journalforUtbetaling.schedule(utbetaling.id, any(), any(), any()) }
+        }
+
+        test("kan redigeres når den er til behandling") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                opprett = upsert,
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_BEHANDLING
+
+            val kommentar = "Arrangør trenger mer penger"
+            val beregning = UtbetalingBeregningFri.from(ValutaBelop(100, Valuta.NOK))
+            service.redigerUtbetaling(
+                rediger = upsert.copy(kommentar = kommentar, beregning = beregning),
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeRight().should {
+                it.kommentar shouldBe kommentar
+                it.beregning shouldBe beregning
+            }
+        }
+
+        test("kan ikke redigeres når den er innsendt av arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                opprett = upsert,
+                agent = Arrangor,
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_BEHANDLING
+
+            service.redigerUtbetaling(
+                rediger = upsert,
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ) shouldBeLeft listOf(
+                FieldError.of("Utbetalingen kan ikke redigeres"),
+            )
+        }
+
+        test("kan ikke redigeres når den er generert") {
+            val service = createUtbetalingService()
+
+            service.redigerUtbetaling(
+                rediger = upsert.copy(id = utbetaling1.id),
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ) shouldBeLeft listOf(
+                FieldError.of("Utbetalingen kan ikke redigeres"),
+            )
+        }
+    }
+
+    context("opprett og rediger korreksjon") {
+        val upsert = UpsertUtbetaling.Korreksjon(
+            id = UUID.randomUUID(),
+            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+            korreksjonGjelderUtbetalingId = utbetaling1.id,
+            korreksjonBegrunnelse = "Feilutbetaling",
+            kid = null,
+            beregning = UtbetalingBeregningFri.from(10.withValuta(Valuta.NOK)),
+            kommentar = null,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        )
+
+        beforeEach {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(
+                    utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET),
+                    utbetaling2.copy(status = UtbetalingStatusType.GENERERT),
+                ),
+            ).initialize(database.db)
+
+            coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
+                kontonummer = Kontonummer("12345678901"),
+                kid = null,
+            )
+        }
+
+        test("korreksjon må gjelde for en eksisterende utbetaling") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                opprett = upsert.copy(korreksjonGjelderUtbetalingId = UUID.randomUUID()),
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ) shouldBeLeft listOf(
+                FieldError.of("Utbetaling som skal korrigeres eksisterer ikke"),
+            )
+        }
+
+        test("korreksjon kan ikke opprettes for genererte utbetalinger") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                opprett = upsert.copy(korreksjonGjelderUtbetalingId = utbetaling2.id),
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ) shouldBeLeft listOf(
+                FieldError.of("Utbetaling kan ikke korrigeres når den har status GENERERT"),
+            )
+        }
+
+        test("korreksjon kan opprettes og redigeres") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                opprett = upsert,
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeRight().korreksjon shouldBe Utbetaling.Korreksjon(
+                gjelderUtbetalingId = utbetaling1.id,
+                begrunnelse = "Feilutbetaling",
+            )
+
+            service.redigerUtbetaling(
+                rediger = upsert.copy(korreksjonBegrunnelse = "Fordi"),
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeRight().korreksjon shouldBe Utbetaling.Korreksjon(
+                gjelderUtbetalingId = utbetaling1.id,
+                begrunnelse = "Fordi",
+            )
         }
     }
 
