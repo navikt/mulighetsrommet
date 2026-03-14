@@ -72,7 +72,7 @@ class ApiDatabaseTestListener(
         }
     }
 
-    fun truncateAll() {
+    fun truncateAll(): Unit = db.db.session { session ->
         val excludedTables = setOf(
             "flyway_schema_history",
             "kostnadssted",
@@ -91,15 +91,14 @@ class ApiDatabaseTestListener(
             "personopplysning",
         )
 
-        val tableNames =
-            queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")
-                .map { it.string("table_name") }
-                .asList
-                .let { db.db.run(it) }
+        val tableNames = session
+            .list(queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")) {
+                it.string("table_name")
+            }
         tableNames
             .filter { it !in excludedTables }
             .forEach {
-                db.db.run(queryOf("truncate table $it restart identity cascade").asExecute)
+                session.execute(queryOf("truncate table $it restart identity cascade"))
             }
     }
 }

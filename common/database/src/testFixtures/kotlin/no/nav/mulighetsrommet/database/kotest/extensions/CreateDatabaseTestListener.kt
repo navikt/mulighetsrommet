@@ -23,8 +23,8 @@ open class CreateDatabaseTestListener(private val config: DatabaseConfig) :
         log.info("Creating test database '${config.getDatabaseName()}'...")
 
         try {
-            Database(createDatabaseConfig()).use {
-                it.run(queryOf("create database \"${config.getDatabaseName()}\"").asExecute)
+            Database(createDatabaseConfig()).session {
+                it.execute(queryOf("create database \"${config.getDatabaseName()}\""))
             }
         } catch (e: PSQLException) {
             // This error code is expected (https://www.postgresql.org/docs/8.2/errcodes-appendix.html)
@@ -39,8 +39,8 @@ open class CreateDatabaseTestListener(private val config: DatabaseConfig) :
     override suspend fun afterProject() {
         log.info("Dropping test database '${config.getDatabaseName()}'...")
 
-        Database(createDatabaseConfig()).use {
-            it.run(queryOf("drop database if exists \"${config.getDatabaseName()}\"").asExecute)
+        Database(createDatabaseConfig()).session {
+            it.execute(queryOf("drop database if exists \"${config.getDatabaseName()}\""))
         }
     }
 }

@@ -9,7 +9,7 @@ import org.apache.kafka.common.TopicPartition
 import org.intellij.lang.annotations.Language
 
 class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepository {
-    override fun storeRecord(record: StoredConsumerRecord): Long {
+    override fun storeRecord(record: StoredConsumerRecord): Long = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             insert into kafka_consumer_record (topic, partition, record_offset, key, value, headers_json, record_timestamp)
@@ -25,80 +25,69 @@ class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepos
             record.value,
             record.headersJson,
             record.timestamp,
-        ).asUpdate
-        return db.run(queryResult).toLong()
+        )
+        return session.update(queryResult).toLong()
     }
 
-    override fun deleteRecords(ids: MutableList<Long>) {
+    override fun deleteRecords(ids: MutableList<Long>): Unit = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             delete from kafka_consumer_record where id = any(?)
         """.trimIndent()
 
-        val idArray = db.createArrayOf("int8", ids)
-
-        val queryResult = queryOf(query, idArray).asExecute
-
-        db.run(queryResult)
+        val idArray = session.createArrayOf("int8", ids)
+        session.execute(queryOf(query, idArray))
     }
 
-    override fun hasRecordWithKey(topic: String, partition: Int, key: ByteArray): Boolean {
+    override fun hasRecordWithKey(topic: String, partition: Int, key: ByteArray): Boolean = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             select id from kafka_consumer_record where topic = ? and partition = ? and key = ? limit 1
         """.trimIndent()
 
-        val queryResult = queryOf(query, topic, partition, key).map { it.int("id") }.asSingle
-
-        return db.run(queryResult) != null
+        return session.single(queryOf(query, topic, partition, key)) { it.int("id") } != null
     }
 
-    override fun getRecords(topic: String, partition: Int, maxRecords: Int): MutableList<StoredConsumerRecord> {
+    override fun getRecords(topic: String, partition: Int, maxRecords: Int): MutableList<StoredConsumerRecord> = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             select * from kafka_consumer_record where topic = ? and partition = ? order by record_offset limit ?
         """.trimIndent()
 
-        val queryResult = queryOf(query, topic, partition, maxRecords).map { toStoredConsumerRecord(it) }.asList
-
-        return db.run(queryResult).toMutableList()
+        return session.list(queryOf(query, topic, partition, maxRecords)) {
+            toStoredConsumerRecord(it)
+        }.toMutableList()
     }
 
-    fun getAll(): MutableList<StoredConsumerRecord> {
+    fun getAll(): MutableList<StoredConsumerRecord> = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             select * from kafka_consumer_record order by record_offset
         """.trimIndent()
 
-        val queryResult = queryOf(query).map { toStoredConsumerRecord(it) }.asList
-
-        return db.run(queryResult).toMutableList()
+        return session.list(queryOf(query)) { toStoredConsumerRecord(it) }.toMutableList()
     }
 
-    override fun incrementRetries(id: Long) {
+    override fun incrementRetries(id: Long): Unit = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             update kafka_consumer_record set retries = retries + 1, last_retry = current_timestamp where id = ?
         """.trimIndent()
 
-        val queryResult = queryOf(query, id).asUpdate
-
-        db.run(queryResult)
+        session.update(queryOf(query, id))
     }
 
-    override fun getTopicPartitions(topics: MutableList<String>): MutableList<TopicPartition> {
+    override fun getTopicPartitions(topics: MutableList<String>): MutableList<TopicPartition> = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             select distinct topic, partition from kafka_consumer_record where topic = any(?)
         """.trimIndent()
 
-        val topicsArray = db.createArrayOf("varchar", topics)
+        val topicsArray = session.createArrayOf("varchar", topics)
 
-        val queryResult = queryOf(query, topicsArray)
-            .map { TopicPartition(it.string("topic"), it.int("partition")) }
-            .asList
-
-        return db.run(queryResult).toMutableList()
+        return session.list(queryOf(query, topicsArray)) {
+            TopicPartition(it.string("topic"), it.int("partition"))
+        }.toMutableList()
     }
 
     private fun toStoredConsumerRecord(row: Row): StoredConsumerRecord {

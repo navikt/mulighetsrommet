@@ -5,11 +5,12 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.requireSingle
 import org.intellij.lang.annotations.Language
 
 class ArenaEntityMappingRepository(private val db: Database) {
 
-    fun upsert(mapping: ArenaEntityMapping): ArenaEntityMapping {
+    fun upsert(mapping: ArenaEntityMapping): ArenaEntityMapping = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             insert into arena_entity_mapping(arena_table, arena_id, entity_id, status, message)
@@ -22,13 +23,18 @@ class ArenaEntityMappingRepository(private val db: Database) {
             returning arena_table, arena_id, entity_id, status, message
         """.trimIndent()
 
-        return queryOf(query, mapping.arenaTable.table, mapping.arenaId, mapping.entityId, mapping.status.name, mapping.message)
-            .map { it.toMapping() }
-            .asSingle
-            .let { db.run(it)!! }
+        val queryOf = queryOf(
+            query,
+            mapping.arenaTable.table,
+            mapping.arenaId,
+            mapping.entityId,
+            mapping.status.name,
+            mapping.message,
+        )
+        return session.requireSingle(queryOf) { it.toMapping() }
     }
 
-    fun get(arenaTable: ArenaTable, arenaId: String): ArenaEntityMapping? {
+    fun get(arenaTable: ArenaTable, arenaId: String): ArenaEntityMapping? = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             select arena_table, arena_id, entity_id, status, message
@@ -36,17 +42,14 @@ class ArenaEntityMappingRepository(private val db: Database) {
             where arena_table = ? and arena_id = ?
         """.trimIndent()
 
-        return queryOf(query, arenaTable.table, arenaId)
-            .map { it.toMapping() }
-            .asSingle
-            .let { db.run(it) }
+        return session.single(queryOf(query, arenaTable.table, arenaId)) { it.toMapping() }
     }
 
     fun getMappings(
         tables: List<ArenaTable>,
         payloadField: String,
         payloadValue: String,
-    ): List<ArenaEntityMapping> {
+    ): List<ArenaEntityMapping> = db.session { session ->
         val tableList = tables.joinToString { "'${it.table}'" }
 
         @Language("PostgreSQL")
@@ -58,10 +61,8 @@ class ArenaEntityMappingRepository(private val db: Database) {
               and ae.payload -> 'after' ->> :payload_field = :payload_value
         """.trimIndent()
 
-        return queryOf(query, mapOf("payload_field" to payloadField, "payload_value" to payloadValue))
-            .map { it.toMapping() }
-            .asList
-            .let { db.run(it) }
+        val params = mapOf("payload_field" to payloadField, "payload_value" to payloadValue)
+        return session.list(queryOf(query, params)) { it.toMapping() }
     }
 
     private fun Row.toMapping(): ArenaEntityMapping {

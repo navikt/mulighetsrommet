@@ -6,14 +6,8 @@ import com.zaxxer.hikari.HikariDataSource
 import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory
 import kotliquery.Session
 import kotliquery.TransactionalSession
-import kotliquery.action.ExecuteQueryAction
-import kotliquery.action.ListResultQueryAction
-import kotliquery.action.NullableResultQueryAction
-import kotliquery.action.UpdateAndReturnGeneratedKeyQueryAction
-import kotliquery.action.UpdateQueryAction
 import kotliquery.sessionOf
 import java.io.Closeable
-import java.sql.Array
 import java.util.Properties
 import javax.sql.DataSource
 
@@ -66,42 +60,6 @@ class Database(val config: DatabaseConfig) : Closeable {
             ?.runHealthChecks()
             ?.all { it.value.isHealthy }
             ?: false
-    }
-
-    fun createArrayOf(arrayType: String, list: Collection<Any>): Array {
-        return session {
-            it.createArrayOf(arrayType, list)
-        }
-    }
-
-    fun <T> run(query: NullableResultQueryAction<T>): T? {
-        return session {
-            it.run(query)
-        }
-    }
-
-    fun <T> run(query: ListResultQueryAction<T>): List<T> {
-        return session {
-            it.run(query)
-        }
-    }
-
-    fun run(query: ExecuteQueryAction): Boolean {
-        return session {
-            it.run(query)
-        }
-    }
-
-    fun run(query: UpdateQueryAction): Int {
-        return session {
-            it.run(query)
-        }
-    }
-
-    fun run(query: UpdateAndReturnGeneratedKeyQueryAction): Long? {
-        return session {
-            it.run(query)
-        }
     }
 
     inline fun <T> session(operation: (Session) -> T): T = session.use { s ->

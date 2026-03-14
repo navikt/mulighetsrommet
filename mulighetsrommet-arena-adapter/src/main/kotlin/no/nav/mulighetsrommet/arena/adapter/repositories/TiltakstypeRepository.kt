@@ -7,19 +7,14 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.Handlingsplan
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Rammeavtale
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class TiltakstypeRepository(private val db: Database) {
-    private val logger: Logger = LoggerFactory.getLogger(javaClass)
-
     fun upsert(tiltak: Tiltakstype) = query {
-        logger.info("Lagrer tiltakstype id=${tiltak.id}")
-
         @Language("PostgreSQL")
         val query = """
            insert into tiltakstype (id,
@@ -118,10 +113,9 @@ on conflict (id)
 returning *
         """.trimIndent()
 
-        queryOf(query, tiltak.toSqlParameters())
-            .map { it.toTiltakstype() }
-            .asSingle
-            .let { db.run(it)!! }
+        db.session { session ->
+            session.requireSingle(queryOf(query, tiltak.toSqlParameters())) { it.toTiltakstype() }
+        }
     }
 
     fun delete(id: UUID): QueryResult<Unit> = query {
@@ -131,14 +125,12 @@ returning *
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, id)
-            .asExecute
-            .let { db.run(it) }
+        db.session { session ->
+            session.execute(queryOf(query, id))
+        }
     }
 
-    fun get(id: UUID): Tiltakstype? {
-        logger.info("Henter tiltakstype id=$id")
-
+    fun get(id: UUID): Tiltakstype? = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             select *
@@ -146,10 +138,7 @@ returning *
             where id = ?::uuid
         """.trimIndent()
 
-        return queryOf(query, id)
-            .map { it.toTiltakstype() }
-            .asSingle
-            .let { db.run(it) }
+        return session.single(queryOf(query, id)) { it.toTiltakstype() }
     }
 
     private fun Tiltakstype.toSqlParameters() = mapOf(
