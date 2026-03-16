@@ -2,7 +2,7 @@ import { ArbeidsmarkedstiltakHeader } from "@/components/ArbeidsmarkedstiltakHea
 import { ArbeidsmarkedstiltakDetaljerSuspense } from "@/components/suspense/ArbeidsmarkedstiltakDetaljerSuspense";
 import { AppContainer } from "@/layouts/AppContainer";
 import { MenuGridIcon } from "@navikt/aksel-icons";
-import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
+import { ActionMenu, InternalHeader, Spacer, Theme } from "@navikt/ds-react";
 import { Navigate, Route, Routes } from "react-router";
 import { OmArbeidsmarkedstiltak } from "./OmArbeidsmarkedstiltak";
 import { NavArbeidsmarkedstiltakDetaljer } from "./views/NavArbeidsmarkedstiltakDetaljer";
@@ -41,18 +41,22 @@ function AppHeaderMeny() {
   return (
     <>
       <Spacer />
-      <Dropdown>
-        <InternalHeader.Button as={Dropdown.Toggle}>
-          <MenuGridIcon style={{ fontSize: "1.5rem" }} title="Lenker" />
-        </InternalHeader.Button>
-        <Dropdown.Menu>
-          <Dropdown.Menu.GroupedList>
-            <Dropdown.Menu.GroupedList.Item as="a" href={href}>
-              Om løsningen
-            </Dropdown.Menu.GroupedList.Item>
-          </Dropdown.Menu.GroupedList>
-        </Dropdown.Menu>
-      </Dropdown>
+      <ActionMenu>
+        <ActionMenu.Trigger>
+          <InternalHeader.Button>
+            <MenuGridIcon fontSize="1.5rem" title="Lenker" />
+          </InternalHeader.Button>
+        </ActionMenu.Trigger>
+        <Theme theme="light">
+          <ActionMenu.Content>
+            <ActionMenu.Group label="Nav arbeidsmarkedstiltak">
+              <ActionMenu.Item as="a" href={href}>
+                Om løsningen
+              </ActionMenu.Item>
+            </ActionMenu.Group>
+          </ActionMenu.Content>
+        </Theme>
+      </ActionMenu>
     </>
   );
 }
