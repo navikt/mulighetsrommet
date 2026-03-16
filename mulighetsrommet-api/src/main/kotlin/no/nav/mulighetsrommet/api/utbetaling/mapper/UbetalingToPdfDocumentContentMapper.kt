@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinj
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsDetaljer
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningStengt
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.pdfgen.Format
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
@@ -276,14 +277,8 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
                 val person = personalia[deltakelse.deltakelseId]
 
                 deltakelse.perioder.forEach { (periode, prosent) ->
-                    val erSkjermet = person?.erSkjermet == true
                     row(
-                        TableBlock.Table.Cell(
-                            if (erSkjermet) "Skjermet" else person?.navn,
-                        ),
-                        TableBlock.Table.Cell(
-                            if (erSkjermet) null else person?.norskIdent?.value,
-                        ),
+                        *deltakerNavnOgIdent(person),
                         TableBlock.Table.Cell(
                             periode.start.formaterDatoTilEuropeiskDatoformat(),
                         ),
@@ -314,14 +309,8 @@ private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
 
             deltakelser.forEach { deltakelse ->
                 val person = personalia[deltakelse.deltakelseId]
-                val erSkjermet = person?.erSkjermet == true
                 row(
-                    TableBlock.Table.Cell(
-                        if (erSkjermet) "Skjermet" else person?.navn,
-                    ),
-                    TableBlock.Table.Cell(
-                        if (erSkjermet) null else person?.norskIdent?.value,
-                    ),
+                    *deltakerNavnOgIdent(person),
                     TableBlock.Table.Cell(
                         deltakelse.periode.start.formaterDatoTilEuropeiskDatoformat(),
                     ),
@@ -348,14 +337,8 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
 
             deltakelser.forEach { deltakelse ->
                 val person = personalia[deltakelse.deltakelseId]
-                val erSkjermet = person?.erSkjermet == true
                 row(
-                    TableBlock.Table.Cell(
-                        if (erSkjermet) "Skjermet" else person?.navn,
-                    ),
-                    TableBlock.Table.Cell(
-                        if (erSkjermet) null else person?.norskIdent?.value,
-                    ),
+                    *deltakerNavnOgIdent(person),
                     TableBlock.Table.Cell(
                         deltakelse.perioder.sumOf { it.faktor }.toString(),
                     ),
@@ -363,6 +346,28 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
             }
         }
     }
+}
+
+private fun deltakerNavnOgIdent(person: DeltakerPersonalia?): Array<TableBlock.Table.Cell> {
+    val erSkjermet = person?.erSkjermet == true
+    val erAdressebeskyttet = person?.adressebeskyttelse != PdlGradering.UGRADERT
+    return arrayOf(
+        TableBlock.Table.Cell(
+            when {
+                erSkjermet -> "Skjermet"
+                erAdressebeskyttet -> "Adressebeskyttet"
+                else -> person.navn
+            },
+
+        ),
+        TableBlock.Table.Cell(
+            when {
+                erSkjermet -> null
+                erAdressebeskyttet -> null
+                else -> person.norskIdent.value
+            },
+        ),
+    )
 }
 
 private fun DataElement.Text.Format.toPdfDocumentContentFormat(): Format? = when (this) {
