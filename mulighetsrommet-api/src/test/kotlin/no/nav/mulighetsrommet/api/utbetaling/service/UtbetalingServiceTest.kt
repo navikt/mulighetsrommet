@@ -53,6 +53,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
@@ -360,7 +361,7 @@ class UtbetalingServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 tilsagnId = Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 100.withValuta(Valuta.NOK),
+                pris = 100.withValuta(Valuta.NOK).toRequest(),
             )
             val opprettRequest = OpprettDelutbetalingerRequest(
                 utbetalingId = utbetaling1.id,
@@ -399,7 +400,7 @@ class UtbetalingServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 tilsagnId = Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 100.withValuta(Valuta.NOK),
+                pris = 100.withValuta(Valuta.NOK).toRequest(),
             )
             val opprettRequest = OpprettDelutbetalingerRequest(
                 utbetalingId = utbetaling1.id,
@@ -436,7 +437,7 @@ class UtbetalingServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 tilsagnId = Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 100.withValuta(Valuta.NOK),
+                pris = 100.withValuta(Valuta.NOK).toRequest(),
             )
             val opprettRequest = OpprettDelutbetalingerRequest(
                 utbetalingId = utbetaling1.id,
@@ -479,7 +480,7 @@ class UtbetalingServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 tilsagnId = Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 100.withValuta(Valuta.NOK),
+                pris = 100.withValuta(Valuta.NOK).toRequest(),
             )
             val opprettRequest = OpprettDelutbetalingerRequest(
                 utbetalingId = utbetaling1.id,
@@ -556,7 +557,7 @@ class UtbetalingServiceTest : FunSpec({
                             delutbetaling1.id,
                             Tilsagn1.id,
                             gjorOppTilsagn = false,
-                            pris = 100.withValuta(Valuta.NOK),
+                            pris = 100.withValuta(Valuta.NOK).toRequest(),
                         ),
                     ),
                     begrunnelseMindreBetalt = "begrunnelse",
@@ -597,7 +598,7 @@ class UtbetalingServiceTest : FunSpec({
                         UUID.randomUUID(),
                         Tilsagn1.id,
                         gjorOppTilsagn = false,
-                        pris = 100.withValuta(Valuta.NOK),
+                        pris = 100.withValuta(Valuta.NOK).toRequest(),
                     ),
                 ),
                 begrunnelseMindreBetalt = "begrunnelse",
@@ -647,13 +648,13 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK),
+                pris = 5.withValuta(Valuta.NOK).toRequest(),
             )
             val delutbetaling2 = DelutbetalingRequest(
                 UUID.randomUUID(),
                 tilsagn2.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK),
+                pris = 5.withValuta(Valuta.NOK).toRequest(),
             )
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(utbetaling.id, listOf(delutbetaling1, delutbetaling2), null),
@@ -713,13 +714,13 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK),
+                pris = 5.withValuta(Valuta.NOK).toRequest(),
             )
             val delutbetaling2 = DelutbetalingRequest(
                 UUID.randomUUID(),
                 tilsagn2.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK),
+                pris = 5.withValuta(Valuta.NOK).toRequest(),
             )
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(utbetaling.id, listOf(delutbetaling1, delutbetaling2), null),
@@ -800,13 +801,13 @@ class UtbetalingServiceTest : FunSpec({
                             UUID.randomUUID(),
                             tilsagn1.id,
                             gjorOppTilsagn = false,
-                            pris = 50.withValuta(Valuta.NOK),
+                            pris = 50.withValuta(Valuta.NOK).toRequest(),
                         ),
                         DelutbetalingRequest(
                             UUID.randomUUID(),
                             tilsagn2.id,
                             gjorOppTilsagn = false,
-                            pris = 50.withValuta(Valuta.NOK),
+                            pris = 50.withValuta(Valuta.NOK).toRequest(),
                         ),
                     ),
                     begrunnelseMindreBetalt = "begrunnelse",
@@ -822,7 +823,7 @@ class UtbetalingServiceTest : FunSpec({
                             UUID.randomUUID(),
                             tilsagn1.id,
                             gjorOppTilsagn = false,
-                            pris = 100.withValuta(Valuta.NOK),
+                            pris = 100.withValuta(Valuta.NOK).toRequest(),
                         ),
                     ),
                     begrunnelseMindreBetalt = "begrunnelse",
@@ -873,7 +874,7 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK),
+                pris = 5.withValuta(Valuta.NOK).toRequest(),
             )
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling1), "begrunnelse"),
@@ -919,7 +920,7 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK),
+                pris = 5.withValuta(Valuta.NOK).toRequest(),
             )
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(utbetaling1.id, listOf(delutbetaling2), "begrunnelse"),
@@ -1029,7 +1030,7 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 tilsagn.id,
                 gjorOppTilsagn = false,
-                pris = 10.withValuta(Valuta.NOK),
+                pris = 10.withValuta(Valuta.NOK).toRequest(),
             )
             service.opprettDelutbetalinger(
                 OpprettDelutbetalingerRequest(utbetaling.id, listOf(delutbetaling), begrunnelseMindreBetalt = null),
@@ -1079,13 +1080,13 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 1.withValuta(Valuta.NOK),
+                pris = 1.withValuta(Valuta.NOK).toRequest(),
             )
             val delutbetaling2 = DelutbetalingRequest(
                 UUID.randomUUID(),
                 tilsagn2.id,
                 gjorOppTilsagn = false,
-                pris = 2.withValuta(Valuta.NOK),
+                pris = 2.withValuta(Valuta.NOK).toRequest(),
             )
             val opprettRequest = OpprettDelutbetalingerRequest(
                 utbetalingId = utbetaling1.id,
@@ -1881,4 +1882,9 @@ fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri(
     output = TilsagnBeregningFri.Output(pris),
 ).copy(
     output = TilsagnBeregningFri.Output(pris),
+)
+
+fun ValutaBelop.toRequest() = ValutaBelopRequest(
+    belop = this.belop,
+    valuta = this.valuta,
 )
