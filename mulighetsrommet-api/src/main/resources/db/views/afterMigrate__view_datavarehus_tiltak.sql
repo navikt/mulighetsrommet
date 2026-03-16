@@ -1,6 +1,4 @@
-drop view if exists view_datavarehus_tiltak;
-
-create view view_datavarehus_tiltak as
+create or replace view view_datavarehus_tiltak as
 select gjennomforing.id,
        gjennomforing.arena_tiltaksnummer,
        gjennomforing.created_at     as opprettet_tidspunkt,

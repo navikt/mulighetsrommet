@@ -1,8 +1,4 @@
--- ${flyway:timestamp}
-
-drop view if exists view_gjennomforing;
-
-create view view_gjennomforing as
+create or replace view view_gjennomforing as
 select gjennomforing.id,
        gjennomforing.gjennomforing_type,
        gjennomforing.lopenummer,

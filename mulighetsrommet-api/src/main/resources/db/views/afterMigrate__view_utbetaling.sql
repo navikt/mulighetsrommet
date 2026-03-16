@@ -1,8 +1,4 @@
--- ${flyway:timestamp}
-
-drop view if exists view_utbetaling;
-
-create view view_utbetaling as
+create or replace view view_utbetaling as
 select utbetaling.id,
        utbetaling.beregning_type,
        utbetaling.utbetales_tidligst_tidspunkt,
@@ -44,8 +40,6 @@ from utbetaling
          inner join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
          inner join arrangor on gjennomforing.arrangor_id = arrangor.id
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-         left join lateral (
-             select coalesce(array_agg(blokkering), '{}') as blokkeringer
-             from utbetaling_blokkering
-             where utbetaling_id = utbetaling.id
-         ) blokkeringer on true;
+         left join lateral (select coalesce(array_agg(blokkering), '{}') as blokkeringer
+                            from utbetaling_blokkering
+                            where utbetaling_id = utbetaling.id) blokkeringer on true;

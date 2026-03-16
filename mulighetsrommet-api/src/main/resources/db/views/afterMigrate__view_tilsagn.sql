@@ -1,8 +1,4 @@
--- ${flyway:timestamp}
-
-drop view if exists view_tilsagn;
-
-create view view_tilsagn as
+create or replace view view_tilsagn as
 select tilsagn.id,
        tilsagn.valuta,
        tilsagn.belop_brukt,

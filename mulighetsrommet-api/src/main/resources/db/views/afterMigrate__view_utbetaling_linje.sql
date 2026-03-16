@@ -1,8 +1,4 @@
--- ${flyway:timestamp}
-
-drop view if exists view_utbetaling_linje;
-
-create view view_utbetaling_linje as
+create or replace view view_utbetaling_linje as
 select delutbetaling.id,
        delutbetaling.tilsagn_id,
        delutbetaling.utbetaling_id,
