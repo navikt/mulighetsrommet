@@ -1,22 +1,20 @@
-package no.nav.mulighetsrommet.api.utbetaling.db
+package no.nav.mulighetsrommet.api.utbetaling.tilskudd.model
 
+import no.nav.mulighetsrommet.api.tilskudd.OpplaeringTilskudd
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDateTime
 import java.util.UUID
 
-data class UtbetalingTilskuddDbo(
+data class EnkeltvedtaksUtbetaling(
     val id: UUID,
-    val gjennomforingId: UUID,
     val lopenummer: Int,
     val periode: Periode,
     val status: Status,
     val tiltakskode: Tiltakskode,
-    val tilskudd: Tilskudd,
+    val tilskudd: OpplaeringTilskudd,
     val belop: Int,
-    val valuta: Valuta,
     val fakturaStatus: FakturaStatus?,
     val fakturaFeilmelding: String?,
     val behandletAv: NavIdent,
@@ -42,13 +40,5 @@ data class UtbetalingTilskuddDbo(
 
         /** Beløp vil bli sendt til bruker */
         OK,
-    }
-
-    enum class Tilskudd {
-        SKOLEPENGER,
-        STUDIEREISE,
-        EKSAMENSAVGIFT,
-        SEMESTERAVGIFT,
-        INTEGRERT_BOTILBUD,
     }
 }

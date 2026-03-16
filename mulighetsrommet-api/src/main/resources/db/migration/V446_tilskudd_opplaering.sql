@@ -1,4 +1,4 @@
-create table tilskudd
+create table tilskudd_opplaering
 (
     id         uuid primary key,
     navn       text                                  not null,
@@ -7,16 +7,16 @@ create table tilskudd
     updated_at timestamptz default current_timestamp not null
 );
 
-alter table tilskudd
+alter table tilskudd_opplaering
     add constraint tilskudd_navn_unique unique (kode);
 
 create trigger set_timestamp
     before update
-    on tilskudd
+    on tilskudd_opplaering
     for each row
 execute procedure trigger_set_timestamp();
 
-insert into tilskudd (id, navn, kode)
+insert into tilskudd_opplaering (id, navn, kode)
 values (gen_random_uuid(), 'Skolepenger', 'SKOLEPENGER'),
        (gen_random_uuid(), 'Studiereiser', 'STUDIEREISE'),
        (gen_random_uuid(), 'Eksamensavgift', 'EKSAMENSAVGIFT'),
