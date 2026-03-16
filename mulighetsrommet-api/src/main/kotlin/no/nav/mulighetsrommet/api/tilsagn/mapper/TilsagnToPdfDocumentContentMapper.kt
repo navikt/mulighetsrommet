@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.mapper
 
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.Regards
 import no.nav.mulighetsrommet.api.pdfgen.SectionBuilder
@@ -41,13 +42,21 @@ object TilsagnToPdfDocumentContentMapper {
                     "Tiltaket",
                     tilsagn.gjennomforing.navn,
                 )
-                text("Deltakeren", "${deltaker.navn} (${deltaker.norskIdent.value})")
+                text(
+                    "Deltakeren",
+                    when {
+                        deltaker.erSkjermet -> "Skjermet"
+                        deltaker.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
+                        else -> "${deltaker.navn} (${deltaker.norskIdent.value})"
+                    },
+                )
                 text("Utbetalingsperioden", tilsagn.periode.formatPeriode())
                 text("Støtten fra Nav", "Opptil ${formatCurrency(tilsagn.beregning.output.pris)}")
             }
         }
 
-        section("Hvordan kan dere få utbetalt pengene?") {
+        section("Hvordan kan dere få utbetalt pengene?")
+        {
             addInvoiceInfo()
             paragraph { regular("Vi kan kontrollere om pengene som blir utbetalt blir brukt riktig.") }
             paragraph { regular("Følgende informasjon er registrert hos NAV:") }
