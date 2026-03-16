@@ -1,5 +1,6 @@
 import { ActionMenu, BodyShort, Button } from "@navikt/ds-react";
 import React, { ReactElement, ReactNode } from "react";
+import { ChevronDownIcon } from "@navikt/aksel-icons";
 
 interface Props {
   handlingerLabel?: string;
@@ -31,6 +32,8 @@ export function Handlinger({
           data-color={harIngenHandlinger ? "neutral" : undefined}
           variant="secondary"
           size="small"
+          icon={<ChevronDownIcon aria-hidden />}
+          iconPosition="right"
         >
           {handlingerLabel}
         </Button>
