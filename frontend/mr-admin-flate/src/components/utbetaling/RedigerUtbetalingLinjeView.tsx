@@ -25,14 +25,7 @@ import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import MindreBelopModal from "./MindreBelopModal";
-import {
-  FieldPath,
-  FormProvider,
-  useFieldArray,
-  useForm,
-  useFormContext,
-  useWatch,
-} from "react-hook-form";
+import { FieldPath, FormProvider, useForm, useWatch } from "react-hook-form";
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
@@ -105,7 +98,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
 
   const utbetalesTotalt = {
     valuta: beregning.valuta,
-    belop: delutbetalingBelop.reduce((acc, belop) => acc + belop, 0),
+    belop: delutbetalingBelop.reduce((acc: number, belop) => acc + (belop ?? 0), 0),
   };
 
   function sendTilAttestering(payload: OpprettDelutbetalingerRequest) {
@@ -225,7 +218,17 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
                 }
                 errors={extractValidationErrors(errors)}
                 checkboxInput={<GjorOppTilsagnFormCheckbox index={index} />}
-                knappeColumn={<FjernUtbetalingLinje index={index} />}
+                knappeColumn={
+                  <FjernUtbetalingLinje
+                    onRemove={() => {
+                      const current = getValues("delutbetalinger");
+                      setValue(
+                        "delutbetalinger",
+                        current.filter((_, i) => i !== index),
+                      );
+                    }}
+                  />
+                }
               />
             )}
           />
@@ -274,21 +277,9 @@ function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
   }
 }
 
-function FjernUtbetalingLinje({ index }: { index: number }) {
-  const { control } = useFormContext<OpprettDelutbetalingerRequest>();
-  const { remove } = useFieldArray<OpprettDelutbetalingerRequest>({
-    control,
-    name: "delutbetalinger",
-  });
-
+function FjernUtbetalingLinje({ onRemove }: { onRemove: () => void }) {
   return (
-    <Button
-      data-color="neutral"
-      size="small"
-      variant="secondary"
-      type="button"
-      onClick={() => remove(index)}
-    >
+    <Button data-color="neutral" size="small" variant="secondary" type="button" onClick={onRemove}>
       {utbetalingTekster.delutbetaling.handlinger.fjern}
     </Button>
   );

@@ -9,9 +9,9 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
@@ -162,9 +162,11 @@ class UtbetalingValidatorTest : FunSpec({
     context("opprett delutbetalinger") {
         test("skal ikke kunne opprette delutbetaling hvis utbetalingen allerede er godkjent") {
             UtbetalingValidator.validateOpprettDelutbetalinger(
-                utbetaling = UtbetalingFixtures.utbetalingDto1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET),
-                opprettDelutbetalinger = emptyList(),
-                begrunnelse = null,
+                UtbetalingValidator.OpprettDelutbetalingerCtx(
+                    utbetaling = UtbetalingFixtures.utbetalingDto1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET),
+                    linjer = emptyList(),
+                    begrunnelse = null,
+                ),
             ).shouldBeLeft().shouldContainAll(
                 FieldError("/", "Utbetaling kan ikke endres fordi den har status: FERDIG_BEHANDLET"),
             )
@@ -172,19 +174,24 @@ class UtbetalingValidatorTest : FunSpec({
 
         test("skal ikke kunne utbetale større enn innsendt beløp") {
             UtbetalingValidator.validateOpprettDelutbetalinger(
-                utbetaling = UtbetalingFixtures.utbetalingDto1,
-                opprettDelutbetalinger = listOf(
-                    OpprettDelutbetaling(
-                        id = UUID.randomUUID(),
-                        pris = 10000000.withValuta(Valuta.NOK),
-                        gjorOppTilsagn = true,
-                        tilsagn = OpprettDelutbetaling.Tilsagn(
-                            status = TilsagnStatus.GODKJENT,
-                            gjenstaendeBelop = 10000000.withValuta(Valuta.NOK),
+                UtbetalingValidator.OpprettDelutbetalingerCtx(
+                    utbetaling = UtbetalingFixtures.utbetalingDto1,
+                    linjer = listOf(
+                        UtbetalingValidator.OpprettDelutbetalingerCtx.Linje(
+                            request = DelutbetalingRequest(
+                                id = UUID.randomUUID(),
+                                pris = 10000000.withValuta(Valuta.NOK).toRequest(),
+                                gjorOppTilsagn = true,
+                                tilsagnId = UUID.randomUUID(),
+                            ),
+                            tilsagn = UtbetalingValidator.OpprettDelutbetalingerCtx.Tilsagn(
+                                status = TilsagnStatus.GODKJENT,
+                                gjenstaendeBelop = 10000000.withValuta(Valuta.NOK),
+                            ),
                         ),
                     ),
+                    begrunnelse = null,
                 ),
-                begrunnelse = null,
             ).shouldBeLeft().shouldContainAll(
                 FieldError.of("Kan ikke utbetale mer enn innsendt beløp"),
             )
@@ -192,19 +199,24 @@ class UtbetalingValidatorTest : FunSpec({
 
         test("begrunnelseMindreBeløp er påkrevd hvis mindre beløp") {
             UtbetalingValidator.validateOpprettDelutbetalinger(
-                utbetaling = UtbetalingFixtures.utbetalingDto1,
-                opprettDelutbetalinger = listOf(
-                    OpprettDelutbetaling(
-                        id = UUID.randomUUID(),
-                        pris = 1.withValuta(Valuta.NOK),
-                        gjorOppTilsagn = true,
-                        tilsagn = OpprettDelutbetaling.Tilsagn(
-                            status = TilsagnStatus.GODKJENT,
-                            gjenstaendeBelop = 10.withValuta(Valuta.NOK),
+                UtbetalingValidator.OpprettDelutbetalingerCtx(
+                    utbetaling = UtbetalingFixtures.utbetalingDto1,
+                    linjer = listOf(
+                        UtbetalingValidator.OpprettDelutbetalingerCtx.Linje(
+                            request = DelutbetalingRequest(
+                                id = UUID.randomUUID(),
+                                pris = 1.withValuta(Valuta.NOK).toRequest(),
+                                gjorOppTilsagn = true,
+                                tilsagnId = UUID.randomUUID(),
+                            ),
+                            tilsagn = UtbetalingValidator.OpprettDelutbetalingerCtx.Tilsagn(
+                                status = TilsagnStatus.GODKJENT,
+                                gjenstaendeBelop = 10.withValuta(Valuta.NOK),
+                            ),
                         ),
                     ),
+                    begrunnelse = null,
                 ),
-                begrunnelse = null,
             ).shouldBeLeft().shouldContainAll(
                 FieldError.root("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp"),
             )

@@ -37,7 +37,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettDelutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
@@ -152,22 +151,22 @@ class UtbetalingService(
 
         UtbetalingValidator
             .validateOpprettDelutbetalinger(
-                utbetaling,
-                request.delutbetalinger.map { req ->
-                    val tilsagn = requireNotNull(delutbetalingTilsagn[req.id])
-                    OpprettDelutbetaling(
-                        id = req.id,
-                        gjorOppTilsagn = req.gjorOppTilsagn,
-                        tilsagn = OpprettDelutbetaling.Tilsagn(
-                            status = tilsagn.status,
-                            gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
-                        ),
-                        pris = req.pris,
-                    )
-                },
-                request.begrunnelseMindreBetalt,
+                UtbetalingValidator.OpprettDelutbetalingerCtx(
+                    utbetaling = utbetaling,
+                    linjer = request.delutbetalinger.map { req ->
+                        val tilsagn = requireNotNull(delutbetalingTilsagn[req.id])
+                        UtbetalingValidator.OpprettDelutbetalingerCtx.Linje(
+                            request = req,
+                            tilsagn = UtbetalingValidator.OpprettDelutbetalingerCtx.Tilsagn(
+                                status = tilsagn.status,
+                                gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
+                            ),
+                        )
+                    },
+                    begrunnelse = request.begrunnelseMindreBetalt,
+                ),
             )
-            .map { delutbetalinger ->
+            .map { linje ->
                 // Slett de som ikke er med i requesten
                 queries.delutbetaling.getByUtbetalingId(utbetaling.id)
                     .filter { delutbetaling -> delutbetaling.id !in request.delutbetalinger.map { it.id } }
@@ -178,7 +177,7 @@ class UtbetalingService(
                         queries.delutbetaling.delete(delutbetaling.id)
                     }
 
-                delutbetalinger.forEach {
+                linje.forEach {
                     upsertDelutbetaling(
                         utbetaling,
                         requireNotNull(delutbetalingTilsagn[it.id]),
