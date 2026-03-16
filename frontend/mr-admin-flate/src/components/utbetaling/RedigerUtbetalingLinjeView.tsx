@@ -310,7 +310,7 @@ function SlettUtbetalingModal({
     slettKorreksjonMutation.mutate(
       { id: utbetalingId },
       {
-        onSuccess: () => navigate(-1),
+        onSuccess: () => navigate("..", { replace: true }),
       },
     );
   }

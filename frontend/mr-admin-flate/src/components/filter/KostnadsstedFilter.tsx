@@ -1,4 +1,4 @@
-import { CheckboxGroup } from "@mr/frontend-common";
+import { CheckboxGroup, CheckboxGroupItem } from "@mr/frontend-common";
 import { RegionKostnadssteder } from "@tiltaksadministrasjon/api-client";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 
@@ -10,10 +10,18 @@ interface Props {
 export function KostnadsstedFilter({ value, onChange }: Props) {
   const { data: regioner } = useKostnadssteder();
   const groups = toCheckboxGroups(regioner);
-  return <CheckboxGroup value={value} onChange={onChange} groups={groups} />;
+  return (
+    <CheckboxGroup
+      legend="Kostnadssteder"
+      hideLegend
+      value={value}
+      onChange={onChange}
+      items={groups}
+    />
+  );
 }
 
-function toCheckboxGroups(regioner: RegionKostnadssteder[]): CheckboxGroup[] {
+function toCheckboxGroups(regioner: RegionKostnadssteder[]): CheckboxGroupItem[] {
   return regioner.map(({ region, kostnadssteder }) => {
     return {
       id: region.enhetsnummer,

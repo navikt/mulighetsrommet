@@ -1,27 +1,28 @@
 import { CheckboxGroup } from "@mr/frontend-common";
-import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
+import { Tiltakskode, TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 import { useMemo } from "react";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 
 interface Props {
-  tiltakstyper: TiltakstypeDto[];
   value: string[];
-  onChange: (tiltakstyper: string[]) => void;
+  onChange: (tiltakstyper: Tiltakskode[]) => void;
 }
 
-export function TiltakstypeFilter({ tiltakstyper, value, onChange }: Props) {
-  const groups = useTiltakstyperFilter(tiltakstyper);
+export function TiltakskodeFilter({ value, onChange }: Props) {
+  const { data: tiltakstyper } = useTiltakstyper();
+  const groups = useTiltakskodeFilter(tiltakstyper);
   return (
     <CheckboxGroup
       legend="Tiltakstyper"
       hideLegend
       value={value}
-      onChange={onChange}
+      onChange={(tiltakskoder) => onChange(tiltakskoder as Tiltakskode[])}
       items={groups}
     />
   );
 }
 
-function useTiltakstyperFilter(tiltakstyper: TiltakstypeDto[]) {
+function useTiltakskodeFilter(tiltakstyper: TiltakstypeDto[]) {
   return useMemo(() => {
     const tiltakstyperByGroup = Object.entries(
       Object.groupBy(tiltakstyper, (tiltakstype) => tiltakstype.gruppe || ""),
@@ -30,13 +31,13 @@ function useTiltakstyperFilter(tiltakstyper: TiltakstypeDto[]) {
     return tiltakstyperByGroup
       .flatMap(([gruppe, entries = []]) => {
         if (gruppe === "") {
-          return entries.map((entry) => ({ id: entry.id, navn: entry.navn }));
+          return entries.map((entry) => ({ id: entry.tiltakskode as string, navn: entry.navn }));
         } else {
           return {
             id: gruppe,
             navn: gruppe,
             items: entries.map((entry) => ({
-              id: entry.id,
+              id: entry.tiltakskode,
               navn: entry.navn,
               erStandardvalg: true,
             })),

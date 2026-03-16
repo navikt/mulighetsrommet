@@ -9,10 +9,18 @@ interface Props {
 
 export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   const groups = toCheckboxGroups(regioner);
-  return <CheckboxGroup value={value} onChange={onChange} groups={groups} />;
+  return (
+    <CheckboxGroup
+      legend="Nav-kontorer"
+      hideLegend
+      value={value}
+      onChange={onChange}
+      items={groups}
+    />
+  );
 }
 
-function toCheckboxGroups(regioner: Kontorstruktur[]): CheckboxGroup[] {
+function toCheckboxGroups(regioner: Kontorstruktur[]) {
   return regioner.map(({ region, kontorer }) => {
     return {
       id: region.enhetsnummer,

@@ -67,19 +67,14 @@ export function useReturnerDelutbetaling() {
     { id: string; body: AarsakerOgForklaringRequestDelutbetalingReturnertAarsak }
   >({
     mutationFn: ({ id, body }) => UtbetalingService.returnerDelutbetaling({ path: { id }, body }),
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
+    async onSuccess(_, request) {
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(request.id) });
     },
   });
 }
 
 export function useSlettKorreksjon() {
-  const queryClient = useQueryClient();
-
   return useApiMutation<unknown, ProblemDetail, { id: string }>({
     mutationFn: ({ id }) => UtbetalingService.slettKorreksjon({ path: { id } }),
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
-    },
   });
 }
