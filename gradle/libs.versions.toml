@@ -1,14 +1,14 @@
 [versions]
-common-java-modules = "3.2026.02.05_14.10-5533811c5158-beta"
-flyway = "12.0.1"
+common-java-modules = "3.2026.03.04_12.35-b34c347c6239"
+flyway = "12.0.3"
 koin-bom = "4.1.1"
-kotest = "6.1.4"
+kotest = "6.1.5"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.3.10"
 ktor = "3.4.0"
 logback = "1.5.32"
 metrics = "4.2.38"
-arrow = "2.2.1.1"
+arrow = "2.2.2"
 micrometer = "1.16.3"
 
 [plugins]
@@ -118,7 +118,7 @@ nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:3.0.1"
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.11.03_13.40-18456d0598be"
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.59.0"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.60.1"
 
 postgresql = "org.postgresql:postgresql:42.7.10"
 
@@ -133,4 +133,4 @@ slf4j = "org.slf4j:slf4j-api:2.0.17"
 apache-poi = "org.apache.poi:poi:5.5.1"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.5.1"
 
-unleash = "io.getunleash:unleash-client-java:12.1.2"
+unleash = "io.getunleash:unleash-client-java:12.2.0"
