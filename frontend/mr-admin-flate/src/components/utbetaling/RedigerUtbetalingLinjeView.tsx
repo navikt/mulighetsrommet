@@ -142,7 +142,12 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(submitHandler)}>
+      <form
+        onSubmit={(e) => {
+          clearErrors();
+          handleSubmit(submitHandler)(e);
+        }}
+      >
         <VStack gap="space-8">
           {!utbetalingLinjer.length && (
             <Alert variant="info">{utbetalingTekster.delutbetaling.alert.ingenTilsagn}</Alert>
