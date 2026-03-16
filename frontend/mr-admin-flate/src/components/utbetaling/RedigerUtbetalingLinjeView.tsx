@@ -199,6 +199,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
           <UtbetalingLinjeTable
             utbetaling={utbetaling}
             linjer={aktiveLinjer}
+            utbetalesTotal={utbetalesTotalt.belop}
             renderRow={(linje: UtbetalingLinje, index: number) => (
               <UtbetalingLinjeRow
                 key={`${linje.id}-${linje.status?.type}`}
