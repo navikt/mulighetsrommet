@@ -10,7 +10,6 @@ export const utbetalingTekster = {
     periode: "Utbetalingsperiode",
     utbetalesTidligstDato: "Utbetales tidligst",
     type: "Type",
-    innsendtDato: "Dato innsendt",
     kommentar: "Kommentar",
     beskrivelse: "Begrunnelse for utbetaling",
     begrunnelseMindreBetalt: "Begrunnelse for mindre utbetalt",

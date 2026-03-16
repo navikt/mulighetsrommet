@@ -79,12 +79,8 @@ export function UtbetalingDetaljerPage() {
                   value={formaterValutaBelop(utbetaling.beregning)}
                 />
               </MetadataContainer>
-              {(utbetaling.innsendtAvArrangorDato || utbetaling.utbetalesTidligstDato) && (
+              {utbetaling.utbetalesTidligstDato && (
                 <MetadataContainer>
-                  <MetadataVStack
-                    label={utbetalingTekster.metadata.innsendtDato}
-                    value={formaterDato(utbetaling.innsendtAvArrangorDato)}
-                  />
                   <MetadataVStack
                     label={utbetalingTekster.metadata.utbetalesTidligstDato}
                     value={formaterDato(utbetaling.utbetalesTidligstDato)}
