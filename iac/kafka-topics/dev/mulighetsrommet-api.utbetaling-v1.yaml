@@ -1,7 +1,7 @@
 apiVersion: kafka.nais.io/v1
 kind: Topic
 metadata:
-  name: utsjekk.utbetaling-v1
+  name: mulighetsrommet-api.utbetaling-v1
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
