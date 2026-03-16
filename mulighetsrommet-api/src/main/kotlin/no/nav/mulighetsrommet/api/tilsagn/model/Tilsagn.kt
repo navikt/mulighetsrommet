@@ -71,7 +71,7 @@ data class Tilsagn(
     data class Deltaker(
         @Serializable(with = UUIDSerializer::class)
         val deltakerId: UUID,
-        val innhold: String?,
+        val innholdAnnet: String?,
     )
 
     fun gjenstaendeBelop(): ValutaBelop = if (status in listOf(TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT)) {

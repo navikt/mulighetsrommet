@@ -25,6 +25,6 @@ data class TilsagnDbo(
 ) {
     data class Deltaker(
         val deltakerId: UUID,
-        val innhold: String?,
+        val innholdAnnet: String?,
     )
 }

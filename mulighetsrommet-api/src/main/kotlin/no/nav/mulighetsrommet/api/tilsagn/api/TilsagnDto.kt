@@ -63,7 +63,7 @@ data class TilsagnDeltakerDto(
     val navn: String,
     val oppfolgingEnhet: NavEnhetDto?,
     val geografiskEnhet: NavEnhetDto?,
-    val innhold: String?,
+    val innholdAnnet: String?,
 ) {
     companion object {
         fun from(deltaker: Tilsagn.Deltaker, personalia: PersonaliaMedGeografiskEnhet) = TilsagnDeltakerDto(
@@ -72,7 +72,7 @@ data class TilsagnDeltakerDto(
             navn = personalia.navn,
             oppfolgingEnhet = personalia.oppfolgingEnhet,
             geografiskEnhet = personalia.geografiskEnhet,
-            innhold = deltaker.innhold,
+            innholdAnnet = deltaker.innholdAnnet,
         )
 
         fun from(deltaker: Deltaker, personalia: PersonaliaMedGeografiskEnhet) = TilsagnDeltakerDto(
@@ -81,9 +81,7 @@ data class TilsagnDeltakerDto(
             navn = personalia.navn,
             oppfolgingEnhet = personalia.oppfolgingEnhet,
             geografiskEnhet = personalia.geografiskEnhet,
-            innhold = deltaker.innhold?.let {
-                it.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
-            },
+            innholdAnnet = deltaker.innholdAnnet,
         )
     }
 }

@@ -48,7 +48,7 @@ from tilsagn
                  jsonb_agg(
                      jsonb_build_object(
                          'deltakerId', deltaker_id,
-                         'innhold', innhold
+                         'innholdAnnet', innhold_annet
                      )
                  ),
                  '[]'::jsonb

@@ -41,7 +41,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
@@ -126,7 +125,7 @@ class TilsagnService(
                     kommentar = request.kommentar?.trim(),
                     beskrivelse = request.beskrivelse?.trim(),
                     deltakere = request.deltakere?.map {
-                        TilsagnDbo.Deltaker(it.deltakerId, it.innhold)
+                        TilsagnDbo.Deltaker(it.deltakerId, it.innholdAnnet)
                     },
                 )
             }

@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.utbetaling.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import kotlinx.serialization.json.Json
-import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -44,7 +42,7 @@ class DeltakerQueriesTest : FunSpec({
             opprettetTidspunkt = opprettetTidspunkt,
         ),
         deltakelsesmengder = emptyList(),
-        innhold = null,
+        innholdAnnet = null,
     )
     val deltaker2 = deltaker1.copy(
         id = UUID.randomUUID(),
@@ -149,5 +147,5 @@ fun DeltakerDbo.toDeltaker() = Deltaker(
     endretTidspunkt = endretTidspunkt,
     status = status,
     deltakelsesmengder = deltakelsesmengder.map { Deltakelsesmengde(it.gyldigFra, it.deltakelsesprosent) },
-    innhold = innhold?.let { Json.decodeFromString<AmtDeltakerEksternV1Dto.DeltakelsesinnholdDto>(it) },
+    innholdAnnet = innholdAnnet,
 )

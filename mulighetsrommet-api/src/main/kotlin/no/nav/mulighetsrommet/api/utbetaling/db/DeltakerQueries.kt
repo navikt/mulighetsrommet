@@ -4,7 +4,6 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -29,7 +28,7 @@ class DeltakerQueries(private val session: Session) {
                                   status_type,
                                   status_aarsak,
                                   status_opprettet_tidspunkt,
-                                  innhold)
+                                  innhold_annet)
             values (:id::uuid,
                     :gjennomforing_id::uuid,
                     :start_dato,
@@ -39,7 +38,7 @@ class DeltakerQueries(private val session: Session) {
                     :status_type::deltaker_status_type,
                     :status_aarsak::deltaker_status_aarsak,
                     :status_opprettet_tidspunkt,
-                    :innhold::jsonb)
+                    :innhold_annet)
             on conflict (id)
                 do update set gjennomforing_id           = excluded.gjennomforing_id,
                               start_dato                 = excluded.start_dato,
@@ -49,7 +48,7 @@ class DeltakerQueries(private val session: Session) {
                               status_type                = excluded.status_type,
                               status_aarsak              = excluded.status_aarsak,
                               status_opprettet_tidspunkt = excluded.status_opprettet_tidspunkt,
-                              innhold = excluded.innhold
+                              innhold_annet              = excluded.innhold_annet
         """.trimIndent()
         val params = mapOf(
             "id" to deltaker.id,
@@ -61,7 +60,7 @@ class DeltakerQueries(private val session: Session) {
             "status_type" to deltaker.status.type.name,
             "status_aarsak" to deltaker.status.aarsak?.name,
             "status_opprettet_tidspunkt" to deltaker.status.opprettetTidspunkt,
-            "innhold" to deltaker.innhold,
+            "innhold_annet" to deltaker.innholdAnnet,
         )
         execute(queryOf(query, params))
 
@@ -163,5 +162,5 @@ private fun Row.toDeltaker() = Deltaker(
         opprettetTidspunkt = localDateTime("status_opprettet_tidspunkt"),
     ),
     deltakelsesmengder = stringOrNull("deltakelsesmengder_json")?.let { Json.decodeFromString(it) } ?: listOf(),
-    innhold = stringOrNull("innhold")?.let { Json.decodeFromString<AmtDeltakerEksternV1Dto.DeltakelsesinnholdDto>(it) },
+    innholdAnnet = stringOrNull("innhold_annet"),
 )

@@ -70,7 +70,7 @@ object ArrangorflateTestUtils {
             aarsak = null,
             opprettetTidspunkt = LocalDateTime.now(),
         ),
-        innhold = null,
+        innholdAnnet = null,
     )
 
     fun createTestTilsagn(): TilsagnDbo = TilsagnDbo(

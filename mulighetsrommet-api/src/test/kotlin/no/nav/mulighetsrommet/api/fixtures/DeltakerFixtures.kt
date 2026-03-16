@@ -37,7 +37,7 @@ object DeltakerFixtures {
             aarsak = null,
             opprettetTidspunkt = statusOpprettet,
         ),
-        innhold = null,
+        innholdAnnet = null,
     )
 
     fun createDeltakerDbo(
@@ -60,7 +60,7 @@ object DeltakerFixtures {
             aarsak = null,
             opprettetTidspunkt = statusOpprettet,
         ),
-        innhold = innhold,
+        innholdAnnet = innhold,
     )
 
     fun createDeltaker(
@@ -81,7 +81,7 @@ object DeltakerFixtures {
             opprettetTidspunkt = LocalDateTime.now(),
         ),
         deltakelsesmengder = listOf(),
-        innhold = null,
+        innholdAnnet = null,
     )
 
     fun createAmtDeltakerDto(
@@ -103,7 +103,12 @@ object DeltakerFixtures {
         kilde = AmtDeltakerEksternV1Dto.Kilde.KOMET,
         innhold = AmtDeltakerEksternV1Dto.DeltakelsesinnholdDto(
             ledetekst = null,
-            valgtInnhold = listOf(),
+            valgtInnhold = listOf(
+                AmtDeltakerEksternV1Dto.InnholdDto(
+                    innholdskode = "annet",
+                    tekst = "Prisinformasjon",
+                ),
+            ),
         ),
     )
 

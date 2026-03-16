@@ -197,9 +197,9 @@ class TilsagnQueries(private val session: Session) {
 
         @Language("PostgreSQL")
         val insertQuery = """
-        insert into tilsagn_deltaker (tilsagn_id, deltaker_id, innhold)
-        values (:tilsagn_id::uuid, :deltaker_id::uuid, :innhold)
-        on conflict (tilsagn_id, deltaker_id) do update set innhold = excluded.innhold
+        insert into tilsagn_deltaker (tilsagn_id, deltaker_id, innhold_annet)
+        values (:tilsagn_id::uuid, :deltaker_id::uuid, :innhold_annet)
+        on conflict (tilsagn_id, deltaker_id) do update set innhold_annet = excluded.innhold_annet
         """.trimIndent()
 
         deltakere.forEach { deltaker ->
@@ -209,7 +209,7 @@ class TilsagnQueries(private val session: Session) {
                     mapOf(
                         "tilsagn_id" to tilsagnId,
                         "deltaker_id" to deltaker.deltakerId,
-                        "innhold" to deltaker.innhold,
+                        "innhold_annet" to deltaker.innholdAnnet,
                     ),
                 ),
             )
