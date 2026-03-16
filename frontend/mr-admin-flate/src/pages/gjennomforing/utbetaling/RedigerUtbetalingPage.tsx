@@ -48,7 +48,7 @@ export function RedigerUtbetalingPage() {
           Avbryt
         </Button>
         <Button size="small" type="submit" form={formId}>
-          Rediger
+          Bekreft
         </Button>
       </HStack>
     </VStack>
