@@ -1,8 +1,4 @@
--- ${flyway:timestamp}
-
-drop view if exists view_avtale;
-
-create view view_avtale as
+create or replace view view_avtale as
 select avtale.id,
        avtale.created_at                                as opprettet_tidspunkt,
        avtale.updated_at                                as oppdatert_tidspunkt,

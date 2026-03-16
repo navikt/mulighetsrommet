@@ -1,8 +1,4 @@
--- ${flyway:timestamp}
-
-drop view if exists view_utbetaling_output_deltakelse_perioder_json;
-
-create view view_utbetaling_output_deltakelse_perioder_json as
+create or replace view view_utbetaling_output_deltakelse_perioder_json as
 with deltakelse_perioder as (select utbetaling_id,
                                     deltakelse_id,
                                     jsonb_agg(
