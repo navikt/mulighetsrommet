@@ -2,7 +2,12 @@ import useDebounce from "./hooks/useDebounce";
 import { SokeSelect } from "./components/SokeSelect";
 import { shallowEquals } from "./utils/shallow-equals";
 import { ControlledSokeSelect } from "./components/ControlledSokeSelect";
-import { CheckboxGroup } from "./components/filter/CheckboxGroup";
+import {
+  CheckboxGroup,
+  CheckboxGroupProps,
+  CheckboxGroupItem,
+  CheckboxGroupSubItem,
+} from "./components/filter/CheckboxGroup";
 import { MultiLabelFilterTag } from "./components/filter/filterTag/MultiLabelFilterTag";
 import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
 import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader";
@@ -35,6 +40,9 @@ export {
   ControlledSokeSelect,
   shallowEquals,
   CheckboxGroup,
+  type CheckboxGroupProps,
+  type CheckboxGroupItem,
+  type CheckboxGroupSubItem,
   MultiLabelFilterTag,
   FilterTagsContainer,
   FilterAccordionHeader,

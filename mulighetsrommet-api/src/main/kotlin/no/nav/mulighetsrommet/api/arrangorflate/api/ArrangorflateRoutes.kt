@@ -54,60 +54,36 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
-import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.UUID
 
 suspend fun RoutingContext.respondWithManglerTilgangHosArrangor() = call.respondWithProblemDetail(
     Forbidden(
         detail = """
-                        Du mangler tilgang til utbetalingsløsningen. Tilgang delegeres i Altinn som en
-                        enkeltrettighet av din arbeidsgiver. Det er enkeltrettigheten
-                        “Be om utbetaling - Nav Arbeidsmarkedstiltak” du må få via Altinn. Når enkeltrettigheten
-                        er delegert i Altinn kan du laste siden på nytt og få tilgang.
-                    """,
+            Du mangler tilgang til utbetalingsløsningen. Tilgang delegeres i Altinn som en
+            enkeltrettighet av din arbeidsgiver. Det er enkeltrettigheten
+            “Be om utbetaling - Nav Arbeidsmarkedstiltak” du må få via Altinn. Når enkeltrettigheten
+            er delegert i Altinn kan du laste siden på nytt og få tilgang.
+        """,
     ),
 )
-
-private val log = LoggerFactory.getLogger("ArrangorflateRoutes")
 
 suspend fun RoutingContext.orgnrTilganger(
     altinnRettigheterService: AltinnRettigheterService,
 ): List<Organisasjonsnummer> {
-    val principal = call.principal<ArrangorflatePrincipal>()
-    if (principal == null) {
-        log.error("principal var null")
-    }
-    val norskIdent = principal?.norskIdent
-    if (norskIdent == null) {
-        log.error("norskident var null")
-    }
-    return norskIdent?.let {
-        val r = altinnRettigheterService.getRettigheter(it)
+    return call.principal<ArrangorflatePrincipal>()?.norskIdent?.let {
+        altinnRettigheterService.getRettigheter(it)
             .getOrElse {
                 when (it) {
-                    AltinnError.Error ->
-                        call.respondWithProblemDetail(
-                            InternalServerError("Klarte ikke få kontakt med Altinn. Vennligst prøv igjen senere"),
-                        )
-
-                    AltinnError.ForMangeTilganger ->
-                        call.respondWithProblemDetail(
-                            InternalServerError("For mange Altinn tilganger. Vennligst ta kontakt med Nav"),
-                        )
+                    AltinnError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke få kontakt med Altinn. Vennligst prøv igjen senere",
+                    )
                 }
-                log.error("her skal vi ikke ende opp")
-                emptyList()
             }
-
-        val g = r
             .filter { AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING in it.rettigheter }
             .map { it.organisasjonsnummer }
-        if (r.isNotEmpty() && g.isEmpty()) {
-            log.error("hadde retigheter men ikke riktig")
-        }
-        g
-    } ?: emptyList()
+    } ?: throw StatusException(HttpStatusCode.InternalServerError, "Principal var null. Dette skal ikke kunne skje")
 }
 
 suspend fun RoutingContext.requireTilgangHosArrangor(
@@ -124,7 +100,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     val altinnRettigheterService: AltinnRettigheterService by inject()
     val genererUtbetalingService: GenererUtbetalingService by inject()
 
-    fun RoutingContext.getTilsagnOrRespondNotFound(): ArrangorflateTilsagnDto {
+    suspend fun RoutingContext.getTilsagnOrRespondNotFound(): ArrangorflateTilsagnDto {
         val id: UUID by call.parameters
         return arrangorFlateService.getTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
     }
@@ -190,27 +166,24 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }
     }
 
-    get(
-        "/utbetaling",
-        {
-            description = "Hent oversikt over utbetalinger for alle arrangører brukeren har tilgang til"
-            tags = setOf("Arrangorflate")
-            operationId = "getArrangorflateUtbetalinger"
-            request {
-                queryParameter<UtbetalingOversiktType>("type")
+    get("/utbetaling", {
+        description = "Hent oversikt over utbetalinger for alle arrangører brukeren har tilgang til"
+        tags = setOf("Arrangorflate")
+        operationId = "getArrangorflateUtbetalinger"
+        request {
+            queryParameter<UtbetalingOversiktType>("type")
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Utbetalinger i tabellformat"
+                body<List<ArrangorInnsendingRadDto>>()
             }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Utbetalinger i tabellformat"
-                    body<List<ArrangorInnsendingRadDto>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
             }
-        },
-    ) {
+        }
+    }) {
         val tilganger = orgnrTilganger(altinnRettigheterService)
         if (tilganger.isEmpty()) {
             respondWithManglerTilgangHosArrangor()
@@ -537,7 +510,7 @@ enum class UtbetalingOversiktType {
     fun utbetalingStatuser(): Set<UtbetalingStatusType> = when (this) {
         AKTIVE -> setOf(
             UtbetalingStatusType.GENERERT,
-            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_BEHANDLING,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
         )

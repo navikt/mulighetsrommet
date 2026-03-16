@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.altinn
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.raise.context.either
 import io.ktor.client.call.body
@@ -36,12 +37,35 @@ class AltinnClient(
 
     suspend fun hentRettigheter(norskIdent: NorskIdent): Either<AltinnError, List<BedriftRettigheter>> {
         return hentAuthorizedParties(norskIdent)
-            .map { findAltinnRoller(it) }
+            .map {
+                val rettigheter = findAltinnRoller(it)
+                log.debug(
+                    "norskIdentHash: {}, rettighetCount: {}, rettighetOrgnr: {} totalCount: {}, totalOrgnr: {}",
+                    norskIdent.hashCode(),
+                    rettigheter.count(),
+                    rettigheter.map { it.organisasjonsnummer.value },
+                    partyCount(it),
+                    partyOrgnr(it),
+                )
+
+                rettigheter
+            }
     }
 
-    private fun findAltinnRoller(
-        parties: List<AuthorizedParty>,
-    ): List<BedriftRettigheter> = parties.filter { it.type == AuthorizedPartyType.Organization }
+    private fun partyOrgnr(parties: List<AuthorizedParty>): List<String> = parties
+        .filter { it.type == AuthorizedPartyType.Organization }
+        .flatMap {
+            listOf(requireNotNull(it.organizationNumber)) + partyOrgnr(it.subunits)
+        }
+
+    private fun partyCount(parties: List<AuthorizedParty>): Int = parties
+        .filter { it.type == AuthorizedPartyType.Organization }
+        .sumOf {
+            1 + partyCount(it.subunits)
+        }
+
+    private fun findAltinnRoller(parties: List<AuthorizedParty>): List<BedriftRettigheter> = parties
+        .filter { it.type == AuthorizedPartyType.Organization }
         .map {
             AuthorizedOrganization(
                 organizationNumber = requireNotNull(it.organizationNumber) { "Organisasjonsnummer mangler på type Organization" },
@@ -78,11 +102,6 @@ class AltinnClient(
             return AltinnError.Error.left()
         }
 
-        if (!response.headers["X-Warning-LimitReached"].isNullOrEmpty()) {
-            log.error("For mange tilganger. Klarte ikke hente tilganger for bruker. response: ${response.status}")
-            return AltinnError.ForMangeTilganger.left()
-        }
-
         response.body()
     }
 
@@ -117,5 +136,4 @@ class AltinnClient(
 
 enum class AltinnError {
     Error,
-    ForMangeTilganger,
 }

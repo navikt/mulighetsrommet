@@ -35,7 +35,7 @@ export function TilsagnPage() {
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <HStack gap="space-8" className="bg-ax-bg-default border-b-2 border-ax-neutral-300 p-2">
-        <PiggybankFillIcon color="#FFAA33" className="w-10 h-10" />
+        <PiggybankFillIcon color="#FFAA33" width="2.5rem" height="2.5rem" />
         <Heading size="large" level="2">
           {tilsagnId ? `Tilsagn for ${gjennomforing.navn}` : "Opprett tilsagn"}
         </Heading>

@@ -28,12 +28,9 @@ import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.InternalServerError
-import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -66,7 +63,7 @@ fun Route.arrangorRoutes() {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
             val response = arrangorService.getArrangorOrSyncFromBrreg(orgnr)
-                .mapLeft { toStatusResponseError(it, orgnr) }
+                .mapLeft { it.toProblemDetail(orgnr) }
 
             call.respondWithStatusResponse(response)
         }
@@ -309,7 +306,9 @@ fun Route.arrangorRoutes() {
             }
         }) {
             val q: String by call.request.queryParameters
-            call.respondWithStatusResponse(arrangorService.brregSok(sok = q))
+            val result = arrangorService.brregSok(sok = q)
+                .mapLeft { it.toProblemDetail() }
+            call.respondWithStatusResponse(result)
         }
 
         get("{orgnr}/underenheter", {
@@ -330,7 +329,9 @@ fun Route.arrangorRoutes() {
             }
         }) {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-            call.respondWithStatusResponse(arrangorService.brregUnderenheter(orgnr))
+            val result = arrangorService.brregUnderenheter(orgnr)
+                .mapLeft { it.toProblemDetail(orgnr) }
+            call.respondWithStatusResponse(result)
         }
     }
 }
@@ -388,17 +389,4 @@ data class ArrangorKontaktpersonRequest(
             ansvarligFor = ansvarligFor,
         )
     }.mapLeft { ValidationError(errors = it) }
-}
-
-fun toStatusResponseError(it: BrregError, orgnr: Organisasjonsnummer) = when (it) {
-    is BrregError.NotFound -> NotFound("Fant ikke bedrift $orgnr i Brreg")
-    is BrregError.FjernetAvJuridiskeArsaker -> BadRequest("Bediften $orgnr er fjernet fra Brreg av juridiske årsaker")
-    is BrregError.BadRequest, is BrregError.Error -> InternalServerError("Feil oppsto ved henting av bedrift $orgnr fra Brreg")
-}
-
-fun toStatusResponseError(it: BrregError) = when (it) {
-    is BrregError.NotFound -> NotFound("Not Found fra Brreg")
-    is BrregError.FjernetAvJuridiskeArsaker -> BadRequest("Fjernet av juridiske årsaker fra Brreg")
-    is BrregError.BadRequest -> BadRequest("Bad Request mot Brreg")
-    is BrregError.Error -> InternalServerError("Internal server error fra Brreg")
 }

@@ -10,7 +10,15 @@ interface Props {
 
 export function TiltakstypeFilter({ tiltakstyper, value, onChange }: Props) {
   const groups = useTiltakstyperFilter(tiltakstyper);
-  return <CheckboxGroup value={value} onChange={onChange} groups={groups} />;
+  return (
+    <CheckboxGroup
+      legend="Tiltakstyper"
+      hideLegend
+      value={value}
+      onChange={onChange}
+      items={groups}
+    />
+  );
 }
 
 function useTiltakstyperFilter(tiltakstyper: TiltakstypeDto[]) {
@@ -22,7 +30,7 @@ function useTiltakstyperFilter(tiltakstyper: TiltakstypeDto[]) {
     return tiltakstyperByGroup
       .flatMap(([gruppe, entries = []]) => {
         if (gruppe === "") {
-          return entries.map((entry) => ({ id: entry.id, navn: entry.navn, items: [] }));
+          return entries.map((entry) => ({ id: entry.id, navn: entry.navn }));
         } else {
           return {
             id: gruppe,

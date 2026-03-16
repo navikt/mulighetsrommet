@@ -1,5 +1,4 @@
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { ContentBox } from "@/layouts/ContentBox";
 import { useMatch } from "react-router";
 import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -27,39 +26,37 @@ export function DetaljerTiltakstypePage() {
       <title>{`Tiltakstype | ${tiltakstype.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <HeaderBanner heading={tiltakstype.navn} ikon={<TiltakstypeIkon />} />
-      <ContentBox>
-        <WhitePaddedBox>
-          <Bolk>
-            <MetadataVStack label="Tiltakstype" value={tiltakstype.navn} />
-            <MetadataVStack label="Tiltakskode" value={tiltakstype.tiltakskode} />
-          </Bolk>
-          <Separator />
-          <Bolk>
-            <MetadataVStack label="Startdato" value={formaterDato(tiltakstype.startDato)} />
-            <MetadataVStack
-              label="Sluttdato"
-              value={tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-"}
-            />
-          </Bolk>
-          {tiltakstype.sanityId && (
-            <>
-              <Separator />
-              <Bolk aria-label="Sanity-dokument">
-                <MetadataVStack
-                  label="Sanity-dokument"
-                  value={
-                    <>
-                      <Lenke isExternal target="_blank" to={tiltakstypeSanityUrl}>
-                        Åpne tiltakstypen i Sanity
-                      </Lenke>
-                    </>
-                  }
-                />
-              </Bolk>
-            </>
-          )}
-        </WhitePaddedBox>
-      </ContentBox>
+      <WhitePaddedBox>
+        <Bolk>
+          <MetadataVStack label="Tiltakstype" value={tiltakstype.navn} />
+          <MetadataVStack label="Tiltakskode" value={tiltakstype.tiltakskode} />
+        </Bolk>
+        <Separator />
+        <Bolk>
+          <MetadataVStack label="Startdato" value={formaterDato(tiltakstype.startDato)} />
+          <MetadataVStack
+            label="Sluttdato"
+            value={tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-"}
+          />
+        </Bolk>
+        {tiltakstype.sanityId && (
+          <>
+            <Separator />
+            <Bolk aria-label="Sanity-dokument">
+              <MetadataVStack
+                label="Sanity-dokument"
+                value={
+                  <>
+                    <Lenke isExternal target="_blank" to={tiltakstypeSanityUrl}>
+                      Åpne tiltakstypen i Sanity
+                    </Lenke>
+                  </>
+                }
+              />
+            </Bolk>
+          </>
+        )}
+      </WhitePaddedBox>
     </>
   );
 }

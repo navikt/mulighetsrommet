@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.withValuta
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
@@ -148,8 +147,10 @@ fun Route.tilsagnRoutesBeregning() {
 
         val tilsagnPerDeltaker = gjennomforing.prismodell.tilsagnPerDeltaker
 
-        val deltakere = if (request.periodeStart != null && request.periodeSlutt != null && tilsagnPerDeltaker) {
-            val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+        val start = request.periodeStart?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
+        val slutt = request.periodeSlutt?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
+        val deltakere = if (start != null && slutt != null && tilsagnPerDeltaker) {
+            val periode = Periode.fromInclusiveDates(start, slutt)
 
             val deltakelser = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
                 .filter {
@@ -386,10 +387,8 @@ private fun resolveBeregningTypeAndPrisbetingelser(
 data class TilsagnDeltakereRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate?,
+    val periodeStart: String? = null,
+    val periodeSlutt: String? = null,
 )
 
 @Serializable

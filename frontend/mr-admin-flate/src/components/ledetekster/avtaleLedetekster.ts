@@ -48,6 +48,9 @@ export const avtaletekster = {
     valuta: {
       label: "Valuta",
     },
+    tilsagnPerDeltaker: {
+      label: "Tilsagn skal knyttes til deltakere",
+    },
     pris: {
       label: "Pris",
     },

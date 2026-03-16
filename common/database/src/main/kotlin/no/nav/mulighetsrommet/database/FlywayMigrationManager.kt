@@ -47,6 +47,7 @@ class FlywayMigrationManager(
                     "flyway.postgresql.transactional.lock" to "false",
                 ),
             )
+            .locations("classpath:db/migration", "classpath:db/views")
             .dataSource(database.getDatasource())
             .apply {
                 database.config.schema?.let { schemas(it) }

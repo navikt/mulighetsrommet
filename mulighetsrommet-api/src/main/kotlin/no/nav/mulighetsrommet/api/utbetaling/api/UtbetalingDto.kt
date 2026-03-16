@@ -2,7 +2,9 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Periode
@@ -19,9 +21,11 @@ data class UtbetalingDto(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
+    val type: UtbetalingTypeDto,
     val status: UtbetalingStatusDto,
     val periode: Periode,
-    val pris: ValutaBelop,
+    val beregning: ValutaBelop,
+    val utbetalt: ValutaBelop?,
     @Serializable(with = LocalDateSerializer::class)
     val innsendtAvArrangorDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
@@ -33,29 +37,29 @@ data class UtbetalingDto(
     val avbruttBegrunnelse: String?,
     val journalpostId: JournalpostId?,
     val tilskuddstype: Tilskuddstype,
-    val type: UtbetalingTypeDto,
 ) {
     @Serializable
     data class Korreksjon(
         @Serializable(with = UUIDSerializer::class)
-        val opprinneligUtbetaling: UUID?,
+        val opprinneligUtbetaling: UUID,
         val begrunnelse: String,
     )
 
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingDto {
+        fun fromUtbetaling(utbetaling: Utbetaling, linjer: List<Delutbetaling>): UtbetalingDto {
             return UtbetalingDto(
                 id = utbetaling.id,
                 gjennomforingId = utbetaling.gjennomforing.id,
                 status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer),
                 periode = utbetaling.periode,
+                beregning = utbetaling.beregning.output.pris,
+                utbetalt = getUtbetaltBelop(utbetaling, linjer),
                 innsendtAvArrangorDato = utbetaling.innsending?.tidspunkt?.toLocalDate(),
                 utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
                 kommentar = utbetaling.kommentar,
                 korreksjon = utbetaling.korreksjon?.let { Korreksjon(it.gjelderUtbetalingId, it.begrunnelse) },
                 begrunnelseMindreBetalt = utbetaling.begrunnelseMindreBetalt,
-                pris = utbetaling.beregning.output.pris,
                 journalpostId = utbetaling.journalpostId,
                 tilskuddstype = utbetaling.tilskuddstype,
                 type = UtbetalingType.from(utbetaling).toDto(),
@@ -63,4 +67,21 @@ data class UtbetalingDto(
             )
         }
     }
+}
+
+private fun getUtbetaltBelop(
+    utbetaling: Utbetaling,
+    linjer: List<Delutbetaling>,
+): ValutaBelop? = when (utbetaling.status) {
+    UtbetalingStatusType.GENERERT,
+    UtbetalingStatusType.TIL_BEHANDLING,
+    UtbetalingStatusType.TIL_ATTESTERING,
+    UtbetalingStatusType.RETURNERT,
+    UtbetalingStatusType.AVBRUTT,
+    -> null
+
+    UtbetalingStatusType.FERDIG_BEHANDLET,
+    UtbetalingStatusType.DELVIS_UTBETALT,
+    UtbetalingStatusType.UTBETALT,
+    -> linjer.fold(ValutaBelop(0, utbetaling.valuta)) { sum, linje -> sum + linje.pris }
 }

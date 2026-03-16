@@ -1,10 +1,10 @@
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/AvtaleAmoKategoriseringForm";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { FormGroup } from "@/components/skjema/FormGroup";
+import { FormGroup } from "@/layouts/FormGroup";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import { Box, HGrid, List, Select, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
+import { Box, HGrid, List, Select, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -25,6 +25,7 @@ import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useParams } from "react-router";
 import { useTiltakstyperForAvtaler } from "@/api/tiltakstyper/useTiltakstyperForAvtaler";
 import { erUtfaset } from "@/utils/tiltakstype";
+import { SkjemaKolonne } from "../../layouts/SkjemaKolonne";
 
 export function AvtaleDetaljerForm() {
   const { avtaleId } = useParams();
@@ -88,7 +89,7 @@ export function AvtaleDetaljerForm() {
 
   return (
     <TwoColumnGrid separator>
-      <VStack>
+      <SkjemaKolonne>
         <FormGroup>
           <TextField
             size="small"
@@ -173,8 +174,8 @@ export function AvtaleDetaljerForm() {
         <FormGroup>
           <AvtaleVarighet opsjonUtlost={antallOpsjonerUtlost > 0} />
         </FormGroup>
-      </VStack>
-      <VStack>
+      </SkjemaKolonne>
+      <SkjemaKolonne>
         <FormGroup>
           <Controller
             control={control}
@@ -213,7 +214,7 @@ export function AvtaleDetaljerForm() {
           />
         </FormGroup>
         <AvtaleArrangorForm />
-      </VStack>
+      </SkjemaKolonne>
     </TwoColumnGrid>
   );
 }

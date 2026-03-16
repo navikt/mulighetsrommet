@@ -1,8 +1,8 @@
 import {
   AarsakerOgForklaringRequestDelutbetalingReturnertAarsak,
   OpprettDelutbetalingerRequest,
-  OpprettUtbetalingRequest,
   ProblemDetail,
+  UtbetalingRequest,
   UtbetalingService,
 } from "@tiltaksadministrasjon/api-client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -39,10 +39,21 @@ export function useOpprettDelutbetalinger(utbetalingId: string) {
 export function useOpprettUtbetaling() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<unknown, ProblemDetail, OpprettUtbetalingRequest>({
+  return useApiMutation<unknown, ProblemDetail, UtbetalingRequest>({
     mutationFn: (body) => UtbetalingService.opprettUtbetaling({ body }),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetalingerByGjennomforing() });
+    },
+  });
+}
+
+export function useRedigerUtbetaling() {
+  const queryClient = useQueryClient();
+
+  return useApiMutation<unknown, ProblemDetail, UtbetalingRequest>({
+    mutationFn: (body) => UtbetalingService.redigerUtbetaling({ body }),
+    async onSuccess(_, request) {
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(request.id) });
     },
   });
 }
@@ -56,19 +67,14 @@ export function useReturnerDelutbetaling() {
     { id: string; body: AarsakerOgForklaringRequestDelutbetalingReturnertAarsak }
   >({
     mutationFn: ({ id, body }) => UtbetalingService.returnerDelutbetaling({ path: { id }, body }),
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
+    async onSuccess(_, request) {
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(request.id) });
     },
   });
 }
 
 export function useSlettKorreksjon() {
-  const queryClient = useQueryClient();
-
   return useApiMutation<unknown, ProblemDetail, { id: string }>({
     mutationFn: ({ id }) => UtbetalingService.slettKorreksjon({ path: { id } }),
-    async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
-    },
   });
 }

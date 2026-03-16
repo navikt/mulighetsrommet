@@ -1,14 +1,15 @@
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterAccordionHeader } from "@mr/frontend-common";
-import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
+import { Accordion } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { useKontorstruktur } from "@/api/enhet/useKontorstruktur";
-import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 import {
   oppgaverFilterAccordionAtom,
   OppgaverFilterType,
 } from "@/pages/oppgaveoversikt/oppgaver/filter";
+import { TiltakskodeFilter } from "@/components/filter/TiltakskodeFilter";
+import { OppgaveType } from "@tiltaksadministrasjon/api-client";
+import { OppgaveTypeFilter } from "@/components/filter/OppgaveTypeFilter";
+import { NavRegionFilter } from "@/components/filter/NavRegionFilter";
 
 interface Props {
   filter: OppgaverFilterType;
@@ -16,10 +17,6 @@ interface Props {
 }
 
 export function OppgaverFilter({ filter, updateFilter }: Props) {
-  const { data: oppgavetyper } = useGetOppgavetyper();
-  const { data: tiltakstyper } = useTiltakstyper();
-  const { data: regioner } = useKontorstruktur();
-
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
 
   return (
@@ -34,25 +31,12 @@ export function OppgaverFilter({ filter, updateFilter }: Props) {
             <FilterAccordionHeader tittel="Oppgave" antallValgteFilter={filter.type.length} />
           </Accordion.Header>
           <Accordion.Content>
-            <CheckboxGroup
+            <OppgaveTypeFilter
               value={filter.type}
-              legend="Velg tilsagn du vil se"
-              onChange={(value) => {
-                updateFilter({
-                  type: [...value],
-                });
-              }}
-              hideLegend
-            >
-              {oppgavetyper.map(({ navn, type }) => (
-                <Checkbox size="small" key={type} value={type}>
-                  {navn}
-                </Checkbox>
-              ))}
-            </CheckboxGroup>
+              onChange={(value) => updateFilter({ type: value as OppgaveType[] })}
+            />
           </Accordion.Content>
         </Accordion.Item>
-
         <Accordion.Item open={accordionsOpen.includes("regioner")}>
           <Accordion.Header
             onClick={() => {
@@ -62,24 +46,10 @@ export function OppgaverFilter({ filter, updateFilter }: Props) {
             <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.regioner.length} />
           </Accordion.Header>
           <Accordion.Content>
-            <CheckboxGroup
+            <NavRegionFilter
               value={filter.regioner}
-              legend="Velg regioner"
-              onChange={(value) => {
-                updateFilter({
-                  regioner: [...value],
-                });
-              }}
-              hideLegend
-            >
-              {regioner.map(({ region }) => {
-                return (
-                  <Checkbox size="small" key={region.enhetsnummer} value={region.enhetsnummer}>
-                    {region.navn}
-                  </Checkbox>
-                );
-              })}
-            </CheckboxGroup>
+              onChange={(regioner) => updateFilter({ regioner })}
+            />
           </Accordion.Content>
         </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("tiltakstype")}>
@@ -94,24 +64,12 @@ export function OppgaverFilter({ filter, updateFilter }: Props) {
             />
           </Accordion.Header>
           <Accordion.Content>
-            <CheckboxGroup
+            <TiltakskodeFilter
               value={filter.tiltakstyper}
-              legend="Velg tiltakstype"
-              onChange={(value) => {
-                updateFilter({
-                  tiltakstyper: [...value],
-                });
+              onChange={(tiltakstyper) => {
+                updateFilter({ tiltakstyper });
               }}
-              hideLegend
-            >
-              {tiltakstyper.map((t) => {
-                return (
-                  <Checkbox size="small" key={t.tiltakskode} value={t.tiltakskode}>
-                    {t.navn}
-                  </Checkbox>
-                );
-              })}
-            </CheckboxGroup>
+            />
           </Accordion.Content>
         </Accordion.Item>
       </Accordion>

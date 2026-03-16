@@ -184,6 +184,7 @@ const avklaringManedsprisTilsagn: ArrangorflateTilsagnDto = {
   beregning: beregningManedspris,
   bestillingsnummer: "A-2025/12611-1",
   beskrivelse: null,
+  deltakere: [],
 };
 
 const arrUkesprisTilsagn: ArrangorflateTilsagnDto = {
@@ -206,6 +207,7 @@ const arrUkesprisTilsagn: ArrangorflateTilsagnDto = {
   beregning: beregningUkespris,
   bestillingsnummer: "A-2025/4123-1",
   beskrivelse: null,
+  deltakere: [],
 };
 
 const aftFoobarTilsagnGodkjent: ArrangorflateTilsagnDto = {
@@ -231,6 +233,7 @@ const aftFoobarTilsagnGodkjent: ArrangorflateTilsagnDto = {
   status: TilsagnStatus.GODKJENT,
   bestillingsnummer: "A-2025/11073-1",
   beskrivelse: null,
+  deltakere: [],
 };
 
 const aftFoobarInvesteringTilsagnGodkjent: ArrangorflateTilsagnDto = {
@@ -256,6 +259,7 @@ const aftFoobarInvesteringTilsagnGodkjent: ArrangorflateTilsagnDto = {
   status: TilsagnStatus.GODKJENT,
   bestillingsnummer: "A-2025/11073-2",
   beskrivelse: null,
+  deltakere: [],
 };
 
 const avklaringTilsagnAnnulert: ArrangorflateTilsagnDto = {
@@ -281,6 +285,7 @@ const avklaringTilsagnAnnulert: ArrangorflateTilsagnDto = {
   status: TilsagnStatus.ANNULLERT,
   bestillingsnummer: "A-2025/11147-2",
   beskrivelse: null,
+  deltakere: [],
 };
 
 const aftFoobarEkstraTilsagnGodkjent: ArrangorflateTilsagnDto = {
@@ -306,6 +311,7 @@ const aftFoobarEkstraTilsagnGodkjent: ArrangorflateTilsagnDto = {
   status: TilsagnStatus.OPPGJORT,
   bestillingsnummer: "A-2025/11073-3",
   beskrivelse: null,
+  deltakere: [],
 };
 
 const mayRainVTATilsagnGodkjent: ArrangorflateTilsagnDto = {
@@ -329,6 +335,11 @@ const mayRainVTATilsagnGodkjent: ArrangorflateTilsagnDto = {
   status: TilsagnStatus.GODKJENT,
   bestillingsnummer: "A-2025/11398-1",
   beskrivelse: null,
+  deltakere: [
+    { navn: "Pål Thomas", norskIdent: "111199999", deltakerId: "1" },
+    { navn: "Geir Marie", norskIdent: "111199999", deltakerId: "2" },
+    { navn: "Lise Sotomayor", norskIdent: "111200000", deltakerId: "3" },
+  ],
 };
 
 export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [

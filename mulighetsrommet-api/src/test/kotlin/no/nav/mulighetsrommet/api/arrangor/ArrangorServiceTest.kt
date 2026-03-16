@@ -130,7 +130,7 @@ class ArrangorServiceTest : FunSpec({
 
             coEvery { brregClient.getBrregEnhet(orgnr) } returns error.left()
 
-            arrangorService.syncArrangorFromBrreg(orgnr).shouldBeLeft(error)
+            arrangorService.syncArrangorFromBrreg(orgnr).shouldBeLeft(ArrangorError.BrregError(error))
 
             database.run {
                 queries.arrangor.get(orgnr).shouldNotBeNull().should {
@@ -143,13 +143,14 @@ class ArrangorServiceTest : FunSpec({
 
         test("skal ikke synkronisere enhet fjernet av juridiske årsaker når arrangør ikke eksisterer") {
             val orgnr = Organisasjonsnummer("100200300")
-            val error = BrregError.FjernetAvJuridiskeArsaker(
-                FjernetBrregEnhetDto(orgnr, LocalDate.of(2020, 1, 1)),
-            )
+            val error =
+                BrregError.FjernetAvJuridiskeArsaker(
+                    FjernetBrregEnhetDto(orgnr, LocalDate.of(2020, 1, 1)),
+                )
 
             coEvery { brregClient.getBrregEnhet(orgnr) } returns error.left()
 
-            arrangorService.syncArrangorFromBrreg(orgnr).shouldBeLeft(error)
+            arrangorService.syncArrangorFromBrreg(orgnr).shouldBeLeft(ArrangorError.BrregError(error))
 
             database.run {
                 queries.arrangor.get(orgnr).shouldBeNull()
@@ -162,7 +163,7 @@ class ArrangorServiceTest : FunSpec({
             coEvery { brregClient.getBrregEnhet(orgnr) } returns BrregError.NotFound.left()
             coEvery { brregClient.getBrregEnhet(orgnr) } returns BrregError.NotFound.left()
 
-            arrangorService.getArrangorOrSyncFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
+            arrangorService.getArrangorOrSyncFromBrreg(orgnr) shouldBeLeft ArrangorError.BrregError(BrregError.NotFound)
 
             database.run {
                 queries.arrangor.get(orgnr) shouldBe null

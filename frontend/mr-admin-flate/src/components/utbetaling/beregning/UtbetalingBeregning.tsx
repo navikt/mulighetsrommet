@@ -14,7 +14,7 @@ interface Props {
 
 export default function UtbetalingBeregning({ beregning }: Props) {
   return (
-    <VStack gap="space-8">
+    <VStack gap="space-16" className="max-h-150 overflow-y-auto">
       {beregning.deltakerTableData && <DataDrivenTable data={beregning.deltakerTableData} />}
       <SatsPerioderOgBelop satsDetaljer={beregning.satsDetaljer} pris={beregning.pris} />
     </VStack>
@@ -29,7 +29,7 @@ function SatsPerioderOgBelop({
   satsDetaljer: DataDetails[];
 }) {
   return (
-    <VStack className="max-w-[500px]" gap="space-8">
+    <VStack className="max-w-125" gap="space-8">
       {satsDetaljer.length > 0 && (
         <>
           {satsDetaljer.map((s) => (
@@ -43,7 +43,7 @@ function SatsPerioderOgBelop({
               ))}
             </VStack>
           ))}
-          <hr className="w-[500px] bg-[var(--ax-border-neutral-subtle)] h-px border-0" />
+          <hr className="w-125 bg-(--ax-border-neutral-subtle) h-px border-0" />
         </>
       )}
       <MetadataHStack

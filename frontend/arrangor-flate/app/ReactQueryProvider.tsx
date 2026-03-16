@@ -11,7 +11,18 @@ export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            retry: 3,
+            retry: (failureCount, error) => {
+              if (
+                typeof error === "object" &&
+                "status" in error &&
+                typeof error.status === "number" &&
+                error.status >= 400 &&
+                error.status < 500
+              ) {
+                return false;
+              }
+              return failureCount < 3;
+            },
             staleTime: 1000 * 60,
           },
         },

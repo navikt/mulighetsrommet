@@ -34,12 +34,8 @@ class AltinnRettigheterQueries(private val session: Session) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val deleteRoller = """
-             delete from altinn_person_rettighet
-             where norsk_ident = :norsk_ident
-               and organisasjonsnummer = :organisasjonsnummer
-               and not (rettighet = any (:rettigheter))
-        """.trimIndent()
+        val deleteRoller = """ delete from altinn_person_rettighet where norsk_ident = :norsk_ident """.trimIndent()
+        session.execute(queryOf(deleteRoller, mapOf("norsk_ident" to norskIdent.value)))
 
         bedriftRettigheter.forEach { bedriftRettighet ->
             val roller = bedriftRettighet.rettigheter.map {
@@ -51,13 +47,6 @@ class AltinnRettigheterQueries(private val session: Session) {
                 )
             }
             session.batchPreparedNamedStatement(upsertRolle, roller)
-
-            val deleteParams = mapOf(
-                "norsk_ident" to norskIdent.value,
-                "organisasjonsnummer" to bedriftRettighet.organisasjonsnummer.value,
-                "rettigheter" to session.createArrayOfAltinnRessurs(bedriftRettighet.rettigheter),
-            )
-            session.execute(queryOf(deleteRoller, deleteParams))
         }
     }
 

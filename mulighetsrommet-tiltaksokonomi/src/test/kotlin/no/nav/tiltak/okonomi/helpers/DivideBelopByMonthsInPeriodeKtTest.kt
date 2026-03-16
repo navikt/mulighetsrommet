@@ -21,6 +21,22 @@ class DivideBelopByMonthsInPeriodeKtTest : FunSpec({
         )
     }
 
+    test("filtrerer vekk månedsperioder med beregnet beløp lik 0") {
+        val bestillingsperiode = Periode(
+            start = LocalDate.of(2023, 1, 30),
+            slutt = LocalDate.of(2023, 2, 2),
+        )
+
+        divideBelopByMonthsInPeriode(bestillingsperiode, 3) shouldBe listOf(
+            Periode(LocalDate.of(2023, 1, 30), LocalDate.of(2023, 2, 1)) to 2,
+            Periode(LocalDate.of(2023, 2, 1), LocalDate.of(2023, 2, 2)) to 1,
+        )
+
+        divideBelopByMonthsInPeriode(bestillingsperiode, 2) shouldBe listOf(
+            Periode(LocalDate.of(2023, 1, 30), LocalDate.of(2023, 2, 1)) to 2,
+        )
+    }
+
     test("restbeløpet legges på den første måneden") {
         val bestillingsperiode = Periode(
             start = LocalDate.of(2023, 1, 1),

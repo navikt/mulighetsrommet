@@ -99,7 +99,7 @@ fun Route.utbetalingRoutes() {
                         )
 
                     UtbetalingStatusType.GENERERT,
-                    UtbetalingStatusType.INNSENDT,
+                    UtbetalingStatusType.TIL_BEHANDLING,
                     UtbetalingStatusType.TIL_ATTESTERING,
                     UtbetalingStatusType.RETURNERT,
                     UtbetalingStatusType.AVBRUTT,
@@ -126,7 +126,7 @@ fun Route.utbetalingRoutes() {
                 tags = setOf("Utbetaling")
                 operationId = "opprettUtbetaling"
                 request {
-                    body<OpprettUtbetalingRequest>()
+                    body<UtbetalingRequest>()
                 }
                 response {
                     code(HttpStatusCode.Created) {
@@ -138,13 +138,40 @@ fun Route.utbetalingRoutes() {
                     }
                 }
             }) {
-                val request = call.receive<OpprettUtbetalingRequest>()
+                val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(request)
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
                     .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
                     .map { HttpStatusCode.Created }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            post("/rediger", {
+                tags = setOf("Utbetaling")
+                operationId = "redigerUtbetaling"
+                request {
+                    body<UtbetalingRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetalingen ble redigert"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val request = call.receive<UtbetalingRequest>()
+                val navIdent = getNavIdent()
+
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
+                    .flatMap { utbetalingService.redigerUtbetaling(it, navIdent) }
+                    .mapLeft { ValidationError("Klarte ikke redigere utbetaling", it) }
+                    .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
             }
@@ -209,14 +236,15 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val utbetaling = db.session {
-                    val ansatt =
-                        queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
                     val utbetaling = queries.utbetaling.getOrError(id)
+                    val linjer = queries.delutbetaling.getByUtbetalingId(id)
+                    val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
 
-                    UtbetalingDetaljerDto(
-                        utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
-                        handlinger = UtbetalingService.utbetalingHandlinger(utbetaling, ansatt),
-                    )
+                    val ansatt = queries.ansatt.getByNavIdent(navIdent)
+                        ?: throw MrExceptions.navAnsattNotFound(navIdent)
+                    val handlinger = UtbetalingService.utbetalingHandlinger(utbetaling, ansatt)
+
+                    UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
                 }
                 call.respond(utbetaling)
             }
@@ -357,12 +385,13 @@ fun Route.utbetalingRoutes() {
                             val opprettelse = queries.totrinnskontroll
                                 .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
 
+                            val deltakere = tilsagnService.toTilsagnDeltakerPersonalia(tilsagn.deltakere)
                             UtbetalingLinje(
                                 id = delutbetaling.id,
                                 gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
                                 pris = delutbetaling.pris,
                                 status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
-                                tilsagn = TilsagnDto.from(tilsagn, tilsagnService.toTilsagnDeltakerPersonalia(tilsagn.deltakere)),
+                                tilsagn = TilsagnDto.from(tilsagn, deltakere),
                                 opprettelse = opprettelse.toDto(),
                                 handlinger = UtbetalingService.linjeHandlinger(
                                     delutbetaling,
@@ -382,10 +411,11 @@ fun Route.utbetalingRoutes() {
                             valuta = utbetaling.valuta,
                         )
                         .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
-                        .map {
+                        .map { tilsagn ->
+                            val deltakere = tilsagnService.toTilsagnDeltakerPersonalia(tilsagn.deltakere)
                             UtbetalingLinje(
                                 id = UUID.randomUUID(),
-                                tilsagn = TilsagnDto.from(it, tilsagnService.toTilsagnDeltakerPersonalia(it.deltakere)),
+                                tilsagn = TilsagnDto.from(tilsagn, deltakere),
                                 status = null,
                                 pris = 0.withValuta(utbetaling.valuta),
                                 gjorOppTilsagn = false,
@@ -528,7 +558,7 @@ data class OpprettDelutbetalingerRequest(
 )
 
 @Serializable
-data class OpprettUtbetalingRequest(
+data class UtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)

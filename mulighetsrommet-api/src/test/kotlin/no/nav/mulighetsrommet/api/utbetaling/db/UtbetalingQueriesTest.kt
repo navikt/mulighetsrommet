@@ -85,7 +85,7 @@ class UtbetalingQueriesTest : FunSpec({
         korreksjonBegrunnelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         journalpostId = JournalpostId("12345"),
-        godkjentAvArrangorTidspunkt = null,
+        innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
         blokkeringer = emptySet(),
     )
@@ -154,7 +154,7 @@ class UtbetalingQueriesTest : FunSpec({
             queries.utbetaling.getOrError(utbetaling.id).innsending shouldBe null
 
             val tidspunkt = LocalDateTime.of(2026, 1, 1, 0, 0, 0)
-            queries.utbetaling.setGodkjentAvArrangor(utbetaling.id, tidspunkt)
+            queries.utbetaling.setInnsendtAvArrangor(utbetaling.id, tidspunkt)
 
             queries.utbetaling.getOrError(utbetaling.id).innsending shouldBe Utbetaling.Innsending(
                 tidspunkt = tidspunkt,
@@ -529,7 +529,7 @@ class UtbetalingQueriesTest : FunSpec({
                 val utbetaling1 = utbetaling1.copy(
                     status = UtbetalingStatusType.GENERERT,
                 )
-                val utbetaling2 = UtbetalingFixtures.utbetaling2.copy(status = UtbetalingStatusType.INNSENDT)
+                val utbetaling2 = UtbetalingFixtures.utbetaling2.copy(status = UtbetalingStatusType.TIL_BEHANDLING)
                 val utbetaling3 = UtbetalingFixtures.utbetaling3.copy(
                     status = UtbetalingStatusType.GENERERT,
                     gjennomforingId = AFT1.id,

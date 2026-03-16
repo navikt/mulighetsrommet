@@ -11,15 +11,16 @@ export interface Props {
 }
 
 export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
+  const valuta = utbetaling.beregning.valuta;
   const utbetalesTotal = linjer.reduce((acc, d) => acc + d.pris.belop, 0);
   const totalGjenstaendeBelop = linjer.reduce(
     (acc, l) => acc + l.tilsagn.belopGjenstaende.belop,
     0,
   );
-  const differanse = utbetaling.pris.belop - utbetalesTotal;
+  const differanse = utbetaling.beregning.belop - utbetalesTotal;
 
   return (
-    <Box className="overflow-x-scroll">
+    <Box className="overflow-x-auto">
       <Table data-testid="linje-table">
         <Table.Header>
           <Table.Row>
@@ -55,20 +56,20 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
           {linjer.map((linje, i) => renderRow(linje, i))}
           <Table.Row shadeOnHover={false}>
             <Table.DataCell colSpan={5} className="font-ax-bold">
-              {`${utbetalingTekster.beregning.belop.label}: ${formaterValutaBelop(utbetaling.pris)}`}
+              {`${utbetalingTekster.beregning.belop.label}: ${formaterValutaBelop(utbetaling.beregning)}`}
             </Table.DataCell>
             <Table.DataCell className="font-ax-bold" colSpan={2}>
-              {formaterValuta(totalGjenstaendeBelop, utbetaling.pris.valuta)}
+              {formaterValuta(totalGjenstaendeBelop, valuta)}
             </Table.DataCell>
             <Table.DataCell className="font-ax-bold">
-              {formaterValuta(utbetalesTotal, utbetaling.pris.valuta)}
+              {formaterValuta(utbetalesTotal, valuta)}
             </Table.DataCell>
             <Table.DataCell className="font-ax-bold" align="right" colSpan={2}>
               <HStack align="center">
                 <CopyButton
                   copyText={differanse.toString()}
                   size="small"
-                  text={`Differanse ${formaterValuta(differanse, utbetaling.pris.valuta)}`}
+                  text={`Differanse ${formaterValuta(differanse, valuta)}`}
                 />
               </HStack>
             </Table.DataCell>

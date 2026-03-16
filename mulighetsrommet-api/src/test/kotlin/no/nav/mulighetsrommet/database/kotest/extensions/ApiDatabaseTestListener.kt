@@ -68,7 +68,12 @@ class ApiDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecLi
     }
 
     fun truncateAll() {
-        val excludedTables = setOf("flyway_schema_history", "utbetaling_blokkering_type", "kostnadssted")
+        val excludedTables = setOf(
+            "flyway_schema_history",
+            "kostnadssted",
+            "utbetaling_blokkering_type",
+            "utbetaling_status_type",
+        )
 
         val tableNames =
             queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")

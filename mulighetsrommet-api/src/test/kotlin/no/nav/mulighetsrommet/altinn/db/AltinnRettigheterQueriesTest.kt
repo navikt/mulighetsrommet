@@ -80,4 +80,31 @@ class AltinnRettigheterQueriesTest : FunSpec({
             )
         }
     }
+
+    test("nye rettigheter sletter gamle") {
+        database.runAndRollback {
+            queries.altinnRettigheter.upsertRettigheter(
+                norskIdent = norskIdent1,
+                bedriftRettigheter = listOf(rettighetUnderenhet1),
+                expiry = LocalDateTime.of(2024, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+            )
+            queries.altinnRettigheter.upsertRettigheter(
+                norskIdent = norskIdent1,
+                bedriftRettigheter = listOf(rettighetUnderenhet2),
+                expiry = LocalDateTime.of(2024, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+            )
+
+            queries.altinnRettigheter.getRettigheter(norskIdent1) shouldContainExactly listOf(
+                BedriftRettigheterDbo(
+                    underenhet2.organisasjonsnummer,
+                    listOf(
+                        BedriftRettighetWithExpiry(
+                            rettighet = AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING,
+                            expiry = LocalDateTime.of(2024, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+                        ),
+                    ),
+                ),
+            )
+        }
+    }
 })

@@ -65,13 +65,12 @@ class UtbetalingQueries(private val session: Session) {
                 beregning_type,
                 belop_beregnet,
                 valuta,
-                innsender,
                 tilskuddstype,
                 journalpost_id,
                 kommentar,
                 korreksjon_gjelder_utbetaling_id,
                 korreksjon_begrunnelse,
-                godkjent_av_arrangor_tidspunkt,
+                innsendt_av_arrangor_tidspunkt,
                 utbetales_tidligst_tidspunkt,
                 status,
                 datastream_periode_start,
@@ -89,15 +88,14 @@ class UtbetalingQueries(private val session: Session) {
                 :beregning_type::utbetaling_beregning_type,
                 :belop_beregnet,
                 :valuta::currency,
-                :innsender,
                 :tilskuddstype::tilskuddstype,
                 :journalpost_id,
                 :kommentar,
                 :korreksjon_gjelder_utbetaling_id,
                 :korreksjon_begrunnelse,
-                :godkjent_av_arrangor_tidspunkt,
+                :innsendt_av_arrangor_tidspunkt,
                 :utbetales_tidligst_tidspunkt,
-                :status::utbetaling_status,
+                :status,
                 :datastream_periode_start::date,
                 :datastream_periode_slutt::date
             ) on conflict (id) do update set
@@ -112,12 +110,11 @@ class UtbetalingQueries(private val session: Session) {
                 beregning_type = excluded.beregning_type,
                 belop_beregnet = excluded.belop_beregnet,
                 valuta = excluded.valuta,
-                innsender = excluded.innsender,
                 tilskuddstype = excluded.tilskuddstype,
                 kommentar = excluded.kommentar,
                 korreksjon_gjelder_utbetaling_id = excluded.korreksjon_gjelder_utbetaling_id,
                 korreksjon_begrunnelse = excluded.korreksjon_begrunnelse,
-                godkjent_av_arrangor_tidspunkt = excluded.godkjent_av_arrangor_tidspunkt,
+                innsendt_av_arrangor_tidspunkt = excluded.innsendt_av_arrangor_tidspunkt,
                 utbetales_tidligst_tidspunkt = excluded.utbetales_tidligst_tidspunkt,
                 status = excluded.status,
                 datastream_periode_start = excluded.datastream_periode_start,
@@ -143,7 +140,7 @@ class UtbetalingQueries(private val session: Session) {
             "korreksjon_begrunnelse" to dbo.korreksjonBegrunnelse,
             "tilskuddstype" to dbo.tilskuddstype.name,
             "journalpost_id" to dbo.journalpostId?.value,
-            "godkjent_av_arrangor_tidspunkt" to dbo.godkjentAvArrangorTidspunkt,
+            "innsendt_av_arrangor_tidspunkt" to dbo.innsendtAvArrangorTidspunkt,
             "utbetales_tidligst_tidspunkt" to dbo.utbetalesTidligstTidspunkt,
             "status" to dbo.status.name,
             "datastream_periode_start" to dbo.periode.start,
@@ -402,7 +399,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling set
-                status = :status::utbetaling_status
+                status = :status
             where id = :id::uuid
         """.trimIndent()
 
@@ -428,12 +425,11 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    fun setGodkjentAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
+    fun setInnsendtAvArrangor(id: UUID, tidspunkt: LocalDateTime) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling set
-                godkjent_av_arrangor_tidspunkt = :tidspunkt,
-                innsender = 'Arrangor'
+                innsendt_av_arrangor_tidspunkt = :tidspunkt
             where id = :id::uuid
         """.trimIndent()
 
@@ -546,7 +542,7 @@ class UtbetalingQueries(private val session: Session) {
             select *
             from view_utbetaling
             where arrangor_organisasjonsnummer = any (?)
-            and status = any (?::utbetaling_status[])
+            and status = any (?)
             order by arrangor_navn, tiltakskode desc
         """.trimIndent()
         val orgnrListe = session.createArrayOfValue(arrangorer) { it.value }
@@ -563,12 +559,12 @@ class UtbetalingQueries(private val session: Session) {
             select *
             from view_utbetaling
             where gjennomforing_id = :id::uuid
-            and (:statuser::utbetaling_status[] is null or status = any (:statuser::utbetaling_status[]))
+            and (:statuser::text[] is null or status = any (:statuser))
         """.trimIndent()
 
         val params = mapOf(
             "id" to gjennomforingId,
-            "statuser" to statuser?.ifEmpty { null }?.let { createArrayOfValue(it) { it } },
+            "statuser" to statuser?.ifEmpty { null }?.let { createTextArray(it) },
         )
 
         return list(queryOf(query, params)) { it.toUtbetaling() }
@@ -653,7 +649,7 @@ class UtbetalingQueries(private val session: Session) {
             select *
             from view_utbetaling
             where gjennomforing_id = ?::uuid
-            order by godkjent_av_arrangor_tidspunkt desc
+            order by innsendt_av_arrangor_tidspunkt desc
             limit 1
         """.trimIndent()
 
@@ -695,10 +691,10 @@ class UtbetalingQueries(private val session: Session) {
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             ),
-            korreksjon = stringOrNull("korreksjon_begrunnelse")?.let { begrunnelse ->
+            korreksjon = uuidOrNull("korreksjon_gjelder_utbetaling_id")?.let { gjelderUtbetalingId ->
                 Utbetaling.Korreksjon(
-                    gjelderUtbetalingId = uuidOrNull("korreksjon_gjelder_utbetaling_id"),
-                    begrunnelse = begrunnelse,
+                    gjelderUtbetalingId = gjelderUtbetalingId,
+                    begrunnelse = string("korreksjon_begrunnelse"),
                 )
             },
             innsending = localDateTimeOrNull("innsendt_av_arrangor_tidspunkt")?.let { tidspunkt ->

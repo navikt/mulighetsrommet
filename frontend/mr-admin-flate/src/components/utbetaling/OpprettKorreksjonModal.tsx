@@ -1,14 +1,11 @@
-import { OpprettUtbetalingRequest, UtbetalingDto } from "@tiltaksadministrasjon/api-client";
-import { Button, HStack, Modal } from "@navikt/ds-react";
+import { UtbetalingDto } from "@tiltaksadministrasjon/api-client";
+import { Button, HStack, Modal, VStack } from "@navikt/ds-react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { FormGroup } from "@/components/skjema/FormGroup";
-import { ArrangorBetalingsinformasjon } from "@/components/utbetaling/ArrangorBetalingsinformasjon";
-import { useOpprettUtbetalingForm } from "@/components/utbetaling/form/useOpprettUtbetalingForm";
-import { NumberInput } from "@/components/skjema/NumberInput";
-import { TextareaInput } from "@/components/skjema/TextareaInput";
-import { FormProvider } from "react-hook-form";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { useOpprettUtbetalingForm } from "@/components/utbetaling/form/useOpprettUtbetalingForm";
+import { FormProvider } from "react-hook-form";
+import { UtbetalingForm } from "@/components/utbetaling/form/UtbetalingForm";
+import { KorreksjonInfoCard } from "@/components/utbetaling/KorreksjonInfoCard";
 
 interface OpprettKorreksjonModalProps {
   utbetaling: UtbetalingDto;
@@ -17,46 +14,40 @@ interface OpprettKorreksjonModalProps {
 }
 
 export function OpprettKorreksjonModal({ utbetaling, open, close }: OpprettKorreksjonModalProps) {
-  const { gjennomforing, prismodell } = useGjennomforing(utbetaling.gjennomforingId);
+  const { gjennomforing } = useGjennomforing(utbetaling.gjennomforingId);
 
-  const { form, onSubmit } = useOpprettUtbetalingForm({
+  const { form, submit } = useOpprettUtbetalingForm({
     gjennomforingId: gjennomforing.id,
     korrigererUtbetaling: utbetaling.id,
     periodeStart: utbetaling.periode.start,
     periodeSlutt: yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 })),
-    pris: { belop: null, valuta: prismodell.valuta },
+    pris: { belop: null, valuta: utbetaling.beregning.valuta },
   });
 
+  const formId = "opprett-korreksjon";
   return (
     <Modal onClose={close} open={open} header={{ heading: "Opprett korreksjon" }} width={1200}>
       <Modal.Body>
-        <FormProvider {...form}>
-          <form method="dialog" id="opprett-korreksjon" onSubmit={onSubmit}>
-            <TwoColumnGrid separator>
-              <FormGroup>
-                <NumberInput<OpprettUtbetalingRequest>
-                  label={`Beløp (${prismodell.valuta})`}
-                  name="pris.belop"
-                />
-                <TextareaInput<OpprettUtbetalingRequest>
-                  label="Begrunnelse for utbetaling"
-                  name="korreksjonBegrunnelse"
-                  maxLength={250}
-                />
-              </FormGroup>
-              <FormGroup>
-                {open && <ArrangorBetalingsinformasjon arrangorId={gjennomforing.arrangor.id} />}
-              </FormGroup>
-            </TwoColumnGrid>
-          </form>
-        </FormProvider>
+        <VStack gap="space-24">
+          <KorreksjonInfoCard utbetalingId={utbetaling.id} />
+          <FormProvider {...form}>
+            <UtbetalingForm
+              id={formId}
+              onSubmit={form.handleSubmit(submit)}
+              arrangorId={gjennomforing.arrangor.id}
+              startDato={gjennomforing.startDato}
+            />
+          </FormProvider>
+        </VStack>
       </Modal.Body>
       <Modal.Footer>
         <HStack gap="space-16">
-          <Button type="button" variant="secondary" onClick={close}>
+          <Button size="small" variant="tertiary" onClick={close}>
             Avbryt
           </Button>
-          <Button form="opprett-korreksjon">Opprett korreksjon</Button>
+          <Button size="small" form={formId}>
+            Opprett
+          </Button>
         </HStack>
       </Modal.Footer>
     </Modal>

@@ -1,4 +1,4 @@
-import { ArrangorflateTilsagnDto } from "api-client";
+import { ArrangorflateTilsagnDto, ArrangorflateTilsagnDtoDeltakerPersonalia } from "api-client";
 import { tekster } from "~/tekster";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
 import {
@@ -40,6 +40,7 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
             />
           </>
         )}
+
         {tilsagn.beregning.entries.map((entry) => (
           <MetadataHGrid
             key={entry.label}
@@ -47,7 +48,23 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
             value={entry.value ? getDataElement(entry.value) : null}
           />
         ))}
+        {tilsagn.deltakere.length > 0 && (
+          <MetadataHGrid
+            label="Deltakere"
+            value={
+              <ul>
+                {tilsagn.deltakere.map((d) => {
+                  return <li key={d.deltakerId}>{formatTilsagnDeltaker(d)}</li>;
+                })}
+              </ul>
+            }
+          />
+        )}
       </VStack>
     </Box>
   );
+}
+
+function formatTilsagnDeltaker(deltaker: ArrangorflateTilsagnDtoDeltakerPersonalia): string {
+  return `${deltaker.navn} · ${deltaker.norskIdent}`;
 }
