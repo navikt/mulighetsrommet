@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
 @Serializable
-data class OpplaeringTilskudd(
+data class Opplaeringtilskudd(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,

@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
-import no.nav.mulighetsrommet.api.vedtak.OpplaeringTilskuddQueries
+import no.nav.mulighetsrommet.api.vedtak.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.veilederflate.db.VeilederJoyrideQueries
 import no.nav.mulighetsrommet.api.veilederflate.db.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.database.Database
@@ -90,7 +90,7 @@ open class QueryContext(open val session: Session) {
         val arrangorTiltak = ArrangorflateTiltakQueries(session)
         val scheduledTask = ScheduledTaskQueries(session)
         val kafkaConsumerRecords = KafkaConsumerRecordQueries(session)
-        val opplaeringTilskudd = OpplaeringTilskuddQueries(session)
+        val opplaeringtilskudd = OpplaeringtilskuddQueries(session)
     }
 }
 

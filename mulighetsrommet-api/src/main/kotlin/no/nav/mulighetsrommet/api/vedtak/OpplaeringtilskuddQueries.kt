@@ -7,8 +7,8 @@ import no.nav.mulighetsrommet.database.requireSingle
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
-class OpplaeringTilskuddQueries(private val session: Session) {
-    fun getOrError(id: UUID): OpplaeringTilskudd {
+class OpplaeringtilskuddQueries(private val session: Session) {
+    fun getOrError(id: UUID): Opplaeringtilskudd {
         @Language("PostgreSQL")
         val query = """
             select * from tilskudd_opplaering
@@ -18,7 +18,7 @@ class OpplaeringTilskuddQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, id)) { it.toTilskudd() }
     }
 
-    fun getAll(): List<OpplaeringTilskudd> {
+    fun getAll(): List<Opplaeringtilskudd> {
         @Language("PostgreSQL")
         val query = """
             select * from tilskudd_opplaering
@@ -28,9 +28,9 @@ class OpplaeringTilskuddQueries(private val session: Session) {
         return session.list(queryOf(query)) { it.toTilskudd() }
     }
 
-    fun Row.toTilskudd(): OpplaeringTilskudd = OpplaeringTilskudd(
+    fun Row.toTilskudd(): Opplaeringtilskudd = Opplaeringtilskudd(
         id = uuid("id"),
         navn = string("navn"),
-        kode = string("kode").let { OpplaeringTilskudd.Kode.valueOf(it) },
+        kode = string("kode").let { Opplaeringtilskudd.Kode.valueOf(it) },
     )
 }

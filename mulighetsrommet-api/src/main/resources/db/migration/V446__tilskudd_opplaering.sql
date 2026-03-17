@@ -8,7 +8,7 @@ create table tilskudd_opplaering
 );
 
 alter table tilskudd_opplaering
-    add constraint tilskudd_navn_unique unique (kode);
+    add constraint tilskudd_kode_unique unique (kode);
 
 create trigger set_timestamp
     before update

@@ -6,7 +6,7 @@ import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import type { BehandlingFormData } from "./schema";
 import { FormGroup } from "@/layouts/FormGroup";
-import { useOpplaeringTilskudd } from "./useOpplaeringTilskudd";
+import { useOpplaeringtilskudd } from "./useOpplaeringTilskudd";
 
 const tomtTilskudd = {
   tilskuddstype: "",
@@ -19,7 +19,7 @@ const tomtTilskudd = {
 
 export function Saksopplysninger() {
   const { control } = useFormContext<BehandlingFormData>();
-  const { data: opplaeringTilskudd } = useOpplaeringTilskudd();
+  const { data: opplaeringtilskudd } = useOpplaeringtilskudd();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -51,7 +51,7 @@ export function Saksopplysninger() {
                 rules={{ required: "Tilskuddstype er påkrevd" }}
               >
                 <option value="">-- Velg tilskuddstype --</option>
-                {opplaeringTilskudd.map((tilskudd) => (
+                {opplaeringtilskudd.map((tilskudd) => (
                   <option key={tilskudd.id} value={tilskudd.navn}>
                     {tilskudd.navn}
                   </option>

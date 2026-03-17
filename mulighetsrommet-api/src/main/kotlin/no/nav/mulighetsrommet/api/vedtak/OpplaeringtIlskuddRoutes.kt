@@ -12,15 +12,15 @@ import org.koin.ktor.ext.inject
 fun Route.opplaeringTilskuddRoutes() {
     val db: ApiDatabase by inject()
 
-    route("/opplaering-tilskudd") {
+    route("/opplaeringtilskudd") {
         get({
-            description = "Hent alle opplaering tilskudd"
-            tags = setOf("OpplaeringTilskudd")
+            description = "Hent alle opplaeringtilskudd"
+            tags = setOf("Opplaeringtilskudd")
             operationId = "getAll"
             response {
                 code(HttpStatusCode.OK) {
                     description = "Alle tilskudd for opplaering"
-                    body<List<OpplaeringTilskudd>>()
+                    body<List<Opplaeringtilskudd>>()
                 }
                 default {
                     description = "Problem details"
@@ -29,7 +29,7 @@ fun Route.opplaeringTilskuddRoutes() {
             }
         }) {
             val tilskudd = db.session {
-                queries.opplaeringTilskudd.getAll()
+                queries.opplaeringtilskudd.getAll()
             }
             call.respond(tilskudd)
         }

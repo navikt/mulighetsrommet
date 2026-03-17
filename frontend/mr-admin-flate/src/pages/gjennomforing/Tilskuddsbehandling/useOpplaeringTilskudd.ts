@@ -1,12 +1,12 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { OpplaeringTilskuddService } from "@tiltaksadministrasjon/api-client";
+import { OpplaeringtilskuddService } from "@tiltaksadministrasjon/api-client";
 
-export function useOpplaeringTilskudd() {
+export function useOpplaeringtilskudd() {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.opplaeringTilskudd(),
+    queryKey: QueryKeys.opplaeringtilskudd(),
     queryFn: async () => {
-      return OpplaeringTilskuddService.getAll();
+      return OpplaeringtilskuddService.getAll();
     },
   });
 }

@@ -3228,23 +3228,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/opplaering-tilskudd:
+  /api/tiltaksadministrasjon/opplaeringtilskudd:
     get:
       tags:
-      - OpplaeringTilskudd
-      description: Hent alle opplaering tilskudd
+      - Opplaeringtilskudd
+      description: Hent alle opplaeringtilskudd
       operationId: getAll
       parameters: []
       responses:
         "200":
-          description: Alle utbetalinger for gitt gjennomføring
+          description: Alle tilskudd for opplaering
           headers: {}
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/OpplaeringTilskudd"
+                  $ref: "#/components/schemas/Opplaeringtilskudd"
         default:
           description: Problem details
           headers: {}
@@ -7270,7 +7270,7 @@ components:
             $ref: "#/components/schemas/SetNotificationStatusRequest.StatusRequest"
       required:
       - notifikasjoner
-    OpplaeringTilskudd:
+    Opplaeringtilskudd:
       type: object
       properties:
         id:
@@ -7279,12 +7279,12 @@ components:
         navn:
           type: string
         kode:
-          $ref: "#/components/schemas/OpplaeringTilskudd.Kode"
+          $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
       required:
       - id
       - kode
       - navn
-    OpplaeringTilskudd.Kode:
+    Opplaeringtilskudd.Kode:
       type: string
       enum:
       - SKOLEPENGER
