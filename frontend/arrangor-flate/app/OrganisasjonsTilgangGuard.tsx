@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useOrganisasjonsTilganger } from "./hooks/useOrganisasjonsTilganger";
-import IngenTilgang from "./routes/ingen-tilgang";
+import IngenTilgang from "./components/IngenTilgang";
 
 interface OrganisasjonsTilgangGuardProps {
   children: ReactNode;

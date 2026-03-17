@@ -5,7 +5,7 @@ export default function IngenTilgang() {
   return (
     <Box padding="space-24" background="default" borderRadius="8">
       <PageHeading title="Mangler tilgang" />
-      <GlobalAlert status="error" centered={false}>
+      <GlobalAlert status="warning" centered={false}>
         <GlobalAlert.Header>
           <GlobalAlert.Title>Du mangler tilgang til utbetalingsløsningen.</GlobalAlert.Title>
         </GlobalAlert.Header>

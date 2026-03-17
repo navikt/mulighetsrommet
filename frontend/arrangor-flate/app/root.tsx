@@ -1,4 +1,5 @@
 import {
+  ErrorResponse,
   isRouteErrorResponse,
   Links,
   LoaderFunction,
@@ -26,6 +27,7 @@ import { Route } from "./+types/root";
 import { ClientOnly } from "./components/ClientOnly";
 import { isProblemDetail } from "./utils/validering";
 import OrganisasjonsTilgangGuard from "./OrganisasjonsTilgangGuard";
+import IngenTilgang from "./components/IngenTilgang";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
@@ -141,20 +143,50 @@ function DekoratorHeader({ dekorator }: { dekorator?: DekoratorElements }) {
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (isRouteErrorResponse(error) && error.status !== 200) {
-    if (error.status === 401) {
+    return RouteError(error);
+  }
+  pushError(error);
+  if (isProblemDetail(error)) {
+    if (error.status === 403) {
+      return Forbidden();
+    }
+    return (
+      <Dokument>
+        <ProblemDetailPage error={error} />
+      </Dokument>
+    );
+  } else {
+    return (
+      <Dokument>
+        <ErrorPage
+          title="Ukjent feil"
+          errorText={
+            "En teknisk feil gjør at siden er utilgjengelig. Dette skyldes ikke noe du gjorde." +
+            (error instanceof Error ? `\n Feilmelding: ${error.message}` : "")
+          }
+        />
+      </Dokument>
+    );
+  }
+}
+
+function RouteError(error: ErrorResponse) {
+  switch (error.status) {
+    case 401: {
       const redirectPath = typeof window !== "undefined" ? window.location.pathname : "/";
       throw redirect(`/oauth2/login?redirect=${redirectPath}`);
     }
-    if (error.status === 403) {
-      throw redirect("/ingen-tilgang");
+    case 403: {
+      return Forbidden();
     }
-    if (error.status === 404) {
+    case 404: {
       return (
         <Dokument>
           <ErrorPageNotFound errorText={error.data?.detail} />
         </Dokument>
       );
-    } else {
+    }
+    default: {
       pushError(error);
       return (
         <Dokument>
@@ -166,28 +198,15 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         </Dokument>
       );
     }
-  } else {
-    pushError(error);
-    if (isProblemDetail(error)) {
-      return (
-        <Dokument>
-          <ProblemDetailPage error={error} />
-        </Dokument>
-      );
-    } else {
-      return (
-        <Dokument>
-          <ErrorPage
-            title="Ukjent feil"
-            errorText={
-              "En teknisk feil gjør at siden er utilgjengelig. Dette skyldes ikke noe du gjorde." +
-              (error instanceof Error ? `\n Feilmelding: ${error.message}` : "")
-            }
-          />
-        </Dokument>
-      );
-    }
   }
+}
+
+function Forbidden() {
+  return (
+    <Dokument>
+      <IngenTilgang />
+    </Dokument>
+  );
 }
 
 export default App;

@@ -50,7 +50,6 @@ export const pathTo = {
   kvittering: (orgnr: string, id: string) => `/${orgnr}/utbetaling/${id}/kvittering`,
   detaljer: (orgnr: string, id: string) => `/${orgnr}/utbetaling/${id}/detaljer`,
   tilsagn: (orgnr: string, id: string) => `/${orgnr}/tilsagn/${id}`,
-  ingenTilgang: "/ingen-tilgang",
 };
 
 export function deltakerOversiktLenke(env: Environment): string {
