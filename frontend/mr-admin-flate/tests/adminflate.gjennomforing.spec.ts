@@ -9,8 +9,8 @@ test.beforeEach(async ({ page }) => {
 });
 
 const fyllInnGjennomforing = async (page: Page) => {
-  await page.locator('button:has-text("Handlinger")').click();
-  await page.locator('button:has-text("Opprett ny gjennomføring")').click();
+  await page.getByRole("button", { name: "Handlinger" }).click();
+  await page.getByRole("menuitem", { name: "Opprett ny gjennomføring" }).click();
 
   await locateAndFillInput(page, "antallPlasser", "20");
 

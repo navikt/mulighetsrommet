@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -47,6 +48,7 @@ fun Route.tilsagnRoutesBeregning() {
     val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
     val gjennomforinger: GjennomforingDetaljerService by inject()
+    val personaliaService: PersonaliaService by inject()
 
     get("/{id}/defaults", {
         description = "Hent standardverdier for tilsagn utledet fra gitt tilsagn"
@@ -157,7 +159,10 @@ fun Route.tilsagnRoutesBeregning() {
                     it.startDato == null || it.sluttDato == null ||
                         periode.intersects(Periode.fromInclusiveDates(it.startDato, it.sluttDato))
                 }
-            service.toTilsagnDeltakerPersonalia(deltakelser.map { it.id })
+            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.map { it.id })
+            deltakelser.map {
+                TilsagnDeltakerDto.from(it, personalia.getValue(it.id))
+            }
         } else {
             emptyList()
         }
@@ -394,5 +399,5 @@ data class TilsagnDeltakereRequest(
 @Serializable
 data class TilsagnDeltakereResponse(
     val tilsagnPerDeltaker: Boolean,
-    val deltakere: List<TilsagnDeltakerPersonalia>,
+    val deltakere: List<TilsagnDeltakerDto>,
 )

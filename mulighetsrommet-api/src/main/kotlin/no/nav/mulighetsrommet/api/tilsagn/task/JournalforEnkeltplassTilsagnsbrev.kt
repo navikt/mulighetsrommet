@@ -90,7 +90,7 @@ class JournalforEnkeltplassTilsagnsbrev(
             0 -> return@transaction Either.Left("Fant ingen deltaker for enkeltplas ${enkeltplass.id}")
             else -> return@transaction Either.Left("Fant ${deltakere.size} deltakere for enkeltplass ${enkeltplass.id}")
         }
-        val personalia = amtDeltakerClient.hentPersonalia(setOf(deltaker.id))
+        val personalia = amtDeltakerClient.hentPersonalia(listOf(deltaker.id))
             .getOrElse {
                 return@transaction Either.Left("Kunne ikke hente personalia fra amt-deltaker med id: $it")
             }.single()

@@ -4,7 +4,7 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
+import { ActionMenu, BodyShort, Button } from "@navikt/ds-react";
 import {
   AvbrytAvtaleAarsak,
   AvtaleDto,
@@ -21,6 +21,7 @@ import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklari
 import { OppdaterPrisModal } from "@/components/avtaler/OppdaterPrisModal";
 import { useAvtaleHandlinger } from "@/api/avtaler/useAvtale";
 import { OppdaterRammedetaljerModal } from "@/components/avtaler/OppdaterRammedetaljerModal";
+import { Handlinger } from "@/components/handlinger/Handlinger";
 
 interface Props {
   avtale: AvtaleDto;
@@ -89,73 +90,58 @@ export function AvtaleKnapperad({ avtale }: Props) {
       <EndringshistorikkPopover>
         <AvtaleEndringshistorikk id={avtale.id} />
       </EndringshistorikkPopover>
-      <Dropdown>
-        <Button size="small" variant="secondary" as={Dropdown.Toggle}>
-          Handlinger
-        </Button>
-        <Dropdown.Menu>
-          <Dropdown.Menu.GroupedList>
-            {handlinger.includes(AvtaleHandling.REDIGER) && (
-              <Dropdown.Menu.GroupedList.Item
-                onClick={() => {
-                  if (
-                    avtale.administratorer.length > 0 &&
-                    !avtale.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
-                  ) {
-                    advarselModal.current?.showModal();
-                  } else {
-                    navigate(path);
-                  }
-                }}
-              >
-                Rediger avtale
-              </Dropdown.Menu.GroupedList.Item>
-            )}
-            {handlinger.includes(AvtaleHandling.REGISTRER_OPSJON) && (
-              <Dropdown.Menu.GroupedList.Item
-                onClick={() => {
-                  registrerOpsjonModalRef.current?.showModal();
-                }}
-              >
-                Registrer opsjon
-              </Dropdown.Menu.GroupedList.Item>
-            )}
-            {handlinger.includes(AvtaleHandling.OPPDATER_PRIS) && (
-              <Dropdown.Menu.GroupedList.Item onClick={() => setOppdaterPrisModalOpen(true)}>
-                Oppdater pris
-              </Dropdown.Menu.GroupedList.Item>
-            )}
-            {handlinger.includes(AvtaleHandling.OPPDATER_RAMMEDETALJER) && (
-              <Dropdown.Menu.GroupedList.Item onClick={() => setAvtaleModalOpen("Rammedetaljer")}>
-                Oppdater rammedetaljer
-              </Dropdown.Menu.GroupedList.Item>
-            )}
-            {handlinger.includes(AvtaleHandling.AVBRYT) && (
-              <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
-                Avbryt avtale
-              </Dropdown.Menu.GroupedList.Item>
-            )}
-            {handlinger.includes(AvtaleHandling.OPPRETT_GJENNOMFORING) && (
-              <Dropdown.Menu.GroupedList.Item
-                onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}
-              >
-                Opprett ny gjennomføring
-              </Dropdown.Menu.GroupedList.Item>
-            )}
-          </Dropdown.Menu.GroupedList>
-          {handlinger.includes(AvtaleHandling.DUPLISER) && (
-            <>
-              <Dropdown.Menu.Divider />
-              <Dropdown.Menu.List>
-                <Dropdown.Menu.List.Item onClick={dupliserAvtale}>
-                  <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
-                  Dupliser
-                </Dropdown.Menu.List.Item>
-              </Dropdown.Menu.List>
-            </>
-          )}
-        </Dropdown.Menu>
-      </Dropdown>
+      <Handlinger>
+        {handlinger.includes(AvtaleHandling.REDIGER) && (
+          <ActionMenu.Item
+            onClick={() => {
+              if (
+                avtale.administratorer.length > 0 &&
+                !avtale.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
+              ) {
+                advarselModal.current?.showModal();
+              } else {
+                navigate(path);
+              }
+            }}
+          >
+            Rediger avtale
+          </ActionMenu.Item>
+        )}
+        {handlinger.includes(AvtaleHandling.REGISTRER_OPSJON) && (
+          <ActionMenu.Item
+            onClick={() => {
+              registrerOpsjonModalRef.current?.showModal();
+            }}
+          >
+            Registrer opsjon
+          </ActionMenu.Item>
+        )}
+        {handlinger.includes(AvtaleHandling.OPPDATER_PRIS) && (
+          <ActionMenu.Item onClick={() => setOppdaterPrisModalOpen(true)}>
+            Oppdater pris
+          </ActionMenu.Item>
+        )}
+        {handlinger.includes(AvtaleHandling.OPPDATER_RAMMEDETALJER) && (
+          <ActionMenu.Item onClick={() => setAvtaleModalOpen("Rammedetaljer")}>
+            Oppdater rammedetaljer
+          </ActionMenu.Item>
+        )}
+        {handlinger.includes(AvtaleHandling.AVBRYT) && (
+          <ActionMenu.Item onClick={() => setAvbrytModalOpen(true)}>Avbryt avtale</ActionMenu.Item>
+        )}
+        {handlinger.includes(AvtaleHandling.OPPRETT_GJENNOMFORING) && (
+          <ActionMenu.Item onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}>
+            Opprett ny gjennomføring
+          </ActionMenu.Item>
+        )}
+        <ActionMenu.Divider />
+        {handlinger.includes(AvtaleHandling.DUPLISER) && (
+          <ActionMenu.Item onClick={dupliserAvtale}>
+            <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
+            Dupliser
+          </ActionMenu.Item>
+        )}
+      </Handlinger>
       <VarselModal
         modalRef={advarselModal}
         handleClose={() => advarselModal.current?.close()}

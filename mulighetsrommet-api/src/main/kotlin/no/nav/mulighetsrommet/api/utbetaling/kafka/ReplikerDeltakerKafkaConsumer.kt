@@ -77,6 +77,9 @@ class ReplikerDeltakerKafkaConsumer(
             deltakelsesmengder = amtDeltaker.deltakelsesmengder.map {
                 Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble())
             },
+            innholdAnnet = amtDeltaker.innhold?.let {
+                it.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
+            },
         )
     }
 }
@@ -96,6 +99,9 @@ fun AmtDeltakerEksternV1Dto.toDeltakerDbo(): DeltakerDbo {
                 opprettetTidspunkt = it.opprettetTidspunkt,
                 deltakelsesprosent = it.deltakelsesprosent.toDouble(),
             )
+        },
+        innholdAnnet = innhold?.let {
+            it.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
         },
     )
 }

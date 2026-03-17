@@ -1,5 +1,6 @@
 import { ActionMenu, BodyShort, Button } from "@navikt/ds-react";
-import React, { ReactNode } from "react";
+import React, { ReactElement, ReactNode } from "react";
+import { ChevronDownIcon } from "@navikt/aksel-icons";
 
 interface Props {
   handlingerLabel?: string;
@@ -12,22 +13,28 @@ export function Handlinger({
   handlingerLabel = "Handlinger",
   ingenHandlingerTekst = "Ingen handlinger",
 }: Props) {
-  const harIngenHandlinger = countActionItems(children) === 0;
+  const elements = React.Children.toArray(children).filter((child) => React.isValidElement(child));
+
+  const harIngenHandlinger = !hasActionItems(elements);
 
   const content = harIngenHandlinger ? (
     <BodyShort size="small" textColor="subtle">
       {ingenHandlingerTekst}
     </BodyShort>
   ) : (
-    children
+    processChildren(elements)
   );
-
-  const color = harIngenHandlinger ? "neutral" : undefined;
 
   return (
     <ActionMenu>
       <ActionMenu.Trigger>
-        <Button data-color={color} variant="secondary" size="small">
+        <Button
+          data-color={harIngenHandlinger ? "neutral" : undefined}
+          variant="secondary"
+          size="small"
+          icon={<ChevronDownIcon aria-hidden />}
+          iconPosition="right"
+        >
           {handlingerLabel}
         </Button>
       </ActionMenu.Trigger>
@@ -36,8 +43,33 @@ export function Handlinger({
   );
 }
 
-function countActionItems(children: ReactNode): number {
-  return React.Children.toArray(children).filter((child) => {
-    return React.isValidElement(child);
-  }).length;
+function hasActionItems(elements: ReactElement[]): boolean {
+  return elements.some((item) => !isDivider(item));
+}
+
+function isDivider(child: ReactElement): boolean {
+  return child.type === ActionMenu.Divider;
+}
+
+function processChildren(elements: ReactElement[]): ReactNode {
+  const filtered: ReactElement[] = [];
+
+  for (let i = 0; i < elements.length; i++) {
+    const child = elements[i];
+    if (!isDivider(child)) {
+      filtered.push(child);
+    } else if (previousIsActionItem(filtered) && nextContainsActionItem(elements, i)) {
+      filtered.push(child);
+    }
+  }
+
+  return filtered;
+}
+
+function previousIsActionItem(elements: ReactElement[]) {
+  return elements.length > 0 && !isDivider(elements[elements.length - 1]);
+}
+
+function nextContainsActionItem(elements: ReactElement[], i: number) {
+  return elements.slice(i + 1).some((c) => !isDivider(c));
 }

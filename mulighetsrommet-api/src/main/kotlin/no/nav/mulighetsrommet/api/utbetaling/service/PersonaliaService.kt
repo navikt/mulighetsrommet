@@ -25,11 +25,11 @@ class PersonaliaService(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val navEnhetService: NavEnhetService,
 ) {
-    suspend fun getPersonaliaMedGeografiskEnhet(deltakerIds: Set<UUID>): Set<DeltakerPersonaliaMedGeografiskEnhet> {
+    suspend fun getPersonaliaMedGeografiskEnhet(deltakerIds: List<UUID>): Map<UUID, PersonaliaMedGeografiskEnhet> {
         return amtDeltakerClient.hentPersonalia(deltakerIds)
             .map { amtList ->
                 val pdlData = getPersonerMedGeografiskEnhet(amtList.map { it.norskIdent })
-                amtList.map { amtPersonalia ->
+                amtList.associate { amtPersonalia ->
                     val norskIdent = amtPersonalia.norskIdent
                     val (_, geografiskEnhet) = pdlData[norskIdent] ?: (null to null)
 
@@ -46,25 +46,26 @@ class PersonaliaService(
                             amtPersonalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
                             else -> "Skjermet"
                         }
-                        DeltakerPersonaliaMedGeografiskEnhet(
-                            deltakerId = amtPersonalia.deltakerId,
-                            norskIdent = null,
-                            navn = skjermetNavn,
-                            oppfolgingEnhet = null,
-                            geografiskEnhet = null,
-                            region = null,
-                        )
+
+                        amtPersonalia.deltakerId to
+                            PersonaliaMedGeografiskEnhet(
+                                norskIdent = null,
+                                navn = skjermetNavn,
+                                oppfolgingEnhet = null,
+                                geografiskEnhet = null,
+                                region = null,
+                            )
                     } else {
-                        DeltakerPersonaliaMedGeografiskEnhet(
-                            deltakerId = amtPersonalia.deltakerId,
-                            norskIdent = norskIdent,
-                            navn = amtPersonalia.navn,
-                            oppfolgingEnhet = oppfolgingEnhet,
-                            geografiskEnhet = geografiskEnhetDto,
-                            region = oppfolgingEnhet?.overordnetEnhet?.let {
-                                navEnhetService.hentEnhet(it)
-                            },
-                        )
+                        amtPersonalia.deltakerId to
+                            PersonaliaMedGeografiskEnhet(
+                                norskIdent = norskIdent,
+                                navn = amtPersonalia.navn,
+                                oppfolgingEnhet = oppfolgingEnhet,
+                                geografiskEnhet = geografiskEnhetDto,
+                                region = oppfolgingEnhet?.overordnetEnhet?.let {
+                                    navEnhetService.hentEnhet(it)
+                                },
+                            )
                     }
                 }
             }
@@ -74,7 +75,6 @@ class PersonaliaService(
                     detail = "Klarte ikke hente personalia fra amt-deltaker error: $it",
                 )
             }
-            .toSet()
     }
 
     private suspend fun getPersonerMedGeografiskEnhet(identer: List<NorskIdent>): Map<NorskIdent, Pair<PdlPerson, GeografiskTilknytning?>> {
@@ -129,8 +129,7 @@ data class DeltakerPersonalia(
     val navn: String,
 )
 
-data class DeltakerPersonaliaMedGeografiskEnhet(
-    val deltakerId: UUID,
+data class PersonaliaMedGeografiskEnhet(
     val norskIdent: NorskIdent?,
     val navn: String,
     val oppfolgingEnhet: NavEnhetDto?,

@@ -5666,7 +5666,7 @@ components:
         deltakere:
           type: array
           items:
-            $ref: "#/components/schemas/TilsagnDeltakerPersonalia"
+            $ref: "#/components/schemas/TilsagnDeltakerDto"
       required:
       - belopBrukt
       - belopGjenstaende
@@ -5718,7 +5718,7 @@ components:
       required:
       - status
       - type
-    TilsagnDeltakerPersonalia:
+    TilsagnDeltakerDto:
       type: object
       properties:
         deltakerId:
@@ -5738,9 +5738,14 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/NavEnhetDto"
+        innholdAnnet:
+          type:
+          - "null"
+          - string
       required:
       - deltakerId
       - geografiskEnhet
+      - innholdAnnet
       - navn
       - norskIdent
       - oppfolgingEnhet
@@ -6042,6 +6047,19 @@ components:
       - beskrivelse
       - id
       - pris
+    Tilsagn.Deltaker:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+        innholdAnnet:
+          type:
+          - "null"
+          - string
+      required:
+      - deltakerId
+      - innholdAnnet
     TilsagnRequest:
       type: object
       properties:
@@ -6082,8 +6100,7 @@ components:
           - "null"
           - array
           items:
-            type: string
-            format: uuid
+            $ref: "#/components/schemas/Tilsagn.Deltaker"
       required:
       - beregning
       - beskrivelse
@@ -6146,7 +6163,7 @@ components:
         deltakere:
           type: array
           items:
-            $ref: "#/components/schemas/TilsagnDeltakerPersonalia"
+            $ref: "#/components/schemas/TilsagnDeltakerDto"
       required:
       - deltakere
       - tilsagnPerDeltaker

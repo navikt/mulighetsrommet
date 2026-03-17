@@ -68,7 +68,7 @@ class AmtDeltakerClient(
     }
 
     suspend fun hentPersonalia(
-        deltakerIds: Set<UUID>,
+        deltakerIds: List<UUID>,
     ): Either<AmtDeltakerError, Set<DeltakerPersonalia>> {
         val response = client.post("$baseUrl/external/deltakere/personalia") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))

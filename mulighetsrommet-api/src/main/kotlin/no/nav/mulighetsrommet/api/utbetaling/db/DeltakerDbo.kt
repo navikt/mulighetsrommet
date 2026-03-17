@@ -14,6 +14,7 @@ data class DeltakerDbo(
     val endretTidspunkt: LocalDateTime,
     val status: DeltakerStatus,
     val deltakelsesmengder: List<Deltakelsesmengde>,
+    val innholdAnnet: String?,
 ) {
     data class Deltakelsesmengde(
         val gyldigFra: LocalDate,

@@ -6,7 +6,6 @@ import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstil
 import { ReactQueryProvider } from "@/ReactQueryProvider";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import "../../index.css";
-import { OmArbeidsmarkedstiltak } from "./OmArbeidsmarkedstiltak";
 
 if (import.meta.env.VITE_FARO_URL) {
   initializeFaro({
@@ -28,7 +27,6 @@ if (container) {
         <Routes>
           <Route path="arbeidsmarkedstiltak/*" element={<NavArbeidsmarkedstiltak />} />
           <Route path="preview/*" element={<PreviewArbeidsmarkedstiltak />} />
-          <Route path="nav/no" element={<OmArbeidsmarkedstiltak />} />
           <Route path="*" element={<Navigate replace to="./arbeidsmarkedstiltak" />} />
         </Routes>
       </Router>

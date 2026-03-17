@@ -42,6 +42,7 @@ class DeltakerQueriesTest : FunSpec({
             opprettetTidspunkt = opprettetTidspunkt,
         ),
         deltakelsesmengder = emptyList(),
+        innholdAnnet = null,
     )
     val deltaker2 = deltaker1.copy(
         id = UUID.randomUUID(),
@@ -146,4 +147,5 @@ fun DeltakerDbo.toDeltaker() = Deltaker(
     endretTidspunkt = endretTidspunkt,
     status = status,
     deltakelsesmengder = deltakelsesmengder.map { Deltakelsesmengde(it.gyldigFra, it.deltakelsesprosent) },
+    innholdAnnet = innholdAnnet,
 )

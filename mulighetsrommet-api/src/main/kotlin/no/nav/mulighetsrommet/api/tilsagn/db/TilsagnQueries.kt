@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn.db
 
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
@@ -182,31 +183,37 @@ class TilsagnQueries(private val session: Session) {
 
     private fun TransactionalSession.upsertTilsagnDeltakere(
         tilsagnId: UUID,
-        deltakere: List<UUID>,
+        deltakere: List<TilsagnDbo.Deltaker>?,
     ) {
         @Language("PostgreSQL")
         val deleteQuery = """
-            delete from tilsagn_deltaker
-            where tilsagn_id = :tilsagn_id::uuid
+        delete from tilsagn_deltaker
+        where tilsagn_id = :tilsagn_id::uuid
         """.trimIndent()
 
         execute(queryOf(deleteQuery, mapOf("tilsagn_id" to tilsagnId)))
 
+        if (deltakere.isNullOrEmpty()) return
+
         @Language("PostgreSQL")
         val insertQuery = """
-            insert into tilsagn_deltaker (tilsagn_id, deltaker_id)
-            select
-                :tilsagn_id::uuid,
-                unnest(:deltaker_ids::uuid[])
-            on conflict (tilsagn_id, deltaker_id) do nothing
+        insert into tilsagn_deltaker (tilsagn_id, deltaker_id, innhold_annet)
+        values (:tilsagn_id::uuid, :deltaker_id::uuid, :innhold_annet)
+        on conflict (tilsagn_id, deltaker_id) do update set innhold_annet = excluded.innhold_annet
         """.trimIndent()
 
-        val insertParams = mapOf(
-            "tilsagn_id" to tilsagnId,
-            "deltaker_ids" to deltakere.toTypedArray(),
-        )
-
-        execute(queryOf(insertQuery, insertParams))
+        deltakere.forEach { deltaker ->
+            execute(
+                queryOf(
+                    insertQuery,
+                    mapOf(
+                        "tilsagn_id" to tilsagnId,
+                        "deltaker_id" to deltaker.deltakerId,
+                        "innhold_annet" to deltaker.innholdAnnet,
+                    ),
+                ),
+            )
+        }
     }
 
     private fun TransactionalSession.upsertTilsagnBeregningFriLinjer(
@@ -438,6 +445,9 @@ class TilsagnQueries(private val session: Session) {
         val valuta = string("valuta").let { Valuta.valueOf(it) }
 
         val beregning = getBeregning(id, valuta, TilsagnBeregningType.valueOf(string("beregning_type")))
+        val deltakere = stringOrNull("deltakere")
+            ?.let { Json.decodeFromString<List<Tilsagn.Deltaker>>(it) }
+            ?: emptyList()
 
         return Tilsagn(
             id = uuid("id"),
@@ -481,7 +491,7 @@ class TilsagnQueries(private val session: Session) {
                     distribueringId = stringOrNull("journalpost_distribuering_id"),
                 )
             },
-            deltakere = array<UUID>("deltakere").map { it },
+            deltakere = deltakere,
         )
     }
 
