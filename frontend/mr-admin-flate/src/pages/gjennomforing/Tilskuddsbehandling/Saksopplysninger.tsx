@@ -6,6 +6,7 @@ import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import type { BehandlingFormData } from "./schema";
 import { FormGroup } from "@/layouts/FormGroup";
+import { useOpplaeringtilskudd } from "./useOpplaeringtilskudd";
 
 const tomtTilskudd = {
   tilskuddstype: "",
@@ -18,6 +19,7 @@ const tomtTilskudd = {
 
 export function Saksopplysninger() {
   const { control } = useFormContext<BehandlingFormData>();
+  const { data: opplaeringtilskudd } = useOpplaeringtilskudd();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -49,11 +51,11 @@ export function Saksopplysninger() {
                 rules={{ required: "Tilskuddstype er påkrevd" }}
               >
                 <option value="">-- Velg tilskuddstype --</option>
-                <option value="Skolepenger">Skolepenger</option>
-                <option value="Eksamensgebyr">Eksamensgebyr</option>
-                <option value="Semesteravgift">Semesteravgift</option>
-                <option value="Botilbud">Botilbud</option>
-                <option value="Studiereise">Studiereise</option>
+                {opplaeringtilskudd.map((tilskudd) => (
+                  <option key={tilskudd.id} value={tilskudd.navn}>
+                    {tilskudd.navn}
+                  </option>
+                ))}
               </FormSelect>
               <FormTextField
                 label="Beløp"

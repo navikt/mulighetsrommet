@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.tiltakstypeRoutes
 import no.nav.mulighetsrommet.api.utbetaling.api.utbetalingRoutes
+import no.nav.mulighetsrommet.api.vedtak.opplaeringtilskuddRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.arbeidsmarkedstiltakRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.brukerRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.delMedBrukerRoutes
@@ -131,6 +132,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     janzzRoutes()
     utdanningRoutes()
     notificationRoutes()
+    opplaeringtilskuddRoutes()
 }
 
 fun Route.veilederflateRoutes() {

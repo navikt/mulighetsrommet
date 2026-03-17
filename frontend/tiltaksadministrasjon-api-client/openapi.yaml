@@ -3228,6 +3228,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/opplaeringtilskudd:
+    get:
+      tags:
+      - Opplaeringtilskudd
+      description: Hent alle opplaeringtilskudd
+      operationId: getAll
+      parameters: []
+      responses:
+        "200":
+          description: Alle tilskudd for opplaering
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Opplaeringtilskudd"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
 components:
   schemas:
     OpenApiVersion:
@@ -7262,5 +7287,27 @@ components:
             $ref: "#/components/schemas/SetNotificationStatusRequest.StatusRequest"
       required:
       - notifikasjoner
+    Opplaeringtilskudd:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        kode:
+          $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
+      required:
+      - id
+      - kode
+      - navn
+    Opplaeringtilskudd.Kode:
+      type: string
+      enum:
+      - SKOLEPENGER
+      - STUDIEREISE
+      - EKSAMENSAVGIFT
+      - SEMESTERAVGIFT
+      - INTEGRERT_BOTILBUD
   examples: {}
 webhooks: {}
