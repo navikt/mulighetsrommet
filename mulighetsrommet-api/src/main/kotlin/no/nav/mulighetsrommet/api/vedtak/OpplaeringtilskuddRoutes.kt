@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
-fun Route.opplaeringTilskuddRoutes() {
+fun Route.opplaeringtilskuddRoutes() {
     val db: ApiDatabase by inject()
 
     route("/opplaeringtilskudd") {

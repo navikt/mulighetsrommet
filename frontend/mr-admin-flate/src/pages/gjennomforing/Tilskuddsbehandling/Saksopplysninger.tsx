@@ -6,7 +6,7 @@ import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import type { BehandlingFormData } from "./schema";
 import { FormGroup } from "@/layouts/FormGroup";
-import { useOpplaeringtilskudd } from "./useOpplaeringTilskudd";
+import { useOpplaeringtilskudd } from "./useOpplaeringtilskudd";
 
 const tomtTilskudd = {
   tilskuddstype: "",
