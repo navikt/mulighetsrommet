@@ -40,7 +40,15 @@ from tilsagn
          inner join arrangor on arrangor.id = gjennomforing.arrangor_id
          inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
          left join lateral (
-             select coalesce(array_agg(deltaker_id), '{}') as deltakere
+             select coalesce(
+                 jsonb_agg(
+                     jsonb_build_object(
+                         'deltakerId', deltaker_id,
+                         'innholdAnnet', innhold_annet
+                     )
+                 ),
+                 '[]'::jsonb
+             ) as deltakere
              from tilsagn_deltaker
              where tilsagn_id = tilsagn.id
          ) deltakere on true;

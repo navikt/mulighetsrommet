@@ -5,6 +5,8 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -26,10 +28,10 @@ data class TilsagnDto(
     val status: TilsagnStatusDto,
     val kommentar: String?,
     val beskrivelse: String?,
-    val deltakere: List<TilsagnDeltakerPersonalia>,
+    val deltakere: List<TilsagnDeltakerDto>,
 ) {
     companion object {
-        fun from(tilsagn: Tilsagn, deltakere: List<TilsagnDeltakerPersonalia>) = TilsagnDto(
+        fun from(tilsagn: Tilsagn, deltakere: List<TilsagnDeltakerDto>) = TilsagnDto(
             id = tilsagn.id,
             type = tilsagn.type,
             periode = tilsagn.periode,
@@ -47,18 +49,39 @@ data class TilsagnDto(
 }
 
 @Serializable
-data class TilsagnDeltakerPersonalia(
+data class TilsagnStatusDto(
+    val type: TilsagnStatus,
+) {
+    val status: DataElement.Status = toTilsagnStatusTag(type)
+}
+
+@Serializable
+data class TilsagnDeltakerDto(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
     val norskIdent: NorskIdent?,
     val navn: String,
     val oppfolgingEnhet: NavEnhetDto?,
     val geografiskEnhet: NavEnhetDto?,
-)
-
-@Serializable
-data class TilsagnStatusDto(
-    val type: TilsagnStatus,
+    val innholdAnnet: String?,
 ) {
-    val status: DataElement.Status = toTilsagnStatusTag(type)
+    companion object {
+        fun from(deltaker: Tilsagn.Deltaker, personalia: PersonaliaMedGeografiskEnhet) = TilsagnDeltakerDto(
+            deltakerId = deltaker.deltakerId,
+            norskIdent = personalia.norskIdent,
+            navn = personalia.navn,
+            oppfolgingEnhet = personalia.oppfolgingEnhet,
+            geografiskEnhet = personalia.geografiskEnhet,
+            innholdAnnet = deltaker.innholdAnnet,
+        )
+
+        fun from(deltaker: Deltaker, personalia: PersonaliaMedGeografiskEnhet) = TilsagnDeltakerDto(
+            deltakerId = deltaker.id,
+            norskIdent = personalia.norskIdent,
+            navn = personalia.navn,
+            oppfolgingEnhet = personalia.oppfolgingEnhet,
+            geografiskEnhet = personalia.geografiskEnhet,
+            innholdAnnet = deltaker.innholdAnnet,
+        )
+    }
 }

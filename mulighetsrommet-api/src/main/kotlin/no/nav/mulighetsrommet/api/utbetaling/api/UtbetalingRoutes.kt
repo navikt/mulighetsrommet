@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -37,7 +38,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.service.DeltakerPersonaliaMedGeografiskEnhet
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
@@ -301,14 +302,13 @@ fun Route.utbetalingRoutes() {
                     val utbetaling = queries.utbetaling.getOrError(id)
                     val deltakelser = utbetaling.beregning.deltakelsePerioder().associateBy { it.deltakelseId }
 
-                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys)
+                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys.toList())
 
-                    val enheter = personalia.flatMapTo(mutableSetOf()) { listOfNotNull(it.oppfolgingEnhet, it.region) }
+                    val enheter = personalia.flatMapTo(mutableSetOf()) { listOfNotNull(it.value.oppfolgingEnhet, it.value.region) }
                     val kontorstruktur = Kontorstruktur.fromNavEnheter(enheter.toList())
 
                     val deltakelsePersoner = personalia
-                        .filter { filter.navEnheter.isEmpty() || it.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
-                        .associateBy { it.deltakerId }
+                        .filter { filter.navEnheter.isEmpty() || it.value.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
 
                     val advarsler = utbetalingService.getAdvarsler(utbetaling)
 
@@ -384,7 +384,10 @@ fun Route.utbetalingRoutes() {
                             val opprettelse = queries.totrinnskontroll
                                 .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
 
-                            val deltakere = tilsagnService.toTilsagnDeltakerPersonalia(tilsagn.deltakere)
+                            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(tilsagn.deltakere.map { it.deltakerId })
+                            val deltakere = tilsagn.deltakere.map {
+                                TilsagnDeltakerDto.from(it, personalia.getValue(it.deltakerId))
+                            }
                             UtbetalingLinje(
                                 id = delutbetaling.id,
                                 gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
@@ -410,11 +413,15 @@ fun Route.utbetalingRoutes() {
                             valuta = utbetaling.valuta,
                         )
                         .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
-                        .map { tilsagn ->
-                            val deltakere = tilsagnService.toTilsagnDeltakerPersonalia(tilsagn.deltakere)
+                        .map {
+                            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(it.deltakere.map { it.deltakerId })
+                            val deltakere = it.deltakere.map {
+                                TilsagnDeltakerDto.from(it, personalia.getValue(it.deltakerId))
+                            }
+
                             UtbetalingLinje(
                                 id = UUID.randomUUID(),
-                                tilsagn = TilsagnDto.from(tilsagn, deltakere),
+                                tilsagn = TilsagnDto.from(it, deltakere),
                                 status = null,
                                 pris = 0.withValuta(utbetaling.valuta),
                                 gjorOppTilsagn = false,
@@ -584,6 +591,6 @@ fun RoutingContext.getBeregningFilter() = BeregningFilter(
 )
 
 data class UtbetalingBeregningDeltaker(
-    val personalia: DeltakerPersonaliaMedGeografiskEnhet,
+    val personalia: PersonaliaMedGeografiskEnhet,
     val deltakelse: UtbetalingBeregningOutputDeltakelse,
 )

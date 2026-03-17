@@ -150,6 +150,7 @@ object BeregningTestHelpers {
             opprettetTidspunkt = periode.start.atStartOfDay(),
         ),
         deltakelsesmengder = deltakelsesmengder,
+        innholdAnnet = null,
     )
 
     fun toStengtPeriode(periode: Periode, beskrivelse: String = "Stengt"): GjennomforingAvtale.StengtPeriode {

@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerPersonalia
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
@@ -125,7 +124,9 @@ class TilsagnService(
                     beregning = validated.beregning,
                     kommentar = request.kommentar?.trim(),
                     beskrivelse = request.beskrivelse?.trim(),
-                    deltakere = request.deltakere ?: emptyList(),
+                    deltakere = request.deltakere?.map {
+                        TilsagnDbo.Deltaker(it.deltakerId, it.innholdAnnet)
+                    },
                 )
             }
             .map { dbo ->
@@ -790,18 +791,6 @@ class TilsagnService(
         )
         queries.kafkaProducerRecord.storeRecord(record)
     }
-
-    suspend fun toTilsagnDeltakerPersonalia(deltakere: List<UUID>) = personaliaService.getPersonaliaMedGeografiskEnhet(deltakere.toSet())
-        .distinctBy { it.norskIdent }
-        .map {
-            TilsagnDeltakerPersonalia(
-                deltakerId = it.deltakerId,
-                norskIdent = it.norskIdent,
-                navn = it.navn,
-                oppfolgingEnhet = it.oppfolgingEnhet,
-                geografiskEnhet = it.geografiskEnhet,
-            )
-        }
 
     fun handlinger(tilsagn: Tilsagn, ansatt: NavAnsatt): Set<TilsagnHandling> = db.session {
         val status = tilsagn.status
