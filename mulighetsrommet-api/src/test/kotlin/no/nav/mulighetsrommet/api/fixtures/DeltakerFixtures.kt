@@ -42,9 +42,9 @@ object DeltakerFixtures {
 
     fun createDeltakerDbo(
         gjennomforingId: UUID,
-        startDato: LocalDate,
-        sluttDato: LocalDate?,
-        statusType: DeltakerStatusType,
+        startDato: LocalDate = LocalDate.now(),
+        sluttDato: LocalDate? = LocalDate.now().plusMonths(1),
+        statusType: DeltakerStatusType = DeltakerStatusType.DELTAR,
         statusOpprettet: LocalDateTime = LocalDateTime.now(),
         innhold: String? = null,
     ) = DeltakerDbo(

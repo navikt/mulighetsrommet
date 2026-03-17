@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import java.util.UUID
@@ -84,7 +85,7 @@ class GjennomforingDetaljerService(
         }
         queries.gjennomforing.getAll(
             pagination,
-            search = filter.search,
+            search = filter.search?.let { NorskIdentHasher.hashIfNorskIdent(it) },
             navEnheter = filter.navEnheter,
             tiltakstypeIder = tiltakstyper,
             statuser = filter.statuser,
