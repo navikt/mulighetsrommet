@@ -1,17 +1,23 @@
-import { TilsagnDeltakerDto, TilsagnRequest } from "@tiltaksadministrasjon/api-client";
-import { UNSAFE_Combobox } from "@navikt/ds-react";
-import { Controller, useFormContext } from "react-hook-form";
+import { TilsagnRequest } from "@tiltaksadministrasjon/api-client";
+import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { useFormContext } from "react-hook-form";
 import { useTilsagnValgbareDeltakere } from "@/api/tilsagn/useTilsagnValgbareDeltakere";
-import { formatTilsagnDeltaker } from "@/utils/Utils";
+import { useState } from "react";
+import { VelgDeltakereModal } from "./VelgDeltakereModal";
+import { PlusIcon } from "@navikt/aksel-icons";
+import { TilsagnDeltakereTable } from "./TilsagnDeltakereTable";
+import { FeilmeldingMedVarselTrekant } from "@/components/skjema/FeilmeldingMedVarseltrekant";
 
 interface Props {
   gjennomforingId: string;
 }
 
 export function VelgDeltakere({ gjennomforingId }: Props) {
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
   const {
     watch,
-    control,
+    setValue,
+    clearErrors,
     formState: { errors },
   } = useFormContext<TilsagnRequest>();
 
@@ -30,34 +36,44 @@ export function VelgDeltakere({ gjennomforingId }: Props) {
     return null;
   }
 
+  const selected = watch("deltakere");
+
   return (
-    <Controller
-      control={control}
-      name="deltakere"
-      render={({ field }) => (
-        <UNSAFE_Combobox
-          description="Filtrert basert på overlappende tilsagn og deltakelsesperiode"
+    <VStack gap="space-4">
+      <Heading size="small">Deltakere</Heading>
+      <TilsagnDeltakereTable
+        deltakere={deltakere.filter((d) => selected?.some((s) => s.deltakerId === d.deltakerId))}
+      />
+      <HStack justify="end">
+        <Button
           size="small"
-          id="arrangorKontaktpersoner"
-          label="Deltakere"
-          placeholder="Velg deltakere"
-          isMultiSelect
-          name={field.name}
-          error={errors.deltakere?.message}
-          options={deltakere.map((deltaker: TilsagnDeltakerDto) => ({
-            label: formatTilsagnDeltaker(deltaker),
-            value: deltaker.deltakerId,
-          }))}
-          onToggleSelected={(option, isSelected) => {
-            const currentValues = field.value ?? [];
-            if (isSelected) {
-              field.onChange([...currentValues, option]);
-            } else {
-              field.onChange(currentValues.filter((v) => v.deltakerId !== option));
-            }
+          type="button"
+          variant="tertiary"
+          onClick={() => {
+            setModalOpen(true);
+            clearErrors("deltakere");
           }}
-        />
+        >
+          <HStack gap="space-4" align="center">
+            <PlusIcon title="a11y-title" fontSize="1.5rem" /> Legg til deltakere
+          </HStack>
+        </Button>
+      </HStack>
+      <VelgDeltakereModal
+        open={modalOpen}
+        deltakere={deltakere}
+        selectedDeltakere={selected ?? []}
+        onClose={() => setModalOpen(false)}
+        onBekreft={(deltakerIds) => {
+          setValue("deltakere", deltakerIds);
+          setModalOpen(false);
+        }}
+      />
+      {errors.deltakere?.message && (
+        <FeilmeldingMedVarselTrekant size="small">
+          {errors.deltakere.message}
+        </FeilmeldingMedVarselTrekant>
       )}
-    />
+    </VStack>
   );
 }

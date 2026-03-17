@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -248,7 +249,12 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
         beskrivelse = tilsagn.beskrivelse,
         periodeStart = tilsagn.periode.start.toString(),
         periodeSlutt = tilsagn.periode.getLastInclusiveDate().toString(),
-        deltakere = tilsagn.deltakere,
+        deltakere = tilsagn.deltakere.map {
+            TilsagnDeltakerRequest(
+                deltakerId = it.deltakerId,
+                innholdAnnet = it.innholdAnnet,
+            )
+        },
     )
 }
 

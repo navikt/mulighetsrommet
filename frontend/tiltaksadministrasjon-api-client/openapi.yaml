@@ -5717,6 +5717,8 @@ components:
           type:
           - "null"
           - string
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
       required:
       - deltakerId
       - geografiskEnhet
@@ -5724,6 +5726,7 @@ components:
       - navn
       - norskIdent
       - oppfolgingEnhet
+      - status
     NavEnhetDto:
       type: object
       properties:
@@ -6022,7 +6025,7 @@ components:
       - beskrivelse
       - id
       - pris
-    Tilsagn.Deltaker:
+    TilsagnDeltakerRequest:
       type: object
       properties:
         deltakerId:
@@ -6075,7 +6078,7 @@ components:
           - "null"
           - array
           items:
-            $ref: "#/components/schemas/Tilsagn.Deltaker"
+            $ref: "#/components/schemas/TilsagnDeltakerRequest"
       required:
       - beregning
       - beskrivelse

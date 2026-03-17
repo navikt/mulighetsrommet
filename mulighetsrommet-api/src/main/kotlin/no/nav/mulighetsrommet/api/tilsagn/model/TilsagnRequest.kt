@@ -23,7 +23,14 @@ data class TilsagnRequest(
     val beskrivelse: String? = null,
     val periodeStart: String? = null,
     val periodeSlutt: String? = null,
-    val deltakere: List<Tilsagn.Deltaker>? = null,
+    val deltakere: List<TilsagnDeltakerRequest>? = null,
+)
+
+@Serializable
+data class TilsagnDeltakerRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val deltakerId: UUID,
+    val innholdAnnet: String?,
 )
 
 @Serializable
