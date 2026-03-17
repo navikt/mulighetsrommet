@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdentHasher
-import org.junit.jupiter.api.assertThrows
 
 class ReplikerDeltakerEnkeltplassFreeTextSearchKafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -34,28 +33,8 @@ class ReplikerDeltakerEnkeltplassFreeTextSearchKafkaConsumerTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createConsumer(
-        retryConfig: ReplikerDeltakerEnkeltplassFreeTextSearchKafkaConsumer.RetryConfig = ReplikerDeltakerEnkeltplassFreeTextSearchKafkaConsumer.RetryConfig(),
-    ): ReplikerDeltakerEnkeltplassFreeTextSearchKafkaConsumer {
-        return ReplikerDeltakerEnkeltplassFreeTextSearchKafkaConsumer(db = database.db, config = retryConfig)
-    }
-
-    test("feiler hvis deltaker ikke allerede er lagret i db") {
-        val deltakerConsumer = createConsumer(
-            retryConfig = ReplikerDeltakerEnkeltplassFreeTextSearchKafkaConsumer.RetryConfig(maxRetries = 0),
-        )
-
-        val deltaker = createAmtDeltakerDto(
-            gjennomforingId = EnkelAmo.id,
-            status = DeltakerStatusType.VENTER_PA_OPPSTART,
-            personIdent = "12345678910",
-        )
-
-        val exception = assertThrows<IllegalStateException> {
-            deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
-        }
-
-        exception.message shouldBe "Deltaker med id=${deltaker.id} har ikke blitt replikert enda"
+    fun createConsumer(): ReplikerDeltakerEnkeltplassFreeTextSearchKafkaConsumer {
+        return ReplikerDeltakerEnkeltplassFreeTextSearchKafkaConsumer(db = database.db)
     }
 
     test("lagrer hash av norsk ident for fritekstsøk på gjennomføring av typen ENKELTPLASS") {
