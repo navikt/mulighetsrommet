@@ -45,6 +45,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
     val deltaker1Id = UUID.randomUUID()
     val deltaker2Id = UUID.randomUUID()
     val deltaker3Id = UUID.randomUUID()
+    val deltaker4Id = UUID.randomUUID()
+    val deltaker5Id = UUID.randomUUID()
 
     val utbetalingFastSats = Utbetaling(
         id = UUID.randomUUID(),
@@ -112,6 +114,32 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                             ),
                         ),
                     ),
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltaker4Id,
+                        perioder = listOf(
+                            DeltakelsesprosentPeriode(
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15)),
+                                deltakelsesprosent = 50.0,
+                            ),
+                            DeltakelsesprosentPeriode(
+                                periode = Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 1)),
+                                deltakelsesprosent = 100.0,
+                            ),
+                        ),
+                    ),
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltaker5Id,
+                        perioder = listOf(
+                            DeltakelsesprosentPeriode(
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15)),
+                                deltakelsesprosent = 50.0,
+                            ),
+                            DeltakelsesprosentPeriode(
+                                periode = Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 1)),
+                                deltakelsesprosent = 100.0,
+                            ),
+                        ),
+                    ),
                 ),
             ),
             output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
@@ -139,6 +167,26 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                     ),
                     UtbetalingBeregningOutputDeltakelse(
                         deltakelseId = deltaker3Id,
+                        perioder = setOf(
+                            BeregnetPeriode(
+                                faktor = 0.75,
+                                sats = 1000.withValuta(Valuta.NOK),
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                            ),
+                        ),
+                    ),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakelseId = deltaker4Id,
+                        perioder = setOf(
+                            BeregnetPeriode(
+                                faktor = 0.75,
+                                sats = 1000.withValuta(Valuta.NOK),
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                            ),
+                        ),
+                    ),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakelseId = deltaker5Id,
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 0.75,
@@ -208,6 +256,14 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         deltakelseId = deltaker3Id,
                         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                     ),
+                    DeltakelsePeriode(
+                        deltakelseId = deltaker4Id,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                    ),
+                    DeltakelsePeriode(
+                        deltakelseId = deltaker5Id,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                    ),
                 ),
                 pris = 100.withValuta(Valuta.NOK),
             ),
@@ -249,7 +305,23 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             erSkjermet = false,
             deltakerId = deltaker3Id,
             oppfolgingEnhet = null,
-            adressebeskyttelse = PdlGradering.UGRADERT,
+            adressebeskyttelse = PdlGradering.FORTROLIG,
+        ),
+        deltaker4Id to DeltakerPersonalia(
+            navn = "Kari Nordmann",
+            norskIdent = NorskIdent("01010199997"),
+            erSkjermet = false,
+            deltakerId = deltaker4Id,
+            oppfolgingEnhet = null,
+            adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
+        ),
+        deltaker5Id to DeltakerPersonalia(
+            navn = "Carrie Northfolk",
+            norskIdent = NorskIdent("01010199996"),
+            erSkjermet = false,
+            deltakerId = deltaker5Id,
+            oppfolgingEnhet = null,
+            adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND,
         ),
     )
 
@@ -952,10 +1024,10 @@ private val expectedJournalpostFastSatsContent = """
               {
                 "cells": [
                   {
-                    "value": "Kari Nordmann"
+                    "value": "Adressebeskyttet"
                   },
                   {
-                    "value": "01010199998"
+                    "value": null
                   },
                   {
                     "value": "01.01.2025"
@@ -972,10 +1044,90 @@ private val expectedJournalpostFastSatsContent = """
               {
                 "cells": [
                   {
-                    "value": "Kari Nordmann"
+                    "value": "Adressebeskyttet"
                   },
                   {
-                    "value": "01010199998"
+                    "value": null
+                  },
+                  {
+                    "value": "15.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  },
+                  {
+                    "value": "100.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Adressebeskyttet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "14.01.2025"
+                  },
+                  {
+                    "value": "50.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Adressebeskyttet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "15.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  },
+                  {
+                    "value": "100.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Adressebeskyttet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "14.01.2025"
+                  },
+                  {
+                    "value": "50.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Adressebeskyttet"
+                  },
+                  {
+                    "value": null
                   },
                   {
                     "value": "15.01.2025"
@@ -1046,10 +1198,36 @@ private val expectedJournalpostFastSatsContent = """
               {
                 "cells": [
                   {
-                    "value": "Kari Nordmann"
+                    "value": "Adressebeskyttet"
                   },
                   {
-                    "value": "01010199998"
+                    "value": null
+                  },
+                  {
+                    "value": "0.75"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Adressebeskyttet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "0.75"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Adressebeskyttet"
+                  },
+                  {
+                    "value": null
                   },
                   {
                     "value": "0.75"
@@ -1067,216 +1245,248 @@ private val expectedJournalpostFastSatsContent = """
 
 @Language("JSON")
 private val expectedJournalpostTimesPrisContent = """
+{
+  "title": "Utbetaling",
+  "subject": "Krav om utbetaling fra Nav",
+  "description": "Krav om utbetaling fra Nav",
+  "author": "Tiltaksadministrasjon",
+  "sections": [
     {
-      "title": "Utbetaling",
-      "subject": "Krav om utbetaling fra Nav",
-      "description": "Krav om utbetaling fra Nav",
-      "author": "Tiltaksadministrasjon",
-      "sections": [
+      "title": {
+        "text": "Innsendt krav om utbetaling",
+        "level": 1
+      }
+    },
+    {
+      "title": {
+        "text": "Innsending",
+        "level": 2
+      },
+      "blocks": [
         {
-          "title": {
-            "text": "Innsendt krav om utbetaling",
-            "level": 1
-          }
-        },
-        {
-          "title": {
-            "text": "Innsending",
-            "level": 2
-          },
-          "blocks": [
+          "type": "description-list",
+          "entries": [
             {
-              "type": "description-list",
-              "entries": [
-                {
-                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-                  "label": "Arrangør",
-                  "value": "Nav (123456789)"
-                },
-                {
-                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-                  "label": "Dato innsendt av arrangør",
-                  "value": "2025-01-02",
-                  "format": "DATE"
-                },
-                {
-                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-                  "label": "Tiltakstype",
-                  "value": "Oppfolging"
-                },
-                {
-                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-                  "label": "Løpenummer",
-                  "value": "2025/10000"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "title": {
-            "text": "Utbetaling",
-            "level": 2
-          },
-          "blocks": [
-            {
-              "type": "description-list",
-              "entries": [
-                {
-                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-                  "label": "Utbetalingsperiode",
-                  "value": "01.01.2025 - 31.01.2025"
-                },
-                {
-                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-                  "label": "Utbetales tidligst",
-                  "value": null,
-                  "format": "DATE"
-                }
-              ]
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Arrangør",
+              "value": "Nav (123456789)"
             },
             {
-              "type": "description-list",
-              "entries": [
-                {
-                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
-                  "label": "Avtalt pris per time oppfølging",
-                  "value": "34",
-                  "currency": "NOK"
-                }
-              ]
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Dato innsendt av arrangør",
+              "value": "2025-01-02",
+              "format": "DATE"
             },
             {
-              "type": "description-list",
-              "entries": [
-                {
-                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
-                  "label": "Beløp",
-                  "value": "100",
-                  "currency": "NOK"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "title": {
-            "text": "Betalingsinformasjon",
-            "level": 2
-          },
-          "blocks": [
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Tiltakstype",
+              "value": "Oppfolging"
+            },
             {
-              "type": "description-list",
-              "entries": [
-                {
-                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-                  "label": "Kontonummer",
-                  "value": "12345678901"
-                },
-                {
-                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-                  "label": "KID-nummer",
-                  "value": null
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "title": {
-            "text": "Stengt hos arrangør",
-            "level": 2
-          },
-          "blocks": [
-            {
-              "type": "item-list",
-              "description": "Det er registrert stengt hos arrangør i følgende perioder:",
-              "items": [
-                "07.01.2025 - 13.01.2025: Stengt for ferie"
-              ]
-            }
-          ]
-        },
-        {
-          "title": {
-            "text": "Deltakerperioder",
-            "level": 2
-          },
-          "blocks": [
-            {
-              "type": "table",
-              "table": {
-                "columns": [
-                  {
-                    "title": "Navn"
-                  },
-                  {
-                    "title": "Fødselsnr.",
-                    "align": "RIGHT"
-                  },
-                  {
-                    "title": "Startdato i perioden",
-                    "align": "RIGHT"
-                  },
-                  {
-                    "title": "Sluttdato i perioden",
-                    "align": "RIGHT"
-                  }
-                ],
-                "rows": [
-                  {
-                    "cells": [
-                      {
-                        "value": "Skjermet"
-                      },
-                      {
-                        "value": null
-                      },
-                      {
-                        "value": "01.01.2025"
-                      },
-                      {
-                        "value": "31.01.2025"
-                      }
-                    ]
-                  },
-                  {
-                    "cells": [
-                      {
-                        "value": "Ola Nordmann"
-                      },
-                      {
-                        "value": "01010199999"
-                      },
-                      {
-                        "value": "01.01.2025"
-                      },
-                      {
-                        "value": "31.01.2025"
-                      }
-                    ]
-                  },
-                  {
-                    "cells": [
-                      {
-                        "value": "Kari Nordmann"
-                      },
-                      {
-                        "value": "01010199998"
-                      },
-                      {
-                        "value": "01.01.2025"
-                      },
-                      {
-                        "value": "31.01.2025"
-                      }
-                    ]
-                  }
-                ]
-              }
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Løpenummer",
+              "value": "2025/10000"
             }
           ]
         }
       ]
+    },
+    {
+      "title": {
+        "text": "Utbetaling",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Utbetalingsperiode",
+              "value": "01.01.2025 - 31.01.2025"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Utbetales tidligst",
+              "value": null,
+              "format": "DATE"
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Avtalt pris per time oppfølging",
+              "value": "34",
+              "currency": "NOK"
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Beløp",
+              "value": "100",
+              "currency": "NOK"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Betalingsinformasjon",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Kontonummer",
+              "value": "12345678901"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "KID-nummer",
+              "value": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Stengt hos arrangør",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "item-list",
+          "description": "Det er registrert stengt hos arrangør i følgende perioder:",
+          "items": [
+            "07.01.2025 - 13.01.2025: Stengt for ferie"
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Deltakerperioder",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "table",
+          "table": {
+            "columns": [
+              {
+                "title": "Navn"
+              },
+              {
+                "title": "Fødselsnr.",
+                "align": "RIGHT"
+              },
+              {
+                "title": "Startdato i perioden",
+                "align": "RIGHT"
+              },
+              {
+                "title": "Sluttdato i perioden",
+                "align": "RIGHT"
+              }
+            ],
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "value": "Skjermet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Ola Nordmann"
+                  },
+                  {
+                    "value": "01010199999"
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Adressebeskyttet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Adressebeskyttet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Adressebeskyttet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
     }
+  ]
+}
 """.trimIndent()

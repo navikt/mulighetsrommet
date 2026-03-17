@@ -1,18 +1,14 @@
--- ${flyway:timestamp}
-
-drop view if exists view_utbetaling_input_deltakelse_perioder_json;
-
-create view view_utbetaling_input_deltakelse_perioder_json as
+create or replace view view_utbetaling_input_stengt_json as
 select utbetaling_id,
        jsonb_agg(
                jsonb_build_object(
-                       'deltakelseId', deltakelse_id,
                        'periode',
                        jsonb_build_object(
                                'start', lower(periode),
                                'slutt', upper(periode)
-                       )
+                       ),
+                       'beskrivelse', beskrivelse
                )
        ) as perioder_json
-from utbetaling_deltakelse_periode
+from utbetaling_stengt_hos_arrangor
 group by utbetaling_id

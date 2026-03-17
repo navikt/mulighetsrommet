@@ -45,7 +45,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -552,8 +551,8 @@ data class DelutbetalingRequest(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val tilsagnId: UUID,
-    val pris: ValutaBelop?,
-    val gjorOppTilsagn: Boolean,
+    val pris: ValutaBelopRequest? = null,
+    val gjorOppTilsagn: Boolean? = false,
 )
 
 @Serializable

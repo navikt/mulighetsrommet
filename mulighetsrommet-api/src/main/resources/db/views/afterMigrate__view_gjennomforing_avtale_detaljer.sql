@@ -1,8 +1,4 @@
--- ${flyway:timestamp}
-
-drop view if exists view_gjennomforing_avtale_detaljer;
-
-create view view_gjennomforing_avtale_detaljer as
+create or replace view view_gjennomforing_avtale_detaljer as
 select gjennomforing.id,
        gjennomforing.status,
        gjennomforing.avbrutt_aarsaker,

@@ -5713,14 +5713,14 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/NavEnhetDto"
-        innhold:
+        innholdAnnet:
           type:
           - "null"
           - string
       required:
       - deltakerId
       - geografiskEnhet
-      - innhold
+      - innholdAnnet
       - navn
       - norskIdent
       - oppfolgingEnhet
@@ -6028,13 +6028,13 @@ components:
         deltakerId:
           type: string
           format: uuid
-        innhold:
+        innholdAnnet:
           type:
           - "null"
           - string
       required:
       - deltakerId
-      - innhold
+      - innholdAnnet
     TilsagnRequest:
       type: object
       properties:
@@ -6619,9 +6619,11 @@ components:
         pris:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/ValutaBelop"
+          - $ref: "#/components/schemas/ValutaBelopRequest"
         gjorOppTilsagn:
-          type: boolean
+          type:
+          - "null"
+          - boolean
       required:
       - gjorOppTilsagn
       - id

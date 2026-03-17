@@ -1,8 +1,4 @@
--- ${flyway:timestamp}
-
-drop view if exists view_deltaker;
-
-create view view_deltaker as
+create or replace view view_deltaker as
 select deltaker.id,
        deltaker.gjennomforing_id,
        deltaker.start_dato,

@@ -1,8 +1,4 @@
--- ${flyway:timestamp}
-
-drop view if exists view_arrangorflate_tiltak;
-
-create view view_arrangorflate_tiltak as
+create or replace view view_arrangorflate_tiltak as
 select gjennomforing.id,
        gjennomforing.lopenummer,
        gjennomforing.navn,
