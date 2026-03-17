@@ -12,6 +12,7 @@ import {
 import { arrFlateUtbetaling, klarForGodkjenningIds } from "./utbetalingDetaljerMocks";
 import { arrangorflateTilsagn, tilsagnRader } from "./tilsagnMocks";
 import { handlers as opprettKravHandlers } from "./opprettKrav/handlers";
+import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 
 export const handlers = [
   http.post<PathParams, DefaultBodyType>("*/api-proxy/api/arrangorflate/vedlegg/scan", () =>
@@ -100,6 +101,9 @@ export const handlers = [
       const { id } = params;
       return HttpResponse.json(arrangorflateTilsagn.find((k) => k.id === id));
     },
+  ),
+  http.get<PathParams, string[]>("*/api-proxy/api/arrangorflate/orgnr-tilganger", () =>
+    HttpResponse.json([arrangorMock.organisasjonsnummer]),
   ),
   ...opprettKravHandlers,
 ];
