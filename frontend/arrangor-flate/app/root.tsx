@@ -25,6 +25,7 @@ import { pushError } from "~/faro";
 import { Route } from "./+types/root";
 import { ClientOnly } from "./components/ClientOnly";
 import { isProblemDetail } from "./utils/validering";
+import OrganisasjonsTilgangGuard from "./OrganisasjonsTilgangGuard";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
@@ -61,7 +62,9 @@ function App() {
             </div>
           }
         >
-          <Outlet />
+          <OrganisasjonsTilgangGuard>
+            <Outlet />
+          </OrganisasjonsTilgangGuard>
         </Suspense>
       </ClientOnly>
     </Dokument>

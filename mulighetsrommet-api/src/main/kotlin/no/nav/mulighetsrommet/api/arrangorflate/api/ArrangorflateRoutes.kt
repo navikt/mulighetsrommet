@@ -112,6 +112,28 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
     arrangorflateRoutesOpprettKrav(config.okonomi)
 
+    route("/orgnr-tilganger") {
+        get(
+            {
+                description = "Hent ut listen over orgnr bruker har tilgang til"
+                tags = setOf("Arrangorflate")
+                operationId = "getOrganisasjonTilganger"
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Organisasjonsnumre som brukeren har tilgang til"
+                        body<List<Organisasjonsnummer>>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            },
+        ) {
+            val organisasjonsTilganger = orgnrTilganger(altinnRettigheterService)
+            call.respond(organisasjonsTilganger)
+        }
+    }
     route("/tilsagn") {
         get(
             {
