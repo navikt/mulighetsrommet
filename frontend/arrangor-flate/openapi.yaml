@@ -267,6 +267,22 @@ paths:
         explode: false
         schema:
           $ref: "#/components/schemas/UtbetalingOversiktType"
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
       responses:
         "200":
           description: Utbetalinger i tabellformat
@@ -274,9 +290,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorInnsendingRadDto"
+                $ref: "#/components/schemas/PaginatedResponse_ArrangorInnsendingRadDto"
         default:
           description: Problem details
           headers: {}
@@ -1368,6 +1382,34 @@ components:
       enum:
       - AKTIVE
       - HISTORISKE
+    PaginationSummary:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+      required:
+      - pageSize
+      - totalCount
+      - totalPages
+    PaginatedResponse_ArrangorInnsendingRadDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorInnsendingRadDto"
+      required:
+      - data
+      - pagination
     BBan:
       type: object
       properties:

@@ -1,5 +1,5 @@
 import { Link as ReactRouterLink } from "react-router";
-import { Box, Tabs, Button, HStack, InfoCard } from "@navikt/ds-react";
+import { Box, Tabs, Button, HStack, InfoCard, PaginationProps } from "@navikt/ds-react";
 import { UtbetalingOversiktType } from "api-client";
 import type { MetaFunction } from "react-router";
 import { PageHeading } from "~/components/common/PageHeading";
@@ -63,10 +63,10 @@ export default function Oversikt() {
 }
 
 function UtbetalingTabellContent({ type }: { type: UtbetalingOversiktType }) {
-  const { data: utbetalingRader } = useArrangorflateUtbetalinger(type);
+  const { data: paginertUtbetalingRader } = useArrangorflateUtbetalinger(type);
 
   const { sortedData, sort, toggleSort } = useSortableData(
-    utbetalingRader,
+    paginertUtbetalingRader.data,
     undefined,
     (item, key) => {
       if (key === "belop") {
@@ -75,9 +75,20 @@ function UtbetalingTabellContent({ type }: { type: UtbetalingOversiktType }) {
       return (item as Record<string, unknown>)[key];
     },
   );
+  const paginationProps: PaginationProps = {
+    page: 1,
+    count: paginertUtbetalingRader.pagination.totalPages,
+    boundaryCount: 1,
+    prevNextTexts: true,
+  };
 
   return (
-    <Tabellvisning kolonner={utbetalingKolonner} sort={sort} onSortChange={toggleSort}>
+    <Tabellvisning
+      kolonner={utbetalingKolonner}
+      sort={sort}
+      onSortChange={toggleSort}
+      pagination={paginationProps}
+    >
       {sortedData.map((rad, i) => (
         <UtbetalingRow key={rad.gjennomforingId + i} row={rad} />
       ))}

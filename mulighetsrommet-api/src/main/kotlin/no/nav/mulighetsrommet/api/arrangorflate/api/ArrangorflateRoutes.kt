@@ -26,11 +26,14 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
+import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
+import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
@@ -40,6 +43,8 @@ import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
@@ -194,11 +199,13 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         operationId = "getArrangorflateUtbetalinger"
         request {
             queryParameter<UtbetalingOversiktType>("type")
+            queryParameter<Int>("page")
+            queryParameter<Int>("size")
         }
         response {
             code(HttpStatusCode.OK) {
                 description = "Utbetalinger i tabellformat"
-                body<List<ArrangorInnsendingRadDto>>()
+                body<PaginatedResponse<ArrangorInnsendingRadDto>>()
             }
             default {
                 description = "Problem details"
@@ -212,10 +219,15 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             return@get
         }
         val type = UtbetalingOversiktType.from(call.queryParameters["type"])
-        val utbetalinger =
-            arrangorFlateService.getUtbetalingerByArrangorerAndStatus(tilganger.toSet(), type.utbetalingStatuser())
+        val pagination = getPaginationParams()
+        val (totalCount, items) =
+            arrangorFlateService.getUtbetalingerByArrangorerAndStatus(
+                tilganger.toSet(),
+                type.utbetalingStatuser(),
+                pagination
+            )
 
-        call.respond(utbetalinger.map { it.toRadDto() })
+        call.respond(PaginatedResponse.of(pagination, totalCount, items.map { it.toRadDto() }))
     }
 
     route("/utbetaling/{id}") {

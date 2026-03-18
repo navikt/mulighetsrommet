@@ -32,6 +32,9 @@ import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
@@ -536,18 +539,25 @@ class UtbetalingQueries(private val session: Session) {
     fun getByArrangorerAndStatus(
         arrangorer: Set<Organisasjonsnummer>,
         statuser: Set<UtbetalingStatusType>,
-    ): List<Utbetaling> {
+        pagination: Pagination = Pagination.all(),
+    ): PaginatedResult<Utbetaling> {
         @Language("PostgreSQL")
         val query = """
-            select *
+            select *, count(*) over() as total_count
             from view_utbetaling
-            where arrangor_organisasjonsnummer = any (?)
-            and status = any (?)
+            where arrangor_organisasjonsnummer = any (:orgnr_list::text[])
+            and status = any (:status_list::text[])
             order by arrangor_navn, tiltakskode desc
+            limit :limit
+            offset :offset
         """.trimIndent()
-        val orgnrListe = session.createArrayOfValue(arrangorer) { it.value }
-        val statusListe = session.createTextArray(statuser)
-        return session.list(queryOf(query, orgnrListe, statusListe)) { it.toUtbetaling() }
+        val params = mapOf(
+            "orgnr_list" to session.createArrayOfValue(arrangorer) { it.value },
+            "status_list" to session.createTextArray(statuser),
+        )
+        return queryOf(query, params + pagination.parameters)
+            .mapPaginated { it.toUtbetaling() }
+            .runWithSession(session)
     }
 
     fun getByGjennomforing(

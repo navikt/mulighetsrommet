@@ -27,6 +27,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -56,13 +59,13 @@ class ArrangorflateService(
             ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
             ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
             ArrangorflateUtbetalingStatus.UTBETALT,
-            -> getGodkjentBelopForUtbetaling(utbetaling.id, valuta = utbetaling.beregning.output.pris.valuta)
+                -> getGodkjentBelopForUtbetaling(utbetaling.id, valuta = utbetaling.beregning.output.pris.valuta)
 
             ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
             ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
             ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
             ArrangorflateUtbetalingStatus.AVBRUTT,
-            -> null
+                -> null
         }
         return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
     }
@@ -70,8 +73,14 @@ class ArrangorflateService(
     fun getUtbetalingerByArrangorerAndStatus(
         arrangorer: Set<Organisasjonsnummer>,
         statuser: Set<UtbetalingStatusType>,
-    ): List<ArrangorflateUtbetalingKompakt> = db.session {
-        queries.utbetaling.getByArrangorerAndStatus(arrangorer, statuser).map { tilArrangorflateUtbetalingKompakt(it) }
+        pagination: Pagination = Pagination.all(),
+    ): PaginatedResult<ArrangorflateUtbetalingKompakt> = db.session {
+        val utbetalinger = queries.utbetaling.getByArrangorerAndStatus(
+            arrangorer,
+            statuser,
+            pagination
+        )
+        utbetalinger.map { tilArrangorflateUtbetalingKompakt(it) }
     }
 
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
@@ -100,16 +109,17 @@ class ArrangorflateService(
             .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere)) }
     }
 
-    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> = db.session {
-        queries.tilsagn
-            .getAll(
-                gjennomforingId = utbetaling.gjennomforing.id,
-                periodeIntersectsWith = utbetaling.periode,
-                typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
-                statuser = listOf(TilsagnStatus.GODKJENT),
-            )
-            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere)) }
-    }
+    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> =
+        db.session {
+            queries.tilsagn
+                .getAll(
+                    gjennomforingId = utbetaling.gjennomforing.id,
+                    periodeIntersectsWith = utbetaling.periode,
+                    typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
+                    statuser = listOf(TilsagnStatus.GODKJENT),
+                )
+                .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere)) }
+        }
 
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
         return when (utbetaling.status) {
@@ -129,7 +139,7 @@ class ArrangorflateService(
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
             UtbetalingStatusType.AVBRUTT,
-            -> emptyList()
+                -> emptyList()
         }
     }
 
@@ -205,11 +215,11 @@ class ArrangorflateService(
             is UtbetalingBeregningPrisPerHeleUkesverk,
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerUkesverk,
-            -> Unit
+                -> Unit
 
             is UtbetalingBeregningPrisPerTimeOppfolging,
             is UtbetalingBeregningFri,
-            -> return false to null
+                -> return false to null
         }
 
         val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(utbetaling.gjennomforing.id)
@@ -279,16 +289,16 @@ fun arrangorAvbrytStatus(utbetaling: Utbetaling): ArrangorAvbrytStatus {
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.TIL_ATTESTERING,
-        -> ArrangorAvbrytStatus.DEACTIVATED
+            -> ArrangorAvbrytStatus.DEACTIVATED
 
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.UTBETALT,
         UtbetalingStatusType.AVBRUTT,
-        -> ArrangorAvbrytStatus.HIDDEN
+            -> ArrangorAvbrytStatus.HIDDEN
 
         UtbetalingStatusType.TIL_BEHANDLING,
         UtbetalingStatusType.RETURNERT,
-        -> ArrangorAvbrytStatus.ACTIVATED
+            -> ArrangorAvbrytStatus.ACTIVATED
     }
 }
 
