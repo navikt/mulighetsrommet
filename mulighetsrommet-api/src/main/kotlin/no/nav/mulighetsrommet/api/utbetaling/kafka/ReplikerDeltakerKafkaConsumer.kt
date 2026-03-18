@@ -17,6 +17,8 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class ReplikerDeltakerKafkaConsumer(
@@ -59,25 +61,25 @@ class ReplikerDeltakerKafkaConsumer(
         )
     }
 
-    private fun QueryContext.harEndringer(amtDeltaker: AmtDeltakerEksternV1Dto): Boolean {
-        val deltaker = queries.deltaker.get(amtDeltaker.id) ?: return true
+    private fun QueryContext.harEndringer(deltakerEkstern: AmtDeltakerEksternV1Dto): Boolean {
+        val deltaker = queries.deltaker.get(deltakerEkstern.id) ?: return true
 
-        if (deltaker.endretTidspunkt > amtDeltaker.endretTidspunkt) {
+        if (truncateMicros(deltakerEkstern.endretTidspunkt) < deltaker.endretTidspunkt.truncatedTo(ChronoUnit.MILLIS)) {
             return false
         }
 
         return deltaker != Deltaker(
-            id = amtDeltaker.id,
-            gjennomforingId = amtDeltaker.gjennomforingId,
-            startDato = amtDeltaker.startDato,
-            sluttDato = amtDeltaker.sluttDato,
-            registrertTidspunkt = amtDeltaker.registrertTidspunkt,
-            endretTidspunkt = amtDeltaker.endretTidspunkt,
-            status = amtDeltaker.status.toDeltakerStatus(),
-            deltakelsesmengder = amtDeltaker.deltakelsesmengder.map {
+            id = deltakerEkstern.id,
+            gjennomforingId = deltakerEkstern.gjennomforingId,
+            startDato = deltakerEkstern.startDato,
+            sluttDato = deltakerEkstern.sluttDato,
+            registrertTidspunkt = deltakerEkstern.registrertTidspunkt,
+            endretTidspunkt = deltakerEkstern.endretTidspunkt,
+            status = deltakerEkstern.status.toDeltakerStatus(),
+            deltakelsesmengder = deltakerEkstern.deltakelsesmengder.map {
                 Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble())
             },
-            innholdAnnet = amtDeltaker.innhold?.let {
+            innholdAnnet = deltakerEkstern.innhold?.let {
                 it.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
             },
         )
@@ -91,7 +93,7 @@ fun AmtDeltakerEksternV1Dto.toDeltakerDbo(): DeltakerDbo {
         startDato = startDato,
         sluttDato = sluttDato,
         registrertTidspunkt = registrertTidspunkt,
-        endretTidspunkt = endretTidspunkt,
+        endretTidspunkt = truncateMicros(endretTidspunkt),
         status = status.toDeltakerStatus(),
         deltakelsesmengder = deltakelsesmengder.map {
             DeltakerDbo.Deltakelsesmengde(
@@ -111,3 +113,5 @@ private fun AmtDeltakerEksternV1Dto.StatusDto.toDeltakerStatus(): DeltakerStatus
     aarsak = aarsak.type,
     opprettetTidspunkt = opprettetTidspunkt,
 )
+
+private fun truncateMicros(timestamp: LocalDateTime) = timestamp.truncatedTo(ChronoUnit.MICROS)
