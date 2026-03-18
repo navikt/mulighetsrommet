@@ -88,13 +88,7 @@ function ControlledMultiSelect<T>(props: MultiSelectProps<T>, _: ForwardedRef<HT
                 readOnly={readOnly}
               />
               {error && (
-                <div
-                  style={{
-                    marginTop: "8px",
-                    color: "#C30000",
-                    fontSize: size === "small" ? "16px" : "18px",
-                  }}
-                >
+                <div style={{ marginTop: "8px" }}>
                   <FeilmeldingMedVarselTrekant>{error.message}</FeilmeldingMedVarselTrekant>
                 </div>
               )}

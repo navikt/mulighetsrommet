@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
@@ -272,7 +273,7 @@ object TilsagnValidator {
         }
     }
 
-    private fun FieldValidator.validateDeltakere(deltakere: List<Tilsagn.Deltaker>?, prismodell: Prismodell) = when (prismodell.tilsagnPerDeltaker) {
+    private fun FieldValidator.validateDeltakere(deltakere: List<TilsagnDeltakerRequest>?, prismodell: Prismodell) = when (prismodell.tilsagnPerDeltaker) {
         false -> Unit
 
         true -> {

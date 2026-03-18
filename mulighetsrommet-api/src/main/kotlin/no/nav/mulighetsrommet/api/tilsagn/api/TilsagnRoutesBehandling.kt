@@ -9,6 +9,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -28,6 +29,7 @@ import java.util.UUID
 fun Route.tilsagnRoutesBehandling() {
     val service: TilsagnService by inject()
     val personaliaService: PersonaliaService by inject()
+    val db: ApiDatabase by inject()
 
     authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
         put({
@@ -55,10 +57,10 @@ fun Route.tilsagnRoutesBehandling() {
                 .mapLeft { ValidationError(errors = it) }
                 .map {
                     val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(it.deltakere.map { it.deltakerId })
-                    val deltakere = it.deltakere.map {
+                    val tilsagnDeltakere = it.deltakere.map {
                         TilsagnDeltakerDto.from(it, personalia.getValue(it.deltakerId))
                     }
-                    TilsagnDto.from(it, deltakere)
+                    TilsagnDto.from(it, tilsagnDeltakere)
                 }
 
             call.respondWithStatusResponse(result)

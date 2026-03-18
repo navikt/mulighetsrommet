@@ -1,10 +1,17 @@
 import { ReactNode } from "react";
 
-export function FeilmeldingMedVarselTrekant({ children }: { children: ReactNode }) {
+export function FeilmeldingMedVarselTrekant({
+  children,
+  size,
+}: {
+  children: ReactNode;
+  size?: "small" | "medium";
+}) {
   return (
     <b
       style={{
         color: "#C30000",
+        fontSize: size === "small" ? "16px" : "18px",
       }}
       className="flex items-center gap-2"
     >

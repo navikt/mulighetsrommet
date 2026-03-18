@@ -4,10 +4,7 @@ select tilsagn.id,
        tilsagn.belop_brukt,
        tilsagn.belop_beregnet,
        tilsagn.periode,
-       tilsagn.lopenummer,
-       tilsagn.bestillingsnummer,
-       tilsagn.bestilling_status,
-       tilsagn.kostnadssted,
+       tilsagn.lopenummer, tilsagn.bestillingsnummer, tilsagn.bestilling_status, tilsagn.kostnadssted,
        tilsagn.kommentar,
        tilsagn.beskrivelse,
        tilsagn.status,
@@ -43,12 +40,14 @@ from tilsagn
              select coalesce(
                  jsonb_agg(
                      jsonb_build_object(
-                         'deltakerId', deltaker_id,
-                         'innholdAnnet', innhold_annet
+                         'deltakerId', td.deltaker_id,
+                         'innholdAnnet', td.innhold_annet,
+                         'status', d.status_type
                      )
                  ),
                  '[]'::jsonb
              ) as deltakere
-             from tilsagn_deltaker
-             where tilsagn_id = tilsagn.id
+             from tilsagn_deltaker td
+             inner join deltaker d on d.id = td.deltaker_id
+             where td.tilsagn_id = tilsagn.id
          ) deltakere on true;

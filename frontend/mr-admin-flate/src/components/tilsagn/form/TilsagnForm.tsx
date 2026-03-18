@@ -126,10 +126,10 @@ export function TilsagnForm(props: Props) {
                   />
                 </HGrid>
                 <VelgKostnadssted kostnadssteder={kostnadssteder} />
-                {props.beregningInput}
                 <Suspense fallback={<Loader size="small" />}>
                   <VelgDeltakere gjennomforingId={gjennomforing.id} />
                 </Suspense>
+                {props.beregningInput}
                 <Textarea
                   size="small"
                   error={errors.kommentar?.message}
