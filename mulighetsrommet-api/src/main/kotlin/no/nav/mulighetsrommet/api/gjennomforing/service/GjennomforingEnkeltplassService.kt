@@ -1,20 +1,31 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
+import arrow.core.getOrElse
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.right
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerError
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
@@ -37,17 +48,83 @@ data class OpprettGjennomforingEnkeltplass(
 class GjennomforingEnkeltplassService(
     private val config: Config,
     private val db: ApiDatabase,
+    private val deltakerClient: AmtDeltakerClient,
 ) {
     data class Config(
         val gjennomforingV2Topic: String,
     )
 
-    fun upsert(opprett: OpprettGjennomforingEnkeltplass): Unit = db.transaction {
-        val previous = queries.gjennomforing.getGjennomforing(opprett.id)
-        if (previous != null && !harEnkeltplassEndringer(opprett, previous)) {
-            return
+    fun upsert(opprett: OpprettGjennomforingEnkeltplass): Validated<GjennomforingEnkeltplass> = db.transaction {
+        return when (val gjennomforing = queries.gjennomforing.getGjennomforing(opprett.id)) {
+            null -> {
+                upsert(opprett)
+                    .also { updateFreeTextSearch(it, null) }
+                    .also { publishTiltaksgjennomforingV2ToKafka(it) }
+                    .right()
+            }
+
+            !is GjennomforingEnkeltplass -> {
+                FieldError.of("Gjennomføring er ikke av typen enkeltplass").nel().left()
+            }
+
+            else if (!harEnkeltplassEndringer(opprett, gjennomforing)) -> {
+                gjennomforing.right()
+            }
+
+            else -> {
+                upsert(opprett)
+                    .also { publishTiltaksgjennomforingV2ToKafka(it) }
+                    .right()
+            }
+        }
+    }
+
+    suspend fun updateArenaData(id: UUID, arenadata: Gjennomforing.ArenaData): GjennomforingEnkeltplass = db.transaction {
+        val previous = getOrError(id)
+        if (previous.arena == arenadata) {
+            return previous
         }
 
+        val arenadataDbo = GjennomforingArenaDataDbo(
+            id = id,
+            tiltaksnummer = arenadata.tiltaksnummer,
+            arenaAnsvarligEnhet = arenadata.ansvarligNavEnhet,
+        )
+        queries.gjennomforing.setArenaData(arenadataDbo)
+
+        val personalia = getDeltakerPersonalia(id)
+
+        getOrError(id)
+            .also { updateFreeTextSearch(it, personalia?.norskIdent) }
+            .also { publishTiltaksgjennomforingV2ToKafka(it) }
+    }
+
+    fun updateFreeTextSearch(id: UUID, norskIdent: NorskIdent?) = db.transaction {
+        val gjennomforing = getOrError(id)
+        updateFreeTextSearch(gjennomforing, norskIdent)
+    }
+
+    private suspend fun getDeltakerPersonalia(gjennomforingId: UUID): DeltakerPersonalia? {
+        val deltakelser = db.session { queries.deltaker.getByGjennomforingId(gjennomforingId) }
+        if (deltakelser.size > 1) {
+            throw Exception("Forventet kun én deltaker på en enkeltplass-gjennomføring")
+        }
+
+        return deltakelser.firstOrNull()
+            ?.let { deltakerClient.hentPersonalia(listOf(it.id)) }
+            ?.map { personalia -> personalia.first() }
+            ?.getOrElse { error ->
+                when (error) {
+                    AmtDeltakerError.NotFound -> null
+
+                    AmtDeltakerError.BadRequest,
+                    AmtDeltakerError.Error,
+                    -> throw Exception("Klarte ikke hente personalia for deltaker til gjennomføring med id=$gjennomforingId error=$error")
+                }
+            }
+    }
+
+    private fun QueryContext.upsert(opprett: OpprettGjennomforingEnkeltplass): GjennomforingEnkeltplass {
         val prismodellId = getOrCreatePrismodell(opprett.id)
         val dbo = GjennomforingDbo(
             type = GjennomforingType.ENKELTPLASS,
@@ -74,35 +151,14 @@ class GjennomforingEnkeltplassService(
             tilgjengeligForArrangorDato = null,
         )
         queries.gjennomforing.upsert(dbo)
-
-        getOrError(dbo.id)
-            .also { updateFreeTextSearch(it) }
-            .also { publishTiltaksgjennomforingV2ToKafka(it) }
+        return getOrError(dbo.id)
     }
 
-    fun updateArenaData(id: UUID, arenadata: Gjennomforing.ArenaData): GjennomforingEnkeltplass = db.transaction {
-        val previous = getOrError(id)
-        if (previous.arena == arenadata) {
-            return previous
-        }
-
-        queries.gjennomforing.setArenaData(
-            GjennomforingArenaDataDbo(
-                id = id,
-                tiltaksnummer = arenadata.tiltaksnummer,
-                arenaAnsvarligEnhet = arenadata.ansvarligNavEnhet,
-            ),
-        )
-
-        getOrError(id)
-            .also { updateFreeTextSearch(it) }
-            .also { publishTiltaksgjennomforingV2ToKafka(it) }
-    }
-
-    private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingEnkeltplass) {
+    private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingEnkeltplass, norskIdent: NorskIdent?) {
         val fts = listOf(gjennomforing.arrangor.navn) +
             gjennomforing.lopenummer.toFreeTextSearch() +
-            gjennomforing.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty()
+            gjennomforing.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty() +
+            listOfNotNull(norskIdent?.let { NorskIdentHasher.hash(it) })
 
         queries.gjennomforing.setFreeTextSearch(gjennomforing.id, fts)
     }
