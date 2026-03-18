@@ -386,7 +386,7 @@ fun Route.utbetalingRoutes() {
 
                             val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(tilsagn.deltakere.map { it.deltakerId })
                             val deltakere = tilsagn.deltakere.map {
-                                TilsagnDeltakerDto.from(it, personalia.getValue(it.deltakerId))
+                                TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                             }
                             UtbetalingLinje(
                                 id = delutbetaling.id,
@@ -416,7 +416,7 @@ fun Route.utbetalingRoutes() {
                         .map {
                             val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(it.deltakere.map { it.deltakerId })
                             val deltakere = it.deltakere.map {
-                                TilsagnDeltakerDto.from(it, personalia.getValue(it.deltakerId))
+                                TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                             }
 
                             UtbetalingLinje(

@@ -162,7 +162,7 @@ fun Route.tilsagnRoutesBeregning() {
                 }
             val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.map { it.id })
             deltakelser.map {
-                TilsagnDeltakerDto.from(it, personalia.getValue(it.id))
+                TilsagnDeltakerDto.from(it, personalia[it.id])
             }
         } else {
             emptyList()
