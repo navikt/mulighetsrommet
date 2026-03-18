@@ -206,18 +206,20 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             }
         }
 
-        test("overskriver deltakelser når tidspunkt for endring er det samme som det som er lagret i databasen") {
+        test("overskriver deltakelser når tidspunkt for endring (avkortet til mikrosekunder) er det samme som det som er lagret i databasen") {
             val deltakerConsumer = createConsumer()
 
             val id = UUID.randomUUID()
 
-            val tidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+            val tidspunktKafka = LocalDateTime.parse("2023-03-01T00:00:00.123456789")
+            val tidspunktDatabase = LocalDateTime.parse("2023-03-01T00:00:00.123456")
+
             val amtDeltakerDeltar = createAmtDeltakerDto(
                 id = id,
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
                 status = DeltakerStatusType.DELTAR,
-                opprettetTidspunkt = tidspunkt,
+                opprettetTidspunkt = tidspunktKafka,
             )
 
             val amtDeltakerAvbrutt = createAmtDeltakerDto(
@@ -225,7 +227,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
                 status = DeltakerStatusType.AVBRUTT,
-                opprettetTidspunkt = tidspunkt,
+                opprettetTidspunkt = tidspunktKafka,
             )
 
             deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerDeltar))
@@ -233,7 +235,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             database.run {
                 queries.deltaker.get(id).shouldNotBeNull().should {
                     it.status.type shouldBe DeltakerStatusType.DELTAR
-                    it.endretTidspunkt shouldBe tidspunkt
+                    it.endretTidspunkt shouldBe tidspunktDatabase
                 }
             }
 
@@ -242,7 +244,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             database.run {
                 queries.deltaker.get(id).shouldNotBeNull().should {
                     it.status.type shouldBe DeltakerStatusType.AVBRUTT
-                    it.endretTidspunkt shouldBe tidspunkt
+                    it.endretTidspunkt shouldBe tidspunktDatabase
                 }
             }
         }
