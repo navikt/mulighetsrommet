@@ -76,7 +76,7 @@ class JournalforUtbetaling(
             }
     }
 
-    private suspend fun generatePdf(utbetaling: Utbetaling): Either<String, ByteArray> {
+    suspend fun generatePdf(utbetaling: Utbetaling): Either<String, ByteArray> {
         val deltakelseIds = utbetaling.beregning.deltakelsePerioder().map { it.deltakelseId }
         val personalia = amtDeltakerClient.hentPersonalia(deltakelseIds)
             .getOrElse {
