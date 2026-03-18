@@ -10,4 +10,5 @@ export const queryKeys = {
   tiltaksoversikt: (type: TiltaksoversiktType) => ["tiltaksoversikt", type] as const,
   opprettKravData: (orgnr: string, gjennomforingId: string) =>
     ["opprettKravData", orgnr, gjennomforingId] as const,
+  orgnrTilganger: () => ["organisasjonsTilganger"],
 };
