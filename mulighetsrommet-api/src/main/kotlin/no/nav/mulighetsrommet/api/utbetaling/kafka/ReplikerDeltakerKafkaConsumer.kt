@@ -64,7 +64,7 @@ class ReplikerDeltakerKafkaConsumer(
     private fun QueryContext.harEndringer(deltakerEkstern: AmtDeltakerEksternV1Dto): Boolean {
         val deltaker = queries.deltaker.get(deltakerEkstern.id) ?: return true
 
-        if (truncateMicros(deltakerEkstern.endretTidspunkt) < deltaker.endretTidspunkt) {
+        if (truncateMicros(deltakerEkstern.endretTidspunkt) < deltaker.endretTidspunkt.truncatedTo(ChronoUnit.MILLIS)) {
             return false
         }
 
