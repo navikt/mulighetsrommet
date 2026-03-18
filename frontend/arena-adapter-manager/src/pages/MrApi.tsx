@@ -131,6 +131,14 @@ export function MrApi() {
           for tilsagnet (kjør journalføring av tilsagnsbrev først)
         </BodyShort>
       </RunTask>
+
+      <RunTask
+        base={ApiBase.MR_API}
+        task={"generer-utbetaling-journalpost-pdf"}
+        form={(props) => <TextInputForm {...props} label="Utbetaling id" name="utbetalingId" />}
+      >
+        <BodyShort>Genererer utbetaling journalpost pdf</BodyShort>
+      </RunTask>
     </>
   );
 }
