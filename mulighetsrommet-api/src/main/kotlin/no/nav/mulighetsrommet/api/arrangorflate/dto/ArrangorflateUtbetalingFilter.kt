@@ -55,8 +55,7 @@ data class ArrangorflateUtbetalingFilter(
         ;
 
         companion object {
-            fun from(str: String?): OrderBy =
-                str?.let { OrderBy.valueOf(it) } ?: ARRANGOR
+            fun from(str: String?): OrderBy = str?.let { OrderBy.valueOf(it) } ?: ARRANGOR
         }
     }
 
@@ -70,7 +69,6 @@ data class ArrangorflateUtbetalingFilter(
             fun from(str: String?): Direction = str?.let { Direction.valueOf(it) } ?: ASC
         }
     }
-
 }
 
 fun RoutingContext.getArrangorflateUtbetalingFilter(): ArrangorflateUtbetalingFilter {
@@ -78,6 +76,7 @@ fun RoutingContext.getArrangorflateUtbetalingFilter(): ArrangorflateUtbetalingFi
     val type = ArrangorflateUtbetalingFilter.Type.from(call.queryParameters["type"])
     val pagination = when (type) {
         ArrangorflateUtbetalingFilter.Type.AKTIVE -> Pagination.all()
+
         ArrangorflateUtbetalingFilter.Type.HISTORISKE ->
             getPaginationParams()
     }

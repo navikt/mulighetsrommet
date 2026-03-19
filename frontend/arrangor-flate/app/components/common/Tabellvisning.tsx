@@ -7,7 +7,7 @@ export interface Kolonne {
 }
 
 interface TabellvisningProps extends React.PropsWithChildren {
-  kolonner: Array<{ key: string; label: string; sortable: boolean }>;
+  kolonner: Array<Kolonne>;
   sort: SortState | undefined;
   onSortChange: (key: string) => void;
   pagination?: PaginationProps;

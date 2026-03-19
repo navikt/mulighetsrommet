@@ -7,7 +7,6 @@ import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
-import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter.OrderBy.*
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
@@ -547,11 +546,11 @@ class UtbetalingQueries(private val session: Session) {
         }
 
         val order = when (filter.orderBy) {
-            TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn"
-            ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer"
-            PERIODE -> "periode $direction"
-            BELOP -> "belop_beregnet $direction"
-            STATUS -> "status $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.PERIODE -> "periode $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.BELOP -> "belop_beregnet $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.STATUS -> "status $direction"
         }
 
         @Language("PostgreSQL")
@@ -575,7 +574,7 @@ class UtbetalingQueries(private val session: Session) {
             offset :offset
         """.trimIndent()
         val params = mapOf(
-            "sok" to filter.sok?.let { "%${it}%" },
+            "sok" to filter.sok?.let { "%$it%" },
             "orgnr_list" to session.createArrayOfValue(arrangorer) { it.value },
             "status_list" to session.createTextArray(filter.type.utbetalingStatuser()),
         )

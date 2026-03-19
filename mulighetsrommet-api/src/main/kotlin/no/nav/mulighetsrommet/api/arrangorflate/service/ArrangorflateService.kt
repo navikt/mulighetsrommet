@@ -9,8 +9,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinj
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
-import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
@@ -28,14 +26,10 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.collections.component1
@@ -80,17 +74,16 @@ class ArrangorflateService(
             .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere)) }
     }
 
-    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> =
-        db.session {
-            queries.tilsagn
-                .getAll(
-                    gjennomforingId = utbetaling.gjennomforing.id,
-                    periodeIntersectsWith = utbetaling.periode,
-                    typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
-                    statuser = listOf(TilsagnStatus.GODKJENT),
-                )
-                .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere)) }
-        }
+    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> = db.session {
+        queries.tilsagn
+            .getAll(
+                gjennomforingId = utbetaling.gjennomforing.id,
+                periodeIntersectsWith = utbetaling.periode,
+                typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
+                statuser = listOf(TilsagnStatus.GODKJENT),
+            )
+            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere)) }
+    }
 
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
         return when (utbetaling.status) {
@@ -110,7 +103,7 @@ class ArrangorflateService(
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
             UtbetalingStatusType.AVBRUTT,
-                -> emptyList()
+            -> emptyList()
         }
     }
 
@@ -182,11 +175,11 @@ class ArrangorflateService(
             is UtbetalingBeregningPrisPerHeleUkesverk,
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerUkesverk,
-                -> Unit
+            -> Unit
 
             is UtbetalingBeregningPrisPerTimeOppfolging,
             is UtbetalingBeregningFri,
-                -> return false to null
+            -> return false to null
         }
 
         val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(utbetaling.gjennomforing.id)
@@ -256,16 +249,16 @@ fun arrangorAvbrytStatus(utbetaling: Utbetaling): ArrangorAvbrytStatus {
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.TIL_ATTESTERING,
-            -> ArrangorAvbrytStatus.DEACTIVATED
+        -> ArrangorAvbrytStatus.DEACTIVATED
 
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.UTBETALT,
         UtbetalingStatusType.AVBRUTT,
-            -> ArrangorAvbrytStatus.HIDDEN
+        -> ArrangorAvbrytStatus.HIDDEN
 
         UtbetalingStatusType.TIL_BEHANDLING,
         UtbetalingStatusType.RETURNERT,
-            -> ArrangorAvbrytStatus.ACTIVATED
+        -> ArrangorAvbrytStatus.ACTIVATED
     }
 }
 

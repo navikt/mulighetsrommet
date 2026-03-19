@@ -20,12 +20,13 @@ function defaultFilter(type?: ArrangorflateUtbetalingFilterType): ArrangorflateU
     page: 1,
     size: PAGE_SIZE,
     type: defaultType,
-    orderBy: ArrangorflateUtbetalingFilterOrderBy.TILTAK,
-    direction: ArrangorflateUtbetalingFilterDirection.ASC,
+    orderBy: ArrangorflateUtbetalingFilterOrderBy.PERIODE,
+    direction: ArrangorflateUtbetalingFilterDirection.DESC,
   };
   if (type === ArrangorflateUtbetalingFilterType.AKTIVE) {
     return {
       ...base,
+      orderBy: ArrangorflateUtbetalingFilterOrderBy.TILTAK,
       size: undefined,
     };
   }

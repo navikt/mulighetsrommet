@@ -232,7 +232,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             db.session {
                 queries.utbetaling.getArrangorflateFiltered(
                     arrangorer = tilganger.toSet(),
-                    filter
+                    filter,
                 ).map { tilArrangorflateUtbetalingKompakt(it) }
             }
 
@@ -544,7 +544,6 @@ data class OpprettKravOmUtbetalingResponse(
     val id: UUID,
 )
 
-
 val TILSAGN_STATUS_VISNING_ARRANGORFLATE = listOf(
     TilsagnStatus.GODKJENT,
     TilsagnStatus.TIL_ANNULLERING,
@@ -572,19 +571,18 @@ fun QueryContext.tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): Arra
         ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
         ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
         ArrangorflateUtbetalingStatus.UTBETALT,
-            -> getGodkjentBelopForUtbetaling(utbetaling.id, utbetaling.beregning.output.pris.valuta)
+        -> getGodkjentBelopForUtbetaling(utbetaling.id, utbetaling.beregning.output.pris.valuta)
 
         ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
         ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
         ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
         ArrangorflateUtbetalingStatus.AVBRUTT,
-            -> null
+        -> null
     }
     return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
 }
 
-fun QueryContext.getGodkjentBelopForUtbetaling(id: UUID, valuta: Valuta): ValutaBelop =
-    queries.delutbetaling.getByUtbetalingId(id).sumOf { it.pris.belop }.withValuta(valuta)
+fun QueryContext.getGodkjentBelopForUtbetaling(id: UUID, valuta: Valuta): ValutaBelop = queries.delutbetaling.getByUtbetalingId(id).sumOf { it.pris.belop }.withValuta(valuta)
 
 fun ArrangorflateTilsagnDto.toRadDto(): ArrangorflateTilsagnRadDto = ArrangorflateTilsagnRadDto(
     id = id,
