@@ -184,3 +184,7 @@ Loggene finner du i [GCP Observability Monitor](https://console.cloud.google.com
   - Autentisering secret har blitt rotert/utdatert
     **Fiks**:
     - Lag nye secrets med scriptet i **Opprette secret for datastream-bruker**
+- **googleapi: Error 400: View `<resouce name>` to authorize not found in location europe-north1., invalid**
+  - Denne feilen kan oppstå fordi vi forsøker å sette `<resource name>`-viewet som et `authroized_view` på en datastream før
+    selve viewet har blitt opprettet.
+  - **Fiks:** Opprett view først, deretter gi viewet leserettigheter. (Evt. fiks terraform-config til å utlede denne avhengigheten selv)
