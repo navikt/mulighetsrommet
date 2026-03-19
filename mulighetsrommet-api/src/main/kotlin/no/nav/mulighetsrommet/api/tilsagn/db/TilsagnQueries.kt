@@ -52,7 +52,7 @@ class TilsagnQueries(private val session: Session) {
                 bestilling_status,
                 kostnadssted,
                 status,
-                type,
+                tilsagn_type,
                 valuta,
                 belop_brukt,
                 belop_beregnet,
@@ -74,7 +74,7 @@ class TilsagnQueries(private val session: Session) {
                 :bestilling_status,
                 :kostnadssted,
                 :status::tilsagn_status,
-                :type::tilsagn_type,
+                :tilsagn_type::tilsagn_type,
                 :valuta::currency,
                 :belop_brukt,
                 :belop_beregnet,
@@ -96,7 +96,7 @@ class TilsagnQueries(private val session: Session) {
                 bestilling_status                       = excluded.bestilling_status,
                 kostnadssted                            = excluded.kostnadssted,
                 status                                  = excluded.status,
-                type                                    = excluded.type,
+                tilsagn_type                            = excluded.tilsagn_type,
                 valuta                                  = excluded.valuta,
                 belop_brukt                             = excluded.belop_brukt,
                 belop_beregnet                          = excluded.belop_beregnet,
@@ -120,7 +120,7 @@ class TilsagnQueries(private val session: Session) {
             "bestillingsnummer" to dbo.bestillingsnummer,
             "bestilling_status" to dbo.bestillingStatus?.name,
             "kostnadssted" to dbo.kostnadssted.value,
-            "type" to dbo.type.name,
+            "tilsagn_type" to dbo.type.name,
             "belop_brukt" to dbo.belopBrukt.belop,
             "belop_beregnet" to dbo.beregning.output.pris.belop,
             "valuta" to dbo.belopBrukt.valuta.name,
@@ -340,7 +340,7 @@ class TilsagnQueries(private val session: Session) {
             select *
             from view_tilsagn
             where
-              (:typer::tilsagn_type[] is null or type = any(:typer::tilsagn_type[]))
+              (:typer::tilsagn_type[] is null or tilsagn_type = any(:typer::tilsagn_type[]))
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
               and (:arrangorer::text[] is null or arrangor_organisasjonsnummer = any(:arrangorer))
               and (:statuser::tilsagn_status[] is null or status::tilsagn_status = any(:statuser))
@@ -451,7 +451,7 @@ class TilsagnQueries(private val session: Session) {
 
         return Tilsagn(
             id = uuid("id"),
-            type = TilsagnType.valueOf(string("type")),
+            type = TilsagnType.valueOf(string("tilsagn_type")),
             tiltakstype = Tilsagn.Tiltakstype(
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
                 navn = string("tiltakstype_navn"),

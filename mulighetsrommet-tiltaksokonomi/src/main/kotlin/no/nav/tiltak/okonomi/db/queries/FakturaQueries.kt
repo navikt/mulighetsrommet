@@ -196,7 +196,7 @@ class FakturaQueries(private val session: Session) {
                 belop = row.int("belop"),
                 periode = row.periode("periode"),
                 status = FakturaStatusType.valueOf(row.string("status")),
-                fakturaStatusSistOppdatert = row.localDateTimeOrNull("status_sist_oppdatert"),
+                fakturaStatusSistOppdatert = row.localDateTime("status_sist_oppdatert"),
                 behandletAv = OkonomiPart.fromString(row.string("behandlet_av")),
                 behandletTidspunkt = row.localDateTime("behandlet_tidspunkt"),
                 besluttetAv = OkonomiPart.fromString(row.string("besluttet_av")),

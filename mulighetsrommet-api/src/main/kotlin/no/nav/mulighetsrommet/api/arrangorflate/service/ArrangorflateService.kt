@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.collections.component1
 
 val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.GODKJENT,
@@ -187,7 +186,7 @@ class ArrangorflateService(
                     id = delutbetaling.id,
                     pris = delutbetaling.pris,
                     status = delutbetaling.status,
-                    statusSistOppdatert = delutbetaling.faktura.statusSistOppdatert,
+                    statusSistOppdatert = delutbetaling.faktura.statusEndretTidspunkt,
                     tilsagn = tilsagn,
                 )
             }

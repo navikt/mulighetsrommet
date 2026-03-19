@@ -12,7 +12,6 @@ import no.nav.tiltak.okonomi.helpers.divideBelopByMonthsInPeriode
 import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
 import no.nav.tiltak.okonomi.service.gjorOppFakturanummer
 import java.time.LocalDateTime
-import kotlin.String
 
 data class Faktura(
     val bestillingsnummer: String,
@@ -21,7 +20,7 @@ data class Faktura(
     val belop: Int,
     val periode: Periode,
     val status: FakturaStatusType,
-    val fakturaStatusSistOppdatert: LocalDateTime?,
+    val fakturaStatusSistOppdatert: LocalDateTime,
     val behandletAv: OkonomiPart,
     val behandletTidspunkt: LocalDateTime,
     val besluttetAv: OkonomiPart,
