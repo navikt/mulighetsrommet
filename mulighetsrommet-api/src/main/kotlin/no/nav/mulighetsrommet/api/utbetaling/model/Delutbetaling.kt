@@ -29,12 +29,12 @@ data class Delutbetaling(
     @Serializable
     data class Faktura(
         val fakturanummer: String,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val sendtTidspunkt: LocalDateTime?,
         @Serializable(with = InstantSerializer::class)
         val utbetalesTidligstTidspunkt: Instant?,
         @Serializable(with = LocalDateTimeSerializer::class)
-        val statusSistOppdatert: LocalDateTime?,
+        val sendtTidspunkt: LocalDateTime?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val statusEndretTidspunkt: LocalDateTime?,
         val status: FakturaStatusType?,
     ) {
         fun erUtbetalt() = status in setOf(FakturaStatusType.DELVIS_BETALT, FakturaStatusType.FULLT_BETALT)

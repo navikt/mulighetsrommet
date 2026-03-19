@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.FakturaStatusType
 import org.intellij.lang.annotations.Language
-import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -33,7 +32,7 @@ class DelutbetalingQueries(private val session: Session) {
                 lopenummer,
                 fakturanummer,
                 faktura_status,
-                faktura_status_sist_oppdatert,
+                faktura_status_endret_tidspunkt,
                 datastream_periode_start,
                 datastream_periode_slutt
             ) values (
@@ -48,21 +47,21 @@ class DelutbetalingQueries(private val session: Session) {
                 :lopenummer,
                 :fakturanummer,
                 :faktura_status,
-                :faktura_status_sist_oppdatert::timestamp,
+                :faktura_status_endret_tidspunkt::timestamp,
                 :datastream_periode_start::date,
                 :datastream_periode_slutt::date
             ) on conflict (id) do update set
-                status                        = excluded.status,
-                belop                         = excluded.belop,
-                valuta                        = excluded.valuta,
-                gjor_opp_tilsagn              = excluded.gjor_opp_tilsagn,
-                periode                       = excluded.periode,
-                lopenummer                    = excluded.lopenummer,
-                fakturanummer                 = excluded.fakturanummer,
-                faktura_status                = excluded.faktura_status,
-                faktura_status_sist_oppdatert = excluded.faktura_status_sist_oppdatert,
-                datastream_periode_start      = excluded.datastream_periode_start,
-                datastream_periode_slutt      = excluded.datastream_periode_slutt
+                status                          = excluded.status,
+                belop                           = excluded.belop,
+                valuta                          = excluded.valuta,
+                gjor_opp_tilsagn                = excluded.gjor_opp_tilsagn,
+                periode                         = excluded.periode,
+                lopenummer                      = excluded.lopenummer,
+                fakturanummer                   = excluded.fakturanummer,
+                faktura_status                  = excluded.faktura_status,
+                faktura_status_endret_tidspunkt = excluded.faktura_status_endret_tidspunkt,
+                datastream_periode_start        = excluded.datastream_periode_start,
+                datastream_periode_slutt        = excluded.datastream_periode_slutt
         """.trimIndent()
 
         val params = mapOf(
@@ -70,7 +69,7 @@ class DelutbetalingQueries(private val session: Session) {
             "tilsagn_id" to delutbetaling.tilsagnId,
             "utbetaling_id" to delutbetaling.utbetalingId,
             "status" to delutbetaling.status.name,
-            "faktura_status_sist_oppdatert" to delutbetaling.fakturaStatusSistOppdatert,
+            "faktura_status_endret_tidspunkt" to delutbetaling.fakturaStatusEndretTidspunkt,
             "belop" to delutbetaling.pris.belop,
             "valuta" to delutbetaling.pris.valuta.name,
             "gjor_opp_tilsagn" to delutbetaling.gjorOppTilsagn,
@@ -128,35 +127,42 @@ class DelutbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setSendtTilOkonomi(utbetalingId: UUID, tilsagnId: UUID, tidspunkt: Instant) {
+    fun setSendtTilOkonomiTidspunkt(id: UUID, tidspunkt: LocalDateTime) {
         @Language("PostgreSQL")
         val query = """
-            update delutbetaling set
-                sendt_til_okonomi_tidspunkt = :tidspunkt
-            where
-                utbetaling_id = :utbetaling_id::uuid
-                and tilsagn_id = :tilsagn_id::uuid
+            update delutbetaling
+            set sendt_til_okonomi_tidspunkt = :tidspunkt
+            where id = :id::uuid
         """.trimIndent()
 
         val params = mapOf(
-            "utbetaling_id" to utbetalingId,
-            "tilsagn_id" to tilsagnId,
+            "id" to id,
             "tidspunkt" to tidspunkt,
         )
 
         session.execute(queryOf(query, params))
     }
 
-    fun setFakturaStatus(fakturanummer: String, status: FakturaStatusType, fakturaStatusSistOppdatert: LocalDateTime?) {
+    fun setFakturaStatus(
+        fakturanummer: String,
+        status: FakturaStatusType,
+        fakturaStatusEndretTidspunkt: LocalDateTime,
+    ) {
         @Language("PostgreSQL")
         val query = """
             update delutbetaling
-            set faktura_status = ?,
-                faktura_status_sist_oppdatert = ?
-            where fakturanummer = ?
+            set faktura_status = :faktura_status,
+                faktura_status_endret_tidspunkt = :faktura_status_endret_tidspunkt
+            where fakturanummer = :fakturanummer
         """.trimIndent()
 
-        session.execute(queryOf(query, status.name, fakturaStatusSistOppdatert, fakturanummer))
+        val params = mapOf(
+            "fakturanummer" to fakturanummer,
+            "faktura_status" to status.name,
+            "faktura_status_endret_tidspunkt" to fakturaStatusEndretTidspunkt,
+        )
+
+        session.execute(queryOf(query, params))
     }
 
     fun getByUtbetalingId(id: UUID): List<Delutbetaling> {
@@ -230,6 +236,21 @@ class DelutbetalingQueries(private val session: Session) {
 
 private fun Row.toDelutbetaling(): Delutbetaling {
     val valuta = string("valuta").let { Valuta.valueOf(it) }
+    val faktura = stringOrNull("faktura_status")?.let { status ->
+        Delutbetaling.Faktura(
+            fakturanummer = string("fakturanummer"),
+            utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
+            sendtTidspunkt = localDateTime("sendt_til_okonomi_tidspunkt"),
+            statusEndretTidspunkt = localDateTime("faktura_status_endret_tidspunkt"),
+            status = FakturaStatusType.valueOf(status),
+        )
+    } ?: Delutbetaling.Faktura(
+        fakturanummer = string("fakturanummer"),
+        utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
+        sendtTidspunkt = localDateTimeOrNull("sendt_til_okonomi_tidspunkt"),
+        statusEndretTidspunkt = null,
+        status = null,
+    )
     return Delutbetaling(
         id = uuid("id"),
         tilsagnId = uuid("tilsagn_id"),
@@ -239,12 +260,6 @@ private fun Row.toDelutbetaling(): Delutbetaling {
         periode = periode("periode"),
         lopenummer = int("lopenummer"),
         status = DelutbetalingStatus.valueOf(string("status")),
-        faktura = Delutbetaling.Faktura(
-            fakturanummer = string("fakturanummer"),
-            sendtTidspunkt = localDateTimeOrNull("sendt_til_okonomi_tidspunkt"),
-            utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
-            statusSistOppdatert = localDateTimeOrNull("faktura_status_sist_oppdatert"),
-            status = stringOrNull("faktura_status")?.let { FakturaStatusType.valueOf(it) },
-        ),
+        faktura = faktura,
     )
 }

@@ -288,20 +288,20 @@ class UtbetalingService(
         delutbetaling
     }
 
+    // TODO: returner utbetaling herfra
     fun oppdaterFakturaStatus(
         fakturanummer: String,
         nyStatus: FakturaStatusType,
-        fakturaStatusSistOppdatert: LocalDateTime?,
+        fakturaStatusEndretTidspunkt: LocalDateTime,
     ): Unit = db.transaction {
         val originalDelutbetaling = queries.delutbetaling.getOrError(fakturanummer)
-        if (originalDelutbetaling.faktura.statusSistOppdatert != null &&
-            fakturaStatusSistOppdatert != null &&
-            originalDelutbetaling.faktura.statusSistOppdatert.isAfter(fakturaStatusSistOppdatert)
+        if (originalDelutbetaling.faktura.statusEndretTidspunkt != null &&
+            originalDelutbetaling.faktura.statusEndretTidspunkt > fakturaStatusEndretTidspunkt
         ) {
             return
         }
 
-        queries.delutbetaling.setFakturaStatus(fakturanummer, nyStatus, fakturaStatusSistOppdatert)
+        queries.delutbetaling.setFakturaStatus(fakturanummer, nyStatus, fakturaStatusEndretTidspunkt)
 
         when (nyStatus) {
             FakturaStatusType.FEILET,
@@ -320,7 +320,7 @@ class UtbetalingService(
                 queries.delutbetaling.setStatus(fakturanummer, DelutbetalingStatus.UTBETALT)
                 oppdaterUtbetalingForUtbetaltDelutbetaling(originalDelutbetaling.utbetalingId)
                 if (!originalDelutbetaling.faktura.erUtbetalt()) {
-                    logDelutbetalingUtbetalt(originalDelutbetaling, fakturaStatusSistOppdatert)
+                    logDelutbetalingUtbetalt(originalDelutbetaling, fakturaStatusEndretTidspunkt)
                 }
             }
         }
@@ -432,14 +432,14 @@ class UtbetalingService(
 
     private fun TransactionalQueryContext.logDelutbetalingUtbetalt(
         delutbetaling: Delutbetaling,
-        fakturaStatusSistOppdatert: LocalDateTime?,
+        fakturaStatusEndretTidspunkt: LocalDateTime,
     ) {
         val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
         logEndring(
             "Betaling for tilsagn ${tilsagn.bestilling.bestillingsnummer} er utbetalt",
             delutbetaling.utbetalingId,
             Tiltaksadministrasjon,
-            fakturaStatusSistOppdatert ?: LocalDateTime.now(),
+            timestamp = fakturaStatusEndretTidspunkt,
         )
     }
 
@@ -555,8 +555,8 @@ class UtbetalingService(
             gjorOppTilsagn = gjorOppTilsagn,
             lopenummer = lopenummer,
             fakturanummer = fakturanummer,
+            fakturaStatusEndretTidspunkt = null,
             fakturaStatus = null,
-            fakturaStatusSistOppdatert = LocalDateTime.now(),
         )
 
         queries.delutbetaling.upsert(dbo)
@@ -770,11 +770,12 @@ class UtbetalingService(
             }
         }
 
+        queries.delutbetaling.setSendtTilOkonomiTidspunkt(delutbetaling.id, LocalDateTime.now())
+
         val faktura = OpprettFaktura(
             fakturanummer = delutbetaling.faktura.fakturanummer,
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             betalingsinformasjon = betalingsinformasjon,
-            belop = delutbetaling.pris.belop, // Send med valuta
             periode = delutbetaling.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
             behandletTidspunkt = opprettelse.behandletTidspunkt,
@@ -782,13 +783,8 @@ class UtbetalingService(
             besluttetTidspunkt = opprettelse.besluttetTidspunkt,
             gjorOppBestilling = delutbetaling.gjorOppTilsagn,
             beskrivelse = beskrivelse,
+            belop = delutbetaling.pris.belop,
             valuta = delutbetaling.pris.valuta,
-        )
-
-        queries.delutbetaling.setSendtTilOkonomi(
-            delutbetaling.utbetalingId,
-            delutbetaling.tilsagnId,
-            Instant.now(),
         )
 
         val tidspunktForUtbetaling = delutbetaling.faktura.utbetalesTidligstTidspunkt

@@ -9,7 +9,7 @@ data class FakturaStatus(
     val fakturanummer: String,
     val status: FakturaStatusType,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val fakturaStatusSistOppdatert: LocalDateTime?,
+    val fakturaStatusSistOppdatert: LocalDateTime,
 )
 
 enum class FakturaStatusType {

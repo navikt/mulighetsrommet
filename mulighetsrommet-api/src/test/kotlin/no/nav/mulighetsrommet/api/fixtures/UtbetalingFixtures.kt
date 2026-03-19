@@ -134,12 +134,12 @@ object UtbetalingFixtures {
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = utbetaling1.id,
         status = DelutbetalingStatus.TIL_ATTESTERING,
-        fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
         pris = 200.withValuta(Valuta.NOK),
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn1.bestillingsnummer}/1",
+        fakturaStatusEndretTidspunkt = null,
         fakturaStatus = null,
     )
 
@@ -148,12 +148,12 @@ object UtbetalingFixtures {
         tilsagnId = TilsagnFixtures.Tilsagn2.id,
         utbetalingId = utbetaling1.id,
         status = DelutbetalingStatus.TIL_ATTESTERING,
-        fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
         pris = 150.withValuta(Valuta.NOK),
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "${TilsagnFixtures.Tilsagn2.bestillingsnummer}/1",
+        fakturaStatusEndretTidspunkt = null,
         fakturaStatus = null,
     )
 }

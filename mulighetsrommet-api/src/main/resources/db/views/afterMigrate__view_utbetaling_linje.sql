@@ -10,7 +10,7 @@ select delutbetaling.id,
        delutbetaling.lopenummer,
        delutbetaling.fakturanummer,
        delutbetaling.faktura_status,
-       delutbetaling.faktura_status_sist_oppdatert,
+       delutbetaling.faktura_status_endret_tidspunkt,
        delutbetaling.sendt_til_okonomi_tidspunkt,
        utbetaling.utbetales_tidligst_tidspunkt
 from delutbetaling

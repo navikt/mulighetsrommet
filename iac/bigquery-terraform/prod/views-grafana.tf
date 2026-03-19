@@ -244,7 +244,7 @@ module "grafana_delutbetaling_view" {
     { name = "gjor_opp_tilsagn", type = "BOOLEAN", mode = "NULLABLE" },
     { name = "status", type = "STRING", mode = "NULLABLE" },
     { name = "faktura_status", type = "STRING", mode = "NULLABLE" },
-    { name = "faktura_status_sist_oppdatert", type = "TIMESTAMP", mode = "NULLABLE" },
+    { name = "faktura_status_endret_tidspunkt", type = "TIMESTAMP", mode = "NULLABLE" },
     { name = "datastream_periode_start", type = "DATE", mode = "NULLABLE" },
     { name = "datastream_periode_slutt", type = "DATE", mode = "NULLABLE" },
     { name = "besluttet_av", type = "STRING", mode = "NULLABLE" },
@@ -263,7 +263,7 @@ SELECT
   delutbetaling.gjor_opp_tilsagn,
   delutbetaling.status,
   delutbetaling.faktura_status,
-  delutbetaling.faktura_status_sist_oppdatert,
+  delutbetaling.faktura_status_endret_tidspunkt,
   delutbetaling.datastream_periode_start,
   delutbetaling.datastream_periode_slutt,
   totrinnskontroll.besluttet_av

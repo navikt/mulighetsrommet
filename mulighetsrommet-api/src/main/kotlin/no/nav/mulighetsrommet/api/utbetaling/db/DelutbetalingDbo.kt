@@ -18,5 +18,5 @@ data class DelutbetalingDbo(
     val lopenummer: Int,
     val fakturanummer: String,
     val fakturaStatus: FakturaStatusType?,
-    val fakturaStatusSistOppdatert: LocalDateTime,
+    val fakturaStatusEndretTidspunkt: LocalDateTime?,
 )

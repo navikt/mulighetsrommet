@@ -186,7 +186,7 @@ class ArrangorflateService(
                     id = delutbetaling.id,
                     pris = delutbetaling.pris,
                     status = delutbetaling.status,
-                    statusSistOppdatert = delutbetaling.faktura.statusSistOppdatert,
+                    statusSistOppdatert = delutbetaling.faktura.statusEndretTidspunkt,
                     tilsagn = tilsagn,
                 )
             }
