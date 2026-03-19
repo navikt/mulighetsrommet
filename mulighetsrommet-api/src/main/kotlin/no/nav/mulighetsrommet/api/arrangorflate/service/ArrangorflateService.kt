@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinj
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
@@ -28,7 +29,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -70,15 +70,13 @@ class ArrangorflateService(
         return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
     }
 
-    fun getUtbetalingerByArrangorerAndStatus(
+    fun getUtbetalingerByArrangorerAndFilter(
         arrangorer: Set<Organisasjonsnummer>,
-        statuser: Set<UtbetalingStatusType>,
-        pagination: Pagination = Pagination.all(),
+        filter: ArrangorflateUtbetalingFilter = ArrangorflateUtbetalingFilter(),
     ): PaginatedResult<ArrangorflateUtbetalingKompakt> = db.session {
-        val utbetalinger = queries.utbetaling.getByArrangorerAndStatus(
+        val utbetalinger = queries.utbetaling.getFiltered(
             arrangorer,
-            statuser,
-            pagination
+            filter
         )
         utbetalinger.map { tilArrangorflateUtbetalingKompakt(it) }
     }

@@ -25,11 +25,11 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
+import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
-import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -38,13 +38,10 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
-import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
@@ -198,9 +195,12 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         tags = setOf("Arrangorflate")
         operationId = "getArrangorflateUtbetalinger"
         request {
-            queryParameter<UtbetalingOversiktType>("type")
+            queryParameter<String>("sok")
             queryParameter<Int>("page")
             queryParameter<Int>("size")
+            queryParameter<ArrangorflateUtbetalingFilter.Type>("type")
+            queryParameter<ArrangorflateUtbetalingFilter.OrderBy>("orderBy")
+            queryParameter<ArrangorflateUtbetalingFilter.Direction>("direction")
         }
         response {
             code(HttpStatusCode.OK) {
@@ -218,16 +218,14 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             respondWithManglerTilgangHosArrangor()
             return@get
         }
-        val type = UtbetalingOversiktType.from(call.queryParameters["type"])
-        val pagination = getPaginationParams()
+        val filter = getArrangorflateUtbetalingFilter()
         val (totalCount, items) =
-            arrangorFlateService.getUtbetalingerByArrangorerAndStatus(
+            arrangorFlateService.getUtbetalingerByArrangorerAndFilter(
                 tilganger.toSet(),
-                type.utbetalingStatuser(),
-                pagination
+                filter
             )
 
-        call.respond(PaginatedResponse.of(pagination, totalCount, items.map { it.toRadDto() }))
+        call.respond(PaginatedResponse.of(filter.pagination, totalCount, items.map { it.toRadDto() }))
     }
 
     route("/utbetaling/{id}") {
@@ -535,39 +533,6 @@ data class OpprettKravOmUtbetalingResponse(
     val id: UUID,
 )
 
-@Serializable
-enum class UtbetalingOversiktType {
-    AKTIVE,
-    HISTORISKE,
-    ;
-
-    fun utbetalingStatuser(): Set<UtbetalingStatusType> = when (this) {
-        AKTIVE -> setOf(
-            UtbetalingStatusType.GENERERT,
-            UtbetalingStatusType.TIL_BEHANDLING,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.RETURNERT,
-        )
-
-        HISTORISKE -> setOf(
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.AVBRUTT,
-        )
-    }
-
-    companion object {
-        /**
-         * Defaulter til AKTIVE
-         */
-        fun from(type: String?): UtbetalingOversiktType = when (type) {
-            "AKTIVE" -> AKTIVE
-            "HISTORISKE" -> HISTORISKE
-            else -> AKTIVE
-        }
-    }
-}
 
 val TILSAGN_STATUS_VISNING_ARRANGORFLATE = listOf(
     TilsagnStatus.GODKJENT,

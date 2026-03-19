@@ -6,6 +6,8 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter.OrderBy.*
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
@@ -33,7 +35,6 @@ import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -536,26 +537,47 @@ class UtbetalingQueries(private val session: Session) {
         return session.list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetaling() }
     }
 
-    fun getByArrangorerAndStatus(
+    fun getFiltered(
         arrangorer: Set<Organisasjonsnummer>,
-        statuser: Set<UtbetalingStatusType>,
-        pagination: Pagination = Pagination.all(),
+        filter: ArrangorflateUtbetalingFilter = ArrangorflateUtbetalingFilter(),
     ): PaginatedResult<Utbetaling> {
+        val order = when (filter.orderBy) {
+            TILTAK -> "tiltakskode, gjennomforing_navn"
+            ARRANGOR -> "arrangor_navn, tiltakskode"
+            PERIODE -> "periode"
+            BELOP -> "belop_beregnet"
+            STATUS -> "status"
+        }
+        val direction = when (filter.direction) {
+            ArrangorflateUtbetalingFilter.Direction.ASC -> "asc"
+            ArrangorflateUtbetalingFilter.Direction.DESC -> "desc"
+        }
+
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over() as total_count
             from view_utbetaling
-            where arrangor_organisasjonsnummer = any (:orgnr_list::text[])
+            where (:sok::text is null
+                or arrangor_navn ilike :sok
+                or arrangor_organisasjonsnummer ilike :sok
+                or tiltakstype_navn ilike :sok
+                or gjennomforing_navn ilike :sok
+                or gjennomforing_lopenummer ilike :sok
+                or to_char(lower(periode), 'DD.MM.YYYY') ilike :sok
+                or to_char((upper(periode) - interval '1 day')::date, 'DD.MM.YYYY') ilike :sok
+            )
+            and arrangor_organisasjonsnummer = any (:orgnr_list::text[])
             and status = any (:status_list::text[])
-            order by arrangor_navn, tiltakskode desc
+            order by $order $direction
             limit :limit
             offset :offset
         """.trimIndent()
         val params = mapOf(
+            "sok" to filter.sok?.let { "%${it}%" },
             "orgnr_list" to session.createArrayOfValue(arrangorer) { it.value },
-            "status_list" to session.createTextArray(statuser),
+            "status_list" to session.createTextArray(filter.type.utbetalingStatuser()),
         )
-        return queryOf(query, params + pagination.parameters)
+        return queryOf(query, params + filter.pagination.parameters)
             .mapPaginated { it.toUtbetaling() }
             .runWithSession(session)
     }

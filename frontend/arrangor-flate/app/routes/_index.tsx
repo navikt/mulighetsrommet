@@ -1,16 +1,16 @@
 import { Link as ReactRouterLink } from "react-router";
-import { Box, Tabs, Button, HStack, InfoCard, PaginationProps } from "@navikt/ds-react";
-import { UtbetalingOversiktType } from "api-client";
+import { Box, Tabs, Button, HStack, InfoCard, PaginationProps, Search } from "@navikt/ds-react";
+import { ArrangorflateUtbetalingFilterType } from "api-client";
 import type { MetaFunction } from "react-router";
 import { PageHeading } from "~/components/common/PageHeading";
 import { useTabState } from "~/hooks/useTabState";
 import { tekster } from "~/tekster";
-import { useSortableData } from "@mr/frontend-common";
+import { useDebounce, useSortableData } from "@mr/frontend-common";
 import { pathTo } from "~/utils/navigation";
 import { Tabellvisning } from "~/components/common/Tabellvisning";
 import { utbetalingKolonner, UtbetalingRow } from "~/components/common/UtbetalingRow";
 import { tilsagnKolonner, TilsagnRow } from "~/components/common/TilsagnRow";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Laster } from "~/components/common/Laster";
 import { useArrangorflateTilsagnRader } from "~/hooks/useArrangorflateTilsagnRader";
 import { useArrangorflateUtbetalinger } from "~/hooks/useArrangorflateUtbetalinger";
@@ -43,27 +43,37 @@ export default function Oversikt() {
           />
         </Tabs.List>
         <Tabs.Panel value={currentTab}>
-          <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
-            {currentTab === "tilsagnsoversikt" ? (
+          {currentTab === "tilsagnsoversikt" ? (
+            <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
               <TilsagnTabellContent />
-            ) : (
-              <UtbetalingTabellContent
-                type={
-                  currentTab === "aktive"
-                    ? UtbetalingOversiktType.AKTIVE
-                    : UtbetalingOversiktType.HISTORISKE
-                }
-              />
-            )}
-          </Suspense>
+            </Suspense>
+          ) : (
+            <UtbetalingTabellContent
+              type={
+                currentTab === "aktive"
+                  ? ArrangorflateUtbetalingFilterType.AKTIVE
+                  : ArrangorflateUtbetalingFilterType.HISTORISKE
+              }
+            />
+          )}
         </Tabs.Panel>
       </Tabs>
     </Box>
   );
 }
 
-function UtbetalingTabellContent({ type }: { type: UtbetalingOversiktType }) {
-  const { data: paginertUtbetalingRader } = useArrangorflateUtbetalinger(type);
+function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilterType }) {
+  const [sok, setSok] = useState("");
+  const debouncedSok = useDebounce(sok);
+  const {
+    data: paginertUtbetalingRader,
+    filter,
+    setFilter,
+  } = useArrangorflateUtbetalinger({ type });
+
+  useEffect(() => {
+    setFilter((filter) => ({ ...filter, sok: debouncedSok.trim() }));
+  }, [debouncedSok, setFilter]);
 
   const { sortedData, sort, toggleSort } = useSortableData(
     paginertUtbetalingRader.data,
@@ -76,23 +86,38 @@ function UtbetalingTabellContent({ type }: { type: UtbetalingOversiktType }) {
     },
   );
   const paginationProps: PaginationProps = {
-    page: 1,
-    count: paginertUtbetalingRader.pagination.totalPages,
+    hidden: !paginertUtbetalingRader.pagination.totalPages,
+    page: filter?.page || 1,
+    count: paginertUtbetalingRader.pagination.totalPages || 1,
     boundaryCount: 1,
     prevNextTexts: true,
+    onPageChange: (newPage) => setFilter((filter) => ({ ...filter, page: newPage })),
   };
 
   return (
-    <Tabellvisning
-      kolonner={utbetalingKolonner}
-      sort={sort}
-      onSortChange={toggleSort}
-      pagination={paginationProps}
-    >
-      {sortedData.map((rad, i) => (
-        <UtbetalingRow key={rad.gjennomforingId + i} row={rad} />
-      ))}
-    </Tabellvisning>
+    <>
+      <form role="search">
+        <Search
+          label="Søk i alle Nav sine sider"
+          variant="simple"
+          value={sok}
+          onChange={setSok}
+          onClear={() => setSok("")}
+        />
+      </form>
+      <Tabellvisning
+        kolonner={utbetalingKolonner}
+        sort={sort}
+        onSortChange={toggleSort}
+        pagination={paginationProps}
+      >
+        <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
+          {sortedData.map((rad, i) => (
+            <UtbetalingRow key={rad.gjennomforingId + i} row={rad} />
+          ))}
+        </Suspense>
+      </Tabellvisning>
+    </>
   );
 }
 
