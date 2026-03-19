@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
 import kotlinx.serialization.json.Json
+import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -21,6 +22,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.Validated
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -99,9 +101,14 @@ class GjennomforingEnkeltplassService(
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
     }
 
-    fun updateFreeTextSearch(id: UUID, norskIdent: NorskIdent?) = db.transaction {
-        val gjennomforing = getOrError(id)
-        updateFreeTextSearch(gjennomforing, norskIdent)
+    fun handleChangeDeltaker(deltaker: AmtDeltakerEksternV1Dto): GjennomforingEnkeltplass = db.transaction {
+        getOrError(deltaker.gjennomforingId).also {
+            val norskIdent = when (deltaker.status.type) {
+                DeltakerStatusType.FEILREGISTRERT -> null
+                else -> NorskIdent(deltaker.personIdent)
+            }
+            updateFreeTextSearch(it, norskIdent)
+        }
     }
 
     private suspend fun getDeltakerPersonalia(gjennomforingId: UUID): DeltakerPersonalia? {

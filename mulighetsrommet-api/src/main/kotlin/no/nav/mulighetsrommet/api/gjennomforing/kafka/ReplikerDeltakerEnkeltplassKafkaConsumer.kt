@@ -9,8 +9,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.util.UUID
 
@@ -30,11 +28,6 @@ class ReplikerDeltakerEnkeltplassKafkaConsumer(
             return
         }
 
-        // TODO: Skal feilregistrerte enkeltplasser føre til at gjennomføring også slettes?
-        val norskIdent = when (amtDeltaker.status.type) {
-            DeltakerStatusType.FEILREGISTRERT -> null
-            else -> NorskIdent(amtDeltaker.personIdent)
-        }
-        service.updateFreeTextSearch(amtDeltaker.gjennomforingId, norskIdent)
+        service.handleChangeDeltaker(amtDeltaker)
     }
 }
