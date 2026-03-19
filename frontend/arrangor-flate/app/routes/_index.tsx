@@ -32,7 +32,10 @@ import { tilsagnKolonner, TilsagnRow } from "~/components/common/TilsagnRow";
 import { Suspense, useEffect, useState } from "react";
 import { Laster } from "~/components/common/Laster";
 import { useArrangorflateTilsagnRader } from "~/hooks/useArrangorflateTilsagnRader";
-import { useArrangorflateUtbetalinger } from "~/hooks/useArrangorflateUtbetalinger";
+import {
+  ArrangorflateUtbetalingFilter,
+  useArrangorflateUtbetalinger,
+} from "~/hooks/useArrangorflateUtbetalinger";
 
 export const meta: MetaFunction = () => {
   return [
@@ -81,6 +84,17 @@ export default function Oversikt() {
   );
 }
 
+function filterToSortState({ orderBy, direction }: ArrangorflateUtbetalingFilter): SortState {
+  const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";
+  const newDirection: SortState["direction"] =
+    (direction && paramToSortDirection[direction]) || "ascending";
+
+  return {
+    orderBy: newOrderBy,
+    direction: newDirection,
+  };
+}
+
 function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilterType }) {
   const [sok, setSok] = useState("");
   const debouncedSok = useDebounce(sok);
@@ -89,19 +103,14 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
     filter,
     setFilter,
   } = useArrangorflateUtbetalinger({ type });
-  const [sortState, setSortState] = useState<SortState>({
-    orderBy: (filter?.orderBy && paramToSortKey[filter.orderBy]) || "tiltaksNavn",
-    direction: (filter?.direction && paramToSortDirection[filter.direction]) || "ascending",
-  });
+  const [sortState, setSortState] = useState<SortState>(filterToSortState(filter));
   useEffect(() => {
     setFilter((filter) => ({ ...filter, sok: debouncedSok.trim() }));
   }, [debouncedSok, setFilter]);
+
   useEffect(() => {
-    setSortState({
-      orderBy: (filter?.orderBy && paramToSortKey[filter.orderBy]) || "tiltaksNavn",
-      direction: (filter?.direction && paramToSortDirection[filter.direction]) || "ascending",
-    });
-  }, [filter?.orderBy, filter?.direction]);
+    setSortState(filterToSortState(filter));
+  }, [filter]);
 
   const paginationProps: PaginationProps = {
     hidden: !paginertUtbetalingRader.pagination.totalPages,

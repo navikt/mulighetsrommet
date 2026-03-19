@@ -40,7 +40,8 @@ export const sortDirectionToParam: Record<
   descending: ArrangorflateUtbetalingFilterDirection.DESC,
   none: ArrangorflateUtbetalingFilterDirection.ASC,
 };
-export const paramToSortDirection = flipObject(sortDirectionToParam);
+export const paramToSortDirection: Record<ArrangorflateUtbetalingFilterDirection, string> =
+  flipObject(sortDirectionToParam);
 
 export function UtbetalingRow({ row }: { row: ArrangorInnsendingRadDto }) {
   return (
