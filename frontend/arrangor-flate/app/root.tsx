@@ -13,7 +13,7 @@ import {
   useLocation,
 } from "react-router";
 import parse from "html-react-parser";
-import { ReactNode, Suspense } from "react";
+import { ReactNode } from "react";
 import { DekoratorElements, fetchSsrDekorator } from "~/services/dekorator/dekorator.server";
 import useInjectDecoratorScript from "~/services/dekorator/useInjectScript";
 import "./tailwind.css";
@@ -57,17 +57,9 @@ function App() {
           </div>
         }
       >
-        <Suspense
-          fallback={
-            <div className="flex justify-center items-center p-8">
-              <Loader size="xlarge" />
-            </div>
-          }
-        >
-          <OrganisasjonsTilgangGuard>
-            <Outlet />
-          </OrganisasjonsTilgangGuard>
-        </Suspense>
+        <OrganisasjonsTilgangGuard>
+          <Outlet />
+        </OrganisasjonsTilgangGuard>
       </ClientOnly>
     </Dokument>
   );

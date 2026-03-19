@@ -74,9 +74,13 @@ data class ArrangorflateUtbetalingFilter(
 }
 
 fun RoutingContext.getArrangorflateUtbetalingFilter(): ArrangorflateUtbetalingFilter {
-    val sok = call.queryParameters["sok"]
+    val sok = call.queryParameters["sok"]?.ifBlank { null }
     val type = ArrangorflateUtbetalingFilter.Type.from(call.queryParameters["type"])
-    val pagination = getPaginationParams()
+    val pagination = when (type) {
+        ArrangorflateUtbetalingFilter.Type.AKTIVE -> Pagination.all()
+        ArrangorflateUtbetalingFilter.Type.HISTORISKE ->
+            getPaginationParams()
+    }
     val orderBy = ArrangorflateUtbetalingFilter.OrderBy.from(call.parameters["orderBy"])
     val direction = ArrangorflateUtbetalingFilter.Direction.from(call.parameters["direction"])
     return ArrangorflateUtbetalingFilter(

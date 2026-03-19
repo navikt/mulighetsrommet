@@ -11,14 +11,15 @@ import {
 } from "api-client/types.gen";
 import { pathTo } from "~/utils/navigation";
 import { flipObject } from "~/utils/object";
+import { Kolonne } from "./Tabellvisning";
 
-export const utbetalingKolonner: Array<{ key: string; label: string }> = [
-  { key: "tiltakNavn", label: "Tiltak" },
-  { key: "arrangorNavn", label: "Arrangør" },
-  { key: "startDato", label: "Periode" },
-  { key: "belop", label: "Beløp" },
+export const utbetalingKolonner: Array<Kolonne> = [
+  { key: "tiltakNavn", label: "Tiltak", sortable: true },
+  { key: "arrangorNavn", label: "Arrangør", sortable: true },
+  { key: "startDato", label: "Periode", sortable: true },
+  { key: "belop", label: "Beløp", sortable: true },
   { key: "type", label: "Type" },
-  { key: "status", label: "Status" },
+  { key: "status", label: "Status", sortable: true },
 ];
 
 export const sortKeyToParam: Record<string, ArrangorflateUtbetalingFilterOrderBy> = {
@@ -40,8 +41,11 @@ export const sortDirectionToParam: Record<
   descending: ArrangorflateUtbetalingFilterDirection.DESC,
   none: ArrangorflateUtbetalingFilterDirection.ASC,
 };
-export const paramToSortDirection: Record<ArrangorflateUtbetalingFilterDirection, string> =
-  flipObject(sortDirectionToParam);
+
+export const paramToSortDirection: Record<
+  ArrangorflateUtbetalingFilterDirection,
+  SortState["direction"]
+> = flipObject(sortDirectionToParam);
 
 export function UtbetalingRow({ row }: { row: ArrangorInnsendingRadDto }) {
   return (

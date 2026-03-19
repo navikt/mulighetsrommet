@@ -87,6 +87,7 @@ export default function Oversikt() {
 function filterToSortState({ orderBy, direction }: ArrangorflateUtbetalingFilter): SortState {
   const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";
   const newDirection: SortState["direction"] =
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     (direction && paramToSortDirection[direction]) || "ascending";
 
   return {
@@ -97,38 +98,50 @@ function filterToSortState({ orderBy, direction }: ArrangorflateUtbetalingFilter
 
 function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilterType }) {
   const [sok, setSok] = useState("");
-  const debouncedSok = useDebounce(sok);
+  const debouncedSok = useDebounce(sok, 300);
   const {
     data: paginertUtbetalingRader,
     filter,
     setFilter,
+    oppdaterSok,
   } = useArrangorflateUtbetalinger({ type });
+
   const [sortState, setSortState] = useState<SortState>(filterToSortState(filter));
-  useEffect(() => {
-    setFilter((filter) => ({ ...filter, sok: debouncedSok.trim() }));
-  }, [debouncedSok, setFilter]);
 
   useEffect(() => {
-    setSortState(filterToSortState(filter));
-  }, [filter]);
+    oppdaterSok(debouncedSok);
+  }, [debouncedSok, oppdaterSok]);
 
-  const paginationProps: PaginationProps = {
-    hidden: !paginertUtbetalingRader.pagination.totalPages,
-    page: filter?.page || 1,
-    count: paginertUtbetalingRader.pagination.totalPages || 1,
-    boundaryCount: 1,
-    prevNextTexts: true,
-    onPageChange: (newPage) => setFilter((filter) => ({ ...filter, page: newPage })),
-  };
+  function clearSearch() {
+    setSok("");
+  }
+
+  useEffect(() => {
+    const filterSortState = filterToSortState(filter);
+    setSortState(filterSortState);
+  }, [filter, setSortState]);
+
+  const paginationProps: PaginationProps | undefined =
+    type === ArrangorflateUtbetalingFilterType.HISTORISKE
+      ? {
+          hidden: !paginertUtbetalingRader.pagination.totalPages,
+          page: filter.page || 1,
+          count: paginertUtbetalingRader.pagination.totalPages || 1,
+          boundaryCount: 1,
+          prevNextTexts: true,
+          onPageChange: (newPage) => setFilter((filter) => ({ ...filter, page: newPage })),
+        }
+      : undefined;
 
   function sortChange(orderBy: ArrangorflateUtbetalingFilterOrderBy) {
-    if (orderBy == filter?.orderBy) {
+    if (orderBy == filter.orderBy) {
       const direction =
         filter.direction == ArrangorflateUtbetalingFilterDirection.ASC
           ? ArrangorflateUtbetalingFilterDirection.DESC
           : ArrangorflateUtbetalingFilterDirection.ASC;
       return setFilter((old) => ({ ...old, direction }));
     }
+
     setFilter((old) => ({
       ...old,
       orderBy,
@@ -138,15 +151,17 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
 
   return (
     <>
-      <form role="search">
+      <Box paddingBlock="space-16" width="30rem">
         <Search
-          label="Søk i alle Nav sine sider"
+          label="Søk i utbetalinger"
+          description="Tiltaksnavn, arrangør, periode, beløp"
+          hideLabel={false}
           variant="simple"
-          value={sok}
+          width="30rem"
           onChange={setSok}
-          onClear={() => setSok("")}
+          onClear={clearSearch}
         />
-      </form>
+      </Box>
       <Tabellvisning
         kolonner={utbetalingKolonner}
         sort={sortState}

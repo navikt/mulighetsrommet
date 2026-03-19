@@ -53,33 +53,6 @@ class ArrangorflateService(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
-    private fun tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
-        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
-        val godkjentBelop = when (status) {
-            ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-            ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
-            ArrangorflateUtbetalingStatus.UTBETALT,
-                -> getGodkjentBelopForUtbetaling(utbetaling.id, valuta = utbetaling.beregning.output.pris.valuta)
-
-            ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-            ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
-            ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
-            ArrangorflateUtbetalingStatus.AVBRUTT,
-                -> null
-        }
-        return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
-    }
-
-    fun getUtbetalingerByArrangorerAndFilter(
-        arrangorer: Set<Organisasjonsnummer>,
-        filter: ArrangorflateUtbetalingFilter = ArrangorflateUtbetalingFilter(),
-    ): PaginatedResult<ArrangorflateUtbetalingKompakt> = db.session {
-        val utbetalinger = queries.utbetaling.getFiltered(
-            arrangorer,
-            filter
-        )
-        utbetalinger.map { tilArrangorflateUtbetalingKompakt(it) }
-    }
 
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
         return queries.utbetaling.get(id)
@@ -139,10 +112,6 @@ class ArrangorflateService(
             UtbetalingStatusType.AVBRUTT,
                 -> emptyList()
         }
-    }
-
-    private fun getGodkjentBelopForUtbetaling(utbetalingId: UUID, valuta: Valuta): ValutaBelop = db.session {
-        return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.pris.belop }.withValuta(valuta)
     }
 
     suspend fun toArrangorflateUtbetaling(

@@ -6,29 +6,48 @@ import {
   ArrangorflateUtbetalingFilterType,
   GetArrangorflateUtbetalingerData,
 } from "api-client";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { queryClient } from "~/api/client";
 import { queryKeys } from "~/api/queryKeys";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 25;
 
-export type ArrangorflateUtbetalingFilter = GetArrangorflateUtbetalingerData["query"];
+export type ArrangorflateUtbetalingFilter = NonNullable<GetArrangorflateUtbetalingerData["query"]>;
 
-const defaultFilter = {
-  page: 1,
-  size: PAGE_SIZE,
-  type: ArrangorflateUtbetalingFilterType.AKTIVE,
-  orderBy: ArrangorflateUtbetalingFilterOrderBy.ARRANGOR,
-  direction: ArrangorflateUtbetalingFilterDirection.ASC,
-};
+function defaultFilter(type?: ArrangorflateUtbetalingFilterType): ArrangorflateUtbetalingFilter {
+  const defaultType = type || ArrangorflateUtbetalingFilterType.AKTIVE;
+  const base = {
+    page: 1,
+    size: PAGE_SIZE,
+    type: defaultType,
+    orderBy: ArrangorflateUtbetalingFilterOrderBy.TILTAK,
+    direction: ArrangorflateUtbetalingFilterDirection.ASC,
+  };
+  if (type === ArrangorflateUtbetalingFilterType.AKTIVE) {
+    return {
+      ...base,
+      size: undefined,
+    };
+  }
+  return base;
+}
 
 export function useArrangorflateUtbetalinger(
   initialFilter: Partial<ArrangorflateUtbetalingFilter>,
 ) {
   const [filter, setFilter] = useState<ArrangorflateUtbetalingFilter>({
-    ...defaultFilter,
+    ...defaultFilter(initialFilter.type),
     ...initialFilter,
   });
+
+  const oppdaterSok = useCallback(
+    (val: string) => {
+      const trimmedValue = val.trim();
+      if (filter.sok !== trimmedValue)
+        setFilter((old) => ({ ...old, sok: trimmedValue || undefined }));
+    },
+    [filter.sok, setFilter],
+  );
 
   return {
     ...useSuspenseQuery({
@@ -46,5 +65,6 @@ export function useArrangorflateUtbetalinger(
     }),
     filter,
     setFilter,
+    oppdaterSok,
   };
 }

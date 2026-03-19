@@ -20,7 +20,9 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.altinn.AltinnError
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
@@ -28,6 +30,8 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
@@ -42,6 +46,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
+import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
@@ -53,6 +58,9 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -96,6 +104,7 @@ suspend fun RoutingContext.requireTilgangHosArrangor(
     ?: throw StatusException(HttpStatusCode.Forbidden, "Ikke tilgang til bedrift")
 
 fun Route.arrangorflateRoutes(config: AppConfig) {
+    val db: ApiDatabase by inject()
     val utbetalingService: UtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
     val arrangorFlateService: ArrangorflateService by inject()
@@ -220,10 +229,12 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }
         val filter = getArrangorflateUtbetalingFilter()
         val (totalCount, items) =
-            arrangorFlateService.getUtbetalingerByArrangorerAndFilter(
-                tilganger.toSet(),
-                filter
-            )
+            db.session {
+                queries.utbetaling.getArrangorflateFiltered(
+                    arrangorer = tilganger.toSet(),
+                    filter
+                ).map { tilArrangorflateUtbetalingKompakt(it) }
+            }
 
         call.respond(PaginatedResponse.of(filter.pagination, totalCount, items.map { it.toRadDto() }))
     }
@@ -554,6 +565,26 @@ data class ArrangorflateTilsagnRadDto(
     val tilsagnNavn: String,
     val status: TilsagnStatus,
 )
+
+fun QueryContext.tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
+    val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
+    val godkjentBelop = when (status) {
+        ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+        ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
+        ArrangorflateUtbetalingStatus.UTBETALT,
+            -> getGodkjentBelopForUtbetaling(utbetaling.id, utbetaling.beregning.output.pris.valuta)
+
+        ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+        ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
+        ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
+        ArrangorflateUtbetalingStatus.AVBRUTT,
+            -> null
+    }
+    return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
+}
+
+fun QueryContext.getGodkjentBelopForUtbetaling(id: UUID, valuta: Valuta): ValutaBelop =
+    queries.delutbetaling.getByUtbetalingId(id).sumOf { it.pris.belop }.withValuta(valuta)
 
 fun ArrangorflateTilsagnDto.toRadDto(): ArrangorflateTilsagnRadDto = ArrangorflateTilsagnRadDto(
     id = id,

@@ -537,20 +537,21 @@ class UtbetalingQueries(private val session: Session) {
         return session.list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetaling() }
     }
 
-    fun getFiltered(
+    fun getArrangorflateFiltered(
         arrangorer: Set<Organisasjonsnummer>,
         filter: ArrangorflateUtbetalingFilter = ArrangorflateUtbetalingFilter(),
     ): PaginatedResult<Utbetaling> {
-        val order = when (filter.orderBy) {
-            TILTAK -> "tiltakskode, gjennomforing_navn"
-            ARRANGOR -> "arrangor_navn, tiltakskode"
-            PERIODE -> "periode"
-            BELOP -> "belop_beregnet"
-            STATUS -> "status"
-        }
         val direction = when (filter.direction) {
             ArrangorflateUtbetalingFilter.Direction.ASC -> "asc"
             ArrangorflateUtbetalingFilter.Direction.DESC -> "desc"
+        }
+
+        val order = when (filter.orderBy) {
+            TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn"
+            ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer"
+            PERIODE -> "periode $direction"
+            BELOP -> "belop_beregnet $direction"
+            STATUS -> "status $direction"
         }
 
         @Language("PostgreSQL")
@@ -569,7 +570,7 @@ class UtbetalingQueries(private val session: Session) {
             )
             and arrangor_organisasjonsnummer = any (:orgnr_list::text[])
             and status = any (:status_list::text[])
-            order by $order $direction
+            order by $order
             limit :limit
             offset :offset
         """.trimIndent()
