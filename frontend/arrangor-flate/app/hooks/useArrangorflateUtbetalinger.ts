@@ -27,7 +27,8 @@ function defaultFilter(type?: ArrangorflateUtbetalingFilterType): ArrangorflateU
     return {
       ...base,
       orderBy: ArrangorflateUtbetalingFilterOrderBy.TILTAK,
-      size: undefined,
+      direction: ArrangorflateUtbetalingFilterDirection.ASC,
+      size: undefined, // Vis alle
     };
   }
   return base;
