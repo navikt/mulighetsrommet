@@ -127,11 +127,11 @@ class DelutbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setSendtTilOkonomiTidspunkt(id: UUID, tidspunkt: LocalDateTime) {
+    fun setFakturaSendtTidspunk(id: UUID, tidspunkt: LocalDateTime) {
         @Language("PostgreSQL")
         val query = """
             update delutbetaling
-            set sendt_til_okonomi_tidspunkt = :tidspunkt
+            set faktura_sendt_tidspunkt = :tidspunkt
             where id = :id::uuid
         """.trimIndent()
 
@@ -240,14 +240,14 @@ private fun Row.toDelutbetaling(): Delutbetaling {
         Delutbetaling.Faktura(
             fakturanummer = string("fakturanummer"),
             utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
-            sendtTidspunkt = localDateTime("sendt_til_okonomi_tidspunkt"),
+            sendtTidspunkt = localDateTime("faktura_sendt_tidspunkt"),
             statusEndretTidspunkt = localDateTime("faktura_status_endret_tidspunkt"),
             status = FakturaStatusType.valueOf(status),
         )
     } ?: Delutbetaling.Faktura(
         fakturanummer = string("fakturanummer"),
         utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
-        sendtTidspunkt = localDateTimeOrNull("sendt_til_okonomi_tidspunkt"),
+        sendtTidspunkt = localDateTimeOrNull("faktura_sendt_tidspunkt"),
         statusEndretTidspunkt = null,
         status = null,
     )

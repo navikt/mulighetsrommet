@@ -772,7 +772,7 @@ class UtbetalingService(
             }
         }
 
-        queries.delutbetaling.setSendtTilOkonomiTidspunkt(delutbetaling.id, LocalDateTime.now())
+        queries.delutbetaling.setFakturaSendtTidspunk(delutbetaling.id, LocalDateTime.now())
 
         val faktura = OpprettFaktura(
             fakturanummer = delutbetaling.faktura.fakturanummer,

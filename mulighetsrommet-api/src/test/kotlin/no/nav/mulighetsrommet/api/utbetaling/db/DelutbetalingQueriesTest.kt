@@ -82,7 +82,7 @@ class DelutbetalingQueriesTest : FunSpec({
             queries.delutbetaling.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBeNull()
 
             val tidspunkt = LocalDateTime.of(2025, 12, 1, 0, 0, 0)
-            queries.delutbetaling.setSendtTilOkonomiTidspunkt(delutbetaling.id, tidspunkt)
+            queries.delutbetaling.setFakturaSendtTidspunk(delutbetaling.id, tidspunkt)
 
             queries.delutbetaling.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBe(tidspunkt)
         }
@@ -94,7 +94,7 @@ class DelutbetalingQueriesTest : FunSpec({
 
             queries.delutbetaling.upsert(delutbetaling)
             val sendtTidspunkt = LocalDateTime.of(2025, 12, 1, 0, 0, 0)
-            queries.delutbetaling.setSendtTilOkonomiTidspunkt(delutbetaling.id, sendtTidspunkt)
+            queries.delutbetaling.setFakturaSendtTidspunk(delutbetaling.id, sendtTidspunkt)
 
             queries.delutbetaling.getOrError(delutbetaling.id).faktura.should {
                 it.sendtTidspunkt shouldBe sendtTidspunkt

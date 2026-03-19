@@ -11,7 +11,7 @@ select delutbetaling.id,
        delutbetaling.fakturanummer,
        delutbetaling.faktura_status,
        delutbetaling.faktura_status_endret_tidspunkt,
-       delutbetaling.sendt_til_okonomi_tidspunkt,
+       delutbetaling.faktura_sendt_tidspunkt,
        utbetaling.utbetales_tidligst_tidspunkt
 from delutbetaling
          join utbetaling on delutbetaling.utbetaling_id = utbetaling.id

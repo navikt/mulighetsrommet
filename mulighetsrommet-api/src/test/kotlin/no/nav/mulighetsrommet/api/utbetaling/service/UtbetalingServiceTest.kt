@@ -1689,7 +1689,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)),
                 delutbetalinger = listOf(delutbetaling),
             ) {
-                queries.delutbetaling.setSendtTilOkonomiTidspunkt(delutbetaling.id, lagretFakturaStatusSistOppdatert)
+                queries.delutbetaling.setFakturaSendtTidspunk(delutbetaling.id, lagretFakturaStatusSistOppdatert)
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -1730,7 +1730,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)),
                 delutbetalinger = listOf(delutbetaling),
             ) {
-                queries.delutbetaling.setSendtTilOkonomiTidspunkt(delutbetaling.id, lagretFakturaStatusSistOppdatert)
+                queries.delutbetaling.setFakturaSendtTidspunk(delutbetaling.id, lagretFakturaStatusSistOppdatert)
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -1772,7 +1772,7 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)),
                 delutbetalinger = listOf(delutbetaling),
             ) {
-                queries.delutbetaling.setSendtTilOkonomiTidspunkt(delutbetaling.id, lagretFakturaStatusSistOppdatert)
+                queries.delutbetaling.setFakturaSendtTidspunk(delutbetaling.id, lagretFakturaStatusSistOppdatert)
             }.initialize(database.db)
 
             val service = createUtbetalingService()
@@ -1816,8 +1816,8 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)),
                 delutbetalinger = listOf(linje1, linje2),
             ) {
-                queries.delutbetaling.setSendtTilOkonomiTidspunkt(linje1.id, lagretFakturaStatusSistOppdatert)
-                queries.delutbetaling.setSendtTilOkonomiTidspunkt(linje2.id, lagretFakturaStatusSistOppdatert)
+                queries.delutbetaling.setFakturaSendtTidspunk(linje1.id, lagretFakturaStatusSistOppdatert)
+                queries.delutbetaling.setFakturaSendtTidspunk(linje2.id, lagretFakturaStatusSistOppdatert)
             }.initialize(database.db)
 
             val service = createUtbetalingService()
