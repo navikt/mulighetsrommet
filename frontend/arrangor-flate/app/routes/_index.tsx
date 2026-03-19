@@ -1,6 +1,19 @@
 import { Link as ReactRouterLink } from "react-router";
-import { Box, Tabs, Button, HStack, InfoCard, PaginationProps, Search } from "@navikt/ds-react";
-import { ArrangorflateUtbetalingFilterType } from "api-client";
+import {
+  Box,
+  Tabs,
+  Button,
+  HStack,
+  InfoCard,
+  PaginationProps,
+  Search,
+  SortState,
+} from "@navikt/ds-react";
+import {
+  ArrangorflateUtbetalingFilterDirection,
+  ArrangorflateUtbetalingFilterOrderBy,
+  ArrangorflateUtbetalingFilterType,
+} from "api-client";
 import type { MetaFunction } from "react-router";
 import { PageHeading } from "~/components/common/PageHeading";
 import { useTabState } from "~/hooks/useTabState";
@@ -8,7 +21,13 @@ import { tekster } from "~/tekster";
 import { useDebounce, useSortableData } from "@mr/frontend-common";
 import { pathTo } from "~/utils/navigation";
 import { Tabellvisning } from "~/components/common/Tabellvisning";
-import { utbetalingKolonner, UtbetalingRow } from "~/components/common/UtbetalingRow";
+import {
+  paramToSortDirection,
+  paramToSortKey,
+  sortKeyToParam,
+  utbetalingKolonner,
+  UtbetalingRow,
+} from "~/components/common/UtbetalingRow";
 import { tilsagnKolonner, TilsagnRow } from "~/components/common/TilsagnRow";
 import { Suspense, useEffect, useState } from "react";
 import { Laster } from "~/components/common/Laster";
@@ -70,21 +89,20 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
     filter,
     setFilter,
   } = useArrangorflateUtbetalinger({ type });
-
+  const [sortState, setSortState] = useState<SortState>({
+    orderBy: (filter?.orderBy && paramToSortKey[filter.orderBy]) || "tiltaksNavn",
+    direction: (filter?.direction && paramToSortDirection[filter.direction]) || "ascending",
+  });
   useEffect(() => {
     setFilter((filter) => ({ ...filter, sok: debouncedSok.trim() }));
   }, [debouncedSok, setFilter]);
+  useEffect(() => {
+    setSortState({
+      orderBy: (filter?.orderBy && paramToSortKey[filter.orderBy]) || "tiltaksNavn",
+      direction: (filter?.direction && paramToSortDirection[filter.direction]) || "ascending",
+    });
+  }, [filter?.orderBy, filter?.direction]);
 
-  const { sortedData, sort, toggleSort } = useSortableData(
-    paginertUtbetalingRader.data,
-    undefined,
-    (item, key) => {
-      if (key === "belop") {
-        return item.belop?.belop;
-      }
-      return (item as Record<string, unknown>)[key];
-    },
-  );
   const paginationProps: PaginationProps = {
     hidden: !paginertUtbetalingRader.pagination.totalPages,
     page: filter?.page || 1,
@@ -93,6 +111,21 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
     prevNextTexts: true,
     onPageChange: (newPage) => setFilter((filter) => ({ ...filter, page: newPage })),
   };
+
+  function sortChange(orderBy: ArrangorflateUtbetalingFilterOrderBy) {
+    if (orderBy == filter?.orderBy) {
+      const direction =
+        filter.direction == ArrangorflateUtbetalingFilterDirection.ASC
+          ? ArrangorflateUtbetalingFilterDirection.DESC
+          : ArrangorflateUtbetalingFilterDirection.ASC;
+      return setFilter((old) => ({ ...old, direction }));
+    }
+    setFilter((old) => ({
+      ...old,
+      orderBy,
+      direction: ArrangorflateUtbetalingFilterDirection.ASC,
+    }));
+  }
 
   return (
     <>
@@ -107,12 +140,12 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
       </form>
       <Tabellvisning
         kolonner={utbetalingKolonner}
-        sort={sort}
-        onSortChange={toggleSort}
+        sort={sortState}
+        onSortChange={(key) => sortChange(sortKeyToParam[key])}
         pagination={paginationProps}
       >
         <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
-          {sortedData.map((rad, i) => (
+          {paginertUtbetalingRader.data.map((rad, i) => (
             <UtbetalingRow key={rad.gjennomforingId + i} row={rad} />
           ))}
         </Suspense>

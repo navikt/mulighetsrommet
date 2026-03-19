@@ -561,6 +561,7 @@ class UtbetalingQueries(private val session: Session) {
                 or arrangor_navn ilike :sok
                 or arrangor_organisasjonsnummer ilike :sok
                 or tiltakstype_navn ilike :sok
+                or belop_beregnet::text ilike :sok
                 or gjennomforing_navn ilike :sok
                 or gjennomforing_lopenummer ilike :sok
                 or to_char(lower(periode), 'DD.MM.YYYY') ilike :sok

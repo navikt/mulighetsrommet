@@ -1,11 +1,16 @@
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { formaterPeriodeUdefinertSlutt } from "@mr/frontend-common/utils/date";
-import { BodyShort, Link, Table } from "@navikt/ds-react";
+import { BodyShort, Link, SortState, Table } from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "../utbetaling/UtbetalingStatusTag";
 import { UtbetalingTextLink } from "../utbetaling/UtbetalingTextLink";
-import { ArrangorInnsendingRadDto } from "api-client/types.gen";
+import {
+  ArrangorflateUtbetalingFilterDirection,
+  ArrangorflateUtbetalingFilterOrderBy,
+  ArrangorInnsendingRadDto,
+} from "api-client/types.gen";
 import { pathTo } from "~/utils/navigation";
+import { flipObject } from "~/utils/object";
 
 export const utbetalingKolonner: Array<{ key: string; label: string }> = [
   { key: "tiltakNavn", label: "Tiltak" },
@@ -15,6 +20,27 @@ export const utbetalingKolonner: Array<{ key: string; label: string }> = [
   { key: "type", label: "Type" },
   { key: "status", label: "Status" },
 ];
+
+export const sortKeyToParam: Record<string, ArrangorflateUtbetalingFilterOrderBy> = {
+  tiltakNavn: ArrangorflateUtbetalingFilterOrderBy.TILTAK,
+  arrangorNavn: ArrangorflateUtbetalingFilterOrderBy.ARRANGOR,
+  startDato: ArrangorflateUtbetalingFilterOrderBy.PERIODE,
+  belop: ArrangorflateUtbetalingFilterOrderBy.BELOP,
+  status: ArrangorflateUtbetalingFilterOrderBy.STATUS,
+};
+
+export const paramToSortKey: Record<ArrangorflateUtbetalingFilterOrderBy, string> =
+  flipObject(sortKeyToParam);
+
+export const sortDirectionToParam: Record<
+  SortState["direction"],
+  ArrangorflateUtbetalingFilterDirection
+> = {
+  ascending: ArrangorflateUtbetalingFilterDirection.ASC,
+  descending: ArrangorflateUtbetalingFilterDirection.DESC,
+  none: ArrangorflateUtbetalingFilterDirection.ASC,
+};
+export const paramToSortDirection = flipObject(sortDirectionToParam);
 
 export function UtbetalingRow({ row }: { row: ArrangorInnsendingRadDto }) {
   return (
