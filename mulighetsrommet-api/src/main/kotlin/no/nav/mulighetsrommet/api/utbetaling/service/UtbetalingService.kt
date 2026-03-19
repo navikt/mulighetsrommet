@@ -288,17 +288,16 @@ class UtbetalingService(
         delutbetaling
     }
 
-    // TODO: returner utbetaling herfra
     fun oppdaterFakturaStatus(
         fakturanummer: String,
         nyStatus: FakturaStatusType,
         fakturaStatusEndretTidspunkt: LocalDateTime,
-    ): Unit = db.transaction {
+    ): Utbetaling = db.transaction {
         val originalDelutbetaling = queries.delutbetaling.getOrError(fakturanummer)
         if (originalDelutbetaling.faktura.statusEndretTidspunkt != null &&
             originalDelutbetaling.faktura.statusEndretTidspunkt > fakturaStatusEndretTidspunkt
         ) {
-            return
+            return getOrError(originalDelutbetaling.utbetalingId)
         }
 
         queries.delutbetaling.setFakturaStatus(fakturanummer, nyStatus, fakturaStatusEndretTidspunkt)
@@ -312,6 +311,7 @@ class UtbetalingService(
                     "Delutbetaling ${originalDelutbetaling.id} faktura status er ${originalDelutbetaling.faktura.status}, ny status $nyStatus"
                 }
                 queries.delutbetaling.setStatus(fakturanummer, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
+                getOrError(originalDelutbetaling.utbetalingId)
             }
 
             FakturaStatusType.DELVIS_BETALT,
@@ -321,6 +321,8 @@ class UtbetalingService(
                 oppdaterUtbetalingForUtbetaltDelutbetaling(originalDelutbetaling.utbetalingId)
                 if (!originalDelutbetaling.faktura.erUtbetalt()) {
                     logDelutbetalingUtbetalt(originalDelutbetaling, fakturaStatusEndretTidspunkt)
+                } else {
+                    getOrError(originalDelutbetaling.utbetalingId)
                 }
             }
         }
@@ -433,9 +435,9 @@ class UtbetalingService(
     private fun TransactionalQueryContext.logDelutbetalingUtbetalt(
         delutbetaling: Delutbetaling,
         fakturaStatusEndretTidspunkt: LocalDateTime,
-    ) {
+    ): Utbetaling {
         val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
-        logEndring(
+        return logEndring(
             "Betaling for tilsagn ${tilsagn.bestilling.bestillingsnummer} er utbetalt",
             delutbetaling.utbetalingId,
             Tiltaksadministrasjon,

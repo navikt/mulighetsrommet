@@ -1698,12 +1698,9 @@ class UtbetalingServiceTest : FunSpec({
                 delutbetaling.fakturanummer,
                 FakturaStatusType.FEILET,
                 lagretFakturaStatusSistOppdatert.minusMinutes(1),
-            )
+            ).status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
 
             database.run {
-                // TODO: assert på resultat fra oppdaterFakturaStatus i stedet
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
-
                 queries.delutbetaling.getOrError(delutbetaling.id).should {
                     it.status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
                     it.faktura.statusEndretTidspunkt shouldBe lagretFakturaStatusSistOppdatert
@@ -1743,11 +1740,9 @@ class UtbetalingServiceTest : FunSpec({
                 delutbetaling.fakturanummer,
                 FakturaStatusType.FULLT_BETALT,
                 fakturaStatusEndretTidspunkt,
-            )
+            ).status shouldBe UtbetalingStatusType.UTBETALT
 
             database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.UTBETALT
-
                 queries.delutbetaling.getOrError(delutbetaling.id).should {
                     it.status shouldBe DelutbetalingStatus.UTBETALT
                     it.faktura.statusEndretTidspunkt shouldBe fakturaStatusEndretTidspunkt
@@ -1787,11 +1782,11 @@ class UtbetalingServiceTest : FunSpec({
                 delutbetaling.fakturanummer,
                 FakturaStatusType.FULLT_BETALT,
                 fakturaStatusEndretTidspunkt,
-            )
+            ).status shouldBe UtbetalingStatusType.UTBETALT
 
             database.run {
                 queries.delutbetaling.getOrError(delutbetaling.id).status shouldBe DelutbetalingStatus.UTBETALT
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.UTBETALT
+
                 queries.endringshistorikk.getEndringshistorikk(
                     DocumentClass.UTBETALING,
                     utbetaling1.id,
@@ -1832,11 +1827,13 @@ class UtbetalingServiceTest : FunSpec({
                 linje1.fakturanummer,
                 FakturaStatusType.FULLT_BETALT,
                 fakturaStatusEndretTidspunkt,
-            )
+            ).status shouldBe UtbetalingStatusType.DELVIS_UTBETALT
 
-            database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.DELVIS_UTBETALT
-            }
+            service.oppdaterFakturaStatus(
+                linje2.fakturanummer,
+                FakturaStatusType.FULLT_BETALT,
+                fakturaStatusEndretTidspunkt,
+            ).status shouldBe UtbetalingStatusType.UTBETALT
         }
     }
 })
