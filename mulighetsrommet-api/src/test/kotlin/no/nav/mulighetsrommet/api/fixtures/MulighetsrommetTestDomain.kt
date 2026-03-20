@@ -13,8 +13,8 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
+import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 
 data class MulighetsrommetTestDomain(
     val navEnheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -48,7 +48,7 @@ data class MulighetsrommetTestDomain(
     val deltakere: List<DeltakerDbo> = listOf(),
     val tilsagn: List<TilsagnDbo> = listOf(),
     val utbetalinger: List<UtbetalingDbo> = listOf(),
-    val delutbetalinger: List<DelutbetalingDbo> = listOf(),
+    val utbetalingLinjer: List<UtbetalingLinjeDbo> = listOf(),
     val additionalSetup: (QueryContext.(MulighetsrommetTestDomain) -> Unit)? = null,
 ) {
     fun initialize(database: ApiDatabase): MulighetsrommetTestDomain = database.transaction {
@@ -70,7 +70,7 @@ data class MulighetsrommetTestDomain(
             deltakere.forEach { queries.deltaker.upsert(it) }
             tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
-            delutbetalinger.forEach { queries.delutbetaling.upsert(it) }
+            utbetalingLinjer.forEach { queries.utbetalingLinje.upsert(it) }
         }
 
         additionalSetup?.invoke(context, this)

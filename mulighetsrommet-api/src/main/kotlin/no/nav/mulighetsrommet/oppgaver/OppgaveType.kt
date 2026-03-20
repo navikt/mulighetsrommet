@@ -31,12 +31,12 @@ enum class OppgaveType(val navn: String, val rolle: Rolle, val kategori: Kategor
     UTBETALING_TIL_ATTESTERING(
         navn = "Utbetaling til attestering",
         rolle = Rolle.ATTESTANT_UTBETALING,
-        kategori = Kategori.DELUTBETALING,
+        kategori = Kategori.UTBETALING_LINJE,
     ),
     UTBETALING_RETURNERT(
         navn = "Utbetaling returnert av attestant",
         rolle = Rolle.SAKSBEHANDLER_OKONOMI,
-        kategori = Kategori.DELUTBETALING,
+        kategori = Kategori.UTBETALING_LINJE,
     ),
     AVTALE_MANGLER_ADMINISTRATOR(
         navn = "Avtale mangler administrator",
@@ -52,7 +52,7 @@ enum class OppgaveType(val navn: String, val rolle: Rolle, val kategori: Kategor
 
 enum class Kategori {
     TILSAGN,
-    DELUTBETALING,
+    UTBETALING_LINJE,
     UTBETALING,
     AVTALE,
     GJENNOMFORING,

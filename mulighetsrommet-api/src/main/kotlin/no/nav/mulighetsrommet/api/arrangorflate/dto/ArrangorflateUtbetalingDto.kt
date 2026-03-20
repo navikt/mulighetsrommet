@@ -6,8 +6,8 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingSta
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.LabeledDataElement
@@ -68,7 +68,7 @@ data class ArrangforflateUtbetalingLinje(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tilsagn: ArrangorflateTilsagnSummary,
-    val status: DelutbetalingStatus,
+    val status: UtbetalingLinjeStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val statusSistOppdatert: LocalDateTime?,
     val pris: ValutaBelop,

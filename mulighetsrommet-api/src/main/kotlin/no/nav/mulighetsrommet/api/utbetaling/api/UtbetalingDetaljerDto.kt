@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -28,7 +28,7 @@ data class UtbetalingLinje(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tilsagn: TilsagnDto,
-    val status: DelutbetalingStatusDto?,
+    val status: UtbetalingLinjeStatusDto?,
     val pris: ValutaBelop,
     val gjorOppTilsagn: Boolean,
     val opprettelse: TotrinnskontrollDto?,
@@ -43,26 +43,26 @@ enum class UtbetalingLinjeHandling {
 }
 
 @Serializable
-data class DelutbetalingStatusDto(
-    val type: DelutbetalingStatus,
+data class UtbetalingLinjeStatusDto(
+    val type: UtbetalingLinjeStatus,
     val status: DataElement.Status,
 ) {
     companion object {
-        fun fromDelutbetalingStatus(status: DelutbetalingStatus): DelutbetalingStatusDto {
-            return DelutbetalingStatusDto(
+        fun fromUtbetalingLinjeStatus(status: UtbetalingLinjeStatus): UtbetalingLinjeStatusDto {
+            return UtbetalingLinjeStatusDto(
                 type = status,
                 status = DataElement.Status(
                     value = status.beskrivelse,
                     when (status) {
-                        DelutbetalingStatus.GODKJENT,
-                        DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-                        DelutbetalingStatus.UTBETALT,
+                        UtbetalingLinjeStatus.GODKJENT,
+                        UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
+                        UtbetalingLinjeStatus.UTBETALT,
                         -> DataElement.Status.Variant.SUCCESS
 
-                        DelutbetalingStatus.TIL_ATTESTERING,
+                        UtbetalingLinjeStatus.TIL_ATTESTERING,
                         -> DataElement.Status.Variant.INFO
 
-                        DelutbetalingStatus.RETURNERT,
+                        UtbetalingLinjeStatus.RETURNERT,
                         -> DataElement.Status.Variant.ERROR
                     },
                 ),

@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
-import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingQueries
+import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.vedtak.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.veilederflate.db.VeilederJoyrideQueries
@@ -81,7 +81,7 @@ open class QueryContext(open val session: Session) {
         val tilsagn = TilsagnQueries(session)
         val notifications = NotificationQueries(session)
         val endringshistorikk = EndringshistorikkQueries(session)
-        val delutbetaling = DelutbetalingQueries(session)
+        val utbetalingLinje = UtbetalingLinjeQueries(session)
         val totrinnskontroll = TotrinnskontrollQueries(session)
         val veilderTiltak = VeilederflateTiltakQueries(session)
         val veilederJoyride = VeilederJoyrideQueries(session)

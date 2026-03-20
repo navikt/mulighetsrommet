@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -21,6 +20,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPe
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse.BeregnetPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -332,7 +332,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 id = UUID.randomUUID(),
                 bestillingsnummer = "A-1-1",
             ),
-            status = DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+            status = UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
             pris = 99.withValuta(Valuta.NOK),
             statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
         ),
@@ -342,7 +342,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 id = UUID.randomUUID(),
                 bestillingsnummer = "A-1-2",
             ),
-            status = DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+            status = UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
             pris = 1.withValuta(Valuta.NOK),
             statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
         ),

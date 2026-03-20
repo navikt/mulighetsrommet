@@ -26,17 +26,14 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
-import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
+import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
-import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
@@ -46,6 +43,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHel
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.validation.Validated
@@ -138,26 +138,26 @@ class UtbetalingService(
         }
     }
 
-    fun opprettDelutbetalinger(
-        request: OpprettDelutbetalingerRequest,
+    fun opprettUtbetalingLinjer(
+        request: OpprettUtbetalingLinjerRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val utbetaling = queries.utbetaling.getAndAquireLock(request.utbetalingId)
 
-        val delutbetalingTilsagn = request.delutbetalinger.associate { req ->
+        val utbetalingLinjeTilsagn = request.utbetalingLinjer.associate { req ->
             val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
             req.id to tilsagn
         }
 
         UtbetalingValidator
-            .validateOpprettDelutbetalinger(
-                UtbetalingValidator.OpprettDelutbetalingerCtx(
+            .validateOpprettUtbetalingLinjer(
+                UtbetalingValidator.OpprettUtbetalingLinjerCtx(
                     utbetaling = utbetaling,
-                    linjer = request.delutbetalinger.map { req ->
-                        val tilsagn = requireNotNull(delutbetalingTilsagn[req.id])
-                        UtbetalingValidator.OpprettDelutbetalingerCtx.Linje(
+                    linjer = request.utbetalingLinjer.map { req ->
+                        val tilsagn = requireNotNull(utbetalingLinjeTilsagn[req.id])
+                        UtbetalingValidator.OpprettUtbetalingLinjerCtx.Linje(
                             request = req,
-                            tilsagn = UtbetalingValidator.OpprettDelutbetalingerCtx.Tilsagn(
+                            tilsagn = UtbetalingValidator.OpprettUtbetalingLinjerCtx.Tilsagn(
                                 status = tilsagn.status,
                                 gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
                             ),
@@ -168,19 +168,19 @@ class UtbetalingService(
             )
             .map { linje ->
                 // Slett de som ikke er med i requesten
-                queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-                    .filter { delutbetaling -> delutbetaling.id !in request.delutbetalinger.map { it.id } }
-                    .forEach { delutbetaling ->
-                        require(delutbetaling.status == DelutbetalingStatus.RETURNERT) {
-                            "Fatal! Delutbetaling kan ikke slettes fordi den har status: ${delutbetaling.status}"
+                queries.utbetalingLinje.getByUtbetalingId(utbetaling.id)
+                    .filter { linje -> linje.id !in request.utbetalingLinjer.map { it.id } }
+                    .forEach { linje ->
+                        require(linje.status == UtbetalingLinjeStatus.RETURNERT) {
+                            "Fatal! UtbetalingLinje kan ikke slettes fordi den har status: ${linje.status}"
                         }
-                        queries.delutbetaling.delete(delutbetaling.id)
+                        queries.utbetalingLinje.delete(linje.id)
                     }
 
                 linje.forEach {
-                    upsertDelutbetaling(
+                    upsertUtbetalingLinje(
                         utbetaling,
-                        requireNotNull(delutbetalingTilsagn[it.id]),
+                        requireNotNull(utbetalingLinjeTilsagn[it.id]),
                         it.id,
                         requireNotNull(it.pris),
                         it.gjorOppTilsagn,
@@ -194,40 +194,40 @@ class UtbetalingService(
             }
     }
 
-    fun godkjennDelutbetaling(
+    fun godkjennUtbetalingLinje(
         id: UUID,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        validateAccessAndLockUtbetaling(id, navIdent).flatMap { (utbetaling, delutbetaling) ->
-            godkjennDelutbetaling(utbetaling, delutbetaling, navIdent)
+        validateAccessAndLockUtbetaling(id, navIdent).flatMap { (utbetaling, linje) ->
+            godkjennUtbetalingLinje(utbetaling, linje, navIdent)
         }
     }
 
-    fun returnerDelutbetaling(
+    fun returnerUtbetalingLinje(
         id: UUID,
-        aarsaker: List<DelutbetalingReturnertAarsak>,
+        aarsaker: List<UtbetalingLinjeReturnertAarsak>,
         forklaring: String?,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        validateAccessAndLockUtbetaling(id, navIdent).map { (_, delutbetaling) ->
-            returnerDelutbetaling(delutbetaling, aarsaker, forklaring, navIdent)
+        validateAccessAndLockUtbetaling(id, navIdent).map { (_, linje) ->
+            returnerUtbetalingLinje(linje, aarsaker, forklaring, navIdent)
         }
     }
 
     private fun QueryContext.validateAccessAndLockUtbetaling(id: UUID, navIdent: NavIdent) = validation {
-        val delutbetaling = queries.delutbetaling.getOrError(id)
-        val utbetaling = queries.utbetaling.getAndAquireLock(delutbetaling.utbetalingId)
-        validate(utbetaling.status == UtbetalingStatusType.TIL_ATTESTERING && delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING) {
+        val linje = queries.utbetalingLinje.getOrError(id)
+        val utbetaling = queries.utbetaling.getAndAquireLock(linje.utbetalingId)
+        validate(utbetaling.status == UtbetalingStatusType.TIL_ATTESTERING && linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING) {
             FieldError.of("Utbetaling er ikke satt til attestering")
         }
 
-        val kostnadssted = queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
+        val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
         val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
         validate(ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
             FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
         }
 
-        Pair(utbetaling, delutbetaling)
+        Pair(utbetaling, linje)
     }
 
     fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = db.transaction {
@@ -250,13 +250,12 @@ class UtbetalingService(
         if (UtbetalingType.from(utbetaling) != UtbetalingType.KORRIGERING) {
             return FieldError.root("Kan kun slette korreksjoner").nel().left()
         }
-        queries.delutbetaling.getByUtbetalingId(id)
-            .forEach { delutbetaling ->
-                if (delutbetaling.status != DelutbetalingStatus.RETURNERT) {
-                    return FieldError.root("Delutbetaling var i feil status").nel().left()
-                }
-                queries.delutbetaling.delete(delutbetaling.id)
+        queries.utbetalingLinje.getByUtbetalingId(id).forEach { linje ->
+            if (linje.status != UtbetalingLinjeStatus.RETURNERT) {
+                return FieldError.root("UtbetalingLinje var i feil status").nel().left()
             }
+            queries.utbetalingLinje.delete(linje.id)
+        }
 
         queries.utbetaling.delete(id).right()
     }
@@ -282,10 +281,8 @@ class UtbetalingService(
         logEndring("Utbetaling avbrutt", utbetaling.id, agent).right()
     }
 
-    fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {
-        val delutbetaling = queries.delutbetaling.getOrError(fakturanummer)
-        publishOpprettFaktura(delutbetaling)
-        delutbetaling
+    fun republishFaktura(fakturanummer: String): UtbetalingLinje = db.transaction {
+        queries.utbetalingLinje.getOrError(fakturanummer).also { publishOpprettFaktura(it) }
     }
 
     fun oppdaterFakturaStatus(
@@ -293,36 +290,36 @@ class UtbetalingService(
         nyStatus: FakturaStatusType,
         fakturaStatusEndretTidspunkt: LocalDateTime,
     ): Utbetaling = db.transaction {
-        val originalDelutbetaling = queries.delutbetaling.getOrError(fakturanummer)
-        if (originalDelutbetaling.faktura.statusEndretTidspunkt != null &&
-            originalDelutbetaling.faktura.statusEndretTidspunkt > fakturaStatusEndretTidspunkt
+        val originalUtbetalingLinje = queries.utbetalingLinje.getOrError(fakturanummer)
+        if (originalUtbetalingLinje.faktura.statusEndretTidspunkt != null &&
+            originalUtbetalingLinje.faktura.statusEndretTidspunkt > fakturaStatusEndretTidspunkt
         ) {
-            return getOrError(originalDelutbetaling.utbetalingId)
+            return getOrError(originalUtbetalingLinje.utbetalingId)
         }
 
-        queries.delutbetaling.setFakturaStatus(fakturanummer, nyStatus, fakturaStatusEndretTidspunkt)
+        queries.utbetalingLinje.setFakturaStatus(fakturanummer, nyStatus, fakturaStatusEndretTidspunkt)
 
         when (nyStatus) {
             FakturaStatusType.FEILET,
             FakturaStatusType.SENDT,
             FakturaStatusType.IKKE_BETALT,
             -> {
-                check(!originalDelutbetaling.faktura.erUtbetalt()) {
-                    "Delutbetaling ${originalDelutbetaling.id} faktura status er ${originalDelutbetaling.faktura.status}, ny status $nyStatus"
+                check(!originalUtbetalingLinje.faktura.erUtbetalt()) {
+                    "UtbetalingLinje ${originalUtbetalingLinje.id} faktura status er ${originalUtbetalingLinje.faktura.status}, ny status $nyStatus"
                 }
-                queries.delutbetaling.setStatus(fakturanummer, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
-                getOrError(originalDelutbetaling.utbetalingId)
+                queries.utbetalingLinje.setStatus(fakturanummer, UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING)
+                getOrError(originalUtbetalingLinje.utbetalingId)
             }
 
             FakturaStatusType.DELVIS_BETALT,
             FakturaStatusType.FULLT_BETALT,
             -> {
-                queries.delutbetaling.setStatus(fakturanummer, DelutbetalingStatus.UTBETALT)
-                oppdaterUtbetalingForUtbetaltDelutbetaling(originalDelutbetaling.utbetalingId)
-                if (!originalDelutbetaling.faktura.erUtbetalt()) {
-                    logDelutbetalingUtbetalt(originalDelutbetaling, fakturaStatusEndretTidspunkt)
+                queries.utbetalingLinje.setStatus(fakturanummer, UtbetalingLinjeStatus.UTBETALT)
+                oppdaterUtbetalingForUtbetaltUtbetalingLinje(originalUtbetalingLinje.utbetalingId)
+                if (!originalUtbetalingLinje.faktura.erUtbetalt()) {
+                    logUtbetalingLinjeUtbetalt(originalUtbetalingLinje, fakturaStatusEndretTidspunkt)
                 } else {
-                    getOrError(originalDelutbetaling.utbetalingId)
+                    getOrError(originalUtbetalingLinje.utbetalingId)
                 }
             }
         }
@@ -432,28 +429,28 @@ class UtbetalingService(
         }
     }
 
-    private fun TransactionalQueryContext.logDelutbetalingUtbetalt(
-        delutbetaling: Delutbetaling,
+    private fun TransactionalQueryContext.logUtbetalingLinjeUtbetalt(
+        utbetalingLinje: UtbetalingLinje,
         fakturaStatusEndretTidspunkt: LocalDateTime,
     ): Utbetaling {
-        val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
+        val tilsagn = queries.tilsagn.getOrError(utbetalingLinje.tilsagnId)
         return logEndring(
             "Betaling for tilsagn ${tilsagn.bestilling.bestillingsnummer} er utbetalt",
-            delutbetaling.utbetalingId,
+            utbetalingLinje.utbetalingId,
             Tiltaksadministrasjon,
             timestamp = fakturaStatusEndretTidspunkt,
         )
     }
 
-    private fun TransactionalQueryContext.oppdaterUtbetalingForUtbetaltDelutbetaling(
+    private fun TransactionalQueryContext.oppdaterUtbetalingForUtbetaltUtbetalingLinje(
         utbetalingId: UUID,
     ) {
         val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
-        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+        val utbetalingLinjer = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id)
 
         val oppdatertUtbetalingStatus = when {
-            delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT } -> UtbetalingStatusType.UTBETALT
-            delutbetalinger.any { it.status == DelutbetalingStatus.UTBETALT } -> UtbetalingStatusType.DELVIS_UTBETALT
+            utbetalingLinjer.all { it.status == UtbetalingLinjeStatus.UTBETALT } -> UtbetalingStatusType.UTBETALT
+            utbetalingLinjer.any { it.status == UtbetalingLinjeStatus.UTBETALT } -> UtbetalingStatusType.DELVIS_UTBETALT
             else -> utbetaling.status
         }
         if (utbetaling.status != oppdatertUtbetalingStatus) {
@@ -502,28 +499,28 @@ class UtbetalingService(
             return AutomatiskUtbetalingResult.IKKE_NOK_PENGER
         }
 
-        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetalingId)
-        if (delutbetalinger.isNotEmpty()) {
-            return AutomatiskUtbetalingResult.DELUTBETALINGER_ALLEREDE_OPPRETTET
+        val utbetalingLinjer = queries.utbetalingLinje.getByUtbetalingId(utbetalingId)
+        if (utbetalingLinjer.isNotEmpty()) {
+            return AutomatiskUtbetalingResult.UTBETALINGLINJER_ALLEREDE_OPPRETTET
         }
 
-        val delutbetalingId = UUID.randomUUID()
-        upsertDelutbetaling(
+        val id = UUID.randomUUID()
+        upsertUtbetalingLinje(
             utbetaling = utbetaling,
             tilsagn = tilsagn,
-            id = delutbetalingId,
+            id = id,
             pris = utbetaling.beregning.output.pris,
             gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
             behandletAv = Tiltaksadministrasjon,
         )
 
-        val delutbetaling = queries.delutbetaling.getOrError(delutbetalingId)
-        godkjennDelutbetaling(utbetaling, delutbetaling, Tiltaksadministrasjon)
+        val linje = queries.utbetalingLinje.getOrError(id)
+        godkjennUtbetalingLinje(utbetaling, linje, Tiltaksadministrasjon)
             .map { AutomatiskUtbetalingResult.GODKJENT }
             .getOrElse { throw AttesterUtbetalingException(it) }
     }
 
-    private fun TransactionalQueryContext.upsertDelutbetaling(
+    private fun TransactionalQueryContext.upsertUtbetalingLinje(
         utbetaling: Utbetaling,
         tilsagn: Tilsagn,
         id: UUID,
@@ -539,19 +536,19 @@ class UtbetalingService(
             "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
         }
 
-        val delutbetaling = queries.delutbetaling.get(id)
+        val linje = queries.utbetalingLinje.get(id)
 
-        val lopenummer = delutbetaling?.lopenummer
-            ?: queries.delutbetaling.getNextLopenummerByTilsagn(tilsagn.id)
+        val lopenummer = linje?.lopenummer
+            ?: queries.utbetalingLinje.getNextLopenummerByTilsagn(tilsagn.id)
 
-        val fakturanummer = delutbetaling?.faktura?.fakturanummer
+        val fakturanummer = linje?.faktura?.fakturanummer
             ?: "${tilsagn.bestilling.bestillingsnummer}-$lopenummer"
 
-        val dbo = DelutbetalingDbo(
+        val dbo = UtbetalingLinjeDbo(
             id = id,
             utbetalingId = utbetaling.id,
             tilsagnId = tilsagn.id,
-            status = DelutbetalingStatus.TIL_ATTESTERING,
+            status = UtbetalingLinjeStatus.TIL_ATTESTERING,
             periode = periode,
             pris = pris,
             gjorOppTilsagn = gjorOppTilsagn,
@@ -561,7 +558,7 @@ class UtbetalingService(
             fakturaStatus = null,
         )
 
-        queries.delutbetaling.upsert(dbo)
+        queries.utbetalingLinje.upsert(dbo)
         queries.totrinnskontroll.upsert(
             Totrinnskontroll(
                 id = UUID.randomUUID(),
@@ -580,12 +577,12 @@ class UtbetalingService(
         )
     }
 
-    private fun TransactionalQueryContext.godkjennDelutbetaling(
+    private fun TransactionalQueryContext.godkjennUtbetalingLinje(
         utbetaling: Utbetaling,
-        delutbetaling: Delutbetaling,
+        utbetalingLinje: UtbetalingLinje,
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
-        val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+        val opprettelse = queries.totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.OPPRETT)
         require(opprettelse.besluttetAv == null) {
             "Utbetaling er allerede besluttet"
         }
@@ -594,7 +591,7 @@ class UtbetalingService(
             return listOf(FieldError.of("Kan ikke attestere en utbetaling du selv har opprettet")).left()
         }
 
-        queries.delutbetaling.setStatus(delutbetaling.id, DelutbetalingStatus.GODKJENT)
+        queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.GODKJENT)
         queries.totrinnskontroll.upsert(
             opprettelse.copy(
                 besluttetAv = besluttetAv,
@@ -605,13 +602,13 @@ class UtbetalingService(
             ),
         )
 
-        val linjer = queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
-            .associateWith { delutbetaling ->
-                val tilsagn = queries.tilsagn.getAndAquireLock(delutbetaling.tilsagnId)
+        val linjer = queries.utbetalingLinje.getByUtbetalingId(utbetalingLinje.utbetalingId)
+            .associateWith { linje ->
+                val tilsagn = queries.tilsagn.getAndAquireLock(linje.tilsagnId)
                 if (tilsagn.status != TilsagnStatus.GODKJENT) {
-                    return returnerDelutbetaling(
-                        delutbetaling,
-                        listOf(DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS),
+                    return returnerUtbetalingLinje(
+                        linje,
+                        listOf(UtbetalingLinjeReturnertAarsak.TILSAGN_FEIL_STATUS),
                         null,
                         Tiltaksadministrasjon,
                     ).right()
@@ -619,8 +616,8 @@ class UtbetalingService(
                 tilsagn
             }
 
-        return if (linjer.all { it.key.status == DelutbetalingStatus.GODKJENT }) {
-            godkjennUtbetaling(delutbetaling.utbetalingId, linjer)
+        return if (linjer.all { it.key.status == UtbetalingLinjeStatus.GODKJENT }) {
+            godkjennUtbetaling(utbetalingLinje.utbetalingId, linjer)
         } else {
             utbetaling
         }.right()
@@ -628,26 +625,26 @@ class UtbetalingService(
 
     private fun TransactionalQueryContext.godkjennUtbetaling(
         id: UUID,
-        linjer: Map<Delutbetaling, Tilsagn>,
+        linjer: Map<UtbetalingLinje, Tilsagn>,
     ): Utbetaling {
-        linjer.forEach { (delutbetaling, tilsagn) ->
-            queries.delutbetaling.setStatus(delutbetaling.id, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
+        linjer.forEach { (linje, tilsagn) ->
+            queries.utbetalingLinje.setStatus(linje.id, UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING)
 
-            val benyttetBelop = tilsagn.belopBrukt + delutbetaling.pris
+            val benyttetBelop = tilsagn.belopBrukt + linje.pris
             queries.tilsagn.setBruktBelop(tilsagn.id, benyttetBelop)
 
-            if (delutbetaling.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.pris) {
-                gjorOppTilsagnForDelutbetaling(delutbetaling.id, tilsagn)
+            if (linje.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.pris) {
+                gjorOppTilsagnForUtbetalingLinje(linje.id, tilsagn)
             }
-            publishOpprettFaktura(delutbetaling)
+            publishOpprettFaktura(linje)
         }
 
         queries.utbetaling.setStatus(id, UtbetalingStatusType.FERDIG_BEHANDLET)
         return logEndring("Overført til utbetaling", id, Tiltaksadministrasjon)
     }
 
-    private fun TransactionalQueryContext.gjorOppTilsagnForDelutbetaling(delutbetalingId: UUID, tilsagn: Tilsagn) {
-        val opprettelse = queries.totrinnskontroll.getOrError(delutbetalingId, Totrinnskontroll.Type.OPPRETT)
+    private fun TransactionalQueryContext.gjorOppTilsagnForUtbetalingLinje(utbetalingLinjeId: UUID, tilsagn: Tilsagn) {
+        val opprettelse = queries.totrinnskontroll.getOrError(utbetalingLinjeId, Totrinnskontroll.Type.OPPRETT)
         val tilsagnTilOppgjor = tilsagnService.setTilOppgjor(
             tilsagn,
             opprettelse.behandletAv,
@@ -664,38 +661,38 @@ class UtbetalingService(
         }
     }
 
-    private fun TransactionalQueryContext.returnerDelutbetaling(
-        delutbetaling: Delutbetaling,
-        aarsaker: List<DelutbetalingReturnertAarsak>,
+    private fun TransactionalQueryContext.returnerUtbetalingLinje(
+        linje: UtbetalingLinje,
+        aarsaker: List<UtbetalingLinjeReturnertAarsak>,
         forklaring: String?,
         besluttetAv: Agent,
     ): Utbetaling {
-        setReturnertDelutbetaling(delutbetaling, aarsaker, forklaring, besluttetAv)
+        setReturnertUtbetalingLinje(linje, aarsaker, forklaring, besluttetAv)
 
-        // Set også de resterende delutbetalingene som returnert
-        queries.delutbetaling.getByUtbetalingId(delutbetaling.utbetalingId)
-            .filter { it.id != delutbetaling.id }
+        // Set også de resterende utbetalingslinjene som returnert
+        queries.utbetalingLinje.getByUtbetalingId(linje.utbetalingId)
+            .filter { it.id != linje.id }
             .forEach {
-                setReturnertDelutbetaling(
+                setReturnertUtbetalingLinje(
                     it,
-                    listOf(DelutbetalingReturnertAarsak.PROPAGERT_RETUR),
+                    listOf(UtbetalingLinjeReturnertAarsak.PROPAGERT_RETUR),
                     null,
                     Tiltaksadministrasjon,
                 )
             }
 
-        queries.utbetaling.setStatus(delutbetaling.utbetalingId, UtbetalingStatusType.RETURNERT)
-        return logEndring("Utbetaling returnert", delutbetaling.utbetalingId, besluttetAv)
+        queries.utbetaling.setStatus(linje.utbetalingId, UtbetalingStatusType.RETURNERT)
+        return logEndring("Utbetaling returnert", linje.utbetalingId, besluttetAv)
     }
 
-    private fun TransactionalQueryContext.setReturnertDelutbetaling(
-        delutbetaling: Delutbetaling,
-        aarsaker: List<DelutbetalingReturnertAarsak>,
+    private fun TransactionalQueryContext.setReturnertUtbetalingLinje(
+        utbetalingLinje: UtbetalingLinje,
+        aarsaker: List<UtbetalingLinjeReturnertAarsak>,
         forklaring: String?,
         besluttetAv: Agent,
     ) {
-        val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-        queries.delutbetaling.setStatus(delutbetaling.id, DelutbetalingStatus.RETURNERT)
+        val opprettelse = queries.totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.OPPRETT)
+        queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.RETURNERT)
         queries.totrinnskontroll.upsert(
             opprettelse.copy(
                 besluttetAv = besluttetAv,
@@ -735,14 +732,14 @@ class UtbetalingService(
         )
     }
 
-    private fun TransactionalQueryContext.publishOpprettFaktura(delutbetaling: Delutbetaling) {
-        val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+    private fun TransactionalQueryContext.publishOpprettFaktura(linje: UtbetalingLinje) {
+        val opprettelse = queries.totrinnskontroll.getOrError(linje.id, Totrinnskontroll.Type.OPPRETT)
         check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null && opprettelse.besluttelse == Besluttelse.GODKJENT) {
-            "Delutbetaling id=${delutbetaling.id} må være besluttet godkjent for å sendes til økonomi"
+            "UtbetalingLinje id=${linje.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
-        val utbetaling = queries.utbetaling.getOrError(delutbetaling.utbetalingId)
-        val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
+        val utbetaling = queries.utbetaling.getOrError(linje.utbetalingId)
+        val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
 
         val beskrivelse = """
             Tiltakstype: ${tilsagn.tiltakstype.navn}
@@ -767,29 +764,29 @@ class UtbetalingService(
 
             null -> {
                 throw IllegalStateException(
-                    "Bankkonto informasjon mangler for utbetaling med id=${delutbetaling.utbetalingId}",
+                    "Bankkonto informasjon mangler for utbetaling med id=${linje.utbetalingId}",
                 )
             }
         }
 
-        queries.delutbetaling.setFakturaSendtTidspunk(delutbetaling.id, LocalDateTime.now())
+        queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, LocalDateTime.now())
 
         val faktura = OpprettFaktura(
-            fakturanummer = delutbetaling.faktura.fakturanummer,
+            fakturanummer = linje.faktura.fakturanummer,
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             betalingsinformasjon = betalingsinformasjon,
-            periode = delutbetaling.periode,
+            periode = linje.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
             behandletTidspunkt = opprettelse.behandletTidspunkt,
             besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
             besluttetTidspunkt = opprettelse.besluttetTidspunkt,
-            gjorOppBestilling = delutbetaling.gjorOppTilsagn,
+            gjorOppBestilling = linje.gjorOppTilsagn,
             beskrivelse = beskrivelse,
-            belop = delutbetaling.pris.belop,
-            valuta = delutbetaling.pris.valuta,
+            belop = linje.pris.belop,
+            valuta = linje.pris.valuta,
         )
 
-        val tidspunktForUtbetaling = delutbetaling.faktura.utbetalesTidligstTidspunkt
+        val tidspunktForUtbetaling = linje.faktura.utbetalesTidligstTidspunkt
             ?: config.tidligstTidspunktForUtbetaling.calculate(tilsagn.tiltakstype.tiltakskode, faktura.periode)
         val message = OkonomiBestillingMelding.Faktura(faktura)
         storeOkonomiMelding(faktura.bestillingsnummer, message, tidspunktForUtbetaling)
@@ -800,7 +797,7 @@ class UtbetalingService(
         message: OkonomiBestillingMelding,
         tidspunktForUtbetaling: Instant?,
     ) {
-        log.info("Lagrer faktura for delutbetaling med bestillingsnummer=$bestillingsnummer og tidspunkt for ubetaling=$tidspunktForUtbetaling for publisering på kafka")
+        log.info("Lagrer faktura for utbetalingslinje med bestillingsnummer=$bestillingsnummer og tidspunkt for ubetaling=$tidspunktForUtbetaling for publisering på kafka")
 
         val headers = tidspunktForUtbetaling?.let {
             RecordHeaders().add(
@@ -898,14 +895,14 @@ class UtbetalingService(
             .toSet()
 
         fun linjeHandlinger(
-            delutbetaling: Delutbetaling,
+            linje: UtbetalingLinje,
             opprettelse: Totrinnskontroll,
             kostnadssted: NavEnhetNummer,
             ansatt: NavAnsatt,
         ): Set<UtbetalingLinjeHandling> {
             return setOfNotNull(
-                UtbetalingLinjeHandling.ATTESTER.takeIf { delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING },
-                UtbetalingLinjeHandling.RETURNER.takeIf { delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING },
+                UtbetalingLinjeHandling.ATTESTER.takeIf { linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING },
+                UtbetalingLinjeHandling.RETURNER.takeIf { linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING },
             )
                 .filter {
                     tilgangTilHandling(

@@ -582,7 +582,7 @@ fun QueryContext.tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): Arra
     return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
 }
 
-fun QueryContext.getGodkjentBelopForUtbetaling(id: UUID, valuta: Valuta): ValutaBelop = queries.delutbetaling.getByUtbetalingId(id).sumOf { it.pris.belop }.withValuta(valuta)
+fun QueryContext.getGodkjentBelopForUtbetaling(id: UUID, valuta: Valuta): ValutaBelop = queries.utbetalingLinje.getByUtbetalingId(id).sumOf { it.pris.belop }.withValuta(valuta)
 
 fun ArrangorflateTilsagnDto.toRadDto(): ArrangorflateTilsagnRadDto = ArrangorflateTilsagnRadDto(
     id = id,

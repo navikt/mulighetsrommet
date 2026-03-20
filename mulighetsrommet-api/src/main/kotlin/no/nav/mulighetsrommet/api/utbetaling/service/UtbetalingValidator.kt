@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.arrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
@@ -35,13 +35,13 @@ import kotlin.contracts.ExperimentalContracts
 object UtbetalingValidator {
     const val MIN_ANTALL_VEDLEGG_OPPRETT_KRAV = 1
 
-    data class OpprettDelutbetalingerCtx(
+    data class OpprettUtbetalingLinjerCtx(
         val utbetaling: Utbetaling,
         val linjer: List<Linje>,
         val begrunnelse: String?,
     ) {
         data class Linje(
-            val request: DelutbetalingRequest,
+            val request: UtbetalingLinjeRequest,
             val tilsagn: Tilsagn,
         )
 
@@ -57,8 +57,8 @@ object UtbetalingValidator {
         val gjorOppTilsagn: Boolean,
     )
 
-    fun validateOpprettDelutbetalinger(
-        ctx: OpprettDelutbetalingerCtx,
+    fun validateOpprettUtbetalingLinjer(
+        ctx: OpprettUtbetalingLinjerCtx,
     ): Either<List<FieldError>, List<ValidatedLinje>> = validation {
         validate(
             when (ctx.utbetaling.status) {
@@ -99,20 +99,20 @@ object UtbetalingValidator {
         ctx.linjer.mapIndexed { index, linje ->
             requireValid(linje.request.pris?.belop != null && linje.request.pris.belop > 0 && linje.request.pris.valuta != null) {
                 FieldError(
-                    "/delutbetalinger/$index/pris/belop",
+                    "/utbetalingLinjer/$index/pris/belop",
                     "Beløp må være positivt",
                 )
             }
             val pris = ValutaBelop(linje.request.pris.belop, linje.request.pris.valuta)
             validate(pris <= linje.tilsagn.gjenstaendeBelop) {
                 FieldError(
-                    "/delutbetalinger/$index/tilsagnId",
+                    "/utbetalingLinjer/$index/tilsagnId",
                     "Beløp overstiger gjenstående beløp på tilsagn. For å utbetale hele beløpet må dere først opprette og godkjenne et ekstratilsagn",
                 )
             }
             validate(linje.tilsagn.status == TilsagnStatus.GODKJENT) {
                 FieldError(
-                    "/delutbetalinger/$index/tilsagnId",
+                    "/utbetalingLinjer/$index/tilsagnId",
                     "Tilsagnet har status ${linje.tilsagn.status.beskrivelse} og kan ikke benyttes, linjen må fjernes",
                 )
             }

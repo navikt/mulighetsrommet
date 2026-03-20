@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
@@ -19,7 +19,7 @@ import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.LocalDateTime
 import java.util.UUID
 
-class DelutbetalingQueriesTest : FunSpec({
+class UtbetalingLinjeQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
@@ -30,11 +30,11 @@ class DelutbetalingQueriesTest : FunSpec({
         utbetalinger = listOf(UtbetalingFixtures.utbetaling1, UtbetalingFixtures.utbetaling2),
     )
 
-    val delutbetaling = DelutbetalingDbo(
+    val linje = UtbetalingLinjeDbo(
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = UtbetalingFixtures.utbetaling1.id,
-        status = DelutbetalingStatus.TIL_ATTESTERING,
+        status = UtbetalingLinjeStatus.TIL_ATTESTERING,
         fakturaStatusEndretTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0),
         pris = 100.withValuta(Valuta.NOK),
         gjorOppTilsagn = false,
@@ -44,16 +44,16 @@ class DelutbetalingQueriesTest : FunSpec({
         fakturaStatus = null,
     )
 
-    test("opprett delutbetaling") {
+    test("opprett utbetalingslinje") {
         database.runAndRollback { session ->
             domain.setup(session)
 
-            queries.delutbetaling.upsert(delutbetaling)
+            queries.utbetalingLinje.upsert(linje)
 
-            queries.delutbetaling.getByUtbetalingId(UtbetalingFixtures.utbetaling1.id).first().should {
+            queries.utbetalingLinje.getByUtbetalingId(UtbetalingFixtures.utbetaling1.id).first().should {
                 it.tilsagnId shouldBe TilsagnFixtures.Tilsagn1.id
                 it.utbetalingId shouldBe UtbetalingFixtures.utbetaling1.id
-                it.status shouldBe DelutbetalingStatus.TIL_ATTESTERING
+                it.status shouldBe UtbetalingLinjeStatus.TIL_ATTESTERING
                 it.pris shouldBe 100.withValuta(Valuta.NOK)
                 it.periode shouldBe UtbetalingFixtures.utbetaling1.periode
                 it.lopenummer shouldBe 1
@@ -62,14 +62,14 @@ class DelutbetalingQueriesTest : FunSpec({
         }
     }
 
-    test("delete delutbetaling") {
+    test("delete utbetalingslinje") {
         database.runAndRollback { session ->
             domain.setup(session)
 
-            queries.delutbetaling.upsert(delutbetaling)
-            queries.delutbetaling.delete(delutbetaling.id)
+            queries.utbetalingLinje.upsert(linje)
+            queries.utbetalingLinje.delete(linje.id)
 
-            queries.delutbetaling.get(delutbetaling.id) shouldBe null
+            queries.utbetalingLinje.get(linje.id) shouldBe null
         }
     }
 
@@ -77,14 +77,14 @@ class DelutbetalingQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            queries.delutbetaling.upsert(delutbetaling)
+            queries.utbetalingLinje.upsert(linje)
 
-            queries.delutbetaling.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBeNull()
+            queries.utbetalingLinje.getOrError(linje.id).faktura.sendtTidspunkt.shouldBeNull()
 
             val tidspunkt = LocalDateTime.of(2025, 12, 1, 0, 0, 0)
-            queries.delutbetaling.setFakturaSendtTidspunk(delutbetaling.id, tidspunkt)
+            queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, tidspunkt)
 
-            queries.delutbetaling.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBe(tidspunkt)
+            queries.utbetalingLinje.getOrError(linje.id).faktura.sendtTidspunkt.shouldBe(tidspunkt)
         }
     }
 
@@ -92,24 +92,24 @@ class DelutbetalingQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            queries.delutbetaling.upsert(delutbetaling)
+            queries.utbetalingLinje.upsert(linje)
             val sendtTidspunkt = LocalDateTime.of(2025, 12, 1, 0, 0, 0)
-            queries.delutbetaling.setFakturaSendtTidspunk(delutbetaling.id, sendtTidspunkt)
+            queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, sendtTidspunkt)
 
-            queries.delutbetaling.getOrError(delutbetaling.id).faktura.should {
+            queries.utbetalingLinje.getOrError(linje.id).faktura.should {
                 it.sendtTidspunkt shouldBe sendtTidspunkt
                 it.statusEndretTidspunkt.shouldBeNull()
                 it.status.shouldBeNull()
             }
 
             val endretTidspunkt = LocalDateTime.of(2025, 12, 1, 1, 1, 1)
-            queries.delutbetaling.setFakturaStatus(
-                delutbetaling.fakturanummer,
+            queries.utbetalingLinje.setFakturaStatus(
+                linje.fakturanummer,
                 FakturaStatusType.FULLT_BETALT,
                 endretTidspunkt,
             )
 
-            queries.delutbetaling.getOrError(delutbetaling.id).faktura.should {
+            queries.utbetalingLinje.getOrError(linje.id).faktura.should {
                 it.sendtTidspunkt shouldBe sendtTidspunkt
                 it.statusEndretTidspunkt shouldBe endretTidspunkt
                 it.status shouldBe FakturaStatusType.FULLT_BETALT

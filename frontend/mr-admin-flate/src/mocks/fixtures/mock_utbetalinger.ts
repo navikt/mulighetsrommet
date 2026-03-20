@@ -1,7 +1,7 @@
 import {
   Besluttelse,
   DataElementStatusVariant,
-  DelutbetalingStatus,
+  UtbetalingLinjeStatus,
   LabeledDataElementType,
   TilsagnStatus,
   TilsagnType,
@@ -265,7 +265,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       beskrivelse: null,
     },
     status: {
-      type: DelutbetalingStatus.TIL_ATTESTERING,
+      type: UtbetalingLinjeStatus.TIL_ATTESTERING,
       status: {
         value: "Til godkjenning",
         variant: DataElementStatusVariant.WARNING,
@@ -316,7 +316,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       beskrivelse: null,
     },
     status: {
-      type: DelutbetalingStatus.RETURNERT,
+      type: UtbetalingLinjeStatus.RETURNERT,
       status: { value: "Returnert", variant: DataElementStatusVariant.ERROR, description: null },
     },
     pris: { belop: 7500, valuta: Valuta.NOK },
@@ -363,7 +363,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       beskrivelse: null,
     },
     status: {
-      type: DelutbetalingStatus.RETURNERT,
+      type: UtbetalingLinjeStatus.RETURNERT,
       status: { value: "Returnert", variant: DataElementStatusVariant.ERROR, description: null },
     },
     pris: { belop: 3000, valuta: Valuta.NOK },
@@ -412,7 +412,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     },
 
     status: {
-      type: DelutbetalingStatus.TIL_ATTESTERING,
+      type: UtbetalingLinjeStatus.TIL_ATTESTERING,
       status: {
         value: "Til godkjenning",
         variant: DataElementStatusVariant.WARNING,
@@ -458,7 +458,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       beskrivelse: null,
     },
     status: {
-      type: DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+      type: UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
       status: {
         value: "Overført til utbetaling",
         variant: DataElementStatusVariant.SUCCESS,

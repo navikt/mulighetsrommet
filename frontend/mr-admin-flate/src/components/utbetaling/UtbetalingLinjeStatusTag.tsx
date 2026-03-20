@@ -1,10 +1,10 @@
 import { DataElementStatusTag } from "@mr/frontend-common";
-import { DelutbetalingStatusDto } from "@tiltaksadministrasjon/api-client";
+import { UtbetalingLinjeStatusDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  status: DelutbetalingStatusDto;
+  status: UtbetalingLinjeStatusDto;
 }
 
-export function DelutbetalingStatusTag({ status }: Props) {
+export function UtbetalingLinjeStatusTag({ status }: Props) {
   return <DataElementStatusTag value={status.status.value} variant={status.status.variant} />;
 }

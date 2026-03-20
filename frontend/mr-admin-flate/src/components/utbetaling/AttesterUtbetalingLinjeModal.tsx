@@ -3,7 +3,7 @@ import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { InformationSquareFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Modal } from "@navikt/ds-react";
 
-export default function AttesterDelutbetalingModal({
+export default function AttesterUtbetalingLinjeModal({
   id,
   handleClose,
   onConfirm,

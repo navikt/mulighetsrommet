@@ -7,7 +7,7 @@ import {
 } from "api-client";
 import { Link as ReactRouterLink } from "react-router";
 import { Definisjonsliste, Definition } from "../common/Definisjonsliste";
-import { DelUtbetalingStatusTag } from "./DelUtbetalingStatusTag";
+import { UtbetalingLinjeStatusTag } from "./UtbetalingLinjeStatusTag";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { useOrgnrFromUrl } from "~/utils/navigation";
 import { formaterDato } from "@mr/frontend-common/utils/date";
@@ -86,7 +86,7 @@ function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangforflateUtbetalin
                   { key: "Beløp til utbetaling", value: formaterValutaBelop(linje.pris) },
                   {
                     key: "Status",
-                    value: <DelUtbetalingStatusTag status={linje.status} />,
+                    value: <UtbetalingLinjeStatusTag status={linje.status} />,
                   },
                   {
                     key: "Status endret",

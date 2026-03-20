@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.util.UUID
 
-data class OpprettDelutbetaling(
+data class OpprettUtbetalingLinje(
     val id: UUID,
     val pris: ValutaBelop?,
     val gjorOppTilsagn: Boolean,

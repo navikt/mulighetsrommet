@@ -18,13 +18,13 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
-import no.nav.mulighetsrommet.api.fixtures.setDelutbetalingStatus
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.fixtures.toNavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -259,8 +259,8 @@ class OppgaverServiceTest : FunSpec({
         }
     }
 
-    context("delutbetalinger") {
-        test("Skal hente oppgaver for delutbetalinger med filter") {
+    context("utbetalingslinjer") {
+        test("Skal hente oppgaver for utbetalingslinjer med filter") {
             val service = OppgaverService(database.db)
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
@@ -278,15 +278,15 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.TiltakOslo.enhetsnummer),
                 ),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
-                delutbetalinger = listOf(
-                    UtbetalingFixtures.delutbetaling1,
-                    UtbetalingFixtures.delutbetaling2,
+                utbetalingLinjer = listOf(
+                    UtbetalingFixtures.utbetalingLinje1,
+                    UtbetalingFixtures.utbetalingLinje2,
                 ),
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
-                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, DelutbetalingStatus.TIL_ATTESTERING)
-                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling2, DelutbetalingStatus.RETURNERT)
+                setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje1, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje2, UtbetalingLinjeStatus.RETURNERT)
             }.initialize(database.db)
 
             // Skal se utbetaling til godkjenning når ansatt har attestant-rolle
@@ -298,7 +298,7 @@ class OppgaverServiceTest : FunSpec({
                     roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+                PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
             )
 
             // Skal se returnert utbetaling når ansatt har saksbehandler-rolle
@@ -313,7 +313,7 @@ class OppgaverServiceTest : FunSpec({
                     ),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(UtbetalingFixtures.delutbetaling2.id, OppgaveType.UTBETALING_RETURNERT),
+                PartialOppgave(UtbetalingFixtures.utbetalingLinje2.id, OppgaveType.UTBETALING_RETURNERT),
             )
 
             // Skal se returnert utbetaling når ansatt selv var den som sendte til godkjenning
@@ -327,7 +327,7 @@ class OppgaverServiceTest : FunSpec({
                     ),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(UtbetalingFixtures.delutbetaling2.id, OppgaveType.UTBETALING_RETURNERT),
+                PartialOppgave(UtbetalingFixtures.utbetalingLinje2.id, OppgaveType.UTBETALING_RETURNERT),
             )
 
             // Skal ikke se returnert utbetaling når ansatt ikke har saksbehandler-rolle
@@ -353,12 +353,12 @@ class OppgaverServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(TilsagnFixtures.Tilsagn1),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
-                delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
+                utbetalingLinjer = listOf(UtbetalingFixtures.utbetalingLinje1),
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
-                setDelutbetalingStatus(
-                    UtbetalingFixtures.delutbetaling1,
-                    DelutbetalingStatus.TIL_ATTESTERING,
+                setUtbetalingLinjeStatus(
+                    UtbetalingFixtures.utbetalingLinje1,
+                    UtbetalingLinjeStatus.TIL_ATTESTERING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -386,16 +386,16 @@ class OppgaverServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(TilsagnFixtures.Tilsagn1),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
-                delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
+                utbetalingLinjer = listOf(UtbetalingFixtures.utbetalingLinje1),
             ) {
                 setTilsagnStatus(
                     TilsagnFixtures.Tilsagn1,
                     TilsagnStatus.GODKJENT,
                     besluttetAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-                setDelutbetalingStatus(
-                    UtbetalingFixtures.delutbetaling1,
-                    DelutbetalingStatus.TIL_ATTESTERING,
+                setUtbetalingLinjeStatus(
+                    UtbetalingFixtures.utbetalingLinje1,
+                    UtbetalingLinjeStatus.TIL_ATTESTERING,
                     behandletAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
             }.initialize(database.db)
@@ -411,7 +411,7 @@ class OppgaverServiceTest : FunSpec({
                     ),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+                PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
             )
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
@@ -424,7 +424,7 @@ class OppgaverServiceTest : FunSpec({
                     ),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+                PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
             )
         }
 
@@ -438,12 +438,12 @@ class OppgaverServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(TilsagnFixtures.Tilsagn1),
                 utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
-                delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
+                utbetalingLinjer = listOf(UtbetalingFixtures.utbetalingLinje1),
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
-                setDelutbetalingStatus(
-                    UtbetalingFixtures.delutbetaling1,
-                    DelutbetalingStatus.TIL_ATTESTERING,
+                setUtbetalingLinjeStatus(
+                    UtbetalingFixtures.utbetalingLinje1,
+                    UtbetalingLinjeStatus.TIL_ATTESTERING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -456,7 +456,7 @@ class OppgaverServiceTest : FunSpec({
                 row(
                     NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
                     listOf(
-                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+                        PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
                     ),
                 ),
                 row(
@@ -472,7 +472,7 @@ class OppgaverServiceTest : FunSpec({
                         setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
                     ),
                     listOf(
-                        PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+                        PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
                     ),
                 ),
             ) { rolle, expectedOppgaver ->
@@ -532,13 +532,13 @@ class OppgaverServiceTest : FunSpec({
                         periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
                     ),
                 ),
-                delutbetalinger = listOf(
-                    UtbetalingFixtures.delutbetaling1.copy(utbetalingId = UtbetalingFixtures.utbetaling2.id),
+                utbetalingLinjer = listOf(
+                    UtbetalingFixtures.utbetalingLinje1.copy(utbetalingId = UtbetalingFixtures.utbetaling2.id),
                 ),
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
-                setDelutbetalingStatus(UtbetalingFixtures.delutbetaling1, DelutbetalingStatus.GODKJENT)
+                setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje1, UtbetalingLinjeStatus.GODKJENT)
             }.initialize(database.db)
 
             val service = OppgaverService(database.db)

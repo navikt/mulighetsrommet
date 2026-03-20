@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -42,9 +42,9 @@ class OppgaverService(val db: ApiDatabase) {
                     ),
                 )
             }
-            if (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.DELUTBETALING }) {
+            if (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.UTBETALING_LINJE }) {
                 addAll(
-                    delutbetalingOppgaver(
+                    utbetalingLinjeOppgaver(
                         tiltakskoder = tiltakskoder,
                         kostnadssteder = navEnheterForRegioner,
                         ansatt = ansatt,
@@ -100,13 +100,13 @@ class OppgaverService(val db: ApiDatabase) {
             .toList()
     }
 
-    private fun QueryContext.delutbetalingOppgaver(
+    private fun QueryContext.utbetalingLinjeOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
-            .getDelutbetalingOppgaveData(
+            .getUtbetalingLinjeOppgaveData(
                 kostnadssteder = kostnadssteder.ifEmpty { null },
                 tiltakskoder = tiltakskoder.ifEmpty { null },
             )
@@ -286,14 +286,14 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
     }
 }
 
-private fun toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? {
+private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppgave? {
     val link = OppgaveLink(
         linkText = "Se utbetaling",
         link = "/gjennomforinger/${data.gjennomforing.id}/utbetalinger/${data.utbetalingId}",
     )
 
     return when (data.status) {
-        DelutbetalingStatus.TIL_ATTESTERING -> {
+        UtbetalingLinjeStatus.TIL_ATTESTERING -> {
             Oppgave(
                 id = data.id,
                 type = OppgaveType.UTBETALING_TIL_ATTESTERING,
@@ -314,7 +314,7 @@ private fun toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgav
             }
         }
 
-        DelutbetalingStatus.RETURNERT -> {
+        UtbetalingLinjeStatus.RETURNERT -> {
             Oppgave(
                 id = data.id,
                 type = OppgaveType.UTBETALING_RETURNERT,

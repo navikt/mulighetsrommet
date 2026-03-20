@@ -24,7 +24,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Valuta
@@ -57,16 +57,16 @@ fun Route.rammedetaljerRoutes() {
             val result: RammedetaljerDto = db.session {
                 val rammedetaljer = queries.rammedetaljer.get(id)
 
-                val utbetaltFraTiltaksadmin = queries.delutbetaling.getByAvtale(
+                val utbetaltFraTiltaksadmin = queries.utbetalingLinje.getByAvtale(
                     id,
                     statuser = setOf(
-                        DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-                        DelutbetalingStatus.UTBETALT,
+                        UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
+                        UtbetalingLinjeStatus.UTBETALT,
                     ),
                 )
                     .groupBy { it.pris.valuta }
-                    .map { (valuta, delutbetalinger) ->
-                        val sum = delutbetalinger.sumOf { it.pris.belop.toLong() }
+                    .map { (valuta, utbetalingLinjer) ->
+                        val sum = utbetalingLinjer.sumOf { it.pris.belop.toLong() }
                         ValutaLongBelop(
                             belop = sum,
                             valuta = valuta,
