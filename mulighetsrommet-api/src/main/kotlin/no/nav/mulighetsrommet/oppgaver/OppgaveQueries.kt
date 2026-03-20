@@ -87,7 +87,6 @@ class OppgaveQueries(private val session: Session) {
                 delutbetaling.lopenummer,
                 delutbetaling.fakturanummer,
                 delutbetaling.faktura_status,
-                delutbetaling.faktura_status_sist_oppdatert,
                 nav_enhet.navn AS kostnadssted_navn,
                 nav_enhet.enhetsnummer AS kostnadssted_enhetsnummer,
                 gjennomforing.id as gjennomforing_id,

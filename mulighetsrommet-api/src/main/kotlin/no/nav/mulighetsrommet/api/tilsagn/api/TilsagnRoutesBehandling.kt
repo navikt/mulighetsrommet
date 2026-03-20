@@ -58,7 +58,7 @@ fun Route.tilsagnRoutesBehandling() {
                 .map {
                     val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(it.deltakere.map { it.deltakerId })
                     val tilsagnDeltakere = it.deltakere.map {
-                        TilsagnDeltakerDto.from(it, personalia.getValue(it.deltakerId))
+                        TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                     }
                     TilsagnDto.from(it, tilsagnDeltakere)
                 }

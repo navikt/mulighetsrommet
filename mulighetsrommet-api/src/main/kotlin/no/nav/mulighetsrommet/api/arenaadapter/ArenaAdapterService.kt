@@ -126,7 +126,7 @@ class ArenaAdapterService(
         }
     }
 
-    private fun updateArenadata(arenaGjennomforing: ArenaGjennomforingDbo) {
+    private suspend fun updateArenadata(arenaGjennomforing: ArenaGjennomforingDbo) {
         val previous = db.session { queries.gjennomforing.getGjennomforing(arenaGjennomforing.id) }
             ?: throw IllegalStateException("Tiltakstype tiltakskode=${arenaGjennomforing.arenaKode} er migrert, men gjennomføring fra Arena er ukjent")
 

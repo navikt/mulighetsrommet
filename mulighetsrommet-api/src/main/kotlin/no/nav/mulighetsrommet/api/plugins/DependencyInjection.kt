@@ -41,7 +41,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.ReplikerDeltakerEnkeltplassFreeTextSearchKafkaConsumer
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.ReplikerDeltakerEnkeltplassKafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
@@ -181,7 +181,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 db = get(),
                 genererUtbetalingService = get(),
             ),
-            config.clients.replikerDeltakerEnkeltplassFts to ReplikerDeltakerEnkeltplassFreeTextSearchKafkaConsumer(db = get()),
+            config.clients.replikerDeltakerEnkeltplass to ReplikerDeltakerEnkeltplassKafkaConsumer(get(), get()),
             config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
             config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get(), get()),
             config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
@@ -403,6 +403,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
+            get(),
             get(),
         )
     }

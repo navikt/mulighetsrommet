@@ -6,132 +6,27 @@ module "grafana_tilsagn_view" {
   depends_on          = [module.mr_api_datastream.dataset_id]
   view_schema = jsonencode(
     [
-      {
-        name        = "id"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Unik id"
-      },
-      {
-        name        = "gjennomforing_id"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Gjennomføring id"
-      },
-      {
-        name        = "created_at"
-        type        = "TIMESTAMP"
-        mode        = "NULLABLE"
-        description = "Tidspunkt for opprettelse"
-      },
-      {
-        name        = "kostnadssted"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Kostnadssted"
-      },
-      {
-        name        = "lopenummer"
-        type        = "INTEGER"
-        mode        = "NULLABLE"
-        description = "Løpenummer"
-      },
-      {
-        name        = "type"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Type"
-      },
-      {
-        name        = "bestillingsnummer"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Bestillingsnummer"
-      },
-      {
-        name        = "status"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Status"
-      },
-      {
-        name        = "belop_gjenstaende"
-        type        = "INTEGER"
-        mode        = "NULLABLE"
-        description = "Beløp gjenstående"
-      },
-      {
-        name        = "belop_beregnet"
-        type        = "INTEGER"
-        mode        = "NULLABLE"
-        description = "Beløp beregnet"
-      },
-      {
-        name        = "valuta"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Valuta"
-      },
-      {
-        name        = "prismodell"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Prismodell"
-      },
-      {
-        name        = "bestilling_status"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Bestilling status"
-      },
-      {
-        name        = "datastream_periode_start"
-        type        = "DATE"
-        mode        = "NULLABLE"
-        description = "Datastream periode start"
-      },
-      {
-        name        = "datastream_periode_slutt"
-        type        = "DATE"
-        mode        = "NULLABLE"
-        description = "Datastream periode slutt"
-      },
-      {
-        name        = "belop_brukt"
-        type        = "INTEGER"
-        mode        = "NULLABLE"
-        description = "Beløp brukt"
-      },
-      {
-        name        = "beregning_type"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Beregning type"
-      },
-      {
-        name        = "kommentar"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Kommentar"
-      },
-      {
-        name        = "antall_timer_oppfolging_per_deltaker"
-        type        = "INTEGER"
-        mode        = "NULLABLE"
-        description = "Antall timer oppfølging per deltaker"
-      },
-      {
-        name        = "beregning_antall_plasser"
-        type        = "INTEGER"
-        mode        = "NULLABLE"
-        description = "Beregning antall plasser"
-      },
-      {
-        name        = "tiltakstypeNavn"
-        type        = "STRING"
-        mode        = "NULLABLE"
-        description = "Tiltakstypenavn"
-      }
+      { name = "id", type = "STRING", mode = "NULLABLE" },
+      { name = "gjennomforing_id", type = "STRING", mode = "NULLABLE" },
+      { name = "created_at", type = "TIMESTAMP", mode = "NULLABLE" },
+      { name = "updated_at", type = "TIMESTAMP", mode = "NULLABLE" },
+      { name = "kostnadssted", type = "STRING", mode = "NULLABLE" },
+      { name = "lopenummer", type = "INTEGER", mode = "NULLABLE" },
+      { name = "tilsagn_type", type = "STRING", mode = "NULLABLE" },
+      { name = "bestillingsnummer", type = "STRING", mode = "NULLABLE" },
+      { name = "status", type = "STRING", mode = "NULLABLE" },
+      { name = "belop_gjenstaende", type = "INTEGER", mode = "NULLABLE" },
+      { name = "belop_beregnet", type = "INTEGER", mode = "NULLABLE" },
+      { name = "valuta", type = "STRING", mode = "NULLABLE" },
+      { name = "bestilling_status", type = "STRING", mode = "NULLABLE" },
+      { name = "datastream_periode_start", type = "DATE", mode = "NULLABLE" },
+      { name = "datastream_periode_slutt", type = "DATE", mode = "NULLABLE" },
+      { name = "belop_brukt", type = "INTEGER", mode = "NULLABLE" },
+      { name = "beregning_type", type = "STRING", mode = "NULLABLE" },
+      { name = "kommentar", type = "STRING", mode = "NULLABLE" },
+      { name = "antall_timer_oppfolging_per_deltaker", type = "INTEGER", mode = "NULLABLE" },
+      { name = "beregning_antall_plasser", type = "INTEGER", mode = "NULLABLE" },
+      { name = "tiltakstypeNavn", type = "STRING", mode = "NULLABLE" }
     ]
   )
   view_query = <<EOF
@@ -139,15 +34,15 @@ SELECT
   tilsagn.id,
   tilsagn.gjennomforing_id,
   tilsagn.created_at,
+  tilsagn.updated_at,
   tilsagn.kostnadssted,
   tilsagn.lopenummer,
-  tilsagn.type,
+  tilsagn.tilsagn_type,
   tilsagn.bestillingsnummer,
   tilsagn.status,
   tilsagn.belop_gjenstaende,
   tilsagn.belop_beregnet,
   tilsagn.valuta,
-  tilsagn.prismodell,
   tilsagn.bestilling_status,
   tilsagn.datastream_periode_start,
   tilsagn.datastream_periode_slutt,
@@ -239,12 +134,12 @@ module "grafana_delutbetaling_view" {
     { name = "created_at", type = "TIMESTAMP", mode = "NULLABLE" },
     { name = "lopenummer", type = "INTEGER", mode = "NULLABLE" },
     { name = "fakturanummer", type = "STRING", mode = "NULLABLE" },
-    { name = "sendt_til_okonomi_tidspunkt", type = "TIMESTAMP", mode = "NULLABLE" },
     { name = "id", type = "STRING", mode = "NULLABLE" },
     { name = "gjor_opp_tilsagn", type = "BOOLEAN", mode = "NULLABLE" },
     { name = "status", type = "STRING", mode = "NULLABLE" },
+    { name = "faktura_sendt_tidspunkt", type = "TIMESTAMP", mode = "NULLABLE" },
+    { name = "faktura_status_endret_tidspunkt", type = "TIMESTAMP", mode = "NULLABLE" },
     { name = "faktura_status", type = "STRING", mode = "NULLABLE" },
-    { name = "faktura_status_sist_oppdatert", type = "TIMESTAMP", mode = "NULLABLE" },
     { name = "datastream_periode_start", type = "DATE", mode = "NULLABLE" },
     { name = "datastream_periode_slutt", type = "DATE", mode = "NULLABLE" },
     { name = "besluttet_av", type = "STRING", mode = "NULLABLE" },
@@ -258,12 +153,12 @@ SELECT
   delutbetaling.created_at,
   delutbetaling.lopenummer,
   delutbetaling.fakturanummer,
-  delutbetaling.sendt_til_okonomi_tidspunkt,
   delutbetaling.id,
   delutbetaling.gjor_opp_tilsagn,
   delutbetaling.status,
+  delutbetaling.faktura_sendt_tidspunkt,
+  delutbetaling.faktura_status_endret_tidspunkt,
   delutbetaling.faktura_status,
-  delutbetaling.faktura_status_sist_oppdatert,
   delutbetaling.datastream_periode_start,
   delutbetaling.datastream_periode_slutt,
   totrinnskontroll.besluttet_av

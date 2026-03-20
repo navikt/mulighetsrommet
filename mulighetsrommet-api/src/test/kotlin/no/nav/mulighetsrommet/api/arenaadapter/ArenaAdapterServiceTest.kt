@@ -10,6 +10,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -39,16 +40,18 @@ class ArenaAdapterServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createArenaAdapterService(
-        sanityService: SanityService = mockk(relaxed = true),
+        sanityService: SanityService = mockk(),
+        deltakerClient: AmtDeltakerClient = mockk(),
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ) = ArenaAdapterService(
         db = database.db,
         sanityService = sanityService,
-        arrangorService = ArrangorService(database.db, mockk(relaxed = true), mockk(relaxed = true)),
+        arrangorService = ArrangorService(database.db, mockk(), mockk()),
         tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db),
         gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
+            deltakerClient,
         ),
         gjennomforingAvtaleService = GjennomforingAvtaleService(
             GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
@@ -91,7 +94,8 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should not upsert egen regi-tiltak") {
-            val service = createArenaAdapterService()
+            val sanityService = mockk<SanityService>(relaxed = true)
+            val service = createArenaAdapterService(sanityService)
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
@@ -129,7 +133,8 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should not publish egen regi-tiltak to kafka") {
-            val service = createArenaAdapterService()
+            val sanityService = mockk<SanityService>(relaxed = true)
+            val service = createArenaAdapterService(sanityService)
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 

@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.FakturaStatusType
-import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -36,7 +35,7 @@ class DelutbetalingQueriesTest : FunSpec({
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = UtbetalingFixtures.utbetaling1.id,
         status = DelutbetalingStatus.TIL_ATTESTERING,
-        fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 12, 0),
+        fakturaStatusEndretTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0),
         pris = 100.withValuta(Valuta.NOK),
         gjorOppTilsagn = false,
         periode = UtbetalingFixtures.utbetaling1.periode,
@@ -82,15 +81,10 @@ class DelutbetalingQueriesTest : FunSpec({
 
             queries.delutbetaling.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBeNull()
 
-            queries.delutbetaling.setSendtTilOkonomi(
-                UtbetalingFixtures.utbetaling1.id,
-                TilsagnFixtures.Tilsagn1.id,
-                Instant.parse("2025-12-01T00:00:00.00Z"),
-            )
+            val tidspunkt = LocalDateTime.of(2025, 12, 1, 0, 0, 0)
+            queries.delutbetaling.setFakturaSendtTidspunk(delutbetaling.id, tidspunkt)
 
-            queries.delutbetaling.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBe(
-                LocalDateTime.of(2025, 12, 1, 1, 0, 0),
-            )
+            queries.delutbetaling.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBe(tidspunkt)
         }
     }
 
@@ -98,17 +92,28 @@ class DelutbetalingQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            queries.delutbetaling.upsert(delutbetaling.copy(fakturaStatus = FakturaStatusType.SENDT))
+            queries.delutbetaling.upsert(delutbetaling)
+            val sendtTidspunkt = LocalDateTime.of(2025, 12, 1, 0, 0, 0)
+            queries.delutbetaling.setFakturaSendtTidspunk(delutbetaling.id, sendtTidspunkt)
 
-            queries.delutbetaling.getOrError(delutbetaling.id).faktura.status shouldBe FakturaStatusType.SENDT
+            queries.delutbetaling.getOrError(delutbetaling.id).faktura.should {
+                it.sendtTidspunkt shouldBe sendtTidspunkt
+                it.statusEndretTidspunkt.shouldBeNull()
+                it.status.shouldBeNull()
+            }
 
+            val endretTidspunkt = LocalDateTime.of(2025, 12, 1, 1, 1, 1)
             queries.delutbetaling.setFakturaStatus(
                 delutbetaling.fakturanummer,
                 FakturaStatusType.FULLT_BETALT,
-                fakturaStatusSistOppdatert = LocalDateTime.now(),
+                endretTidspunkt,
             )
 
-            queries.delutbetaling.getOrError(delutbetaling.id).faktura.status shouldBe FakturaStatusType.FULLT_BETALT
+            queries.delutbetaling.getOrError(delutbetaling.id).faktura.should {
+                it.sendtTidspunkt shouldBe sendtTidspunkt
+                it.statusEndretTidspunkt shouldBe endretTidspunkt
+                it.status shouldBe FakturaStatusType.FULLT_BETALT
+            }
         }
     }
 })
