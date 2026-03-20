@@ -1507,7 +1507,7 @@ components:
         tilsagn:
           $ref: "#/components/schemas/ArrangorflateTilsagnSummary"
         status:
-          $ref: "#/components/schemas/DelutbetalingStatus"
+          $ref: "#/components/schemas/UtbetalingLinjeStatus"
         statusSistOppdatert:
           type:
           - "null"
@@ -1532,7 +1532,7 @@ components:
       required:
       - bestillingsnummer
       - id
-    DelutbetalingStatus:
+    UtbetalingLinjeStatus:
       type: string
       enum:
       - TIL_ATTESTERING

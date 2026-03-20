@@ -127,11 +127,11 @@ fun Route.maamRoutes() {
                 val params = call.receive<RepublishOpprettFakturaRequest>()
 
                 val fakturaer = params.fakturanummer.split(",").map { it.trim() }
-                val delutbetalinger = fakturaer.map { fakturanummer ->
+                val utbetalingLinjer = fakturaer.map { fakturanummer ->
                     utbetalingService.republishFaktura(fakturanummer)
                 }
 
-                val response = ExecutedTaskResponse("Republiserte ${delutbetalinger.size} fakturaer til økonomi")
+                val response = ExecutedTaskResponse("Republiserte ${utbetalingLinjer.size} fakturaer til økonomi")
                 call.respond(HttpStatusCode.OK, response)
             }
 

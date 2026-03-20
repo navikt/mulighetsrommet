@@ -1,17 +1,17 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.LocalDateTime
 import java.util.UUID
 
-data class DelutbetalingDbo(
+data class UtbetalingLinjeDbo(
     val id: UUID,
     val tilsagnId: UUID,
     val utbetalingId: UUID,
-    val status: DelutbetalingStatus,
+    val status: UtbetalingLinjeStatus,
     val pris: ValutaBelop,
     val gjorOppTilsagn: Boolean,
     val periode: Periode,

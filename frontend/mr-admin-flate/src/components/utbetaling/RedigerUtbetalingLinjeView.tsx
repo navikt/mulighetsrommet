@@ -1,5 +1,5 @@
 import {
-  OpprettDelutbetalingerRequest,
+  OpprettUtbetalingLinjerRequest,
   TilsagnType,
   Tilskuddstype,
   UtbetalingDto,
@@ -29,7 +29,7 @@ import { FieldPath, FormProvider, useForm, useWatch } from "react-hook-form";
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { useOpprettDelutbetalinger, useSlettKorreksjon } from "@/api/utbetaling/mutations";
+import { useOpprettUtbetalingLinjer, useSlettKorreksjon } from "@/api/utbetaling/mutations";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
@@ -46,12 +46,12 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const [slettKorreksjonModalOpen, setSlettKorreksjonModalOpen] = useState<boolean>(false);
 
-  const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
+  const opprettMutation = useOpprettUtbetalingLinjer(utbetaling.id);
 
-  const methods = useForm<OpprettDelutbetalingerRequest>({
+  const methods = useForm<OpprettUtbetalingLinjerRequest>({
     defaultValues: {
       utbetalingId: utbetaling.id,
-      delutbetalinger: utbetalingLinjer.map((linje) => ({
+      utbetalingLinjer: utbetalingLinjer.map((linje) => ({
         pris: linje.pris,
         id: linje.id,
         tilsagnId: linje.tilsagn.id,
@@ -75,7 +75,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
   useEffect(() => {
     reset({
       utbetalingId: utbetaling.id,
-      delutbetalinger: utbetalingLinjer.map((linje) => ({
+      utbetalingLinjer: utbetalingLinjer.map((linje) => ({
         pris: linje.pris,
         id: linje.id,
         tilsagnId: linje.tilsagn.id,
@@ -84,31 +84,31 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
     });
   }, [utbetaling.id, utbetalingLinjer, reset]);
 
-  const delutbetalinger = useWatch({
+  const utbetalingLinjerWatch = useWatch({
     control,
-    name: "delutbetalinger",
+    name: "utbetalingLinjer",
   });
 
-  const delutbetalingBelop = useWatch({
+  const utbetalingLinjeBelop = useWatch({
     control,
-    name: delutbetalinger.map((_, index) => `delutbetalinger.${index}.pris.belop` as const),
+    name: utbetalingLinjerWatch.map((_, index) => `utbetalingLinjer.${index}.pris.belop` as const),
   });
 
   const { gjennomforingId, periode, tilskuddstype, beregning } = utbetaling;
 
   const utbetalesTotalt = {
     valuta: beregning.valuta,
-    belop: delutbetalingBelop.reduce((acc: number, belop) => acc + (belop ?? 0), 0),
+    belop: utbetalingLinjeBelop.reduce((acc: number, belop) => acc + (belop ?? 0), 0),
   };
 
-  function sendTilAttestering(payload: OpprettDelutbetalingerRequest) {
+  function sendTilAttestering(payload: OpprettUtbetalingLinjerRequest) {
     clearErrors();
 
     opprettMutation.mutate(payload, {
       onValidationError: (error: ValidationError) => {
         error.errors.forEach((error) => {
           const fieldPath = jsonPointerToFieldPath(error.pointer);
-          const name = (fieldPath || "root") as FieldPath<OpprettDelutbetalingerRequest>;
+          const name = (fieldPath || "root") as FieldPath<OpprettUtbetalingLinjerRequest>;
           setError(name, { type: "custom", message: error.detail });
         });
       },
@@ -128,7 +128,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
     );
   }
 
-  function submitHandler(data: OpprettDelutbetalingerRequest) {
+  function submitHandler(data: OpprettUtbetalingLinjerRequest) {
     if (utbetalesTotalt.belop < beregning.belop) {
       setMindreBelopModalOpen(true);
     } else {
@@ -137,7 +137,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
   }
 
   const aktiveLinjer = utbetalingLinjer.filter((linje) =>
-    delutbetalinger.some((d) => linje.id === d.id),
+    utbetalingLinjerWatch.some((d) => linje.id === d.id),
   );
 
   return (
@@ -150,11 +150,11 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
       >
         <VStack gap="space-8">
           {!utbetalingLinjer.length && (
-            <Alert variant="info">{utbetalingTekster.delutbetaling.alert.ingenTilsagn}</Alert>
+            <Alert variant="info">{utbetalingTekster.linje.alert.ingenTilsagn}</Alert>
           )}
           <HStack align="end">
             <Heading spacing size="medium" level="2">
-              {utbetalingTekster.delutbetaling.header}
+              {utbetalingTekster.linje.header}
             </Heading>
             <Spacer />
             <Handlinger>
@@ -167,13 +167,13 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
                 </ActionMenu.Item>
               )}
               <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
-                {utbetalingTekster.delutbetaling.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd)}
+                {utbetalingTekster.linje.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd)}
               </ActionMenu.Item>
               <ActionMenu.Item
                 icon={<FileCheckmarkIcon />}
                 onSelect={() =>
                   setValue(
-                    "delutbetalinger",
+                    "utbetalingLinjer",
                     utbetalingLinjer.map((linje) => ({
                       id: linje.id,
                       pris: linje.pris,
@@ -183,7 +183,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
                   )
                 }
               >
-                {utbetalingTekster.delutbetaling.handlinger.hentGodkjenteTilsagn}
+                {utbetalingTekster.linje.handlinger.hentGodkjenteTilsagn}
               </ActionMenu.Item>
               {handlinger.includes(UtbetalingHandling.SLETT) && (
                 <ActionMenu.Item
@@ -211,9 +211,9 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
                     style={{ maxWidth: "6rem" }}
                     hideLabel
                     type="text"
-                    error={errors.delutbetalinger?.[index]?.pris?.belop?.message}
-                    label={utbetalingTekster.delutbetaling.belop.label}
-                    {...register(`delutbetalinger.${index}.pris.belop`, {
+                    error={errors.utbetalingLinjer?.[index]?.pris?.belop?.message}
+                    label={utbetalingTekster.linje.belop.label}
+                    {...register(`utbetalingLinjer.${index}.pris.belop`, {
                       setValueAs: (v: string) => (v === "" ? null : Number(v)),
                       validate: (value: number | null) => {
                         if (!Number.isInteger(value)) return "Beløp må være et heltall";
@@ -227,9 +227,9 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
                 knappeColumn={
                   <FjernUtbetalingLinje
                     onRemove={() => {
-                      const current = getValues("delutbetalinger");
+                      const current = getValues("utbetalingLinjer");
                       setValue(
-                        "delutbetalinger",
+                        "utbetalingLinjer",
                         current.filter((_, i) => i !== index),
                       );
                     }}
@@ -238,12 +238,12 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
               />
             )}
           />
-          {delutbetalinger.length > 0 && (
+          {utbetalingLinjerWatch.length > 0 && (
             <HStack gap="space-8" justify="end">
               <ValideringsfeilOppsummering />
               {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
                 <Button size="small" type="submit">
-                  {utbetalingTekster.delutbetaling.handlinger.sendTilAttestering}
+                  {utbetalingTekster.linje.handlinger.sendTilAttestering}
                 </Button>
               )}
             </HStack>
@@ -286,7 +286,7 @@ function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
 function FjernUtbetalingLinje({ onRemove }: { onRemove: () => void }) {
   return (
     <Button data-color="neutral" size="small" variant="secondary" type="button" onClick={onRemove}>
-      {utbetalingTekster.delutbetaling.handlinger.fjern}
+      {utbetalingTekster.linje.handlinger.fjern}
     </Button>
   );
 }

@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.tilsagn.db.createArrayOfTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.datatypes.periode
@@ -70,23 +70,23 @@ class OppgaveQueries(private val session: Session) {
         }
     }
 
-    fun getDelutbetalingOppgaveData(
+    fun getUtbetalingLinjeOppgaveData(
         kostnadssteder: Set<NavEnhetNummer>?,
         tiltakskoder: Set<Tiltakskode>?,
-    ): List<DelutbetalingOppgaveData> {
+    ): List<UtbetalingLinjeOppgaveData> {
         @Language("PostgreSQL")
         val query = """
             SELECT
-                delutbetaling.id,
-                delutbetaling.tilsagn_id,
-                delutbetaling.utbetaling_id,
-                delutbetaling.status,
-                delutbetaling.belop,
-                delutbetaling.gjor_opp_tilsagn,
-                delutbetaling.periode,
-                delutbetaling.lopenummer,
-                delutbetaling.fakturanummer,
-                delutbetaling.faktura_status,
+                utbetaling_linje.id,
+                utbetaling_linje.tilsagn_id,
+                utbetaling_linje.utbetaling_id,
+                utbetaling_linje.status,
+                utbetaling_linje.belop,
+                utbetaling_linje.gjor_opp_tilsagn,
+                utbetaling_linje.periode,
+                utbetaling_linje.lopenummer,
+                utbetaling_linje.fakturanummer,
+                utbetaling_linje.faktura_status,
                 nav_enhet.navn AS kostnadssted_navn,
                 nav_enhet.enhetsnummer AS kostnadssted_enhetsnummer,
                 gjennomforing.id as gjennomforing_id,
@@ -98,8 +98,8 @@ class OppgaveQueries(private val session: Session) {
                 tk.besluttet_tidspunkt,
                 tk.behandlet_tidspunkt,
                 tk.behandlet_av
-            FROM delutbetaling
-            INNER JOIN tilsagn ON tilsagn.id = delutbetaling.tilsagn_id
+            FROM utbetaling_linje
+            INNER JOIN tilsagn ON tilsagn.id = utbetaling_linje.tilsagn_id
             INNER JOIN nav_enhet ON tilsagn.kostnadssted = nav_enhet.enhetsnummer
             INNER JOIN gjennomforing ON gjennomforing.id = tilsagn.gjennomforing_id
             INNER JOIN tiltakstype ON tiltakstype.id = gjennomforing.tiltakstype_id
@@ -108,7 +108,7 @@ class OppgaveQueries(private val session: Session) {
                 FROM totrinnskontroll
                 WHERE type = 'OPPRETT'
                 ORDER BY entity_id, behandlet_tidspunkt DESC
-            ) tk ON tk.entity_id = delutbetaling.id
+            ) tk ON tk.entity_id = utbetaling_linje.id
             WHERE
                 (:tiltakskoder::tiltakskode[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder::tiltakskode[]))
                 AND (:kostnadssteder::text[] IS NULL OR tilsagn.kostnadssted = ANY(:kostnadssteder))
@@ -120,17 +120,17 @@ class OppgaveQueries(private val session: Session) {
         )
 
         return session.list(queryOf(query, params)) { row ->
-            DelutbetalingOppgaveData(
+            UtbetalingLinjeOppgaveData(
                 tilsagnId = row.uuid("tilsagn_id"),
                 utbetalingId = row.uuid("utbetaling_id"),
                 id = row.uuid("id"),
                 periode = row.periode("periode"),
-                status = DelutbetalingStatus.valueOf(row.string("status")),
+                status = UtbetalingLinjeStatus.valueOf(row.string("status")),
                 kostnadssted = OppgaveEnhet(
                     navn = row.string("kostnadssted_navn"),
                     nummer = NavEnhetNummer(row.string("kostnadssted_enhetsnummer")),
                 ),
-                opprettelse = DelutbetalingOppgaveData.Opprettelse(
+                opprettelse = UtbetalingLinjeOppgaveData.Opprettelse(
                     behandletAv = row.string("behandlet_av").toAgent(),
                     behandletTidspunkt = row.localDateTime("behandlet_tidspunkt"),
                     besluttetTidspunkt = row.localDateTimeOrNull("besluttet_tidspunkt"),
@@ -299,9 +299,9 @@ data class GjennomforingManglerAdministratorOppgaveData(
     val tiltakstype: OppgaveTiltakstype,
 )
 
-data class DelutbetalingOppgaveData(
+data class UtbetalingLinjeOppgaveData(
     val id: UUID,
-    val status: DelutbetalingStatus,
+    val status: UtbetalingLinjeStatus,
     val periode: Periode,
     val utbetalingId: UUID,
     val tilsagnId: UUID,

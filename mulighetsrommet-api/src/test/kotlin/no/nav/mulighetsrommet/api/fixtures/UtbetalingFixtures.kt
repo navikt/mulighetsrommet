@@ -4,14 +4,14 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling.Arrangor
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling.Gjennomforing
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling.Tiltakstype
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -129,11 +129,11 @@ object UtbetalingFixtures {
         blokkeringer = emptySet(),
     )
 
-    val delutbetaling1 = DelutbetalingDbo(
+    val utbetalingLinje1 = UtbetalingLinjeDbo(
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = utbetaling1.id,
-        status = DelutbetalingStatus.TIL_ATTESTERING,
+        status = UtbetalingLinjeStatus.TIL_ATTESTERING,
         pris = 200.withValuta(Valuta.NOK),
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
@@ -143,11 +143,11 @@ object UtbetalingFixtures {
         fakturaStatus = null,
     )
 
-    val delutbetaling2 = DelutbetalingDbo(
+    val utbetalingLinje2 = UtbetalingLinjeDbo(
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn2.id,
         utbetalingId = utbetaling1.id,
-        status = DelutbetalingStatus.TIL_ATTESTERING,
+        status = UtbetalingLinjeStatus.TIL_ATTESTERING,
         pris = 150.withValuta(Valuta.NOK),
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
@@ -158,24 +158,24 @@ object UtbetalingFixtures {
     )
 }
 
-fun QueryContext.setDelutbetalingStatus(
-    delutbetalingDbo: DelutbetalingDbo,
-    status: DelutbetalingStatus,
+fun QueryContext.setUtbetalingLinjeStatus(
+    utbetalingLinjeDbo: UtbetalingLinjeDbo,
+    status: UtbetalingLinjeStatus,
     behandletAv: NavIdent = NavAnsattFixture.DonaldDuck.navIdent,
     besluttetAv: NavIdent = NavAnsattFixture.MikkeMus.navIdent,
     besluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
 ) {
-    val dto = queries.delutbetaling.get(delutbetalingDbo.id)
+    val dto = queries.utbetalingLinje.get(utbetalingLinjeDbo.id)
         ?: throw IllegalStateException("Dbo må være gitt til domain først")
 
-    queries.delutbetaling.setStatus(dto.id, status)
+    queries.utbetalingLinje.setStatus(dto.id, status)
 
     when (status) {
-        DelutbetalingStatus.TIL_ATTESTERING -> {
+        UtbetalingLinjeStatus.TIL_ATTESTERING -> {
             setTilGodkjenning(dto.id, Totrinnskontroll.Type.OPPRETT, behandletAv)
         }
 
-        DelutbetalingStatus.GODKJENT, DelutbetalingStatus.UTBETALT, DelutbetalingStatus.OVERFORT_TIL_UTBETALING -> {
+        UtbetalingLinjeStatus.GODKJENT, UtbetalingLinjeStatus.UTBETALT, UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING -> {
             setGodkjent(
                 dto.id,
                 Totrinnskontroll.Type.OPPRETT,
@@ -185,7 +185,7 @@ fun QueryContext.setDelutbetalingStatus(
             )
         }
 
-        DelutbetalingStatus.RETURNERT -> {
+        UtbetalingLinjeStatus.RETURNERT -> {
             setAvvist(
                 dto.id,
                 Totrinnskontroll.Type.OPPRETT,

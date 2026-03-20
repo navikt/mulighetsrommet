@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -46,7 +46,7 @@ data class UtbetalingDto(
     )
 
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling, linjer: List<Delutbetaling>): UtbetalingDto {
+        fun fromUtbetaling(utbetaling: Utbetaling, linjer: List<UtbetalingLinje>): UtbetalingDto {
             return UtbetalingDto(
                 id = utbetaling.id,
                 gjennomforingId = utbetaling.gjennomforing.id,
@@ -71,7 +71,7 @@ data class UtbetalingDto(
 
 private fun getUtbetaltBelop(
     utbetaling: Utbetaling,
-    linjer: List<Delutbetaling>,
+    linjer: List<UtbetalingLinje>,
 ): ValutaBelop? = when (utbetaling.status) {
     UtbetalingStatusType.GENERERT,
     UtbetalingStatusType.TIL_BEHANDLING,

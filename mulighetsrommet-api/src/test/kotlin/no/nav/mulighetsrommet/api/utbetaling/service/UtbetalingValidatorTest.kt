@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
@@ -159,10 +159,10 @@ class UtbetalingValidatorTest : FunSpec({
         }
     }
 
-    context("opprett delutbetalinger") {
-        test("skal ikke kunne opprette delutbetaling hvis utbetalingen allerede er godkjent") {
-            UtbetalingValidator.validateOpprettDelutbetalinger(
-                UtbetalingValidator.OpprettDelutbetalingerCtx(
+    context("opprett utbetalingLinjer") {
+        test("skal ikke kunne opprette utbetalingslinje hvis utbetalingen allerede er godkjent") {
+            UtbetalingValidator.validateOpprettUtbetalingLinjer(
+                UtbetalingValidator.OpprettUtbetalingLinjerCtx(
                     utbetaling = UtbetalingFixtures.utbetalingDto1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET),
                     linjer = emptyList(),
                     begrunnelse = null,
@@ -173,18 +173,18 @@ class UtbetalingValidatorTest : FunSpec({
         }
 
         test("skal ikke kunne utbetale større enn innsendt beløp") {
-            UtbetalingValidator.validateOpprettDelutbetalinger(
-                UtbetalingValidator.OpprettDelutbetalingerCtx(
+            UtbetalingValidator.validateOpprettUtbetalingLinjer(
+                UtbetalingValidator.OpprettUtbetalingLinjerCtx(
                     utbetaling = UtbetalingFixtures.utbetalingDto1,
                     linjer = listOf(
-                        UtbetalingValidator.OpprettDelutbetalingerCtx.Linje(
-                            request = DelutbetalingRequest(
+                        UtbetalingValidator.OpprettUtbetalingLinjerCtx.Linje(
+                            request = UtbetalingLinjeRequest(
                                 id = UUID.randomUUID(),
                                 pris = 10000000.withValuta(Valuta.NOK).toRequest(),
                                 gjorOppTilsagn = true,
                                 tilsagnId = UUID.randomUUID(),
                             ),
-                            tilsagn = UtbetalingValidator.OpprettDelutbetalingerCtx.Tilsagn(
+                            tilsagn = UtbetalingValidator.OpprettUtbetalingLinjerCtx.Tilsagn(
                                 status = TilsagnStatus.GODKJENT,
                                 gjenstaendeBelop = 10000000.withValuta(Valuta.NOK),
                             ),
@@ -198,18 +198,18 @@ class UtbetalingValidatorTest : FunSpec({
         }
 
         test("begrunnelseMindreBeløp er påkrevd hvis mindre beløp") {
-            UtbetalingValidator.validateOpprettDelutbetalinger(
-                UtbetalingValidator.OpprettDelutbetalingerCtx(
+            UtbetalingValidator.validateOpprettUtbetalingLinjer(
+                UtbetalingValidator.OpprettUtbetalingLinjerCtx(
                     utbetaling = UtbetalingFixtures.utbetalingDto1,
                     linjer = listOf(
-                        UtbetalingValidator.OpprettDelutbetalingerCtx.Linje(
-                            request = DelutbetalingRequest(
+                        UtbetalingValidator.OpprettUtbetalingLinjerCtx.Linje(
+                            request = UtbetalingLinjeRequest(
                                 id = UUID.randomUUID(),
                                 pris = 1.withValuta(Valuta.NOK).toRequest(),
                                 gjorOppTilsagn = true,
                                 tilsagnId = UUID.randomUUID(),
                             ),
-                            tilsagn = UtbetalingValidator.OpprettDelutbetalingerCtx.Tilsagn(
+                            tilsagn = UtbetalingValidator.OpprettUtbetalingLinjerCtx.Tilsagn(
                                 status = TilsagnStatus.GODKJENT,
                                 gjenstaendeBelop = 10.withValuta(Valuta.NOK),
                             ),

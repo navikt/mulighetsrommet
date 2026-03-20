@@ -143,9 +143,9 @@ class ArrangorflateService(
     }
 
     fun getLinjer(utbetalingId: UUID): List<ArrangforflateUtbetalingLinje> = db.session {
-        queries.delutbetaling.getByUtbetalingId(utbetalingId)
-            .map { delutbetaling ->
-                val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
+        queries.utbetalingLinje.getByUtbetalingId(utbetalingId)
+            .map { linje ->
+                val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId).let {
                     ArrangorflateTilsagnSummary(
                         id = it.id,
                         bestillingsnummer = it.bestilling.bestillingsnummer,
@@ -153,10 +153,10 @@ class ArrangorflateService(
                 }
 
                 ArrangforflateUtbetalingLinje(
-                    id = delutbetaling.id,
-                    pris = delutbetaling.pris,
-                    status = delutbetaling.status,
-                    statusSistOppdatert = delutbetaling.faktura.statusEndretTidspunkt,
+                    id = linje.id,
+                    pris = linje.pris,
+                    status = linje.status,
+                    statusSistOppdatert = linje.faktura.statusEndretTidspunkt,
                     tilsagn = tilsagn,
                 )
             }

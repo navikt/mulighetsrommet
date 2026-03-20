@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
-enum class DelutbetalingStatus(val beskrivelse: String) {
+enum class UtbetalingLinjeStatus(val beskrivelse: String) {
     TIL_ATTESTERING("Til attestering"),
     GODKJENT("Godkjent"),
     RETURNERT("Returnert"),

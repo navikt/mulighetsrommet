@@ -12,14 +12,14 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Serializable
-data class Delutbetaling(
+data class UtbetalingLinje(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val tilsagnId: UUID,
     @Serializable(with = UUIDSerializer::class)
     val utbetalingId: UUID,
-    val status: DelutbetalingStatus,
+    val status: UtbetalingLinjeStatus,
     val periode: Periode,
     val pris: ValutaBelop,
     val gjorOppTilsagn: Boolean,

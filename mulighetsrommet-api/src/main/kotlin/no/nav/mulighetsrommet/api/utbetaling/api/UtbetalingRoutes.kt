@@ -35,8 +35,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -82,7 +82,7 @@ fun Route.utbetalingRoutes() {
 
         val utbetalinger = db.session {
             queries.utbetaling.getByGjennomforing(gjennomforingId).map { utbetaling ->
-                val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+                val utbetalingLinjer = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id)
 
                 val (belopUtbetalt, kostnadssteder) = when (utbetaling.status) {
                     UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -90,11 +90,11 @@ fun Route.utbetalingRoutes() {
                     UtbetalingStatusType.UTBETALT,
                     ->
                         Pair(
-                            delutbetalinger.sumOf {
+                            utbetalingLinjer.sumOf {
                                 it.pris.belop
                             }.withValuta(utbetaling.valuta),
-                            delutbetalinger.map { delutbetaling ->
-                                queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
+                            utbetalingLinjer.map {
+                                queries.tilsagn.getOrError(it.tilsagnId).kostnadssted
                             }.distinct(),
                         )
 
@@ -237,7 +237,7 @@ fun Route.utbetalingRoutes() {
 
                 val utbetaling = db.session {
                     val utbetaling = queries.utbetaling.getOrError(id)
-                    val linjer = queries.delutbetaling.getByUtbetalingId(id)
+                    val linjer = queries.utbetalingLinje.getByUtbetalingId(id)
                     val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
 
                     val ansatt = queries.ansatt.getByNavIdent(navIdent)
@@ -304,7 +304,12 @@ fun Route.utbetalingRoutes() {
 
                     val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys.toList())
 
-                    val enheter = personalia.flatMapTo(mutableSetOf()) { listOfNotNull(it.value.oppfolgingEnhet, it.value.region) }
+                    val enheter = personalia.flatMapTo(mutableSetOf()) {
+                        listOfNotNull(
+                            it.value.oppfolgingEnhet,
+                            it.value.region,
+                        )
+                    }
                     val kontorstruktur = Kontorstruktur.fromNavEnheter(enheter.toList())
 
                     val deltakelsePersoner = personalia
@@ -377,32 +382,32 @@ fun Route.utbetalingRoutes() {
                     val ansatt = queries.ansatt.getByNavIdent(navIdent)
                         ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
-                    val linjer = queries.delutbetaling.getByUtbetalingId(id)
-                        .map { delutbetaling ->
-                            val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
+                    val linjer = queries.utbetalingLinje.getByUtbetalingId(id).map { linje ->
+                        val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
 
-                            val opprettelse = queries.totrinnskontroll
-                                .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+                        val opprettelse = queries.totrinnskontroll
+                            .getOrError(linje.id, Totrinnskontroll.Type.OPPRETT)
 
-                            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(tilsagn.deltakere.map { it.deltakerId })
-                            val deltakere = tilsagn.deltakere.map {
-                                TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
-                            }
-                            UtbetalingLinje(
-                                id = delutbetaling.id,
-                                gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
-                                pris = delutbetaling.pris,
-                                status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
-                                tilsagn = TilsagnDto.from(tilsagn, deltakere),
-                                opprettelse = opprettelse.toDto(),
-                                handlinger = UtbetalingService.linjeHandlinger(
-                                    delutbetaling,
-                                    opprettelse,
-                                    tilsagn.kostnadssted.enhetsnummer,
-                                    ansatt,
-                                ),
-                            )
+                        val personalia =
+                            personaliaService.getPersonaliaMedGeografiskEnhet(tilsagn.deltakere.map { it.deltakerId })
+                        val deltakere = tilsagn.deltakere.map {
+                            TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                         }
+                        UtbetalingLinje(
+                            id = linje.id,
+                            gjorOppTilsagn = linje.gjorOppTilsagn,
+                            pris = linje.pris,
+                            status = UtbetalingLinjeStatusDto.fromUtbetalingLinjeStatus(linje.status),
+                            tilsagn = TilsagnDto.from(tilsagn, deltakere),
+                            opprettelse = opprettelse.toDto(),
+                            handlinger = UtbetalingService.linjeHandlinger(
+                                linje,
+                                opprettelse,
+                                tilsagn.kostnadssted.enhetsnummer,
+                                ansatt,
+                            ),
+                        )
+                    }
 
                     val nyeLinjer = queries.tilsagn
                         .getAll(
@@ -413,15 +418,16 @@ fun Route.utbetalingRoutes() {
                             valuta = utbetaling.valuta,
                         )
                         .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
-                        .map {
-                            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(it.deltakere.map { it.deltakerId })
-                            val deltakere = it.deltakere.map {
+                        .map { tilsagn ->
+                            val deltakerIds = tilsagn.deltakere.map { it.deltakerId }
+                            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakerIds)
+                            val deltakere = tilsagn.deltakere.map {
                                 TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                             }
 
                             UtbetalingLinje(
                                 id = UUID.randomUUID(),
-                                tilsagn = TilsagnDto.from(it, deltakere),
+                                tilsagn = TilsagnDto.from(tilsagn, deltakere),
                                 status = null,
                                 pris = 0.withValuta(utbetaling.valuta),
                                 gjorOppTilsagn = false,
@@ -438,14 +444,14 @@ fun Route.utbetalingRoutes() {
         }
     }
 
-    route("/delutbetalinger") {
+    route("/utbetalingslinjer") {
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
             put({
                 tags = setOf("Utbetaling")
-                operationId = "opprettDelutbetalinger"
+                operationId = "opprettUtbetalingLinjer"
                 request {
                     pathParameterUuid("id")
-                    body<OpprettDelutbetalingerRequest>()
+                    body<OpprettUtbetalingLinjerRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -457,10 +463,10 @@ fun Route.utbetalingRoutes() {
                     }
                 }
             }) {
-                val request = call.receive<OpprettDelutbetalingerRequest>()
+                val request = call.receive<OpprettUtbetalingLinjerRequest>()
                 val navIdent = getNavIdent()
 
-                val result = utbetalingService.opprettDelutbetalinger(request, navIdent)
+                val result = utbetalingService.opprettUtbetalingLinjer(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -471,13 +477,13 @@ fun Route.utbetalingRoutes() {
         authorize(Rolle.ATTESTANT_UTBETALING) {
             post("/{id}/attester", {
                 tags = setOf("Utbetaling")
-                operationId = "attesterDelutbetaling"
+                operationId = "attesterUtbetalingLinje"
                 request {
                     pathParameterUuid("id")
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Delutbetaling ble attestert"
+                        description = "UtbetalingLinje ble attestert"
                     }
                     default {
                         description = "Problem details"
@@ -488,7 +494,7 @@ fun Route.utbetalingRoutes() {
                 val id: UUID by call.parameters
                 val navIdent = getNavIdent()
 
-                val result = utbetalingService.godkjennDelutbetaling(id, navIdent)
+                val result = utbetalingService.godkjennUtbetalingLinje(id, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -497,14 +503,14 @@ fun Route.utbetalingRoutes() {
 
             post("/{id}/returner", {
                 tags = setOf("Utbetaling")
-                operationId = "returnerDelutbetaling"
+                operationId = "returnerUtbetalingLinje"
                 request {
                     pathParameterUuid("id")
-                    body<AarsakerOgForklaringRequest<DelutbetalingReturnertAarsak>>()
+                    body<AarsakerOgForklaringRequest<UtbetalingLinjeReturnertAarsak>>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Delutbetaling ble besluttet"
+                        description = "UtbetalingLinje ble besluttet"
                     }
                     default {
                         description = "Problem details"
@@ -513,11 +519,11 @@ fun Route.utbetalingRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
-                val request = call.receive<AarsakerOgForklaringRequest<DelutbetalingReturnertAarsak>>()
+                val request = call.receive<AarsakerOgForklaringRequest<UtbetalingLinjeReturnertAarsak>>()
                 val navIdent = getNavIdent()
 
                 val result = request.validate()
-                    .flatMap { utbetalingService.returnerDelutbetaling(id, it.aarsaker, it.forklaring, navIdent) }
+                    .flatMap { utbetalingService.returnerUtbetalingLinje(id, it.aarsaker, it.forklaring, navIdent) }
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -546,7 +552,7 @@ fun RoutingContext.getAdminInnsendingerFilter(): AdminInnsendingerFilter {
 }
 
 @Serializable
-data class DelutbetalingRequest(
+data class UtbetalingLinjeRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
@@ -556,10 +562,10 @@ data class DelutbetalingRequest(
 )
 
 @Serializable
-data class OpprettDelutbetalingerRequest(
+data class OpprettUtbetalingLinjerRequest(
     @Serializable(with = UUIDSerializer::class)
     val utbetalingId: UUID,
-    val delutbetalinger: List<DelutbetalingRequest>,
+    val utbetalingLinjer: List<UtbetalingLinjeRequest>,
     val begrunnelseMindreBetalt: String?,
 )
 
