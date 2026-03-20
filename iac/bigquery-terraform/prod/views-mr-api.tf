@@ -201,7 +201,7 @@ SELECT
   id,
   tiltakstype_id,
   avtale_id,
-  tiltaksnummer,
+  arena_tiltaksnummer as tiltaksnummer,
   start_dato,
   slutt_dato,
   status,
