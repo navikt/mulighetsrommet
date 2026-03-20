@@ -5,6 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -25,6 +26,8 @@ import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -325,6 +328,52 @@ class TilsagnQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, bestillingsnummer)) { it.toTilsagn() }
+    }
+
+    fun getFiltered(
+        arrangorer: Set<Organisasjonsnummer>,
+        statuser: List<TilsagnStatus>,
+        filter: ArrangorflateTilsagnFilter,
+    ): PaginatedResult<Tilsagn> {
+        val direction = when (filter.direction) {
+            ArrangorflateTilsagnFilter.Direction.ASC -> "asc"
+            ArrangorflateTilsagnFilter.Direction.DESC -> "desc"
+        }
+        val order = when (filter.orderBy) {
+            ArrangorflateTilsagnFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn $direction"
+            ArrangorflateTilsagnFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
+            ArrangorflateTilsagnFilter.OrderBy.PERIODE -> "periode $direction"
+            ArrangorflateTilsagnFilter.OrderBy.TILSAGN -> "type $direction, bestillingsnummer $direction"
+            ArrangorflateTilsagnFilter.OrderBy.STATUS -> "status $direction"
+        }
+
+        @Language("PostgreSQL")
+        val query = """
+            select *, count(*) over() as total_count
+            from view_tilsagn
+            where (:sok::text is null
+                or arrangor_navn ilike :sok
+                or arrangor_organisasjonsnummer ilike :sok
+                or tiltakstype_navn ilike :sok
+                or bestillingsnummer ilike :sok
+                or gjennomforing_navn ilike :sok
+                or gjennomforing_lopenummer ilike :sok
+                or to_char(lower(periode), 'DD.MM.YYYY') ilike :sok
+                or to_char((upper(periode) - interval '1 day')::date, 'DD.MM.YYYY') ilike :sok
+            )
+              and (:arrangorer::text[] is null or arrangor_organisasjonsnummer = any(:arrangorer))
+              and (:statuser::tilsagn_status[] is null or status::tilsagn_status = any(:statuser))
+            order by $order
+            limit :limit
+            offset :offset
+        """.trimIndent()
+
+        val params = mapOf(
+            "arrangorer" to arrangorer.let { list -> session.createArrayOfValue(list) { it.value } },
+            "statuser" to statuser.let { session.createArrayOfTilsagnStatus(it) },
+        )
+
+        return queryOf(query, params + filter.pagination.parameters).mapPaginated { it.toTilsagn() }.runWithSession(session)
     }
 
     fun getAll(

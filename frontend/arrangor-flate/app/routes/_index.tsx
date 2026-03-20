@@ -1,41 +1,15 @@
 import { Link as ReactRouterLink } from "react-router";
-import {
-  Box,
-  Tabs,
-  Button,
-  HStack,
-  InfoCard,
-  PaginationProps,
-  Search,
-  SortState,
-} from "@navikt/ds-react";
-import {
-  ArrangorflateUtbetalingFilterDirection,
-  ArrangorflateUtbetalingFilterOrderBy,
-  ArrangorflateUtbetalingFilterType,
-} from "api-client";
+import { Box, Tabs, Button, HStack } from "@navikt/ds-react";
+import { ArrangorflateUtbetalingFilterType } from "api-client";
 import type { MetaFunction } from "react-router";
 import { PageHeading } from "~/components/common/PageHeading";
 import { useTabState } from "~/hooks/useTabState";
 import { tekster } from "~/tekster";
-import { useDebounce, useSortableData } from "@mr/frontend-common";
 import { pathTo } from "~/utils/navigation";
-import { Tabellvisning } from "~/components/common/Tabellvisning";
-import {
-  paramToSortDirection,
-  paramToSortKey,
-  sortKeyToParam,
-  utbetalingKolonner,
-  UtbetalingRow,
-} from "~/components/common/UtbetalingRow";
-import { tilsagnKolonner, TilsagnRow } from "~/components/common/TilsagnRow";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 import { Laster } from "~/components/common/Laster";
-import { useArrangorflateTilsagnRader } from "~/hooks/useArrangorflateTilsagnRader";
-import {
-  ArrangorflateUtbetalingFilter,
-  useArrangorflateUtbetalinger,
-} from "~/hooks/useArrangorflateUtbetalinger";
+import { UtbetalingTabell } from "~/components/utbetaling/UtbetalingTabell";
+import { TilsagnTabell } from "~/components/tilsagn/TilsagnTabell";
 
 export const meta: MetaFunction = () => {
   return [
@@ -67,10 +41,10 @@ export default function Oversikt() {
         <Tabs.Panel value={currentTab}>
           {currentTab === "tilsagnsoversikt" ? (
             <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
-              <TilsagnTabellContent />
+              <TilsagnTabell />
             </Suspense>
           ) : (
-            <UtbetalingTabellContent
+            <UtbetalingTabell
               type={
                 currentTab === "aktive"
                   ? ArrangorflateUtbetalingFilterType.AKTIVE
@@ -81,128 +55,5 @@ export default function Oversikt() {
         </Tabs.Panel>
       </Tabs>
     </Box>
-  );
-}
-
-function filterToSortState({ orderBy, direction }: ArrangorflateUtbetalingFilter): SortState {
-  const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";
-  const newDirection: SortState["direction"] =
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    (direction && paramToSortDirection[direction]) || "ascending";
-
-  return {
-    orderBy: newOrderBy,
-    direction: newDirection,
-  };
-}
-
-function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilterType }) {
-  const [sok, setSok] = useState("");
-  const debouncedSok = useDebounce(sok, 300);
-  const {
-    data: paginertUtbetalingRader,
-    filter,
-    setFilter,
-    oppdaterSok,
-  } = useArrangorflateUtbetalinger({ type });
-
-  const [sortState, setSortState] = useState<SortState>(filterToSortState(filter));
-
-  useEffect(() => {
-    oppdaterSok(debouncedSok);
-  }, [debouncedSok, oppdaterSok]);
-
-  function clearSearch() {
-    setSok("");
-  }
-
-  useEffect(() => {
-    const filterSortState = filterToSortState(filter);
-    setSortState(filterSortState);
-  }, [filter, setSortState]);
-
-  const paginationProps: PaginationProps | undefined =
-    type === ArrangorflateUtbetalingFilterType.HISTORISKE
-      ? {
-          hidden: !paginertUtbetalingRader.pagination.totalPages,
-          page: filter.page || 1,
-          count: paginertUtbetalingRader.pagination.totalPages || 1,
-          boundaryCount: 1,
-          prevNextTexts: true,
-          onPageChange: (newPage) => setFilter((filter) => ({ ...filter, page: newPage })),
-        }
-      : undefined;
-
-  function sortChange(orderBy: ArrangorflateUtbetalingFilterOrderBy) {
-    if (orderBy == filter.orderBy) {
-      const direction =
-        filter.direction == ArrangorflateUtbetalingFilterDirection.ASC
-          ? ArrangorflateUtbetalingFilterDirection.DESC
-          : ArrangorflateUtbetalingFilterDirection.ASC;
-      return setFilter((old) => ({ ...old, direction }));
-    }
-
-    setFilter((old) => ({
-      ...old,
-      orderBy,
-      direction: ArrangorflateUtbetalingFilterDirection.ASC,
-    }));
-  }
-
-  return (
-    <>
-      <Box paddingBlock="space-16" width="30rem">
-        <Search
-          label="Søk i utbetalinger"
-          description="Tiltaksnavn, arrangør, periode, beløp"
-          hideLabel={false}
-          variant="simple"
-          width="30rem"
-          onChange={setSok}
-          onClear={clearSearch}
-        />
-      </Box>
-      <Tabellvisning
-        kolonner={utbetalingKolonner}
-        sort={sortState}
-        onSortChange={(key) => sortChange(sortKeyToParam[key])}
-        pagination={paginationProps}
-      >
-        <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
-          {paginertUtbetalingRader.data.map((rad, i) => (
-            <UtbetalingRow key={rad.gjennomforingId + i} row={rad} />
-          ))}
-        </Suspense>
-      </Tabellvisning>
-    </>
-  );
-}
-
-function TilsagnTabellContent() {
-  const { data: tilsagnRader } = useArrangorflateTilsagnRader();
-
-  const { sortedData, sort, toggleSort } = useSortableData(tilsagnRader, undefined, (item, key) => {
-    if (key === "periode") {
-      return item[key].start;
-    }
-    return (item as Record<string, unknown>)[key];
-  });
-
-  if (!tilsagnRader.length) {
-    return (
-      <InfoCard data-color="warning" className="my-10">
-        <InfoCard.Header>
-          <InfoCard.Title>Det finnes ingen tilsagn her</InfoCard.Title>
-        </InfoCard.Header>
-      </InfoCard>
-    );
-  }
-
-  return (
-    <Tabellvisning kolonner={tilsagnKolonner} sort={sort} onSortChange={toggleSort}>
-      {sortedData.map((rad) => (
-        <TilsagnRow key={rad.id} row={rad} />
-      ))}
-    </Tabellvisning>
   );
 }

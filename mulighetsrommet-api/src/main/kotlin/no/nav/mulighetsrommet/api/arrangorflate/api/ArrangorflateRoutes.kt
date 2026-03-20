@@ -26,8 +26,10 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
+import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
@@ -39,6 +41,7 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -151,10 +154,17 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 description = "Hent oversikt over tilsagn for alle arrangører brukeren har tilgang til"
                 tags = setOf("Arrangorflate")
                 operationId = "getArrangorflateTilsagnRader"
+                request {
+                    queryParameter<String>("sok")
+                    queryParameter<Int>("page")
+                    queryParameter<Int>("size")
+                    queryParameter<ArrangorflateTilsagnFilter.OrderBy>("orderBy")
+                    queryParameter<ArrangorflateTilsagnFilter.Direction>("direction")
+                }
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Tilsagn i tabellrad format"
-                        body<List<ArrangorflateTilsagnRadDto>>()
+                        body<PaginatedResponse<ArrangorflateTilsagnRadDto>>()
                     }
                     default {
                         description = "Problem details"
@@ -168,9 +178,13 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 respondWithManglerTilgangHosArrangor()
                 return@get
             }
-            val tilsagn =
-                arrangorFlateService.getTilsagn(tilganger.toSet(), statuser = TILSAGN_STATUS_VISNING_ARRANGORFLATE)
-            call.respond(tilsagn.map { it.toRadDto() })
+            val filter = getArrangorflateTilsagnFilter()
+            val (totalCount, items) =
+                db.session {
+                    queries.tilsagn.getFiltered(tilganger.toSet(), statuser = TILSAGN_STATUS_VISNING_ARRANGORFLATE, filter)
+                }
+
+            call.respond(PaginatedResponse.of(filter.pagination, totalCount, items.map { it.toRadDto() }))
         }
 
         get("/{id}", {
@@ -584,14 +598,14 @@ fun QueryContext.tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): Arra
 
 fun QueryContext.getGodkjentBelopForUtbetaling(id: UUID, valuta: Valuta): ValutaBelop = queries.delutbetaling.getByUtbetalingId(id).sumOf { it.pris.belop }.withValuta(valuta)
 
-fun ArrangorflateTilsagnDto.toRadDto(): ArrangorflateTilsagnRadDto = ArrangorflateTilsagnRadDto(
+fun Tilsagn.toRadDto(): ArrangorflateTilsagnRadDto = ArrangorflateTilsagnRadDto(
     id = id,
     organisasjonsnummer = arrangor.organisasjonsnummer,
     tiltakTypeNavn = tiltakstype.navn,
     tiltakNavn = "${gjennomforing.navn} (${gjennomforing.lopenummer})",
     arrangorNavn = "${arrangor.navn} (${arrangor.organisasjonsnummer.value})",
     periode = periode,
-    tilsagnNavn = "${type.displayName()} ($bestillingsnummer)",
+    tilsagnNavn = "${type.displayName()} (${bestilling.bestillingsnummer})",
     status = status,
 )
 
