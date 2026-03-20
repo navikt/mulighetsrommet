@@ -22,3 +22,20 @@ values ('TIL_GODKJENNING'),
 alter table tilsagn
     add foreign key (status) references tilsagn_status_type (value) on update cascade;
 
+alter table tilsagn
+    alter tilsagn_type type text;
+
+drop type tilsagn_type;
+
+create table tilsagn_type
+(
+    value text not null primary key
+);
+
+insert into tilsagn_type(value)
+values ('TILSAGN'),
+       ('EKSTRATILSAGN'),
+       ('INVESTERING');
+
+alter table tilsagn
+    add foreign key (tilsagn_type) references tilsagn_type (value) on update cascade;

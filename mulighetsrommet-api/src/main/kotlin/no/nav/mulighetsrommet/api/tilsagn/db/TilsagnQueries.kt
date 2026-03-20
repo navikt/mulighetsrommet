@@ -37,7 +37,6 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
-import java.sql.Array
 import java.util.UUID
 
 class TilsagnQueries(private val session: Session) {
@@ -75,7 +74,7 @@ class TilsagnQueries(private val session: Session) {
                 :bestilling_status,
                 :kostnadssted,
                 :status,
-                :tilsagn_type::tilsagn_type,
+                :tilsagn_type,
                 :valuta::currency,
                 :belop_brukt,
                 :belop_beregnet,
@@ -341,7 +340,7 @@ class TilsagnQueries(private val session: Session) {
             select *
             from view_tilsagn
             where
-              (:typer::tilsagn_type[] is null or tilsagn_type = any(:typer::tilsagn_type[]))
+              (:typer::text[] is null or tilsagn_type = any(:typer))
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
               and (:arrangorer::text[] is null or arrangor_organisasjonsnummer = any(:arrangorer))
               and (:statuser::text[] is null or status = any(:statuser))
@@ -351,7 +350,7 @@ class TilsagnQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "typer" to typer?.let { session.createArrayOfTilsagnType(it) },
+            "typer" to typer?.let { session.createTextArray(it) },
             "gjennomforing_id" to gjennomforingId,
             "arrangorer" to arrangorer?.let { list -> session.createArrayOfValue(list) { it.value } },
             "statuser" to statuser?.let { session.createTextArray(it) },
@@ -592,7 +591,3 @@ class TilsagnQueries(private val session: Session) {
         }
     }
 }
-
-fun Session.createArrayOfTilsagnType(
-    types: List<TilsagnType>,
-): Array = createArrayOf("tilsagn_type", types)
