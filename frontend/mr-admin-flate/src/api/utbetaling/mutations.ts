@@ -15,7 +15,7 @@ export function useAttesterUtbetalingLinje() {
   return useApiMutation<unknown, ProblemDetail, { id: string }>({
     mutationFn: ({ id }) => UtbetalingService.attesterUtbetalingLinje({ path: { id } }),
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
     },
   });
 }
@@ -27,11 +27,7 @@ export function useOpprettUtbetalingLinjer(utbetalingId: string) {
     mutationFn: (body) =>
       UtbetalingService.opprettUtbetalingLinjer({ path: { id: utbetalingId }, body }),
     async onSuccess() {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(utbetalingId) }),
-        queryClient.invalidateQueries({ queryKey: QueryKeys.utbetalingsLinjer(utbetalingId) }),
-        queryClient.invalidateQueries({ queryKey: QueryKeys.utbetalingHistorikk(utbetalingId) }),
-      ]);
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(utbetalingId) });
     },
   });
 }
@@ -67,8 +63,8 @@ export function useReturnerUtbetalingLinje() {
     { id: string; body: AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak }
   >({
     mutationFn: ({ id, body }) => UtbetalingService.returnerUtbetalingLinje({ path: { id }, body }),
-    async onSuccess(_, request) {
-      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(request.id) });
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
     },
   });
 }
