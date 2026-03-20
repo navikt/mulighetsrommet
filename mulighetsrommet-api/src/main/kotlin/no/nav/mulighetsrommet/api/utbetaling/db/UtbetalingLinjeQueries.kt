@@ -39,7 +39,7 @@ class UtbetalingLinjeQueries(private val session: Session) {
                 :id::uuid,
                 :tilsagn_id::uuid,
                 :utbetaling_id::uuid,
-                :status::utbetaling_linje_status,
+                :status,
                 :belop,
                 :valuta::currency,
                 :gjor_opp_tilsagn::boolean,
@@ -99,7 +99,7 @@ class UtbetalingLinjeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling_linje
-            set status = :status::utbetaling_linje_status
+            set status = :status
             where id = :id::uuid
         """.trimIndent()
 
@@ -115,7 +115,7 @@ class UtbetalingLinjeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling_linje
-            set status = :status::utbetaling_linje_status
+            set status = :status
             where fakturanummer = :fakturanummer
         """.trimIndent()
 
@@ -199,7 +199,7 @@ class UtbetalingLinjeQueries(private val session: Session) {
               join utbetaling u on du.utbetaling_id = u.id
               join gjennomforing g on u.gjennomforing_id = g.id
             where g.avtale_id = :avtale_id::uuid
-              and (:statuser::utbetaling_linje_status[] is null or du.status = any(:statuser::utbetaling_linje_status[]))
+              and (:statuser::text[] is null or du.status = any(:statuser))
         """.trimIndent()
         val params = mapOf(
             "avtale_id" to avtaleId,
