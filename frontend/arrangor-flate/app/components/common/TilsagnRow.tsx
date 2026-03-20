@@ -4,13 +4,14 @@ import { Link as ReactRouterLink } from "react-router";
 import { ArrangorflateTilsagnRadDto } from "api-client/types.gen";
 import { pathTo } from "~/utils/navigation";
 import { TilsagnStatusTag } from "../tilsagn/TilsagnStatusTag";
+import { Kolonne } from "./Tabellvisning";
 
-export const tilsagnKolonner: Array<{ key: string; label: string }> = [
-  { key: "tiltakNavn", label: "Tiltak" },
-  { key: "arrangorNavn", label: "Arrangør" },
-  { key: "periode", label: "Periode" },
-  { key: "tilsagnNavn", label: "Tilsagn" },
-  { key: "status", label: "Status" },
+export const tilsagnKolonner: Array<Kolonne> = [
+  { key: "tiltakNavn", label: "Tiltak", sortable: true },
+  { key: "arrangorNavn", label: "Arrangør", sortable: true },
+  { key: "periode", label: "Periode", sortable: true },
+  { key: "tilsagnNavn", label: "Tilsagn", sortable: true },
+  { key: "status", label: "Status", sortable: true },
 ];
 
 export function TilsagnRow({ row }: { row: ArrangorflateTilsagnRadDto }) {

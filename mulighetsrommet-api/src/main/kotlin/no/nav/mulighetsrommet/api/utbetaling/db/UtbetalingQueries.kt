@@ -6,6 +6,7 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
@@ -32,6 +33,8 @@ import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
@@ -533,21 +536,51 @@ class UtbetalingQueries(private val session: Session) {
         return session.list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetaling() }
     }
 
-    fun getByArrangorerAndStatus(
+    fun getArrangorflateFiltered(
         arrangorer: Set<Organisasjonsnummer>,
-        statuser: Set<UtbetalingStatusType>,
-    ): List<Utbetaling> {
+        filter: ArrangorflateUtbetalingFilter = ArrangorflateUtbetalingFilter(),
+    ): PaginatedResult<Utbetaling> {
+        val direction = when (filter.direction) {
+            ArrangorflateUtbetalingFilter.Direction.ASC -> "asc"
+            ArrangorflateUtbetalingFilter.Direction.DESC -> "desc"
+        }
+
+        val order = when (filter.orderBy) {
+            ArrangorflateUtbetalingFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.PERIODE -> "periode $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.BELOP -> "belop_beregnet $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.STATUS -> "status $direction"
+        }
+
         @Language("PostgreSQL")
         val query = """
-            select *
+            select *, count(*) over() as total_count
             from view_utbetaling
-            where arrangor_organisasjonsnummer = any (?)
-            and status = any (?)
-            order by arrangor_navn, tiltakskode desc
+            where (:sok::text is null
+                or arrangor_navn ilike :sok
+                or arrangor_organisasjonsnummer ilike :sok
+                or tiltakstype_navn ilike :sok
+                or belop_beregnet::text ilike :sok
+                or gjennomforing_navn ilike :sok
+                or gjennomforing_lopenummer ilike :sok
+                or to_char(lower(periode), 'DD.MM.YYYY') ilike :sok
+                or to_char((upper(periode) - interval '1 day')::date, 'DD.MM.YYYY') ilike :sok
+            )
+            and arrangor_organisasjonsnummer = any (:orgnr_list::text[])
+            and status = any (:status_list::text[])
+            order by $order
+            limit :limit
+            offset :offset
         """.trimIndent()
-        val orgnrListe = session.createArrayOfValue(arrangorer) { it.value }
-        val statusListe = session.createTextArray(statuser)
-        return session.list(queryOf(query, orgnrListe, statusListe)) { it.toUtbetaling() }
+        val params = mapOf(
+            "sok" to filter.sok?.let { "%$it%" },
+            "orgnr_list" to session.createArrayOfValue(arrangorer) { it.value },
+            "status_list" to session.createTextArray(filter.type.utbetalingStatuser()),
+        )
+        return queryOf(query, params + filter.pagination.parameters)
+            .mapPaginated { it.toUtbetaling() }
+            .runWithSession(session)
     }
 
     fun getByGjennomforing(

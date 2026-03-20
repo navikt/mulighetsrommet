@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { tekster } from "~/tekster";
 import { useTabState } from "~/hooks/useTabState";
-import { Tabellvisning } from "~/components/common/Tabellvisning";
+import { Kolonne, Tabellvisning } from "~/components/common/Tabellvisning";
 import { useSortableData } from "@mr/frontend-common";
 import { UtbetalingRow } from "~/components/common/UtbetalingRow";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
@@ -96,8 +96,8 @@ function TiltaksOversiktContent({ type }: { type: TiltaksoversiktType }) {
   );
 }
 
-const kolonner: Array<{ key: string; label: string }> = [
-  { key: "tiltakNavn", label: "Tiltak" },
-  { key: "arrangorNavn", label: "Arrangør" },
-  { key: "startDato", label: "Periode" },
+const kolonner: Array<Kolonne> = [
+  { key: "tiltakNavn", label: "Tiltak", sortable: true },
+  { key: "arrangorNavn", label: "Arrangør", sortable: true },
+  { key: "startDato", label: "Periode", sortable: true },
 ];

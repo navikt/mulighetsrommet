@@ -1,4 +1,9 @@
-import { ArrangorInnsendingRadDto, ArrangorflateUtbetalingStatus, Valuta } from "api-client";
+import {
+  ArrangorInnsendingRadDto,
+  ArrangorflateUtbetalingStatus,
+  PaginatedResponseArrangorInnsendingRadDto,
+  Valuta,
+} from "api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 import {
   arrUkesprisKlarTilGodkjenning,
@@ -115,7 +120,7 @@ const aftFoobarTableRow: ArrangorInnsendingRadDto = {
   status: ArrangorflateUtbetalingStatus.UTBETALT,
 };
 
-export const utbetalingTabellOversiktAktive: ArrangorInnsendingRadDto[] = [
+const utbetalingTabellOversiktAktiveRader: ArrangorInnsendingRadDto[] = [
   solrikAftDataRow,
   aftTiltakspengerTableRow,
   mayRainAftTableRow,
@@ -123,7 +128,25 @@ export const utbetalingTabellOversiktAktive: ArrangorInnsendingRadDto[] = [
   arrUkesprisKlarTilGodkjenningTableRow,
 ];
 
-export const utbetalingTabellOversiktHistoriske: ArrangorInnsendingRadDto[] = [
+export const utbetalingTabellOversiktAktive: PaginatedResponseArrangorInnsendingRadDto = {
+  pagination: {
+    totalCount: 5,
+    pageSize: 20,
+    totalPages: 1,
+  },
+  data: utbetalingTabellOversiktAktiveRader,
+};
+
+const utbetalingTabellOversiktHistoriskeRader: ArrangorInnsendingRadDto[] = [
   aftFoobarTableRow,
   aftTiltakspengerOverfortTilUtbetalingTableRow,
 ];
+
+export const utbetalingTabellOversiktHistoriske: PaginatedResponseArrangorInnsendingRadDto = {
+  pagination: {
+    totalCount: 2,
+    pageSize: 20,
+    totalPages: 1,
+  },
+  data: utbetalingTabellOversiktHistoriskeRader,
+};

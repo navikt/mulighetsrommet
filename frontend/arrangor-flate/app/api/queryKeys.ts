@@ -1,7 +1,8 @@
-import { TiltaksoversiktType, UtbetalingOversiktType } from "api-client";
+import { TiltaksoversiktType } from "api-client";
+import { ArrangorflateUtbetalingFilter } from "~/hooks/useArrangorflateUtbetalinger";
 
 export const queryKeys = {
-  utbetalinger: (type: UtbetalingOversiktType) => ["utbetalinger", type] as const,
+  utbetalinger: (filter: ArrangorflateUtbetalingFilter) => ["utbetalinger", filter] as const,
   utbetaling: (id: string) => ["utbetaling", id] as const,
   utbetalingTilsagn: (id: string) => ["utbetaling", id, "tilsagn"] as const,
   utbetalingKvittering: (id: string) => ["utbetaling", id, "kvittering"] as const,
