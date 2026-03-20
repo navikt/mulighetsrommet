@@ -8,12 +8,12 @@ import no.nav.mulighetsrommet.api.avtale.db.createArrayOfAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.tilsagn.db.createArrayOfTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -163,7 +163,7 @@ class OppgaveQueries(private val session: Session) {
                 inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
                 inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
             where
-                (:statuser::tilsagn_status[] is null or tilsagn.status::tilsagn_status = any(:statuser))
+                (:statuser::text[] is null or tilsagn.status = any(:statuser))
             order by tilsagn.created_at desc
         """.trimIndent()
 
@@ -173,7 +173,7 @@ class OppgaveQueries(private val session: Session) {
                 TilsagnStatus.TIL_ANNULLERING,
                 TilsagnStatus.TIL_OPPGJOR,
                 TilsagnStatus.RETURNERT,
-            ).let { session.createArrayOfTilsagnStatus(it) },
+            ).let { session.createTextArray(it) },
         )
 
         return session.list(queryOf(query, params)) { row ->
