@@ -204,6 +204,41 @@ export const runTask = (base: ApiBase, task: MrApiTask, input?: object) =>
       toastError(`Failed to execute task '${task}'`, error);
     });
 
+export const runPdfTask = async (base: ApiBase, task: MrApiTask, input?: object) => {
+  const utbetalingId = input && "utbetalingId" in input ? (input as { utbetalingId: string }).utbetalingId : undefined;
+  const ids = utbetalingId
+    ? utbetalingId.split(",").map((id) => id.trim()).filter((id) => id.length)
+    : [];
+
+  if (ids.length === 0) {
+    toast.error("Ingen utbetaling id oppgitt");
+    return;
+  }
+
+  for (const id of ids) {
+    try {
+      const response = await fetch(`${base}/tasks/${task}`, {
+        method: "POST",
+        headers: {
+          Accept: "application/pdf",
+          "Nav-Consumer-Id": "MAAM",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ utbetalingId: id }),
+      });
+      if (!response.ok) {
+        throw new ApiError(response.status, response.statusText, await response.text());
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+      toast.success(`PDF generert for utbetaling '${id}'`);
+    } catch (error) {
+      toastError(`Failed to generate PDF for utbetaling '${id}'`, error as ApiError);
+    }
+  }
+};
+
 function getDefaultHeaders(): Record<string, string> {
   return {
     Accept: "application/json",

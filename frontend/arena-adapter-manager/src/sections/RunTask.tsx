@@ -8,6 +8,7 @@ interface Props {
   task: MrApiTask;
   form?: (props: { onSubmit: (data: any) => void; loading: boolean }) => ReactNode;
   children?: ReactNode;
+  onExecute?: (base: ApiBase, task: MrApiTask, input?: object) => Promise<void>;
 }
 
 export function RunTask(props: Props) {
@@ -15,8 +16,9 @@ export function RunTask(props: Props) {
 
   const executeTask = (input?: object) => {
     setLoading(true);
+    const run = props.onExecute ?? runTask;
 
-    return runTask(props.base, props.task, input).finally(() => {
+    return run(props.base, props.task, input).finally(() => {
       setLoading(false);
     });
   };
