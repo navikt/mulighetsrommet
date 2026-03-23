@@ -205,9 +205,13 @@ export const runTask = (base: ApiBase, task: MrApiTask, input?: object) =>
     });
 
 export const runPdfTask = async (base: ApiBase, task: MrApiTask, input?: object) => {
-  const utbetalingId = input && "utbetalingId" in input ? (input as { utbetalingId: string }).utbetalingId : undefined;
+  const utbetalingId =
+    input && "utbetalingId" in input ? (input as { utbetalingId: string }).utbetalingId : undefined;
   const ids = utbetalingId
-    ? utbetalingId.split(",").map((id) => id.trim()).filter((id) => id.length)
+    ? utbetalingId
+        .split(",")
+        .map((id) => id.trim())
+        .filter((id) => id.length)
     : [];
 
   if (ids.length === 0) {
