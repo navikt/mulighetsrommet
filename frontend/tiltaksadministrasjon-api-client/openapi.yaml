@@ -3126,7 +3126,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 5
+        - 6
     TiltakstypeDto:
       type: object
       properties:
