@@ -675,7 +675,7 @@ enum class AvtaleHandling {
 
 fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { it.toUUID() } ?: emptyList()
-    val search = call.request.queryParameters["search"]
+    val search = call.request.queryParameters["search"]?.trim()?.takeIf { it.isNotBlank() }
     val statuser = call.parameters.getAll("statuser")
         ?.map { status -> AvtaleStatusType.valueOf(status) }
         ?: emptyList()

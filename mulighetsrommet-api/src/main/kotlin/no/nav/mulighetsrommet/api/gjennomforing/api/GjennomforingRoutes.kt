@@ -597,7 +597,7 @@ data class AdminTiltaksgjennomforingFilter(
 )
 
 fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
-    val search = call.request.queryParameters["search"]
+    val search = call.request.queryParameters["search"]?.trim()?.takeIf { it.isNotBlank() }
     val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
     val statuser = call.parameters.getAll("statuser")
