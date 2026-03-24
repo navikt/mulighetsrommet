@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import org.slf4j.LoggerFactory
@@ -129,37 +128,7 @@ class ArenaAdapterService(
 
     private suspend fun updateArenadata(arenaGjennomforing: ArenaGjennomforingDbo) {
         val previous = db.session { queries.gjennomforing.getGjennomforing(arenaGjennomforing.id) }
-
-        if (previous == null && arenaGjennomforing.arenaKode == Tiltakskode.AVKLARING.arenakode) {
-            val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
-                ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
-
-            val arrangor = syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
-
-            logger.info("Unntaksvis upsert gjennomføring=${arenaGjennomforing.id}")
-
-            val upsert = OpprettGjennomforingArena(
-                id = arenaGjennomforing.id,
-                tiltakstypeId = tiltakstype.id,
-                arrangorId = arrangor.id,
-                navn = arenaGjennomforing.navn,
-                startDato = arenaGjennomforing.startDato,
-                sluttDato = arenaGjennomforing.sluttDato,
-                status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
-                deltidsprosent = arenaGjennomforing.deltidsprosent,
-                antallPlasser = arenaGjennomforing.antallPlasser,
-                arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
-                arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
-                oppstart = GjennomforingOppstartstype.LOPENDE,
-                pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-            )
-            gjennomforingArenaService.upsert(upsert)
-            return
-        }
-
-        if (previous == null) {
-            throw IllegalStateException("Tiltakstype tiltakskode=${arenaGjennomforing.arenaKode} er migrert, men gjennomføring fra Arena er ukjent")
-        }
+            ?: throw IllegalStateException("Tiltakstype tiltakskode=${arenaGjennomforing.arenaKode} er migrert, men gjennomføring fra Arena er ukjent")
 
         val arenadata = Gjennomforing.ArenaData(
             tiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
