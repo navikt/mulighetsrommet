@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -36,7 +37,6 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
-import java.sql.Array
 import java.util.UUID
 
 class TilsagnQueries(private val session: Session) {
@@ -73,8 +73,8 @@ class TilsagnQueries(private val session: Session) {
                 :bestillingsnummer,
                 :bestilling_status,
                 :kostnadssted,
-                :status::tilsagn_status,
-                :tilsagn_type::tilsagn_type,
+                :status,
+                :tilsagn_type,
                 :valuta::currency,
                 :belop_brukt,
                 :belop_beregnet,
@@ -340,20 +340,20 @@ class TilsagnQueries(private val session: Session) {
             select *
             from view_tilsagn
             where
-              (:typer::tilsagn_type[] is null or tilsagn_type = any(:typer::tilsagn_type[]))
+              (:typer::text[] is null or tilsagn_type = any(:typer))
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
               and (:arrangorer::text[] is null or arrangor_organisasjonsnummer = any(:arrangorer))
-              and (:statuser::tilsagn_status[] is null or status::tilsagn_status = any(:statuser))
+              and (:statuser::text[] is null or status = any(:statuser))
               and (:periode::daterange is null or periode && :periode::daterange)
               and (:valuta::currency is null or valuta = :valuta::currency)
             order by created_at desc
         """.trimIndent()
 
         val params = mapOf(
-            "typer" to typer?.let { session.createArrayOfTilsagnType(it) },
+            "typer" to typer?.let { session.createTextArray(it) },
             "gjennomforing_id" to gjennomforingId,
             "arrangorer" to arrangorer?.let { list -> session.createArrayOfValue(list) { it.value } },
-            "statuser" to statuser?.let { session.createArrayOfTilsagnStatus(it) },
+            "statuser" to statuser?.let { session.createTextArray(it) },
             "periode" to periodeIntersectsWith?.toDaterange(),
             "valuta" to valuta?.name,
         )
@@ -368,12 +368,12 @@ class TilsagnQueries(private val session: Session) {
             from view_tilsagn vt
             inner join gjennomforing g on gjennomforing_id = g.id
             where g.avtale_id = :avtale_id::uuid
-            and (:statuser::tilsagn_status[] is null or vt.status = any(:statuser::tilsagn_status[]))
+            and (:statuser::text[] is null or vt.status = any(:statuser))
         """.trimIndent()
 
         val params = mapOf(
             "avtale_id" to avtaleId,
-            "statuser" to statuser?.let { session.createArrayOfTilsagnStatus(it) },
+            "statuser" to statuser?.let { session.createTextArray(it) },
         )
 
         return session.list(queryOf(query, params)) { it.toTilsagn() }
@@ -391,7 +391,9 @@ class TilsagnQueries(private val session: Session) {
     fun setStatus(id: UUID, status: TilsagnStatus) {
         @Language("PostgreSQL")
         val query = """
-            update tilsagn set status = :status::tilsagn_status where id = :id::uuid
+            update tilsagn
+            set status = :status
+            where id = :id::uuid
         """.trimIndent()
 
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
@@ -402,7 +404,7 @@ class TilsagnQueries(private val session: Session) {
         val query = """
             update tilsagn
             set bestilling_status = ?
-             where bestillingsnummer = ?
+            where bestillingsnummer = ?
         """.trimIndent()
 
         session.execute(queryOf(query, status.name, bestillingsnummer))
@@ -589,11 +591,3 @@ class TilsagnQueries(private val session: Session) {
         }
     }
 }
-
-fun Session.createArrayOfTilsagnType(
-    types: List<TilsagnType>,
-): Array = createArrayOf("tilsagn_type", types)
-
-fun Session.createArrayOfTilsagnStatus(
-    statuser: List<TilsagnStatus>,
-): Array = createArrayOf("tilsagn_status", statuser)
