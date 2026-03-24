@@ -1,5 +1,5 @@
 import { PortableText, PortableTextReactComponents } from "@portabletext/react";
-import { Alert, BodyLong, GuidePanel, List, Box } from "@navikt/ds-react";
+import { Alert, BodyLong, Box, GuidePanel, Link, List } from "@navikt/ds-react";
 
 interface ImageProp {
   value: { asset: { url: string }; altText: string };
@@ -17,9 +17,9 @@ const portableTextComponent: Partial<PortableTextReactComponents> = {
   marks: {
     link: ({ children, value }) => {
       return (
-        <a href={value.href} rel="noreferrer noopener" target="_blank">
+        <Link href={value.href} rel="noreferrer noopener" target="_blank">
           {children}
-        </a>
+        </Link>
       );
     },
   },

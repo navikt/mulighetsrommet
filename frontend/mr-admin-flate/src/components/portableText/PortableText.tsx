@@ -1,4 +1,4 @@
-import { BodyLong, List, Box } from "@navikt/ds-react";
+import { BodyLong, Box, Link, List } from "@navikt/ds-react";
 import {
   PortableText as PortableTextLib,
   PortableTextProps,
@@ -10,6 +10,15 @@ export function PortableText({ value }: { value: PortableTextProps["value"] }) {
 }
 
 const components: Partial<PortableTextReactComponents> = {
+  marks: {
+    link: ({ children, value }) => {
+      return (
+        <Link href={value.href} rel="noreferrer noopener" target="_blank">
+          {children}
+        </Link>
+      );
+    },
+  },
   list: {
     bullet: ({ children }) => (
       <Box marginBlock="space-12" asChild>
