@@ -12,9 +12,6 @@ $$
             grant select on utbetaling_status_type to "datastream";
             alter publication "ds_publication" add table utbetaling_status_type;
 
-            grant select on utbetaling_linje to "datastream";
-            alter publication "ds_publication" add table utbetaling_linje;
-
             grant select on utbetaling_linje_status_type to "datastream";
             alter publication "ds_publication" add table utbetaling_linje_status_type;
         end if;
