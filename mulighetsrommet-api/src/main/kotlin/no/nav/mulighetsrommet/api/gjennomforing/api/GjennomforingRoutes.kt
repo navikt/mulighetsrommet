@@ -50,7 +50,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
@@ -416,8 +415,7 @@ fun Route.gjennomforingRoutes() {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            val result = gjennomforinger.getAllKompaktDto(pagination, filter)
-            val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
+            val file = gjennomforinger.exportToExcel(pagination, filter)
 
             call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
             call.response.header(

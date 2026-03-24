@@ -22,16 +22,22 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
+import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
+import java.io.File
 import java.util.UUID
+import kotlin.io.path.createTempFile
+import kotlin.io.path.outputStream
 
 class GjennomforingDetaljerService(
     private val db: ApiDatabase,
@@ -101,6 +107,23 @@ class GjennomforingDetaljerService(
         ).let { (totalCount, items) ->
             val data = items.map { it.toKompaktDto() }
             PaginatedResponse.of(pagination, totalCount, data)
+        }
+    }
+
+    fun exportToExcel(
+        pagination: Pagination,
+        filter: AdminTiltaksgjennomforingFilter,
+    ): File {
+        val result = getAllKompaktDto(pagination, filter)
+
+        val workbook = buildExcelWorkbook {
+            createGjennomforingerSheet(result.data)
+        }
+
+        return workbook.use {
+            val file = createTempFile("gjennomforinger-", ".xlsx")
+            file.outputStream().use(it::write)
+            file.toFile()
         }
     }
 
@@ -216,4 +239,32 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
     )
 
     is GjennomforingArenaKompakt -> throw IllegalStateException("Visning av gamle gjennomføringer fra Arena er ikke støttet")
+}
+
+private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
+    result: List<GjennomforingKompaktDto>,
+) = sheet("Gjennomforinger") {
+    header(
+        "Tiltaksnavn",
+        "Tiltakstype",
+        "Tiltaksnummer",
+        "Tiltaksarrangør",
+        "Tiltaksarrangør orgnr",
+        "Startdato",
+        "Sluttdato",
+    )
+
+    result.forEach { tiltak ->
+        row {
+            listOf(
+                tiltak.navn,
+                tiltak.tiltakstype.navn,
+                tiltak.lopenummer.value,
+                tiltak.arrangor.navn,
+                tiltak.arrangor.organisasjonsnummer.value,
+                tiltak.startDato.formaterDatoTilEuropeiskDatoformat(),
+                tiltak.sluttDato?.formaterDatoTilEuropeiskDatoformat(),
+            )
+        }
+    }
 }

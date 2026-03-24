@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
+import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.time.LocalDate
 import java.util.UUID
 
@@ -136,6 +137,25 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             )
 
             result.data shouldHaveSize 2
+        }
+
+        test("kan generere excel for gjennomføringer") {
+            val service = createService()
+
+            val file = service.exportToExcel(
+                pagination = Pagination.all(),
+                filter = AdminTiltaksgjennomforingFilter(search = "Oppfølging"),
+            )
+
+            WorkbookFactory.create(file.inputStream()).use { workbook ->
+                val sheet = workbook.getSheetAt(0)
+
+                sheet.getRow(0).getCell(0).stringCellValue shouldBe "Tiltaksnavn"
+                sheet.getRow(0).getCell(1).stringCellValue shouldBe "Tiltakstype"
+
+                sheet.lastRowNum shouldBe 1
+                sheet.getRow(1).getCell(0).stringCellValue shouldBe "Oppfølging 1"
+            }
         }
     }
 })
