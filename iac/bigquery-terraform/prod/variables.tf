@@ -14,6 +14,41 @@ variable "mr_api_datastream_secret" {
   default     = "mr-api-datastream-credentials"
 }
 
+variable "access_roles" {
+  description = "Access roles for the datastream dataset."
+  type        = list(map(string))
+  default = [
+    {
+      role          = "OWNER"
+      special_group = "projectOwners"
+    },
+    {
+      role          = "READER"
+      special_group = "projectReaders"
+    },
+    {
+      role          = "WRITER"
+      special_group = "projectWriters"
+    },
+    {
+      role           = "roles/bigquery.metadataViewer"
+      group_by_email = "all-users@nav.no"
+    },
+    {
+      role          = "roles/bigquery.metadataViewer"
+      user_by_email = "nada-metabase@nada-prod-6977.iam.gserviceaccount.com"
+    },
+    {
+      role          = "roles/bigquery.metadataViewer"
+      user_by_email = "effekt-j6bp@knada-gcp.iam.gserviceaccount.com"
+    },
+    {
+      role          = "roles/bigquery.metadataViewer"
+      user_by_email = "bigqueryloader@teamoppfolging-prod-47fb.iam.gserviceaccount.com"
+    },
+  ]
+}
+
 locals {
   application_name   = "mulighetsrommet-api"
   grafana_id         = "${local.application_name}-grafana"

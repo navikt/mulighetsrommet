@@ -1,0 +1,332 @@
+module "mr_datastream_vpc" {
+  source      = "../datastream-vpc"
+  gcp_project = var.gcp_project
+}
+
+data "google_secret_manager_secret_version" "mr_api_datastream_secret" {
+  secret = var.mr_api_datastream_secret
+}
+
+module "mr_api_datastream" {
+  source                     = "git::https://github.com/navikt/terraform-google-bigquery-datastream.git?ref=v1.0.1"
+  gcp_project                = var.gcp_project
+  application_name           = var.application_name
+  cloud_sql_instance_name    = "${var.application_name}-v1"
+  cloud_sql_instance_db_name = "${var.application_name}-db"
+  cloud_sql_instance_db_credentials = jsondecode(
+    data.google_secret_manager_secret_version.mr_api_datastream_secret.secret_data
+  )
+  cloud_sql_instance_publication_name = "ds_publication"
+  cloud_sql_instance_replication_name = "ds_replication"
+  datastream_vpc_resources = {
+    vpc_name                       = module.mr_datastream_vpc.vpc_name
+    private_connection_id          = module.mr_datastream_vpc.private_connection_id
+    bigquery_connection_profile_id = module.mr_datastream_vpc.bigquery_connection_profile_id
+  }
+  big_query_dataset_delete_contents_on_destroy = true
+
+  postgresql_include_schemas = [
+    {
+      schema = "public",
+      tables = [
+        {
+          table = "tiltakstype",
+          columns = [
+            "id",
+            "navn",
+            "arena_kode",
+            "created_at",
+            "updated_at",
+            "start_dato",
+            "slutt_dato",
+            "tiltakskode",
+          ]
+        },
+        {
+          table = "arrangor",
+          columns = [
+            "id",
+            "organisasjonsnummer",
+            "overordnet_enhet",
+            "organisasjonsform",
+            "navn",
+            "created_at",
+            "updated_at",
+            "slettet_dato",
+            "er_utenlandsk_virksomhet",
+          ]
+        },
+        {
+          table = "prismodell",
+          columns = [
+            "id",
+            "prismodell_type",
+            "satser",
+            "created_at",
+            "updated_at",
+            "system_id",
+            "valuta",
+            "tilsagn_per_deltaker",
+          ]
+        },
+        {
+          table = "avtale",
+          columns = [
+            "id",
+            "navn",
+            "tiltakstype_id",
+            "avtalenummer",
+            "start_dato",
+            "slutt_dato",
+            "status",
+            "avtaletype",
+            "created_at",
+            "updated_at",
+            "arrangor_hovedenhet_id",
+            "lopenummer",
+            "personvern_bekreftet",
+            "sakarkiv_nummer",
+            "avbrutt_tidspunkt",
+            "avbrutt_aarsaker",
+            "opsjon_maks_varighet",
+            "opsjonsmodell",
+            "opsjon_custom_opsjonsmodell_navn",
+          ]
+        },
+        { table = "avtale_nav_enhet", },
+        { table = "avtale_prismodell", },
+        {
+          table = "gjennomforing",
+          columns = [
+            "id",
+            "navn",
+            "tiltakstype_id",
+            "avtale_id",
+            "arrangor_id",
+            "prismodell_id",
+            "arena_tiltaksnummer",
+            "lopenummer",
+            "created_at",
+            "updated_at",
+            "start_dato",
+            "slutt_dato",
+            "status",
+            "gjennomforing_type",
+            "antall_plasser",
+            "oppstart",
+            "pamelding_type",
+            "publisert",
+            "apent_for_pamelding",
+            "deltidsprosent",
+            "estimert_ventetid_verdi",
+            "estimert_ventetid_enhet",
+            "avsluttet_tidspunkt",
+            "avbrutt_aarsaker",
+            "tilgjengelig_for_arrangor_dato",
+          ]
+        },
+        { table = "gjennomforing_amo_kategorisering" },
+        { table = "gjennomforing_amo_kategorisering_sertifisering" },
+        { table = "gjennomforing_nav_enhet" },
+        { table = "gjennomforing_utdanningsprogram" },
+        { table = "utdanningsprogram" },
+        { table = "utdanning" },
+        {
+          table = "tilsagn",
+          columns = [
+            "id",
+            "gjennomforing_id",
+            "created_at",
+            "updated_at",
+            "kostnadssted",
+            "lopenummer",
+            "tilsagn_type",
+            "status",
+            "bestillingsnummer",
+            "bestilling_status",
+            "datastream_periode_start",
+            "datastream_periode_slutt",
+            "beregning_type",
+            "beregning_antall_timer_oppfolging_per_deltaker",
+            "beregning_antall_plasser",
+            "beregning_sats",
+            "belop_beregnet",
+            "belop_brukt",
+            "valuta",
+          ]
+        },
+        { table = "tilsagn_type" },
+        { table = "tilsagn_status_type" },
+        {
+          table = "utbetaling",
+          columns = [
+            "id",
+            "gjennomforing_id",
+            "created_at",
+            "updated_at",
+            "tilskuddstype",
+            "datastream_periode_start",
+            "datastream_periode_slutt",
+            "status",
+            "avbrutt_tidspunkt",
+            "innsendt_av_arrangor_tidspunkt",
+            "utbetales_tidligst_tidspunkt",
+            "korreksjon_gjelder_utbetaling_id",
+            "beregning_type",
+            "belop_beregnet",
+            "valuta",
+          ]
+        },
+        { table = "utbetaling_status_type" },
+        {
+          table = "utbetaling_linje",
+          columns = [
+            "id",
+            "utbetaling_id",
+            "tilsagn_id",
+            "created_at",
+            "updated_at",
+            "lopenummer",
+            "gjor_opp_tilsagn",
+            "status",
+            "fakturanummer",
+            "faktura_sendt_tidspunkt",
+            "faktura_status_endret_tidspunkt",
+            "faktura_status",
+            "datastream_periode_start",
+            "datastream_periode_slutt",
+            "belop",
+            "valuta",
+          ]
+        },
+        { table = "utbetaling_linje_status_type" },
+        {
+          table = "totrinnskontroll",
+          columns = [
+            "id",
+            "entity_id",
+            "behandlet_tidspunkt",
+            "behandlet_av",
+            "besluttet_av",
+            "besluttet_tidspunkt",
+            "besluttelse",
+          ]
+        },
+        {
+          table = "del_med_bruker",
+          columns = [
+            "id",
+            "tiltakstype_id",
+            "delt_fra_fylke",
+            "delt_fra_enhet",
+            "created_at",
+          ]
+        },
+      ]
+    }
+  ]
+
+  access_roles = var.access_roles
+
+  authorized_views = [
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "tiltakstype_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "avtale_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "avtale_nav_enhet_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "gjennomforing_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "gjennomforing_nav_enhet_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "del_med_bruker_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "utdanningsprogram_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "utdanning_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "gjennomforing_utdanningsprogram_view"
+      }
+    },
+    # Grafana dataset read access:
+    {
+      view = {
+        dataset_id = var.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "tilsagn_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = var.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "utbetaling_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = var.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "utbetaling_linje_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = var.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "avtale_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = var.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "gjennomforing_view"
+      }
+    },
+  ]
+}

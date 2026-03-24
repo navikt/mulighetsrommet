@@ -1,9 +1,35 @@
+resource "google_bigquery_dataset" "grafana_views" {
+  dataset_id  = var.grafana_dataset_id
+  description = "Public views for grafana"
+  project     = var.gcp_project["project"]
+  location    = var.gcp_project["region"]
+
+  access {
+    role          = "OWNER"
+    special_group = "projectOwners"
+  }
+
+  access {
+    role          = "READER"
+    special_group = "projectReaders"
+  }
+
+  access {
+    role          = "WRITER"
+    special_group = "projectWriters"
+  }
+
+  access {
+    role          = "READER"
+    user_by_email = "grafana@nais-management-233d.iam.gserviceaccount.com"
+  }
+}
+
 module "grafana_tilsagn_view" {
   view_id             = "tilsagn_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = local.grafana_dataset_id
-  depends_on          = [module.mr_api_datastream.dataset_id]
+  dataset_id          = var.grafana_dataset_id
   view_schema = jsonencode(
     [
       { name = "id", type = "STRING", mode = "NULLABLE" },
@@ -50,20 +76,19 @@ SELECT
   tilsagn.belop_brukt,
   tilsagn.valuta,
   tiltakstype.navn as tiltakstype_navn
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilsagn` tilsagn
-  INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` gjennomforing
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_tilsagn` tilsagn
+  INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_gjennomforing` gjennomforing
     ON gjennomforing.id = tilsagn.gjennomforing_id
-  INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype
+  INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_tiltakstype` tiltakstype
     ON tiltakstype.id = gjennomforing.tiltakstype_id
 EOF
 }
 
 module "grafana_utbetaling_view" {
   view_id             = "utbetaling_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = local.grafana_dataset_id
-  depends_on          = [module.mr_api_datastream.dataset_id]
+  dataset_id          = var.grafana_dataset_id
   view_schema = jsonencode([
     { name = "id", type = "STRING", mode = "NULLABLE" },
     { name = "gjennomforing_id", type = "STRING", mode = "NULLABLE" },
@@ -98,20 +123,19 @@ SELECT
   utbetaling.belop_beregnet,
   utbetaling.valuta,
   tiltakstype.navn as tiltakstype_navn
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling` utbetaling
-  INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` gjennomforing
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_utbetaling` utbetaling
+  INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_gjennomforing` gjennomforing
     ON gjennomforing.id = utbetaling.gjennomforing_id
-  INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype
+  INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_tiltakstype` tiltakstype
     ON tiltakstype.id = gjennomforing.tiltakstype_id
 EOF
 }
 
 module "grafana_utbetaling_linje_view" {
   view_id             = "utbetaling_linje_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = local.grafana_dataset_id
-  depends_on          = [module.mr_api_datastream.dataset_id]
+  dataset_id          = var.grafana_dataset_id
   view_schema = jsonencode([
     { name = "id", type = "STRING", mode = "NULLABLE" },
     { name = "utbetaling_id", type = "STRING", mode = "NULLABLE" },
@@ -150,18 +174,17 @@ SELECT
   linje.belop,
   linje.valuta,
   totrinnskontroll.besluttet_av
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling_linje` linje
-  INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_totrinnskontroll` totrinnskontroll
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_utbetaling_linje` linje
+  INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_totrinnskontroll` totrinnskontroll
   ON (totrinnskontroll.entity_id = linje.id and totrinnskontroll.besluttelse = 'GODKJENT')
 EOF
 }
 
 module "grafana_avtale_view" {
   view_id             = "avtale_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = local.grafana_dataset_id
-  depends_on          = [module.mr_api_datastream.dataset_id]
+  dataset_id          = var.grafana_dataset_id
   view_schema = jsonencode([
     { name = "id", type = "STRING", mode = "NULLABLE" },
     { name = "tiltakstype_id", type = "STRING", mode = "NULLABLE" },
@@ -204,18 +227,17 @@ SELECT
   avtale.opsjonsmodell,
   avtale.opsjon_custom_opsjonsmodell_navn,
   tiltakstype.navn as tiltakstype_navn
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_avtale` avtale
-  INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_avtale` avtale
+  INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_tiltakstype` tiltakstype
     ON tiltakstype.id = avtale.tiltakstype_id
 EOF
 }
 
 module "grafana_gjennomforing_view" {
   view_id             = "gjennomforing_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = local.grafana_dataset_id
-  depends_on          = [module.mr_api_datastream.dataset_id]
+  dataset_id          = var.grafana_dataset_id
   view_schema = jsonencode([
     { name = "id", type = "STRING", mode = "NULLABLE" },
     { name = "tiltakstype_id", type = "STRING", mode = "NULLABLE" },
@@ -268,10 +290,10 @@ SELECT
   gjennomforing.tilgjengelig_for_arrangor_dato,
   prismodell.prismodell_type,
   tiltakstype.navn as tiltakstype_navn
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` gjennomforing
-  INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_gjennomforing` gjennomforing
+  INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_tiltakstype` tiltakstype
     ON tiltakstype.id = gjennomforing.tiltakstype_id
-  INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_prismodell` prismodell
+  INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_prismodell` prismodell
     ON prismodell.id = gjennomforing.prismodell_id
 EOF
 }
