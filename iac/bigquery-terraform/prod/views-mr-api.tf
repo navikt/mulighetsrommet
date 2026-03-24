@@ -1,8 +1,8 @@
 module "mr_api_tiltakstype_view" {
+  view_id             = "tiltakstype_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = module.mr_api_datastream.dataset_id
-  view_id             = "tiltakstype_view"
   view_schema = jsonencode(
     [
       {
@@ -43,10 +43,10 @@ EOF
 }
 
 module "mr_api_avtale_view" {
+  view_id             = "avtale_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = module.mr_api_datastream.dataset_id
-  view_id             = "avtale_view"
   view_schema = jsonencode(
     [
       {
@@ -128,10 +128,10 @@ EOF
 }
 
 module "mr_api_gjennomforing_view" {
+  view_id             = "gjennomforing_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = module.mr_api_datastream.dataset_id
-  view_id             = "gjennomforing_view"
   view_schema = jsonencode(
     [
       {
@@ -213,10 +213,10 @@ EOF
 }
 
 module "mr_api_gjennomforing_nav_enhet_view" {
+  view_id             = "gjennomforing_nav_enhet_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = module.mr_api_datastream.dataset_id
-  view_id             = "gjennomforing_nav_enhet_view"
   view_schema = jsonencode(
     [
       {
@@ -242,10 +242,10 @@ EOF
 }
 
 module "mr_api_avtale_nav_enhet_view" {
+  view_id             = "avtale_nav_enhet_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = module.mr_api_datastream.dataset_id
-  view_id             = "avtale_nav_enhet_view"
   view_schema = jsonencode(
     [
       {
@@ -271,10 +271,10 @@ EOF
 }
 
 module "mr_api_del_med_bruker_view" {
+  view_id             = "del_med_bruker_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = module.mr_api_datastream.dataset_id
-  view_id             = "del_med_bruker_view"
   view_schema = jsonencode(
     [
       {
@@ -335,10 +335,10 @@ EOF
 }
 
 module "mr_api_utdanningsprogram_view" {
+  view_id             = "utdanningsprogram_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = module.mr_api_datastream.dataset_id
-  view_id             = "utdanningsprogram_view"
   view_schema = jsonencode(
     [
       {
@@ -402,10 +402,10 @@ EOF
 
 
 module "mr_api_utdanning_view" {
+  view_id             = "utdanning_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = module.mr_api_datastream.dataset_id
-  view_id             = "utdanning_view"
   view_schema = jsonencode(
     [
       {
@@ -467,10 +467,10 @@ EOF
 }
 
 module "mr_api_gjennomforing_utdanningsprogram_view" {
+  view_id             = "gjennomforing_utdanningsprogram_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = module.mr_api_datastream.dataset_id
-  view_id             = "gjennomforing_utdanningsprogram_view"
   view_schema = jsonencode(
     [
       {

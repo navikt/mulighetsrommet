@@ -1,8 +1,8 @@
 module "grafana_tilsagn_view" {
+  view_id             = "tilsagn_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = local.grafana_dataset_id
-  view_id             = "tilsagn_view"
   depends_on          = [module.mr_api_datastream.dataset_id]
   view_schema = jsonencode(
     [
@@ -59,10 +59,10 @@ EOF
 }
 
 module "grafana_utbetaling_view" {
+  view_id             = "utbetaling_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = local.grafana_dataset_id
-  view_id             = "utbetaling_view"
   depends_on          = [module.mr_api_datastream.dataset_id]
   view_schema = jsonencode([
     { name = "id", type = "STRING", mode = "NULLABLE" },
@@ -106,11 +106,11 @@ FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.publi
 EOF
 }
 
-module "grafana_delutbetaling_view" {
+module "grafana_utbetaling_linje_view" {
+  view_id             = "utbetaling_linje_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = local.grafana_dataset_id
-  view_id             = "delutbetaling_view"
   depends_on          = [module.mr_api_datastream.dataset_id]
   view_schema = jsonencode([
     { name = "id", type = "STRING", mode = "NULLABLE" },
@@ -133,34 +133,34 @@ module "grafana_delutbetaling_view" {
   ])
   view_query = <<EOF
 SELECT
-  delutbetaling.id,
-  delutbetaling.utbetaling_id,
-  delutbetaling.tilsagn_id,
-  delutbetaling.created_at,
-  delutbetaling.updated_at,
-  delutbetaling.lopenummer,
-  delutbetaling.gjor_opp_tilsagn,
-  delutbetaling.status,
-  delutbetaling.fakturanummer,
-  delutbetaling.faktura_sendt_tidspunkt,
-  delutbetaling.faktura_status_endret_tidspunkt,
-  delutbetaling.faktura_status,
-  delutbetaling.datastream_periode_start,
-  delutbetaling.datastream_periode_slutt,
-  delutbetaling.belop,
-  delutbetaling.valuta,
+  linje.id,
+  linje.utbetaling_id,
+  linje.tilsagn_id,
+  linje.created_at,
+  linje.updated_at,
+  linje.lopenummer,
+  linje.gjor_opp_tilsagn,
+  linje.status,
+  linje.fakturanummer,
+  linje.faktura_sendt_tidspunkt,
+  linje.faktura_status_endret_tidspunkt,
+  linje.faktura_status,
+  linje.datastream_periode_start,
+  linje.datastream_periode_slutt,
+  linje.belop,
+  linje.valuta,
   totrinnskontroll.besluttet_av
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_delutbetaling` delutbetaling
+FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling_linje` linje
   INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_totrinnskontroll` totrinnskontroll
-  ON (totrinnskontroll.entity_id = delutbetaling.id and totrinnskontroll.besluttelse = 'GODKJENT')
+  ON (totrinnskontroll.entity_id = linje.id and totrinnskontroll.besluttelse = 'GODKJENT')
 EOF
 }
 
 module "grafana_avtale_view" {
+  view_id             = "avtale_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = local.grafana_dataset_id
-  view_id             = "avtale_view"
   depends_on          = [module.mr_api_datastream.dataset_id]
   view_schema = jsonencode([
     { name = "id", type = "STRING", mode = "NULLABLE" },
@@ -211,10 +211,10 @@ EOF
 }
 
 module "grafana_gjennomforing_view" {
+  view_id             = "gjennomforing_view"
   source              = "../modules/google-bigquery-view"
   deletion_protection = false
   dataset_id          = local.grafana_dataset_id
-  view_id             = "gjennomforing_view"
   depends_on          = [module.mr_api_datastream.dataset_id]
   view_schema = jsonencode([
     { name = "id", type = "STRING", mode = "NULLABLE" },
