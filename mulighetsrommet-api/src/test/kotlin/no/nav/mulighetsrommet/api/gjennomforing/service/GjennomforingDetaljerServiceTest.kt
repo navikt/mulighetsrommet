@@ -147,6 +147,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 filter = AdminTiltaksgjennomforingFilter(search = "Oppfølging"),
             )
 
+            println(file.name)
+
             WorkbookFactory.create(file.inputStream()).use { workbook ->
                 val sheet = workbook.getSheetAt(0)
 
