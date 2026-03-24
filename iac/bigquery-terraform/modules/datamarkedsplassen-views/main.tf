@@ -1,8 +1,8 @@
 module "mr_api_tiltakstype_view" {
   view_id             = "tiltakstype_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -37,16 +37,16 @@ SELECT
   navn,
   tiltakskode,
   arena_kode as arena_tiltakskode
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype`
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_tiltakstype`
 WHERE tiltakskode IS NOT NULL
 EOF
 }
 
 module "mr_api_avtale_view" {
   view_id             = "avtale_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -130,15 +130,15 @@ SELECT
   created_at as opprettet_tidspunkt,
   updated_at as oppdatert_tidspunkt,
   avbrutt_tidspunkt
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_avtale`
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_avtale`
 EOF
 }
 
 module "mr_api_gjennomforing_view" {
   view_id             = "gjennomforing_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -208,15 +208,15 @@ SELECT
   status,
   created_at as opprettet_tidspunkt,
   updated_at as oppdatert_tidspunkt
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing`
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_gjennomforing`
 EOF
 }
 
 module "mr_api_gjennomforing_nav_enhet_view" {
   view_id             = "gjennomforing_nav_enhet_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -237,15 +237,15 @@ module "mr_api_gjennomforing_nav_enhet_view" {
 SELECT
   gjennomforing_id,
   enhetsnummer,
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing_nav_enhet`
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_gjennomforing_nav_enhet`
 EOF
 }
 
 module "mr_api_avtale_nav_enhet_view" {
   view_id             = "avtale_nav_enhet_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -266,15 +266,15 @@ module "mr_api_avtale_nav_enhet_view" {
 SELECT
   avtale_id,
   enhetsnummer,
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_avtale_nav_enhet`
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_avtale_nav_enhet`
 EOF
 }
 
 module "mr_api_del_med_bruker_view" {
   view_id             = "del_med_bruker_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -324,9 +324,9 @@ SELECT
   del_med_bruker.delt_fra_enhet,
   del_med_bruker.created_at AS delt_tidspunkt
 FROM
-  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_del_med_bruker` del_med_bruker
+  `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_del_med_bruker` del_med_bruker
 JOIN
-  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype
+  `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_tiltakstype` tiltakstype
 ON
   del_med_bruker.tiltakstype_id = tiltakstype.id
 WHERE
@@ -336,9 +336,9 @@ EOF
 
 module "mr_api_utdanningsprogram_view" {
   view_id             = "utdanningsprogram_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -395,17 +395,15 @@ SELECT
   created_at as opprettet_tidspunkt,
   updated_at as oppdatert_tidspunkt
 FROM
-  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utdanningsprogram`
+  `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_utdanningsprogram`
 EOF
 }
 
-
-
 module "mr_api_utdanning_view" {
   view_id             = "utdanning_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -462,15 +460,15 @@ SELECT
   created_at as opprettet_tidspunkt,
   updated_at as oppdatert_tidspunkt
 FROM
-  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utdanning`
+  `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_utdanning`
 EOF
 }
 
 module "mr_api_gjennomforing_utdanningsprogram_view" {
   view_id             = "gjennomforing_utdanningsprogram_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -498,17 +496,17 @@ select
     g.id as gjennomforing_id,
     ok.utdanningsprogram_id,
     oku.utdanning_id
-from `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_opplaring_kategorisering` ok
-inner join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_opplaring_kategorisering_utdanning` oku on ok.id = oku.opplaring_kategorisering_id
-inner join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` g on g.id = ok.id;
+from `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_opplaring_kategorisering` ok
+inner join `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_opplaring_kategorisering_utdanning` oku on ok.id = oku.opplaring_kategorisering_id
+inner join `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_gjennomforing` g on g.id = ok.id;
 EOF
 }
 
 module "mr_api_gjennomforing_enkeltplass_godkjenn_okonomi_view" {
   view_id             = "gjennomforing_enkeltplass_godkjenn_okonomi_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -567,7 +565,7 @@ with siste_totrinnskontroll as (
         status,
         behandlet_tidspunkt,
         besluttet_tidspunkt
-    from `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_totrinnskontroll`
+    from `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_totrinnskontroll`
     where type in ('ENKELTPLASS_OKONOMI', 'ENKELTPLASS_PRISENDRING')
         order by behandlet_tidspunkt desc, id desc
 )
@@ -580,8 +578,8 @@ select
     tk.status as totrinnskontroll_status,
     tk.behandlet_tidspunkt as totrinnskontroll_behandlet_tidspunkt,
     tk.besluttet_tidspunkt as totrinnskontroll_besluttet_tidspunkt
-from `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` g
-inner join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_prismodell` p on p.id = g.prismodell_id
+from `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_gjennomforing` g
+inner join `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_prismodell` p on p.id = g.prismodell_id
 inner join siste_totrinnskontroll tk on tk.entity_id = g.id
 where g.gjennomforing_type = 'ENKELTPLASS'
 order by g.id, tk.behandlet_tidspunkt desc;
@@ -590,9 +588,9 @@ EOF
 
 module "mr_api_tilsagn_enkeltplass_view" {
   view_id             = "tilsagn_enkeltplass_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -684,12 +682,12 @@ SELECT
     tk.status AS totrinnskontroll_status,
     tk.behandlet_tidspunkt AS totrinnskontroll_behandlet_tidspunkt,
     tk.besluttet_tidspunkt AS totrinnskontroll_besluttet_tidspunkt
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilsagn` AS t
-INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` AS g
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_tilsagn` AS t
+INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_gjennomforing` AS g
     ON t.gjennomforing_id = g.id
-INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_prismodell` AS p
+INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_prismodell` AS p
     ON p.id = g.prismodell_id
-INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_totrinnskontroll` AS tk
+INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_totrinnskontroll` AS tk
     ON tk.entity_id = t.id
 WHERE g.gjennomforing_type = 'ENKELTPLASS'
 ORDER BY
@@ -703,9 +701,9 @@ EOF
 
 module "mr_api_utbetaling_enkeltplass_view" {
   view_id             = "utbetaling_enkeltplass_view"
-  source              = "../modules/google-bigquery-view"
+  source              = "../google-bigquery-view"
   deletion_protection = false
-  dataset_id          = module.mr_api_datastream.dataset_id
+  dataset_id          = var.mr_api_datastream_dataset_id
   view_schema = jsonencode(
     [
       {
@@ -768,10 +766,10 @@ u.id AS utbetaling_id,
 u.status AS utbetaling_status,
 u.tilskuddstype AS utbetaling_tilskuddstype,
 u.beregning_type AS utbetaling_beregning_type
-FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling` AS u
-INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` AS g
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_utbetaling` AS u
+INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_gjennomforing` AS g
     ON u.gjennomforing_id = g.id
-INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_prismodell` AS p
+INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_prismodell` AS p
     ON p.id = g.prismodell_id
 WHERE g.gjennomforing_type = 'ENKELTPLASS'
 ORDER BY
