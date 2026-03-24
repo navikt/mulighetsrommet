@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.get
+import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -76,7 +76,10 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("401 Unauthorized for uautentisert kall") {
             withTestApplication(appConfig()) {
-                val response = client.get("/api/tiltaksadministrasjon/gjennomforinger")
+                val response = client.post("/api/tiltaksadministrasjon/gjennomforinger") {
+                    contentType(ContentType.Application.Json)
+                    setBody("{}")
+                }
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
@@ -85,8 +88,10 @@ class GjennomforingRoutesTest : FunSpec({
             withTestApplication(appConfig()) {
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(gjennomforingSkrivRolle))
 
-                val response = client.get("/api/tiltaksadministrasjon/gjennomforinger") {
+                val response = client.post("/api/tiltaksadministrasjon/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody("{}")
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
@@ -98,11 +103,35 @@ class GjennomforingRoutesTest : FunSpec({
             withTestApplication(appConfig()) {
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
-                val response = client.get("/api/tiltaksadministrasjon/gjennomforinger") {
+                val response = client.post("/api/tiltaksadministrasjon/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody("{}")
                 }
 
                 response.status shouldBe HttpStatusCode.OK
+            }
+        }
+
+        test("200 OK for excel nedlasting med request body") {
+            withTestApplication(appConfig()) {
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
+
+                val response = client.post("/api/tiltaksadministrasjon/gjennomforinger/excel") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
+                          "search": "donald",
+                          "statuser": ["GJENNOMFORES"]
+                        }
+                        """.trimIndent(),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+                response.contentType() shouldBe ContentType.Application.Xlsx
             }
         }
     }

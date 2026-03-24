@@ -15,7 +15,7 @@ export const QueryKeys = {
   oppgaver: (filter?: object) => ["oppgaver", { ...filter }] as const,
   oppgavetyper: () => ["oppgaver", "oppgavetyper"] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
-  gjennomforinger: (filter?: Pick<GetGjennomforingerData, "query">) =>
+  gjennomforinger: (filter?: Pick<GetGjennomforingerData, "body" | "query">) =>
     ["gjennomforinger", filter].filter((entry) => entry !== undefined),
   gjennomforing: (id?: string) => ["gjennomforing", id] as const,
   gjennomforingHandlinger: (id: string) => ["gjennomforing-handlinger", id] as const,

@@ -923,124 +923,6 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger:
-    get:
-      tags:
-      - Gjennomforing
-      operationId: getGjennomforinger
-      parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingStatusType"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: avtaleId
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      - name: publisert
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: visMineGjennomforinger
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: page
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: size
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: sort
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: gjennomforingTyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingType"
-      responses:
-        "200":
-          description: Gjennomføringer filtrert på query parameters
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginatedResponse_GjennomforingKompaktDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
     put:
       tags:
       - Gjennomforing
@@ -1067,6 +949,58 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    post:
+      tags:
+      - Gjennomforing
+      operationId: getGjennomforinger
+      parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: gjennomforingTyper
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingType"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetGjennomforingerRequest"
+        required: false
+      responses:
+        "200":
+          description: Gjennomføringer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse_GjennomforingKompaktDto"
         default:
           description: Problem details
           headers: {}
@@ -1329,76 +1263,11 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger/excel:
-    get:
+    post:
       tags:
       - Gjennomforing
       operationId: lastNedGjennomforingerSomExcel
       parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingStatusType"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: avtaleId
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      - name: publisert
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: visMineGjennomforinger
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
       - name: page
         in: query
         required: false
@@ -1415,16 +1284,15 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: sort
-        in: query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetGjennomforingerRequest"
         required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
       responses:
         "200":
-          description: Gjennomføringer filtrert på query parameters
+          description: Gjennomføringer eksportert til Excel
           headers: {}
           content:
             application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
@@ -3258,7 +3126,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 5
+        - 6
     TiltakstypeDto:
       type: object
       properties:
@@ -5237,6 +5105,61 @@ components:
       - ARENA
       - AVTALE
       - ENKELTPLASS
+    GetGjennomforingerRequest:
+      type: object
+      properties:
+        search:
+          type:
+          - "null"
+          - string
+        navEnheter:
+          type: array
+          items:
+            type: string
+        tiltakstyper:
+          type: array
+          items:
+            type: string
+            format: uuid
+        statuser:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingStatusType"
+        sort:
+          type:
+          - "null"
+          - string
+        avtaleId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        arrangorer:
+          type: array
+          items:
+            type: string
+            format: uuid
+        publisert:
+          type:
+          - "null"
+          - boolean
+        visMineGjennomforinger:
+          type: boolean
+        gjennomforingTyper:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingType"
+      required:
+      - arrangorer
+      - avtaleId
+      - gjennomforingTyper
+      - navEnheter
+      - publisert
+      - search
+      - sort
+      - statuser
+      - tiltakstyper
+      - visMineGjennomforinger
     GjennomforingKompaktDto:
       type: object
       properties:
