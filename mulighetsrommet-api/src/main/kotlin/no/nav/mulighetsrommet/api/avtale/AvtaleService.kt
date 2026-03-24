@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
@@ -24,9 +25,11 @@ import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
 import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
+import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDtoMapper
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
@@ -39,8 +42,13 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
+import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.validation.validation
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -50,11 +58,14 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import java.io.File
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import kotlin.io.path.createTempFile
+import kotlin.io.path.outputStream
 
 class AvtaleService(
     private val config: Config,
@@ -260,10 +271,6 @@ class AvtaleService(
         logEndring("Rammedetaljer slettet", id, navIdent)
     }
 
-    fun get(id: UUID): Avtale? = db.session {
-        queries.avtale.get(id)
-    }
-
     fun avsluttAvtale(id: UUID, avsluttetTidspunkt: LocalDateTime, endretAv: Agent) = db.transaction {
         val avtale = getOrError(id)
 
@@ -380,6 +387,44 @@ class AvtaleService(
         queries.avtale.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId)
 
         logEndring("Kontaktperson ble fjernet fra avtalen", avtaleId, navIdent)
+    }
+
+    fun get(id: UUID): Avtale? = db.session {
+        queries.avtale.get(id)
+    }
+
+    fun getAll(pagination: Pagination, filter: AvtaleFilter): PaginatedResponse<AvtaleDto> = db.session {
+        val (totalCount, items) = queries.avtale.getAll(
+            pagination = pagination,
+            tiltakstypeIder = filter.tiltakstypeIder,
+            search = filter.search,
+            statuser = filter.statuser,
+            avtaletyper = filter.avtaletyper,
+            navEnheter = filter.navEnheter,
+            sortering = filter.sortering,
+            arrangorIds = filter.arrangorIds,
+            administratorNavIdent = filter.administratorNavIdent,
+            personvernBekreftet = filter.personvernBekreftet,
+        )
+
+        PaginatedResponse.of(pagination, totalCount, items.map { AvtaleDtoMapper.fromAvtale(it) })
+    }
+
+    fun exportToExcel(
+        pagination: Pagination,
+        filter: AvtaleFilter,
+    ): File {
+        val avtaler = getAll(pagination, filter)
+
+        val workbook = buildExcelWorkbook {
+            createAvtalerSheet(avtaler.data)
+        }
+
+        return workbook.use {
+            val file = createTempFile("avtaler-", ".xlsx")
+            file.outputStream().use(it::write)
+            file.toFile()
+        }
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
@@ -561,6 +606,34 @@ class AvtaleService(
                 AvtaleHandling.OPPRETT,
                 -> ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)
             }
+        }
+    }
+}
+
+private fun ExcelWorkbookBuilder.createAvtalerSheet(
+    result: List<AvtaleDto>,
+) = sheet("Avtaler") {
+    header(
+        "Avtalenavn",
+        "Tiltakstype",
+        "Avtalenummer",
+        "Tiltaksarrangør",
+        "Tiltaksarrangør orgnr",
+        "Startdato",
+        "Sluttdato",
+    )
+
+    result.forEach { avtale ->
+        row {
+            listOf(
+                avtale.navn,
+                avtale.tiltakstype.navn,
+                avtale.avtalenummer,
+                avtale.arrangor?.navn,
+                avtale.arrangor?.organisasjonsnummer?.value,
+                avtale.startDato.formaterDatoTilEuropeiskDatoformat(),
+                avtale.sluttDato?.formaterDatoTilEuropeiskDatoformat(),
+            )
         }
     }
 }

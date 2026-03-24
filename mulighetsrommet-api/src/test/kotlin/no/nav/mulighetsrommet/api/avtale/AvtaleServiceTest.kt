@@ -18,6 +18,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
@@ -46,6 +47,7 @@ import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -53,6 +55,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -638,6 +641,28 @@ class AvtaleServiceTest : FunSpec({
                 .should {
                     it.opsjonerRegistrert.shouldBeEmpty()
                 }
+        }
+    }
+
+    context("hent avtaler") {
+        test("kan generere excel for avtaler") {
+            MulighetsrommetTestDomain(avtaler = listOf(AvtaleFixtures.oppfolging)).initialize(database.db)
+            val avtaleService = createAvtaleService()
+
+            val file = avtaleService.exportToExcel(
+                pagination = Pagination.all(),
+                filter = AvtaleFilter(),
+            )
+
+            WorkbookFactory.create(file.inputStream()).use { workbook ->
+                val sheet = workbook.getSheetAt(0)
+
+                sheet.getRow(0).getCell(0).stringCellValue shouldBe "Avtalenavn"
+                sheet.getRow(0).getCell(1).stringCellValue shouldBe "Tiltakstype"
+
+                sheet.lastRowNum shouldBe 1
+                sheet.getRow(1).getCell(0).stringCellValue shouldBe AvtaleFixtures.oppfolging.detaljerDbo.navn
+            }
         }
     }
 })

@@ -38,7 +38,6 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -468,22 +467,7 @@ fun Route.avtaleRoutes() {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
 
-            val result = db.session {
-                val (totalCount, items) = queries.avtale.getAll(
-                    pagination = pagination,
-                    tiltakstypeIder = filter.tiltakstypeIder,
-                    search = filter.search,
-                    statuser = filter.statuser,
-                    avtaletyper = filter.avtaletyper,
-                    navEnheter = filter.navEnheter,
-                    sortering = filter.sortering,
-                    arrangorIds = filter.arrangorIds,
-                    administratorNavIdent = filter.administratorNavIdent,
-                    personvernBekreftet = filter.personvernBekreftet,
-                )
-
-                PaginatedResponse.of(pagination, totalCount, items.map { AvtaleDtoMapper.fromAvtale(it) })
-            }
+            val result = avtaleService.getAll(pagination, filter)
 
             call.respond(result)
         }
@@ -530,22 +514,7 @@ fun Route.avtaleRoutes() {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
 
-            val avtaler = db.session {
-                queries.avtale.getAll(
-                    pagination = pagination,
-                    tiltakstypeIder = filter.tiltakstypeIder,
-                    search = filter.search,
-                    statuser = filter.statuser,
-                    avtaletyper = filter.avtaletyper,
-                    navEnheter = filter.navEnheter,
-                    sortering = "tiltakstype_navn-ascending",
-                    arrangorIds = filter.arrangorIds,
-                    administratorNavIdent = filter.administratorNavIdent,
-                    personvernBekreftet = filter.personvernBekreftet,
-                )
-            }
-
-            val file = ExcelService.createExcelFileForAvtale(avtaler.items)
+            val file = avtaleService.exportToExcel(pagination, filter)
 
             call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
             call.response.header(
