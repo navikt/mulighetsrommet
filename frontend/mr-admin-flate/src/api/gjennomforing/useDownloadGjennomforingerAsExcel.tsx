@@ -4,18 +4,22 @@ import { GjennomforingService } from "@tiltaksadministrasjon/api-client";
 import { useDownloadFile } from "@/api/useDownloadFile";
 
 export function useDownloadGjennomforingerAsExcel(filter: GjennomforingFilterType) {
-  const query = {
-    search: filter.search || undefined,
+  const body = {
+    search: filter.search || null,
     navEnheter: filter.navEnheter,
     tiltakstyper: filter.tiltakstyper,
     statuser: filter.statuser,
-    avtaleId: filter.avtale,
+    gjennomforingTyper: filter.gjennomforingTyper,
+    avtaleId: filter.avtale || null,
     arrangorer: filter.arrangorer,
     visMineGjennomforinger: filter.visMineGjennomforinger,
-    size: filter.pageSize,
-    sort: filter.sortering.sortString,
-    publisert: getPublisertStatus(filter.publisert),
+    sort: filter.sortering.sortString || null,
+    publisert: getPublisertStatus(filter.publisert) ?? null,
   };
 
-  return useDownloadFile(() => GjennomforingService.lastNedGjennomforingerSomExcel({ query }));
+  const query = { page: filter.page, size: filter.pageSize };
+
+  return useDownloadFile(() =>
+    GjennomforingService.lastNedGjennomforingerSomExcel({ body, query }),
+  );
 }
