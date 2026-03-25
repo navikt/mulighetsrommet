@@ -5,7 +5,7 @@ import {
   SetTilgjengligForArrangorRequest,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { Alert, Button, Dialog, Heading, HStack } from "@navikt/ds-react";
+import { BodyShort, Button, Dialog, HStack, InfoCard } from "@navikt/ds-react";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { formaterDato, maxOf, subDuration } from "@mr/frontend-common/utils/date";
@@ -52,53 +52,56 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     ? new Date(gjennomforing.tilgjengeligForArrangorDato)
     : maxOf([subDuration(gjennomforingStartDato, { days: 14 }), today]);
 
+  const id = "form-tilgjengelig-for-arrangor";
+
   return (
-    <Alert variant="info">
-      <Heading level="4" size="small">
-        Når ser arrangør tiltaket?
-      </Heading>
+    <InfoCard>
+      <InfoCard.Header>
+        <InfoCard.Title>Når ser arrangør tiltaket?</InfoCard.Title>
+      </InfoCard.Header>
+      <InfoCard.Content>
+        <BodyShort spacing>
+          Arrangør har tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
+          <b>{formaterDato(tilgjengeligForArrangorDato)}</b>.
+        </BodyShort>
 
-      <p>
-        Arrangør har tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
-        <b>{formaterDato(tilgjengeligForArrangorDato)}</b>.
-      </p>
+        {handlinger.includes(GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR) && (
+          <Button size="small" variant="secondary" onClick={() => setOpen(true)}>
+            Endre dato
+          </Button>
+        )}
 
-      {handlinger.includes(GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR) && (
-        <Button size="small" variant="secondary" onClick={() => setOpen(true)}>
-          Endre dato
-        </Button>
-      )}
-
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <Dialog.Popup>
-          <Dialog.Header withClosebutton={false}>
-            <Dialog.Title>Når skal arrangør ha tilgang til tiltaket?</Dialog.Title>
-          </Dialog.Header>
-          <Dialog.Body>
-            <FormProvider {...form}>
-              <form id="form-tilgjengelig-for-arrangor" onSubmit={submit}>
-                <HStack gap="space-8" align={"end"} justify={"center"}>
-                  <FormDateInput<SetTilgjengligForArrangorRequest>
-                    label="Når skal arrangør ha tilgang?"
-                    name="tilgjengeligForArrangorDato"
-                    fromDate={today}
-                    toDate={gjennomforingStartDato}
-                  />
-                </HStack>
-              </form>
-            </FormProvider>
-          </Dialog.Body>
-          <Dialog.Footer>
-            <Button type="button" variant="secondary" size="small" onClick={resetForm}>
-              Avbryt
-            </Button>
-            <Button form="form-tilgjengelig-for-arrangor" size="small">
-              Endre dato
-            </Button>
-          </Dialog.Footer>
-        </Dialog.Popup>
-      </Dialog>
-    </Alert>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+          <Dialog.Popup>
+            <Dialog.Header withClosebutton={false}>
+              <Dialog.Title>Når skal arrangør ha tilgang til tiltaket?</Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body>
+              <FormProvider {...form}>
+                <form id={id} onSubmit={submit}>
+                  <HStack gap="space-8" align={"end"} justify={"center"}>
+                    <FormDateInput<SetTilgjengligForArrangorRequest>
+                      label="Når skal arrangør ha tilgang?"
+                      name="tilgjengeligForArrangorDato"
+                      fromDate={today}
+                      toDate={gjennomforingStartDato}
+                    />
+                  </HStack>
+                </form>
+              </FormProvider>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Button type="button" variant="secondary" size="small" onClick={resetForm}>
+                Avbryt
+              </Button>
+              <Button form={id} size="small">
+                Endre dato
+              </Button>
+            </Dialog.Footer>
+          </Dialog.Popup>
+        </Dialog>
+      </InfoCard.Content>
+    </InfoCard>
   );
 }
 
