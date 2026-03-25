@@ -50,6 +50,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
@@ -226,7 +227,7 @@ fun Route.gjennomforingRoutes() {
                 val response = avtaleGjennomforinger
                     .setTilgjengeligForArrangorDato(
                         id,
-                        request.tilgjengeligForArrangorDato,
+                        request.tilgjengeligForArrangorDato?.parseOrNull(),
                         navIdent,
                     )
                     .mapLeft { ValidationError(errors = it) }
@@ -738,8 +739,7 @@ data class SetStengtHosArrangorRequest(
 
 @Serializable
 data class SetTilgjengligForArrangorRequest(
-    @Serializable(with = LocalDateSerializer::class)
-    val tilgjengeligForArrangorDato: LocalDate?,
+    val tilgjengeligForArrangorDato: String?,
 )
 
 @Serializable
