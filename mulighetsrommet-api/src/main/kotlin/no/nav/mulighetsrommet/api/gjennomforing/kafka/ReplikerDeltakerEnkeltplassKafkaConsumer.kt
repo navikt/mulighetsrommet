@@ -28,6 +28,6 @@ class ReplikerDeltakerEnkeltplassKafkaConsumer(
             return
         }
 
-        service.handleChangeDeltaker(amtDeltaker)
+        service.upsertFromDeltaker(amtDeltaker)
     }
 }

@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdentHasher
@@ -45,6 +46,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
             service = GjennomforingEnkeltplassService(
                 GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
                 database.db,
+                TiltakstypeService(db = database.db),
                 deltakerClient,
             ),
         )
