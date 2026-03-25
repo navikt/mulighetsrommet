@@ -76,6 +76,28 @@ class AvtaleRoutesTest : FunSpec({
                 response.status shouldBe HttpStatusCode.OK
             }
         }
+
+        test("200 OK for excel nedlasting med request body") {
+            withTestApplication(appConfig()) {
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
+
+                val response = client.post("/api/tiltaksadministrasjon/avtaler/excel") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
+                          "search": "donald",
+                          "statuser": ["AKTIV"]
+                        }
+                        """.trimIndent(),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+                response.contentType() shouldBe ContentType.Application.Xlsx
+            }
+        }
     }
 
     context("opprett avtale") {

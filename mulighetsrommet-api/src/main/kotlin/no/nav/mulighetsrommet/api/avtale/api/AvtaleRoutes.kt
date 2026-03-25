@@ -52,7 +52,6 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
-import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -454,35 +453,17 @@ fun Route.avtaleRoutes() {
             call.respond(result)
         }
 
-        get("/excel", {
+        post("/excel", {
             tags = setOf("Avtale")
             operationId = "lastNedAvtalerSomExcel"
             request {
-                queryParameter<String>("search")
-                queryParameter<List<String>>("tiltakstyper") {
-                    explode = true
-                }
-                queryParameter<List<AvtaleStatusType>>("statuser") {
-                    explode = true
-                }
-                queryParameter<List<Avtaletype>>("avtaletyper") {
-                    explode = true
-                }
-                queryParameter<List<NavEnhetNummer>>("navEnheter") {
-                    explode = true
-                }
-                queryParameter<List<String>>("arrangorer") {
-                    explode = true
-                }
-                queryParameter<Boolean>("personvernBekreftet")
-                queryParameter<Boolean>("visMineAvtaler")
                 queryParameter<Int>("page")
                 queryParameter<Int>("size")
-                queryParameter<String>("sort")
+                body<GetAvtalerRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Avtaler filtrert på query parameters"
+                    description = "Avtaler eksportert til Excel"
                     body<ByteArray> {
                         mediaTypes(ContentType.Application.Xlsx)
                     }
@@ -494,7 +475,7 @@ fun Route.avtaleRoutes() {
             }
         }) {
             val pagination = getPaginationParams()
-            val filter = getAvtaleFilterFromQueryParams()
+            val filter = getAvtaleFilter()
 
             val file = avtaleService.exportToExcel(pagination, filter)
 
@@ -657,36 +638,6 @@ suspend fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
         arrangorIds = request.arrangorer,
         administratorNavIdent = administratorNavIdent,
         personvernBekreftet = request.personvernBekreftet,
-    )
-}
-
-fun RoutingContext.getAvtaleFilterFromQueryParams(): AvtaleFilter {
-    val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { it.toUUID() } ?: emptyList()
-    val search = call.request.queryParameters["search"]?.trim()?.takeIf { it.isNotBlank() }
-    val statuser = call.parameters.getAll("statuser")
-        ?.map { status -> AvtaleStatusType.valueOf(status) }
-        ?: emptyList()
-    val avtaletyper = call.parameters.getAll("avtaletyper")
-        ?.map { type -> Avtaletype.valueOf(type) }
-        ?: emptyList()
-    val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
-    val sortering = call.request.queryParameters["sort"]
-    val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
-    val personvernBekreftet = call.request.queryParameters["personvernBekreftet"]?.let { it == "true" }
-    val administratorNavIdent = call.parameters["visMineAvtaler"]
-        ?.takeIf { it == "true" }
-        ?.let { getNavIdent() }
-
-    return AvtaleFilter(
-        tiltakstypeIder = tiltakstypeIder,
-        search = search,
-        statuser = statuser,
-        avtaletyper = avtaletyper,
-        navEnheter = navEnheter,
-        sortering = sortering,
-        arrangorIds = arrangorIds,
-        administratorNavIdent = administratorNavIdent,
-        personvernBekreftet = personvernBekreftet,
     )
 }
 

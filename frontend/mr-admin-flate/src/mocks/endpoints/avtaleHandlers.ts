@@ -60,6 +60,16 @@ export const avtaleHandlers = [
     },
   ),
 
+  http.post("*/api/tiltaksadministrasjon/avtaler/excel", () => {
+    return new HttpResponse(new Blob(["mock excel"]), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": 'attachment; filename="avtaler.xlsx"',
+      },
+    });
+  }),
+
   http.put<{ id: string }, number>("*/api/tiltaksadministrasjon/avtaler/:id/avbryt", () => {
     return HttpResponse.json(1);
   }),
