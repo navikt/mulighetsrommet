@@ -45,15 +45,10 @@ export const avtaleHandlers = [
     },
   ),
 
-  http.get<PathParams, undefined, PaginatedResponseAvtaleDto>(
+  http.post<PathParams, undefined, PaginatedResponseAvtaleDto>(
     "*/api/tiltaksadministrasjon/avtaler",
-    ({ request }) => {
-      const url = new URL(request.url);
-      const avtalestatus = url.searchParams.get("avtalestatus");
-      const data = mockAvtaler.filter(
-        (a) => a.status.type === avtalestatus || avtalestatus === null,
-      );
-
+    () => {
+      const data = mockAvtaler;
       return HttpResponse.json({
         pagination: {
           pageSize: 15,
@@ -64,6 +59,16 @@ export const avtaleHandlers = [
       });
     },
   ),
+
+  http.post("*/api/tiltaksadministrasjon/avtaler/excel", () => {
+    return new HttpResponse(new Blob(["mock excel"]), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": 'attachment; filename="avtaler.xlsx"',
+      },
+    });
+  }),
 
   http.put<{ id: string }, number>("*/api/tiltaksadministrasjon/avtaler/:id/avbryt", () => {
     return HttpResponse.json(1);

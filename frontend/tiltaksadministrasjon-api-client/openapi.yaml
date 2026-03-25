@@ -99,116 +99,6 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/avtaler:
-    get:
-      tags:
-      - Avtale
-      operationId: getAvtaler
-      parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaleStatusType"
-      - name: avtaletyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/Avtaletype"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: personvernBekreftet
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: visMineAvtaler
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: page
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: size
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: sort
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Avtaler filtrert på query parameters
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginatedResponse_AvtaleDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
     put:
       tags:
       - Avtale
@@ -235,6 +125,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    post:
+      tags:
+      - Avtale
+      operationId: getAvtaler
+      parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetAvtalerRequest"
+        required: false
+      responses:
+        "200":
+          description: Avtaler
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse_AvtaleDto"
         default:
           description: Problem details
           headers: {}
@@ -571,77 +504,11 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/avtaler/excel:
-    get:
+    post:
       tags:
       - Avtale
       operationId: lastNedAvtalerSomExcel
       parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaleStatusType"
-      - name: avtaletyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/Avtaletype"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: personvernBekreftet
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: visMineAvtaler
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
       - name: page
         in: query
         required: false
@@ -658,16 +525,15 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: sort
-        in: query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetAvtalerRequest"
         required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
       responses:
         "200":
-          description: Avtaler filtrert på query parameters
+          description: Avtaler eksportert til Excel
           headers: {}
           content:
             application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
@@ -978,15 +844,6 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: gjennomforingTyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingType"
       requestBody:
         content:
           application/json:
@@ -3126,7 +2983,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 6
+        - 7
     TiltakstypeDto:
       type: object
       properties:
@@ -4314,6 +4171,55 @@ components:
       required:
       - aarsaker
       - forklaring
+    GetAvtalerRequest:
+      type: object
+      properties:
+        search:
+          type:
+          - "null"
+          - string
+        tiltakstyper:
+          type: array
+          items:
+            type: string
+            format: uuid
+        statuser:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaleStatusType"
+        avtaletyper:
+          type: array
+          items:
+            $ref: "#/components/schemas/Avtaletype"
+        navEnheter:
+          type: array
+          items:
+            type: string
+        arrangorer:
+          type: array
+          items:
+            type: string
+            format: uuid
+        personvernBekreftet:
+          type:
+          - "null"
+          - boolean
+        visMineAvtaler:
+          type: boolean
+        sort:
+          type:
+          - "null"
+          - string
+      required:
+      - arrangorer
+      - avtaletyper
+      - navEnheter
+      - personvernBekreftet
+      - search
+      - sort
+      - statuser
+      - tiltakstyper
+      - visMineAvtaler
     PaginationSummary:
       type: object
       properties:
