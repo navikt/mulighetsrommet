@@ -177,7 +177,9 @@ private fun getHandlingerGruppetiltak(
 ): Set<GjennomforingHandling> {
     val statusGjennomfores = gjennomforing.status == GjennomforingStatusType.GJENNOMFORES
     return setOfNotNull(
-        GjennomforingHandling.DUPLISER,
+        GjennomforingHandling.DUPLISER.takeIf {
+            gjennomforing.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE)
+        },
         GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
         GjennomforingHandling.FORHANDSVIS_I_MODIA.takeIf { statusGjennomfores },
         GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
