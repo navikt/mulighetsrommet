@@ -1,18 +1,17 @@
 import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjengeligForArrangor";
 import {
-  FieldError,
   GjennomforingAvtaleDto,
   GjennomforingHandling,
   SetTilgjengligForArrangorRequest,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Dialog, Heading, HStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { formaterDato, maxOf, subDuration } from "@mr/frontend-common/utils/date";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { FormDateInput } from "@/components/skjema/FormDateInput";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 interface Props {
   gjennomforing: GjennomforingAvtaleDto;
@@ -22,32 +21,17 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
   const [open, setOpen] = useState(false);
 
   const handlinger = useGjennomforingHandlinger(gjennomforing.id);
-  const setTilgjengeligForArrangorMutation = useSetTilgjengeligForArrangor();
+  const setTilgjengeligForArrangorMutation = useSetTilgjengeligForArrangor(gjennomforing.id);
 
   const form = useForm<SetTilgjengligForArrangorRequest>({
     defaultValues: toDefaults(gjennomforing),
   });
 
-  const onValidationError = (error: ValidationError) => {
-    error.errors.forEach((error: FieldError) => {
-      form.setError(
-        jsonPointerToFieldPath(error.pointer) as keyof SetTilgjengligForArrangorRequest,
-        {
-          type: "custom",
-          message: error.detail,
-        },
-      );
-    });
-  };
-
   const submit = form.handleSubmit(async (values) => {
-    setTilgjengeligForArrangorMutation.mutate(
-      {
-        id: gjennomforing.id,
-        dato: values.tilgjengeligForArrangorDato,
-      },
-      { onSuccess: () => setOpen(false), onValidationError },
-    );
+    setTilgjengeligForArrangorMutation.mutate(values, {
+      onSuccess: () => setOpen(false),
+      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
+    });
   });
 
   const resetForm = () => {
