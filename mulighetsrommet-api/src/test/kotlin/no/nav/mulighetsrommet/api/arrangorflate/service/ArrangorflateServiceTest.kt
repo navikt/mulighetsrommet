@@ -80,18 +80,6 @@ class ArrangorflateServiceTest : FunSpec({
         result.status shouldBe TilsagnStatus.GODKJENT
     }
 
-    test("getTilsagnByOrgnr should return list of tilsagn for arrangor") {
-        val arrangorflateService = createService()
-
-        val result = arrangorflateService.getTilsagn(
-            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
-        )
-
-        result shouldHaveSize 1
-        result[0].id shouldBe tilsagn.id
-        result[0].status shouldBe TilsagnStatus.GODKJENT
-    }
-
     test("getArrangorflateTilsagnTilUtbetaling should return tilsagn for given gjennomforing and period") {
         val arrangorflateService = createService()
 

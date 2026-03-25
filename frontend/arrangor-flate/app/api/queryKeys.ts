@@ -1,4 +1,5 @@
 import { TiltaksoversiktType } from "api-client";
+import { ArrangorflateTilsagnFilter } from "~/hooks/useArrangorflateTilsagnRader";
 import { ArrangorflateUtbetalingFilter } from "~/hooks/useArrangorflateUtbetalinger";
 
 export const queryKeys = {
@@ -6,7 +7,7 @@ export const queryKeys = {
   utbetaling: (id: string) => ["utbetaling", id] as const,
   utbetalingTilsagn: (id: string) => ["utbetaling", id, "tilsagn"] as const,
   utbetalingKvittering: (id: string) => ["utbetaling", id, "kvittering"] as const,
-  tilsagnRader: () => ["tilsagnRader"] as const,
+  tilsagnRader: (filter: ArrangorflateTilsagnFilter) => ["tilsagnRader", filter] as const,
   tilsagn: (id: string) => ["tilsagn", id] as const,
   tiltaksoversikt: (type: TiltaksoversiktType) => ["tiltaksoversikt", type] as const,
   opprettKravData: (orgnr: string, gjennomforingId: string) =>

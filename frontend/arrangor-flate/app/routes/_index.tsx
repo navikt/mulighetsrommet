@@ -1,15 +1,8 @@
 import { Link as ReactRouterLink } from "react-router";
+import { Box, Tabs, Button, HStack, PaginationProps, Search, SortState } from "@navikt/ds-react";
 import {
-  Box,
-  Tabs,
-  Button,
-  HStack,
-  InfoCard,
-  PaginationProps,
-  Search,
-  SortState,
-} from "@navikt/ds-react";
-import {
+  ArrangorflateTilsagnFilterDirection,
+  ArrangorflateTilsagnFilterOrderBy,
   ArrangorflateUtbetalingFilterDirection,
   ArrangorflateUtbetalingFilterOrderBy,
   ArrangorflateUtbetalingFilterType,
@@ -18,24 +11,22 @@ import type { MetaFunction } from "react-router";
 import { PageHeading } from "~/components/common/PageHeading";
 import { useTabState } from "~/hooks/useTabState";
 import { tekster } from "~/tekster";
-import { useDebounce, useSortableData } from "@mr/frontend-common";
+import { useDebounce } from "@mr/frontend-common";
 import { pathTo } from "~/utils/navigation";
 import { Tabellvisning } from "~/components/common/Tabellvisning";
-import {
-  paramToSortDirection,
-  paramToSortKey,
-  sortKeyToParam,
-  utbetalingKolonner,
-  UtbetalingRow,
-} from "~/components/common/UtbetalingRow";
+import { utbetalingKolonner, UtbetalingRow } from "~/components/common/UtbetalingRow";
 import { tilsagnKolonner, TilsagnRow } from "~/components/common/TilsagnRow";
 import { Suspense, useEffect, useState } from "react";
 import { Laster } from "~/components/common/Laster";
-import { useArrangorflateTilsagnRader } from "~/hooks/useArrangorflateTilsagnRader";
+import {
+  ArrangorflateTilsagnFilter,
+  useArrangorflateTilsagnRader,
+} from "~/hooks/useArrangorflateTilsagnRader";
 import {
   ArrangorflateUtbetalingFilter,
   useArrangorflateUtbetalinger,
 } from "~/hooks/useArrangorflateUtbetalinger";
+import { flipObject } from "~/utils/object";
 
 export const meta: MetaFunction = () => {
   return [
@@ -84,18 +75,6 @@ export default function Oversikt() {
   );
 }
 
-function filterToSortState({ orderBy, direction }: ArrangorflateUtbetalingFilter): SortState {
-  const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";
-  const newDirection: SortState["direction"] =
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    (direction && paramToSortDirection[direction]) || "ascending";
-
-  return {
-    orderBy: newOrderBy,
-    direction: newDirection,
-  };
-}
-
 function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilterType }) {
   const [sok, setSok] = useState("");
   const debouncedSok = useDebounce(sok, 300);
@@ -106,8 +85,6 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
     oppdaterSok,
   } = useArrangorflateUtbetalinger({ type });
 
-  const [sortState, setSortState] = useState<SortState>(filterToSortState(filter));
-
   useEffect(() => {
     oppdaterSok(debouncedSok);
   }, [debouncedSok, oppdaterSok]);
@@ -116,10 +93,37 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
     setSok("");
   }
 
-  useEffect(() => {
-    const filterSortState = filterToSortState(filter);
-    setSortState(filterSortState);
-  }, [filter, setSortState]);
+  const utbetalingSortKeyToParam: Record<string, ArrangorflateUtbetalingFilterOrderBy> = {
+    tiltakNavn: ArrangorflateUtbetalingFilterOrderBy.TILTAK,
+    arrangorNavn: ArrangorflateUtbetalingFilterOrderBy.ARRANGOR,
+    startDato: ArrangorflateUtbetalingFilterOrderBy.PERIODE,
+    belop: ArrangorflateUtbetalingFilterOrderBy.BELOP,
+    status: ArrangorflateUtbetalingFilterOrderBy.STATUS,
+  };
+
+  const paramToSortKey: Record<ArrangorflateUtbetalingFilterOrderBy, string> =
+    flipObject(utbetalingSortKeyToParam);
+
+  const paramToSortDirection: Record<
+    ArrangorflateUtbetalingFilterDirection,
+    SortState["direction"]
+  > = flipObject({
+    ascending: ArrangorflateUtbetalingFilterDirection.ASC,
+    descending: ArrangorflateUtbetalingFilterDirection.DESC,
+    none: ArrangorflateUtbetalingFilterDirection.ASC,
+  });
+
+  function filterToSortState({ orderBy, direction }: ArrangorflateUtbetalingFilter): SortState {
+    const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";
+    const newDirection: SortState["direction"] =
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      (direction && paramToSortDirection[direction]) || "ascending";
+
+    return {
+      orderBy: newOrderBy,
+      direction: newDirection,
+    };
+  }
 
   const paginationProps: PaginationProps | undefined =
     type === ArrangorflateUtbetalingFilterType.HISTORISKE
@@ -164,8 +168,8 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
       </Box>
       <Tabellvisning
         kolonner={utbetalingKolonner}
-        sort={sortState}
-        onSortChange={(key) => sortChange(sortKeyToParam[key])}
+        sort={filterToSortState(filter)}
+        onSortChange={(key) => sortChange(utbetalingSortKeyToParam[key])}
         pagination={paginationProps}
       >
         <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
@@ -179,30 +183,80 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
 }
 
 function TilsagnTabellContent() {
-  const { data: tilsagnRader } = useArrangorflateTilsagnRader();
+  const { data: paginertTilsagnRader, filter, setFilter } = useArrangorflateTilsagnRader();
 
-  const { sortedData, sort, toggleSort } = useSortableData(tilsagnRader, undefined, (item, key) => {
-    if (key === "periode") {
-      return item[key].start;
+  const paginationProps: PaginationProps = {
+    hidden: !paginertTilsagnRader.pagination.totalPages,
+    page: filter.page || 1,
+    count: paginertTilsagnRader.pagination.totalPages || 1,
+    boundaryCount: 1,
+    prevNextTexts: true,
+    onPageChange: (newPage) =>
+      setFilter((filter: ArrangorflateTilsagnFilter) => ({ ...filter, page: newPage })),
+  };
+
+  function sortChange(orderBy: ArrangorflateTilsagnFilterOrderBy) {
+    if (orderBy == filter.orderBy) {
+      const direction =
+        filter.direction == ArrangorflateTilsagnFilterDirection.ASC
+          ? ArrangorflateTilsagnFilterDirection.DESC
+          : ArrangorflateTilsagnFilterDirection.ASC;
+      return setFilter((old: ArrangorflateTilsagnFilter) => ({ ...old, direction }));
     }
-    return (item as Record<string, unknown>)[key];
+
+    setFilter((old: ArrangorflateTilsagnFilter) => ({
+      ...old,
+      orderBy,
+      direction: ArrangorflateTilsagnFilterDirection.ASC,
+    }));
+  }
+
+  const tilsagnSortKeyToParam: Record<string, ArrangorflateTilsagnFilterOrderBy> = {
+    tiltakNavn: ArrangorflateTilsagnFilterOrderBy.TILTAK,
+    arrangorNavn: ArrangorflateTilsagnFilterOrderBy.ARRANGOR,
+    startDato: ArrangorflateTilsagnFilterOrderBy.PERIODE,
+    tilsagn: ArrangorflateTilsagnFilterOrderBy.TILSAGN,
+    status: ArrangorflateTilsagnFilterOrderBy.STATUS,
+  };
+
+  const paramToSortKey: Record<ArrangorflateTilsagnFilterOrderBy, string> =
+    flipObject(tilsagnSortKeyToParam);
+
+  const paramToSortDirection: Record<
+    ArrangorflateUtbetalingFilterDirection,
+    SortState["direction"]
+  > = flipObject({
+    ascending: ArrangorflateUtbetalingFilterDirection.ASC,
+    descending: ArrangorflateUtbetalingFilterDirection.DESC,
+    none: ArrangorflateUtbetalingFilterDirection.ASC,
   });
 
-  if (!tilsagnRader.length) {
-    return (
-      <InfoCard data-color="warning" className="my-10">
-        <InfoCard.Header>
-          <InfoCard.Title>Det finnes ingen tilsagn her</InfoCard.Title>
-        </InfoCard.Header>
-      </InfoCard>
-    );
+  function filterToSortState({ orderBy, direction }: ArrangorflateTilsagnFilter): SortState {
+    const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";
+    const newDirection: SortState["direction"] =
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      (direction && paramToSortDirection[direction]) || "ascending";
+
+    return {
+      orderBy: newOrderBy,
+      direction: newDirection,
+    };
   }
 
   return (
-    <Tabellvisning kolonner={tilsagnKolonner} sort={sort} onSortChange={toggleSort}>
-      {sortedData.map((rad) => (
-        <TilsagnRow key={rad.id} row={rad} />
-      ))}
-    </Tabellvisning>
+    <>
+      <Tabellvisning
+        kolonner={tilsagnKolonner}
+        sort={filterToSortState(filter)}
+        onSortChange={(key) => sortChange(tilsagnSortKeyToParam[key])}
+        pagination={paginationProps}
+      >
+        <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
+          {paginertTilsagnRader.data.map((rad, i) => (
+            <TilsagnRow key={rad.id + i} row={rad} />
+          ))}
+        </Suspense>
+      </Tabellvisning>
+    </>
   );
 }

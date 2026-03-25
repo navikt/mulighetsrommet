@@ -202,17 +202,45 @@ paths:
       description: Hent oversikt over tilsagn for alle arrangører brukeren har tilgang
         til
       operationId: getArrangorflateTilsagnRader
-      parameters: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: orderBy
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ArrangorflateTilsagnFilter.OrderBy"
+      - name: direction
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ArrangorflateTilsagnFilter.Direction"
       responses:
         "200":
-          description: Tilsagn i tabellrad format
+          description: Paginert tilsagn i tabellrad format
           headers: {}
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorflateTilsagnRadDto"
+                $ref: "#/components/schemas/PaginatedResponse_ArrangorflateTilsagnRadDto"
         default:
           description: Problem details
           headers: {}
@@ -1369,6 +1397,35 @@ components:
           format: uuid
       required:
       - id
+    ArrangorflateTilsagnFilter.OrderBy:
+      type: string
+      enum:
+      - TILTAK
+      - ARRANGOR
+      - PERIODE
+      - TILSAGN
+      - STATUS
+    ArrangorflateTilsagnFilter.Direction:
+      type: string
+      enum:
+      - ASC
+      - DESC
+    PaginationSummary:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+      required:
+      - pageSize
+      - totalCount
+      - totalPages
     ArrangorflateTilsagnRadDto:
       type: object
       properties:
@@ -1398,6 +1455,18 @@ components:
       - tilsagnNavn
       - tiltakNavn
       - tiltakTypeNavn
+    PaginatedResponse_ArrangorflateTilsagnRadDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorflateTilsagnRadDto"
+      required:
+      - data
+      - pagination
     ArrangorflateUtbetalingFilter.Type:
       type: string
       enum:
@@ -1416,22 +1485,6 @@ components:
       enum:
       - ASC
       - DESC
-    PaginationSummary:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          format: int32
-        pageSize:
-          type: integer
-          format: int32
-        totalPages:
-          type: integer
-          format: int32
-      required:
-      - pageSize
-      - totalCount
-      - totalPages
     PaginatedResponse_ArrangorInnsendingRadDto:
       type: object
       properties:
