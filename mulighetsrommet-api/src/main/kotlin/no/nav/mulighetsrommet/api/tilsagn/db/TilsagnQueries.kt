@@ -354,14 +354,14 @@ class TilsagnQueries(private val session: Session) {
             from view_tilsagn
             where
                 arrangor_organisasjonsnummer = any (:orgnr_list::text[])
-                and status = any (:status_list::tilsagn_status[])
+                and status = any (:status_list::text[])
             order by $order
             limit :limit
             offset :offset
         """.trimIndent()
         val params = mapOf(
             "orgnr_list" to session.createArrayOfValue(arrangorer) { it.value },
-            "status_list" to session.createArrayOfTilsagnStatus(statuser),
+            "status_list" to session.createTextArray(statuser),
         )
         return queryOf(query, params + filter.pagination.parameters)
             .mapPaginated { it.toTilsagn() }
