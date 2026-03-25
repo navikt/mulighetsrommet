@@ -45,15 +45,10 @@ export const avtaleHandlers = [
     },
   ),
 
-  http.get<PathParams, undefined, PaginatedResponseAvtaleDto>(
+  http.post<PathParams, undefined, PaginatedResponseAvtaleDto>(
     "*/api/tiltaksadministrasjon/avtaler",
-    ({ request }) => {
-      const url = new URL(request.url);
-      const avtalestatus = url.searchParams.get("avtalestatus");
-      const data = mockAvtaler.filter(
-        (a) => a.status.type === avtalestatus || avtalestatus === null,
-      );
-
+    () => {
+      const data = mockAvtaler;
       return HttpResponse.json({
         pagination: {
           pageSize: 15,

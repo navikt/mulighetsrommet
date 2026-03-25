@@ -6,25 +6,27 @@ import { AvtaleFilterType } from "@/pages/avtaler/filter";
 export function useAvtaler(filter: Partial<AvtaleFilterType>) {
   const debouncedSok = useDebounce(filter.sok?.trim(), 300);
 
-  const queryFilter: Pick<GetAvtalerData, "query"> = {
+  const request: Pick<GetAvtalerData, "body" | "query"> = {
+    body: {
+      tiltakstyper: filter.tiltakstyper ?? [],
+      search: debouncedSok || null,
+      statuser: filter.statuser ?? [],
+      avtaletyper: filter.avtaletyper ?? [],
+      navEnheter: filter.navEnheter ?? [],
+      arrangorer: filter.arrangorer ?? [],
+      personvernBekreftet: filter.personvernBekreftet ?? null,
+      visMineAvtaler: filter.visMineAvtaler ?? false,
+      sort: filter.sortering?.sortString ?? null,
+    },
     query: {
-      tiltakstyper: filter.tiltakstyper,
-      search: debouncedSok || undefined,
-      statuser: filter.statuser,
-      avtaletyper: filter.avtaletyper,
-      navEnheter: filter.navEnheter,
-      sort: filter.sortering?.sortString,
       page: filter.page ?? 1,
       size: filter.pageSize,
-      arrangorer: filter.arrangorer,
-      personvernBekreftet: filter.personvernBekreftet,
-      visMineAvtaler: filter.visMineAvtaler,
     },
   };
 
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.avtaler(queryFilter),
-    queryFn: () => AvtaleService.getAvtaler(queryFilter),
+    queryKey: QueryKeys.avtaler(request),
+    queryFn: () => AvtaleService.getAvtaler(request),
   });
 }
 

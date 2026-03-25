@@ -427,35 +427,17 @@ fun Route.avtaleRoutes() {
             }
         }
 
-        get({
+        post({
             tags = setOf("Avtale")
             operationId = "getAvtaler"
             request {
-                queryParameter<String>("search")
-                queryParameter<List<String>>("tiltakstyper") {
-                    explode = true
-                }
-                queryParameter<List<AvtaleStatusType>>("statuser") {
-                    explode = true
-                }
-                queryParameter<List<Avtaletype>>("avtaletyper") {
-                    explode = true
-                }
-                queryParameter<List<NavEnhetNummer>>("navEnheter") {
-                    explode = true
-                }
-                queryParameter<List<String>>("arrangorer") {
-                    explode = true
-                }
-                queryParameter<Boolean>("personvernBekreftet")
-                queryParameter<Boolean>("visMineAvtaler")
                 queryParameter<Int>("page")
                 queryParameter<Int>("size")
-                queryParameter<String>("sort")
+                body<GetAvtalerRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Avtaler filtrert på query parameters"
+                    description = "Avtaler"
                     body<PaginatedResponse<AvtaleDto>>()
                 }
                 default {
@@ -512,7 +494,7 @@ fun Route.avtaleRoutes() {
             }
         }) {
             val pagination = getPaginationParams()
-            val filter = getAvtaleFilter()
+            val filter = getAvtaleFilterFromQueryParams()
 
             val file = avtaleService.exportToExcel(pagination, filter)
 
@@ -642,7 +624,43 @@ enum class AvtaleHandling {
     OPPRETT,
 }
 
-fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
+@Serializable
+data class GetAvtalerRequest(
+    val search: String? = null,
+    val tiltakstyper: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        > = emptyList(),
+    val statuser: List<AvtaleStatusType> = emptyList(),
+    val avtaletyper: List<Avtaletype> = emptyList(),
+    val navEnheter: List<NavEnhetNummer> = emptyList(),
+    val arrangorer: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        > = emptyList(),
+    val personvernBekreftet: Boolean? = null,
+    val visMineAvtaler: Boolean = false,
+    val sort: String? = null,
+)
+
+suspend fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
+    val request = call.receive<GetAvtalerRequest>()
+    val administratorNavIdent = request.visMineAvtaler.takeIf { it }?.let { getNavIdent() }
+
+    return AvtaleFilter(
+        tiltakstypeIder = request.tiltakstyper,
+        search = request.search?.trim()?.takeIf { it.isNotBlank() },
+        statuser = request.statuser,
+        avtaletyper = request.avtaletyper,
+        navEnheter = request.navEnheter,
+        sortering = request.sort,
+        arrangorIds = request.arrangorer,
+        administratorNavIdent = administratorNavIdent,
+        personvernBekreftet = request.personvernBekreftet,
+    )
+}
+
+fun RoutingContext.getAvtaleFilterFromQueryParams(): AvtaleFilter {
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { it.toUUID() } ?: emptyList()
     val search = call.request.queryParameters["search"]?.trim()?.takeIf { it.isNotBlank() }
     val statuser = call.parameters.getAll("statuser")
