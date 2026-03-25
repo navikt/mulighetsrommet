@@ -1,17 +1,28 @@
-import { Controller, type RegisterOptions, useFormContext } from "react-hook-form";
+import {
+  Controller,
+  FieldPath,
+  type FieldValues,
+  type RegisterOptions,
+  useFormContext,
+} from "react-hook-form";
 import { ControlledDateInput, ControlledDateInputProps } from "./ControlledDateInput";
 import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 
-interface FormDateInputProps extends Omit<
+interface FormDateInputProps<TFieldValues extends FieldValues> extends Omit<
   ControlledDateInputProps,
   "onChange" | "defaultSelected"
 > {
-  name: string;
-  rules?: RegisterOptions;
+  name: FieldPath<TFieldValues>;
+  rules?: RegisterOptions<TFieldValues>;
 }
 
-export function FormDateInput({ name, rules, size = "small", ...props }: FormDateInputProps) {
-  const { control } = useFormContext();
+export function FormDateInput<TFieldValues extends FieldValues>({
+  name,
+  rules,
+  size = "small",
+  ...props
+}: FormDateInputProps<TFieldValues>) {
+  const { control } = useFormContext<TFieldValues>();
 
   return (
     <Controller
