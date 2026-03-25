@@ -57,22 +57,6 @@ class ArrangorflateService(
             ?.let { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere)) }
     }
 
-    suspend fun getTilsagn(
-        arrangorer: Set<Organisasjonsnummer>,
-        statuser: List<TilsagnStatus>? = null,
-        typer: List<TilsagnType>? = null,
-        gjennomforingId: UUID? = null,
-    ): List<ArrangorflateTilsagnDto> = db.session {
-        queries.tilsagn
-            .getAll(
-                arrangorer = arrangorer,
-                statuser = statuser,
-                typer = typer,
-                gjennomforingId = gjennomforingId,
-            )
-            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere)) }
-    }
-
     suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
