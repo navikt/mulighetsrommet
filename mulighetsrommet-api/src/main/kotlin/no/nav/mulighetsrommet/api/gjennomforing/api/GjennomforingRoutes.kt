@@ -337,9 +337,6 @@ fun Route.gjennomforingRoutes() {
                 queryParameter<Int>("page")
                 queryParameter<Int>("size")
                 body<GetGjennomforingerRequest>()
-                queryParameter<List<GjennomforingType>>("gjennomforingTyper") {
-                    explode = true
-                }
             }
             response {
                 code(HttpStatusCode.OK) {

@@ -978,15 +978,6 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: gjennomforingTyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingType"
       requestBody:
         content:
           application/json:
