@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
@@ -19,6 +20,7 @@ import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGe
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.UUID
 
 class PersonaliaServiceTest : FunSpec({
@@ -36,6 +38,7 @@ class PersonaliaServiceTest : FunSpec({
     val norg2Client = mockk<Norg2Client>()
     val amtDeltakerClient = mockk<AmtDeltakerClient>()
     val navEnhetService = mockk<NavEnhetService>()
+    val tilgansmaskinClient = mockk<TilgangsmaskinClient>()
 
     context("skjermet og adressebeskyttet") {
         test("skjermet skjules") {
@@ -44,10 +47,12 @@ class PersonaliaServiceTest : FunSpec({
                 norg2Client,
                 amtDeltakerClient,
                 navEnhetService,
+                tilgansmaskinClient,
             )
             coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(
                 personalia.copy(erSkjermet = true),
             ).right()
+            coEvery { tilgansmaskinClient.komplett(personalia.norskIdent, any()) } returns false
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
@@ -57,7 +62,7 @@ class PersonaliaServiceTest : FunSpec({
                 type = NavEnhetType.FYLKE,
                 overordnetEnhet = null,
             )
-            service.getPersonaliaMedGeografiskEnhet(listOf()) shouldBe mapOf(
+            service.getPersonaliaMedGeografiskEnhet(listOf(), AccessType.OBO("token")) shouldBe mapOf(
                 deltakelseId to
                     PersonaliaMedGeografiskEnhet(
                         norskIdent = null,
@@ -75,10 +80,12 @@ class PersonaliaServiceTest : FunSpec({
                 norg2Client,
                 amtDeltakerClient,
                 navEnhetService,
+                tilgansmaskinClient,
             )
             coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(
                 personalia.copy(adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND),
             ).right()
+            coEvery { tilgansmaskinClient.komplett(personalia.norskIdent, any()) } returns false
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
@@ -89,7 +96,7 @@ class PersonaliaServiceTest : FunSpec({
                 overordnetEnhet = null,
             )
 
-            service.getPersonaliaMedGeografiskEnhet(emptyList()) shouldBe mapOf(
+            service.getPersonaliaMedGeografiskEnhet(emptyList(), AccessType.OBO("token")) shouldBe mapOf(
                 deltakelseId to
                     PersonaliaMedGeografiskEnhet(
                         norskIdent = null,
@@ -107,6 +114,7 @@ class PersonaliaServiceTest : FunSpec({
                 norg2Client,
                 amtDeltakerClient,
                 navEnhetService,
+                tilgansmaskinClient,
             )
             coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(
                 personalia.copy(
@@ -114,6 +122,7 @@ class PersonaliaServiceTest : FunSpec({
                     adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND,
                 ),
             ).right()
+            coEvery { tilgansmaskinClient.komplett(personalia.norskIdent, any()) } returns false
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
@@ -123,7 +132,7 @@ class PersonaliaServiceTest : FunSpec({
                 type = NavEnhetType.FYLKE,
                 overordnetEnhet = null,
             )
-            service.getPersonaliaMedGeografiskEnhet(listOf()) shouldBe mapOf(
+            service.getPersonaliaMedGeografiskEnhet(listOf(), AccessType.OBO("token")) shouldBe mapOf(
                 deltakelseId to
                     PersonaliaMedGeografiskEnhet(
                         norskIdent = null,

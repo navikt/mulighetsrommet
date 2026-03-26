@@ -42,12 +42,14 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaMedGeografiskEnhe
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
+import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
@@ -302,7 +304,10 @@ fun Route.utbetalingRoutes() {
                     val utbetaling = queries.utbetaling.getOrError(id)
                     val deltakelser = utbetaling.beregning.deltakelsePerioder().associateBy { it.deltakelseId }
 
-                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys.toList())
+                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                        deltakelser.keys.toList(),
+                        AccessType.OBO(call.getAccessToken()),
+                    )
 
                     val enheter = personalia.flatMapTo(mutableSetOf()) {
                         listOfNotNull(
@@ -388,8 +393,10 @@ fun Route.utbetalingRoutes() {
                         val opprettelse = queries.totrinnskontroll
                             .getOrError(linje.id, Totrinnskontroll.Type.OPPRETT)
 
-                        val personalia =
-                            personaliaService.getPersonaliaMedGeografiskEnhet(tilsagn.deltakere.map { it.deltakerId })
+                        val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                            tilsagn.deltakere.map { it.deltakerId },
+                            AccessType.OBO(call.getAccessToken()),
+                        )
                         val deltakere = tilsagn.deltakere.map {
                             TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                         }
@@ -420,7 +427,10 @@ fun Route.utbetalingRoutes() {
                         .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
                         .map { tilsagn ->
                             val deltakerIds = tilsagn.deltakere.map { it.deltakerId }
-                            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakerIds)
+                            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                                deltakerIds,
+                                AccessType.OBO(call.getAccessToken()),
+                            )
                             val deltakere = tilsagn.deltakere.map {
                                 TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                             }

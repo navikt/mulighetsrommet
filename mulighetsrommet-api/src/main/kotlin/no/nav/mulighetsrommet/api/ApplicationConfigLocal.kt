@@ -200,6 +200,10 @@ val ApplicationConfigLocal = AppConfig(
     pdfgen = HttpClientConfig(
         url = "http://localhost:8888",
     ),
+    tilgangsmaskin = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/tilgansmaskin/api",
+        scope = "default",
+    ),
     veilarbvedtaksstotteConfig = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/veilarbvedtaksstotte/api",
         scope = "default",

@@ -41,7 +41,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -67,7 +66,6 @@ class TilsagnService(
     val config: Config,
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
-    private val personaliaService: PersonaliaService,
 ) {
     data class Config(
         val bestillingTopic: String,

@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.NorgError
 import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
@@ -24,26 +25,44 @@ class PersonaliaService(
     private val norg2Client: Norg2Client,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val navEnhetService: NavEnhetService,
+    private val tilgansmaskinClient: TilgangsmaskinClient,
 ) {
-    suspend fun getPersonaliaMedGeografiskEnhet(deltakerIds: List<UUID>): Map<UUID, PersonaliaMedGeografiskEnhet> {
+    suspend fun getPersonaliaMedGeografiskEnhet(
+        deltakerIds: List<UUID>,
+        obo: AccessType.OBO,
+    ): Map<UUID, PersonaliaMedGeografiskEnhet> {
         return amtDeltakerClient.hentPersonalia(deltakerIds)
             .map { amtList ->
                 val pdlData = getPersonerMedGeografiskEnhet(amtList.map { it.norskIdent })
                 amtList.associate { amtPersonalia ->
                     val norskIdent = amtPersonalia.norskIdent
-                    val (_, geografiskEnhet) = pdlData[norskIdent] ?: (null to null)
+                    val access = tilgansmaskinClient.komplett(norskIdent, obo)
 
-                    val geografiskEnhetDto = geografiskEnhet?.navEnhetNummer()?.let {
-                        navEnhetService.hentEnhet(it)
-                    }
+                    if (access) {
+                        val (_, geografiskEnhet) = pdlData[norskIdent] ?: (null to null)
 
-                    val oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let {
-                        navEnhetService.hentEnhet(it)
-                    }
+                        val geografiskEnhetDto = geografiskEnhet?.navEnhetNummer()?.let {
+                            navEnhetService.hentEnhet(it)
+                        }
 
-                    if (amtPersonalia.erSkjermet || amtPersonalia.adressebeskyttelse != PdlGradering.UGRADERT) {
+                        val oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let {
+                            navEnhetService.hentEnhet(it)
+                        }
+
+                        amtPersonalia.deltakerId to
+                            PersonaliaMedGeografiskEnhet(
+                                norskIdent = norskIdent,
+                                navn = amtPersonalia.navn,
+                                oppfolgingEnhet = oppfolgingEnhet,
+                                geografiskEnhet = geografiskEnhetDto,
+                                region = oppfolgingEnhet?.overordnetEnhet?.let {
+                                    navEnhetService.hentEnhet(it)
+                                },
+                            )
+                    } else {
                         val skjermetNavn = when {
                             amtPersonalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
+                            amtPersonalia.erSkjermet -> "Skjermet"
                             else -> "Skjermet"
                         }
 
@@ -54,17 +73,6 @@ class PersonaliaService(
                                 oppfolgingEnhet = null,
                                 geografiskEnhet = null,
                                 region = null,
-                            )
-                    } else {
-                        amtPersonalia.deltakerId to
-                            PersonaliaMedGeografiskEnhet(
-                                norskIdent = norskIdent,
-                                navn = amtPersonalia.navn,
-                                oppfolgingEnhet = oppfolgingEnhet,
-                                geografiskEnhet = geografiskEnhetDto,
-                                region = oppfolgingEnhet?.overordnetEnhet?.let {
-                                    navEnhetService.hentEnhet(it)
-                                },
                             )
                     }
                 }
@@ -122,12 +130,6 @@ class PersonaliaService(
             }
     }
 }
-
-data class DeltakerPersonalia(
-    val deltakerId: UUID,
-    val norskIdent: NorskIdent?,
-    val navn: String,
-)
 
 data class PersonaliaMedGeografiskEnhet(
     val norskIdent: NorskIdent?,

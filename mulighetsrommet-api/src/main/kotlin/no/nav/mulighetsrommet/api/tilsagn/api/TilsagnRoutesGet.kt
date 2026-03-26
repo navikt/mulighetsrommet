@@ -15,7 +15,9 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -56,7 +58,10 @@ fun Route.tilsagnRoutesGet() {
                 val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.toDto()
                 val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.toDto()
 
-                val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(tilsagn.deltakere.map { it.deltakerId })
+                val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                    tilsagn.deltakere.map { it.deltakerId },
+                    AccessType.OBO(call.getAccessToken()),
+                )
                 val deltakere = tilsagn.deltakere.map {
                     TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                 }

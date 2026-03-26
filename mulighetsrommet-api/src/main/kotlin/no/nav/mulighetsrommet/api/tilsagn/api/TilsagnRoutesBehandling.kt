@@ -21,8 +21,10 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -56,7 +58,10 @@ fun Route.tilsagnRoutesBehandling() {
             val result = service.upsert(request, navIdent)
                 .mapLeft { ValidationError(errors = it) }
                 .map {
-                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(it.deltakere.map { it.deltakerId })
+                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                        it.deltakere.map { it.deltakerId },
+                        AccessType.OBO(call.getAccessToken()),
+                    )
                     val tilsagnDeltakere = it.deltakere.map {
                         TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                     }
