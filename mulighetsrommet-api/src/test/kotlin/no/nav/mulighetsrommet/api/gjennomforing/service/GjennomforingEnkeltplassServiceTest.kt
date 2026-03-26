@@ -37,12 +37,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createService(erMigrert: Boolean = false): GjennomforingEnkeltplassService {
-        val features = if (erMigrert) {
-            mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT))
-        } else {
-            emptyMap()
-        }
+    fun createService(
+        features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
+    ): GjennomforingEnkeltplassService {
         return GjennomforingEnkeltplassService(
             config = GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             db = database.db,
@@ -52,6 +49,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
     }
 
     val norskIdent = NorskIdent("12345678910")
+
+    val migrert = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT))
 
     context("upsertFromDeltaker") {
         test("lagrer hash av norsk ident i fritekstsøk for aktiv deltaker") {
@@ -122,6 +121,156 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
         }
 
+        context("når tiltakstype ikke er migrert") {
+            test("oppdaterer ikke gjennomføring") {
+                val deltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.DELTAR,
+                    startDato = LocalDate.of(2026, 1, 1),
+                    sluttDato = LocalDate.of(2026, 6, 1),
+                )
+
+                val gjennomforing = createService().upsertFromDeltaker(deltaker, norskIdent)
+
+                gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
+                gjennomforing.sluttDato shouldBe GjennomforingFixtures.EnkelAmo.sluttDato
+                gjennomforing.status shouldBe GjennomforingFixtures.EnkelAmo.status
+            }
+
+            test("publiserer ikke til kafka") {
+                val deltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.DELTAR,
+                )
+
+                createService().upsertFromDeltaker(deltaker, norskIdent)
+
+                database.run {
+                    queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldBeEmpty()
+                }
+            }
+        }
+
+        context("når tiltakstype er migrert") {
+            test("oppdaterer gjennomføring med datoer og status fra deltaker") {
+                val startDato = LocalDate.of(2025, 3, 1)
+                val sluttDato = LocalDate.of(2025, 6, 1)
+
+                val deltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.DELTAR,
+                    startDato = startDato,
+                    sluttDato = sluttDato,
+                )
+
+                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+
+                gjennomforing.startDato shouldBe startDato
+                gjennomforing.sluttDato shouldBe sluttDato
+                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
+            }
+
+            test("bruker gjennomføringens startdato når deltaker ikke har startdato") {
+                val deltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.VENTER_PA_OPPSTART,
+                    startDato = null,
+                )
+
+                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+
+                gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
+            }
+
+            test("setter status AVBRUTT når deltaker er FEILREGISTRERT") {
+                val deltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.FEILREGISTRERT,
+                )
+
+                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+
+                gjennomforing.status shouldBe GjennomforingStatusType.AVBRUTT
+            }
+
+            test("setter status AVSLUTTET når deltaker er FULLFORT") {
+                val deltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.FULLFORT,
+                )
+
+                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+
+                gjennomforing.status shouldBe GjennomforingStatusType.AVSLUTTET
+            }
+
+            test("bruker deltakelsesprosent fra siste deltakelsesmengde") {
+                val deltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.DELTAR,
+                ).copy(
+                    deltakelsesmengder = listOf(
+                        Deltakelsesmengde(
+                            gyldigFra = LocalDate.of(2025, 1, 1),
+                            deltakelsesprosent = 50.0,
+                        ),
+                        Deltakelsesmengde(
+                            gyldigFra = LocalDate.of(2025, 3, 1),
+                            deltakelsesprosent = 75.0,
+                        ),
+                    ),
+                )
+
+                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+
+                gjennomforing.deltidsprosent shouldBe 75.0
+            }
+
+            test("bruker 100 prosent som standardverdi når deltaker ikke har deltakelsesmengder") {
+                val deltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.DELTAR,
+                ).copy(deltakelsesmengder = emptyList())
+
+                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+
+                gjennomforing.deltidsprosent shouldBe 100.0
+            }
+
+            test("persisterer oppdatert gjennomføring i databasen") {
+                val startDato = LocalDate.of(2025, 3, 1)
+                val sluttDato = LocalDate.of(2025, 6, 1)
+
+                val deltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.DELTAR,
+                    startDato = startDato,
+                    sluttDato = sluttDato,
+                )
+
+                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+
+                gjennomforing.startDato shouldBe startDato
+                gjennomforing.sluttDato shouldBe sluttDato
+                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
+            }
+
+            test("publiserer gjennomføring til kafka") {
+                val deltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.DELTAR,
+                )
+
+                createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+
+                database.run {
+                    queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC))
+                        .shouldHaveSize(1).first().key.decodeToString()
+                        .shouldBe(GjennomforingFixtures.EnkelAmo.id.toString())
+                }
+            }
+        }
+
         context("relast av deltaker") {
             val tidligereEndretTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0, 0)
             val nyereEndretTidspunkt = LocalDateTime.of(2025, 6, 1, 12, 0, 0)
@@ -135,7 +284,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     deltakere = listOf(lagretDeltaker),
                 ).initialize(database.db)
 
-                val service = createService(erMigrert = true)
+                val service = createService(migrert)
 
                 val deltakerAvbrutt = DeltakerFixtures.createDeltaker(
                     id = lagretDeltaker.id,
@@ -176,159 +325,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     endretTidspunkt = tidligereEndretTidspunkt,
                 )
 
-                val gjennomforing = createService(erMigrert = true).upsertFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
-            }
-        }
-
-        context("når tiltakstype er migrert") {
-            test("oppdaterer gjennomføring med datoer og status fra deltaker") {
-                val startDato = LocalDate.of(2025, 3, 1)
-                val sluttDato = LocalDate.of(2025, 6, 1)
-
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.DELTAR,
-                    startDato = startDato,
-                    sluttDato = sluttDato,
-                )
-
-                val gjennomforing = createService(erMigrert = true).upsertFromDeltaker(deltaker, norskIdent)
-
-                gjennomforing.startDato shouldBe startDato
-                gjennomforing.sluttDato shouldBe sluttDato
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
-            }
-
-            test("bruker gjennomføringens startdato når deltaker ikke har startdato") {
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.VENTER_PA_OPPSTART,
-                    startDato = null,
-                )
-
-                val gjennomforing = createService(erMigrert = true).upsertFromDeltaker(deltaker, norskIdent)
-
-                gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
-            }
-
-            test("setter status AVBRUTT når deltaker er FEILREGISTRERT") {
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.FEILREGISTRERT,
-                )
-
-                val gjennomforing = createService(erMigrert = true).upsertFromDeltaker(deltaker, norskIdent)
-
-                gjennomforing.status shouldBe GjennomforingStatusType.AVBRUTT
-            }
-
-            test("setter status AVSLUTTET når deltaker er FULLFORT") {
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.FULLFORT,
-                )
-
-                val gjennomforing = createService(erMigrert = true).upsertFromDeltaker(deltaker, norskIdent)
-
-                gjennomforing.status shouldBe GjennomforingStatusType.AVSLUTTET
-            }
-
-            test("bruker deltakelsesprosent fra siste deltakelsesmengde") {
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.DELTAR,
-                ).copy(
-                    deltakelsesmengder = listOf(
-                        Deltakelsesmengde(
-                            gyldigFra = LocalDate.of(2025, 1, 1),
-                            deltakelsesprosent = 50.0,
-                        ),
-                        Deltakelsesmengde(
-                            gyldigFra = LocalDate.of(2025, 3, 1),
-                            deltakelsesprosent = 75.0,
-                        ),
-                    ),
-                )
-
-                val gjennomforing = createService(erMigrert = true).upsertFromDeltaker(deltaker, norskIdent)
-
-                gjennomforing.deltidsprosent shouldBe 75.0
-            }
-
-            test("bruker 100 prosent som standardverdi når deltaker ikke har deltakelsesmengder") {
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.DELTAR,
-                ).copy(deltakelsesmengder = emptyList())
-
-                val gjennomforing = createService(erMigrert = true).upsertFromDeltaker(deltaker, norskIdent)
-
-                gjennomforing.deltidsprosent shouldBe 100.0
-            }
-
-            test("persisterer oppdatert gjennomføring i databasen") {
-                val startDato = LocalDate.of(2025, 3, 1)
-                val sluttDato = LocalDate.of(2025, 6, 1)
-
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.DELTAR,
-                    startDato = startDato,
-                    sluttDato = sluttDato,
-                )
-
-                val gjennomforing = createService(erMigrert = true).upsertFromDeltaker(deltaker, norskIdent)
-
-                gjennomforing.startDato shouldBe startDato
-                gjennomforing.sluttDato shouldBe sluttDato
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
-            }
-
-            test("publiserer gjennomføring til kafka") {
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.DELTAR,
-                )
-
-                createService(erMigrert = true).upsertFromDeltaker(deltaker, norskIdent)
-
-                database.run {
-                    queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC))
-                        .shouldHaveSize(1).first().key.decodeToString()
-                        .shouldBe(GjennomforingFixtures.EnkelAmo.id.toString())
-                }
-            }
-        }
-
-        context("når tiltakstype ikke er migrert") {
-            test("oppdaterer ikke gjennomføring") {
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.DELTAR,
-                    startDato = LocalDate.of(2026, 1, 1),
-                    sluttDato = LocalDate.of(2026, 6, 1),
-                )
-
-                val gjennomforing = createService(erMigrert = false).upsertFromDeltaker(deltaker, norskIdent)
-
-                gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
-                gjennomforing.sluttDato shouldBe GjennomforingFixtures.EnkelAmo.sluttDato
-                gjennomforing.status shouldBe GjennomforingFixtures.EnkelAmo.status
-            }
-
-            test("publiserer ikke til kafka") {
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.DELTAR,
-                )
-
-                createService(erMigrert = false).upsertFromDeltaker(deltaker, norskIdent)
-
-                database.run {
-                    queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldBeEmpty()
-                }
             }
         }
     }
