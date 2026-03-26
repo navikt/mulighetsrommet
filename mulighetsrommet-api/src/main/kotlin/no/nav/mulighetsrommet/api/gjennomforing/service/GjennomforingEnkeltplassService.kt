@@ -109,6 +109,9 @@ class GjennomforingEnkeltplassService(
             check(it.id == deltaker.id) {
                 "Enkeltplass med id=${deltaker.gjennomforingId} har allerede en annen deltaker"
             }
+            if (deltaker.endretTidspunkt < it.endretTidspunkt) {
+                return getOrError(deltaker.gjennomforingId)
+            }
         }
 
         val gjennomforing = getOrError(deltaker.gjennomforingId)

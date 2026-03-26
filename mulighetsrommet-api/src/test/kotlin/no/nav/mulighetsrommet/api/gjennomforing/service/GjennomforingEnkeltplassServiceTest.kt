@@ -8,7 +8,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -26,7 +25,6 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
-        avtaler = listOf(AvtaleFixtures.oppfolging),
         gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
     )
 
@@ -122,6 +120,63 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 shouldThrow<IllegalStateException> {
                     createService().upsertFromDeltaker(nyDeltaker)
                 }.message shouldBe "Enkeltplass med id=${GjennomforingFixtures.EnkelAmo.id} har allerede en annen deltaker"
+            }
+        }
+
+        context("relast av deltaker") {
+            val tidligereEndretTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0, 0)
+            val nyereEndretTidspunkt = LocalDateTime.of(2025, 6, 1, 12, 0, 0)
+
+            test("prosesserer når deltaker-eventet er samme eller nyere enn lagret") {
+                val lagretDeltaker = DeltakerFixtures.createDeltakerDbo(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    endretTidspunkt = tidligereEndretTidspunkt,
+                )
+                MulighetsrommetTestDomain(
+                    deltakere = listOf(lagretDeltaker),
+                ).initialize(database.db)
+
+                val service = createService(erMigrert = true)
+
+                val deltakerAvbrutt = DeltakerFixtures.createAmtDeltakerDto(
+                    id = lagretDeltaker.id,
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.AVBRUTT,
+                    personIdent = "12345678910",
+                    endretTidspunkt = nyereEndretTidspunkt,
+                )
+                service.upsertFromDeltaker(deltakerAvbrutt).status shouldBe GjennomforingStatusType.AVBRUTT
+
+                val deltakerDeltar = DeltakerFixtures.createAmtDeltakerDto(
+                    id = lagretDeltaker.id,
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.DELTAR,
+                    personIdent = "12345678910",
+                    endretTidspunkt = nyereEndretTidspunkt,
+                )
+                service.upsertFromDeltaker(deltakerDeltar).status shouldBe GjennomforingStatusType.GJENNOMFORES
+            }
+
+            test("hopper over når deltaker-eventet er eldre enn lagret") {
+                val lagretDeltaker = DeltakerFixtures.createDeltakerDbo(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    endretTidspunkt = nyereEndretTidspunkt,
+                )
+                MulighetsrommetTestDomain(
+                    deltakere = listOf(lagretDeltaker),
+                ).initialize(database.db)
+
+                val deltaker = DeltakerFixtures.createAmtDeltakerDto(
+                    id = lagretDeltaker.id,
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.AVBRUTT,
+                    personIdent = "12345678910",
+                    endretTidspunkt = tidligereEndretTidspunkt,
+                )
+
+                val gjennomforing = createService(erMigrert = true).upsertFromDeltaker(deltaker)
+
+                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
             }
         }
 

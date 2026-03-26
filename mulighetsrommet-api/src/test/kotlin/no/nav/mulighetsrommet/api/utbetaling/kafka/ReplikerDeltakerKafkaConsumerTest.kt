@@ -50,14 +50,14 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             gjennomforingId = Oppfolging1.id,
             status = DeltakerStatusType.VENTER_PA_OPPSTART,
             personIdent = "12345678910",
-            opprettetTidspunkt = opprettetTidspunkt,
+            endretTidspunkt = opprettetTidspunkt,
         )
 
         val amtDeltaker2 = createAmtDeltakerDto(
             gjennomforingId = Oppfolging1.id,
             status = DeltakerStatusType.VENTER_PA_OPPSTART,
             personIdent = "12345678911",
-            opprettetTidspunkt = opprettetTidspunkt,
+            endretTidspunkt = opprettetTidspunkt,
         )
 
         val domain = MulighetsrommetTestDomain(
@@ -175,7 +175,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
                 status = DeltakerStatusType.DELTAR,
-                opprettetTidspunkt = deltarTidspunkt,
+                endretTidspunkt = deltarTidspunkt,
             )
 
             val avbruttTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
@@ -184,7 +184,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
                 status = DeltakerStatusType.AVBRUTT,
-                opprettetTidspunkt = avbruttTidspunkt,
+                endretTidspunkt = avbruttTidspunkt,
             )
 
             deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerAvbrutt))
@@ -219,7 +219,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
                 status = DeltakerStatusType.DELTAR,
-                opprettetTidspunkt = tidspunktKafka,
+                endretTidspunkt = tidspunktKafka,
             )
 
             val amtDeltakerAvbrutt = createAmtDeltakerDto(
@@ -227,7 +227,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                 gjennomforingId = AFT1.id,
                 personIdent = "12345678910",
                 status = DeltakerStatusType.AVBRUTT,
-                opprettetTidspunkt = tidspunktKafka,
+                endretTidspunkt = tidspunktKafka,
             )
 
             deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerDeltar))
@@ -258,7 +258,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             gjennomforingId = AFT1.id,
             status = DeltakerStatusType.DELTAR,
             personIdent = "12345678910",
-            opprettetTidspunkt = opprettetTidspunkt,
+            endretTidspunkt = opprettetTidspunkt,
         )
 
         val domain = MulighetsrommetTestDomain(
