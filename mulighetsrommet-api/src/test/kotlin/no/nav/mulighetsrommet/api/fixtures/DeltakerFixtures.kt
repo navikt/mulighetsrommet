@@ -64,20 +64,21 @@ object DeltakerFixtures {
     )
 
     fun createDeltaker(
+        id: UUID = UUID.randomUUID(),
         gjennomforingId: UUID = UUID.randomUUID(),
-        startDato: LocalDate?,
-        sluttDato: LocalDate?,
-        statusType: DeltakerStatusType,
+        status: DeltakerStatusType,
+        startDato: LocalDate? = LocalDate.now(),
+        sluttDato: LocalDate? = LocalDate.now().plusMonths(1),
         endretTidspunkt: LocalDateTime = LocalDateTime.now(),
     ) = Deltaker(
-        id = UUID.randomUUID(),
+        id = id,
         startDato = startDato,
         sluttDato = sluttDato,
         gjennomforingId = gjennomforingId,
         registrertTidspunkt = endretTidspunkt,
         endretTidspunkt = endretTidspunkt,
         status = DeltakerStatus(
-            type = statusType,
+            type = status,
             aarsak = null,
             opprettetTidspunkt = endretTidspunkt,
         ),

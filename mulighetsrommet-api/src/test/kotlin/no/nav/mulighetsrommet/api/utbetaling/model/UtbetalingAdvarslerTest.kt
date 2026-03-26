@@ -48,13 +48,13 @@ class UtbetalingAdvarslerTest : FunSpec({
                 gjennomforingId = UUID.randomUUID(),
                 startDato = today.minusMonths(1),
                 sluttDato = today.plusMonths(1),
-                statusType = DeltakerStatusType.HAR_SLUTTET,
+                status = DeltakerStatusType.HAR_SLUTTET,
             )
             val deltaker2 = DeltakerFixtures.createDeltaker(
                 gjennomforingId = UUID.randomUUID(),
                 startDato = today.minusMonths(1),
                 sluttDato = today.plusMonths(1),
-                statusType = DeltakerStatusType.DELTAR,
+                status = DeltakerStatusType.DELTAR,
             )
             val feilSluttDato = UtbetalingAdvarsler.deltakereMedFeilSluttDato(listOf(deltaker1, deltaker2), today)
             feilSluttDato shouldHaveSize 1

@@ -5,7 +5,6 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
 import kotlinx.serialization.json.Json
-import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -104,22 +103,20 @@ class GjennomforingEnkeltplassService(
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
     }
 
-    fun upsertFromDeltaker(deltaker: AmtDeltakerEksternV1Dto): GjennomforingEnkeltplass = db.transaction {
+    fun upsertFromDeltaker(deltaker: Deltaker, norskIdent: NorskIdent): GjennomforingEnkeltplass = db.transaction {
+        val gjennomforing = getOrError(deltaker.gjennomforingId)
+
         getDeltaker(deltaker.gjennomforingId)?.let {
             check(it.id == deltaker.id) {
                 "Enkeltplass med id=${deltaker.gjennomforingId} har allerede en annen deltaker"
             }
+
             if (deltaker.endretTidspunkt < it.endretTidspunkt) {
-                return getOrError(deltaker.gjennomforingId)
+                return gjennomforing
             }
         }
 
-        val gjennomforing = getOrError(deltaker.gjennomforingId)
-
-        val norskIdent = when (deltaker.status.type) {
-            DeltakerStatusType.FEILREGISTRERT -> null
-            else -> NorskIdent(deltaker.personIdent)
-        }
+        val norskIdent = norskIdent.takeIf { deltaker.status.type != DeltakerStatusType.FEILREGISTRERT }
         updateFreeTextSearch(gjennomforing, norskIdent)
 
         if (!tiltakstyper.erMigrert(gjennomforing.tiltakstype.tiltakskode)) {
@@ -227,7 +224,7 @@ class GjennomforingEnkeltplassService(
 
 private fun toUpsertGjennomforingEnkeltplass(
     gjennomforing: GjennomforingEnkeltplass,
-    deltaker: AmtDeltakerEksternV1Dto,
+    deltaker: Deltaker,
 ): OpprettGjennomforingEnkeltplass = OpprettGjennomforingEnkeltplass(
     id = gjennomforing.id,
     tiltakstypeId = gjennomforing.tiltakstype.id,
@@ -240,10 +237,10 @@ private fun toUpsertGjennomforingEnkeltplass(
     sluttDato = deltaker.sluttDato,
     status = toGjennomforingStatusType(deltaker),
     // TODO: nullable i stedet for default 100
-    deltidsprosent = deltaker.deltakelsesmengder.lastOrNull()?.deltakelsesprosent?.toDouble() ?: 100.0,
+    deltidsprosent = deltaker.deltakelsesmengder.lastOrNull()?.deltakelsesprosent ?: 100.0,
 )
 
-private fun toGjennomforingStatusType(deltaker: AmtDeltakerEksternV1Dto): GjennomforingStatusType = when (deltaker.status.type) {
+private fun toGjennomforingStatusType(deltaker: Deltaker): GjennomforingStatusType = when (deltaker.status.type) {
     DeltakerStatusType.FEILREGISTRERT,
     DeltakerStatusType.IKKE_AKTUELL,
     DeltakerStatusType.AVBRUTT_UTKAST,

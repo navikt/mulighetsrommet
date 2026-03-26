@@ -7,8 +7,10 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
+import no.nav.mulighetsrommet.api.utbetaling.kafka.toDeltaker
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.util.UUID
 
@@ -28,6 +30,6 @@ class ReplikerDeltakerEnkeltplassKafkaConsumer(
             return
         }
 
-        service.upsertFromDeltaker(amtDeltaker)
+        service.upsertFromDeltaker(amtDeltaker.toDeltaker(), NorskIdent(amtDeltaker.personIdent))
     }
 }
