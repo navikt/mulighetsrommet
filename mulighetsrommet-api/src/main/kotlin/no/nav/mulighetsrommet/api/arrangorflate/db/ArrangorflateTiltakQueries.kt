@@ -45,7 +45,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
         }
 
         val order = when (filter.orderBy) {
-            ArrangorflateTiltakFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn $direction"
+            ArrangorflateTiltakFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, navn $direction"
             ArrangorflateTiltakFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
             ArrangorflateTiltakFilter.OrderBy.START_DATO -> "start_dato $direction"
             ArrangorflateTiltakFilter.OrderBy.SLUTT_DATO -> "slutt_dato $direction"
@@ -54,7 +54,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
 
         @Language("PostgreSQL")
         val query = """
-            select *
+            select *, count(*) over() as total_count
             from view_arrangorflate_tiltak
             where (:sok::text is null
                 or arrangor_navn ilike :sok
@@ -63,7 +63,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
                 or navn ilike :sok
                 or lopenummer ilike :sok
                 or to_char(start_dato, 'DD.MM.YYYY') ilike :sok
-                or to_char(slutt_dato - interval '1 day')::date, 'DD.MM.YYYY') ilike :sok
+                or to_char((slutt_dato - interval '1 day')::date, 'DD.MM.YYYY') ilike :sok
             )
               and tiltakstype_id = any(:tiltakstype_ids)
               and arrangor_organisasjonsnummer = any(:arrangor_orgnrs)
