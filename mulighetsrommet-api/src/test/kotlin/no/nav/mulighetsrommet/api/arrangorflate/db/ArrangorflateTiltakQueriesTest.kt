@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.api.arrangorflate.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -13,7 +15,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import java.util.UUID
 
 class ArrangorflateTiltakQueriesTest : FunSpec({
@@ -37,30 +38,23 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
             queries.arrangorTiltak.getAll(
                 tiltakstyper = listOf(),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                statuser = listOf(GjennomforingStatusType.GJENNOMFORES),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
-            ).shouldBeEmpty()
+                filter = ArrangorflateTiltakFilter(type = ArrangorflateFilterType.AKTIVE),
+            ).items.shouldBeEmpty()
 
             queries.arrangorTiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
                 organisasjonsnummer = listOf(),
-                statuser = listOf(GjennomforingStatusType.GJENNOMFORES),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
-            ).shouldBeEmpty()
+                filter = ArrangorflateTiltakFilter(type = ArrangorflateFilterType.AKTIVE),
+            ).items.shouldBeEmpty()
 
             queries.arrangorTiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                statuser = listOf(),
-                prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
-            ).shouldBeEmpty()
-
-            queries.arrangorTiltak.getAll(
-                tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
-                organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                statuser = listOf(GjennomforingStatusType.GJENNOMFORES),
                 prismodeller = listOf(),
-            ).shouldBeEmpty()
+                filter = ArrangorflateTiltakFilter(type = ArrangorflateFilterType.AKTIVE),
+            ).items.shouldBeEmpty()
         }
     }
 
@@ -69,28 +63,28 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
             queries.arrangorTiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                statuser = listOf(GjennomforingStatusType.GJENNOMFORES),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
-            ) shouldContainExactlyIds listOf(AFT1.id)
+                filter = ArrangorflateTiltakFilter(),
+            ).items shouldContainExactlyIds listOf(AFT1.id)
 
             queries.arrangorTiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.Oppfolging.id),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                statuser = listOf(GjennomforingStatusType.GJENNOMFORES),
                 prismodeller = listOf(
                     PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                     PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                 ),
-            ) shouldContainExactlyIds listOf(AFT1.id, Oppfolging1.id)
+                filter = ArrangorflateTiltakFilter(),
+            ).items shouldContainExactlyIds listOf(AFT1.id, Oppfolging1.id)
 
             queries.arrangorTiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.Oppfolging.id),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                statuser = listOf(GjennomforingStatusType.GJENNOMFORES),
                 prismodeller = listOf(
                     PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                 ),
-            ) shouldContainExactlyIds listOf(Oppfolging1.id)
+                filter = ArrangorflateTiltakFilter(),
+            ).items shouldContainExactlyIds listOf(Oppfolging1.id)
         }
     }
 })

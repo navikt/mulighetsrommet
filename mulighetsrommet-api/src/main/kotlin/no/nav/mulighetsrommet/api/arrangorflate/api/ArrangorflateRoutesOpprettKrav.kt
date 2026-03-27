@@ -25,7 +25,11 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
+import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateGjennomforingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflatePersonalia
@@ -37,6 +41,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonCells
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonColumns
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -50,13 +55,13 @@ import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -112,12 +117,17 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         tags = setOf("Arrangorflate")
         operationId = "getArrangorTiltaksoversikt"
         request {
-            queryParameter<TiltaksoversiktType>("type")
+            queryParameter<String>("sok")
+            queryParameter<Int>("page")
+            queryParameter<Int>("size")
+            queryParameter<ArrangorflateFilterType>("type")
+            queryParameter<ArrangorflateTilsagnFilter.OrderBy>("orderBy")
+            queryParameter<ArrangorflateFilterDirection>("direction")
         }
         response {
             code(HttpStatusCode.OK) {
                 description = "Tiltak for arrangør"
-                body<List<ArrangorInnsendingRadDto>>()
+                body<PaginatedResponse<ArrangorInnsendingRadDto>>()
             }
             default {
                 description = "Problem details"
@@ -131,8 +141,8 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             return@get
         }
 
-        val type = TiltaksoversiktType.from(call.queryParameters["type"])
-        val tiltak = db.session {
+        val filter = getArrangorflateGjennomforingFilter()
+        val (totalCount, items) = db.session {
             val gyldigeTiltakstyper = queries.tiltakstype
                 .getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
                 .map { it.id }
@@ -140,20 +150,18 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             val gyldigePrismodeller = okonomiConfig.opprettKravPrismodeller
 
             if (gyldigePrismodeller.isEmpty() || gyldigeTiltakstyper.isEmpty()) {
-                emptyList()
+                PaginatedResult(totalCount = 0, items = emptyList())
             } else {
                 queries.arrangorTiltak.getAll(
                     tiltakstyper = gyldigeTiltakstyper,
                     organisasjonsnummer = arrangorer,
                     prismodeller = gyldigePrismodeller,
-                    statuser = type.toGjennomforingStatuses(),
+                    filter = filter,
                 )
             }
         }
 
-        call.respond(
-            tiltak.map { it.toRadDto() },
-        )
+        call.respond(PaginatedResponse.of(filter.pagination, totalCount, items.map { it.toRadDto() }))
     }
 
     route("/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav") {
@@ -194,7 +202,12 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                         typer = tilsagnstyper,
                         gjennomforingId = tiltak.id,
                     )
-                    .map { ArrangorflateTilsagnDto.from(it, arrangorflateService.getTilsagnDeltakerPersonalia(it.deltakere)) }
+                    .map {
+                        ArrangorflateTilsagnDto.from(
+                            it,
+                            arrangorflateService.getTilsagnDeltakerPersonalia(it.deltakere),
+                        )
+                    }
             }
 
             // TODO: Inkluder filtrering på eksisternde utbetalinger
@@ -314,30 +327,6 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                         }
                         .onRight { utbetaling -> call.respond(OpprettKravOmUtbetalingResponse(utbetaling.id)) }
                 }
-        }
-    }
-}
-
-@Serializable
-enum class TiltaksoversiktType {
-    AKTIVE,
-    HISTORISKE,
-    ;
-
-    fun toGjennomforingStatuses(): List<GjennomforingStatusType> = when (this) {
-        AKTIVE -> listOf(GjennomforingStatusType.GJENNOMFORES)
-        HISTORISKE -> GjennomforingStatusType.entries.filter { it != GjennomforingStatusType.GJENNOMFORES }
-    }
-
-    companion object {
-        /**
-         * Defaulter til AKTIVE
-         */
-
-        fun from(type: String?): TiltaksoversiktType = when (type) {
-            "AKTIVE" -> AKTIVE
-            "HISTORISKE" -> HISTORISKE
-            else -> AKTIVE
         }
     }
 }

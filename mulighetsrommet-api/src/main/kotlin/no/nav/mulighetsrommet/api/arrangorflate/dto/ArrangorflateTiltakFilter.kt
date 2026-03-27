@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.database.utils.Pagination
 
-data class ArrangorflateUtbetalingFilter(
+data class ArrangorflateTiltakFilter(
     val sok: String? = null,
     val type: ArrangorflateFilterType = ArrangorflateFilterType.AKTIVE,
     val pagination: Pagination = Pagination.all(),
@@ -16,8 +16,8 @@ data class ArrangorflateUtbetalingFilter(
     enum class OrderBy {
         TILTAK,
         ARRANGOR,
-        PERIODE,
-        BELOP,
+        START_DATO,
+        SLUTT_DATO,
         STATUS,
         ;
 
@@ -27,7 +27,7 @@ data class ArrangorflateUtbetalingFilter(
     }
 }
 
-fun RoutingContext.getArrangorflateUtbetalingFilter(): ArrangorflateUtbetalingFilter {
+fun RoutingContext.getArrangorflateGjennomforingFilter(): ArrangorflateTiltakFilter {
     val sok = call.queryParameters["sok"]?.ifBlank { null }
     val type = ArrangorflateFilterType.from(call.queryParameters["type"])
     val pagination = when (type) {
@@ -36,9 +36,9 @@ fun RoutingContext.getArrangorflateUtbetalingFilter(): ArrangorflateUtbetalingFi
         ArrangorflateFilterType.HISTORISKE ->
             getPaginationParams()
     }
-    val orderBy = ArrangorflateUtbetalingFilter.OrderBy.from(call.parameters["orderBy"])
+    val orderBy = ArrangorflateTiltakFilter.OrderBy.from(call.parameters["orderBy"])
     val direction = ArrangorflateFilterDirection.from(call.parameters["direction"])
-    return ArrangorflateUtbetalingFilter(
+    return ArrangorflateTiltakFilter(
         sok,
         type,
         pagination,

@@ -14,13 +14,50 @@ paths:
       description: Hent tiltakene for alle arrangører brukeren har tilgang til
       operationId: getArrangorTiltaksoversikt
       parameters:
+      - name: sok
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
       - name: type
         in: query
         required: false
         deprecated: false
         explode: false
         schema:
-          $ref: "#/components/schemas/TiltaksoversiktType"
+          $ref: "#/components/schemas/ArrangorflateFilterType"
+      - name: orderBy
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ArrangorflateTilsagnFilter.OrderBy"
+      - name: direction
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ArrangorflateFilterDirection"
       responses:
         "200":
           description: Tiltak for arrangør
@@ -28,9 +65,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorInnsendingRadDto"
+                $ref: "#/components/schemas/PaginatedResponse_ArrangorInnsendingRadDto"
         default:
           description: Problem details
           headers: {}
@@ -232,7 +267,7 @@ paths:
         deprecated: false
         explode: false
         schema:
-          $ref: "#/components/schemas/ArrangorflateTilsagnFilter.Direction"
+          $ref: "#/components/schemas/ArrangorflateFilterDirection"
       responses:
         "200":
           description: Paginert tilsagn i tabellrad format
@@ -317,7 +352,7 @@ paths:
         deprecated: false
         explode: false
         schema:
-          $ref: "#/components/schemas/ArrangorflateUtbetalingFilter.Type"
+          $ref: "#/components/schemas/ArrangorflateFilterType"
       - name: orderBy
         in: query
         required: false
@@ -331,7 +366,7 @@ paths:
         deprecated: false
         explode: false
         schema:
-          $ref: "#/components/schemas/ArrangorflateUtbetalingFilter.Direction"
+          $ref: "#/components/schemas/ArrangorflateFilterDirection"
       responses:
         "200":
           description: Utbetalinger i tabellformat
@@ -663,11 +698,40 @@ components:
       type: number
       enum:
         - 1
-    TiltaksoversiktType:
+    ArrangorflateFilterType:
       type: string
       enum:
       - AKTIVE
       - HISTORISKE
+    ArrangorflateTilsagnFilter.OrderBy:
+      type: string
+      enum:
+      - TILTAK
+      - ARRANGOR
+      - PERIODE
+      - TILSAGN
+      - STATUS
+    ArrangorflateFilterDirection:
+      type: string
+      enum:
+      - ASC
+      - DESC
+    PaginationSummary:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+      required:
+      - pageSize
+      - totalCount
+      - totalPages
     ArrangorInnsendingRadDto:
       type: object
       properties:
@@ -748,6 +812,18 @@ components:
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
       - AVBRUTT
+    PaginatedResponse_ArrangorInnsendingRadDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorInnsendingRadDto"
+      required:
+      - data
+      - pagination
     ProblemDetail:
       type: object
       additionalProperties: {}
@@ -1397,35 +1473,6 @@ components:
           format: uuid
       required:
       - id
-    ArrangorflateTilsagnFilter.OrderBy:
-      type: string
-      enum:
-      - TILTAK
-      - ARRANGOR
-      - PERIODE
-      - TILSAGN
-      - STATUS
-    ArrangorflateTilsagnFilter.Direction:
-      type: string
-      enum:
-      - ASC
-      - DESC
-    PaginationSummary:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          format: int32
-        pageSize:
-          type: integer
-          format: int32
-        totalPages:
-          type: integer
-          format: int32
-      required:
-      - pageSize
-      - totalCount
-      - totalPages
     ArrangorflateTilsagnRadDto:
       type: object
       properties:
@@ -1467,11 +1514,6 @@ components:
       required:
       - data
       - pagination
-    ArrangorflateUtbetalingFilter.Type:
-      type: string
-      enum:
-      - AKTIVE
-      - HISTORISKE
     ArrangorflateUtbetalingFilter.OrderBy:
       type: string
       enum:
@@ -1480,23 +1522,6 @@ components:
       - PERIODE
       - BELOP
       - STATUS
-    ArrangorflateUtbetalingFilter.Direction:
-      type: string
-      enum:
-      - ASC
-      - DESC
-    PaginatedResponse_ArrangorInnsendingRadDto:
-      type: object
-      properties:
-        pagination:
-          $ref: "#/components/schemas/PaginationSummary"
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrangorInnsendingRadDto"
-      required:
-      - data
-      - pagination
     BBan:
       type: object
       properties:
