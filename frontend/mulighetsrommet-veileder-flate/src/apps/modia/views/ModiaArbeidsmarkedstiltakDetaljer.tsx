@@ -36,6 +36,7 @@ import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { isTilbakemeldingerEnabled } from "@/apps/modia/features";
 import { OpprettAvtale } from "@/components/pamelding/OpprettAvtale";
 import { StartPameldingEnkeltplass } from "@/components/pamelding/StartPameldingEnkeltplass";
+import { isProduction } from "@/environment";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -97,7 +98,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               />
             )}
 
-            {isTiltakEnkeltplass(tiltak) && (
+            {!isProduction && isTiltakEnkeltplass(tiltak) && (
               <StartPameldingEnkeltplass
                 tiltakstype={tiltakstype}
                 harRettPaaTiltak={brukerHarRettPaaValgtTiltak}
