@@ -52,14 +52,14 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
     val migrert = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT))
 
-    context("upsertFromDeltaker") {
+    context("updateFromDeltaker") {
         test("lagrer hash av norsk ident i fritekstsøk for aktiv deltaker") {
             val deltaker = DeltakerFixtures.createDeltaker(
                 gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                 status = DeltakerStatusType.DELTAR,
             )
 
-            createService().upsertFromDeltaker(deltaker, norskIdent)
+            createService().updateFromDeltaker(deltaker, norskIdent)
 
             database.run {
                 queries.gjennomforing.getAll(search = "12345678910").items.shouldBeEmpty()
@@ -75,7 +75,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 status = DeltakerStatusType.FEILREGISTRERT,
             )
 
-            createService().upsertFromDeltaker(deltaker, norskIdent)
+            createService().updateFromDeltaker(deltaker, norskIdent)
 
             database.run {
                 queries.gjennomforing.getAll(
@@ -99,7 +99,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.DELTAR,
                 )
 
-                createService().upsertFromDeltaker(deltaker, norskIdent)
+                createService().updateFromDeltaker(deltaker, norskIdent)
             }
 
             test("kaster exception når gjennomføringen allerede har en annen deltaker") {
@@ -116,7 +116,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 )
 
                 shouldThrow<IllegalStateException> {
-                    createService().upsertFromDeltaker(nyDeltaker, norskIdent)
+                    createService().updateFromDeltaker(nyDeltaker, norskIdent)
                 }.message shouldBe "Enkeltplass med id=${GjennomforingFixtures.EnkelAmo.id} har allerede en annen deltaker"
             }
         }
@@ -130,7 +130,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2026, 6, 1),
                 )
 
-                val gjennomforing = createService().upsertFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService().updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
                 gjennomforing.sluttDato shouldBe GjennomforingFixtures.EnkelAmo.sluttDato
@@ -143,7 +143,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.DELTAR,
                 )
 
-                createService().upsertFromDeltaker(deltaker, norskIdent)
+                createService().updateFromDeltaker(deltaker, norskIdent)
 
                 database.run {
                     queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldBeEmpty()
@@ -163,7 +163,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     sluttDato = sluttDato,
                 )
 
-                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.startDato shouldBe startDato
                 gjennomforing.sluttDato shouldBe sluttDato
@@ -177,7 +177,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     startDato = null,
                 )
 
-                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
             }
@@ -188,7 +188,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.FEILREGISTRERT,
                 )
 
-                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.status shouldBe GjennomforingStatusType.AVBRUTT
             }
@@ -199,7 +199,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.FULLFORT,
                 )
 
-                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.status shouldBe GjennomforingStatusType.AVSLUTTET
             }
@@ -221,7 +221,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     ),
                 )
 
-                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.deltidsprosent shouldBe 75.0
             }
@@ -232,7 +232,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.DELTAR,
                 ).copy(deltakelsesmengder = emptyList())
 
-                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.deltidsprosent shouldBe 100.0
             }
@@ -248,7 +248,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     sluttDato = sluttDato,
                 )
 
-                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.startDato shouldBe startDato
                 gjennomforing.sluttDato shouldBe sluttDato
@@ -261,7 +261,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.DELTAR,
                 )
 
-                createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+                createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 database.run {
                     queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC))
@@ -292,7 +292,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.AVBRUTT,
                     endretTidspunkt = nyereEndretTidspunkt,
                 )
-                service.upsertFromDeltaker(
+                service.updateFromDeltaker(
                     deltakerAvbrutt,
                     norskIdent,
                 ).status shouldBe GjennomforingStatusType.AVBRUTT
@@ -303,7 +303,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.DELTAR,
                     endretTidspunkt = nyereEndretTidspunkt,
                 )
-                service.upsertFromDeltaker(
+                service.updateFromDeltaker(
                     deltakerDeltar,
                     norskIdent,
                 ).status shouldBe GjennomforingStatusType.GJENNOMFORES
@@ -325,7 +325,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     endretTidspunkt = tidligereEndretTidspunkt,
                 )
 
-                val gjennomforing = createService(migrert).upsertFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
             }

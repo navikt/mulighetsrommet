@@ -30,6 +30,6 @@ class ReplikerDeltakerEnkeltplassKafkaConsumer(
             return
         }
 
-        service.upsertFromDeltaker(amtDeltaker.toDeltaker(), NorskIdent(amtDeltaker.personIdent))
+        service.updateFromDeltaker(amtDeltaker.toDeltaker(), NorskIdent(amtDeltaker.personIdent))
     }
 }

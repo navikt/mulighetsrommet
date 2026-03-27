@@ -103,7 +103,7 @@ class GjennomforingEnkeltplassService(
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
     }
 
-    fun upsertFromDeltaker(deltaker: Deltaker, norskIdent: NorskIdent): GjennomforingEnkeltplass = db.transaction {
+    fun updateFromDeltaker(deltaker: Deltaker, norskIdent: NorskIdent): GjennomforingEnkeltplass = db.transaction {
         val gjennomforing = getOrError(deltaker.gjennomforingId)
 
         getDeltaker(deltaker.gjennomforingId)?.let {
