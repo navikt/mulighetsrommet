@@ -12,7 +12,6 @@ import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { useVeilederdata } from "@/apps/modia/hooks/useVeilederdata";
 import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
-import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride";
 import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGruppetiltak";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
@@ -52,8 +51,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const pagination = useAtomValue(paginationAtom);
 
   const tiltakstype = tiltak.tiltakstype;
-  const kanOppretteAvtale =
-    brukerdata.erUnderOppfolging && kanOppretteAvtaleOmTiltaksplass(tiltakstype);
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
 
   const dialogRoute = deltMedBruker
@@ -87,10 +84,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               tekst="Gå til oversikt over aktuelle tiltak"
             />
             <div>
-              <DetaljerJoyride opprettAvtale={kanOppretteAvtale} />
-              {kanOppretteAvtale ? (
-                <OpprettAvtaleJoyride opprettAvtale={kanOppretteAvtale} />
-              ) : null}
+              <DetaljerJoyride />
             </div>
           </>
         }
@@ -163,21 +157,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 function resolveName(ansatt: NavVeilederDto) {
   return [ansatt.fornavn, ansatt.etternavn].filter((part) => part !== "").join(" ");
 }
-
-function kanOppretteAvtaleOmTiltaksplass(tiltakstype: VeilederflateTiltakstype): boolean {
-  return !!tiltakstype.arenakode && whiteListOpprettAvtaleKnapp.includes(tiltakstype.arenakode);
-}
-
-// TODO: enten fikse enum for arena-koder, eller introdusere Team tiltak sine koder
-const whiteListOpprettAvtaleKnapp: string[] = [
-  "MIDLONTIL",
-  "ARBTREN",
-  "VARLONTIL",
-  "MENTOR",
-  "INKLUTILS",
-  "TILSJOBB",
-  "VATIAROR",
-];
 
 function harBrukerRettPaaValgtTiltak(
   bruker: Brukerdata,
