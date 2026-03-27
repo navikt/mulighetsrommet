@@ -60,7 +60,7 @@ export function PameldingForGruppetiltak({
 
   if (brukerHarRettPaaValgtTiltak) {
     const opprettDeltakelseRoute = resolveModiaRoute({
-      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
+      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE_PAMELDING,
       gjennomforingId,
     });
 

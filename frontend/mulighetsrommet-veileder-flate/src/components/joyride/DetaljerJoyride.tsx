@@ -2,14 +2,10 @@ import { JoyrideType } from "@api-client";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
 import { useJoyride } from "@/api/queries/useJoyride";
 import { JoyrideKnapp } from "./JoyrideKnapp";
-import { detaljerSteps, isStep, useSteps } from "./Steps";
+import { detaljerSteps, useSteps } from "./Steps";
 import { locale, styling } from "./config";
 
-interface Props {
-  opprettAvtale: boolean;
-}
-
-export function DetaljerJoyride({ opprettAvtale }: Props) {
+export function DetaljerJoyride() {
   const { isReady, setIsReady, setHarFullfort } = useJoyride(JoyrideType.DETALJER);
   const { steps, stepIndex, setStepIndex } = useSteps(isReady, detaljerSteps);
 
@@ -25,13 +21,6 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     //kjører neste step når man klikker på neste
     if (EVENTS.STEP_AFTER === type) {
       setStepIndex(nextStepIndex);
-    }
-
-    if (!opprettAvtale) {
-      //hopper over steget med opprett avtale for at den skal kjøre videre til neste steg
-      if (isStep(data.step, "opprett-avtale")) {
-        setStepIndex(nextStepIndex);
-      }
     }
 
     //resetter joyride ved error
