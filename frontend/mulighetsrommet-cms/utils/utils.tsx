@@ -23,24 +23,32 @@ const TILTAK_GRUPPE_DEV = [
 ];
 
 const TILTAK_ENKELTPLASS_PROD = [
+  "bf6dfa92-2aed-4480-a40c-f4d831aa058c", // Arbeidsmarkedsopplæring (AMO)
   "bab45555-4631-4e5e-9a17-365fc7b335de", // Arbeidstrening
-  "6f46bd0b-c9a7-4b03-bd16-e51a8f80f88d", // Fag- og yrkesopplæring eller fagskole (enkeltplass)
+  "4f545d9f-6084-479f-b5dc-fe4ba60454ed", // Fag- og yrkesopplæring
+  "58e427ab-15a1-46fb-92f2-1b8ba6e06f48", // Fagskole (høyere yrkesfaglig utdanning)
   "4457d760-81a4-4c16-8ab3-64c72d424db2", // Høyere utdanning
   "2ba9c085-3780-420a-a5d5-820788c74d29", // Inkluderingstilskudd
   "5328120c-028b-4ede-8250-ebf22536b021", // Mentor
   "d1521b2f-589b-4101-ae11-bd555314b905", // Midlertidig lønnstilskudd
+  "20159c05-776c-43a6-b748-60f8ed8e79c4", // Norskopplæring, grunnleggende ferdigheter og FOV
+  "15f51bbc-2e9f-4bd4-beae-1bf8ccd65f6a", // Studiespesialisering
   "18ff4bef-f62e-444a-920f-e30bde5c3950", // Tilskudd til sommerjobb
   "9911dbcb-b67f-408f-9c0c-4d7f67a863d8", // Varig lønnstilskudd
   "661e79e6-721b-452c-a6d4-8c71493f15e3", // Varig tilrettelagt arbeid i ordinær virksomhet
 ];
 
 const TILTAK_ENKELTPLASS_DEV = [
+  "c03e5868-d7c1-454d-812c-29e210c5a328", // Arbeidsmarkedsopplæring (AMO)
   "e8406a67-fabe-4da6-804c-c77a33aaf67d", // Arbeidstrening
-  "222a0065-9777-4e09-b2cf-4f48759f86e3", // Fag- og yrkesopplæring eller fagskole (enkeltplass)
+  "2f56f02f-fa83-4dc0-a9c9-73762e7dca9b", // Fag- og yrkesopplæring
+  "88933e9c-432d-4121-88a3-4b82e2845b0c", // Fagskole (høyere yrkesfaglig utdanning)
   "7e159ff3-ff29-49ea-a48d-04383f6317ca", // Høyere utdanning
   "828f80b1-7d75-40dd-84b7-09e694e5c565", // Inkluderingstilskudd
   "ad998fc6-310e-45d4-a056-57732fed87b4", // Mentor
   "a97fd87c-d7c1-49af-b3fb-cf5e5c10522a", // Midlertidig lønnstilskudd
+  "0ba6ded4-7957-4a77-acc4-dcefe0b14b2b", // Norskopplæring, grunnleggende ferdigheter og FOV
+  "dc59c7e8-bef8-4eb0-82ac-be3ad8a24be3", // Studiespesialisering
   "69fcedf9-8f85-498d-ae9e-fcdcf4931e2b", // Tilskudd til sommerjobb
   "6de22004-9fb8-4c84-9b75-dc8132a78cd2", // Varig lønnstilskudd
   "8d8abebd-3617-494a-a687-d44810e0a7ee", // Varig tilrettelagt arbeid i ordinær virksomhet
