@@ -50,7 +50,7 @@ paths:
         deprecated: false
         explode: false
         schema:
-          $ref: "#/components/schemas/ArrangorflateTilsagnFilter.OrderBy"
+          $ref: "#/components/schemas/ArrangorflateTiltakFilter.OrderBy"
       - name: direction
         in: query
         required: false
@@ -703,13 +703,13 @@ components:
       enum:
       - AKTIVE
       - HISTORISKE
-    ArrangorflateTilsagnFilter.OrderBy:
+    ArrangorflateTiltakFilter.OrderBy:
       type: string
       enum:
       - TILTAK
       - ARRANGOR
-      - PERIODE
-      - TILSAGN
+      - START_DATO
+      - SLUTT_DATO
       - STATUS
     ArrangorflateFilterDirection:
       type: string
@@ -1473,6 +1473,14 @@ components:
           format: uuid
       required:
       - id
+    ArrangorflateTilsagnFilter.OrderBy:
+      type: string
+      enum:
+      - TILTAK
+      - ARRANGOR
+      - PERIODE
+      - TILSAGN
+      - STATUS
     ArrangorflateTilsagnRadDto:
       type: object
       properties:

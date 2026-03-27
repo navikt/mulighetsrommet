@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateGjennomforingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
@@ -121,7 +122,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             queryParameter<Int>("page")
             queryParameter<Int>("size")
             queryParameter<ArrangorflateFilterType>("type")
-            queryParameter<ArrangorflateTilsagnFilter.OrderBy>("orderBy")
+            queryParameter<ArrangorflateTiltakFilter.OrderBy>("orderBy")
             queryParameter<ArrangorflateFilterDirection>("direction")
         }
         response {
