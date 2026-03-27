@@ -1,5 +1,6 @@
 import {
   isTiltakAktivt,
+  isTiltakEnkeltplass,
   isTiltakGruppe,
   useModiaArbeidsmarkedstiltakById,
 } from "@/api/queries/useArbeidsmarkedstiltakById";
@@ -37,6 +38,7 @@ import { Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { isTilbakemeldingerEnabled } from "@/apps/modia/features";
+import { StartPameldingEnkeltplass } from "@/components/pamelding/StartPameldingEnkeltplass";
 
 const TEAM_TILTAK_OPPRETT_AVTALE_URL = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/opprett-avtale`;
 
@@ -55,7 +57,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 
   const tiltakstype = tiltak.tiltakstype;
   const kanOppretteAvtale =
-    kanOppretteAvtaleOmTiltaksplass(tiltakstype) && brukerdata.erUnderOppfolging;
+    brukerdata.erUnderOppfolging && kanOppretteAvtaleOmTiltaksplass(tiltakstype);
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
 
   const dialogRoute = deltMedBruker
@@ -112,14 +114,21 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {isTiltakGruppe(tiltak) && isTiltakAktivt(tiltak) ? (
+            {isTiltakEnkeltplass(tiltak) && (
+              <StartPameldingEnkeltplass
+                tiltakstype={tiltakstype}
+                harRettPaaTiltak={brukerHarRettPaaValgtTiltak}
+              />
+            )}
+
+            {isTiltakGruppe(tiltak) && isTiltakAktivt(tiltak) && (
               <PameldingForGruppetiltak
                 brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
                 tiltak={tiltak}
               />
-            ) : null}
+            )}
 
-            {brukerdata.erUnderOppfolging && isTiltakAktivt(tiltak) ? (
+            {brukerdata.erUnderOppfolging && isTiltakAktivt(tiltak) && (
               <DelMedBruker
                 deltMedBruker={deltMedBruker ?? undefined}
                 veiledernavn={resolveName(veileder)}
@@ -127,9 +136,9 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 bruker={brukerdata}
                 veilederEnhet={enhet}
               />
-            ) : null}
+            )}
 
-            {dialogRoute && brukerdata.erUnderOppfolging && (
+            {brukerdata.erUnderOppfolging && dialogRoute && (
               <Button
                 className="flex"
                 size="small"
@@ -141,11 +150,12 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
+            {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet && (
               <ArbeidsmarkedstiltakErrorBoundary>
                 <PersonvernContainer tiltak={tiltak} />
               </ArbeidsmarkedstiltakErrorBoundary>
-            ) : null}
+            )}
+
             {tiltak.faneinnhold?.lenker && <LenkeListe lenker={tiltak.faneinnhold.lenker} />}
 
             {isTilbakemeldingerEnabled(tiltak) && (
