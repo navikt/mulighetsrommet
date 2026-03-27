@@ -17,10 +17,7 @@ import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGru
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import {
-  PORTEN_URL_FOR_TILBAKEMELDING,
-  TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL,
-} from "@/constants";
+import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
 import { paginationAtom } from "@/core/atoms";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
@@ -38,9 +35,8 @@ import { Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { isTilbakemeldingerEnabled } from "@/apps/modia/features";
+import { OpprettAvtale } from "@/components/pamelding/OpprettAvtale";
 import { StartPameldingEnkeltplass } from "@/components/pamelding/StartPameldingEnkeltplass";
-
-const TEAM_TILTAK_OPPRETT_AVTALE_URL = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/opprett-avtale`;
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -100,18 +96,11 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
         }
         brukerActions={
           <>
-            {kanOppretteAvtale && (
-              <Button
-                onClick={() => {
-                  window.open(TEAM_TILTAK_OPPRETT_AVTALE_URL, "_blank");
-                }}
-                variant="primary"
-                aria-label="Opprett avtale"
-                data-testid="opprettavtaleknapp"
-                disabled={!brukerHarRettPaaValgtTiltak}
-              >
-                Opprett avtale
-              </Button>
+            {isTiltakEnkeltplass(tiltak) && (
+              <OpprettAvtale
+                tiltakstype={tiltakstype}
+                harRettPaaTiltak={brukerHarRettPaaValgtTiltak}
+              />
             )}
 
             {isTiltakEnkeltplass(tiltak) && (
