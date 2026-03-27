@@ -68,45 +68,45 @@ class ReplikerDeltakerKafkaConsumer(
             return false
         }
 
-        return deltaker != Deltaker(
-            id = deltakerEkstern.id,
-            gjennomforingId = deltakerEkstern.gjennomforingId,
-            startDato = deltakerEkstern.startDato,
-            sluttDato = deltakerEkstern.sluttDato,
-            registrertTidspunkt = deltakerEkstern.registrertTidspunkt,
-            endretTidspunkt = deltakerEkstern.endretTidspunkt,
-            status = deltakerEkstern.status.toDeltakerStatus(),
-            deltakelsesmengder = deltakerEkstern.deltakelsesmengder.map {
-                Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble())
-            },
-            innholdAnnet = deltakerEkstern.innhold?.let {
-                it.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
-            },
-        )
+        return deltaker != deltakerEkstern.toDeltaker()
     }
 }
 
-fun AmtDeltakerEksternV1Dto.toDeltakerDbo(): DeltakerDbo {
-    return DeltakerDbo(
-        id = id,
-        gjennomforingId = gjennomforingId,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        registrertTidspunkt = registrertTidspunkt,
-        endretTidspunkt = truncateMicros(endretTidspunkt),
-        status = status.toDeltakerStatus(),
-        deltakelsesmengder = deltakelsesmengder.map {
-            DeltakerDbo.Deltakelsesmengde(
-                gyldigFra = it.gyldigFraDato,
-                opprettetTidspunkt = it.opprettetTidspunkt,
-                deltakelsesprosent = it.deltakelsesprosent.toDouble(),
-            )
-        },
-        innholdAnnet = innhold?.let {
-            it.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
-        },
-    )
-}
+fun AmtDeltakerEksternV1Dto.toDeltaker(): Deltaker = Deltaker(
+    id = id,
+    gjennomforingId = gjennomforingId,
+    startDato = startDato,
+    sluttDato = sluttDato,
+    registrertTidspunkt = registrertTidspunkt,
+    endretTidspunkt = truncateMicros(endretTidspunkt),
+    status = status.toDeltakerStatus(),
+    deltakelsesmengder = deltakelsesmengder.map {
+        Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble())
+    },
+    innholdAnnet = innhold?.let { innhold ->
+        innhold.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
+    },
+)
+
+fun AmtDeltakerEksternV1Dto.toDeltakerDbo(): DeltakerDbo = DeltakerDbo(
+    id = id,
+    gjennomforingId = gjennomforingId,
+    startDato = startDato,
+    sluttDato = sluttDato,
+    registrertTidspunkt = registrertTidspunkt,
+    endretTidspunkt = truncateMicros(endretTidspunkt),
+    status = status.toDeltakerStatus(),
+    deltakelsesmengder = deltakelsesmengder.map {
+        DeltakerDbo.Deltakelsesmengde(
+            gyldigFra = it.gyldigFraDato,
+            opprettetTidspunkt = it.opprettetTidspunkt,
+            deltakelsesprosent = it.deltakelsesprosent.toDouble(),
+        )
+    },
+    innholdAnnet = innhold?.let { innhold ->
+        innhold.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
+    },
+)
 
 private fun AmtDeltakerEksternV1Dto.StatusDto.toDeltakerStatus(): DeltakerStatus = DeltakerStatus(
     type = type,
