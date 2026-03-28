@@ -15,7 +15,7 @@ export const QueryKeys = {
   oppgaver: (filter?: object) => ["oppgaver", { ...filter }] as const,
   oppgavetyper: () => ["oppgaver", "oppgavetyper"] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
-  gjennomforinger: (filter?: Pick<GetGjennomforingerData, "query">) =>
+  gjennomforinger: (filter?: Pick<GetGjennomforingerData, "body" | "query">) =>
     ["gjennomforinger", filter].filter((entry) => entry !== undefined),
   gjennomforing: (id?: string) => ["gjennomforing", id] as const,
   gjennomforingHandlinger: (id: string) => ["gjennomforing-handlinger", id] as const,
@@ -24,7 +24,8 @@ export const QueryKeys = {
     return ["gjennomforing", id, "deltaker-summary"] as const;
   },
   ansatt: () => ["ansatt"] as const,
-  avtaler: (avtaleFilter?: Pick<GetAvtalerData, "query">) => ["avtaler", avtaleFilter] as const,
+  avtaler: (filter?: Pick<GetAvtalerData, "body" | "query">) =>
+    ["avtaler", filter].filter((part) => part !== undefined),
   avtale: (id?: string | null) => ["avtale", id] as const,
   avtaleRammedetaljer: (avtaleId?: string | null) => ["avtale", avtaleId, "rammedetaljer"] as const,
   avtaleRammedetaljerDefaults: (avtaleId?: string | null) =>

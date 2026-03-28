@@ -413,6 +413,7 @@ private fun services(appConfig: AppConfig) = module {
             GjennomforingEnkeltplassService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
             get(),
             get(),
+            get(),
         )
     }
     single {

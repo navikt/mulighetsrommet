@@ -17,9 +17,12 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Map
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.validation.Validated
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -49,6 +52,7 @@ class GjennomforingEnkeltplassService(
     private val config: Config,
     private val db: ApiDatabase,
     private val personaliaService: PersonaliaService,
+    private val tiltakstyper: TiltakstypeService,
 ) {
     data class Config(
         val gjennomforingV2Topic: String,
@@ -99,22 +103,45 @@ class GjennomforingEnkeltplassService(
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
     }
 
-    fun updateFreeTextSearch(id: UUID, norskIdent: NorskIdent?) = db.transaction {
-        val gjennomforing = getOrError(id)
+    fun updateFromDeltaker(deltaker: Deltaker, norskIdent: NorskIdent): GjennomforingEnkeltplass = db.transaction {
+        val gjennomforing = getOrError(deltaker.gjennomforingId)
+
+        getDeltaker(deltaker.gjennomforingId)?.let {
+            check(it.id == deltaker.id) {
+                "Enkeltplass med id=${deltaker.gjennomforingId} har allerede en annen deltaker"
+            }
+
+            if (deltaker.endretTidspunkt < it.endretTidspunkt) {
+                return gjennomforing
+            }
+        }
+
+        val norskIdent = norskIdent.takeIf { deltaker.status.type != DeltakerStatusType.FEILREGISTRERT }
         updateFreeTextSearch(gjennomforing, norskIdent)
+
+        if (!tiltakstyper.erMigrert(gjennomforing.tiltakstype.tiltakskode)) {
+            return gjennomforing
+        }
+
+        upsert(toUpsertGjennomforingEnkeltplass(gjennomforing, deltaker)).also {
+            publishTiltaksgjennomforingV2ToKafka(it)
+        }
     }
 
-    private suspend fun getDeltakerPersonalia(gjennomforingId: UUID, accessType: AccessType): Personalia? {
-        val deltakelser = db.session { queries.deltaker.getByGjennomforingId(gjennomforingId) }
-        if (deltakelser.size > 1) {
-            throw Exception("Forventet kun én deltaker på en enkeltplass-gjennomføring")
-        }
-        val deltakerId = deltakelser.firstOrNull()?.id
-
-        return deltakerId
-            ?.let { personaliaService.getPersonalia(listOf(deltakerId), accessType) }
-            ?.getOrNone(deltakerId)
+    private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID, accessType: AccessType): Personalia? {
+        val deltaker = getDeltaker(gjennomforingId)
+        return deltaker
+            ?.let { personaliaService.getPersonalia(listOf(it.id), accessType) }
+            ?.getOrNone(deltaker.id)
             ?.getOrNull()
+    }
+
+    private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker? {
+        val deltakelser = queries.deltaker.getByGjennomforingId(gjennomforingId)
+        if (deltakelser.size > 1) {
+            throw IllegalStateException("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet kun én)")
+        }
+        return deltakelser.firstOrNull()
     }
 
     private fun QueryContext.upsert(opprett: OpprettGjennomforingEnkeltplass): GjennomforingEnkeltplass {
@@ -186,6 +213,46 @@ class GjennomforingEnkeltplassService(
         )
         queries.kafkaProducerRecord.storeRecord(record)
     }
+}
+
+private fun toUpsertGjennomforingEnkeltplass(
+    gjennomforing: GjennomforingEnkeltplass,
+    deltaker: Deltaker,
+): OpprettGjennomforingEnkeltplass = OpprettGjennomforingEnkeltplass(
+    id = gjennomforing.id,
+    tiltakstypeId = gjennomforing.tiltakstype.id,
+    arrangorId = gjennomforing.arrangor.id,
+    navn = gjennomforing.navn,
+    arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+    arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
+    antallPlasser = gjennomforing.antallPlasser,
+    startDato = deltaker.startDato ?: gjennomforing.startDato,
+    sluttDato = deltaker.sluttDato,
+    status = toGjennomforingStatusType(deltaker),
+    // TODO: nullable i stedet for default 100
+    deltidsprosent = deltaker.deltakelsesmengder.lastOrNull()?.deltakelsesprosent ?: 100.0,
+)
+
+private fun toGjennomforingStatusType(deltaker: Deltaker): GjennomforingStatusType = when (deltaker.status.type) {
+    DeltakerStatusType.FEILREGISTRERT,
+    DeltakerStatusType.IKKE_AKTUELL,
+    DeltakerStatusType.AVBRUTT_UTKAST,
+    DeltakerStatusType.AVBRUTT,
+    -> GjennomforingStatusType.AVBRUTT
+
+    DeltakerStatusType.KLADD,
+    DeltakerStatusType.PABEGYNT_REGISTRERING,
+    DeltakerStatusType.UTKAST_TIL_PAMELDING,
+    DeltakerStatusType.SOKT_INN,
+    DeltakerStatusType.VURDERES,
+    DeltakerStatusType.VENTELISTE,
+    DeltakerStatusType.VENTER_PA_OPPSTART,
+    DeltakerStatusType.DELTAR,
+    -> GjennomforingStatusType.GJENNOMFORES
+
+    DeltakerStatusType.FULLFORT,
+    DeltakerStatusType.HAR_SLUTTET,
+    -> GjennomforingStatusType.AVSLUTTET
 }
 
 private fun harEnkeltplassEndringer(opprett: OpprettGjennomforingEnkeltplass, gjennomforing: Gjennomforing): Boolean {

@@ -1,120 +1,110 @@
 import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjengeligForArrangor";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import {
-  FieldError,
   GjennomforingAvtaleDto,
   GjennomforingHandling,
   SetTilgjengligForArrangorRequest,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
-import { useRef } from "react";
+import { BodyShort, Button, Dialog, HStack, InfoCard } from "@navikt/ds-react";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { formaterDato, maxOf, subDuration } from "@mr/frontend-common/utils/date";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
+import { FormDateInput } from "@/components/skjema/FormDateInput";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 interface Props {
   gjennomforing: GjennomforingAvtaleDto;
 }
 
 export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
-  const modalRef = useRef<HTMLDialogElement>(null);
+  const [open, setOpen] = useState(false);
+
   const handlinger = useGjennomforingHandlinger(gjennomforing.id);
-  const setTilgjengeligForArrangorMutation = useSetTilgjengeligForArrangor();
+  const setTilgjengeligForArrangorMutation = useSetTilgjengeligForArrangor(gjennomforing.id);
 
   const form = useForm<SetTilgjengligForArrangorRequest>({
-    resolver: async (values) => ({ values, errors: {} }),
-    defaultValues: {
-      tilgjengeligForArrangorDato: gjennomforing.tilgjengeligForArrangorDato,
-    },
+    defaultValues: toDefaults(gjennomforing),
   });
-
-  const onValidationError = (error: ValidationError) => {
-    error.errors.forEach((error: FieldError) => {
-      form.setError(
-        jsonPointerToFieldPath(error.pointer) as keyof SetTilgjengligForArrangorRequest,
-        {
-          type: "custom",
-          message: error.detail,
-        },
-      );
-    });
-  };
 
   const submit = form.handleSubmit(async (values) => {
-    setTilgjengeligForArrangorMutation.mutate(
-      {
-        id: gjennomforing.id,
-        dato: values.tilgjengeligForArrangorDato,
-      },
-      { onSuccess: () => modalRef.current?.close(), onValidationError },
-    );
+    setTilgjengeligForArrangorMutation.mutate(values, {
+      onSuccess: () => setOpen(false),
+      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
+    });
   });
 
-  const cancel = () => {
-    form.reset({});
-    modalRef.current?.close();
+  const resetForm = () => {
+    setOpen(false);
+    form.reset(toDefaults(gjennomforing));
   };
 
-  const today = new Date();
+  const onOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      resetForm();
+    }
+  };
+
   const gjennomforingStartDato = new Date(gjennomforing.startDato);
 
+  const today = new Date();
   const tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato
     ? new Date(gjennomforing.tilgjengeligForArrangorDato)
     : maxOf([subDuration(gjennomforingStartDato, { days: 14 }), today]);
 
-  const mintilgjengeligForArrangorDato = maxOf([
-    subDuration(gjennomforingStartDato, { months: 2 }),
-    today,
-  ]);
+  const id = "form-tilgjengelig-for-arrangor";
 
   return (
-    <Alert variant="info">
-      <Heading level="4" size="small">
-        Når ser arrangør tiltaket?
-      </Heading>
-      <p>
-        Arrangør har tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
-        <b>{formaterDato(tilgjengeligForArrangorDato)}</b>.
-      </p>
-      {handlinger.includes(GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR) && (
-        <Button size="small" variant="secondary" onClick={() => modalRef.current?.showModal()}>
-          Endre dato
-        </Button>
-      )}
-      <Modal
-        ref={modalRef}
-        header={{ heading: "Når skal arrangør ha tilgang til tiltaket?", closeButton: false }}
-        closeOnBackdropClick
-      >
-        <Modal.Body>
-          <FormProvider {...form}>
-            <form>
-              <HStack gap="space-8" align={"end"} justify={"center"}>
-                <ControlledDateInput
-                  label="Når skal arrangør ha tilgang?"
-                  size="small"
-                  defaultSelected={form.getValues("tilgjengeligForArrangorDato")}
-                  onChange={(val) => form.setValue("tilgjengeligForArrangorDato", val)}
-                  error={form.formState.errors.tilgjengeligForArrangorDato?.message}
-                  fromDate={mintilgjengeligForArrangorDato}
-                  toDate={gjennomforingStartDato}
-                  invalidDatoEtterPeriode="Du må velge en dato som er før oppstartsdato"
-                />
-              </HStack>
-            </form>
-          </FormProvider>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button size="small" type="submit" onClick={submit}>
+    <InfoCard>
+      <InfoCard.Header>
+        <InfoCard.Title>Når ser arrangør tiltaket?</InfoCard.Title>
+      </InfoCard.Header>
+      <InfoCard.Content>
+        <BodyShort spacing>
+          Arrangør har tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
+          <b>{formaterDato(tilgjengeligForArrangorDato)}</b>.
+        </BodyShort>
+
+        {handlinger.includes(GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR) && (
+          <Button size="small" variant="secondary" onClick={() => setOpen(true)}>
             Endre dato
           </Button>
-          <Button size="small" type="button" variant="secondary" onClick={cancel}>
-            Avbryt endring
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </Alert>
+        )}
+
+        <Dialog open={open} onOpenChange={onOpenChange}>
+          <Dialog.Popup>
+            <Dialog.Header withClosebutton={false}>
+              <Dialog.Title>Når skal arrangør ha tilgang til tiltaket?</Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body>
+              <FormProvider {...form}>
+                <form id={id} onSubmit={submit}>
+                  <HStack gap="space-8" align={"end"} justify={"center"}>
+                    <FormDateInput<SetTilgjengligForArrangorRequest>
+                      label="Når skal arrangør ha tilgang?"
+                      name="tilgjengeligForArrangorDato"
+                      fromDate={today}
+                      toDate={gjennomforingStartDato}
+                    />
+                  </HStack>
+                </form>
+              </FormProvider>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Button type="button" variant="secondary" size="small" onClick={resetForm}>
+                Avbryt
+              </Button>
+              <Button form={id} size="small">
+                Endre dato
+              </Button>
+            </Dialog.Footer>
+          </Dialog.Popup>
+        </Dialog>
+      </InfoCard.Content>
+    </InfoCard>
   );
+}
+
+function toDefaults(gjennomforing: GjennomforingAvtaleDto): SetTilgjengligForArrangorRequest {
+  return { tilgjengeligForArrangorDato: gjennomforing.tilgjengeligForArrangorDato };
 }

@@ -188,13 +188,17 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             } else {
                 listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
             }
-            val tilsagn = arrangorflateService.getTilsagn(
-                arrangorer = setOf(tiltak.arrangor.organisasjonsnummer),
-                obo = obo,
-                typer = tilsagnstyper,
-                statuser = listOf(TilsagnStatus.GODKJENT),
-                gjennomforingId = tiltak.id,
-            )
+
+            val tilsagn = db.session {
+                queries.tilsagn
+                    .getAll(
+                        arrangorer = setOf(tiltak.arrangor.organisasjonsnummer),
+                        statuser = listOf(TilsagnStatus.GODKJENT),
+                        typer = tilsagnstyper,
+                        gjennomforingId = tiltak.id,
+                    )
+                    .map { ArrangorflateTilsagnDto.from(it, arrangorflateService.getTilsagnDeltakerPersonalia(it.deltakere, obo)) }
+            }
 
             // TODO: Inkluder filtrering på eksisternde utbetalinger
             // val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()

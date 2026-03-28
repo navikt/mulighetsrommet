@@ -10,25 +10,27 @@ import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 export function useGjennomforinger(filter: Partial<GjennomforingFilterType>) {
   const debouncedSok = useDebounce(filter.search?.trim(), 300);
 
-  const queryFilter: Pick<GetGjennomforingerData, "query"> = {
+  const request: Pick<GetGjennomforingerData, "body" | "query"> = {
+    body: {
+      search: debouncedSok || null,
+      navEnheter: filter.navEnheter ?? [],
+      tiltakstyper: filter.tiltakstyper ?? [],
+      statuser: filter.statuser ?? [],
+      gjennomforingTyper: filter.gjennomforingTyper ?? [],
+      arrangorer: filter.arrangorer ?? [],
+      sort: filter.sortering ? filter.sortering.sortString : null,
+      avtaleId: filter.avtale ? filter.avtale : null,
+      publisert: getPublisertStatus(filter.publisert) ?? null,
+      visMineGjennomforinger: filter.visMineGjennomforinger ?? false,
+    },
     query: {
-      search: debouncedSok || undefined,
-      navEnheter: filter.navEnheter,
-      tiltakstyper: filter.tiltakstyper,
-      statuser: filter.statuser,
-      sort: filter.sortering ? filter.sortering.sortString : undefined,
       page: filter.page ?? 1,
       size: filter.pageSize,
-      avtaleId: filter.avtale ? filter.avtale : undefined,
-      publisert: getPublisertStatus(filter.publisert),
-      arrangorer: filter.arrangorer,
-      visMineGjennomforinger: filter.visMineGjennomforinger,
-      gjennomforingTyper: filter.gjennomforingTyper,
     },
   };
 
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.gjennomforinger(queryFilter),
-    queryFn: () => GjennomforingService.getGjennomforinger(queryFilter),
+    queryKey: QueryKeys.gjennomforinger(request),
+    queryFn: () => GjennomforingService.getGjennomforinger(request),
   });
 }

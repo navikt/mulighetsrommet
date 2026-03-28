@@ -27,7 +27,7 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.get<PathParams, undefined, PaginatedResponseGjennomforingKompaktDto>(
+  http.post<PathParams, undefined, PaginatedResponseGjennomforingKompaktDto>(
     "*/api/tiltaksadministrasjon/gjennomforinger",
     () => {
       return HttpResponse.json(paginertMockGjennomforinger);

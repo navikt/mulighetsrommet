@@ -3,17 +3,19 @@ import { AvtaleService } from "@tiltaksadministrasjon/api-client";
 import { useDownloadFile } from "@/api/useDownloadFile";
 
 export function useDownloadAvtalerAsExcel(filter: AvtaleFilterType) {
-  const query = {
-    search: filter.sok,
+  const body = {
+    search: filter.sok || null,
     tiltakstyper: filter.tiltakstyper,
     statuser: filter.statuser,
     avtaletyper: filter.avtaletyper,
     navEnheter: filter.navEnheter,
     arrangorer: filter.arrangorer,
-    personvernBekreftet: filter.personvernBekreftet,
+    personvernBekreftet: filter.personvernBekreftet ?? null,
     visMineAvtaler: filter.visMineAvtaler,
-    size: 10000,
+    sort: filter.sortering.sortString || null,
   };
 
-  return useDownloadFile(() => AvtaleService.lastNedAvtalerSomExcel({ query }));
+  const query = { page: filter.page, size: filter.pageSize };
+
+  return useDownloadFile(() => AvtaleService.lastNedAvtalerSomExcel({ body, query }));
 }

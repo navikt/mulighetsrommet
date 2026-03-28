@@ -242,13 +242,6 @@ object GjennomforingValidator {
             )
         }
 
-        validate(tilgjengeligForArrangorDato >= startDato.minusMonths(2)) {
-            FieldError.of(
-                "Du må velge en dato som er tidligst to måneder før gjennomføringens oppstartsdato",
-                GjennomforingRequest::tilgjengeligForArrangorDato,
-            )
-        }
-
         validate(tilgjengeligForArrangorDato <= startDato) {
             FieldError.of(
                 "Du må velge en dato som er før gjennomføringens oppstartsdato",

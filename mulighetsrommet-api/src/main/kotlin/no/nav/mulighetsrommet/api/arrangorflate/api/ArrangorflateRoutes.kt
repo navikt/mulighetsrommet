@@ -26,8 +26,10 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
+import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
@@ -154,35 +156,51 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }
     }
     route("/tilsagn") {
-        get(
-            {
-                description = "Hent oversikt over tilsagn for alle arrangører brukeren har tilgang til"
-                tags = setOf("Arrangorflate")
-                operationId = "getArrangorflateTilsagnRader"
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Tilsagn i tabellrad format"
-                        body<List<ArrangorflateTilsagnRadDto>>()
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
+        get({
+            description = "Hent oversikt over tilsagn for alle arrangører brukeren har tilgang til"
+            tags = setOf("Arrangorflate")
+            operationId = "getArrangorflateTilsagnRader"
+            request {
+                queryParameter<Int>("page")
+                queryParameter<Int>("size")
+                queryParameter<ArrangorflateTilsagnFilter.OrderBy>("orderBy")
+                queryParameter<ArrangorflateTilsagnFilter.Direction>("direction")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Paginert tilsagn i tabellrad format"
+                    body<PaginatedResponse<ArrangorflateTilsagnRadDto>>()
                 }
-            },
-        ) {
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val tilganger = orgnrTilganger(altinnRettigheterService)
             if (tilganger.isEmpty()) {
                 respondWithManglerTilgangHosArrangor()
                 return@get
             }
             val obo = AccessType.OBO(call.getAccessToken())
-            val tilsagn = arrangorFlateService.getTilsagn(
-                tilganger.toSet(),
-                obo,
-                statuser = TILSAGN_STATUS_VISNING_ARRANGORFLATE,
+            val filter = getArrangorflateTilsagnFilter()
+            val (totalCount, data) = db.session {
+                queries.tilsagn
+                    .getArrangorflateFiltered(
+                        arrangorer = tilganger,
+                        filter = filter,
+                        statuser = TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR,
+                    )
+            }
+            call.respond(
+                PaginatedResponse.of(
+                    filter.pagination,
+                    totalCount,
+                    data
+                        .map { ArrangorflateTilsagnDto.from(it, arrangorFlateService.getTilsagnDeltakerPersonalia(it.deltakere, obo)) }
+                        .map { it.toRadDto() },
+                ),
             )
-            call.respond(tilsagn.map { it.toRadDto() })
         }
 
         get("/{id}", {

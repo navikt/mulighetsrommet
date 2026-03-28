@@ -99,116 +99,6 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/avtaler:
-    get:
-      tags:
-      - Avtale
-      operationId: getAvtaler
-      parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaleStatusType"
-      - name: avtaletyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/Avtaletype"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: personvernBekreftet
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: visMineAvtaler
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: page
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: size
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: sort
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Avtaler filtrert på query parameters
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginatedResponse_AvtaleDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
     put:
       tags:
       - Avtale
@@ -235,6 +125,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    post:
+      tags:
+      - Avtale
+      operationId: getAvtaler
+      parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetAvtalerRequest"
+        required: false
+      responses:
+        "200":
+          description: Avtaler
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse_AvtaleDto"
         default:
           description: Problem details
           headers: {}
@@ -571,77 +504,11 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/avtaler/excel:
-    get:
+    post:
       tags:
       - Avtale
       operationId: lastNedAvtalerSomExcel
       parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaleStatusType"
-      - name: avtaletyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/Avtaletype"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: personvernBekreftet
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: visMineAvtaler
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
       - name: page
         in: query
         required: false
@@ -658,16 +525,15 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: sort
-        in: query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetAvtalerRequest"
         required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
       responses:
         "200":
-          description: Avtaler filtrert på query parameters
+          description: Avtaler eksportert til Excel
           headers: {}
           content:
             application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
@@ -923,124 +789,6 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger:
-    get:
-      tags:
-      - Gjennomforing
-      operationId: getGjennomforinger
-      parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingStatusType"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: avtaleId
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      - name: publisert
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: visMineGjennomforinger
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: page
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: size
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: sort
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: gjennomforingTyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingType"
-      responses:
-        "200":
-          description: Gjennomføringer filtrert på query parameters
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginatedResponse_GjennomforingKompaktDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
     put:
       tags:
       - Gjennomforing
@@ -1067,6 +815,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    post:
+      tags:
+      - Gjennomforing
+      operationId: getGjennomforinger
+      parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetGjennomforingerRequest"
+        required: false
+      responses:
+        "200":
+          description: Gjennomføringer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse_GjennomforingKompaktDto"
         default:
           description: Problem details
           headers: {}
@@ -1329,76 +1120,11 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger/excel:
-    get:
+    post:
       tags:
       - Gjennomforing
       operationId: lastNedGjennomforingerSomExcel
       parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingStatusType"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: avtaleId
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      - name: publisert
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: visMineGjennomforinger
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
       - name: page
         in: query
         required: false
@@ -1415,16 +1141,15 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: sort
-        in: query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetGjennomforingerRequest"
         required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
       responses:
         "200":
-          description: Gjennomføringer filtrert på query parameters
+          description: Gjennomføringer eksportert til Excel
           headers: {}
           content:
             application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
@@ -3258,7 +2983,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 5
+        - 7
     TiltakstypeDto:
       type: object
       properties:
@@ -4446,6 +4171,55 @@ components:
       required:
       - aarsaker
       - forklaring
+    GetAvtalerRequest:
+      type: object
+      properties:
+        search:
+          type:
+          - "null"
+          - string
+        tiltakstyper:
+          type: array
+          items:
+            type: string
+            format: uuid
+        statuser:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaleStatusType"
+        avtaletyper:
+          type: array
+          items:
+            $ref: "#/components/schemas/Avtaletype"
+        navEnheter:
+          type: array
+          items:
+            type: string
+        arrangorer:
+          type: array
+          items:
+            type: string
+            format: uuid
+        personvernBekreftet:
+          type:
+          - "null"
+          - boolean
+        visMineAvtaler:
+          type: boolean
+        sort:
+          type:
+          - "null"
+          - string
+      required:
+      - arrangorer
+      - avtaletyper
+      - navEnheter
+      - personvernBekreftet
+      - search
+      - sort
+      - statuser
+      - tiltakstyper
+      - visMineAvtaler
     PaginationSummary:
       type: object
       properties:
@@ -5207,7 +4981,6 @@ components:
           type:
           - "null"
           - string
-          format: date
       required:
       - tilgjengeligForArrangorDato
     SetStengtHosArrangorRequest:
@@ -5237,6 +5010,61 @@ components:
       - ARENA
       - AVTALE
       - ENKELTPLASS
+    GetGjennomforingerRequest:
+      type: object
+      properties:
+        search:
+          type:
+          - "null"
+          - string
+        navEnheter:
+          type: array
+          items:
+            type: string
+        tiltakstyper:
+          type: array
+          items:
+            type: string
+            format: uuid
+        statuser:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingStatusType"
+        sort:
+          type:
+          - "null"
+          - string
+        avtaleId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        arrangorer:
+          type: array
+          items:
+            type: string
+            format: uuid
+        publisert:
+          type:
+          - "null"
+          - boolean
+        visMineGjennomforinger:
+          type: boolean
+        gjennomforingTyper:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingType"
+      required:
+      - arrangorer
+      - avtaleId
+      - gjennomforingTyper
+      - navEnheter
+      - publisert
+      - search
+      - sort
+      - statuser
+      - tiltakstyper
+      - visMineGjennomforinger
     GjennomforingKompaktDto:
       type: object
       properties:

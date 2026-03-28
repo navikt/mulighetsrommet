@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.get
+import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -56,7 +56,10 @@ class AvtaleRoutesTest : FunSpec({
     context("hent avtaler") {
         test("401 Unauthorized for kall uten autentisering") {
             withTestApplication(appConfig()) {
-                val response = client.get("/api/tiltaksadministrasjon/avtaler")
+                val response = client.post("/api/tiltaksadministrasjon/avtaler") {
+                    contentType(ContentType.Application.Json)
+                    setBody("{}")
+                }
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
@@ -65,10 +68,34 @@ class AvtaleRoutesTest : FunSpec({
             withTestApplication(appConfig()) {
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
-                val response = client.get("/api/tiltaksadministrasjon/avtaler") {
+                val response = client.post("/api/tiltaksadministrasjon/avtaler") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody("{}")
                 }
                 response.status shouldBe HttpStatusCode.OK
+            }
+        }
+
+        test("200 OK for excel nedlasting med request body") {
+            withTestApplication(appConfig()) {
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
+
+                val response = client.post("/api/tiltaksadministrasjon/avtaler/excel") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
+                          "search": "donald",
+                          "statuser": ["AKTIV"]
+                        }
+                        """.trimIndent(),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+                response.contentType() shouldBe ContentType.Application.Xlsx
             }
         }
     }

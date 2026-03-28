@@ -52,6 +52,7 @@ class ArenaAdapterServiceTest : FunSpec({
             GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
             personaliaService,
+            TiltakstypeService(TiltakstypeService.Config(features), database.db),
         ),
         gjennomforingAvtaleService = GjennomforingAvtaleService(
             GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),

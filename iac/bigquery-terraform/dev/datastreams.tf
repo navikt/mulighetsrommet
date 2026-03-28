@@ -154,6 +154,8 @@ module "mr_api_datastream" {
             "valuta",
           ]
         },
+        { table = "tilsagn_type" },
+        { table = "tilsagn_status_type" },
         {
           table = "utbetaling",
           columns = [
@@ -174,9 +176,9 @@ module "mr_api_datastream" {
             "valuta",
           ]
         },
-        # { table = "utbetaling_status_type" },
+        { table = "utbetaling_status_type" },
         {
-          table = "delutbetaling",
+          table = "utbetaling_linje",
           columns = [
             "id",
             "utbetaling_id",
@@ -196,6 +198,7 @@ module "mr_api_datastream" {
             "valuta",
           ]
         },
+        { table = "utbetaling_linje_status_type" },
         {
           table = "totrinnskontroll",
           columns = [
@@ -320,7 +323,7 @@ module "mr_api_datastream" {
       view = {
         dataset_id = local.grafana_dataset_id
         project_id = var.gcp_project["project"]
-        table_id   = "delutbetaling_view"
+        table_id   = "utbetaling_linje_view"
       }
     },
     {

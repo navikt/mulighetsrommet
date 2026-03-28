@@ -8,10 +8,6 @@ export interface MulighetsrommetStep extends Step {
   id: string;
 }
 
-export function isStep(step: Step | null, stepId: string): boolean {
-  return (step as MulighetsrommetStep | null)?.id === stepId;
-}
-
 export function useSteps(ready: boolean | null, initialSteps: MulighetsrommetStep[]) {
   const [stepIndex, setStepIndex] = useState(0);
 
@@ -131,13 +127,6 @@ export const detaljerSteps: MulighetsrommetStep[] = [
     id: "nokkelinformasjon",
   },
   {
-    title: "Opprett avtale",
-    content: "For enkelte av tiltakene vil det være mulig å opprette en avtale med bruker.",
-    target: '[data-testid="opprettavtaleknapp"]',
-    disableBeacon: true,
-    id: "opprett-avtale",
-  },
-  {
     title: "Dele med bruker",
     content:
       "Del en predefinert tekst om tiltaket med bruker i dialogen. Du kan redigere teksten før sending ved behov.",
@@ -157,15 +146,5 @@ export const detaljerSteps: MulighetsrommetStep[] = [
     placement: "center",
     disableBeacon: true,
     id: "tilbakemeldinger",
-  },
-];
-
-export const opprettAvtaleSteps: MulighetsrommetStep[] = [
-  {
-    title: "Opprett avtale",
-    content: "For enkelte av tiltakene vil det være mulig å opprette en avtale med bruker.",
-    target: '[data-testid="opprettavtaleknapp"]',
-    disableBeacon: true,
-    id: "opprett-avtale",
   },
 ];

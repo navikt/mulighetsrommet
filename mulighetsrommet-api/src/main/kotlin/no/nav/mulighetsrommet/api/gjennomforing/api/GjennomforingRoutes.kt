@@ -12,6 +12,7 @@ import arrow.core.raise.zipOrAccumulate
 import arrow.core.right
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
+import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.ContentDisposition
 import io.ktor.http.ContentType
@@ -45,11 +46,11 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
@@ -226,7 +227,7 @@ fun Route.gjennomforingRoutes() {
                 val response = avtaleGjennomforinger
                     .setTilgjengeligForArrangorDato(
                         id,
-                        request.tilgjengeligForArrangorDato,
+                        request.tilgjengeligForArrangorDato?.parseOrNull(),
                         navIdent,
                     )
                     .mapLeft { ValidationError(errors = it) }
@@ -329,36 +330,17 @@ fun Route.gjennomforingRoutes() {
             }
         }
 
-        get({
+        post({
             tags = setOf("Gjennomforing")
             operationId = "getGjennomforinger"
             request {
-                queryParameter<String>("search")
-                queryParameter<List<String>>("tiltakstyper") {
-                    explode = true
-                }
-                queryParameter<List<GjennomforingStatusType>>("statuser") {
-                    explode = true
-                }
-                queryParameter<List<NavEnhetNummer>>("navEnheter") {
-                    explode = true
-                }
-                queryParameter<List<String>>("arrangorer") {
-                    explode = true
-                }
-                queryParameterUuid("avtaleId")
-                queryParameter<Boolean>("publisert")
-                queryParameter<Boolean>("visMineGjennomforinger")
                 queryParameter<Int>("page")
                 queryParameter<Int>("size")
-                queryParameter<String>("sort")
-                queryParameter<List<GjennomforingType>>("gjennomforingTyper") {
-                    explode = true
-                }
+                body<GetGjennomforingerRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Gjennomføringer filtrert på query parameters"
+                    description = "Gjennomføringer"
                     body<PaginatedResponse<GjennomforingKompaktDto>>()
                 }
                 default {
@@ -368,40 +350,24 @@ fun Route.gjennomforingRoutes() {
             }
         }) {
             val pagination = getPaginationParams()
-            val filter = getAdminTiltaksgjennomforingsFilter()
+            val filter = getAdminTiltaksgjennomforingFilter()
 
             val result = gjennomforinger.getAllKompaktDto(pagination, filter)
 
             call.respond(result)
         }
 
-        get("/excel", {
+        post("/excel", {
             tags = setOf("Gjennomforing")
             operationId = "lastNedGjennomforingerSomExcel"
             request {
-                queryParameter<String>("search")
-                queryParameter<List<String>>("tiltakstyper") {
-                    explode = true
-                }
-                queryParameter<List<GjennomforingStatusType>>("statuser") {
-                    explode = true
-                }
-                queryParameter<List<NavEnhetNummer>>("navEnheter") {
-                    explode = true
-                }
-                queryParameter<List<String>>("arrangorer") {
-                    explode = true
-                }
-                queryParameterUuid("avtaleId")
-                queryParameter<Boolean>("publisert")
-                queryParameter<Boolean>("visMineGjennomforinger")
                 queryParameter<Int>("page")
                 queryParameter<Int>("size")
-                queryParameter<String>("sort")
+                body<GetGjennomforingerRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Gjennomføringer filtrert på query parameters"
+                    description = "Gjennomføringer eksportert til Excel"
                     body<ByteArray> {
                         mediaTypes(ContentType.Application.Xlsx)
                     }
@@ -413,7 +379,7 @@ fun Route.gjennomforingRoutes() {
             }
         }) {
             val pagination = getPaginationParams()
-            val filter = getAdminTiltaksgjennomforingsFilter()
+            val filter = getAdminTiltaksgjennomforingFilter()
 
             val file = gjennomforinger.exportToExcel(pagination, filter)
 
@@ -580,6 +546,27 @@ private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {
     respondWithProblemDetail(BadRequest("Ingen tiltaksgjennomføring med id=$id"))
 }
 
+@Serializable
+data class GetGjennomforingerRequest(
+    val search: String? = null,
+    val navEnheter: List<NavEnhetNummer> = emptyList(),
+    val tiltakstyper: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        > = emptyList(),
+    val statuser: List<GjennomforingStatusType> = emptyList(),
+    val sort: String? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val avtaleId: UUID? = null,
+    val arrangorer: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        > = emptyList(),
+    val publisert: Boolean? = null,
+    val visMineGjennomforinger: Boolean = false,
+    val gjennomforingTyper: List<GjennomforingType> = emptyList(),
+)
+
 data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
     val navEnheter: List<NavEnhetNummer> = emptyList(),
@@ -594,36 +581,22 @@ data class AdminTiltaksgjennomforingFilter(
     val gjennomforingTyper: List<GjennomforingType> = emptyList(),
 )
 
-fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
-    val search = call.request.queryParameters["search"]?.trim()?.takeIf { it.isNotBlank() }
-    val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
-    val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
-    val statuser = call.parameters.getAll("statuser")
-        ?.map { GjennomforingStatusType.valueOf(it) }
-        ?: emptyList()
-    val sortering = call.request.queryParameters["sort"]
-    val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
-    val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
-    val publisert = call.request.queryParameters["publisert"]?.toBoolean()
-    val administratorNavIdent = call.parameters["visMineGjennomforinger"]
-        ?.takeIf { it == "true" }
-        ?.let { getNavIdent() }
-    val gjennomforingTyper = call.parameters.getAll("gjennomforingTyper")
-        ?.map { GjennomforingType.valueOf(it) }
-        ?: emptyList()
+suspend fun RoutingContext.getAdminTiltaksgjennomforingFilter(): AdminTiltaksgjennomforingFilter {
+    val request = call.receive<GetGjennomforingerRequest>()
+    val administratorNavIdent = request.visMineGjennomforinger.takeIf { it }?.let { getNavIdent() }
 
     return AdminTiltaksgjennomforingFilter(
-        search = search,
-        navEnheter = navEnheter,
-        tiltakstypeIder = tiltakstypeIder,
-        statuser = statuser,
-        sortering = sortering,
-        avtaleId = avtaleId,
-        arrangorIds = arrangorIds,
-        publisert = publisert,
+        search = request.search,
+        navEnheter = request.navEnheter,
+        tiltakstypeIder = request.tiltakstyper,
+        gjennomforingTyper = request.gjennomforingTyper,
+        statuser = request.statuser,
+        sortering = request.sort,
+        avtaleId = request.avtaleId,
+        arrangorIds = request.arrangorer,
+        publisert = request.publisert,
         administratorNavIdent = administratorNavIdent,
         koordinatorNavIdent = administratorNavIdent,
-        gjennomforingTyper = gjennomforingTyper,
     )
 }
 
@@ -763,8 +736,7 @@ data class SetStengtHosArrangorRequest(
 
 @Serializable
 data class SetTilgjengligForArrangorRequest(
-    @Serializable(with = LocalDateSerializer::class)
-    val tilgjengeligForArrangorDato: LocalDate?,
+    val tilgjengeligForArrangorDato: String?,
 )
 
 @Serializable
