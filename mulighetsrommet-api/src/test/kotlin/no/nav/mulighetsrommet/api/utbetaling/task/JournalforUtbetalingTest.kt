@@ -11,8 +11,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkError
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
@@ -28,6 +26,7 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -63,14 +62,14 @@ class JournalforUtbetalingTest : FunSpec({
 
     val pdfGenClient = mockk<PdfGenClient>()
     val dokarkClient = mockk<DokarkClient>()
-    val amtDeltakerClient = mockk<AmtDeltakerClient>()
+    val personaliaService = mockk<PersonaliaService>()
 
-    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
+    coEvery { personaliaService.getPersonalia(any(), any()) } returns emptyMap()
 
     fun createTask() = JournalforUtbetaling(
         db = database.db,
         dokarkClient = dokarkClient,
-        amtDeltakerClient = amtDeltakerClient,
+        personaliaService = personaliaService,
         pdf = pdfGenClient,
     )
 

@@ -24,55 +24,44 @@ class PersonaliaService(
     private val hentPersonOgGeografiskTilknytningQuery: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery,
     private val norg2Client: Norg2Client,
     private val amtDeltakerClient: AmtDeltakerClient,
+    private val tilgangsmaskinClient: TilgangsmaskinClient,
     private val navEnhetService: NavEnhetService,
-    private val tilgansmaskinClient: TilgangsmaskinClient,
 ) {
-    suspend fun getPersonaliaMedGeografiskEnhet(
+    suspend fun getPersonalia(
         deltakerIds: List<UUID>,
-        obo: AccessType.OBO,
-    ): Map<UUID, PersonaliaMedGeografiskEnhet> {
+        accessType: AccessType,
+    ): Map<UUID, Personalia> {
         return amtDeltakerClient.hentPersonalia(deltakerIds)
             .map { amtList ->
-                val pdlData = getPersonerMedGeografiskEnhet(amtList.map { it.norskIdent })
                 amtList.associate { amtPersonalia ->
                     val norskIdent = amtPersonalia.norskIdent
-                    val access = tilgansmaskinClient.komplett(norskIdent, obo)
 
-                    if (access) {
-                        val (_, geografiskEnhet) = pdlData[norskIdent] ?: (null to null)
+                    val tilgang = when (accessType) {
+                        is AccessType.OBO -> tilgangsmaskinClient.komplett(norskIdent, accessType)
+                        AccessType.M2M -> true
+                    }
 
-                        val geografiskEnhetDto = geografiskEnhet?.navEnhetNummer()?.let {
-                            navEnhetService.hentEnhet(it)
-                        }
-
-                        val oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let {
-                            navEnhetService.hentEnhet(it)
-                        }
-
+                    if (tilgang) {
                         amtPersonalia.deltakerId to
-                            PersonaliaMedGeografiskEnhet(
+                            Personalia(
                                 norskIdent = norskIdent,
                                 navn = amtPersonalia.navn,
-                                oppfolgingEnhet = oppfolgingEnhet,
-                                geografiskEnhet = geografiskEnhetDto,
-                                region = oppfolgingEnhet?.overordnetEnhet?.let {
-                                    navEnhetService.hentEnhet(it)
-                                },
+                                oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) },
+                                erSkjermet = amtPersonalia.erSkjermet,
+                                adressebeskyttelse = amtPersonalia.adressebeskyttelse,
                             )
                     } else {
-                        val skjermetNavn = when {
+                        val navn = when {
                             amtPersonalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
-                            amtPersonalia.erSkjermet -> "Skjermet"
                             else -> "Skjermet"
                         }
-
                         amtPersonalia.deltakerId to
-                            PersonaliaMedGeografiskEnhet(
+                            Personalia(
                                 norskIdent = null,
-                                navn = skjermetNavn,
+                                navn = navn,
                                 oppfolgingEnhet = null,
-                                geografiskEnhet = null,
-                                region = null,
+                                erSkjermet = amtPersonalia.erSkjermet,
+                                adressebeskyttelse = amtPersonalia.adressebeskyttelse,
                             )
                     }
                 }
@@ -83,6 +72,37 @@ class PersonaliaService(
                     detail = "Klarte ikke hente personalia fra amt-deltaker error: $it",
                 )
             }
+    }
+
+    suspend fun getPersonaliaMedGeografiskEnhet(
+        deltakerIds: List<UUID>,
+        accessType: AccessType,
+    ): Map<UUID, PersonaliaMedGeografiskEnhet> {
+        val personalia = getPersonalia(deltakerIds, accessType)
+        val pdlData = getPersonerMedGeografiskEnhet(
+            personalia
+                .map { it.value }
+                .filter { it.norskIdent != null }
+                .map { requireNotNull(it.norskIdent) },
+        )
+
+        return personalia.mapValues { (_, p) ->
+            val norskIdent = p.norskIdent
+
+            val (_, geografiskEnhet) = norskIdent?.let { pdlData[norskIdent] } ?: (null to null)
+
+            PersonaliaMedGeografiskEnhet(
+                norskIdent = norskIdent,
+                navn = p.navn,
+                erSkjermet = p.erSkjermet,
+                adressebeskyttelse = p.adressebeskyttelse,
+                oppfolgingEnhet = p.oppfolgingEnhet,
+                geografiskEnhet = geografiskEnhet?.navEnhetNummer()?.let { navEnhetService.hentEnhet(it) },
+                region = p.oppfolgingEnhet?.overordnetEnhet?.let {
+                    navEnhetService.hentEnhet(it)
+                },
+            )
+        }
     }
 
     private suspend fun getPersonerMedGeografiskEnhet(identer: List<NorskIdent>): Map<NorskIdent, Pair<PdlPerson, GeografiskTilknytning?>> {
@@ -131,9 +151,19 @@ class PersonaliaService(
     }
 }
 
+data class Personalia(
+    val norskIdent: NorskIdent?,
+    val navn: String,
+    val erSkjermet: Boolean,
+    val adressebeskyttelse: PdlGradering,
+    val oppfolgingEnhet: NavEnhetDto?,
+)
+
 data class PersonaliaMedGeografiskEnhet(
     val norskIdent: NorskIdent?,
     val navn: String,
+    val erSkjermet: Boolean,
+    val adressebeskyttelse: PdlGradering,
     val oppfolgingEnhet: NavEnhetDto?,
     val geografiskEnhet: NavEnhetDto?,
     val region: NavEnhetDto?,

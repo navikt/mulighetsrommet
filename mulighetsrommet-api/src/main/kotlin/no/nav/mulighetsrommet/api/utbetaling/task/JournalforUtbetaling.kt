@@ -2,19 +2,18 @@ package no.nav.mulighetsrommet.api.utbetaling.task
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.getOrElse
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -29,7 +28,7 @@ import java.util.UUID
 class JournalforUtbetaling(
     private val db: ApiDatabase,
     private val dokarkClient: DokarkClient,
-    private val amtDeltakerClient: AmtDeltakerClient,
+    private val personaliaService: PersonaliaService,
     private val pdf: PdfGenClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -78,11 +77,7 @@ class JournalforUtbetaling(
 
     suspend fun generatePdf(utbetaling: Utbetaling): Either<String, ByteArray> {
         val deltakelseIds = utbetaling.beregning.deltakelsePerioder().map { it.deltakelseId }
-        val personalia = amtDeltakerClient.hentPersonalia(deltakelseIds)
-            .getOrElse {
-                throw Exception("Klarte ikke hente personalia fra amt-deltaker error: $it")
-            }
-            .associateBy { it.deltakerId }
+        val personalia = personaliaService.getPersonalia(deltakelseIds, AccessType.M2M)
 
         val content = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
             utbetaling,

@@ -7,7 +7,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -17,6 +16,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdentHasher
@@ -38,14 +38,14 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
     }
 
     fun createConsumer(
-        deltakerClient: AmtDeltakerClient = mockk(),
+        personaliaService: PersonaliaService = mockk(),
     ): ReplikerDeltakerEnkeltplassKafkaConsumer {
         return ReplikerDeltakerEnkeltplassKafkaConsumer(
             db = database.db,
             service = GjennomforingEnkeltplassService(
                 GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
                 database.db,
-                deltakerClient,
+                personaliaService,
             ),
         )
     }

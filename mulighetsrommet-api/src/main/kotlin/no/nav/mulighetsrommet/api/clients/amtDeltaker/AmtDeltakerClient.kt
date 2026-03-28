@@ -69,7 +69,7 @@ class AmtDeltakerClient(
 
     suspend fun hentPersonalia(
         deltakerIds: List<UUID>,
-    ): Either<AmtDeltakerError, Set<DeltakerPersonalia>> {
+    ): Either<AmtDeltakerError, Set<AmtDeltakerPersonalia>> {
         val response = client.post("$baseUrl/external/deltakere/personalia") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -83,7 +83,7 @@ class AmtDeltakerClient(
                     val fornavnOgMellomnavn = listOfNotNull(personalia.fornavn, personalia.mellomnavn).joinToString(" ")
                     val navn = listOf(personalia.etternavn, fornavnOgMellomnavn).joinToString(", ")
 
-                    DeltakerPersonalia(
+                    AmtDeltakerPersonalia(
                         deltakerId = personalia.deltakerId,
                         norskIdent = NorskIdent(personalia.personident),
                         navn = navn,
@@ -176,7 +176,7 @@ data class DeltakerPersonaliaResponse(
     val adressebeskyttelse: PdlGradering?,
 )
 
-data class DeltakerPersonalia(
+data class AmtDeltakerPersonalia(
     val deltakerId: UUID,
     val norskIdent: NorskIdent,
     val navn: String,

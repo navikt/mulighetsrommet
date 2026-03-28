@@ -201,7 +201,7 @@ val ApplicationConfigLocal = AppConfig(
         url = "http://localhost:8888",
     ),
     tilgangsmaskin = AuthenticatedHttpClientConfig(
-        url = "http://localhost:8090/tilgansmaskin/api",
+        url = "http://localhost:8090/tilgangsmaskin",
         scope = "default",
     ),
     veilarbvedtaksstotteConfig = AuthenticatedHttpClientConfig(

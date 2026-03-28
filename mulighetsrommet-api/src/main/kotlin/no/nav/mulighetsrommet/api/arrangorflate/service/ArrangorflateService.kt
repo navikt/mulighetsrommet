@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import arrow.core.Either
-import arrow.core.getOrElse
-import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
@@ -10,7 +8,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -26,10 +23,11 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.utils.map
-import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 import java.util.UUID
 
@@ -43,7 +41,7 @@ val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
 
 class ArrangorflateService(
     private val db: ApiDatabase,
-    private val amtDeltakerClient: AmtDeltakerClient,
+    private val personaliaService: PersonaliaService,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
 
@@ -51,14 +49,9 @@ class ArrangorflateService(
         return queries.utbetaling.get(id)
     }
 
-    suspend fun getTilsagn(id: UUID): ArrangorflateTilsagnDto? = db.session {
-        queries.tilsagn.get(id)
-            ?.takeIf { it.status in TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR }
-            ?.let { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere)) }
-    }
-
     suspend fun getTilsagn(
         arrangorer: Set<Organisasjonsnummer>,
+        obo: AccessType.OBO,
         statuser: List<TilsagnStatus>? = null,
         typer: List<TilsagnType>? = null,
         gjennomforingId: UUID? = null,
@@ -70,10 +63,10 @@ class ArrangorflateService(
                 typer = typer,
                 gjennomforingId = gjennomforingId,
             )
-            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere)) }
+            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere, obo)) }
     }
 
-    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> = db.session {
+    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling, obo: AccessType.OBO): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
                 gjennomforingId = utbetaling.gjennomforing.id,
@@ -81,7 +74,7 @@ class ArrangorflateService(
                 typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
                 statuser = listOf(TilsagnStatus.GODKJENT),
             )
-            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere)) }
+            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere, obo)) }
     }
 
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
@@ -108,6 +101,7 @@ class ArrangorflateService(
 
     suspend fun toArrangorflateUtbetaling(
         utbetaling: Utbetaling,
+        obo: AccessType.OBO,
         today: LocalDate = LocalDate.now(),
     ): ArrangorflateUtbetalingDto = db.session {
         val erTolvUkerEtterInnsending = utbetaling.innsending
@@ -123,7 +117,7 @@ class ArrangorflateService(
                 .filter { it.id in deltakelser }
         }
 
-        val personalia = getPersonalia(deltakere.map { it.id })
+        val personalia = getPersonalia(deltakere.map { it.id }, obo)
         val advarsler = getAdvarsler(utbetaling)
         val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
         val (kanRegenereres, regenrertId) = kanRegenereres(utbetaling)
@@ -214,22 +208,18 @@ class ArrangorflateService(
         }
     }
 
-    suspend fun getPersonalia(deltakerIds: List<UUID>): Map<UUID, ArrangorflatePersonalia> {
-        return amtDeltakerClient.hentPersonalia(deltakerIds)
-            .getOrElse {
-                throw StatusException(
-                    status = HttpStatusCode.InternalServerError,
-                    detail = "Klarte ikke hente personalia fra amt-deltaker error: $it",
-                )
-            }
-            .associateBy { it.deltakerId }
+    suspend fun getPersonalia(deltakerIds: List<UUID>, obo: AccessType.OBO): Map<UUID, ArrangorflatePersonalia> {
+        return personaliaService.getPersonalia(deltakerIds, obo)
             .mapValues {
-                ArrangorflatePersonalia.fromPersonalia(it.value)
+                ArrangorflatePersonalia(
+                    norskIdent = it.value.norskIdent,
+                    navn = it.value.navn,
+                )
             }
     }
 
-    suspend fun getTilsagnDeltakerPersonalia(deltakere: List<Tilsagn.Deltaker>): List<ArrangorflateTilsagnDto.DeltakerPersonalia> {
-        return getPersonalia(deltakere.map { it.deltakerId }).map { (deltakerId, p) ->
+    suspend fun getTilsagnDeltakerPersonalia(deltakere: List<Tilsagn.Deltaker>, obo: AccessType.OBO): List<ArrangorflateTilsagnDto.DeltakerPersonalia> {
+        return getPersonalia(deltakere.map { it.deltakerId }, obo).map { (deltakerId, p) ->
             ArrangorflateTilsagnDto.DeltakerPersonalia(
                 deltakerId = deltakerId,
                 norskIdent = p.norskIdent,

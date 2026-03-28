@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.arrangorflate.service
 
-import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
@@ -13,17 +12,16 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 
 class ArrangorflateServiceTest : FunSpec({
@@ -40,8 +38,8 @@ class ArrangorflateServiceTest : FunSpec({
         tilsagn = tilsagn,
         utbetalinger = listOf(utbetaling, friUtbetaling),
     )
-    val amtDeltakerClient = mockk<AmtDeltakerClient>()
-    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
+    val personaliaService = mockk<PersonaliaService>()
+    coEvery { personaliaService.getPersonalia(any(), any()) } returns emptyMap()
 
     beforeEach {
         domain.initialize(database.db)
@@ -49,7 +47,7 @@ class ArrangorflateServiceTest : FunSpec({
 
     fun createService() = ArrangorflateService(
         database.db,
-        amtDeltakerClient,
+        personaliaService,
         kontoregisterOrganisasjon,
     )
 
@@ -70,34 +68,13 @@ class ArrangorflateServiceTest : FunSpec({
         }
     }
 
-    test("getTilsagn should return arrangorflateTilsagn by ID") {
-        val arrangorflateService = createService()
-
-        val result = arrangorflateService.getTilsagn(tilsagn.id)
-
-        result.shouldNotBeNull()
-        result.id shouldBe tilsagn.id
-        result.status shouldBe TilsagnStatus.GODKJENT
-    }
-
-    test("getTilsagnByOrgnr should return list of tilsagn for arrangor") {
-        val arrangorflateService = createService()
-
-        val result = arrangorflateService.getTilsagn(
-            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
-        )
-
-        result shouldHaveSize 1
-        result[0].id shouldBe tilsagn.id
-        result[0].status shouldBe TilsagnStatus.GODKJENT
-    }
-
     test("getArrangorflateTilsagnTilUtbetaling should return tilsagn for given gjennomforing and period") {
         val arrangorflateService = createService()
 
         val u = arrangorflateService.getUtbetaling(utbetaling.id)!!
         val result = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(
             u.copy(periode = Periode(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 8, 1))),
+            AccessType.OBO("token"),
         )
 
         result shouldHaveSize 1
@@ -114,7 +91,10 @@ class ArrangorflateServiceTest : FunSpec({
 
     test("mapUtbetalingToArrangorflateUtbetaling should have status KLAR_FOR_GODKJENNING") {
         val arrangorflateService = createService()
-        val result = arrangorflateService.toArrangorflateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
+        val result = arrangorflateService.toArrangorflateUtbetaling(
+            arrangorflateService.getUtbetaling(utbetaling.id)!!,
+            AccessType.OBO("token"),
+        )
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
     }
@@ -122,7 +102,10 @@ class ArrangorflateServiceTest : FunSpec({
     test("mapUtbetalingToArrangorflateUtbetaling should convert a fri utbetaling") {
         val arrangorflateService = createService()
         var utbetaling = arrangorflateService.getUtbetaling(friUtbetaling.id)!!
-        val result = arrangorflateService.toArrangorflateUtbetaling(utbetaling)
+        val result = arrangorflateService.toArrangorflateUtbetaling(
+            utbetaling,
+            AccessType.OBO("token"),
+        )
 
         result.id shouldBe friUtbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
@@ -139,7 +122,11 @@ class ArrangorflateServiceTest : FunSpec({
         val godkjentAvArrangorUtbetaling = arrangorflateService.getUtbetaling(utbetaling.id)!!.copy(
             innsending = Utbetaling.Innsending(date.atStartOfDay().minusDays(1)),
         )
-        val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, today = date)
+        val result = arrangorflateService.toArrangorflateUtbetaling(
+            godkjentAvArrangorUtbetaling,
+            AccessType.OBO("token"),
+            today = date,
+        )
 
         result.shouldNotBeNull()
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
@@ -156,7 +143,11 @@ class ArrangorflateServiceTest : FunSpec({
         val godkjentAvArrangorUtbetaling = arrangorflateService.getUtbetaling(utbetaling.id)!!.copy(
             innsending = Utbetaling.Innsending(date.atStartOfDay().minusWeeks(12)),
         )
-        val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, today = date)
+        val result = arrangorflateService.toArrangorflateUtbetaling(
+            godkjentAvArrangorUtbetaling,
+            AccessType.OBO("token"),
+            today = date,
+        )
 
         result.shouldNotBeNull()
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
