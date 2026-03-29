@@ -1,7 +1,6 @@
 import { PortableTextTypedObject } from "@api-client";
-import { LokalInformasjonContainer } from "@mr/frontend-common";
+import { LokalInformasjonContainer, PortableText } from "@mr/frontend-common";
 import { Alert, Heading } from "@navikt/ds-react";
-import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 import { TiltakDetaljerFaneContainer } from "./TiltakDetaljerFaneContainer";
 
 interface DetaljerFaneProps {
@@ -27,7 +26,7 @@ export function TiltakDetaljerFane({
           {tiltakstypeAlert}
         </Alert>
       )}
-      <RedaksjoneltInnhold value={tiltakstype} />
+      <PortableText value={tiltakstype} />
       {(gjennomforing || gjennomforingAlert) && (
         <LokalInformasjonContainer>
           <Heading level="2" size="small">
@@ -38,7 +37,7 @@ export function TiltakDetaljerFane({
               {gjennomforingAlert}
             </Alert>
           )}
-          <RedaksjoneltInnhold value={gjennomforing} />
+          <PortableText value={gjennomforing} />
         </LokalInformasjonContainer>
       )}
     </TiltakDetaljerFaneContainer>

@@ -11,7 +11,6 @@ import {
   TextField,
   VStack,
 } from "@navikt/ds-react";
-import { PortableText } from "../portableText/PortableText";
 import {
   GjennomforingKontaktpersonDto,
   GjennomforingRequest,
@@ -33,7 +32,7 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { KontaktpersonButton } from "../kontaktperson/KontaktpersonButton";
 import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
-import { ControlledSokeSelect } from "@mr/frontend-common";
+import { ControlledSokeSelect, PortableText } from "@mr/frontend-common";
 import { PortableTextFormEditor } from "../portableText/PortableTextEditor";
 import { VeilederinformasjonValues } from "@/schemas/avtale";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";

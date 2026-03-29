@@ -1,4 +1,4 @@
-import { PortableText, PortableTextReactComponents } from "@portabletext/react";
+import { PortableText as PortableTextLib, PortableTextReactComponents } from "@portabletext/react";
 import { Alert, BodyLong, Box, GuidePanel, Link, List } from "@navikt/ds-react";
 
 interface ImageProp {
@@ -61,24 +61,24 @@ const portableTextComponent: Partial<PortableTextReactComponents> = {
     tips: ({ value }: TipsProps) => {
       return (
         <GuidePanel>
-          <PortableText value={value.innhold} components={portableTextComponent} />
+          <PortableTextLib value={value.innhold} components={portableTextComponent} />
         </GuidePanel>
       );
     },
     alertMessage: ({ value }: AlertMessageProps) => {
       return (
         <Alert style={{ margin: "1rem 0" }} variant={value.variant}>
-          <PortableText value={value.innhold} components={portableTextComponent} />
+          <PortableTextLib value={value.innhold} components={portableTextComponent} />
         </Alert>
       );
     },
   },
 };
 
-interface RedaksjoneltinnholdProps {
+interface PortableTextProps {
   value: any;
 }
 
-export function RedaksjoneltInnhold({ value }: RedaksjoneltinnholdProps) {
-  return <PortableText value={value} components={portableTextComponent} />;
+export function PortableText({ value }: PortableTextProps) {
+  return <PortableTextLib value={value} components={portableTextComponent} />;
 }
