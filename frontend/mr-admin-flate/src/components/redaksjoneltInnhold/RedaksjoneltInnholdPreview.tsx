@@ -1,7 +1,6 @@
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Alert, BodyLong, Heading, VStack } from "@navikt/ds-react";
-import { PortableText } from "../portableText/PortableText";
-import { LokalInformasjonContainer } from "@mr/frontend-common";
+import { LokalInformasjonContainer, PortableText } from "@mr/frontend-common";
 import { Suspense, useState } from "react";
 import { Laster } from "../laster/Laster";
 import { LenkerList } from "../lenker/LenkerList";
