@@ -25,6 +25,7 @@ import { AvbrytGjennomforingModal } from "@/components/gjennomforing/AvbrytGjenn
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { previewArbeidsmarkedstiltakUrl } from "@/constants";
 import { Handlinger } from "@/components/handlinger/Handlinger";
+import { AdministratorGuard } from "@/components/handlinger/AdministratorGuard";
 
 interface Props {
   ansatt: NavAnsattDto;
@@ -63,6 +64,9 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
       state: { dupliserGjennomforing: duplisert },
     });
   }
+  const administratorer = isGruppetiltak(gjennomforing)
+    ? gjennomforing.administratorer.map((a) => a.navIdent)
+    : [];
 
   return (
     <KnapperadContainer>
@@ -76,36 +80,33 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
       </EndringshistorikkPopover>
       <Handlinger>
         {isGruppetiltak(gjennomforing) && handlinger.includes(GjennomforingHandling.REDIGER) && (
-          <ActionMenu.Item
-            onClick={() => {
-              if (
-                gjennomforing.administratorer.length > 0 &&
-                !gjennomforing.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
-              ) {
-                advarselModal.current?.showModal();
-              } else {
-                navigate("skjema");
-              }
-            }}
-          >
-            Rediger gjennomføring
-          </ActionMenu.Item>
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => navigate("skjema")}>
+              Rediger gjennomføring
+            </ActionMenu.Item>
+          </AdministratorGuard>
         )}
         {isGruppetiltak(gjennomforing) &&
           handlinger.includes(GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING) && (
-            <ActionMenu.Item onClick={() => apentForPameldingModalRef.current?.showModal()}>
-              {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
-            </ActionMenu.Item>
+            <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+              <ActionMenu.Item onClick={() => apentForPameldingModalRef.current?.showModal()}>
+                {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
+              </ActionMenu.Item>
+            </AdministratorGuard>
           )}
         {handlinger.includes(GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR) && (
-          <ActionMenu.Item onClick={() => registrerStengtModalRef.current?.showModal()}>
-            Registrer stengt hos arrangør
-          </ActionMenu.Item>
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => registrerStengtModalRef.current?.showModal()}>
+              Registrer stengt hos arrangør
+            </ActionMenu.Item>
+          </AdministratorGuard>
         )}
         {handlinger.includes(GjennomforingHandling.AVBRYT) && (
-          <ActionMenu.Item onClick={() => setAvbrytModalOpen(true)}>
-            Avbryt gjennomføring
-          </ActionMenu.Item>
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => setAvbrytModalOpen(true)}>
+              Avbryt gjennomføring
+            </ActionMenu.Item>
+          </AdministratorGuard>
         )}
         <ActionMenu.Divider />
         {handlinger.includes(GjennomforingHandling.FORHANDSVIS_I_MODIA) && (
