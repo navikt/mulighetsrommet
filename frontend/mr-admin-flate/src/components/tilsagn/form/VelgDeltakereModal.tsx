@@ -31,7 +31,7 @@ export function VelgDeltakereModal({
     >
       <Modal.Body className="max-h-[70vh] overflow-y-auto">
         <InlineMessage status="info">
-          Filtrert basert på overlappende tilsagns- og deltakelsesperiode
+          Du kan velge deltakere som overlapper med tilsagnsperioden
         </InlineMessage>
         <TilsagnDeltakereTable
           deltakere={deltakere}
