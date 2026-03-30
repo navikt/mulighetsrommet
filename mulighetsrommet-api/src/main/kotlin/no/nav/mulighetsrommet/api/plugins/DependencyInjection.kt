@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.GjennomforingRequestKafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ReplikerDeltakerEnkeltplassKafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
@@ -165,6 +166,11 @@ private fun kafka(appConfig: AppConfig) = module {
 
     single {
         val consumers = mapOf(
+            config.clients.handterGjennomforingRequest to GjennomforingRequestKafkaConsumer(
+                get(),
+                get(),
+                get(),
+            ),
             config.clients.datavarehusGjennomforingerConsumer to DatavarehusTiltakV1KafkaProducer(
                 DatavarehusTiltakV1KafkaProducer.Config(config.topics.datavarehusTiltakTopic),
                 get(),
