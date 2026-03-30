@@ -34,7 +34,7 @@ import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
 
-data class OpprettGjennomforingEnkeltplass(
+data class UpsertGjennomforingEnkeltplass(
     val id: UUID,
     val tiltakstypeId: UUID,
     val arrangorId: UUID,
@@ -58,28 +58,28 @@ class GjennomforingEnkeltplassService(
         val gjennomforingV2Topic: String,
     )
 
-    fun upsert(opprett: OpprettGjennomforingEnkeltplass): Validated<GjennomforingEnkeltplass> = db.transaction {
-        return when (val gjennomforing = queries.gjennomforing.getGjennomforing(opprett.id)) {
-            null -> {
-                upsert(opprett)
-                    .also { updateFreeTextSearch(it, null) }
-                    .also { publishTiltaksgjennomforingV2ToKafka(it) }
-                    .right()
-            }
+    fun create(create: UpsertGjennomforingEnkeltplass): Validated<GjennomforingEnkeltplass> = db.transaction {
+        if (queries.gjennomforing.getGjennomforing(create.id) != null) {
+            return FieldError.of("Gjennomføringen er allerede opprettet").nel().left()
+        }
 
-            !is GjennomforingEnkeltplass -> {
-                FieldError.of("Gjennomføring er ikke av typen enkeltplass").nel().left()
-            }
+        upsert(create)
+            .also { updateFreeTextSearch(it, null) }
+            .also { publishTiltaksgjennomforingV2ToKafka(it) }
+            .right()
+    }
 
-            else if (!harEnkeltplassEndringer(opprett, gjennomforing)) -> {
-                gjennomforing.right()
-            }
+    fun update(update: UpsertGjennomforingEnkeltplass): Validated<GjennomforingEnkeltplass> = db.transaction {
+        return when (val gjennomforing = queries.gjennomforing.getGjennomforing(update.id)) {
+            null -> FieldError.of("Gjennomføring finnes ikke").nel().left()
 
-            else -> {
-                upsert(opprett)
-                    .also { publishTiltaksgjennomforingV2ToKafka(it) }
-                    .right()
-            }
+            !is GjennomforingEnkeltplass -> FieldError.of("Gjennomføring er ikke av typen enkeltplass").nel().left()
+
+            else if (!harEnkeltplassEndringer(update, gjennomforing)) -> gjennomforing.right()
+
+            else -> upsert(update)
+                .also { publishTiltaksgjennomforingV2ToKafka(it) }
+                .right()
         }
     }
 
@@ -128,6 +128,14 @@ class GjennomforingEnkeltplassService(
         }
     }
 
+    fun get(id: UUID): GjennomforingEnkeltplass? = db.session {
+        when (val gjennomforing = queries.gjennomforing.getGjennomforing(id)) {
+            null -> null
+            !is GjennomforingEnkeltplass -> error("Gjennomføring med id=$id er ikke en enkeltplass")
+            else -> gjennomforing
+        }
+    }
+
     private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID): DeltakerPersonalia? {
         return getDeltaker(gjennomforingId)
             ?.let { deltakerClient.hentPersonalia(listOf(it.id)) }
@@ -151,23 +159,23 @@ class GjennomforingEnkeltplassService(
         return deltakelser.firstOrNull()
     }
 
-    private fun QueryContext.upsert(opprett: OpprettGjennomforingEnkeltplass): GjennomforingEnkeltplass {
-        val prismodellId = getOrCreatePrismodell(opprett.id)
+    private fun QueryContext.upsert(upsert: UpsertGjennomforingEnkeltplass): GjennomforingEnkeltplass {
+        val prismodellId = getOrCreatePrismodell(upsert.id)
         val dbo = GjennomforingDbo(
             type = GjennomforingType.ENKELTPLASS,
-            id = opprett.id,
-            tiltakstypeId = opprett.tiltakstypeId,
-            arrangorId = opprett.arrangorId,
-            navn = opprett.navn,
-            startDato = opprett.startDato,
-            sluttDato = opprett.sluttDato,
-            status = opprett.status,
-            deltidsprosent = opprett.deltidsprosent,
-            antallPlasser = opprett.antallPlasser,
+            id = upsert.id,
+            tiltakstypeId = upsert.tiltakstypeId,
+            arrangorId = upsert.arrangorId,
+            navn = upsert.navn,
+            startDato = upsert.startDato,
+            sluttDato = upsert.sluttDato,
+            status = upsert.status,
+            deltidsprosent = upsert.deltidsprosent,
+            antallPlasser = upsert.antallPlasser,
             oppstart = GjennomforingOppstartstype.ENKELTPLASS,
             pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
-            arenaTiltaksnummer = opprett.arenaTiltaksnummer,
-            arenaAnsvarligEnhet = opprett.arenaAnsvarligEnhet,
+            arenaTiltaksnummer = upsert.arenaTiltaksnummer,
+            arenaAnsvarligEnhet = upsert.arenaAnsvarligEnhet,
             prismodellId = prismodellId,
             avtaleId = null,
             oppmoteSted = null,
@@ -225,7 +233,7 @@ class GjennomforingEnkeltplassService(
 private fun toUpsertGjennomforingEnkeltplass(
     gjennomforing: GjennomforingEnkeltplass,
     deltaker: Deltaker,
-): OpprettGjennomforingEnkeltplass = OpprettGjennomforingEnkeltplass(
+): UpsertGjennomforingEnkeltplass = UpsertGjennomforingEnkeltplass(
     id = gjennomforing.id,
     tiltakstypeId = gjennomforing.tiltakstype.id,
     arrangorId = gjennomforing.arrangor.id,
@@ -262,7 +270,7 @@ private fun toGjennomforingStatusType(deltaker: Deltaker): GjennomforingStatusTy
     -> GjennomforingStatusType.AVSLUTTET
 }
 
-private fun harEnkeltplassEndringer(opprett: OpprettGjennomforingEnkeltplass, gjennomforing: Gjennomforing): Boolean {
+private fun harEnkeltplassEndringer(opprett: UpsertGjennomforingEnkeltplass, gjennomforing: Gjennomforing): Boolean {
     return opprett.navn != gjennomforing.navn ||
         opprett.arenaTiltaksnummer?.value != gjennomforing.arena?.tiltaksnummer?.value ||
         opprett.arrangorId != gjennomforing.arrangor.id ||
