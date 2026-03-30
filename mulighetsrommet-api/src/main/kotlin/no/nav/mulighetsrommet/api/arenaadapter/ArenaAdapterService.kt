@@ -75,6 +75,7 @@ class ArenaAdapterService(
                 navn = arenaGjennomforing.navn,
                 startDato = arenaGjennomforing.startDato,
                 sluttDato = arenaGjennomforing.sluttDato,
+                prisbetingelser = null,
                 status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
                 deltidsprosent = arenaGjennomforing.deltidsprosent,
                 antallPlasser = arenaGjennomforing.antallPlasser,

@@ -9,6 +9,7 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
+import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerError
@@ -42,6 +43,7 @@ data class UpsertGjennomforingEnkeltplass(
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
     val status: GjennomforingStatusType,
+    val prisbetingelser: String?,
     val deltidsprosent: Double,
     val antallPlasser: Int,
     val arenaTiltaksnummer: Tiltaksnummer?,
@@ -97,7 +99,6 @@ class GjennomforingEnkeltplassService(
         queries.gjennomforing.setArenaData(arenadataDbo)
 
         val personalia = getDeltakerPersonalia(id)
-
         getOrError(id)
             .also { updateFreeTextSearch(it, personalia?.norskIdent) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
@@ -146,7 +147,7 @@ class GjennomforingEnkeltplassService(
 
                     AmtDeltakerError.BadRequest,
                     AmtDeltakerError.Error,
-                    -> throw Exception("Klarte ikke hente personalia for deltaker til gjennomføring med id=$gjennomforingId error=$error")
+                    -> error("Klarte ikke hente personalia for deltaker til gjennomføring med id=$gjennomforingId error=$error")
                 }
             }
     }
@@ -154,13 +155,13 @@ class GjennomforingEnkeltplassService(
     private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker? {
         val deltakelser = queries.deltaker.getByGjennomforingId(gjennomforingId)
         if (deltakelser.size > 1) {
-            throw IllegalStateException("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet kun én)")
+            error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet kun én)")
         }
         return deltakelser.firstOrNull()
     }
 
     private fun QueryContext.upsert(upsert: UpsertGjennomforingEnkeltplass): GjennomforingEnkeltplass {
-        val prismodellId = getOrCreatePrismodell(upsert.id)
+        val prismodellId = upsertPrismodell(upsert.id, upsert.prisbetingelser)
         val dbo = GjennomforingDbo(
             type = GjennomforingType.ENKELTPLASS,
             id = upsert.id,
@@ -202,20 +203,26 @@ class GjennomforingEnkeltplassService(
         return queries.gjennomforing.getGjennomforingEnkeltplassOrError(id)
     }
 
-    private fun QueryContext.getOrCreatePrismodell(gjennomforingId: UUID): UUID {
-        return queries.gjennomforing.getPrismodell(gjennomforingId)?.id ?: run {
+    private fun QueryContext.upsertPrismodell(gjennomforingId: UUID, prisbetingelser: String?): UUID {
+        val prismodell = queries.gjennomforing.getPrismodell(gjennomforingId) ?: run {
             val prismodellDbo = PrismodellDbo(
                 id = UUID.randomUUID(),
                 type = PrismodellType.ANNEN_AVTALT_PRIS,
                 valuta = Valuta.NOK,
-                prisbetingelser = null,
+                prisbetingelser = prisbetingelser,
                 satser = null,
                 systemId = null,
                 tilsagnPerDeltaker = false,
             )
             queries.prismodell.upsert(prismodellDbo)
-            prismodellDbo.id
+            queries.prismodell.getOrError(prismodellDbo.id)
         }
+
+        if (prismodell.prisbetingelser() != prisbetingelser) {
+            queries.prismodell.setPrisbetingelser(prismodell.id, prisbetingelser)
+        }
+
+        return prismodell.id
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingEnkeltplass) {
@@ -238,6 +245,7 @@ private fun toUpsertGjennomforingEnkeltplass(
     tiltakstypeId = gjennomforing.tiltakstype.id,
     arrangorId = gjennomforing.arrangor.id,
     navn = gjennomforing.navn,
+    prisbetingelser = gjennomforing.prismodell.prisbetingelser(),
     arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
     arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
     antallPlasser = gjennomforing.antallPlasser,
