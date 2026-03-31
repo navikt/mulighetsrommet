@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -48,6 +49,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
+import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
@@ -105,18 +107,18 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     val db: ApiDatabase by inject()
     val utbetalingService: UtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
-    val arrangorFlateService: ArrangorflateService by inject()
+    val arrangorflateService: ArrangorflateService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
     val genererUtbetalingService: GenererUtbetalingService by inject()
 
     suspend fun RoutingContext.getTilsagnOrRespondNotFound(): ArrangorflateTilsagnDto {
         val id: UUID by call.parameters
-        return arrangorFlateService.getTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
+        return arrangorflateService.getTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
     }
 
     fun RoutingContext.getUtbetalingOrRespondNotFound(): Utbetaling {
         val id: UUID by call.parameters
-        return arrangorFlateService.getUtbetaling(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
+        return arrangorflateService.getUtbetaling(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
     }
 
     arrangorflateOpprettKravRoutes(config.okonomi)
@@ -167,9 +169,9 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val tilganger = orgnrTilganger(altinnRettigheterService)
             if (tilganger.isEmpty()) {
-                respondWithManglerTilgangHosArrangor()
-                return@get
+                return@get respondWithManglerTilgangHosArrangor()
             }
+
             val filter = getArrangorflateTilsagnFilter()
             val (totalCount, data) = db.session {
                 queries.tilsagn
@@ -178,16 +180,11 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                         filter = filter,
                         statuser = TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR,
                     )
+                    .map { it.toArrangorflateTilsagnRadDto() }
             }
-            call.respond(
-                PaginatedResponse.of(
-                    filter.pagination,
-                    totalCount,
-                    data
-                        .map { ArrangorflateTilsagnDto.from(it, arrangorFlateService.getTilsagnDeltakerPersonalia(it.deltakere)) }
-                        .map { it.toRadDto() },
-                ),
-            )
+
+            val response = PaginatedResponse.of(filter.pagination, totalCount, data)
+            call.respond(response)
         }
 
         get("/{id}", {
@@ -209,7 +206,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }
         }) {
             val tilsagn = getTilsagnOrRespondNotFound()
-
             requireTilgangHosArrangor(altinnRettigheterService, tilsagn.arrangor.organisasjonsnummer)
 
             call.respond(tilsagn)
@@ -241,14 +237,12 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     }) {
         val tilganger = orgnrTilganger(altinnRettigheterService)
         if (tilganger.isEmpty()) {
-            respondWithManglerTilgangHosArrangor()
-            return@get
+            return@get respondWithManglerTilgangHosArrangor()
         }
 
         val filter = getArrangorflateUtbetalingFilter(tilganger.toSet())
-        val (totalCount, items) = arrangorFlateService.getAllUtbetalingKompakt(filter)
+        val (totalCount, items) = arrangorflateService.getAllUtbetalingKompakt(filter)
         val response = PaginatedResponse.of(filter.pagination, totalCount, items.map { it.toRadDto() })
-
         call.respond(response)
     }
 
@@ -272,11 +266,10 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
-
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
-            val arrangorFlateUtbetaling = arrangorFlateService.toArrangorflateUtbetaling(utbetaling)
-            call.respond(arrangorFlateUtbetaling)
+            val response = arrangorflateService.toArrangorflateUtbetaling(utbetaling)
+            call.respond(response)
         }
 
         post("/godkjenn", {
@@ -303,10 +296,9 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+
             val request = call.receive<GodkjennUtbetaling>()
-
-            val advarsler = arrangorFlateService.getAdvarsler(utbetaling)
-
+            val advarsler = arrangorflateService.getAdvarsler(utbetaling)
             UtbetalingValidator
                 .validerGodkjennUtbetaling(
                     request,
@@ -448,10 +440,9 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
-
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
-            val linjer = arrangorFlateService.getLinjer(utbetaling.id)
+            val linjer = arrangorflateService.getLinjer(utbetaling.id)
             val gjennomforing = db.session {
                 queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
             }
@@ -493,10 +484,9 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
-
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
-            val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(utbetaling)
+            val tilsagn = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(utbetaling)
 
             call.respond(tilsagn)
         }
@@ -521,10 +511,9 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
-
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
-            arrangorFlateService.synkroniserKontonummer(utbetaling)
+            arrangorflateService.synkroniserKontonummer(utbetaling)
                 .onLeft { error ->
                     call.respondWithProblemDetail(
                         when (error) {
@@ -576,14 +565,14 @@ data class ArrangorflateTilsagnRadDto(
     val status: TilsagnStatus,
 )
 
-fun ArrangorflateTilsagnDto.toRadDto(): ArrangorflateTilsagnRadDto = ArrangorflateTilsagnRadDto(
+private fun Tilsagn.toArrangorflateTilsagnRadDto(): ArrangorflateTilsagnRadDto = ArrangorflateTilsagnRadDto(
     id = id,
     organisasjonsnummer = arrangor.organisasjonsnummer,
     tiltakTypeNavn = tiltakstype.navn,
     tiltakNavn = "${gjennomforing.navn} (${gjennomforing.lopenummer})",
     arrangorNavn = "${arrangor.navn} (${arrangor.organisasjonsnummer.value})",
     periode = periode,
-    tilsagnNavn = "${type.displayName()} ($bestillingsnummer)",
+    tilsagnNavn = "${type.displayName()} (${bestilling.bestillingsnummer})",
     status = status,
 )
 
