@@ -38,7 +38,9 @@ class PersonaliaService(
                         val identer = amtList.map { it.norskIdent }
                         val tilgangsmaskinResponse = tilgangsmaskinClient.bulk(identer, accessType)
                         amtList.associate { amtPersonalia ->
-                            val harTilgang = requireNotNull(tilgangsmaskinResponse.resultater.find { it.brukerId == amtPersonalia.norskIdent.value })
+                            val harTilgang = requireNotNull(tilgangsmaskinResponse.resultater.find { it.brukerId == amtPersonalia.norskIdent.value }) {
+                                "Fant ikke deltakerId: ${amtPersonalia.deltakerId} i respons fra tilgangsmaskin"
+                            }
                                 .harTilgang()
                             amtPersonalia.deltakerId to harTilgang
                         }

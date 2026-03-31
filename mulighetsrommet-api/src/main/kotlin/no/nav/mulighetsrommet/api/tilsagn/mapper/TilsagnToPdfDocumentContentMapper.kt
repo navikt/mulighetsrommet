@@ -47,7 +47,7 @@ object TilsagnToPdfDocumentContentMapper {
                     when {
                         personalia.erSkjermet -> "Skjermet"
                         personalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
-                        else -> "${personalia.navn} (${personalia.norskIdent?.value})"
+                        else -> "${personalia.navn} (${requireNotNull(personalia.norskIdent).value})"
                     },
                 )
                 text("Utbetalingsperioden", tilsagn.periode.formatPeriode())

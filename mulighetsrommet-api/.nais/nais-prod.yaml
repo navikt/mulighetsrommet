@@ -215,6 +215,8 @@ spec:
           namespace: nais-system
         - application: logging
           namespace: nais-system
+        - application: tilgangsmaskin
+          namespace: populasjonstilgangskontroll
       external:
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io
