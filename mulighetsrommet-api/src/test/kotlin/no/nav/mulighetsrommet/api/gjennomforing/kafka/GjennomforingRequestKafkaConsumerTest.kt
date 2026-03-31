@@ -68,7 +68,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
         val gjennomforingId = UUID.randomUUID()
 
-        val request = GjennomforingRequestPayload.OpprettGjennomforing(
+        val request = GjennomforingRequestPayload.OpprettEnkeltplass(
             gjennomforingId = gjennomforingId,
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             prisinformasjon = "prisinformasjon",
@@ -116,7 +116,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequestPayload>(request))
 
-            val requestMedAndrePrisbetingelser = GjennomforingRequestPayload.OpprettGjennomforing(
+            val requestMedAndrePrisbetingelser = GjennomforingRequestPayload.OpprettEnkeltplass(
                 gjennomforingId = gjennomforingId,
                 tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
                 prisinformasjon = "andre prisbetingelser",

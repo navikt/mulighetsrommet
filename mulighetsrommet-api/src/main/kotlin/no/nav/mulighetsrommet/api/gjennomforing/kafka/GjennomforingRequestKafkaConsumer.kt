@@ -27,11 +27,11 @@ class GjennomforingRequestKafkaConsumer(
 ) {
     override suspend fun consume(key: UUID, message: JsonElement) {
         when (val request = JsonIgnoreUnknownKeys.decodeFromJsonElement<GjennomforingRequestPayload>(message)) {
-            is GjennomforingRequestPayload.OpprettGjennomforing -> opprettGjennomforingEnkeltplass(request)
+            is GjennomforingRequestPayload.OpprettEnkeltplass -> opprettGjennomforingEnkeltplass(request)
         }
     }
 
-    private suspend fun opprettGjennomforingEnkeltplass(request: GjennomforingRequestPayload.OpprettGjennomforing) {
+    private suspend fun opprettGjennomforingEnkeltplass(request: GjennomforingRequestPayload.OpprettEnkeltplass) {
         if (enkeltplasser.get(request.gjennomforingId) != null) {
             return
         }

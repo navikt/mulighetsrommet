@@ -11,8 +11,8 @@ sealed interface GjennomforingRequestPayload {
     val gjennomforingId: UUID
 
     @Serializable
-    @SerialName("OpprettGjennomforing")
-    data class OpprettGjennomforing(
+    @SerialName("OpprettEnkeltplass")
+    data class OpprettEnkeltplass(
         @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
         val tiltakskode: Tiltakskode,
