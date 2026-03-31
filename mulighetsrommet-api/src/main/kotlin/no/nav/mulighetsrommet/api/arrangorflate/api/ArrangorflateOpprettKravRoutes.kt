@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.getOrElse
 import arrow.core.raise.either
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -10,10 +9,12 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
+import io.ktor.server.application.log
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.application
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.utils.io.toByteArray
@@ -57,7 +58,6 @@ import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.DataDetails
@@ -220,8 +220,10 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
             )
 
             val kontonummer = arrangorflateService.getKontonummer(tiltak.arrangor.organisasjonsnummer)
-                .onLeft { return@get call.respondWithProblemDetail(InternalServerError("Klarte ikke å hente kontonummeret")) }
-                .getOrElse { throw IllegalStateException("unreachable") }
+                .onLeft {
+                    application.log.info("Klarte ikke  hente kontonummer for ${tiltak.arrangor.organisasjonsnummer}")
+                }
+                .getOrNull()
 
             call.respond(
                 OpprettKravData(
@@ -603,13 +605,13 @@ data class OpprettKravDeltakere(
 
 @Serializable
 data class OpprettKravUtbetalingSteg(
-    val kontonummer: Kontonummer,
+    val kontonummer: Kontonummer?,
     val valuta: Valuta,
 ) {
     companion object {
         fun from(
             tiltak: ArrangorflateTiltak,
-            kontonummer: Kontonummer,
+            kontonummer: Kontonummer?,
         ): OpprettKravUtbetalingSteg {
             return OpprettKravUtbetalingSteg(
                 kontonummer = kontonummer,

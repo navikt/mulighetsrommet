@@ -1,0 +1,31 @@
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: gjennomforing-request-v1
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  pool: nav-dev
+  config:
+    cleanupPolicy: delete
+    minimumInSyncReplicas: 2
+    partitions: 2
+    replication: 3
+    # 90 days retention (24 h * 90 d)
+    retentionHours: 2160
+  acl:
+    - team: team-mulighetsrommet
+      application: mulighetsrommet-api
+      access: read
+    - team: team-mulighetsrommet
+      application: mulighetsrommet-kafka-manager
+      access: read
+
+    # Komet
+    - team: amt
+      application: amt-deltaker
+      access: readwrite
+    - team: amt
+      application: amt-kafka-manager
+      access: read
