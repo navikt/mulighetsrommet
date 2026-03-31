@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ArrangorflateService,
-  ArrangorflateTilsagnFilterDirection,
+  ArrangorflateFilterDirection,
   ArrangorflateTilsagnFilterOrderBy,
   GetArrangorflateTilsagnRaderData,
 } from "api-client";
@@ -18,7 +18,7 @@ function defaultFilter(): ArrangorflateTilsagnFilter {
     page: 1,
     size: PAGE_SIZE,
     orderBy: ArrangorflateTilsagnFilterOrderBy.PERIODE,
-    direction: ArrangorflateTilsagnFilterDirection.DESC,
+    direction: ArrangorflateFilterDirection.DESC,
   };
 }
 

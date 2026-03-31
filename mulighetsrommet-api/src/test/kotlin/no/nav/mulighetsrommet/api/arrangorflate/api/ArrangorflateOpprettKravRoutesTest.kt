@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -109,8 +110,8 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
-            val body = response.body<List<ArrangorInnsendingRadDto>>()
-            body.shouldBeEmpty()
+            val body = response.body<PaginatedResponse<ArrangorInnsendingRadDto>>()
+            body.data.shouldBeEmpty()
         }
     }
 
@@ -121,9 +122,9 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
-            val body = response.body<List<ArrangorInnsendingRadDto>>()
+            val body = response.body<PaginatedResponse<ArrangorInnsendingRadDto>>()
             body.shouldNotBeNull()
-            body.size shouldBeGreaterThan 0
+            body.data.size shouldBeGreaterThan 0
         }
     }
 

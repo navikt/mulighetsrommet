@@ -25,6 +25,8 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
@@ -124,7 +126,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         return arrangorFlateService.getUtbetaling(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
     }
 
-    arrangorflateRoutesOpprettKrav(config.okonomi)
+    arrangorflateOpprettKravRoutes(config.okonomi)
 
     route("/orgnr-tilganger") {
         get(
@@ -157,7 +159,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 queryParameter<Int>("page")
                 queryParameter<Int>("size")
                 queryParameter<ArrangorflateTilsagnFilter.OrderBy>("orderBy")
-                queryParameter<ArrangorflateTilsagnFilter.Direction>("direction")
+                queryParameter<ArrangorflateFilterDirection>("direction")
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -229,9 +231,9 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             queryParameter<String>("sok")
             queryParameter<Int>("page")
             queryParameter<Int>("size")
-            queryParameter<ArrangorflateUtbetalingFilter.Type>("type")
+            queryParameter<ArrangorflateFilterType>("type")
             queryParameter<ArrangorflateUtbetalingFilter.OrderBy>("orderBy")
-            queryParameter<ArrangorflateUtbetalingFilter.Direction>("direction")
+            queryParameter<ArrangorflateFilterDirection>("direction")
         }
         response {
             code(HttpStatusCode.OK) {

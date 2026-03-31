@@ -26,7 +26,7 @@ data class ArrangorInnsendingRadDto(
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?,
+    val sluttDato: LocalDate?, // Eksklusive
     val belop: ValutaBelop?,
     val type: String?,
     val status: ArrangorflateUtbetalingStatus?,
@@ -40,7 +40,7 @@ fun ArrangorflateTiltak.toRadDto(): ArrangorInnsendingRadDto = ArrangorInnsendin
     tiltakNavn = this.navn,
     lopenummer = this.lopenummer,
     startDato = this.startDato,
-    sluttDato = this.sluttDato,
+    sluttDato = this.sluttDato?.plusDays(1), // Eksklusive
     belop = null,
     type = null,
     status = null,

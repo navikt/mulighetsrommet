@@ -5,6 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
@@ -336,8 +337,8 @@ class TilsagnQueries(private val session: Session) {
         statuser: List<TilsagnStatus>,
     ): PaginatedResult<Tilsagn> {
         val direction = when (filter.direction) {
-            ArrangorflateTilsagnFilter.Direction.ASC -> "asc"
-            ArrangorflateTilsagnFilter.Direction.DESC -> "desc"
+            ArrangorflateFilterDirection.ASC -> "asc"
+            ArrangorflateFilterDirection.DESC -> "desc"
         }
 
         val order = when (filter.orderBy) {

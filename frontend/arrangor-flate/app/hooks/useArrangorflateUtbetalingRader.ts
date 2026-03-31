@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ArrangorflateService,
-  ArrangorflateUtbetalingFilterDirection,
+  ArrangorflateFilterDirection,
   ArrangorflateUtbetalingFilterOrderBy,
-  ArrangorflateUtbetalingFilterType,
+  ArrangorflateFilterType,
   GetArrangorflateUtbetalingerData,
 } from "api-client";
 import { useCallback, useState } from "react";
@@ -14,27 +14,27 @@ const PAGE_SIZE = 25;
 
 export type ArrangorflateUtbetalingFilter = NonNullable<GetArrangorflateUtbetalingerData["query"]>;
 
-function defaultFilter(type?: ArrangorflateUtbetalingFilterType): ArrangorflateUtbetalingFilter {
-  const defaultType = type || ArrangorflateUtbetalingFilterType.AKTIVE;
+function defaultFilter(type?: ArrangorflateFilterType): ArrangorflateUtbetalingFilter {
+  const defaultType = type || ArrangorflateFilterType.AKTIVE;
   const base = {
     page: 1,
     size: PAGE_SIZE,
     type: defaultType,
     orderBy: ArrangorflateUtbetalingFilterOrderBy.PERIODE,
-    direction: ArrangorflateUtbetalingFilterDirection.DESC,
+    direction: ArrangorflateFilterDirection.DESC,
   };
-  if (type === ArrangorflateUtbetalingFilterType.AKTIVE) {
+  if (type === ArrangorflateFilterType.AKTIVE) {
     return {
       ...base,
       orderBy: ArrangorflateUtbetalingFilterOrderBy.TILTAK,
-      direction: ArrangorflateUtbetalingFilterDirection.ASC,
+      direction: ArrangorflateFilterDirection.ASC,
       size: undefined, // Vis alle
     };
   }
   return base;
 }
 
-export function useArrangorflateUtbetalinger(
+export function useArrangorflateUtbetalingRader(
   initialFilter: Partial<ArrangorflateUtbetalingFilter>,
 ) {
   const [filter, setFilter] = useState<ArrangorflateUtbetalingFilter>({
