@@ -1,4 +1,8 @@
-import { ArrangorflateArrangorDto, ArrangorInnsendingRadDto } from "@api-client";
+import {
+  ArrangorflateArrangorDto,
+  ArrangorInnsendingRadDto,
+  PaginatedResponseArrangorInnsendingRadDto,
+} from "@api-client";
 
 export const gjennomforingIdAFT = "54d0d2af-f329-480d-a427-30de446fea10";
 export const gjennomforingIdAvklaring = "54d0d2af-f329-480d-a427-30de446fea11";
@@ -57,8 +61,11 @@ export const gjennomforingOppfolging: ArrangorInnsendingRadDto = {
   status: null,
 };
 
-export const oversiktAktiveGjennomforinger: ArrangorInnsendingRadDto[] = [
-  gjennomforingAFT,
-  gjennomforingAvklaring,
-  gjennomforingOppfolging,
-];
+export const oversiktAktiveGjennomforinger: PaginatedResponseArrangorInnsendingRadDto = {
+  pagination: {
+    totalCount: 3,
+    pageSize: 25,
+    totalPages: 1,
+  },
+  data: [gjennomforingAFT, gjennomforingAvklaring, gjennomforingOppfolging],
+};

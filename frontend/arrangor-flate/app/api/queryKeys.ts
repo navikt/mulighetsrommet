@@ -1,6 +1,6 @@
 import { ArrangorflateTilsagnFilter } from "~/hooks/useArrangorflateTilsagnRader";
-import { ArrangorflateTiltakFilter } from "~/hooks/useArrangorflateTiltaksoversikt";
-import { ArrangorflateUtbetalingFilter } from "~/hooks/useArrangorflateUtbetalinger";
+import { ArrangorflateTiltakFilter } from "~/hooks/useArrangorflateTiltakRader";
+import { ArrangorflateUtbetalingFilter } from "~/hooks/useArrangorflateUtbetalingRader";
 
 export const queryKeys = {
   utbetalinger: (filter: ArrangorflateUtbetalingFilter) => ["utbetalinger", filter] as const,

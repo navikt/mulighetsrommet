@@ -28,7 +28,7 @@ import { Laster } from "~/components/common/Laster";
 import {
   ArrangorflateTiltakFilter,
   useArrangorTiltaksoversikt,
-} from "~/hooks/useArrangorflateTiltaksoversikt";
+} from "~/hooks/useArrangorflateTiltakRader";
 import { flipObject } from "~/utils/object";
 import { useDebounce } from "@mr/frontend-common";
 
@@ -68,15 +68,13 @@ export default function OpprettKravTiltaksOversikt() {
             />
           </Tabs.List>
           <Tabs.Panel value={currentTab}>
-            <Suspense fallback={<Laster tekst="Laster tiltak..." size="xlarge" />}>
-              <TiltaksOversiktContent
-                type={
-                  currentTab === "aktive"
-                    ? ArrangorflateFilterType.AKTIVE
-                    : ArrangorflateFilterType.HISTORISKE
-                }
-              />
-            </Suspense>
+            <TiltaksOversiktContent
+              type={
+                currentTab === "aktive"
+                  ? ArrangorflateFilterType.AKTIVE
+                  : ArrangorflateFilterType.HISTORISKE
+              }
+            />
           </Tabs.Panel>
         </Tabs>
       </VStack>
@@ -120,6 +118,7 @@ function TiltaksOversiktContent({ type }: { type: ArrangorflateFilterType }) {
   function filterToSortState({ orderBy, direction }: ArrangorflateTiltakFilter): SortState {
     const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";
     const newDirection: SortState["direction"] =
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       (direction && paramToSortDirection[direction]) || "ascending";
 
     return {
@@ -179,7 +178,7 @@ function TiltaksOversiktContent({ type }: { type: ArrangorflateFilterType }) {
       <Box paddingBlock="space-16" width="30rem">
         <Search
           label="Søk i utbetalinger"
-          description="Tiltaksnavn, arrangør, periode, beløp"
+          description="Tiltak, arrangør, periode"
           hideLabel={false}
           variant="simple"
           width="30rem"
@@ -193,9 +192,11 @@ function TiltaksOversiktContent({ type }: { type: ArrangorflateFilterType }) {
         onSortChange={(key) => sortChange(tiltakSortKeyToParam[key])}
         pagination={paginationProps}
       >
-        {paginertTiltaksRader.data.map((row: ArrangorInnsendingRadDto) => (
-          <UtbetalingRow key={row.gjennomforingId} row={row} />
-        ))}
+        <Suspense fallback={<Laster tekst="Laster tiltak..." size="xlarge" />}>
+          {paginertTiltaksRader.data.map((row: ArrangorInnsendingRadDto) => (
+            <UtbetalingRow key={row.gjennomforingId} row={row} />
+          ))}
+        </Suspense>
       </Tabellvisning>
     </>
   );
