@@ -70,7 +70,7 @@ class ArenaAdapterService(
         if (sluttDato == null || sluttDato >= ArenaMigrering.EnkeltplassSluttDatoCutoffDate) {
             val upsert = UpsertGjennomforingEnkeltplass(
                 id = arenaGjennomforing.id,
-                tiltakstypeId = tiltakstype.id,
+                tiltakskode = checkNotNull(tiltakstype.tiltakskode),
                 arrangorId = arrangor.id,
                 navn = arenaGjennomforing.navn,
                 startDato = arenaGjennomforing.startDato,

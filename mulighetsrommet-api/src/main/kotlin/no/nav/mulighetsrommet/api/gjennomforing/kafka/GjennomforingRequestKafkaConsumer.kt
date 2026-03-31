@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingRequestPayload
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -19,7 +18,6 @@ import java.util.UUID
 
 class GjennomforingRequestKafkaConsumer(
     private val arrangorer: ArrangorService,
-    private val tiltakstyper: TiltakstypeService,
     private val enkeltplasser: GjennomforingEnkeltplassService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
@@ -36,17 +34,15 @@ class GjennomforingRequestKafkaConsumer(
             return
         }
 
-        val tiltakstype = tiltakstyper.getByTiltakskode(request.tiltakskode)
-
         val arrangor = arrangorer
             .getArrangorOrSyncFromBrreg(Organisasjonsnummer(request.organisasjonsnummer))
             .getOrElse { error("Klarte ikke hente arrangør fra brreg $it") }
 
         val opprett = UpsertGjennomforingEnkeltplass(
             id = request.gjennomforingId,
-            tiltakstypeId = tiltakstype.id,
+            tiltakskode = request.tiltakskode,
             arrangorId = arrangor.id,
-            navn = tiltakstype.navn,
+            navn = null,
             startDato = LocalDate.now(),
             sluttDato = null,
             status = GjennomforingStatusType.GJENNOMFORES,
