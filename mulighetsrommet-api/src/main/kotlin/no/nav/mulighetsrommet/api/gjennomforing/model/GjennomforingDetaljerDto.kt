@@ -117,7 +117,7 @@ data class GjennomforingEnkeltplassDto(
     val tiltaksnummer: Tiltaksnummer?,
     val arrangor: ArrangorUnderenhet,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
+    val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val status: Status,

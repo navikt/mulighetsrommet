@@ -17,7 +17,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val arenaId: Int?,
     val tiltakskode: String,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
+    val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     @Serializable(with = LocalDateTimeSerializer::class)

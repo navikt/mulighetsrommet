@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
@@ -37,10 +38,10 @@ import java.util.UUID
 
 data class UpsertGjennomforingEnkeltplass(
     val id: UUID,
-    val tiltakstypeId: UUID,
+    val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
-    val navn: String,
-    val startDato: LocalDate,
+    val navn: String?,
+    val startDato: LocalDate?,
     val sluttDato: LocalDate?,
     val status: GjennomforingStatusType,
     val prisbetingelser: String?,
@@ -161,13 +162,15 @@ class GjennomforingEnkeltplassService(
     }
 
     private fun QueryContext.upsert(upsert: UpsertGjennomforingEnkeltplass): GjennomforingEnkeltplass {
+        val tiltakstype = tiltakstyper.getByTiltakskode(upsert.tiltakskode)
+
         val prismodellId = upsertPrismodell(upsert.id, upsert.prisbetingelser)
         val dbo = GjennomforingDbo(
             type = GjennomforingType.ENKELTPLASS,
             id = upsert.id,
-            tiltakstypeId = upsert.tiltakstypeId,
+            tiltakstypeId = tiltakstype.id,
             arrangorId = upsert.arrangorId,
-            navn = upsert.navn,
+            navn = upsert.navn ?: tiltakstype.navn,
             startDato = upsert.startDato,
             sluttDato = upsert.sluttDato,
             status = upsert.status,
@@ -242,7 +245,7 @@ private fun toUpsertGjennomforingEnkeltplass(
     deltaker: Deltaker,
 ): UpsertGjennomforingEnkeltplass = UpsertGjennomforingEnkeltplass(
     id = gjennomforing.id,
-    tiltakstypeId = gjennomforing.tiltakstype.id,
+    tiltakskode = gjennomforing.tiltakstype.tiltakskode,
     arrangorId = gjennomforing.arrangor.id,
     navn = gjennomforing.navn,
     prisbetingelser = gjennomforing.prismodell.prisbetingelser(),

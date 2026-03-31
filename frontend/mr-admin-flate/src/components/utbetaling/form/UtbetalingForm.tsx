@@ -14,7 +14,7 @@ interface UtbetalingFormProps {
   id: string;
   onSubmit: () => void;
   arrangorId: string;
-  startDato?: string;
+  startDato?: string | null;
 }
 
 export function UtbetalingForm({ id, onSubmit, arrangorId, startDato }: UtbetalingFormProps) {
@@ -45,7 +45,7 @@ function KorreksjonFields() {
   );
 }
 
-function UtbetalingFields({ startDato }: { startDato?: string }) {
+function UtbetalingFields({ startDato }: { startDato?: string | null }) {
   return (
     <FormGroup>
       <HGrid columns={2}>
