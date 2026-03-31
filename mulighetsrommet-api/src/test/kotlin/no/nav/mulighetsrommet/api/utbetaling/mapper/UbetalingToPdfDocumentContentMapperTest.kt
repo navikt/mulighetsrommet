@@ -54,6 +54,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
     val deltaker4Id = UUID.randomUUID()
     val deltaker5Id = UUID.randomUUID()
 
+    val sats = 1000.withValuta(Valuta.NOK)
     val utbetalingFastSats = Utbetaling(
         id = UUID.randomUUID(),
         status = UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -78,7 +79,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
             input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34.withValuta(Valuta.NOK))),
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), sats)),
                 stengt = setOf(
                     StengtPeriode(
                         periode = Periode(LocalDate.of(2025, 1, 7), LocalDate.of(2025, 1, 14)),
@@ -153,8 +154,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 1.0,
-                                sats = 1000.withValuta(Valuta.NOK),
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                                sats = sats,
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             ),
                         ),
                     ),
@@ -163,8 +164,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 1.0,
-                                sats = 1000.withValuta(Valuta.NOK),
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                                sats = sats,
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             ),
                         ),
                     ),
@@ -173,8 +174,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 0.75,
-                                sats = 1000.withValuta(Valuta.NOK),
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                                sats = sats,
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             ),
                         ),
                     ),
@@ -183,8 +184,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 0.75,
-                                sats = 1000.withValuta(Valuta.NOK),
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                                sats = sats,
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             ),
                         ),
                     ),
@@ -193,8 +194,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 0.75,
-                                sats = 1000.withValuta(Valuta.NOK),
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                                sats = sats,
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             ),
                         ),
                     ),
@@ -468,13 +469,13 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Sats",
-              "value": "34",
+              "value": "1000",
               "currency": "NOK"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Antall månedsverk",
-              "value": "0.0"
+              "value": "4.25"
             }
           ]
         },
@@ -893,13 +894,13 @@ private val expectedJournalpostFastSatsContent = """
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Sats",
-              "value": "34",
+              "value": "1000",
               "currency": "NOK"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Antall månedsverk",
-              "value": "0.0"
+              "value": "4.25"
             }
           ]
         },

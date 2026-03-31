@@ -40,7 +40,6 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
-import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.UUID
@@ -389,26 +388,25 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
     faktorLabel: String,
 ): List<DataDetails> {
     return satser.mapNotNull { satsPeriode ->
-        val faktor = deltakelser
+        deltakelser
             .flatMap { it.perioder }
             .filter { it.sats == satsPeriode.sats }
             .map { it.faktor.toBigDecimal() }
             .sumOf { it }
             .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
-
-        if (faktor.equals(BigDecimal.ZERO)) {
-            null
-        } else {
-            DataDetails(
-                header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${
-                    satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
-                }",
-                entries = listOf(
-                    LabeledDataElement.money(satsLabel, satsPeriode.sats),
-                    LabeledDataElement.number(faktorLabel, faktor),
-                ),
-            )
-        }
+            .toDouble()
+            .takeIf { it > 0.0 }
+            ?.let { faktor ->
+                val start = satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()
+                val slutt = satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
+                DataDetails(
+                    header = "Periode $start - $slutt",
+                    entries = listOf(
+                        LabeledDataElement.money(satsLabel, satsPeriode.sats),
+                        LabeledDataElement.number(faktorLabel, faktor),
+                    ),
+                )
+            }
     }
 }
 
