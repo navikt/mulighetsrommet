@@ -5,8 +5,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
-import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -28,8 +26,6 @@ import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
-import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -329,44 +325,6 @@ class TilsagnQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, bestillingsnummer)) { it.toTilsagn() }
-    }
-
-    fun getArrangorflateFiltered(
-        arrangorer: List<Organisasjonsnummer>,
-        filter: ArrangorflateTilsagnFilter,
-        statuser: List<TilsagnStatus>,
-    ): PaginatedResult<Tilsagn> {
-        val direction = when (filter.direction) {
-            ArrangorflateFilterDirection.ASC -> "asc"
-            ArrangorflateFilterDirection.DESC -> "desc"
-        }
-
-        val order = when (filter.orderBy) {
-            ArrangorflateTilsagnFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn $direction"
-            ArrangorflateTilsagnFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
-            ArrangorflateTilsagnFilter.OrderBy.PERIODE -> "periode $direction"
-            ArrangorflateTilsagnFilter.OrderBy.TILSAGN -> "type $direction"
-            ArrangorflateTilsagnFilter.OrderBy.STATUS -> "status $direction"
-        }
-
-        @Language("PostgreSQL")
-        val query = """
-            select *, count(*) over() as total_count
-            from view_tilsagn
-            where
-                arrangor_organisasjonsnummer = any (:orgnr_list::text[])
-                and status = any (:status_list::text[])
-            order by $order
-            limit :limit
-            offset :offset
-        """.trimIndent()
-        val params = mapOf(
-            "orgnr_list" to session.createArrayOfValue(arrangorer) { it.value },
-            "status_list" to session.createTextArray(statuser),
-        )
-        return queryOf(query, params + filter.pagination.parameters)
-            .mapPaginated { it.toTilsagn() }
-            .runWithSession(session)
     }
 
     fun getAll(

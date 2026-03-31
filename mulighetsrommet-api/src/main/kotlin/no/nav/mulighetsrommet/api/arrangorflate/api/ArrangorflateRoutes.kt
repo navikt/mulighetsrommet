@@ -37,7 +37,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
-import no.nav.mulighetsrommet.api.arrangorflate.service.TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
@@ -179,11 +178,10 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }
             val filter = getArrangorflateTilsagnFilter()
             val (totalCount, data) = db.session {
-                queries.tilsagn
-                    .getArrangorflateFiltered(
+                queries.arrangorflate.tilsagn
+                    .getFiltered(
                         arrangorer = tilganger,
                         filter = filter,
-                        statuser = TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR,
                     )
             }
             call.respond(
