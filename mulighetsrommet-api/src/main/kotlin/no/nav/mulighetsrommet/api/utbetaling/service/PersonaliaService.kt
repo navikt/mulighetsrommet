@@ -33,16 +33,29 @@ class PersonaliaService(
     ): Map<UUID, Personalia> {
         return amtDeltakerClient.hentPersonalia(deltakerIds)
             .map { amtList ->
+                val tilgangerByDeltakerId: Map<UUID, Boolean> = when (accessType) {
+                    is AccessType.OBO.AzureAd -> {
+                        val identer = amtList.map { it.norskIdent }
+                        val tilgangsmaskinResponse = tilgangsmaskinClient.bulk(identer, accessType)
+                        amtList.associate { amtPersonalia ->
+                            val harTilgang = requireNotNull(tilgangsmaskinResponse.resultater.find { it.brukerId == amtPersonalia.norskIdent.value })
+                                .harTilgang()
+                            amtPersonalia.deltakerId to harTilgang
+                        }
+                    }
+
+                    is AccessType.OBO.TokenX -> amtList.associate {
+                        it.deltakerId to (it.adressebeskyttelse == PdlGradering.UGRADERT && !it.erSkjermet)
+                    }
+
+                    is AccessType.M2M -> amtList.associate {
+                        it.deltakerId to true
+                    }
+                }
                 amtList.associate { amtPersonalia ->
                     val norskIdent = amtPersonalia.norskIdent
 
-                    val tilgang = when (accessType) {
-                        is AccessType.OBO.AzureAd -> tilgangsmaskinClient.komplett(norskIdent, accessType)
-                        is AccessType.OBO.TokenX -> false
-                        AccessType.M2M -> true
-                    }
-
-                    if (tilgang) {
+                    if (requireNotNull(tilgangerByDeltakerId[amtPersonalia.deltakerId])) {
                         amtPersonalia.deltakerId to
                             Personalia(
                                 norskIdent = norskIdent,

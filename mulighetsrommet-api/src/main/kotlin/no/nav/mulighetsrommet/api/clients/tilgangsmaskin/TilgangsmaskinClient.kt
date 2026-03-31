@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.clients.tilgangsmaskin
 
-import com.github.benmanes.caffeine.cache.Cache
-import com.github.benmanes.caffeine.cache.Caffeine
+import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.cache.HttpCache
 import io.ktor.client.request.bearerAuth
@@ -12,14 +11,15 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.teamLogsError
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
-import no.nav.mulighetsrommet.utils.CacheUtils
 import org.slf4j.LoggerFactory
-import java.util.concurrent.TimeUnit
 
 class TilgangsmaskinClient(
     private val baseUrl: String,
@@ -31,36 +31,55 @@ class TilgangsmaskinClient(
         install(HttpCache)
     }
 
-    private val tilgangCache: Cache<String, Boolean> = Caffeine.newBuilder()
-        .expireAfterWrite(5, TimeUnit.MINUTES)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
+    suspend fun bulk(identer: List<NorskIdent>, obo: AccessType.OBO.AzureAd): TilgangsmaskinResponse {
+        val response = client.post("$baseUrl/api/v1/bulk/obo") {
+            bearerAuth(tokenProvider.exchange(obo))
+            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            setBody(identer.map { TilgangsmaskinRequest(brukerId = it.value) })
+        }
 
-    suspend fun komplett(norskIdent: NorskIdent, obo: AccessType.OBO): Boolean = CacheUtils
-        .tryCacheFirstNotNull(tilgangCache, "${obo.token}-${norskIdent.value}") {
-            val response = client.post("$baseUrl/api/v1/komplett") {
-                bearerAuth(tokenProvider.exchange(obo))
-                header(HttpHeaders.ContentType, ContentType.Application.Json)
-                setBody(norskIdent.value)
+        return when (response.status) {
+            HttpStatusCode.MultiStatus -> {
+                response.body<TilgangsmaskinResponse>()
             }
 
-            return when (response.status) {
-                HttpStatusCode.NoContent -> true
+            HttpStatusCode.NotFound -> {
+                logger.error("Nav Ident ikke funnet i tilgangsmaskinen. Dette burde ikke kunne skje")
+                throw Exception("Nav Ident ikke funnet i tilgangsmaskinen. Dette burde ikke kunne skje")
+            }
 
-                HttpStatusCode.Forbidden -> false
+            HttpStatusCode.PayloadTooLarge -> {
+                logger.error("For mange brukere i bulkrequest mot tilgangsmaskinen. Antall: ${identer.size}. Status code: ${response.status}")
+                throw Exception("For mange brukere i bulkrequest mot tilgangsmaskinen. Status code: ${response.status}")
+            }
 
-                HttpStatusCode.NotFound -> {
-                    logger.error("Nav Ident ikke funnet i tilgangsmaskinen. Dette burde ikke kunne skje")
-                    throw Exception("Nav Ident ikke funnet i tilgangsmaskinen. Dette burde ikke kunne skje")
-                }
-
-                else -> {
-                    logger.error("Feil mot tilgangsmaskinen. Status code: ${response.status}")
-                    val bodyAsText = response.bodyAsText()
-                    logger.teamLogsError("Feil mot tilgangsmaskinen. Response=$bodyAsText")
-                    throw Exception("Feil mot tilgangsmaskinen. Status code: ${response.status}")
-                }
+            else -> {
+                logger.error("Feil mot tilgangsmaskinen. Status code: ${response.status}")
+                val bodyAsText = response.bodyAsText()
+                logger.teamLogsError("Feil mot tilgangsmaskinen. Response=$bodyAsText")
+                throw Exception("Feil mot tilgangsmaskinen. Status code: ${response.status}")
             }
         }
+    }
+}
+
+@Serializable
+data class TilgangsmaskinRequest(
+    val brukerId: String,
+    val type: String = "KOMPLETT_REGELTYPE",
+)
+
+@Serializable
+data class TilgangsmaskinResponse(
+    val ansattId: NavIdent,
+    val resultater: List<Resultat>,
+) {
+    @Serializable
+    data class Resultat(
+        val brukerId: String,
+        val status: Int,
+        val detaljer: ProblemDetail? = null,
+    ) {
+        fun harTilgang(): Boolean = status == 204
+    }
 }

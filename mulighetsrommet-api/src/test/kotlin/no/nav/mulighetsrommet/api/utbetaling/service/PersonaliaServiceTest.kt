@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
@@ -22,6 +23,7 @@ import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.UUID
@@ -56,7 +58,15 @@ class PersonaliaServiceTest : FunSpec({
             coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(
                 personalia.copy(erSkjermet = true),
             ).right()
-            coEvery { tilgansmaskinClient.komplett(personalia.norskIdent, any()) } returns false
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
+                ansattId = NavIdent("X123456"),
+                resultater = listOf(
+                    TilgangsmaskinResponse.Resultat(
+                        brukerId = personalia.norskIdent.value,
+                        status = 403,
+                    ),
+                ),
+            )
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
@@ -99,7 +109,15 @@ class PersonaliaServiceTest : FunSpec({
             coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(
                 personalia.copy(adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND),
             ).right()
-            coEvery { tilgansmaskinClient.komplett(personalia.norskIdent, any()) } returns false
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
+                ansattId = NavIdent("X123456"),
+                resultater = listOf(
+                    TilgangsmaskinResponse.Resultat(
+                        brukerId = personalia.norskIdent.value,
+                        status = 403,
+                    ),
+                ),
+            )
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
@@ -146,7 +164,15 @@ class PersonaliaServiceTest : FunSpec({
                     adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
                 ),
             ).right()
-            coEvery { tilgansmaskinClient.komplett(personalia.norskIdent, any()) } returns false
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
+                ansattId = NavIdent("X123456"),
+                resultater = listOf(
+                    TilgangsmaskinResponse.Resultat(
+                        brukerId = personalia.norskIdent.value,
+                        status = 403,
+                    ),
+                ),
+            )
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
@@ -192,7 +218,15 @@ class PersonaliaServiceTest : FunSpec({
                     adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
                 ),
             ).right()
-            coEvery { tilgansmaskinClient.komplett(personalia.norskIdent, any()) } returns true
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
+                ansattId = NavIdent("X123456"),
+                resultater = listOf(
+                    TilgangsmaskinResponse.Resultat(
+                        brukerId = personalia.norskIdent.value,
+                        status = 204,
+                    ),
+                ),
+            )
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
