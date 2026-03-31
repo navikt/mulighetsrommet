@@ -126,7 +126,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         return arrangorFlateService.getUtbetaling(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
     }
 
-    arrangorflateRoutesOpprettKrav(config.okonomi)
+    arrangorflateOpprettKravRoutes(config.okonomi)
 
     route("/orgnr-tilganger") {
         get(

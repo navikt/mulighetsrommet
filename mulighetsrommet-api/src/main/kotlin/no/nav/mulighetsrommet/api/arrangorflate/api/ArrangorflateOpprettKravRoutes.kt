@@ -76,7 +76,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
+fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
     val db: ApiDatabase by inject()
     val arrangorflateUtbetalingService: ArrangorflateUtbetalingService by inject()
     val arrangorflateService: ArrangorflateService by inject()
