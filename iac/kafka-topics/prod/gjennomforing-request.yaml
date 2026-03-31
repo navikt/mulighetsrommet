@@ -1,7 +1,7 @@
 apiVersion: kafka.nais.io/v1
 kind: Topic
 metadata:
-  name: gjennomforing-request
+  name: gjennomforing-request-v1
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet

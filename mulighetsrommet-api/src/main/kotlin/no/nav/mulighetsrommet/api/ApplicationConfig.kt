@@ -125,7 +125,7 @@ class KafkaClients(
     )
     var handterGjennomforingRequest: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "handter-gjennomforing-request",
-        topic = "team-mulighetsrommet.gjennomforing-request",
+        topic = "team-mulighetsrommet.gjennomforing-request-v1",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.handter-gjennomforing-request.v1"),
     )
     var replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
