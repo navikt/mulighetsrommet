@@ -12,7 +12,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@navikt/aksel": "8.5.1",
     "@navikt/aksel-icons": "8.5.1",
     "@navikt/ds-css": "8.5.1",
     "@navikt/ds-react": "8.5.1",
