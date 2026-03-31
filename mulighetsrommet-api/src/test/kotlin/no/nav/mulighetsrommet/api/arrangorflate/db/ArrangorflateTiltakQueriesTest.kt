@@ -15,18 +15,29 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import java.time.LocalDate
 import java.util.UUID
 
 class ArrangorflateTiltakQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
+    val aft2 =
+        AFT1.copy(
+            id = UUID.randomUUID(),
+            startDato = LocalDate.of(2021, 1, 1),
+            sluttDato = LocalDate.of(2022, 12, 31),
+        )
     val domain = MulighetsrommetTestDomain(
         arrangorer = listOf(
             ArrangorFixtures.hovedenhet,
             ArrangorFixtures.underenhet1,
         ),
         avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
-        gjennomforinger = listOf(Oppfolging1, AFT1),
+        gjennomforinger = listOf(
+            Oppfolging1,
+            AFT1,
+            aft2,
+        ),
     )
 
     beforeSpec {
@@ -65,7 +76,7 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
                 filter = ArrangorflateTiltakFilter(),
-            ).items shouldContainExactlyIds listOf(AFT1.id)
+            ).items shouldContainExactlyIds listOf(AFT1.id, aft2.id)
 
             queries.arrangorTiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.Oppfolging.id),
@@ -75,7 +86,7 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
                     PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                 ),
                 filter = ArrangorflateTiltakFilter(),
-            ).items shouldContainExactlyIds listOf(AFT1.id, Oppfolging1.id)
+            ).items shouldContainExactlyIds listOf(AFT1.id, aft2.id, Oppfolging1.id)
 
             queries.arrangorTiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.Oppfolging.id),
@@ -85,6 +96,26 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
                 ),
                 filter = ArrangorflateTiltakFilter(),
             ).items shouldContainExactlyIds listOf(Oppfolging1.id)
+        }
+    }
+
+    test("henter fra cutoff dato") {
+        database.runAndRollback {
+            var cutoff = LocalDate.of(2022, 1, 1)
+            queries.arrangorTiltak.getAll(
+                tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
+                organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
+                filter = ArrangorflateTiltakFilter(sluttDatoGreaterThanOrEqualTo = cutoff),
+            ).items shouldContainExactlyIds listOf(AFT1.id, aft2.id)
+
+            cutoff = LocalDate.of(2023, 1, 1)
+            queries.arrangorTiltak.getAll(
+                tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
+                organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
+                filter = ArrangorflateTiltakFilter(sluttDatoGreaterThanOrEqualTo = cutoff),
+            ).items shouldContainExactlyIds listOf(AFT1.id)
         }
     }
 })

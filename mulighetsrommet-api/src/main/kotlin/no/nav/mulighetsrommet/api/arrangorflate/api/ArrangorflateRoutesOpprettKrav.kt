@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
-import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateGjennomforingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto

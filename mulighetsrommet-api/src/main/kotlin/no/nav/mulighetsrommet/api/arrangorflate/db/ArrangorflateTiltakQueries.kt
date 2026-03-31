@@ -56,7 +56,8 @@ class ArrangorflateTiltakQueries(private val session: Session) {
         val query = """
             select *, count(*) over() as total_count
             from view_arrangorflate_tiltak
-            where (:sok::text is null
+            where
+              (:sok::text is null
                 or arrangor_navn ilike :sok
                 or arrangor_organisasjonsnummer ilike :sok
                 or tiltakstype_navn ilike :sok
@@ -64,7 +65,8 @@ class ArrangorflateTiltakQueries(private val session: Session) {
                 or lopenummer ilike :sok
                 or to_char(start_dato, 'DD.MM.YYYY') ilike :sok
                 or to_char((slutt_dato - interval '1 day')::date, 'DD.MM.YYYY') ilike :sok
-            )
+              )
+              and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and tiltakstype_id = any(:tiltakstype_ids)
               and arrangor_organisasjonsnummer = any(:arrangor_orgnrs)
               and status = any(:statuser)
@@ -76,6 +78,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
 
         val params = mapOf(
             "sok" to filter.sok?.let { "%$it%" },
+            "slutt_dato_cutoff" to filter.sluttDatoGreaterThanOrEqualTo,
             "tiltakstype_ids" to createUuidArray(tiltakstyper),
             "arrangor_orgnrs" to createArrayOfValue(organisasjonsnummer) { it.value },
             "statuser" to createArrayOf("gjennomforing_status", filter.type.toGjennomforingStatuses()),
