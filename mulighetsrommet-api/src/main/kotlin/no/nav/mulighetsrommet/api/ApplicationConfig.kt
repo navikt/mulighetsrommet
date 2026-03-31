@@ -123,6 +123,11 @@ class KafkaClients(
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.oppdater-utbetaling-for-gjennomforing.v1"),
     )
+    var handterGjennomforingRequest: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "handter-gjennomforing-request",
+        topic = "team-mulighetsrommet.gjennomforing-request-v1",
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.handter-gjennomforing-request.v1"),
+    )
     var replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "replicate-bestilling-status",
         topic = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
