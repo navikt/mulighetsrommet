@@ -538,8 +538,7 @@ class UtbetalingQueries(private val session: Session) {
     }
 
     fun getArrangorflateFiltered(
-        arrangorer: Set<Organisasjonsnummer>,
-        filter: ArrangorflateUtbetalingFilter = ArrangorflateUtbetalingFilter(),
+        filter: ArrangorflateUtbetalingFilter,
     ): PaginatedResult<Utbetaling> {
         val direction = when (filter.direction) {
             ArrangorflateFilterDirection.ASC -> "asc"
@@ -576,7 +575,7 @@ class UtbetalingQueries(private val session: Session) {
         """.trimIndent()
         val params = mapOf(
             "sok" to filter.sok?.let { "%$it%" },
-            "orgnr_list" to session.createArrayOfValue(arrangorer) { it.value },
+            "orgnr_list" to session.createArrayOfValue(filter.arrangorer) { it.value },
             "status_list" to session.createTextArray(filter.type.utbetalingStatuser()),
         )
         return queryOf(query, params + filter.pagination.parameters)
@@ -711,9 +710,6 @@ class UtbetalingQueries(private val session: Session) {
             gjennomforing = Utbetaling.Gjennomforing(
                 id = uuid("gjennomforing_id"),
                 lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
-                navn = string("gjennomforing_navn"),
-                start = localDate("gjennomforing_start_dato"),
-                slutt = localDateOrNull("gjennomforing_slutt_dato"),
             ),
             arrangor = Utbetaling.Arrangor(
                 id = uuid("arrangor_id"),

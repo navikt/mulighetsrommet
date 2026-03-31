@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTimeline
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
@@ -46,6 +47,7 @@ import java.util.UUID
 
 fun mapUtbetalingToArrangorflateUtbetaling(
     utbetaling: Utbetaling,
+    gjennomforing: GjennomforingAvtale,
     status: ArrangorflateUtbetalingStatus,
     deltakereById: Map<UUID, Deltaker>,
     personaliaById: Map<UUID, ArrangorflatePersonalia?>,
@@ -80,9 +82,9 @@ fun mapUtbetalingToArrangorflateUtbetaling(
             tiltakskode = utbetaling.tiltakstype.tiltakskode,
         ),
         gjennomforing = ArrangorflateGjennomforingDto(
-            id = utbetaling.gjennomforing.id,
-            lopenummer = utbetaling.gjennomforing.lopenummer,
-            navn = utbetaling.gjennomforing.navn,
+            id = gjennomforing.id,
+            lopenummer = gjennomforing.lopenummer,
+            navn = gjennomforing.navn,
         ),
         arrangor = ArrangorflateArrangorDto(
             id = utbetaling.arrangor.id,
@@ -99,7 +101,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         },
         type = UtbetalingType.from(utbetaling).toDto(),
         linjer = linjer,
-        innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),
+        innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, gjennomforing, innsendtAvArrangorDato),
         advarsler = advarsler.map { advarsel ->
             DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn)
         },
@@ -112,6 +114,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
 
 private fun getInnsendingsDetaljer(
     utbetaling: Utbetaling,
+    gjennomforing: GjennomforingAvtale,
     innsendtAvArrangorDato: LocalDate?,
 ): List<LabeledDataElement> {
     return listOfNotNull(
@@ -122,13 +125,13 @@ private fun getInnsendingsDetaljer(
         },
         LabeledDataElement.text(
             "Tiltaksnavn",
-            "${utbetaling.gjennomforing.navn} (${utbetaling.gjennomforing.lopenummer})",
+            "${gjennomforing.navn} (${gjennomforing.lopenummer})",
         ),
         LabeledDataElement.text("Tiltakstype", utbetaling.tiltakstype.navn),
         if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
             LabeledDataElement.text(
                 "Tiltaksperiode",
-                Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt),
+                Periode.formatPeriode(gjennomforing.startDato, gjennomforing.sluttDato),
             )
         } else {
             null
