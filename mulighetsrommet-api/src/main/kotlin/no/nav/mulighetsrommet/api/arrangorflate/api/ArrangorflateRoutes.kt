@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
-import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
@@ -34,8 +33,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilte
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.service.TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
@@ -51,7 +48,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
-import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
@@ -63,9 +59,6 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -251,16 +244,12 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             respondWithManglerTilgangHosArrangor()
             return@get
         }
-        val filter = getArrangorflateUtbetalingFilter()
-        val (totalCount, items) =
-            db.session {
-                queries.utbetaling.getArrangorflateFiltered(
-                    arrangorer = tilganger.toSet(),
-                    filter,
-                ).map { tilArrangorflateUtbetalingKompakt(it) }
-            }
 
-        call.respond(PaginatedResponse.of(filter.pagination, totalCount, items.map { it.toRadDto() }))
+        val filter = getArrangorflateUtbetalingFilter(tilganger.toSet())
+        val (totalCount, items) = arrangorFlateService.getAllUtbetalingKompakt(filter)
+        val response = PaginatedResponse.of(filter.pagination, totalCount, items.map { it.toRadDto() })
+
+        call.respond(response)
     }
 
     route("/utbetaling/{id}") {
@@ -353,7 +342,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
-
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
             if (utbetaling.innsending == null) {
@@ -394,8 +382,8 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
-            val request = call.receive<AvbrytUtbetaling>()
 
+            val request = call.receive<AvbrytUtbetaling>()
             UtbetalingValidator
                 .validerAvbrytUtbetaling(request, utbetaling)
                 .map { utbetalingService.avbrytUtbetaling(utbetaling.id, it, Arrangor) }
@@ -464,7 +452,14 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
             val linjer = arrangorFlateService.getLinjer(utbetaling.id)
-            val content = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(utbetaling, linjer)
+            val gjennomforing = db.session {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
+            }
+            val content = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
+                utbetaling,
+                linjer,
+                gjennomforing,
+            )
             pdfClient.getPdfDocument(content)
                 .onRight { pdfContent ->
                     call.response.headers.append(
@@ -568,14 +563,6 @@ data class OpprettKravOmUtbetalingResponse(
     val id: UUID,
 )
 
-val TILSAGN_STATUS_VISNING_ARRANGORFLATE = listOf(
-    TilsagnStatus.GODKJENT,
-    TilsagnStatus.TIL_ANNULLERING,
-    TilsagnStatus.ANNULLERT,
-    TilsagnStatus.TIL_OPPGJOR,
-    TilsagnStatus.OPPGJORT,
-)
-
 @Serializable
 data class ArrangorflateTilsagnRadDto(
     @Serializable(with = UUIDSerializer::class)
@@ -588,25 +575,6 @@ data class ArrangorflateTilsagnRadDto(
     val tilsagnNavn: String,
     val status: TilsagnStatus,
 )
-
-fun QueryContext.tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
-    val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
-    val godkjentBelop = when (status) {
-        ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-        ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
-        ArrangorflateUtbetalingStatus.UTBETALT,
-        -> getGodkjentBelopForUtbetaling(utbetaling.id, utbetaling.beregning.output.pris.valuta)
-
-        ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-        ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
-        ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
-        ArrangorflateUtbetalingStatus.AVBRUTT,
-        -> null
-    }
-    return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
-}
-
-fun QueryContext.getGodkjentBelopForUtbetaling(id: UUID, valuta: Valuta): ValutaBelop = queries.utbetalingLinje.getByUtbetalingId(id).sumOf { it.pris.belop }.withValuta(valuta)
 
 fun ArrangorflateTilsagnDto.toRadDto(): ArrangorflateTilsagnRadDto = ArrangorflateTilsagnRadDto(
     id = id,
