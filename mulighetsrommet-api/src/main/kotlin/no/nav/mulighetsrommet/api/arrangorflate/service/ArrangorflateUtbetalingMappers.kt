@@ -395,7 +395,6 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
             .map { it.faktor.toBigDecimal() }
             .sumOf { it }
             .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
-            .toDouble()
 
         if (faktor.equals(BigDecimal.ZERO)) {
             null
