@@ -9,15 +9,14 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
-import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -60,7 +59,7 @@ fun Route.tilsagnRoutesGet() {
 
                 val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
                     tilsagn.deltakere.map { it.deltakerId },
-                    AccessType.OBO(call.getAccessToken()),
+                    call.getAccessType(),
                 )
                 val deltakere = tilsagn.deltakere.map {
                     TilsagnDeltakerDto.from(it, personalia[it.deltakerId])

@@ -43,7 +43,7 @@ class TiltakshistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentHistorikk(norskIdent: NorskIdent, obo: AccessType.OBO): Deltakelser = coroutineScope {
+    suspend fun hentHistorikk(norskIdent: NorskIdent, obo: AccessType.OBO.AzureAd): Deltakelser = coroutineScope {
         val tiltakshistorikk = async { getTiltakshistorikk(norskIdent, obo) }
         val deltakelserFraKomet = async { getDeltakelserKomet(norskIdent, obo) }
         deltakelserFraKomet.await()
@@ -90,7 +90,7 @@ class TiltakshistorikkService(
 
     suspend fun getDeltakelserKomet(
         norskIdent: NorskIdent,
-        obo: AccessType.OBO,
+        obo: AccessType.OBO.AzureAd,
     ): Deltakelser {
         return amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), obo).fold({ error ->
             log.warn("Klarte ikke hente deltakelser fra Komet: $error")

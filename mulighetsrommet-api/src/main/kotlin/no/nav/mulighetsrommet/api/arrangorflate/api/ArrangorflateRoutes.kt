@@ -39,6 +39,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.TILSAGN_STATUS_RELEVANT_
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -55,7 +56,6 @@ import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -67,7 +67,7 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.requireTokenX
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
@@ -118,11 +118,11 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
     suspend fun RoutingContext.getTilsagnOrRespondNotFound(): ArrangorflateTilsagnDto {
         val id: UUID by call.parameters
-        val obo = AccessType.OBO(call.getAccessToken())
+        val accessType = call.getAccessType().requireTokenX()
         return db.session {
             queries.tilsagn.get(id)
                 ?.takeIf { it.status in TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR }
-                ?.let { ArrangorflateTilsagnDto.from(it, arrangorFlateService.getTilsagnDeltakerPersonalia(it.deltakere, obo)) }
+                ?.let { ArrangorflateTilsagnDto.from(it, arrangorFlateService.getTilsagnDeltakerPersonalia(it.deltakere, accessType)) }
         } ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
     }
 
@@ -182,7 +182,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 respondWithManglerTilgangHosArrangor()
                 return@get
             }
-            val obo = AccessType.OBO(call.getAccessToken())
+            val accessType = call.getAccessType().requireTokenX()
             val filter = getArrangorflateTilsagnFilter()
             val (totalCount, data) = db.session {
                 queries.tilsagn
@@ -197,7 +197,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     filter.pagination,
                     totalCount,
                     data
-                        .map { ArrangorflateTilsagnDto.from(it, arrangorFlateService.getTilsagnDeltakerPersonalia(it.deltakere, obo)) }
+                        .map { ArrangorflateTilsagnDto.from(it, arrangorFlateService.getTilsagnDeltakerPersonalia(it.deltakere, accessType)) }
                         .map { it.toRadDto() },
                 ),
             )
@@ -292,8 +292,8 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
-            val obo = AccessType.OBO(call.getAccessToken())
-            val arrangorFlateUtbetaling = arrangorFlateService.toArrangorflateUtbetaling(utbetaling, obo)
+            val accessType = call.getAccessType().requireTokenX()
+            val arrangorFlateUtbetaling = arrangorFlateService.toArrangorflateUtbetaling(utbetaling, accessType)
             call.respond(arrangorFlateUtbetaling)
         }
 
@@ -508,8 +508,8 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
-            val obo = AccessType.OBO(call.getAccessToken())
-            val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(utbetaling, obo)
+            val accessType = call.getAccessType().requireTokenX()
+            val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(utbetaling, accessType)
 
             call.respond(tilsagn)
         }
@@ -574,14 +574,6 @@ data class AvbrytUtbetaling(
 data class OpprettKravOmUtbetalingResponse(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-)
-
-val TILSAGN_STATUS_VISNING_ARRANGORFLATE = listOf(
-    TilsagnStatus.GODKJENT,
-    TilsagnStatus.TIL_ANNULLERING,
-    TilsagnStatus.ANNULLERT,
-    TilsagnStatus.TIL_OPPGJOR,
-    TilsagnStatus.OPPGJORT,
 )
 
 @Serializable

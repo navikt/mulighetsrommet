@@ -127,7 +127,7 @@ class BrukerServiceTest : FunSpec({
     }
 
     test("Henter brukerdata for et gitt fnr") {
-        brukerService.hentBrukerdata(fnr1, AccessType.OBO("")) shouldBe
+        brukerService.hentBrukerdata(fnr1, AccessType.OBO.AzureAd("")) shouldBe
             Brukerdata(
                 fornavn = "Ola",
                 innsatsgruppe = Innsatsgruppe.GODE_MULIGHETER,
@@ -157,7 +157,7 @@ class BrukerServiceTest : FunSpec({
         coEvery { brukerQuery.hentBruker(PdlIdent(fnr1.value), any()) } returns PdlError.Error.left()
 
         shouldThrow<StatusException> {
-            brukerService.hentBrukerdata(fnr1, AccessType.OBO(""))
+            brukerService.hentBrukerdata(fnr1, AccessType.OBO.AzureAd(""))
         }
     }
 

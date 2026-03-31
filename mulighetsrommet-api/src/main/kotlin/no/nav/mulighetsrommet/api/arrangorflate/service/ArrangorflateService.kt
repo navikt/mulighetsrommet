@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
-import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -49,24 +48,7 @@ class ArrangorflateService(
         return queries.utbetaling.get(id)
     }
 
-    suspend fun getTilsagn(
-        arrangorer: Set<Organisasjonsnummer>,
-        obo: AccessType.OBO,
-        statuser: List<TilsagnStatus>? = null,
-        typer: List<TilsagnType>? = null,
-        gjennomforingId: UUID? = null,
-    ): List<ArrangorflateTilsagnDto> = db.session {
-        queries.tilsagn
-            .getAll(
-                arrangorer = arrangorer,
-                statuser = statuser,
-                typer = typer,
-                gjennomforingId = gjennomforingId,
-            )
-            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere, obo)) }
-    }
-
-    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling, obo: AccessType.OBO): List<ArrangorflateTilsagnDto> = db.session {
+    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling, accessType: AccessType.OBO.TokenX): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
                 gjennomforingId = utbetaling.gjennomforing.id,
@@ -74,7 +56,7 @@ class ArrangorflateService(
                 typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
                 statuser = listOf(TilsagnStatus.GODKJENT),
             )
-            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere, obo)) }
+            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere, accessType)) }
     }
 
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
@@ -101,7 +83,7 @@ class ArrangorflateService(
 
     suspend fun toArrangorflateUtbetaling(
         utbetaling: Utbetaling,
-        obo: AccessType.OBO,
+        accessType: AccessType.OBO.TokenX,
         today: LocalDate = LocalDate.now(),
     ): ArrangorflateUtbetalingDto = db.session {
         val erTolvUkerEtterInnsending = utbetaling.innsending
@@ -117,7 +99,7 @@ class ArrangorflateService(
                 .filter { it.id in deltakelser }
         }
 
-        val personalia = getPersonalia(deltakere.map { it.id }, obo)
+        val personalia = getPersonalia(deltakere.map { it.id }, accessType)
         val advarsler = getAdvarsler(utbetaling)
         val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
         val (kanRegenereres, regenrertId) = kanRegenereres(utbetaling)
@@ -208,8 +190,8 @@ class ArrangorflateService(
         }
     }
 
-    suspend fun getPersonalia(deltakerIds: List<UUID>, obo: AccessType.OBO): Map<UUID, ArrangorflatePersonalia> {
-        return personaliaService.getPersonalia(deltakerIds, obo)
+    suspend fun getPersonalia(deltakerIds: List<UUID>, accessType: AccessType.OBO.TokenX): Map<UUID, ArrangorflatePersonalia> {
+        return personaliaService.getPersonalia(deltakerIds, accessType)
             .mapValues {
                 ArrangorflatePersonalia(
                     norskIdent = it.value.norskIdent,
@@ -218,8 +200,8 @@ class ArrangorflateService(
             }
     }
 
-    suspend fun getTilsagnDeltakerPersonalia(deltakere: List<Tilsagn.Deltaker>, obo: AccessType.OBO): List<ArrangorflateTilsagnDto.DeltakerPersonalia> {
-        return getPersonalia(deltakere.map { it.deltakerId }, obo).map { (deltakerId, p) ->
+    suspend fun getTilsagnDeltakerPersonalia(deltakere: List<Tilsagn.Deltaker>, accessType: AccessType.OBO.TokenX): List<ArrangorflateTilsagnDto.DeltakerPersonalia> {
+        return getPersonalia(deltakere.map { it.deltakerId }, accessType).map { (deltakerId, p) ->
             ArrangorflateTilsagnDto.DeltakerPersonalia(
                 deltakerId = deltakerId,
                 norskIdent = p.norskIdent,

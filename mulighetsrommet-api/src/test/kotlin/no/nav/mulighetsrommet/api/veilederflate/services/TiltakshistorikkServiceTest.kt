@@ -273,7 +273,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
-            AccessType.OBO("token"),
+            AccessType.OBO.AzureAd("token"),
         )
 
         historikk shouldBe Deltakelser(
@@ -300,7 +300,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
-            AccessType.OBO("token"),
+            AccessType.OBO.AzureAd("token"),
         )
 
         historikk shouldBe Deltakelser(
@@ -335,7 +335,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
-            AccessType.OBO("token"),
+            AccessType.OBO.AzureAd("token"),
         )
 
         historikk shouldBe Deltakelser(
@@ -372,7 +372,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
-            AccessType.OBO("token"),
+            AccessType.OBO.AzureAd("token"),
         )
 
         historikk shouldBe Deltakelser(
@@ -405,7 +405,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
-            AccessType.OBO("token"),
+            AccessType.OBO.AzureAd("token"),
         )
 
         val expectedDeltakelseUtenStartdato = deltakelseOppfolging.copy(
@@ -494,7 +494,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
             val historikk = historikkService.hentHistorikk(
                 NorskIdent("12345678910"),
-                AccessType.OBO("token"),
+                AccessType.OBO.AzureAd("token"),
             )
 
             historikk shouldBe Deltakelser(
@@ -545,7 +545,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
             val historikk = historikkService.hentHistorikk(
                 NorskIdent("12345678910"),
-                AccessType.OBO("token"),
+                AccessType.OBO.AzureAd("token"),
             )
 
             historikk shouldBe Deltakelser(

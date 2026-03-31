@@ -74,7 +74,7 @@ class ArrangorflateServiceTest : FunSpec({
         val u = arrangorflateService.getUtbetaling(utbetaling.id)!!
         val result = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(
             u.copy(periode = Periode(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 8, 1))),
-            AccessType.OBO("token"),
+            AccessType.OBO.TokenX("token"),
         )
 
         result shouldHaveSize 1
@@ -93,7 +93,7 @@ class ArrangorflateServiceTest : FunSpec({
         val arrangorflateService = createService()
         val result = arrangorflateService.toArrangorflateUtbetaling(
             arrangorflateService.getUtbetaling(utbetaling.id)!!,
-            AccessType.OBO("token"),
+            AccessType.OBO.TokenX("token"),
         )
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
@@ -104,7 +104,7 @@ class ArrangorflateServiceTest : FunSpec({
         var utbetaling = arrangorflateService.getUtbetaling(friUtbetaling.id)!!
         val result = arrangorflateService.toArrangorflateUtbetaling(
             utbetaling,
-            AccessType.OBO("token"),
+            AccessType.OBO.TokenX("token"),
         )
 
         result.id shouldBe friUtbetaling.id
@@ -124,7 +124,7 @@ class ArrangorflateServiceTest : FunSpec({
         )
         val result = arrangorflateService.toArrangorflateUtbetaling(
             godkjentAvArrangorUtbetaling,
-            AccessType.OBO("token"),
+            AccessType.OBO.TokenX("token"),
             today = date,
         )
 
@@ -145,7 +145,7 @@ class ArrangorflateServiceTest : FunSpec({
         )
         val result = arrangorflateService.toArrangorflateUtbetaling(
             godkjentAvArrangorUtbetaling,
-            AccessType.OBO("token"),
+            AccessType.OBO.TokenX("token"),
             today = date,
         )
 

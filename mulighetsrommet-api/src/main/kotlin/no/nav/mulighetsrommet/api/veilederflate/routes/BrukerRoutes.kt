@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
@@ -19,12 +20,11 @@ import no.nav.mulighetsrommet.api.veilederflate.services.Brukerdata
 import no.nav.mulighetsrommet.api.veilederflate.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.auditlog.AuditLog
-import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -59,7 +59,7 @@ fun Route.brukerRoutes() {
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
 
-            val obo = AccessType.OBO(call.getAccessToken())
+            val obo = call.getAccessType().requireAzureAd()
             call.respond(brukerService.hentBrukerdata(request.norskIdent, obo))
         }
 
@@ -87,7 +87,7 @@ fun Route.brukerRoutes() {
         }) {
             val (norskIdent, type) = call.receive<GetDeltakelserForBrukerRequest>()
             val navIdent = getNavIdent()
-            val obo = AccessType.OBO(call.getAccessToken())
+            val obo = call.getAccessType().requireAzureAd()
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), norskIdent)
 
@@ -140,7 +140,7 @@ fun Route.brukerRoutes() {
             }
         }) {
             val (norskIdent, tiltakId) = call.receive<GetAktivDeltakelseForBrukerRequest>()
-            val obo = AccessType.OBO(call.getAccessToken())
+            val obo = call.getAccessType().requireAzureAd()
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), norskIdent)
 

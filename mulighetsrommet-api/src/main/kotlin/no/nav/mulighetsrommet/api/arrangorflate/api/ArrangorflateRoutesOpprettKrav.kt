@@ -36,6 +36,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDeta
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonCells
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonColumns
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -53,7 +54,6 @@ import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
@@ -67,7 +67,7 @@ import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.requireTokenX
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -181,7 +181,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             val tiltak = requireArrangorflateTiltak()
 
             val stegListe = getVeiviserSteg(tiltak)
-            val obo = AccessType.OBO(call.getAccessToken())
+            val accessType = call.getAccessType().requireTokenX()
 
             val tilsagnstyper = if (tiltak.prismodell.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                 listOf(TilsagnType.INVESTERING)
@@ -197,7 +197,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                         typer = tilsagnstyper,
                         gjennomforingId = tiltak.id,
                     )
-                    .map { ArrangorflateTilsagnDto.from(it, arrangorflateService.getTilsagnDeltakerPersonalia(it.deltakere, obo)) }
+                    .map { ArrangorflateTilsagnDto.from(it, arrangorflateService.getTilsagnDeltakerPersonalia(it.deltakere, accessType)) }
             }
 
             // TODO: Inkluder filtrering på eksisternde utbetalinger
@@ -253,7 +253,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             val avtaltPrisPerTimeOppfolgingPerDeltaker = arrangorflateUtbetalingService
                 .getAvtaltPrisPerTimeOppfolgingData(tiltak.id, periode)
 
-            val obo = AccessType.OBO(call.getAccessToken())
+            val obo = call.getAccessType().requireTokenX()
             val personalia = arrangorflateService.getPersonalia(
                 avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.map { it.deltakelseId },
                 obo,

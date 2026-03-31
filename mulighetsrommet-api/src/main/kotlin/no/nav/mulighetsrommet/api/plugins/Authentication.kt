@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.plugins
 import com.auth0.jwk.JwkProviderBuilder
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.install
 import io.ktor.server.application.log
 import io.ktor.server.auth.Authentication
@@ -18,10 +19,13 @@ import io.ktor.server.auth.principal
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import no.nav.mulighetsrommet.api.AuthConfig
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipal
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.net.URI
 import java.util.UUID
@@ -74,17 +78,6 @@ fun RoutingContext.getNavAnsattEntraObjectId(): UUID {
     return call.principal<JWTPayloadHolder>()?.get("oid")?.let { UUID.fromString(it) } ?: throw StatusException(
         HttpStatusCode.Forbidden,
         "NavAnsattEntraObjectId mangler i JWTPrincipal",
-    )
-}
-
-/**
- * Gets a pid from the underlying [JWTPrincipal], or throws a [StatusException]
- * if the claim is not available.
- */
-fun RoutingContext.getPid(): NorskIdent {
-    return call.principal<JWTPayloadHolder>()?.get("pid")?.let { NorskIdent(it) } ?: throw StatusException(
-        HttpStatusCode.Forbidden,
-        "pid mangler i JWTPrincipal",
     )
 }
 
@@ -182,3 +175,11 @@ fun Application.configureAuthentication(
 }
 
 data class ArrangorflatePrincipal(val norskIdent: NorskIdent, val principal: JWTPrincipal)
+
+fun ApplicationCall.getAccessType(): AccessType = when (val principal = principal<Any>()) {
+    is ArrangorflatePrincipal -> AccessType.OBO.TokenX(getAccessToken())
+    is NavAnsattPrincipal -> AccessType.OBO.AzureAd(getAccessToken())
+    is JWTPrincipal -> AccessType.M2M
+    null -> throw IllegalStateException("No principal found, is the route authenticated?")
+    else -> throw IllegalStateException("Unknown principal type: ${principal::class}")
+}

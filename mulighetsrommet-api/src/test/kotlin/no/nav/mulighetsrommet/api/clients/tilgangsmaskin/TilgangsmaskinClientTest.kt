@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 class TilgangsmaskinClientTest : FunSpec({
 
     val norskIdent = NorskIdent("12345678901")
-    val obo = AccessType.OBO("obo-token")
+    val obo = AccessType.OBO.TokenX("obo-token")
 
     fun createClient(engine: MockEngine) = TilgangsmaskinClient(
         baseUrl = "https://localhost",

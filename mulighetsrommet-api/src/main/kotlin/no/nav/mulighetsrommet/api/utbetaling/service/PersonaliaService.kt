@@ -37,7 +37,8 @@ class PersonaliaService(
                     val norskIdent = amtPersonalia.norskIdent
 
                     val tilgang = when (accessType) {
-                        is AccessType.OBO -> tilgangsmaskinClient.komplett(norskIdent, accessType)
+                        is AccessType.OBO.AzureAd -> tilgangsmaskinClient.komplett(norskIdent, accessType)
+                        is AccessType.OBO.TokenX -> false
                         AccessType.M2M -> true
                     }
 
