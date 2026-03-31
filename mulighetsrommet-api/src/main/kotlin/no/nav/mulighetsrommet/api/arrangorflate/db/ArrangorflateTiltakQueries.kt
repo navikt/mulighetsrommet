@@ -64,7 +64,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
                 or navn ilike :sok
                 or lopenummer ilike :sok
                 or to_char(start_dato, 'DD.MM.YYYY') ilike :sok
-                or to_char((slutt_dato - interval '1 day')::date, 'DD.MM.YYYY') ilike :sok
+                or to_char(slutt_dato, 'DD.MM.YYYY') ilike :sok
               )
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and tiltakstype_id = any(:tiltakstype_ids)
