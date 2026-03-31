@@ -32,14 +32,14 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Build
         run: npx turbo run lint typecheck build --filter=arena-adapter-manager
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: dist
           path: frontend/arena-adapter-manager/dist
@@ -52,17 +52,17 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: dist
           path: dist
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: projects/932652929200/locations/global/workloadIdentityPools/github/providers/github-action
           service_account: dev-deploy@team-mulighetsrommet-dev-a2d7.iam.gserviceaccount.com
       - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v3
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
       - name: Upload files to GCS
         run: gsutil -m rsync -r dist gs://mulighetsrommet-arena-adapter-manager-dev
 
@@ -74,16 +74,16 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: dist
           path: dist
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: projects/380520190028/locations/global/workloadIdentityPools/github/providers/github-action
           service_account: prod-deploy@team-mulighetsrommet-prod-5492.iam.gserviceaccount.com
       - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v3
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
       - name: Upload files to GCS
         run: gsutil -m rsync -r dist gs://mulighetsrommet-arena-adapter-manager-prod
