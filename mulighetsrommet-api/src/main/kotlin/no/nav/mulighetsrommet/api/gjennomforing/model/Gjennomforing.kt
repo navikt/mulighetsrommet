@@ -30,7 +30,7 @@ sealed class Gjennomforing {
     abstract val arena: ArenaData?
     abstract val navn: String
     abstract val status: GjennomforingStatusType
-    abstract val startDato: LocalDate
+    abstract val startDato: LocalDate?
     abstract val sluttDato: LocalDate?
     abstract val deltidsprosent: Double
     abstract val antallPlasser: Int
@@ -173,7 +173,7 @@ data class GjennomforingEnkeltplass(
     override val navn: String,
     override val status: GjennomforingStatusType,
     @Serializable(with = LocalDateSerializer::class)
-    override val startDato: LocalDate,
+    override val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     override val sluttDato: LocalDate?,
     override val deltidsprosent: Double,

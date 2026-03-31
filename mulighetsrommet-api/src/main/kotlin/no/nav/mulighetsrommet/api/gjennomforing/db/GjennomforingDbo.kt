@@ -21,7 +21,7 @@ data class GjennomforingDbo(
     val tiltakstypeId: UUID,
     val arrangorId: UUID,
     val navn: String,
-    val startDato: LocalDate,
+    val startDato: LocalDate?,
     val sluttDato: LocalDate?,
     val status: GjennomforingStatusType,
     val deltidsprosent: Double,

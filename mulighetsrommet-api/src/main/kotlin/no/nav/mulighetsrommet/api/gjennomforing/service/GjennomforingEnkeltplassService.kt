@@ -41,7 +41,7 @@ data class UpsertGjennomforingEnkeltplass(
     val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
     val navn: String?,
-    val startDato: LocalDate,
+    val startDato: LocalDate?,
     val sluttDato: LocalDate?,
     val status: GjennomforingStatusType,
     val prisbetingelser: String?,

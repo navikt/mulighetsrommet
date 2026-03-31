@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import java.time.LocalDate
 import java.util.UUID
 
 class GjennomforingRequestKafkaConsumer(
@@ -42,13 +41,13 @@ class GjennomforingRequestKafkaConsumer(
             id = request.gjennomforingId,
             tiltakskode = request.tiltakskode,
             arrangorId = arrangor.id,
-            navn = null,
-            startDato = LocalDate.now(),
-            sluttDato = null,
             status = GjennomforingStatusType.GJENNOMFORES,
             prisbetingelser = request.prisinformasjon,
             deltidsprosent = 100.0,
             antallPlasser = 1,
+            navn = null,
+            startDato = null,
+            sluttDato = null,
             arenaTiltaksnummer = null,
             arenaAnsvarligEnhet = null,
         )
