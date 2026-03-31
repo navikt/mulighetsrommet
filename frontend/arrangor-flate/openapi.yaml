@@ -1172,7 +1172,9 @@ components:
       type: object
       properties:
         kontonummer:
-          type: string
+          type:
+          - "null"
+          - string
         valuta:
           $ref: "#/components/schemas/Valuta"
       required:
