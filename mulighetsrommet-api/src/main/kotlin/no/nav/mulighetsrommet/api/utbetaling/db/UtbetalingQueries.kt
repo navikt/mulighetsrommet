@@ -558,12 +558,10 @@ class UtbetalingQueries(private val session: Session) {
             select *, count(*) over() as total_count
             from view_utbetaling
             where (:sok::text is null
-                or arrangor_navn ilike :sok
+                or gjennomforing_fts @@ to_tsquery('norwegian', :sok)
                 or arrangor_organisasjonsnummer ilike :sok
                 or tiltakstype_navn ilike :sok
                 or belop_beregnet::text ilike :sok
-                or gjennomforing_navn ilike :sok
-                or gjennomforing_lopenummer ilike :sok
                 or to_char(lower(periode), 'DD.MM.YYYY') ilike :sok
                 or to_char((upper(periode) - interval '1 day')::date, 'DD.MM.YYYY') ilike :sok
             )
