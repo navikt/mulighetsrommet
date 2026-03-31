@@ -1,8 +1,9 @@
 import {
-  TiltaksoversiktType,
   OpprettKravDeltakere,
   ArrangorInnsendingRadDto,
   OpprettKravData,
+  ArrangorflateFilterType,
+  PaginatedResponseArrangorInnsendingRadDto,
 } from "@api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { oversiktAktiveGjennomforinger } from "./gjennomforingMocks";
@@ -26,10 +27,15 @@ export const handlers = [
     "*/api-proxy/api/arrangorflate/tiltaksoversikt",
     ({ request }) => {
       const type = new URL(request.url).searchParams.get("type");
-      if (type === TiltaksoversiktType.AKTIVE) {
-        return HttpResponse.json<ArrangorInnsendingRadDto[]>(oversiktAktiveGjennomforinger);
+      if (type === ArrangorflateFilterType.AKTIVE) {
+        return HttpResponse.json<PaginatedResponseArrangorInnsendingRadDto>(
+          oversiktAktiveGjennomforinger,
+        );
       }
-      return HttpResponse.json<ArrangorInnsendingRadDto[]>([]);
+      return HttpResponse.json<PaginatedResponseArrangorInnsendingRadDto>({
+        pagination: { totalCount: 0, pageSize: 25, totalPages: 1 },
+        data: [],
+      });
     },
   ),
   http.get<PathParams, OpprettKravData>(

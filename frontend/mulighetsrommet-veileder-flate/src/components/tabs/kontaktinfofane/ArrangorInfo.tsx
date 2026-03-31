@@ -1,6 +1,6 @@
 import { PortableTextTypedObject, VeilederflateArrangor } from "@api-client";
+import { PortableText } from "@mr/frontend-common";
 import { BodyLong, BodyShort, Heading, Link } from "@navikt/ds-react";
-import { RedaksjoneltInnhold } from "../../RedaksjoneltInnhold";
 
 interface ArrangorInfoProps {
   arrangor: VeilederflateArrangor;
@@ -50,7 +50,7 @@ const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
       ))}
       {faneinnhold && (
         <BodyLong as="div" textColor="subtle" size="small">
-          <RedaksjoneltInnhold value={faneinnhold} />
+          <PortableText value={faneinnhold} />
         </BodyLong>
       )}
     </div>

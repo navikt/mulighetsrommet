@@ -64,6 +64,9 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
         },
+        onSuccess: () => {
+          setAvvisModalOpen(false);
+        },
       },
     );
   }
@@ -157,7 +160,6 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
                     }}
                     onConfirm={(request) => {
                       returnerUtbetalingLinje(linje.id, request);
-                      setAvvisModalOpen(false);
                     }}
                   />
                   <AttesterUtbetalingLinjeModal

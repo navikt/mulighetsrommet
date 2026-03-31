@@ -1,14 +1,10 @@
 package no.nav.mulighetsrommet.api.routes.internal
 
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.log
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.application
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
@@ -30,8 +26,6 @@ import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordDbo
 import no.nav.mulighetsrommet.database.queries.ScheduledTaskDbo
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
-import no.nav.mulighetsrommet.ktor.exception.InternalServerError
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -182,24 +176,6 @@ fun Route.maamRoutes() {
                 val request = call.receive<TilsagnIdRequest>()
                 val taskId = distribuerTilsagnsbrev.schedule(request.tilsagnId)
                 call.respond(ScheduleTaskResponse(taskId))
-            }
-
-            post("generer-utbetaling-journalpost-pdf") {
-                val request = call.receive<UtbetalingIdRequest>()
-                val utbetaling = db.session { queries.utbetaling.get(request.utbetalingId) }
-                    ?: return@post call.respond(HttpStatusCode.NotFound)
-                journalforUtbetaling.generatePdf(utbetaling)
-                    .onRight { pdfContent ->
-                        call.response.headers.append(
-                            "Content-Disposition",
-                            "attachment; filename=\"utbetaling.pdf\"",
-                        )
-                        call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
-                    }
-                    .onLeft { error ->
-                        application.log.warn("Klarte ikke lage PDF: $error")
-                        call.respondWithProblemDetail(InternalServerError("Klarte ikke lage PDF"))
-                    }
             }
         }
 

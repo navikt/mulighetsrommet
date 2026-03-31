@@ -1,6 +1,6 @@
 import { RunTask } from "../sections/RunTask";
 import TopicOverview from "../sections/TopicOverview.tsx";
-import { ApiBase, runPdfTask } from "../core/api.tsx";
+import { ApiBase } from "../core/api.tsx";
 import { BodyShort, Link } from "@navikt/ds-react";
 import { TiltakstyperOrIdsForm } from "../components/forms/TiltakstyperOrIdsForm";
 import { TextInputForm } from "../components/forms/TextInputForm";
@@ -130,22 +130,6 @@ export function MrApi() {
           Distribuerer et tilsagnsbrev for gitt tilsagn id. Tryner om ikke journalpostId eksisterer
           for tilsagnet (kjør journalføring av tilsagnsbrev først)
         </BodyShort>
-      </RunTask>
-
-      <RunTask
-        base={ApiBase.MR_API}
-        task={"generer-utbetaling-journalpost-pdf"}
-        onExecute={runPdfTask}
-        form={(props) => (
-          <TextInputForm
-            {...props}
-            label="Utbetaling id"
-            description="Flere utbetaling id-er kan separeres med et komma (,)"
-            name="utbetalingId"
-          />
-        )}
-      >
-        <BodyShort>Genererer utbetaling journalpost pdf</BodyShort>
       </RunTask>
     </>
   );

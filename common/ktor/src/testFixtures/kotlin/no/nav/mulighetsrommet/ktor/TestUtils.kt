@@ -94,42 +94,34 @@ annotation class MockEngineDsl
 class MockEngineBuilder {
     internal val requestHandlers = mutableListOf<Triple<HttpMethod, Any, MockRequestHandler>>()
 
-    @MockEngineDsl
     fun get(uri: String, handler: MockRequestHandler) {
         requestHandlers.add(Triple(HttpMethod.Get, uri, handler))
     }
 
-    @MockEngineDsl
     fun post(uri: String, handler: MockRequestHandler) {
         requestHandlers.add(Triple(HttpMethod.Post, uri, handler))
     }
 
-    @MockEngineDsl
     fun put(uri: String, handler: MockRequestHandler) {
         requestHandlers.add(Triple(HttpMethod.Put, uri, handler))
     }
 
-    @MockEngineDsl
     fun delete(uri: String, handler: MockRequestHandler) {
         requestHandlers.add(Triple(HttpMethod.Delete, uri, handler))
     }
 
-    @MockEngineDsl
     fun get(uri: Regex, handler: MockRequestHandler) {
         requestHandlers.add(Triple(HttpMethod.Get, uri, handler))
     }
 
-    @MockEngineDsl
     fun post(uri: Regex, handler: MockRequestHandler) {
         requestHandlers.add(Triple(HttpMethod.Post, uri, handler))
     }
 
-    @MockEngineDsl
     fun put(uri: Regex, handler: MockRequestHandler) {
         requestHandlers.add(Triple(HttpMethod.Put, uri, handler))
     }
 
-    @MockEngineDsl
     fun delete(uri: Regex, handler: MockRequestHandler) {
         requestHandlers.add(Triple(HttpMethod.Delete, uri, handler))
     }
