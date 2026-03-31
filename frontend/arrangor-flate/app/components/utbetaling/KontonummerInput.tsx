@@ -10,7 +10,7 @@ import {
 } from "@navikt/ds-react";
 
 interface Props {
-  kontonummer?: string;
+  kontonummer?: string | null;
   error?: string;
   onClick: () => void;
 }
@@ -42,7 +42,7 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
           description="Kontonummeret hentes automatisk"
           error={error}
           name="kontonummer"
-          defaultValue={kontonummer}
+          defaultValue={kontonummer || ""}
           htmlSize={35}
           maxLength={11}
           minLength={11}
