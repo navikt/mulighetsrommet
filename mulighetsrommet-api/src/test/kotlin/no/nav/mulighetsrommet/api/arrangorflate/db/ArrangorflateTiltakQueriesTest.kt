@@ -46,21 +46,21 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
 
     test("henter ingen tiltak når påkrevde argumenter mangler") {
         database.runAndRollback {
-            queries.arrangorTiltak.getAll(
+            queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
                 filter = ArrangorflateTiltakFilter(type = ArrangorflateFilterType.AKTIVE),
             ).items.shouldBeEmpty()
 
-            queries.arrangorTiltak.getAll(
+            queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
                 organisasjonsnummer = listOf(),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
                 filter = ArrangorflateTiltakFilter(type = ArrangorflateFilterType.AKTIVE),
             ).items.shouldBeEmpty()
 
-            queries.arrangorTiltak.getAll(
+            queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(),
@@ -71,14 +71,14 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
 
     test("henter alle tiltak") {
         database.runAndRollback {
-            queries.arrangorTiltak.getAll(
+            queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
                 filter = ArrangorflateTiltakFilter(),
             ).items shouldContainExactlyIds listOf(AFT1.id, aft2.id)
 
-            queries.arrangorTiltak.getAll(
+            queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.Oppfolging.id),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(
@@ -88,7 +88,7 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
                 filter = ArrangorflateTiltakFilter(),
             ).items shouldContainExactlyIds listOf(AFT1.id, aft2.id, Oppfolging1.id)
 
-            queries.arrangorTiltak.getAll(
+            queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.Oppfolging.id),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(
@@ -102,7 +102,7 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
     test("henter fra cutoff dato") {
         database.runAndRollback {
             var cutoff = LocalDate.of(2022, 1, 1)
-            queries.arrangorTiltak.getAll(
+            queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
@@ -110,7 +110,7 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
             ).items shouldContainExactlyIds listOf(AFT1.id, aft2.id)
 
             cutoff = LocalDate.of(2023, 1, 1)
-            queries.arrangorTiltak.getAll(
+            queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
                 organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),

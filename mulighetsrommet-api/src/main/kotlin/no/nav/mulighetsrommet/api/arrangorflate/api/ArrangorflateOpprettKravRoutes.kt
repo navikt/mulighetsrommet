@@ -97,7 +97,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
         requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
         val id = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
-        val tiltak = db.session { queries.arrangorTiltak.getOrError(id) }
+        val tiltak = db.session { queries.arrangorflate.tiltak.getOrError(id) }
         return requireGjennomforingTilArrangor(tiltak, orgnr)
     }
 
@@ -152,7 +152,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
             if (gyldigePrismodeller.isEmpty() || gyldigeTiltakstyper.isEmpty()) {
                 PaginatedResult(totalCount = 0, items = emptyList())
             } else {
-                queries.arrangorTiltak.getAll(
+                queries.arrangorflate.tiltak.getAll(
                     tiltakstyper = gyldigeTiltakstyper,
                     organisasjonsnummer = arrangorer,
                     prismodeller = gyldigePrismodeller,

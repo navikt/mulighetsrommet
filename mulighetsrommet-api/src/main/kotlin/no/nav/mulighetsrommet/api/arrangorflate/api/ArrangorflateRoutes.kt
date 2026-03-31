@@ -254,7 +254,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         val filter = getArrangorflateUtbetalingFilter()
         val (totalCount, items) =
             db.session {
-                queries.utbetaling.getArrangorflateFiltered(
+                queries.arrangorflate.utbetaling.getFiltered(
                     arrangorer = tilganger.toSet(),
                     filter,
                 ).map { tilArrangorflateUtbetalingKompakt(it) }
