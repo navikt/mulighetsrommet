@@ -170,7 +170,6 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.handterGjennomforingRequest to GjennomforingRequestKafkaConsumer(
                 get(),
                 get(),
-                get(),
             ),
             config.clients.datavarehusGjennomforingerConsumer to DatavarehusTiltakV1KafkaProducer(
                 DatavarehusTiltakV1KafkaProducer.Config(config.topics.datavarehusTiltakTopic),

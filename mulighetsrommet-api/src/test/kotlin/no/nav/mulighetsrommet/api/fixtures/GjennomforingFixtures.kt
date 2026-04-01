@@ -1,16 +1,24 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.Valuta
+import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
@@ -239,6 +247,51 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = null,
         tilgjengeligForArrangorDato = null,
     )
+
+    fun createGjennomforingAvtale(
+        id: UUID,
+        periode: Periode,
+        tiltakskode: Tiltakskode,
+        prismodell: Prismodell = Prismodell.AnnenAvtaltPris(
+            id = PrismodellFixtures.AnnenAvtaltPris.id,
+            valuta = Valuta.NOK,
+            tilsagnPerDeltaker = false,
+            prisbetingelser = null,
+        ),
+        opprettetTidspunkt: Instant = Instant.now(),
+    ): GjennomforingAvtale {
+        return GjennomforingAvtale(
+            id = id,
+            tiltakstype = Gjennomforing.Tiltakstype(
+                id = UUID.randomUUID(),
+                navn = "Test tiltakstype",
+                tiltakskode = tiltakskode,
+            ),
+            lopenummer = Tiltaksnummer("2025/10000"),
+            arrangor = Gjennomforing.ArrangorUnderenhet(
+                id = UUID.randomUUID(),
+                organisasjonsnummer = Organisasjonsnummer("123456789"),
+                navn = "Test arrangør",
+                slettet = false,
+            ),
+            arena = null,
+            navn = tiltakskode.name,
+            startDato = periode.start,
+            sluttDato = periode.getLastInclusiveDate(),
+            deltidsprosent = 100.0,
+            antallPlasser = 10,
+            status = GjennomforingStatusType.GJENNOMFORES,
+            apentForPamelding = true,
+            avtaleId = UUID.randomUUID(),
+            kontorstruktur = emptyList(),
+            oppstart = GjennomforingOppstartstype.LOPENDE,
+            pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+            opprettetTidspunkt = opprettetTidspunkt,
+            oppdatertTidspunkt = opprettetTidspunkt,
+            stengt = listOf(),
+            prismodell = prismodell,
+        )
+    }
 
     fun createGjennomforingRequest(
         avtale: AvtaleDbo,

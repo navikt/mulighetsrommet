@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinj
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsDetaljer
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningStengt
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.pdfgen.Format
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
@@ -36,6 +37,7 @@ object UbetalingToPdfDocumentContentMapper {
     fun toUtbetalingsdetaljerPdfContent(
         utbetaling: Utbetaling,
         linjer: List<ArrangforflateUtbetalingLinje>,
+        gjennomforing: GjennomforingAvtale,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Utbetalingsdetaljer",
         subject = "Utbetaling til ${utbetaling.arrangor.navn}",
@@ -44,7 +46,7 @@ object UbetalingToPdfDocumentContentMapper {
     ) {
         mainSection("Detaljer om utbetaling")
 
-        addInnsendingSection(utbetaling)
+        addInnsendingSection(utbetaling, gjennomforing)
         addUtbetalingSection(utbetaling)
         addBetalingsinformasjonSection(utbetaling.betalingsinformasjon)
 
@@ -66,6 +68,7 @@ object UbetalingToPdfDocumentContentMapper {
     fun toJournalpostPdfContent(
         utbetaling: Utbetaling,
         personalia: Map<UUID, Personalia>,
+        gjennomforing: GjennomforingAvtale,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Utbetaling",
         subject = "Krav om utbetaling fra ${utbetaling.arrangor.navn}",
@@ -74,7 +77,7 @@ object UbetalingToPdfDocumentContentMapper {
     ) {
         mainSection("Innsendt krav om utbetaling")
 
-        addInnsendingSection(utbetaling)
+        addInnsendingSection(utbetaling, gjennomforing)
         addUtbetalingSection(utbetaling)
         addBetalingsinformasjonSection(utbetaling.betalingsinformasjon)
         addStengtHosArrangorSection(utbetaling.beregning)
@@ -121,7 +124,10 @@ object UbetalingToPdfDocumentContentMapper {
     }
 }
 
-private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Utbetaling) {
+private fun PdfDocumentContentBuilder.addInnsendingSection(
+    utbetaling: Utbetaling,
+    gjennomforing: GjennomforingAvtale,
+) {
     val type = UtbetalingType.from(utbetaling).toDto()
     val utbetalingHeader = type.displayNameLong ?: type.displayName
     section(utbetalingHeader) {
@@ -137,11 +143,11 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Utbetalin
             if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
                 text(
                     "Tiltaksperiode",
-                    Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt),
+                    Periode.formatPeriode(gjennomforing.startDato, gjennomforing.sluttDato),
                 )
             }
 
-            text("Løpenummer", utbetaling.gjennomforing.lopenummer.value)
+            text("Løpenummer", gjennomforing.lopenummer.value)
         }
     }
 }

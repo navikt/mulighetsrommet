@@ -11,13 +11,18 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
@@ -156,5 +161,94 @@ class ArrangorflateServiceTest : FunSpec({
             it.deltakelser.rows[0].cells["fnr"].shouldBeNull()
         }
         result.kanViseBeregning shouldBe false
+    }
+
+    test("getAllUtbetalingKompakt returnerer aktive utbetalinger for gitt arrangør") {
+        val arrangorflateService = createService()
+
+        val filter = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            type = ArrangorflateFilterType.AKTIVE,
+        )
+        val (totalCount, items) = arrangorflateService.getAllUtbetalingKompakt(filter)
+
+        totalCount shouldBe 2
+        items shouldHaveSize 2
+
+        val forhandsgodkjent = items.first { it.id == utbetaling.id }
+        forhandsgodkjent.pris shouldBe 10000.withValuta(Valuta.NOK)
+
+        val fri = items.first { it.id == friUtbetaling.id }
+        fri.pris shouldBe 5000.withValuta(Valuta.NOK)
+    }
+
+    test("getAllUtbetalingKompakt returnerer tom liste for historiske når alle utbetalinger er aktive") {
+        val arrangorflateService = createService()
+
+        val filter = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            type = ArrangorflateFilterType.HISTORISKE,
+            pagination = Pagination.of(1, 50),
+        )
+        arrangorflateService.getAllUtbetalingKompakt(filter).totalCount shouldBe 0
+    }
+
+    test("getAllUtbetalingKompakt returnerer tom liste for ukjent arrangør") {
+        val arrangorflateService = createService()
+
+        val filter = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorFixtures.underenhet2.organisasjonsnummer),
+            type = ArrangorflateFilterType.AKTIVE,
+        )
+        arrangorflateService.getAllUtbetalingKompakt(filter).totalCount shouldBe 0
+    }
+
+    test("getAllUtbetalingKompakt filtrerer på søketekst") {
+        val arrangorflateService = createService()
+
+        val filterMedTreff = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            sok = "Arbeidsfor",
+        )
+        arrangorflateService.getAllUtbetalingKompakt(filterMedTreff).totalCount shouldBe 2
+
+        val filterUtenTreff = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            sok = "finnes-ikke-abc123",
+            type = ArrangorflateFilterType.AKTIVE,
+        )
+        arrangorflateService.getAllUtbetalingKompakt(filterUtenTreff).totalCount shouldBe 0
+    }
+
+    test("getAllUtbetalingKompakt sorterer på beløp stigende") {
+        val arrangorflateService = createService()
+
+        val filter = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            type = ArrangorflateFilterType.AKTIVE,
+            orderBy = ArrangorflateUtbetalingFilter.OrderBy.BELOP,
+            direction = ArrangorflateFilterDirection.ASC,
+        )
+        val (_, items) = arrangorflateService.getAllUtbetalingKompakt(filter)
+
+        items shouldHaveSize 2
+        items[0].id shouldBe friUtbetaling.id
+        items[0].pris shouldBe 5000.withValuta(Valuta.NOK)
+        items[1].id shouldBe utbetaling.id
+        items[1].pris shouldBe 10000.withValuta(Valuta.NOK)
+    }
+
+    test("getAllUtbetalingKompakt paginerer resultater riktig") {
+        val arrangorflateService = createService()
+
+        val filter = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            type = ArrangorflateFilterType.AKTIVE,
+            pagination = Pagination.of(1, 1),
+        )
+        val (totalCount, items) = arrangorflateService.getAllUtbetalingKompakt(filter)
+
+        totalCount shouldBe 2
+        items shouldHaveSize 1
     }
 })

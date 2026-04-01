@@ -4826,7 +4826,9 @@ components:
         arrangor:
           $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
         startDato:
-          type: string
+          type:
+          - "null"
+          - string
           format: date
         sluttDato:
           type:
@@ -5076,7 +5078,9 @@ components:
         lopenummer:
           type: string
         startDato:
-          type: string
+          type:
+          - "null"
+          - string
           format: date
         sluttDato:
           type:

@@ -53,7 +53,6 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
     ): GjennomforingRequestKafkaConsumer {
         return GjennomforingRequestKafkaConsumer(
             arrangorer = arrangorer,
-            tiltakstyper = TiltakstypeService(TiltakstypeService.Config(), database.db),
             enkeltplasser = enkeltplasser,
         )
     }

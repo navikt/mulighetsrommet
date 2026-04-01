@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -60,10 +61,10 @@ class JournalforUtbetaling(
         logger.info("Journalfører utbetaling med id: $id")
 
         val utbetaling = queries.utbetaling.getOrError(id)
-        val gjennomforing = queries.gjennomforing.getGjennomforingOrError(utbetaling.gjennomforing.id)
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
         val fagsakId = gjennomforing.arena?.tiltaksnummer?.value ?: gjennomforing.lopenummer.value
 
-        generatePdf(utbetaling)
+        generatePdf(utbetaling, gjennomforing)
             .flatMap { pdf ->
                 val journalpost = utbetalingJournalpost(pdf, utbetaling.id, utbetaling.arrangor, fagsakId, vedlegg)
                 dokarkClient
@@ -75,13 +76,14 @@ class JournalforUtbetaling(
             }
     }
 
-    private suspend fun generatePdf(utbetaling: Utbetaling): Either<String, ByteArray> {
+    private suspend fun generatePdf(utbetaling: Utbetaling, gjennomforing: GjennomforingAvtale): Either<String, ByteArray> {
         val deltakelseIds = utbetaling.beregning.deltakelsePerioder().map { it.deltakelseId }
         val personalia = personaliaService.getPersonalia(deltakelseIds, AccessType.M2M)
 
         val content = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
             utbetaling,
             personalia,
+            gjennomforing,
         )
         return pdf
             .getPdfDocument(content)

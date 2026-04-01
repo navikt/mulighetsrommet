@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDt
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTimeline
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
@@ -37,13 +38,13 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
-import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.UUID
 
 fun mapUtbetalingToArrangorflateUtbetaling(
     utbetaling: Utbetaling,
+    gjennomforing: GjennomforingAvtale,
     status: ArrangorflateUtbetalingStatus,
     deltakereById: Map<UUID, Deltaker>,
     personaliaById: Map<UUID, ArrangorflatePersonalia?>,
@@ -78,9 +79,9 @@ fun mapUtbetalingToArrangorflateUtbetaling(
             tiltakskode = utbetaling.tiltakstype.tiltakskode,
         ),
         gjennomforing = ArrangorflateGjennomforingDto(
-            id = utbetaling.gjennomforing.id,
-            lopenummer = utbetaling.gjennomforing.lopenummer,
-            navn = utbetaling.gjennomforing.navn,
+            id = gjennomforing.id,
+            lopenummer = gjennomforing.lopenummer,
+            navn = gjennomforing.navn,
         ),
         arrangor = ArrangorflateArrangorDto(
             id = utbetaling.arrangor.id,
@@ -97,7 +98,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         },
         type = UtbetalingType.from(utbetaling).toDto(),
         linjer = linjer,
-        innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),
+        innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, gjennomforing, innsendtAvArrangorDato),
         advarsler = advarsler.map { advarsel ->
             DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn)
         },
@@ -110,6 +111,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
 
 private fun getInnsendingsDetaljer(
     utbetaling: Utbetaling,
+    gjennomforing: GjennomforingAvtale,
     innsendtAvArrangorDato: LocalDate?,
 ): List<LabeledDataElement> {
     return listOfNotNull(
@@ -120,13 +122,13 @@ private fun getInnsendingsDetaljer(
         },
         LabeledDataElement.text(
             "Tiltaksnavn",
-            "${utbetaling.gjennomforing.navn} (${utbetaling.gjennomforing.lopenummer})",
+            "${gjennomforing.navn} (${gjennomforing.lopenummer})",
         ),
         LabeledDataElement.text("Tiltakstype", utbetaling.tiltakstype.navn),
         if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
             LabeledDataElement.text(
                 "Tiltaksperiode",
-                Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt),
+                Periode.formatPeriode(gjennomforing.startDato, gjennomforing.sluttDato),
             )
         } else {
             null
@@ -365,27 +367,25 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
     faktorLabel: String,
 ): List<DataDetails> {
     return satser.mapNotNull { satsPeriode ->
-        val faktor = deltakelser
+        deltakelser
             .flatMap { it.perioder }
             .filter { it.sats == satsPeriode.sats }
             .map { it.faktor.toBigDecimal() }
             .sumOf { it }
             .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
             .toDouble()
-
-        if (faktor.equals(BigDecimal.ZERO)) {
-            null
-        } else {
-            DataDetails(
-                header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${
-                    satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
-                }",
-                entries = listOf(
-                    LabeledDataElement.money(satsLabel, satsPeriode.sats),
-                    LabeledDataElement.number(faktorLabel, faktor),
-                ),
-            )
-        }
+            .takeIf { it > 0.0 }
+            ?.let { faktor ->
+                val start = satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()
+                val slutt = satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
+                DataDetails(
+                    header = "Periode $start - $slutt",
+                    entries = listOf(
+                        LabeledDataElement.money(satsLabel, satsPeriode.sats),
+                        LabeledDataElement.number(faktorLabel, faktor),
+                    ),
+                )
+            }
     }
 }
 

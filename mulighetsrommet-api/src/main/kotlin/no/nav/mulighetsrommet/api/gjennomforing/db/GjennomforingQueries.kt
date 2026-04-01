@@ -703,7 +703,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
             GjennomforingEnkeltplassKompakt(
                 id = uuid("id"),
                 lopenummer = Tiltaksnummer(string("lopenummer")),
-                startDato = localDate("start_dato"),
+                startDato = localDateOrNull("start_dato"),
                 sluttDato = localDateOrNull("slutt_dato"),
                 status = GjennomforingStatusType.valueOf(string("status")),
                 arrangor = arrangor,
@@ -852,7 +852,7 @@ private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
             )
         },
         navn = string("navn"),
-        startDato = localDate("start_dato"),
+        startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         status = GjennomforingStatusType.valueOf(string("status")),
         deltidsprosent = double("deltidsprosent"),
