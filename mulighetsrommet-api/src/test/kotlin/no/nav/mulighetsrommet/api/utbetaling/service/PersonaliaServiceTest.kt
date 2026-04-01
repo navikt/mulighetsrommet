@@ -86,7 +86,7 @@ class PersonaliaServiceTest : FunSpec({
                         adressebeskyttelse = PdlGradering.UGRADERT,
                     ),
             )
-            service.getPersonaliaMedGeografiskEnhet(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
+            service.getPersonalia(listOf(), AccessType.OBO.AzureAd("azure"))[deltakelseId] should {
                 it shouldNotBe null
                 it!!.norskIdent shouldBe null
                 it.navn shouldBe "Skjermet"
@@ -95,6 +95,12 @@ class PersonaliaServiceTest : FunSpec({
                 it shouldNotBe null
                 it!!.norskIdent shouldBe personalia.norskIdent
                 it.navn shouldBe personalia.navn
+            }
+            service.getPersonaliaMedGeografiskEnhet(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
+                it shouldNotBe null
+                it!!.norskIdent shouldBe null
+                it.navn shouldBe "Skjermet"
+                it.geografiskEnhet shouldBe null
             }
         }
 
@@ -260,6 +266,56 @@ class PersonaliaServiceTest : FunSpec({
                 it!!.norskIdent shouldBe null
                 it.navn shouldBe "Adressebeskyttet"
             }
+            service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
+                it shouldNotBe null
+                it!!.norskIdent shouldBe personalia.norskIdent
+                it.navn shouldBe personalia.navn
+            }
+        }
+
+        test("tilgangsmaskinen kan forby tilgang selv for ugradert og uskjermet") {
+            val service = PersonaliaService(
+                hentPersonOgGeografiskTilknytningQuery,
+                norg2Client,
+                amtDeltakerClient,
+                tilgansmaskinClient,
+                navEnhetService,
+            )
+            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(personalia).right()
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
+                ansattId = NavIdent("X123456"),
+                resultater = listOf(
+                    TilgangsmaskinResponse.Resultat(
+                        brukerId = personalia.norskIdent.value,
+                        status = 403,
+                    ),
+                ),
+            )
+            coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0517")) } returns oppfolgingEnhet.toDto()
+
+            // tokenX gir tilgang
+            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token")) shouldBe mapOf(
+                deltakelseId to
+                    Personalia(
+                        norskIdent = personalia.norskIdent,
+                        navn = personalia.navn,
+                        oppfolgingEnhet = oppfolgingEnhet.toDto(),
+                        erSkjermet = personalia.erSkjermet,
+                        adressebeskyttelse = personalia.adressebeskyttelse,
+                    ),
+            )
+
+            // AzureAd gir ikke tilgang
+            service.getPersonalia(listOf(), AccessType.OBO.AzureAd("token")) shouldBe mapOf(
+                deltakelseId to
+                    Personalia(
+                        norskIdent = null,
+                        navn = "Skjermet",
+                        oppfolgingEnhet = null,
+                        erSkjermet = personalia.erSkjermet,
+                        adressebeskyttelse = personalia.adressebeskyttelse,
+                    ),
+            )
             service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
                 it shouldNotBe null
                 it!!.norskIdent shouldBe personalia.norskIdent

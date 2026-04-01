@@ -31,63 +31,60 @@ class PersonaliaService(
         deltakerIds: List<UUID>,
         accessType: AccessType,
     ): Map<UUID, Personalia> {
-        return amtDeltakerClient.hentPersonalia(deltakerIds)
-            .map { amtList ->
-                val tilgangerByDeltakerId: Map<UUID, Boolean> = when (accessType) {
-                    is AccessType.OBO.AzureAd -> {
-                        val identer = amtList.map { it.norskIdent }
-                        val tilgangsmaskinResponse = tilgangsmaskinClient.bulk(identer, accessType)
-                        amtList.associate { amtPersonalia ->
-                            val harTilgang = requireNotNull(tilgangsmaskinResponse.resultater.find { it.brukerId == amtPersonalia.norskIdent.value }) {
-                                "Fant ikke deltakerId: ${amtPersonalia.deltakerId} i respons fra tilgangsmaskin"
-                            }
-                                .harTilgang()
-                            amtPersonalia.deltakerId to harTilgang
-                        }
-                    }
-
-                    is AccessType.OBO.TokenX -> amtList.associate {
-                        it.deltakerId to (it.adressebeskyttelse == PdlGradering.UGRADERT && !it.erSkjermet)
-                    }
-
-                    is AccessType.M2M -> amtList.associate {
-                        it.deltakerId to true
-                    }
-                }
-                amtList.associate { amtPersonalia ->
-                    val norskIdent = amtPersonalia.norskIdent
-
-                    if (requireNotNull(tilgangerByDeltakerId[amtPersonalia.deltakerId])) {
-                        amtPersonalia.deltakerId to
-                            Personalia(
-                                norskIdent = norskIdent,
-                                navn = amtPersonalia.navn,
-                                oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) },
-                                erSkjermet = amtPersonalia.erSkjermet,
-                                adressebeskyttelse = amtPersonalia.adressebeskyttelse,
-                            )
-                    } else {
-                        val navn = when {
-                            amtPersonalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
-                            else -> "Skjermet"
-                        }
-                        amtPersonalia.deltakerId to
-                            Personalia(
-                                norskIdent = null,
-                                navn = navn,
-                                oppfolgingEnhet = null,
-                                erSkjermet = amtPersonalia.erSkjermet,
-                                adressebeskyttelse = amtPersonalia.adressebeskyttelse,
-                            )
-                    }
-                }
-            }
+        val amtPersonalia = amtDeltakerClient.hentPersonalia(deltakerIds)
             .getOrElse {
                 throw StatusException(
                     status = HttpStatusCode.InternalServerError,
                     detail = "Klarte ikke hente personalia fra amt-deltaker error: $it",
                 )
             }
+
+        val tilgangerByDeltakerId: Map<UUID, Boolean> = when (accessType) {
+            is AccessType.OBO.AzureAd -> {
+                val identer = amtPersonalia.map { it.norskIdent }
+                val tilgangsmaskinResponse = tilgangsmaskinClient.bulk(identer, accessType)
+                amtPersonalia.associate { p ->
+                    val harTilgang = requireNotNull(tilgangsmaskinResponse.resultater.find { it.brukerId == p.norskIdent.value }) {
+                        "Fant ikke deltakerId: ${p.deltakerId} i respons fra tilgangsmaskin"
+                    }
+                        .harTilgang()
+                    p.deltakerId to harTilgang
+                }
+            }
+
+            is AccessType.OBO.TokenX -> amtPersonalia.associate {
+                it.deltakerId to (it.adressebeskyttelse == PdlGradering.UGRADERT && !it.erSkjermet)
+            }
+
+            is AccessType.M2M -> amtPersonalia.associate {
+                it.deltakerId to true
+            }
+        }
+        return amtPersonalia.associate { p ->
+            if (requireNotNull(tilgangerByDeltakerId[p.deltakerId])) {
+                p.deltakerId to
+                    Personalia(
+                        norskIdent = p.norskIdent,
+                        navn = p.navn,
+                        oppfolgingEnhet = p.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) },
+                        erSkjermet = p.erSkjermet,
+                        adressebeskyttelse = p.adressebeskyttelse,
+                    )
+            } else {
+                val navn = when {
+                    p.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
+                    else -> "Skjermet"
+                }
+                p.deltakerId to
+                    Personalia(
+                        norskIdent = null,
+                        navn = navn,
+                        oppfolgingEnhet = null,
+                        erSkjermet = p.erSkjermet,
+                        adressebeskyttelse = p.adressebeskyttelse,
+                    )
+            }
+        }
     }
 
     suspend fun getPersonaliaMedGeografiskEnhet(
