@@ -70,6 +70,7 @@ class GjennomforingQueries(private val session: Session) {
                                        estimert_ventetid_verdi,
                                        estimert_ventetid_enhet,
                                        tilgjengelig_for_arrangor_dato,
+                                       kostnadssted,
                                        arena_tiltaksnummer,
                                        arena_ansvarlig_enhet)
             values (:id::uuid,
@@ -92,6 +93,7 @@ class GjennomforingQueries(private val session: Session) {
                     :estimert_ventetid_verdi,
                     :estimert_ventetid_enhet,
                     :tilgjengelig_for_arrangor_dato,
+                    :kostnadssted,
                     :arena_tiltaksnummer,
                     :arena_ansvarlig_enhet)
             on conflict (id) do update set tiltakstype_id = excluded.tiltakstype_id,
@@ -113,6 +115,7 @@ class GjennomforingQueries(private val session: Session) {
                                            estimert_ventetid_verdi  = excluded.estimert_ventetid_verdi,
                                            estimert_ventetid_enhet  = excluded.estimert_ventetid_enhet,
                                            tilgjengelig_for_arrangor_dato  = excluded.tilgjengelig_for_arrangor_dato,
+                                           kostnadssted = excluded.kostnadssted,
                                            arena_tiltaksnummer = excluded.arena_tiltaksnummer,
                                            arena_ansvarlig_enhet = excluded.arena_ansvarlig_enhet
         """.trimIndent()
@@ -138,6 +141,7 @@ class GjennomforingQueries(private val session: Session) {
             "estimert_ventetid_verdi" to gjennomforing.estimertVentetidVerdi,
             "estimert_ventetid_enhet" to gjennomforing.estimertVentetidEnhet,
             "tilgjengelig_for_arrangor_fra_dato" to gjennomforing.tilgjengeligForArrangorDato,
+            "kostnadssted" to gjennomforing.kostnadssted?.value,
             "arena_tiltaksnummer" to gjennomforing.arenaTiltaksnummer?.value,
             "arena_ansvarlig_enhet" to gjennomforing.arenaAnsvarligEnhet,
         )
@@ -858,6 +862,10 @@ private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),
         prismodell = toPrismodell(),
+        kostnadssted = GjennomforingEnkeltplass.Kostnadssted(
+            enhetsnummer = NavEnhetNummer(string("kostnadssted_enhetsnummer")),
+            navn = string("kostnadssted_navn"),
+        ),
     )
 }
 

@@ -20,7 +20,7 @@ data class ArenaGjennomforingDbo(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val arenaAnsvarligEnhet: String?,
+    val arenaAnsvarligEnhet: String,
     val avslutningsstatus: Avslutningsstatus,
     val apentForPamelding: Boolean,
     val antallPlasser: Int,

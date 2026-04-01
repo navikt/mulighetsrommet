@@ -5,13 +5,11 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingRequestPayload
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.util.UUID
 
@@ -34,7 +32,7 @@ class GjennomforingRequestKafkaConsumer(
         }
 
         val arrangor = arrangorer
-            .getArrangorOrSyncFromBrreg(Organisasjonsnummer(request.organisasjonsnummer))
+            .getArrangorOrSyncFromBrreg(request.organisasjonsnummer)
             .getOrElse { error("Klarte ikke hente arrangør fra brreg $it") }
 
         val opprett = UpsertGjennomforingEnkeltplass(
@@ -45,6 +43,7 @@ class GjennomforingRequestKafkaConsumer(
             prisbetingelser = request.prisinformasjon,
             deltidsprosent = 100.0,
             antallPlasser = 1,
+            kostnadssted = request.kostnadssted,
             navn = null,
             startDato = null,
             sluttDato = null,
