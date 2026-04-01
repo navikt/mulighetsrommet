@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.sanity.RegelverkLenke
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -13,6 +14,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.PersonopplysningData
 import no.nav.mulighetsrommet.model.PortableTextTypedObject
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -143,6 +145,8 @@ data class VeilederflateTiltakstype(
     val id: UUID,
     val sanityId: String,
     val navn: String,
+    val features: Set<TiltakstypeFeature>,
+    val egenskaper: Set<TiltakstypeEgenskap>,
     val beskrivelse: String?,
     val innsatsgrupper: Set<Innsatsgruppe>?,
     val regelverkLenker: List<RegelverkLenke>?,
