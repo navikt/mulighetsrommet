@@ -46,6 +46,7 @@ object TiltaksgjennomforingV2Mapper {
             arrangor = Arrangor(
                 organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
             ),
+            status = gjennomforing.status,
         )
     }
 
@@ -80,6 +81,7 @@ object TiltaksgjennomforingV2Mapper {
                 arrangor = Arrangor(
                     organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
                 ),
+                status = gjennomforing.status,
             )
         }
     }
