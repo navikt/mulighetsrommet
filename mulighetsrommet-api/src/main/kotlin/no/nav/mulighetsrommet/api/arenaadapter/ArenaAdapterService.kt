@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -79,6 +80,7 @@ class ArenaAdapterService(
                 status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
                 deltidsprosent = arenaGjennomforing.deltidsprosent,
                 antallPlasser = arenaGjennomforing.antallPlasser,
+                kostnadssted = NavEnhetNummer(arenaGjennomforing.arenaAnsvarligEnhet),
                 arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
             )

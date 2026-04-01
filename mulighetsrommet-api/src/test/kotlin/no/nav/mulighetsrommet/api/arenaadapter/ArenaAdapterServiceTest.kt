@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -75,7 +76,7 @@ class ArenaAdapterServiceTest : FunSpec({
             arrangorOrganisasjonsnummer = "976663934",
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusYears(1),
-            arenaAnsvarligEnhet = null,
+            arenaAnsvarligEnhet = "0400",
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             apentForPamelding = true,
             antallPlasser = 10,
@@ -170,7 +171,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusYears(1),
-                arenaAnsvarligEnhet = null,
+                arenaAnsvarligEnhet = "0400",
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 apentForPamelding = true,
                 antallPlasser = 10,
@@ -271,7 +272,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusYears(1),
-                arenaAnsvarligEnhet = null,
+                arenaAnsvarligEnhet = "0400",
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 apentForPamelding = true,
                 antallPlasser = 10,
@@ -302,7 +303,7 @@ class ArenaAdapterServiceTest : FunSpec({
     context("enkeltplasser") {
         beforeEach {
             MulighetsrommetTestDomain(
-                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
             ).initialize(database.db)
         }
@@ -339,12 +340,13 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
                     it.navn shouldBe "En enkeltplass"
                     it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.kostnadssted.enhetsnummer shouldBe NavEnhetNummer("0400")
                 }
             }
 
             service.upsertTiltaksgjennomforing(
                 arenaGjennomforing.copy(
-                    arenaAnsvarligEnhet = "1000",
+                    arenaAnsvarligEnhet = "0300",
                     avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 ),
             )
@@ -352,7 +354,8 @@ class ArenaAdapterServiceTest : FunSpec({
             database.run {
                 queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
-                    it.arena?.ansvarligNavEnhet shouldBe "1000"
+                    it.arena?.ansvarligNavEnhet shouldBe "0300"
+                    it.kostnadssted.enhetsnummer shouldBe NavEnhetNummer("0300")
                 }
             }
         }

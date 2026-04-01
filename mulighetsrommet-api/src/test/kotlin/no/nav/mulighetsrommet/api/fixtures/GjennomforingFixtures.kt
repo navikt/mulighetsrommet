@@ -44,6 +44,7 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id,
+        kostnadssted = null,
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -69,6 +70,7 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.ForhandsgodkjentVta.id,
+        kostnadssted = null,
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -94,6 +96,7 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.ForhandsgodkjentAft.id,
+        kostnadssted = null,
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -119,6 +122,7 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
+        kostnadssted = null,
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -144,6 +148,7 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
+        kostnadssted = null,
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -169,6 +174,7 @@ object GjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
+        kostnadssted = null,
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -187,6 +193,7 @@ object GjennomforingFixtures {
         deltidsprosent = 100.0,
         antallPlasser = 1,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
+        kostnadssted = NavEnhetNummer("0400"),
         avtaleId = null,
         oppmoteSted = null,
         faneinnhold = null,
@@ -214,6 +221,7 @@ object GjennomforingFixtures {
         arenaTiltaksnummer = Tiltaksnummer("2021#1234"),
         arenaAnsvarligEnhet = "1234",
         avtaleId = null,
+        kostnadssted = null,
         prismodellId = null,
         oppmoteSted = null,
         faneinnhold = null,
@@ -238,6 +246,7 @@ object GjennomforingFixtures {
         antallPlasser = 10,
         arenaTiltaksnummer = Tiltaksnummer("2022#1"),
         arenaAnsvarligEnhet = "1234",
+        kostnadssted = null,
         avtaleId = null,
         prismodellId = null,
         oppmoteSted = null,

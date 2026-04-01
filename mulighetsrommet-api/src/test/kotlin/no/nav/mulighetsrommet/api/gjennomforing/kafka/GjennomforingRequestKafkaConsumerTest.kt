@@ -19,13 +19,13 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingRequestPayload
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
@@ -71,7 +71,8 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             gjennomforingId = gjennomforingId,
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             prisinformasjon = "prisinformasjon",
-            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer.value,
+            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            kostnadssted = NavEnhetNummer("0400"),
         )
 
         test("oppretter enkeltplass-gjennomføring når arrangør finnes i databasen") {
@@ -87,6 +88,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
                 it.id shouldBe gjennomforingId
                 it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 it.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
+                it.kostnadssted.enhetsnummer shouldBe NavEnhetNummer("0400")
             }
         }
 
@@ -119,7 +121,8 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
                 gjennomforingId = gjennomforingId,
                 tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
                 prisinformasjon = "andre prisbetingelser",
-                organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer.value,
+                organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                kostnadssted = NavEnhetNummer("0400"),
             )
             consumer.consume(
                 gjennomforingId,

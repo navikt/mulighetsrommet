@@ -183,7 +183,14 @@ data class GjennomforingEnkeltplass(
     @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
     override val prismodell: Prismodell,
-) : GjennomforingTiltaksadministrasjon()
+    val kostnadssted: Kostnadssted,
+) : GjennomforingTiltaksadministrasjon() {
+    @Serializable
+    data class Kostnadssted(
+        val enhetsnummer: NavEnhetNummer,
+        val navn: String,
+    )
+}
 
 @Serializable
 data class GjennomforingArena(
