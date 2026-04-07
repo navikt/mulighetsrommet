@@ -2516,9 +2516,6 @@ packages:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-react@8.5.1':
     resolution: {integrity: sha512-XiWQfxnuC4QI/tJNPSZeVVB12YntqJ0hZ6RGt/W+9HSO8Y58EzvyYsX61wJ94IZTnyXJOhu3KiEB8zBaw6qbQw==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/8.5.1/0bccdd75de5e27d83cd40c2ee5cbb2b61a24c086}
@@ -2526,9 +2523,6 @@ packages:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-tailwind@8.2.2':
     resolution: {integrity: sha512-xLp2A2FBe7V5xbyWcXDjnOT/c/lpvXQSk1DIknJhgK5Rc7fPA2XKSvTHEsAeoiHoMfdVT4DGyEF4U3CHGa6v9g==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/8.2.2/7b7809fdbd7e2baa27519d4094116df9c340f76f}
@@ -2547,9 +2541,6 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@4.1.4':
     resolution: {integrity: sha512-v+LW8V5CTiHkfIXhceQ8RXRtrBktCK8wSFYmiR6hmzl9CJRYRLUpFC7YbLiC7jwHIuLHKUyl+Zawf8zQm6fDeQ==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/4.1.4/0d9c93820b9b6d93b1bd9da134feb95461ad8a47}
@@ -11324,12 +11315,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.7(react-dom@19.2.2(react@19.2.2))(react@19.2.2)
       '@navikt/aksel-icons': 8.5.1
       '@navikt/ds-tokens': 8.2.2
+      '@types/react': 19.0.3
       date-fns: 4.1.0
       react: 19.2.2
       react-day-picker: 9.7.0(react@19.2.2)
       react-dom: 19.2.2(react@19.2.2)
-    optionalDependencies:
-      '@types/react': 19.0.3
 
   '@navikt/ds-react@8.5.1(@types/react@19.0.3)(react-dom@19.2.2(react@19.2.2))(react@19.2.2)':
     dependencies:
@@ -11337,12 +11327,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.7(react-dom@19.2.2(react@19.2.2))(react@19.2.2)
       '@navikt/aksel-icons': 8.5.1
       '@navikt/ds-tokens': 8.5.1
+      '@types/react': 19.0.3
       date-fns: 4.1.0
       react: 19.2.2
       react-day-picker: 9.7.0(react@19.2.2)
       react-dom: 19.2.2(react@19.2.2)
-    optionalDependencies:
-      '@types/react': 19.0.3
 
   '@navikt/ds-tailwind@8.2.2': {}
 
@@ -11356,7 +11345,6 @@ snapshots:
       html-react-parser: 5.2.17(@types/react@19.0.3)(react@19.2.2)
       js-cookie: 3.0.5
       jsdom: 28.0.0(@noble/hashes@2.0.1)
-    optionalDependencies:
       react: 19.2.2
 
   '@navikt/oasis@4.1.4':
