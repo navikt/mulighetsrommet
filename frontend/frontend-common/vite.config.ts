@@ -1,8 +1,6 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
-import tsconfigPaths from "vite-tsconfig-paths";
-
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
@@ -10,7 +8,10 @@ export default defineConfig({
     host: "127.0.0.1",
     open: true,
   },
-  plugins: [tsconfigPaths(), react()],
+  plugins: [react()],
+  resolve: {
+    tsconfigPaths: true,
+  },
   base: process.env.VITE_BASE || "/",
   test: {
     environment: "jsdom",
