@@ -141,6 +141,36 @@ class GjennomforingDetaljerService(
         return queries.gjennomforing.getGjennomforing(id)
     }
 
+    private fun getHandlingerGruppetiltak(
+        gjennomforing: GjennomforingAvtale,
+        ansatt: NavAnsatt,
+    ): Set<GjennomforingHandling> {
+        val statusGjennomfores = gjennomforing.status == GjennomforingStatusType.GJENNOMFORES
+        return setOfNotNull(
+            GjennomforingHandling.DUPLISER.takeIf {
+                !tiltakstypeService.erUtfaset(gjennomforing.tiltakstype.tiltakskode)
+            },
+            GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
+            GjennomforingHandling.FORHANDSVIS_I_MODIA.takeIf { statusGjennomfores },
+            GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
+            GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
+            GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
+            GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
+            GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
+            GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
+                gjennomforing.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER)
+            },
+            // FIXME: midlertidig hack for å tillate "Opprett utbetaling" for utenlandske bedifter
+            GjennomforingHandling.OPPRETT_UTBETALING.takeIf {
+                gjennomforing.arrangor.organisasjonsnummer.value.startsWith("1")
+            },
+            GjennomforingHandling.OPPRETT_TILSAGN,
+            GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
+        )
+            .filter { tilgangTilHandling(it, ansatt) }
+            .toSet()
+    }
+
     companion object {
         fun tilgangTilHandling(handling: GjennomforingHandling, ansatt: NavAnsatt): Boolean {
             val skrivGjennomforing = ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
@@ -169,36 +199,6 @@ class GjennomforingDetaljerService(
             }
         }
     }
-}
-
-private fun getHandlingerGruppetiltak(
-    gjennomforing: GjennomforingAvtale,
-    ansatt: NavAnsatt,
-): Set<GjennomforingHandling> {
-    val statusGjennomfores = gjennomforing.status == GjennomforingStatusType.GJENNOMFORES
-    return setOfNotNull(
-        GjennomforingHandling.DUPLISER.takeIf {
-            gjennomforing.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE)
-        },
-        GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
-        GjennomforingHandling.FORHANDSVIS_I_MODIA.takeIf { statusGjennomfores },
-        GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
-        GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
-        GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
-        GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
-        GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
-        GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
-            gjennomforing.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER)
-        },
-        // FIXME: midlertidig hack for å tillate "Opprett utbetaling" for utenlandske bedifter
-        GjennomforingHandling.OPPRETT_UTBETALING.takeIf {
-            gjennomforing.arrangor.organisasjonsnummer.value.startsWith("1")
-        },
-        GjennomforingHandling.OPPRETT_TILSAGN,
-        GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
-    )
-        .filter { GjennomforingDetaljerService.tilgangTilHandling(it, ansatt) }
-        .toSet()
 }
 
 private fun getHandlingerEnkeltplasser(ansatt: NavAnsatt): Set<GjennomforingHandling> {
