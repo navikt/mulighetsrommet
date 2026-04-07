@@ -117,6 +117,7 @@ object TestFixtures {
             arrangor = TiltaksgjennomforingV2Dto.Arrangor(
                 organisasjonsnummer = Organisasjonsnummer("987654321"),
             ),
+            status = GjennomforingStatusType.GJENNOMFORES,
             opprettetTidspunkt = Instant.now(),
             oppdatertTidspunkt = Instant.now(),
         )

@@ -9,6 +9,8 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinj
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
@@ -26,10 +28,14 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -46,6 +52,12 @@ class ArrangorflateService(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
+
+    fun getAllUtbetalingKompakt(filter: ArrangorflateUtbetalingFilter): PaginatedResult<ArrangorflateUtbetalingKompakt> = db.session {
+        queries.utbetaling
+            .getArrangorflateFiltered(filter)
+            .map { toArrangorflateUtbetalingKompakt(it) }
+    }
 
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
         return queries.utbetaling.get(id)
@@ -98,6 +110,8 @@ class ArrangorflateService(
             ?.let { it.tidspunkt.toLocalDate().plusWeeks(12) <= today }
             ?: false
 
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
+
         val deltakere = if (erTolvUkerEtterInnsending) {
             emptyList()
         } else {
@@ -114,6 +128,7 @@ class ArrangorflateService(
 
         return mapUtbetalingToArrangorflateUtbetaling(
             utbetaling = utbetaling,
+            gjennomforing = gjennomforing,
             status = status,
             deltakereById = deltakere.associateBy { it.id },
             personaliaById = personalia,
@@ -220,6 +235,28 @@ class ArrangorflateService(
                 navn = p.navn,
             )
         }
+    }
+
+    private fun QueryContext.toArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
+        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
+        val godkjentBelop = when (status) {
+            ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+            ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
+            ArrangorflateUtbetalingStatus.UTBETALT,
+            -> getGodkjentBelopForUtbetaling(utbetaling.id, utbetaling.beregning.output.pris.valuta)
+
+            ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+            ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
+            ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
+            ArrangorflateUtbetalingStatus.AVBRUTT,
+            -> null
+        }
+        return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, gjennomforing, status, godkjentBelop)
+    }
+
+    private fun QueryContext.getGodkjentBelopForUtbetaling(id: UUID, valuta: Valuta): ValutaBelop {
+        return queries.utbetalingLinje.getByUtbetalingId(id).sumOf { it.pris.belop }.withValuta(valuta)
     }
 }
 

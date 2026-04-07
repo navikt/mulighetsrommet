@@ -61,6 +61,7 @@ enum class Tiltakskode(
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -83,6 +84,7 @@ enum class Tiltakskode(
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -106,6 +108,7 @@ enum class Tiltakskode(
     HOYERE_UTDANNING(
         arenakode = "HOYEREUTD",
         egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -113,6 +116,7 @@ enum class Tiltakskode(
     HOYERE_YRKESFAGLIG_UTDANNING(
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -121,6 +125,7 @@ enum class Tiltakskode(
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -129,6 +134,7 @@ enum class Tiltakskode(
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -142,6 +148,7 @@ enum class Tiltakskode(
 
 enum class TiltakstypeEgenskap {
     KAN_OPPRETTE_AVTALE,
+    KAN_OPPRETTE_ENKELTPLASS,
     KREVER_DELTIDSPROSENT,
     KREVER_DIREKTE_VEDTAK,
     STOTTER_TILSKUDD_FOR_INVESTERINGER,

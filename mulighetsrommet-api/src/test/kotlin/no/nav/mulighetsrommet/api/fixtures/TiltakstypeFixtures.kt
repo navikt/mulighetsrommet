@@ -96,6 +96,15 @@ object TiltakstypeFixtures {
         sluttDato = null,
     )
 
+    val Amo = TiltakstypeDbo(
+        id = UUID.randomUUID(),
+        navn = "AMO",
+        tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+        arenaKode = "GRUPPEAMO",
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = null,
+    )
+
     val EnkelAmo = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Enkel AMO",

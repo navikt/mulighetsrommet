@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 data class ArrangorflateTilsagnFilter(
     val pagination: Pagination,
     val orderBy: OrderBy,
-    val direction: Direction,
+    val direction: ArrangorflateFilterDirection,
 ) {
     @Serializable
     enum class OrderBy {
@@ -18,12 +18,6 @@ data class ArrangorflateTilsagnFilter(
         TILSAGN,
         STATUS,
     }
-
-    @Serializable
-    enum class Direction {
-        ASC,
-        DESC,
-    }
 }
 
 fun RoutingContext.getArrangorflateTilsagnFilter(): ArrangorflateTilsagnFilter {
@@ -31,9 +25,7 @@ fun RoutingContext.getArrangorflateTilsagnFilter(): ArrangorflateTilsagnFilter {
     val orderBy = call.parameters["orderBy"]?.let {
         ArrangorflateTilsagnFilter.OrderBy.valueOf(it)
     } ?: ArrangorflateTilsagnFilter.OrderBy.PERIODE
-    val direction = call.parameters["direction"]?.let {
-        ArrangorflateTilsagnFilter.Direction.valueOf(it)
-    } ?: ArrangorflateTilsagnFilter.Direction.ASC
+    val direction = ArrangorflateFilterDirection.from(call.parameters["direction"])
 
     return ArrangorflateTilsagnFilter(
         pagination,

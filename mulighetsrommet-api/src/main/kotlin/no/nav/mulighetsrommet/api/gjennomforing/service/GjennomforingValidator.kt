@@ -218,6 +218,7 @@ object GjennomforingValidator {
                 estimertVentetidVerdi = next.estimertVentetid?.verdi,
                 estimertVentetidEnhet = next.estimertVentetid?.enhet,
                 tilgjengeligForArrangorDato = next.tilgjengeligForArrangorDato,
+                kostnadssted = null,
                 arenaTiltaksnummer = ctx.previous?.arena?.tiltaksnummer,
                 arenaAnsvarligEnhet = ctx.previous?.arena?.ansvarligNavEnhet,
             ),

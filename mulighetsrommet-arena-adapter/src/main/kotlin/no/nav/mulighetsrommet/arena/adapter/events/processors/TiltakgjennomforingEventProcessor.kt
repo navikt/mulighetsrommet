@@ -212,7 +212,7 @@ class TiltakgjennomforingEventProcessor(
         arrangorOrganisasjonsnummer = virksomhetsnummer,
         startDato = fraDato.toLocalDate(),
         sluttDato = tilDato?.toLocalDate(),
-        arenaAnsvarligEnhet = sak.enhet,
+        arenaAnsvarligEnhet = requireNotNull(sak.enhet) { "Forventet Nav-enhet på tiltakssak ${sak.sakId}" },
         avslutningsstatus = resolveAvslutningsstatus(status, tilDato),
         apentForPamelding = apentForInnsok,
         antallPlasser = antallPlasser ?: 1,

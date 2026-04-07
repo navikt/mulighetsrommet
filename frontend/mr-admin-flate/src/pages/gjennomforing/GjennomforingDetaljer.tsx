@@ -25,7 +25,7 @@ import { GjennomforingDetaljerAvtale } from "@/pages/gjennomforing/Gjennomforing
 import { GjennomforingDetaljerVarighet } from "@/pages/gjennomforing/GjennomforingDetaljerVarighet";
 import { GjennomforingDetaljerAdministratorer } from "@/pages/gjennomforing/GjennomforingDetaljerAdministratorer";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
-import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingAvtaleDto } from "@tiltaksadministrasjon/api-client";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 
@@ -163,6 +163,6 @@ function HentTiltaksnummer({ id }: { id: string }) {
   );
 }
 
-function harStartet(gjennomforing: GjennomforingDto) {
+function harStartet(gjennomforing: GjennomforingAvtaleDto) {
   return new Date() > new Date(gjennomforing.startDato);
 }

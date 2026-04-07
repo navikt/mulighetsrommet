@@ -7,6 +7,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.Valuta
 import org.intellij.lang.annotations.Language
 import java.util.UUID
@@ -48,11 +49,24 @@ class PrismodellQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun getById(id: UUID): Prismodell? {
+    fun setPrisbetingelser(id: UUID, prisbetingelser: String?) {
+        @Language("PostgreSQL")
+        val query = """
+            update prismodell
+            set prisbetingelser = :prisbetingelser
+            where id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf("id" to id, "prisbetingelser" to prisbetingelser)
+
+        session.execute(queryOf(query, params))
+    }
+
+    fun getOrError(id: UUID): Prismodell {
         @Language("PostgreSQL")
         val query = """
             select id as prismodell_id,
-                   valuta,
+                   valuta as prismodell_valuta,
                    prismodell_type,
                    prisbetingelser as prismodell_prisbetingelser,
                    satser as prismodell_satser,
@@ -60,7 +74,7 @@ class PrismodellQueries(private val session: Session) {
             from prismodell
             where id = ?::uuid
         """.trimIndent()
-        return session.single(queryOf(query, id)) { it.toPrismodell() }
+        return session.requireSingle(queryOf(query, id)) { it.toPrismodell() }
     }
 
     fun getBySystemId(systemId: String): Prismodell? {

@@ -9,12 +9,10 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.InstantSerializer
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -65,11 +63,6 @@ data class Utbetaling(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val lopenummer: Tiltaksnummer,
-        val navn: String,
-        @Serializable(with = LocalDateSerializer::class)
-        val start: LocalDate,
-        @Serializable(with = LocalDateSerializer::class)
-        val slutt: LocalDate?,
     )
 
     @Serializable

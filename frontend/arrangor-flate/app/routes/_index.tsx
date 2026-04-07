@@ -1,11 +1,10 @@
 import { Link as ReactRouterLink } from "react-router";
 import { Box, Tabs, Button, HStack, PaginationProps, Search, SortState } from "@navikt/ds-react";
 import {
-  ArrangorflateTilsagnFilterDirection,
   ArrangorflateTilsagnFilterOrderBy,
-  ArrangorflateUtbetalingFilterDirection,
+  ArrangorflateFilterDirection,
   ArrangorflateUtbetalingFilterOrderBy,
-  ArrangorflateUtbetalingFilterType,
+  ArrangorflateFilterType,
 } from "api-client";
 import type { MetaFunction } from "react-router";
 import { PageHeading } from "~/components/common/PageHeading";
@@ -24,8 +23,8 @@ import {
 } from "~/hooks/useArrangorflateTilsagnRader";
 import {
   ArrangorflateUtbetalingFilter,
-  useArrangorflateUtbetalinger,
-} from "~/hooks/useArrangorflateUtbetalinger";
+  useArrangorflateUtbetalingRader,
+} from "~/hooks/useArrangorflateUtbetalingRader";
 import { flipObject } from "~/utils/object";
 
 export const meta: MetaFunction = () => {
@@ -64,8 +63,8 @@ export default function Oversikt() {
             <UtbetalingTabellContent
               type={
                 currentTab === "aktive"
-                  ? ArrangorflateUtbetalingFilterType.AKTIVE
-                  : ArrangorflateUtbetalingFilterType.HISTORISKE
+                  ? ArrangorflateFilterType.AKTIVE
+                  : ArrangorflateFilterType.HISTORISKE
               }
             />
           )}
@@ -75,7 +74,7 @@ export default function Oversikt() {
   );
 }
 
-function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilterType }) {
+function UtbetalingTabellContent({ type }: { type: ArrangorflateFilterType }) {
   const [sok, setSok] = useState("");
   const debouncedSok = useDebounce(sok, 300);
   const {
@@ -83,7 +82,7 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
     filter,
     setFilter,
     oppdaterSok,
-  } = useArrangorflateUtbetalinger({ type });
+  } = useArrangorflateUtbetalingRader({ type });
 
   useEffect(() => {
     oppdaterSok(debouncedSok);
@@ -104,14 +103,12 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
   const paramToSortKey: Record<ArrangorflateUtbetalingFilterOrderBy, string> =
     flipObject(utbetalingSortKeyToParam);
 
-  const paramToSortDirection: Record<
-    ArrangorflateUtbetalingFilterDirection,
-    SortState["direction"]
-  > = flipObject({
-    ascending: ArrangorflateUtbetalingFilterDirection.ASC,
-    descending: ArrangorflateUtbetalingFilterDirection.DESC,
-    none: ArrangorflateUtbetalingFilterDirection.ASC,
-  });
+  const paramToSortDirection: Record<ArrangorflateFilterDirection, SortState["direction"]> =
+    flipObject({
+      ascending: ArrangorflateFilterDirection.ASC,
+      descending: ArrangorflateFilterDirection.DESC,
+      none: ArrangorflateFilterDirection.ASC,
+    });
 
   function filterToSortState({ orderBy, direction }: ArrangorflateUtbetalingFilter): SortState {
     const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";
@@ -126,7 +123,7 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
   }
 
   const paginationProps: PaginationProps | undefined =
-    type === ArrangorflateUtbetalingFilterType.HISTORISKE
+    type === ArrangorflateFilterType.HISTORISKE
       ? {
           hidden: !paginertUtbetalingRader.pagination.totalPages,
           page: filter.page || 1,
@@ -140,16 +137,16 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateUtbetalingFilter
   function sortChange(orderBy: ArrangorflateUtbetalingFilterOrderBy) {
     if (orderBy == filter.orderBy) {
       const direction =
-        filter.direction == ArrangorflateUtbetalingFilterDirection.ASC
-          ? ArrangorflateUtbetalingFilterDirection.DESC
-          : ArrangorflateUtbetalingFilterDirection.ASC;
+        filter.direction == ArrangorflateFilterDirection.ASC
+          ? ArrangorflateFilterDirection.DESC
+          : ArrangorflateFilterDirection.ASC;
       return setFilter((old) => ({ ...old, direction }));
     }
 
     setFilter((old) => ({
       ...old,
       orderBy,
-      direction: ArrangorflateUtbetalingFilterDirection.ASC,
+      direction: ArrangorflateFilterDirection.ASC,
     }));
   }
 
@@ -198,16 +195,16 @@ function TilsagnTabellContent() {
   function sortChange(orderBy: ArrangorflateTilsagnFilterOrderBy) {
     if (orderBy == filter.orderBy) {
       const direction =
-        filter.direction == ArrangorflateTilsagnFilterDirection.ASC
-          ? ArrangorflateTilsagnFilterDirection.DESC
-          : ArrangorflateTilsagnFilterDirection.ASC;
+        filter.direction == ArrangorflateFilterDirection.ASC
+          ? ArrangorflateFilterDirection.DESC
+          : ArrangorflateFilterDirection.ASC;
       return setFilter((old: ArrangorflateTilsagnFilter) => ({ ...old, direction }));
     }
 
     setFilter((old: ArrangorflateTilsagnFilter) => ({
       ...old,
       orderBy,
-      direction: ArrangorflateTilsagnFilterDirection.ASC,
+      direction: ArrangorflateFilterDirection.ASC,
     }));
   }
 
@@ -222,14 +219,12 @@ function TilsagnTabellContent() {
   const paramToSortKey: Record<ArrangorflateTilsagnFilterOrderBy, string> =
     flipObject(tilsagnSortKeyToParam);
 
-  const paramToSortDirection: Record<
-    ArrangorflateUtbetalingFilterDirection,
-    SortState["direction"]
-  > = flipObject({
-    ascending: ArrangorflateUtbetalingFilterDirection.ASC,
-    descending: ArrangorflateUtbetalingFilterDirection.DESC,
-    none: ArrangorflateUtbetalingFilterDirection.ASC,
-  });
+  const paramToSortDirection: Record<ArrangorflateFilterDirection, SortState["direction"]> =
+    flipObject({
+      ascending: ArrangorflateFilterDirection.ASC,
+      descending: ArrangorflateFilterDirection.DESC,
+      none: ArrangorflateFilterDirection.ASC,
+    });
 
   function filterToSortState({ orderBy, direction }: ArrangorflateTilsagnFilter): SortState {
     const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";

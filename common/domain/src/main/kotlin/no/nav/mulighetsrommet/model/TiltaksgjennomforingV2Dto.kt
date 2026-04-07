@@ -20,6 +20,7 @@ sealed class TiltaksgjennomforingV2Dto {
     abstract val oppdatertTidspunkt: Instant
     abstract val tiltakskode: Tiltakskode
     abstract val arrangor: Arrangor
+    abstract val status: GjennomforingStatusType
 
     @Serializable
     data class Arrangor(
@@ -37,12 +38,12 @@ sealed class TiltaksgjennomforingV2Dto {
         override val oppdatertTidspunkt: Instant,
         override val tiltakskode: Tiltakskode,
         override val arrangor: Arrangor,
+        override val status: GjennomforingStatusType,
         val navn: String,
         @Serializable(with = LocalDateSerializer::class)
         val startDato: LocalDate,
         @Serializable(with = LocalDateSerializer::class)
         val sluttDato: LocalDate?,
-        val status: GjennomforingStatusType,
         val oppstart: GjennomforingOppstartstype,
         val pameldingType: GjennomforingPameldingType,
         @Serializable(with = LocalDateSerializer::class)
@@ -64,5 +65,6 @@ sealed class TiltaksgjennomforingV2Dto {
         override val oppdatertTidspunkt: Instant,
         override val tiltakskode: Tiltakskode,
         override val arrangor: Arrangor,
+        override val status: GjennomforingStatusType,
     ) : TiltaksgjennomforingV2Dto()
 }

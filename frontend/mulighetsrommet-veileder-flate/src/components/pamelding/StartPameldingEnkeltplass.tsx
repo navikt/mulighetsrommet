@@ -1,7 +1,8 @@
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
-import { Tiltakskode, VeilederflateTiltakstype } from "@api-client";
+import { VeilederflateTiltakstype } from "@api-client";
 import { Button } from "@navikt/ds-react";
 import { ReactNode } from "react";
+import { kanOppretteEnkeltplass } from "@/apps/modia/features";
 
 interface Props {
   tiltakstype: VeilederflateTiltakstype;
@@ -11,7 +12,7 @@ interface Props {
 export function StartPameldingEnkeltplass({ tiltakstype, harRettPaaTiltak }: Props): ReactNode {
   const { tiltakskode } = tiltakstype;
 
-  if (!tiltakskode || !tiltakskoderOpprettEnkeltplass.includes(tiltakskode)) {
+  if (!tiltakskode || !kanOppretteEnkeltplass(tiltakstype)) {
     return null;
   }
 
@@ -30,12 +31,3 @@ export function StartPameldingEnkeltplass({ tiltakstype, harRettPaaTiltak }: Pro
     </Button>
   );
 }
-
-const tiltakskoderOpprettEnkeltplass = [
-  Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-  Tiltakskode.STUDIESPESIALISERING,
-  Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
-  Tiltakskode.FAG_OG_YRKESOPPLAERING,
-  Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-  Tiltakskode.HOYERE_UTDANNING,
-];
