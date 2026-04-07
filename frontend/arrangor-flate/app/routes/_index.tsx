@@ -26,6 +26,7 @@ import {
   useArrangorflateUtbetalingRader,
 } from "~/hooks/useArrangorflateUtbetalingRader";
 import { flipObject } from "~/utils/object";
+import { IngenTreff } from "~/components/IngenTreff";
 
 export const meta: MetaFunction = () => {
   return [
@@ -175,6 +176,7 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateFilterType }) {
           ))}
         </Suspense>
       </Tabellvisning>
+      {paginertUtbetalingRader.data.length === 0 && <IngenTreff type="utbetaling" />}
     </>
   );
 }
@@ -252,6 +254,7 @@ function TilsagnTabellContent() {
           ))}
         </Suspense>
       </Tabellvisning>
+      {paginertTilsagnRader.data.length === 0 && <IngenTreff type="tilsagn" />}
     </>
   );
 }
