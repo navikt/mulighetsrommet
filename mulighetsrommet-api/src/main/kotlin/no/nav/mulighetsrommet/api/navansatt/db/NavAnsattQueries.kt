@@ -127,7 +127,7 @@ class NavAnsattQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "roller" to rollerContainsAll?.let { Json.encodeToString(it) },
+            "roller" to rollerContainsAll?.ifEmpty { null }?.let { Json.encodeToString(it) },
             "hovedenhet" to hovedenhetIn?.let { createArrayOfValue(it) { it.value } },
             "skal_slettes_dato" to skalSlettesDatoLte,
         )

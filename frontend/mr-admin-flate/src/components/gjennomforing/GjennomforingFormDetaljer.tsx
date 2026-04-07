@@ -1,5 +1,3 @@
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useGjennomforingAdministratorer } from "@/api/ansatt/useGjennomforingAdministratorer";
 import { GjennomforingAmoKategoriseringForm } from "@/components/amoKategorisering/GjennomforingAmoKategoriseringForm";
 import { FormGroup } from "@/layouts/FormGroup";
 import { SkjemaKolonne } from "@/layouts/SkjemaKolonne";
@@ -12,6 +10,7 @@ import {
   GjennomforingRequest,
   GjennomforingVeilederinfoDto,
   TiltakstypeDto,
+  Rolle,
 } from "@tiltaksadministrasjon/api-client";
 import {
   Alert,
@@ -29,7 +28,7 @@ import { useEffect, useRef, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModal";
-import { AdministratorOptions } from "@/components/skjema/AdministratorOptions";
+import { administratorOptions } from "@/components/skjema/administratorOptions";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { GjennomforingUtdanningslopForm } from "@/components/utdanning/GjennomforingUtdanningslopForm";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
@@ -41,6 +40,7 @@ import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
 import { kreverDirekteVedtak, kreverDeltidsprosent } from "@/utils/tiltakstype";
+import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -53,8 +53,7 @@ interface Props {
 export function GjennomforingFormDetaljer(props: Props) {
   const { tiltakstype, avtale, gjennomforing, veilederinfo, deltakere } = props;
 
-  const { data: administratorer } = useGjennomforingAdministratorer();
-  const { data: ansatt } = useHentAnsatt();
+  const { data: navAnsatte } = useNavAnsatte([Rolle.TILTAKSGJENNOMFORINGER_SKRIV]);
 
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
@@ -287,18 +286,16 @@ export function GjennomforingFormDetaljer(props: Props) {
                   }
                   placeholder="Velg en"
                   isMultiSelect
-                  selectedOptions={AdministratorOptions(
-                    ansatt,
-                    gjennomforing?.administratorer.map((g) => g.navIdent) || [],
-                    administratorer,
-                  ).filter((option) => field.value.includes(option.value))}
+                  selectedOptions={field.value.map(
+                    (value) =>
+                      administratorOptions(navAnsatte).find((o) => o.value === value) ?? {
+                        value: value,
+                        label: value,
+                      },
+                  )}
                   name={field.name}
                   error={errors.administratorer?.message}
-                  options={AdministratorOptions(
-                    ansatt,
-                    gjennomforing?.administratorer.map((g) => g.navIdent) || [],
-                    administratorer,
-                  )}
+                  options={administratorOptions(navAnsatte)}
                   onToggleSelected={(option, isSelected) => {
                     if (isSelected) {
                       field.onChange([...field.value, option]);
