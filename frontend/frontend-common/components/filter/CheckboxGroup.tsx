@@ -30,41 +30,6 @@ export interface CheckboxGroupSubItem {
 export function CheckboxGroup({ value, onChange, items, ...props }: CheckboxGroupProps) {
   const [groupOpen, setGroupOpen] = useState<string[]>([]);
 
-  function getSelectedItems(items: CheckboxGroupSubItem[]): string[] {
-    return value.filter((id) => items.some((item) => item.id === id));
-  }
-
-  function groupIsIndeterminate(items: CheckboxGroupSubItem[]): boolean {
-    const count = getSelectedItems(items).length;
-    return count > 0 && count < items.length;
-  }
-
-  function groupIsChecked(items: CheckboxGroupSubItem[]): boolean {
-    return getSelectedItems(items).length === items.length;
-  }
-
-  function groupOnChange(items: CheckboxGroupSubItem[]) {
-    const currentlySelectedInGroup = getSelectedItems(items);
-
-    const nextValue =
-      currentlySelectedInGroup.length > 0
-        ? value.filter((id) => !currentlySelectedInGroup.includes(id))
-        : Array.from(
-            new Set(
-              items
-                .filter((item) => item.erStandardvalg)
-                .map((item) => item.id)
-                .concat(value),
-            ),
-          );
-
-    onChange(nextValue);
-  }
-
-  function itemIsChecked(id: string): boolean {
-    return value.includes(id);
-  }
-
   function itemOnChange(id: string) {
     onChange(addOrRemoveBy(value, id, (a, b) => a === b));
   }
@@ -77,7 +42,7 @@ export function CheckboxGroup({ value, onChange, items, ...props }: CheckboxGrou
             <Checkbox
               size="small"
               key={id}
-              checked={itemIsChecked(id)}
+              checked={itemIsChecked(value, id)}
               onChange={() => itemOnChange(id)}
             >
               {navn}
@@ -95,9 +60,9 @@ export function CheckboxGroup({ value, onChange, items, ...props }: CheckboxGrou
                 <Checkbox
                   size="small"
                   key={id}
-                  checked={groupIsChecked(items)}
-                  onChange={() => groupOnChange(items)}
-                  indeterminate={groupIsIndeterminate(items)}
+                  checked={isChecked(value, items)}
+                  indeterminate={isIndeterminate(value, items)}
+                  onChange={() => onChange(toggleSelected(value, items))}
                 >
                   {navn}
                 </Checkbox>
@@ -116,7 +81,7 @@ export function CheckboxGroup({ value, onChange, items, ...props }: CheckboxGrou
               <div style={{ marginLeft: "1rem" }}>
                 {items.map(({ id, navn }) => (
                   <Checkbox
-                    checked={itemIsChecked(id)}
+                    checked={itemIsChecked(value, id)}
                     onChange={() => itemOnChange(id)}
                     key={id}
                     size="small"
@@ -131,4 +96,36 @@ export function CheckboxGroup({ value, onChange, items, ...props }: CheckboxGrou
       })}
     </AkselCheckboxGroup>
   );
+}
+
+function toggleSelected(value: string[], items: CheckboxGroupSubItem[]) {
+  const currentlySelectedInGroup = getSelectedItems(value, items);
+
+  return currentlySelectedInGroup.length > 0
+    ? value.filter((id) => !currentlySelectedInGroup.includes(id))
+    : Array.from(
+        new Set(
+          items
+            .filter((item) => item.erStandardvalg)
+            .map((item) => item.id)
+            .concat(value),
+        ),
+      );
+}
+
+function getSelectedItems(value: string[], items: CheckboxGroupSubItem[]): string[] {
+  return value.filter((id) => items.some((item) => item.id === id));
+}
+
+function isIndeterminate(value: string[], items: CheckboxGroupSubItem[]): boolean {
+  const count = getSelectedItems(value, items).length;
+  return count > 0 && count < items.length;
+}
+
+function isChecked(value: string[], items: CheckboxGroupSubItem[]): boolean {
+  return getSelectedItems(value, items).length === items.length;
+}
+
+function itemIsChecked(value: string[], id: string): boolean {
+  return value.includes(id);
 }
