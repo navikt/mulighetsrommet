@@ -48,16 +48,12 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         database.truncateAll()
     }
 
-    val migrert = TiltakstypeService.Config(
-        features = mapOf(
-            Tiltakskode.ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT),
-        ),
-    )
-
     fun createConsumer(
-        arrangorer: ArrangorService = mockk(),
         enkeltplasser: GjennomforingEnkeltplassService,
-        tiltakstypeConfig: TiltakstypeService.Config = migrert,
+        arrangorer: ArrangorService = mockk(),
+        tiltakstypeConfig: TiltakstypeService.Config = TiltakstypeService.Config(
+            features = mapOf(Tiltakskode.ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT)),
+        ),
     ): GjennomforingRequestKafkaConsumer {
         return GjennomforingRequestKafkaConsumer(
             arrangorer = arrangorer,
@@ -90,7 +86,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
                 arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
             } returns ArrangorFixtures.underenhet1.right()
 
-            val consumer = createConsumer(arrangorer, service)
+            val consumer = createConsumer(service, arrangorer)
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequestPayload>(request))
 
             service.get(gjennomforingId).shouldNotBeNull().should {
@@ -107,7 +103,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
                 arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
             } returns ArrangorError.BrregError(BrregError.NotFound).left()
 
-            val consumer = createConsumer(arrangorer, service)
+            val consumer = createConsumer(service, arrangorer)
 
             shouldThrowExactly<IllegalStateException> {
                 consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequestPayload>(request))
@@ -122,7 +118,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
                 arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
             } returns ArrangorFixtures.underenhet1.right()
 
-            val consumer = createConsumer(arrangorer, service)
+            val consumer = createConsumer(service, arrangorer)
 
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequestPayload>(request))
 
@@ -144,13 +140,8 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         }
 
         test("kaster feil dersom tiltakskoden ikke er migrert") {
-            val arrangorer = mockk<ArrangorService>()
-            coEvery {
-                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
-            } returns ArrangorFixtures.underenhet1.right()
-
             val ikkeMigrertConfig = TiltakstypeService.Config(features = emptyMap())
-            val consumer = createConsumer(arrangorer, service, ikkeMigrertConfig)
+            val consumer = createConsumer(service, tiltakstypeConfig = ikkeMigrertConfig)
 
             shouldThrowExactly<IllegalArgumentException> {
                 consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequestPayload>(request))
