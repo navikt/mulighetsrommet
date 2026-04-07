@@ -1406,6 +1406,16 @@ components:
           type: string
         navn:
           type: string
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeFeature"
+          uniqueItems: true
+        egenskaper:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeEgenskap"
+          uniqueItems: true
         beskrivelse:
           type:
           - "null"
@@ -1450,7 +1460,9 @@ components:
       - arenakode
       - beskrivelse
       - delingMedBruker
+      - egenskaper
       - faneinnhold
+      - features
       - id
       - innsatsgrupper
       - kanKombineresMed
@@ -1459,6 +1471,20 @@ components:
       - sanityId
       - tiltaksgruppe
       - tiltakskode
+    TiltakstypeFeature:
+      type: string
+      enum:
+      - VISES_I_TILTAKSADMINISTRASJON
+      - MIGRERT
+      - UTFASET
+    TiltakstypeEgenskap:
+      type: string
+      enum:
+      - KAN_OPPRETTE_AVTALE
+      - KAN_OPPRETTE_ENKELTPLASS
+      - KREVER_DELTIDSPROSENT
+      - KREVER_DIREKTE_VEDTAK
+      - STOTTER_TILSKUDD_FOR_INVESTERINGER
     RegelverkLenke:
       type: object
       properties:

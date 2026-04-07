@@ -78,6 +78,12 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
+              "name": "teamarenanais.aapen-arena-histtiltakdeltakerendret-v1-p",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
               "name": "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
@@ -85,12 +91,6 @@ spec:
             },
             {
               "name": "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
-              "location": "AIVEN",
-              "keyDeserializerType": "STRING",
-              "valueDeserializerType": "STRING"
-            },
-            {
-              "name": "teamarenanais.aapen-arena-histtiltakdeltakerendret-v1-p",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
@@ -114,6 +114,12 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
+              "name": "team-mulighetsrommet.gjennomforing-request-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
               "name": "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
@@ -132,13 +138,19 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
+              "name": "amt.deltaker-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
               "name": "amt.deltaker-ekstern-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "amt.deltaker-v1",
+              "name": "amt.arrangor-melding-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"

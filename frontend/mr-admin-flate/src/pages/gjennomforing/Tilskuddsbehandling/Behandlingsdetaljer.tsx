@@ -68,7 +68,7 @@ export function Behandlingsdetaljer({
                 label="Utbetaling innenfor maksbeløp?"
                 value={belopInnenforMaksgrense ? "Ja" : "Nei"}
               />
-              <MetadataVStack label="Begrunnelse" value={maksbelopBegrunnelse || "-"} />
+              <MetadataVStack label="Begrunnelse" value={maksbelopBegrunnelse} />
             </HStack>
           </Box>
         </>

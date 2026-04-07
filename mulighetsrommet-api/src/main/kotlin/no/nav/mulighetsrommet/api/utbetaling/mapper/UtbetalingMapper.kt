@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import java.time.LocalDateTime
 
 object UtbetalingMapper {
-    fun toNewUtbetaling(dbo: UtbetalingDbo, gjennomforing: Gjennomforing): Utbetaling {
+    fun toNewUtbetaling(dbo: UtbetalingDbo, gjennomforing: GjennomforingAvtale): Utbetaling {
         return Utbetaling(
             id = dbo.id,
             status = dbo.status,
@@ -25,9 +25,6 @@ object UtbetalingMapper {
             gjennomforing = Utbetaling.Gjennomforing(
                 id = gjennomforing.id,
                 lopenummer = gjennomforing.lopenummer,
-                navn = gjennomforing.navn,
-                start = gjennomforing.startDato,
-                slutt = gjennomforing.sluttDato,
             ),
             arrangor = Utbetaling.Arrangor(
                 gjennomforing.arrangor.id,

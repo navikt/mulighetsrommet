@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -70,7 +71,7 @@ class ArenaAdapterService(
         if (sluttDato == null || sluttDato >= ArenaMigrering.EnkeltplassSluttDatoCutoffDate) {
             val upsert = UpsertGjennomforingEnkeltplass(
                 id = arenaGjennomforing.id,
-                tiltakstypeId = tiltakstype.id,
+                tiltakskode = checkNotNull(tiltakstype.tiltakskode),
                 arrangorId = arrangor.id,
                 navn = arenaGjennomforing.navn,
                 startDato = arenaGjennomforing.startDato,
@@ -79,6 +80,7 @@ class ArenaAdapterService(
                 status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
                 deltidsprosent = arenaGjennomforing.deltidsprosent,
                 antallPlasser = arenaGjennomforing.antallPlasser,
+                kostnadssted = NavEnhetNummer(arenaGjennomforing.arenaAnsvarligEnhet),
                 arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
             )

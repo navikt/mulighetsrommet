@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
@@ -556,6 +557,10 @@ class GjennomforingQueriesTest : FunSpec({
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato.shouldBeNull()
                     it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.kostnadssted shouldBe GjennomforingEnkeltplass.Kostnadssted(
+                        enhetsnummer = NavEnhetNummer("0400"),
+                        navn = "Nav Innlandet",
+                    )
                 }
 
                 queries.gjennomforing.setArenaData(

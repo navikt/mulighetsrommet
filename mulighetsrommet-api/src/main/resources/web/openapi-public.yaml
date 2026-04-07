@@ -190,11 +190,14 @@ components:
           $ref: "#/components/schemas/Tiltakskode"
         arrangor:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
+        status:
+          $ref: "#/components/schemas/GjennomforingStatusType"
       required:
       - arrangor
       - id
       - oppdatertTidspunkt
       - opprettetTidspunkt
+      - status
       - tiltakskode
     Tiltakskode:
       type: string
@@ -223,6 +226,13 @@ components:
           type: string
       required:
       - organisasjonsnummer
+    GjennomforingStatusType:
+      type: string
+      enum:
+      - GJENNOMFORES
+      - AVSLUTTET
+      - AVBRUTT
+      - AVLYST
     TiltaksgjennomforingV2.Gruppe:
       type: object
       properties:
@@ -239,6 +249,8 @@ components:
           $ref: "#/components/schemas/Tiltakskode"
         arrangor:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
+        status:
+          $ref: "#/components/schemas/GjennomforingStatusType"
         navn:
           type: string
         startDato:
@@ -249,8 +261,6 @@ components:
           - "null"
           - string
           format: date
-        status:
-          $ref: "#/components/schemas/GjennomforingStatusType"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
         pameldingType:
@@ -289,13 +299,6 @@ components:
       - status
       - tilgjengeligForArrangorFraOgMedDato
       - tiltakskode
-    GjennomforingStatusType:
-      type: string
-      enum:
-      - GJENNOMFORES
-      - AVSLUTTET
-      - AVBRUTT
-      - AVLYST
     GjennomforingOppstartstype:
       type: string
       enum:

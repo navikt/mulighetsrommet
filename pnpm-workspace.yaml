@@ -1,3 +1,7 @@
+packages:
+  # all packages in direct subdirs of packages/
+  - "frontend/*"
+
 # Sørger for at installerte pakker må være 7 dager gamle før de kan installeres (likt som dependabot cooldown)
 # Et sikkerhetstiltak i tilfelle en pakke blir komprimittert
 minimumReleaseAge: 10080 # 24 x 60 x 7
@@ -12,6 +16,12 @@ minimumReleaseAgeExclude:
 # til hvilke peer dependencies vi ønsker å støtte
 autoInstallPeers: false
 
-packages:
-  # all packages in direct subdirs of packages/
-  - "frontend/*"
+overrides:
+  "vite@>=4.0.0 <4.5.4": ">=4.5.4"
+
+# Whitelist av pakker som har lov til å kjøre (pre|post)install scripts
+onlyBuiltDependencies:
+  - "@parcel/watcher"
+  - "@tailwindcss/oxide"
+  - "esbuild"
+  - "msw"

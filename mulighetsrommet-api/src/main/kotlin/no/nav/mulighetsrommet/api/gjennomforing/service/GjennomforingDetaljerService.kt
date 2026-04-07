@@ -264,7 +264,7 @@ private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
                 tiltak.lopenummer.value,
                 tiltak.arrangor.navn,
                 tiltak.arrangor.organisasjonsnummer.value,
-                tiltak.startDato.formaterDatoTilEuropeiskDatoformat(),
+                tiltak.startDato?.formaterDatoTilEuropeiskDatoformat(),
                 tiltak.sluttDato?.formaterDatoTilEuropeiskDatoformat(),
             )
         }

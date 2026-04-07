@@ -28,8 +28,10 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
@@ -37,15 +39,16 @@ import java.util.UUID
 
 data class UpsertGjennomforingEnkeltplass(
     val id: UUID,
-    val tiltakstypeId: UUID,
+    val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
-    val navn: String,
-    val startDato: LocalDate,
+    val navn: String?,
+    val startDato: LocalDate?,
     val sluttDato: LocalDate?,
     val status: GjennomforingStatusType,
     val prisbetingelser: String?,
     val deltidsprosent: Double,
     val antallPlasser: Int,
+    val kostnadssted: NavEnhetNummer,
     val arenaTiltaksnummer: Tiltaksnummer?,
     val arenaAnsvarligEnhet: String?,
 )
@@ -161,13 +164,15 @@ class GjennomforingEnkeltplassService(
     }
 
     private fun QueryContext.upsert(upsert: UpsertGjennomforingEnkeltplass): GjennomforingEnkeltplass {
+        val tiltakstype = tiltakstyper.getByTiltakskode(upsert.tiltakskode)
+
         val prismodellId = upsertPrismodell(upsert.id, upsert.prisbetingelser)
         val dbo = GjennomforingDbo(
             type = GjennomforingType.ENKELTPLASS,
             id = upsert.id,
-            tiltakstypeId = upsert.tiltakstypeId,
+            tiltakstypeId = tiltakstype.id,
             arrangorId = upsert.arrangorId,
-            navn = upsert.navn,
+            navn = upsert.navn ?: tiltakstype.navn,
             startDato = upsert.startDato,
             sluttDato = upsert.sluttDato,
             status = upsert.status,
@@ -178,6 +183,7 @@ class GjennomforingEnkeltplassService(
             arenaTiltaksnummer = upsert.arenaTiltaksnummer,
             arenaAnsvarligEnhet = upsert.arenaAnsvarligEnhet,
             prismodellId = prismodellId,
+            kostnadssted = upsert.kostnadssted,
             avtaleId = null,
             oppmoteSted = null,
             faneinnhold = null,
@@ -242,10 +248,11 @@ private fun toUpsertGjennomforingEnkeltplass(
     deltaker: Deltaker,
 ): UpsertGjennomforingEnkeltplass = UpsertGjennomforingEnkeltplass(
     id = gjennomforing.id,
-    tiltakstypeId = gjennomforing.tiltakstype.id,
+    tiltakskode = gjennomforing.tiltakstype.tiltakskode,
     arrangorId = gjennomforing.arrangor.id,
     navn = gjennomforing.navn,
     prisbetingelser = gjennomforing.prismodell.prisbetingelser(),
+    kostnadssted = gjennomforing.kostnadssted.enhetsnummer,
     arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
     arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
     antallPlasser = gjennomforing.antallPlasser,
@@ -278,13 +285,21 @@ private fun toGjennomforingStatusType(deltaker: Deltaker): GjennomforingStatusTy
     -> GjennomforingStatusType.AVSLUTTET
 }
 
-private fun harEnkeltplassEndringer(opprett: UpsertGjennomforingEnkeltplass, gjennomforing: Gjennomforing): Boolean {
-    return opprett.navn != gjennomforing.navn ||
-        opprett.arenaTiltaksnummer?.value != gjennomforing.arena?.tiltaksnummer?.value ||
-        opprett.arrangorId != gjennomforing.arrangor.id ||
-        opprett.startDato != gjennomforing.startDato ||
-        opprett.sluttDato != gjennomforing.sluttDato ||
-        opprett.arenaAnsvarligEnhet != gjennomforing.arena?.ansvarligNavEnhet ||
-        opprett.deltidsprosent != gjennomforing.deltidsprosent ||
-        opprett.status != gjennomforing.status
-}
+private fun harEnkeltplassEndringer(
+    opprett: UpsertGjennomforingEnkeltplass,
+    gjennomforing: GjennomforingEnkeltplass,
+): Boolean = opprett != UpsertGjennomforingEnkeltplass(
+    id = gjennomforing.id,
+    tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+    arrangorId = gjennomforing.arrangor.id,
+    navn = gjennomforing.navn,
+    startDato = gjennomforing.startDato,
+    sluttDato = gjennomforing.sluttDato,
+    status = gjennomforing.status,
+    prisbetingelser = gjennomforing.prismodell.prisbetingelser(),
+    deltidsprosent = gjennomforing.deltidsprosent,
+    antallPlasser = gjennomforing.antallPlasser,
+    kostnadssted = gjennomforing.kostnadssted.enhetsnummer,
+    arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+    arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
+)

@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinj
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
@@ -27,7 +28,6 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -42,25 +42,29 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         prettyPrintIndent = "  "
     }
 
+    val gjennomforing = GjennomforingFixtures.createGjennomforingAvtale(
+        id = UUID.randomUUID(),
+        tiltakskode = Tiltakskode.OPPFOLGING,
+        periode = Periode.forYear(2025),
+    )
+
     val deltaker1Id = UUID.randomUUID()
     val deltaker2Id = UUID.randomUUID()
     val deltaker3Id = UUID.randomUUID()
     val deltaker4Id = UUID.randomUUID()
     val deltaker5Id = UUID.randomUUID()
 
+    val sats = 1000.withValuta(Valuta.NOK)
     val utbetalingFastSats = Utbetaling(
         id = UUID.randomUUID(),
         status = UtbetalingStatusType.FERDIG_BEHANDLET,
         utbetalesTidligstTidspunkt = null,
         createdAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         updatedAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-        tiltakstype = Utbetaling.Tiltakstype("Avklaring", Tiltakskode.AVKLARING),
+        tiltakstype = Utbetaling.Tiltakstype("Oppfølging", Tiltakskode.OPPFOLGING),
         gjennomforing = Utbetaling.Gjennomforing(
-            id = UUID.randomUUID(),
-            lopenummer = Tiltaksnummer("2025/10000"),
-            navn = "Avklaring hos Nav",
-            start = LocalDate.of(2025, 1, 1),
-            slutt = null,
+            id = gjennomforing.id,
+            lopenummer = gjennomforing.lopenummer,
         ),
         arrangor = Utbetaling.Arrangor(
             id = UUID.randomUUID(),
@@ -75,7 +79,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
             input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34.withValuta(Valuta.NOK))),
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), sats)),
                 stengt = setOf(
                     StengtPeriode(
                         periode = Periode(LocalDate.of(2025, 1, 7), LocalDate.of(2025, 1, 14)),
@@ -150,8 +154,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 1.0,
-                                sats = 1000.withValuta(Valuta.NOK),
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                                sats = sats,
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             ),
                         ),
                     ),
@@ -160,8 +164,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 1.0,
-                                sats = 1000.withValuta(Valuta.NOK),
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                                sats = sats,
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             ),
                         ),
                     ),
@@ -170,8 +174,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 0.75,
-                                sats = 1000.withValuta(Valuta.NOK),
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                                sats = sats,
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             ),
                         ),
                     ),
@@ -180,8 +184,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 0.75,
-                                sats = 1000.withValuta(Valuta.NOK),
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                                sats = sats,
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             ),
                         ),
                     ),
@@ -190,8 +194,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         perioder = setOf(
                             BeregnetPeriode(
                                 faktor = 0.75,
-                                sats = 1000.withValuta(Valuta.NOK),
-                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                                sats = sats,
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                             ),
                         ),
                     ),
@@ -217,11 +221,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         updatedAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
         tiltakstype = Utbetaling.Tiltakstype("Oppfolging", Tiltakskode.OPPFOLGING),
         gjennomforing = Utbetaling.Gjennomforing(
-            id = UUID.randomUUID(),
-            lopenummer = Tiltaksnummer("2025/10000"),
-            navn = "Oppfolging hos Nav",
-            start = LocalDate.of(2025, 1, 1),
-            slutt = null,
+            id = gjennomforing.id,
+            lopenummer = gjennomforing.lopenummer,
         ),
         arrangor = Utbetaling.Arrangor(
             id = UUID.randomUUID(),
@@ -353,6 +354,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
                 utbetalingFastSats,
                 linjer,
+                gjennomforing,
             )
 
             jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedUtbetalingsdetaljerFastSatsContent
@@ -362,6 +364,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
                 utbetalingPrisPerTimeOppfolging,
                 linjer,
+                gjennomforing,
             )
 
             jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedUtbetalingsdetaljerTimesPrisContent
@@ -372,6 +375,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         test("fast sats per tiltaksplass per maned") {
             val pdfContent = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
                 utbetalingFastSats,
+                gjennomforing,
                 personalia,
             )
 
@@ -380,6 +384,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         test("avtalt pris per time oppfølging per deltaker") {
             val pdfContent = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
                 utbetalingPrisPerTimeOppfolging,
+                gjennomforing,
                 personalia,
             )
 
@@ -393,7 +398,7 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
 {
   "title": "Utbetalingsdetaljer",
   "subject": "Utbetaling til Nav",
-  "description": "Detaljer om utbetaling for gjennomføring av Avklaring",
+  "description": "Detaljer om utbetaling for gjennomføring av Oppfølging",
   "author": "Nav",
   "sections": [
     {
@@ -425,7 +430,7 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Tiltakstype",
-              "value": "Avklaring"
+              "value": "Oppfølging"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
@@ -464,13 +469,13 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Sats",
-              "value": "34",
+              "value": "1000",
               "currency": "NOK"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Antall månedsverk",
-              "value": "0.0"
+              "value": "4.25"
             }
           ]
         },
@@ -850,7 +855,7 @@ private val expectedJournalpostFastSatsContent = """
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Tiltakstype",
-              "value": "Avklaring"
+              "value": "Oppfølging"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
@@ -889,13 +894,13 @@ private val expectedJournalpostFastSatsContent = """
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Sats",
-              "value": "34",
+              "value": "1000",
               "currency": "NOK"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Antall månedsverk",
-              "value": "0.0"
+              "value": "4.25"
             }
           ]
         },

@@ -3069,6 +3069,7 @@ components:
       type: string
       enum:
       - KAN_OPPRETTE_AVTALE
+      - KAN_OPPRETTE_ENKELTPLASS
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
@@ -3230,6 +3231,16 @@ components:
           type: string
         navn:
           type: string
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeFeature"
+          uniqueItems: true
+        egenskaper:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeEgenskap"
+          uniqueItems: true
         beskrivelse:
           type:
           - "null"
@@ -3274,7 +3285,9 @@ components:
       - arenakode
       - beskrivelse
       - delingMedBruker
+      - egenskaper
       - faneinnhold
+      - features
       - id
       - innsatsgrupper
       - kanKombineresMed
@@ -4826,7 +4839,9 @@ components:
         arrangor:
           $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
         startDato:
-          type: string
+          type:
+          - "null"
+          - string
           format: date
         sluttDato:
           type:
@@ -5076,7 +5091,9 @@ components:
         lopenummer:
           type: string
         startDato:
-          type: string
+          type:
+          - "null"
+          - string
           format: date
         sluttDato:
           type:

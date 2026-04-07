@@ -173,7 +173,7 @@ private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
             oppstartstype = oppstartstype,
             pameldingstype = GjennomforingPameldingType.valueOf(string("pamelding_type")),
             navn = string("navn").takeIfIsGruppetiltak(oppstartstype),
-            startDato = localDate("start_dato").takeIfIsGruppetiltak(oppstartstype),
+            startDato = localDateOrNull("start_dato")?.takeIfIsGruppetiltak(oppstartstype),
             sluttDato = localDateOrNull("slutt_dato")?.takeIfIsGruppetiltak(oppstartstype),
             status = GjennomforingStatusType.valueOf(string("status")).takeIfIsGruppetiltak(oppstartstype),
             deltidsprosent = double("deltidsprosent").takeIfIsGruppetiltak(oppstartstype),

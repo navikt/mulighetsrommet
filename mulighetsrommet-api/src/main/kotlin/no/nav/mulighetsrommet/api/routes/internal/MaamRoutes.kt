@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
-import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordDbo
 import no.nav.mulighetsrommet.database.queries.ScheduledTaskDbo
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
@@ -53,7 +52,6 @@ fun Route.maamRoutes() {
     val beregnUtbetaling: BeregnUtbetaling by inject()
     val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
     val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
-    val journalforUtbetaling: JournalforUtbetaling by inject()
 
     route("/api/intern/maam") {
         route("/tasks") {
