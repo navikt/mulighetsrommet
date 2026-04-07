@@ -53,40 +53,37 @@ Tjenesten sørger for at:
 
 ```mermaid
 flowchart
-    Fagsystem -->|Kafka-melding| KafkaIn --> Tiltaksokonomi
-
-    subgraph Col1["Fagsystemer"]
-        direction TB
+    subgraph Fagsystemer["Fagsystemer"]
         Fagsystem[Tiltaksadministrasjon]
     end
 
-    subgraph Col2["Kafka"]
-    direction RL
+    subgraph Kafka["Kafka"]
         KafkaIn[/Kafka Topic<br/>Bestillinger & Fakturaer/]
         KafkaBestilling[/Kafka Topic<br/>Bestilling Status/]
         KafkaFaktura[/Kafka Topic<br/>Faktura Status/]
     end
 
-
-
-    subgraph Col3["Tiltaksøkonomi"]
-        direction TB
-        Tiltaksokonomi[Tiltaksøkonomi]
+    subgraph Tiltaksokonmi[" "]
+        App[Tiltaksøkonomi]
         DB[(Database)]
-        Tiltaksokonomi --> DB
+        App --> DB
     end
 
-    subgraph Col4["OeBS"]
-        direction TB
+    subgraph Oebs["OeBS"]
         OebsPoApApi[PO/AP API]
     end
 
-    Tiltaksokonomi -->|Kvittering| KafkaBestilling --> Fagsystem
-    Tiltaksokonomi -->|Kvittering| KafkaFaktura --> Fagsystem
-    Tiltaksokonomi <-->|HTTP/JSON| OebsPoApApi
+    Fagsystem -->|Send melding| KafkaIn
+    Fagsystem -->|Les status| KafkaBestilling
+    Fagsystem -->|Les status| KafkaFaktura
+    App -->|Les melding| KafkaIn
+    App -->|Skriv status| KafkaBestilling
+    App -->|Skriv status| KafkaFaktura
+    App -->|Send melding| OebsPoApApi
+    OebsPoApApi -->|Send kvittering| App
 
     style DB fill:#2d3e50,stroke:#fff,color:#fff
-    style Tiltaksokonomi fill:#3498db,stroke:#fff,color:#fff
+    style App fill:#3498db,stroke:#fff,color:#fff
 ```
 
 ## Feilsøking
