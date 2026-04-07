@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktpersonDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
+import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
@@ -76,6 +77,7 @@ object GjennomforingDtoMapper {
             startDato = gjennomforing.startDato,
             sluttDato = gjennomforing.sluttDato,
             status = fromGjennomforingStatus(gjennomforing.status),
+            kostnadssted = KostnadsstedDto(gjennomforing.kostnadssted.navn, gjennomforing.kostnadssted.enhetsnummer),
         ),
         veilederinfo = null,
         prismodell = fromPrismodell(gjennomforing.prismodell),

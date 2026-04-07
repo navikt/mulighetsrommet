@@ -4,9 +4,16 @@ import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 
 export function useRelevanteKostnadssteder(
   type: TilsagnType,
+  kostnadssted: string | null,
   kontorstruktur: Kontorstruktur[],
 ): KostnadsstedOption[] {
   const { data: kostnadssteder } = useKostnadssteder();
+
+  if (kostnadssted) {
+    return kostnadssteder
+      .filter(({ kostnadssteder }) => kostnadssteder.some((k) => k.enhetsnummer === kostnadssted))
+      .flatMap(({ kostnadssteder }) => kostnadssteder);
+  }
 
   const relevanteRegioner =
     type === TilsagnType.TILSAGN

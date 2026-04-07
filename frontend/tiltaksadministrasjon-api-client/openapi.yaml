@@ -4850,15 +4850,30 @@ components:
           format: date
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
+        kostnadssted:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/KostnadsstedDto"
       required:
       - arrangor
       - id
+      - kostnadssted
       - lopenummer
       - navn
       - sluttDato
       - startDato
       - status
       - tiltaksnummer
+    KostnadsstedDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
     GjennomforingVeilederinfoDto:
       type: object
       properties:
@@ -5543,16 +5558,6 @@ components:
       required:
       - slutt
       - start
-    KostnadsstedDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-      required:
-      - enhetsnummer
-      - navn
     TilsagnStatusDto:
       type: object
       properties:
