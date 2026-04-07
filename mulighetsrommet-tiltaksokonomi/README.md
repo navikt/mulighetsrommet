@@ -2,7 +2,6 @@
 
 Tiltaksøkonomi er en integrasjonstjenste og Anti-Corruption Layer (ACL) mot OeBS PO/AP (Oracle E-Business Suite,
 Purchase Order/Account Payables) for å håndtere utbetalinger til bedrifter for gjennomføring av arbeidsmarkedstiltak.
-Tjenesten fungerer som et mellomledd mellom fagsystemer (f.eks. Tiltaksadministrasjon) og OeBS.
 
 Tjenesten håndterer:
 
@@ -17,7 +16,7 @@ Kommunikasjon med tjenesten foregår via Kafka.
 
 ### Meldingstyper
 
-Følgende meldringstyper er
+Følgende meldingstyper er
 støttet ([definert i kode her](./common/tiltaksokonomi-client/src/main/kotlin/no/nav/tiltak/okonomi/OkonomiBestillingMelding.kt)):
 
 | Type                | Beskrivelse                                                 |
