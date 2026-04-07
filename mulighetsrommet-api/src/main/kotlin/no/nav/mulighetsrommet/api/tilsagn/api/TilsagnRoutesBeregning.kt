@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -298,13 +299,16 @@ fun resolveTilsagnDefaults(
         },
     )
 
+    val kostnadssted = tilsagn?.kostnadssted?.enhetsnummer
+        ?: (gjennomforing as? GjennomforingEnkeltplass)?.kostnadssted?.enhetsnummer
+
     return TilsagnRequest(
         id = UUID.randomUUID(),
         gjennomforingId = gjennomforing.id,
         type = TilsagnType.TILSAGN,
         periodeStart = periode?.start?.toString(),
         periodeSlutt = periode?.getLastInclusiveDate()?.toString(),
-        kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
+        kostnadssted = kostnadssted,
         beregning = beregning,
         deltakere = emptyList(),
     )
