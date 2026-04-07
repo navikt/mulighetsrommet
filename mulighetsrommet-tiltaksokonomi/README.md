@@ -17,7 +17,8 @@ Kommunikasjon med tjenesten foregår via Kafka.
 
 ### Meldingstyper
 
-Følgende meldringstyper er støttet:
+Følgende meldringstyper er
+støttet ([definert i kode her](./common/tiltaksokonomi-client/src/main/kotlin/no/nav/tiltak/okonomi/OkonomiBestillingMelding.kt)):
 
 | Type                | Beskrivelse                                                 |
 |---------------------|-------------------------------------------------------------|
@@ -25,9 +26,6 @@ Følgende meldringstyper er støttet:
 | `Annullering`       | Annullerer en eksisterende bestilling                       |
 | `Faktura`           | Oppretter en faktura for utbetaling basert på en bestilling |
 | `GjorOppBestilling` | Gjør opp en bestilling uten å betale ut resterende midler   |
-
-Se definisjon
-av [meldingstypene her](./common/tiltaksokonomi-client/src/main/kotlin/no/nav/tiltak/okonomi/OkonomiBestillingMelding.kt).
 
 ### Kvitteringer fra OeBS
 
