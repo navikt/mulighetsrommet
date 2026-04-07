@@ -3,8 +3,7 @@ package no.nav.mulighetsrommet.kafka
 import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.testcontainers.kafka.KafkaContainerExtension
-import io.kotest.extensions.testcontainers.kafka.stringStringProducer
+import io.kotest.extensions.testcontainers.TestContainerSpecExtension
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
@@ -17,29 +16,40 @@ import kotlinx.serialization.json.JsonNull
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import org.apache.kafka.clients.CommonClientConfigs
+import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.Serdes
-import org.testcontainers.containers.KafkaContainer
-import org.testcontainers.utility.DockerImageName
+import org.apache.kafka.common.serialization.StringSerializer
+import org.testcontainers.kafka.ConfluentKafkaContainer
 import java.time.Duration
 import java.time.Instant
+import java.util.Properties
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 class KafkaConsumerOrchestratorTest : FunSpec({
-    val kafka = install(KafkaContainerExtension(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"))) {
-        withEmbeddedZookeeper()
-    }
+    val kafka = install(TestContainerSpecExtension(ConfluentKafkaContainer("confluentinc/cp-kafka:7.4.0")))
 
     val database = extension(FlywayDatabaseTestListener(testDatabaseConfig))
 
-    fun KafkaContainer.getConsumerProperties(groupId: String = "consumer") = KafkaPropertiesBuilder.consumerBuilder()
+    fun ConfluentKafkaContainer.getConsumerProperties(groupId: String = "consumer") = KafkaPropertiesBuilder.consumerBuilder()
         .withBrokerUrl(bootstrapServers)
         .withBaseProperties()
         .withConsumerGroupId(groupId)
         .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
         .build()
+
+    fun ConfluentKafkaContainer.stringStringProducer(configure: Properties.() -> Unit = {}): KafkaProducer<String, String> {
+        val props = Properties()
+        props[CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
+        props[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        props[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        props.configure()
+        return KafkaProducer<String, String>(props)
+    }
 
     fun uniqueTopicName() = UUID.randomUUID().toString()
 
@@ -220,11 +230,12 @@ class KafkaConsumerOrchestratorTest : FunSpec({
 
     context("meldinger skedulert via egen header") {
 
-        class TestScheduledConsumer(repo: KafkaConsumerRepository) : ScheduledMessageKafkaTopicConsumer<String?, String?>(
-            repo,
-            Serdes.StringSerde(),
-            Serdes.StringSerde(),
-        ) {
+        class TestScheduledConsumer(repo: KafkaConsumerRepository) :
+            ScheduledMessageKafkaTopicConsumer<String?, String?>(
+                repo,
+                Serdes.StringSerde(),
+                Serdes.StringSerde(),
+            ) {
             override suspend fun consume(key: String?, message: String?) {
                 if (message != "true") {
                     throw RuntimeException("event must be 'true'")
