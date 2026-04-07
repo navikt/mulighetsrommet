@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -47,12 +48,20 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         database.truncateAll()
     }
 
+    val migrert = TiltakstypeService.Config(
+        features = mapOf(
+            Tiltakskode.ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT),
+        ),
+    )
+
     fun createConsumer(
         arrangorer: ArrangorService = mockk(),
         enkeltplasser: GjennomforingEnkeltplassService,
+        tiltakstypeConfig: TiltakstypeService.Config = migrert,
     ): GjennomforingRequestKafkaConsumer {
         return GjennomforingRequestKafkaConsumer(
             arrangorer = arrangorer,
+            tiltakstyper = TiltakstypeService(config = tiltakstypeConfig, db = database.db),
             enkeltplasser = enkeltplasser,
         )
     }
@@ -132,6 +141,22 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             service.get(gjennomforingId).shouldNotBeNull().should {
                 it.prismodell.prisbetingelser() shouldBe request.prisinformasjon
             }
+        }
+
+        test("kaster feil dersom tiltakskoden ikke er migrert") {
+            val arrangorer = mockk<ArrangorService>()
+            coEvery {
+                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
+            } returns ArrangorFixtures.underenhet1.right()
+
+            val ikkeMigrertConfig = TiltakstypeService.Config(features = emptyMap())
+            val consumer = createConsumer(arrangorer, service, ikkeMigrertConfig)
+
+            shouldThrowExactly<IllegalArgumentException> {
+                consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequestPayload>(request))
+            }
+
+            service.get(gjennomforingId).shouldBeNull()
         }
     }
 })
