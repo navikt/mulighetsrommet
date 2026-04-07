@@ -148,7 +148,7 @@ class GjennomforingDetaljerService(
         val statusGjennomfores = gjennomforing.status == GjennomforingStatusType.GJENNOMFORES
         return setOfNotNull(
             GjennomforingHandling.DUPLISER.takeIf {
-                gjennomforing.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE)
+                !tiltakstypeService.erUtfaset(gjennomforing.tiltakstype.tiltakskode)
             },
             GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
             GjennomforingHandling.FORHANDSVIS_I_MODIA.takeIf { statusGjennomfores },
