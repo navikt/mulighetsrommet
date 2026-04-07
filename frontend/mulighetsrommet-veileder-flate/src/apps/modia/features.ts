@@ -1,4 +1,9 @@
-import { VeilederflateTiltak } from "@api-client";
+import {
+  TiltakstypeEgenskap,
+  TiltakstypeFeature,
+  VeilederflateTiltak,
+  VeilederflateTiltakstype,
+} from "@api-client";
 
 /**
  * Bestemmer tilgang til en lenke som peker veileder til et eget skjema i Porten for tilbakemeldinger på innhold om
@@ -31,4 +36,22 @@ export function isOppskrifterEnabled(tiltak: VeilederflateTiltak): boolean {
     "0800", // Vestfold og Telemark
   ];
   return !tiltak.fylker.every((fylke) => fylkerSomIkkeVilHaOppskrifter.includes(fylke));
+}
+
+export function kanOppretteEnkeltplass(tiltakstype: VeilederflateTiltakstype) {
+  return (
+    harFeature(tiltakstype, TiltakstypeFeature.MIGRERT) &&
+    harEgenskap(tiltakstype, TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS)
+  );
+}
+
+function harFeature(tiltakstype: VeilederflateTiltakstype, feature: TiltakstypeFeature): boolean {
+  return tiltakstype.features.includes(feature);
+}
+
+function harEgenskap(
+  tiltakstype: VeilederflateTiltakstype,
+  egenskap: TiltakstypeEgenskap,
+): boolean {
+  return tiltakstype.egenskaper.includes(egenskap);
 }

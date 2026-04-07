@@ -7,14 +7,17 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.util.UUID
 
 class GjennomforingRequestKafkaConsumer(
     private val arrangorer: ArrangorService,
+    private val tiltakstyper: TiltakstypeService,
     private val enkeltplasser: GjennomforingEnkeltplassService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
@@ -29,6 +32,14 @@ class GjennomforingRequestKafkaConsumer(
     private suspend fun opprettGjennomforingEnkeltplass(request: GjennomforingRequestPayload.OpprettEnkeltplass) {
         if (enkeltplasser.get(request.gjennomforingId) != null) {
             return
+        }
+
+        require(tiltakstyper.erMigrert(request.tiltakskode)) {
+            "Enkeltplass kan bare opprettes når tiltakstypen er migrert"
+        }
+
+        require(request.tiltakskode.harEgenskap(TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS)) {
+            "Enkeltplass kan bare opprettes for tiltakstyper med støttet for enkeltplasser"
         }
 
         val arrangor = arrangorer
