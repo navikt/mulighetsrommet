@@ -137,8 +137,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
     }) {
         val arrangorer = orgnrTilganger(altinnRettigheterService)
         if (arrangorer.isEmpty()) {
-            respondWithManglerTilgangHosArrangor()
-            return@get
+            return@get respondWithManglerTilgangHosArrangor()
         }
 
         val filter = getArrangorflateGjennomforingFilter()

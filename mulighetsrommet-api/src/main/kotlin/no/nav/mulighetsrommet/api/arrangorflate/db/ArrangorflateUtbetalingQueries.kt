@@ -38,7 +38,7 @@ import java.util.UUID
 class ArrangorflateUtbetalingQueries(val session: Session) {
     fun getFiltered(
         arrangorer: Set<Organisasjonsnummer>,
-        filter: ArrangorflateUtbetalingFilter = ArrangorflateUtbetalingFilter(),
+        filter: ArrangorflateUtbetalingFilter,
     ): PaginatedResult<Utbetaling> {
         val direction = when (filter.direction) {
             ArrangorflateFilterDirection.ASC -> "asc"
@@ -92,9 +92,6 @@ class ArrangorflateUtbetalingQueries(val session: Session) {
             gjennomforing = Utbetaling.Gjennomforing(
                 id = uuid("gjennomforing_id"),
                 lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
-                navn = string("gjennomforing_navn"),
-                start = localDate("gjennomforing_start_dato"),
-                slutt = localDateOrNull("gjennomforing_slutt_dato"),
             ),
             arrangor = Utbetaling.Arrangor(
                 id = uuid("arrangor_id"),

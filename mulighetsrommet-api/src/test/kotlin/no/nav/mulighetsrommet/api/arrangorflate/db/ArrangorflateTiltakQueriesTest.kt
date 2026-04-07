@@ -48,21 +48,21 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
         database.runAndRollback {
             queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(),
-                organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                organisasjonsnummer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
                 filter = ArrangorflateTiltakFilter(type = ArrangorflateFilterType.AKTIVE),
             ).items.shouldBeEmpty()
 
             queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
-                organisasjonsnummer = listOf(),
+                organisasjonsnummer = setOf(),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
                 filter = ArrangorflateTiltakFilter(type = ArrangorflateFilterType.AKTIVE),
             ).items.shouldBeEmpty()
 
             queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
-                organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                organisasjonsnummer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(),
                 filter = ArrangorflateTiltakFilter(type = ArrangorflateFilterType.AKTIVE),
             ).items.shouldBeEmpty()
@@ -73,14 +73,14 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
         database.runAndRollback {
             queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
-                organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                organisasjonsnummer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
                 filter = ArrangorflateTiltakFilter(),
             ).items shouldContainExactlyIds listOf(AFT1.id, aft2.id)
 
             queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.Oppfolging.id),
-                organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                organisasjonsnummer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(
                     PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                     PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
@@ -90,7 +90,7 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
 
             queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.Oppfolging.id),
-                organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                organisasjonsnummer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(
                     PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                 ),
@@ -104,7 +104,7 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
             var cutoff = LocalDate.of(2022, 1, 1)
             queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
-                organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                organisasjonsnummer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
                 filter = ArrangorflateTiltakFilter(sluttDatoGreaterThanOrEqualTo = cutoff),
             ).items shouldContainExactlyIds listOf(AFT1.id, aft2.id)
@@ -112,7 +112,7 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
             cutoff = LocalDate.of(2023, 1, 1)
             queries.arrangorflate.tiltak.getAll(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
-                organisasjonsnummer = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                organisasjonsnummer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 prismodeller = listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK),
                 filter = ArrangorflateTiltakFilter(sluttDatoGreaterThanOrEqualTo = cutoff),
             ).items shouldContainExactlyIds listOf(AFT1.id)

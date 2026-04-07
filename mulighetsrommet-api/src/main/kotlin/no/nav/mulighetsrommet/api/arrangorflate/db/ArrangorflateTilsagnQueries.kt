@@ -49,7 +49,7 @@ val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
 class ArrangorflateTilsagnQueries(val session: Session) {
 
     fun getFiltered(
-        arrangorer: List<Organisasjonsnummer>,
+        arrangorer: Set<Organisasjonsnummer>,
         filter: ArrangorflateTilsagnFilter,
     ): PaginatedResult<Tilsagn> {
         val direction = when (filter.direction) {
