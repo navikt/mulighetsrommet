@@ -1,27 +1,11 @@
 package no.nav.mulighetsrommet.api.arrangorflate.db
 
-import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTilsagnKompakt
-import no.nav.mulighetsrommet.api.arrangorflate.model.toArrangorflateTilsagnKompakt
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri.Input
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri.Output
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -30,16 +14,10 @@ import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.mapPaginated
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.model.withValuta
-import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
-import java.util.UUID
 
 val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.GODKJENT,
@@ -90,4 +68,24 @@ class ArrangorflateTilsagnQueries(val session: Session) {
             .mapPaginated { it.toArrangorflateTilsagnKompakt() }
             .runWithSession(session)
     }
+
+    fun Row.toArrangorflateTilsagnKompakt(): ArrangorflateTilsagnKompakt = ArrangorflateTilsagnKompakt(
+        id = uuid("id"),
+        type = TilsagnType.valueOf(string("tilsagn_type")),
+        tiltakstype = ArrangorflateTilsagnKompakt.Tiltakstype(
+            tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+            navn = string("tiltakstype_navn"),
+        ),
+        gjennomforing = ArrangorflateTilsagnKompakt.Gjennomforing(
+            lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
+            navn = string("gjennomforing_navn"),
+        ),
+        periode = periode("periode"),
+        bestillingsnummer = string("bestillingsnummer"),
+        arrangor = ArrangorflateTilsagnKompakt.Arrangor(
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+            navn = string("arrangor_navn"),
+        ),
+        status = TilsagnStatus.valueOf(string("status")),
+    )
 }
