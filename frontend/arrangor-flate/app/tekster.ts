@@ -72,15 +72,15 @@ export const tekster = {
     ingenTreff: {
       tiltak: {
         header: "Fant ingen registrerte tiltak",
-        description: "Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.",
+        description: "Vi fant ingen registrerte tiltak du kan sende inn utbetalingskrav for.",
       },
       utbetaling: {
         header: "Fant ingen utbetalingskrav",
-        description: "Det finnes ingen tilgjengelige utbetalingskrav.",
+        description: "Vi fant ingen tilgjengelige utbetalingskrav.",
       },
       tilsagn: {
         header: "Fant ingen registrerte tilsagn",
-        description: "Det finnes ingen registrerte tilsagn tilgjengelig.",
+        description: "Vi fant ingen registrerte tilsagn.",
       },
     },
     tilbakeTilOversikt: "Tilbake til oversikten",
