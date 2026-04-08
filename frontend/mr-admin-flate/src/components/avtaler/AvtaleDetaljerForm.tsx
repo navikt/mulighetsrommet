@@ -1,4 +1,3 @@
-import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/AvtaleAmoKategoriseringForm";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { FormGroup } from "@/layouts/FormGroup";
@@ -7,17 +6,16 @@ import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWit
 import { Box, HGrid, List, Select, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 import {
   Avtaletype,
   OpsjonLoggStatus,
   OpsjonsmodellType,
   PrismodellType,
+  Rolle,
   Tiltakskode,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
@@ -26,11 +24,12 @@ import { useParams } from "react-router";
 import { useTiltakstyperForAvtaler } from "@/api/tiltakstyper/useTiltakstyperForAvtaler";
 import { erUtfaset } from "@/utils/tiltakstype";
 import { SkjemaKolonne } from "../../layouts/SkjemaKolonne";
+import { administratorOptions } from "../skjema/administratorOptions";
+import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
 
 export function AvtaleDetaljerForm() {
   const { avtaleId } = useParams();
-  const { data: administratorer } = useAvtaleAdministratorer();
-  const { data: ansatt } = useHentAnsatt();
+  const { data: navAnsatte } = useNavAnsatte([Rolle.AVTALER_SKRIV]);
   const tiltakstyper = useTiltakstyperForAvtaler();
   const { data: avtale } = usePotentialAvtale(avtaleId ?? null);
 
@@ -47,7 +46,6 @@ export function AvtaleDetaljerForm() {
     control,
   } = useFormContext<AvtaleFormValues>();
   const tiltakskode = watch("detaljer.tiltakskode");
-  const watchedAdministratorer = watch("detaljer.administratorer");
 
   const antallOpsjonerUtlost = (
     avtale?.opsjonerRegistrert.filter((log) => log.status === OpsjonLoggStatus.OPSJON_UTLOST) || []
@@ -194,14 +192,16 @@ export function AvtaleDetaljerForm() {
                 }
                 placeholder="Administratorer"
                 isMultiSelect
-                selectedOptions={AdministratorOptions(
-                  ansatt,
-                  watchedAdministratorer,
-                  administratorer,
-                ).filter((option) => field.value.includes(option.value))}
+                selectedOptions={field.value.map(
+                  (value) =>
+                    administratorOptions(navAnsatte).find((o) => o.value === value) ?? {
+                      value: value,
+                      label: value,
+                    },
+                )}
                 name={field.name}
                 error={errors.detaljer?.administratorer?.message}
-                options={AdministratorOptions(ansatt, watchedAdministratorer, administratorer)}
+                options={administratorOptions(navAnsatte)}
                 onToggleSelected={(option: string, isSelected: boolean) => {
                   if (isSelected) {
                     field.onChange([...field.value, option]);
