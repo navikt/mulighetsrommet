@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilte
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTilsagnKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
@@ -186,7 +187,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                         arrangorer = tilganger,
                         filter = filter,
                     )
-                    .map { it.toArrangorflateTilsagnRadDto() }
+                    .map { it.toRadDto() }
             }
 
             val response = PaginatedResponse.of(filter.pagination, totalCount, data)
@@ -593,7 +594,7 @@ data class ArrangorflateTilsagnRadDto(
     val status: TilsagnStatus,
 )
 
-private fun Tilsagn.toArrangorflateTilsagnRadDto(): ArrangorflateTilsagnRadDto = ArrangorflateTilsagnRadDto(
+private fun ArrangorflateTilsagnKompakt.toRadDto(): ArrangorflateTilsagnRadDto = ArrangorflateTilsagnRadDto(
     id = id,
     organisasjonsnummer = arrangor.organisasjonsnummer,
     tiltakTypeNavn = tiltakstype.navn,
@@ -601,7 +602,7 @@ private fun Tilsagn.toArrangorflateTilsagnRadDto(): ArrangorflateTilsagnRadDto =
     arrangorNavn = "${arrangor.navn} (${arrangor.organisasjonsnummer.value})",
     periode = periode,
     tilsagnType = type.displayName(),
-    bestillingsnummer = bestilling.bestillingsnummer,
+    bestillingsnummer = bestillingsnummer,
     status = status,
 )
 
