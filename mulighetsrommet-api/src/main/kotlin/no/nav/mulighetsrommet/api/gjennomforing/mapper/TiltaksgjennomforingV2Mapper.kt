@@ -1,9 +1,12 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Arrangor
@@ -37,7 +40,10 @@ object TiltaksgjennomforingV2Mapper {
         )
     }
 
-    fun fromGjennomforingEnkeltplass(gjennomforing: GjennomforingEnkeltplass): TiltaksgjennomforingV2Dto {
+    fun fromGjennomforingEnkeltplass(
+        gjennomforing: GjennomforingEnkeltplass,
+        totrinnskontroll: Totrinnskontroll?,
+    ): TiltaksgjennomforingV2Dto {
         return Enkeltplass(
             id = gjennomforing.id,
             opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
@@ -47,6 +53,16 @@ object TiltaksgjennomforingV2Mapper {
                 organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
             ),
             status = gjennomforing.status,
+            okonomi = totrinnskontroll?.let {
+                TiltaksgjennomforingV2Dto.EnkeltplassOkonomi(
+                    prisinformasjon = gjennomforing.prismodell.prisbetingelser(),
+                    status = when (it.besluttelse) {
+                        null -> TiltaksgjennomforingV2Dto.EnkeltplassOkonomi.Status.TIL_BEHANDLING
+                        Besluttelse.GODKJENT -> TiltaksgjennomforingV2Dto.EnkeltplassOkonomi.Status.GODKJENT
+                        Besluttelse.AVVIST -> TiltaksgjennomforingV2Dto.EnkeltplassOkonomi.Status.AVVIST
+                    },
+                )
+            },
         )
     }
 
@@ -82,6 +98,7 @@ object TiltaksgjennomforingV2Mapper {
                     organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
                 ),
                 status = gjennomforing.status,
+                okonomi = null,
             )
         }
     }

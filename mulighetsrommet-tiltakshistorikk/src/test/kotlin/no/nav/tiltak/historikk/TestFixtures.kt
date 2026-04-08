@@ -120,6 +120,7 @@ object TestFixtures {
             status = GjennomforingStatusType.GJENNOMFORES,
             opprettetTidspunkt = Instant.now(),
             oppdatertTidspunkt = Instant.now(),
+            okonomi = null,
         )
 
         val arenaArbeidstrening = TiltakshistorikkArenaGjennomforing(

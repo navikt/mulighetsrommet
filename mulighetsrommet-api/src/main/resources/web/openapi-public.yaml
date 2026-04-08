@@ -192,9 +192,14 @@ components:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
         status:
           $ref: "#/components/schemas/GjennomforingStatusType"
+        okonomi:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.EnkeltplassOkonomi"
       required:
       - arrangor
       - id
+      - okonomi
       - oppdatertTidspunkt
       - opprettetTidspunkt
       - status
@@ -233,6 +238,24 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
+    TiltaksgjennomforingV2Dto.EnkeltplassOkonomi:
+      type: object
+      properties:
+        prisinformasjon:
+          type:
+          - "null"
+          - string
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.EnkeltplassOkonomi.Status"
+      required:
+      - prisinformasjon
+      - status
+    TiltaksgjennomforingV2Dto.EnkeltplassOkonomi.Status:
+      type: string
+      enum:
+      - TIL_BEHANDLING
+      - GODKJENT
+      - AVVIST
     TiltaksgjennomforingV2.Gruppe:
       type: object
       properties:

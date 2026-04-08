@@ -61,6 +61,6 @@ class GjennomforingRequestKafkaConsumer(
             arenaTiltaksnummer = null,
             arenaAnsvarligEnhet = null,
         )
-        enkeltplasser.create(opprett)
+        enkeltplasser.create(opprett, request.opprettetAv)
     }
 }

@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -52,7 +53,10 @@ class GjennomforingDetaljerService(
                 TiltaksgjennomforingV2Mapper.fromGjennomforingAvtale(gjennomforing, detaljer)
             }
 
-            is GjennomforingEnkeltplass -> TiltaksgjennomforingV2Mapper.fromGjennomforingEnkeltplass(gjennomforing)
+            is GjennomforingEnkeltplass -> {
+                val totrinnskontroll = queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OPPRETT)
+                TiltaksgjennomforingV2Mapper.fromGjennomforingEnkeltplass(gjennomforing, totrinnskontroll)
+            }
 
             is GjennomforingArena -> TiltaksgjennomforingV2Mapper.fromGjennomforingArena(gjennomforing)
         }

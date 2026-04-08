@@ -66,5 +66,18 @@ sealed class TiltaksgjennomforingV2Dto {
         override val tiltakskode: Tiltakskode,
         override val arrangor: Arrangor,
         override val status: GjennomforingStatusType,
+        val okonomi: EnkeltplassOkonomi?,
     ) : TiltaksgjennomforingV2Dto()
+
+    @Serializable
+    data class EnkeltplassOkonomi(
+        val prisinformasjon: String?,
+        val status: Status,
+    ) {
+        enum class Status {
+            TIL_BEHANDLING,
+            GODKJENT,
+            AVVIST,
+        }
+    }
 }
