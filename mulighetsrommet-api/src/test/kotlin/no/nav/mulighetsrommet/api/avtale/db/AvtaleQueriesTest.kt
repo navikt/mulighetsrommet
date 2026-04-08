@@ -310,22 +310,22 @@ class AvtaleQueriesTest : FunSpec({
 
                 var avtale = AvtaleFixtures.oppfolging.copy(
                     personvernDbo = AvtaleFixtures.personvernDbo(
-                        personopplysninger = listOf(Personopplysning.NAVN),
+                        personopplysninger = listOf(Personopplysning.Type.NAVN),
                     ),
                 )
                 queries.avtale.create(avtale)
                 queries.avtale.getOrError(avtale.id).should {
-                    it.personopplysninger shouldContainExactly listOf(Personopplysning.NAVN)
+                    it.personopplysninger.map { it.type } shouldContainExactly listOf(Personopplysning.Type.NAVN)
                 }
 
                 queries.avtale.updatePersonvern(
                     avtale.id,
                     AvtaleFixtures.personvernDbo(
-                        personopplysninger = listOf(Personopplysning.KJONN, Personopplysning.ADFERD),
+                        personopplysninger = listOf(Personopplysning.Type.KJONN, Personopplysning.Type.ADFERD),
                     ),
                 )
                 queries.avtale.getOrError(avtale.id).should {
-                    it.personopplysninger shouldContainExactly listOf(Personopplysning.KJONN, Personopplysning.ADFERD)
+                    it.personopplysninger.map { it.type } shouldContainExactly listOf(Personopplysning.Type.KJONN, Personopplysning.Type.ADFERD)
                 }
 
                 queries.avtale.updatePersonvern(

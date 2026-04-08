@@ -86,9 +86,8 @@ private fun Row.toTiltaksgjennomforing(): Tiltaksgjennomforing {
         ?: emptyList()
     val fylker = navEnheter.filter { it.type == Norg2Type.FYLKE }.map { it.enhetsnummer }
     val enheter = navEnheter.filter { it.type != Norg2Type.FYLKE }.map { it.enhetsnummer }
-    val personopplysningerSomKanBehandles = arrayOrNull<String>("personopplysninger_som_kan_behandles")
-        ?.asList()
-        ?.map { Personopplysning.valueOf(it).toPersonopplysningData() }
+    val personopplysningerSomKanBehandles = stringOrNull("personopplysninger_json")
+        ?.let { Json.decodeFromString<List<Personopplysning>>(it) }
         ?: emptyList()
     val tiltaksansvarlige = stringOrNull("nav_kontaktpersoner_json")
         ?.let { Json.decodeFromString<List<VeilederflateKontaktinfoTiltaksansvarlig>>(it) }

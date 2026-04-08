@@ -48,7 +48,7 @@ object AvtaleFixtures {
     )
 
     fun personvernDbo(
-        personopplysninger: List<Personopplysning> = emptyList(),
+        personopplysninger: List<Personopplysning.Type> = emptyList(),
         personvernBekreftet: Boolean = false,
     ): PersonvernDbo = PersonvernDbo(
         personopplysninger = personopplysninger,

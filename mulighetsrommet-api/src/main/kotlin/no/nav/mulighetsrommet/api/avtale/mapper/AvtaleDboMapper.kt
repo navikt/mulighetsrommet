@@ -48,7 +48,7 @@ object AvtaleDboMapper {
             administratorer = avtale.administratorer.map { it.navIdent },
         ),
         personvernDbo = PersonvernDbo(
-            personopplysninger = avtale.personopplysninger,
+            personopplysninger = avtale.personopplysninger.map { it.type },
             personvernBekreftet = avtale.personvernBekreftet,
         ),
         veilederinformasjonDbo = VeilederinformasjonDbo(
