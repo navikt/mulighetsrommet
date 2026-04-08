@@ -360,7 +360,8 @@ function tilsagnRadDto(tilsagn: ArrangorflateTilsagnDto): ArrangorflateTilsagnRa
     tiltakNavn: `${tilsagn.gjennomforing.navn} (${tilsagn.gjennomforing.lopenummer})`,
     arrangorNavn: `${tilsagn.arrangor} (${tilsagn.arrangor.organisasjonsnummer})`,
     periode: tilsagn.periode,
-    tilsagnNavn: `${tilsagn.type} (${tilsagn.bestillingsnummer})`,
+    tilsagnType: tilsagn.type,
+    bestillingsnummer: tilsagn.bestillingsnummer,
     status: tilsagn.status,
   };
 }

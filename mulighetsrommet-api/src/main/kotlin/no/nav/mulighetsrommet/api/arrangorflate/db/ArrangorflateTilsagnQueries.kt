@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
+import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -60,7 +61,8 @@ class ArrangorflateTilsagnQueries(val session: Session) {
         val order = when (filter.orderBy) {
             ArrangorflateTilsagnFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn $direction"
             ArrangorflateTilsagnFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
-            ArrangorflateTilsagnFilter.OrderBy.PERIODE -> "periode $direction"
+            ArrangorflateTilsagnFilter.OrderBy.START_DATO -> "lower(periode) $direction"
+            ArrangorflateTilsagnFilter.OrderBy.SLUTT_DATO -> "upper(periode) $direction"
             ArrangorflateTilsagnFilter.OrderBy.TILSAGN -> "type $direction"
             ArrangorflateTilsagnFilter.OrderBy.STATUS -> "status $direction"
         }
@@ -70,13 +72,15 @@ class ArrangorflateTilsagnQueries(val session: Session) {
             select *, count(*) over() as total_count
             from view_tilsagn
             where
-                arrangor_organisasjonsnummer = any (:orgnr_list::text[])
+                (:search::text is null or fts @@ to_tsquery('norwegian', :search))
+                and arrangor_organisasjonsnummer = any (:orgnr_list::text[])
                 and status = any (:status_list::text[])
             order by $order
             limit :limit
             offset :offset
         """.trimIndent()
         val params = mapOf(
+            "search" to filter.search?.toFTSPrefixQuery(),
             "orgnr_list" to session.createArrayOfValue(arrangorer) { it.value },
             "status_list" to session.createTextArray(TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR),
         )

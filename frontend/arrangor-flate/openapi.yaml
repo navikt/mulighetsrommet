@@ -238,6 +238,13 @@ paths:
         til
       operationId: getArrangorflateTilsagnRader
       parameters:
+      - name: search
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
       - name: page
         in: query
         required: false
@@ -1480,7 +1487,8 @@ components:
       enum:
       - TILTAK
       - ARRANGOR
-      - PERIODE
+      - START_DATO
+      - SLUTT_DATO
       - TILSAGN
       - STATUS
     ArrangorflateTilsagnRadDto:
@@ -1499,17 +1507,20 @@ components:
           type: string
         periode:
           $ref: "#/components/schemas/Periode"
-        tilsagnNavn:
+        tilsagnType:
+          type: string
+        bestillingsnummer:
           type: string
         status:
           $ref: "#/components/schemas/TilsagnStatus"
       required:
       - arrangorNavn
+      - bestillingsnummer
       - id
       - organisasjonsnummer
       - periode
       - status
-      - tilsagnNavn
+      - tilsagnType
       - tiltakNavn
       - tiltakTypeNavn
     PaginatedResponse_ArrangorflateTilsagnRadDto:

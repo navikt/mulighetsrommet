@@ -157,6 +157,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             tags = setOf("Arrangorflate")
             operationId = "getArrangorflateTilsagnRader"
             request {
+                queryParameter<String>("search")
                 queryParameter<Int>("page")
                 queryParameter<Int>("size")
                 queryParameter<ArrangorflateTilsagnFilter.OrderBy>("orderBy")
@@ -587,7 +588,8 @@ data class ArrangorflateTilsagnRadDto(
     val tiltakNavn: String,
     val arrangorNavn: String,
     val periode: Periode,
-    val tilsagnNavn: String,
+    val tilsagnType: String,
+    val bestillingsnummer: String,
     val status: TilsagnStatus,
 )
 
@@ -598,7 +600,8 @@ private fun Tilsagn.toArrangorflateTilsagnRadDto(): ArrangorflateTilsagnRadDto =
     tiltakNavn = "${gjennomforing.navn} (${gjennomforing.lopenummer})",
     arrangorNavn = "${arrangor.navn} (${arrangor.organisasjonsnummer.value})",
     periode = periode,
-    tilsagnNavn = "${type.displayName()} (${bestilling.bestillingsnummer})",
+    tilsagnType = type.displayName(),
+    bestillingsnummer = bestilling.bestillingsnummer,
     status = status,
 )
 
