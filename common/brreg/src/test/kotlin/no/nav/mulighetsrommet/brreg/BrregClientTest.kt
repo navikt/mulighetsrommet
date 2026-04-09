@@ -192,6 +192,97 @@ class BrregClientTest : FunSpec({
         }
     }
 
+    context("searchUnderenhet") {
+        test("søk med orgnr skal returnere en liste med underenheten gitt orgnr") {
+            val brregClient = BrregClient(
+                clientEngine = createMockEngine {
+                    get("/enhetsregisteret/api/underenheter/924203617") {
+                        respondJson(BrregFixtures.UNDERENHET)
+                    }
+                },
+            )
+
+            brregClient.searchUnderenhet("924203617") shouldBeRight listOf(
+                BrregUnderenhetDto(
+                    organisasjonsnummer = Organisasjonsnummer("924203617"),
+                    organisasjonsform = "BEDR",
+                    navn = "DIGITALISERINGSDIREKTORATET AVD BRØNNØYSUND",
+                    overordnetEnhet = Organisasjonsnummer("991825827"),
+                ),
+            )
+        }
+
+        test("søk med orgnr skal returnere underenheter for overordnet enhet når underenhet ikke finnes") {
+            val brregClient = BrregClient(
+                clientEngine = createMockEngine {
+                    get("/enhetsregisteret/api/underenheter/991825827") {
+                        respondError(HttpStatusCode.NotFound)
+                    }
+                    get("/enhetsregisteret/api/underenheter?overordnetEnhet=991825827") {
+                        respondJson(BrregFixtures.SOK_UNDERENHET)
+                    }
+                },
+            )
+
+            brregClient.searchUnderenhet("991825827") shouldBeRight listOf(
+                BrregUnderenhetDto(
+                    organisasjonsnummer = Organisasjonsnummer("924203617"),
+                    organisasjonsform = "BEDR",
+                    navn = "DIGITALISERINGSDIREKTORATET AVD BRØNNØYSUND",
+                    overordnetEnhet = Organisasjonsnummer("991825827"),
+                ),
+            )
+        }
+
+        test("søk med orgnr skal returnere feil når underenhet er fjernet av juridiske årsaker") {
+            val brregClient = BrregClient(
+                clientEngine = createMockEngine {
+                    get("/enhetsregisteret/api/underenheter/433695968") {
+                        respondJson(BrregFixtures.FJERNET_AV_JURIDISKE_ARSAKER, status = HttpStatusCode.Gone)
+                    }
+                },
+            )
+
+            brregClient.searchUnderenhet("433695968") shouldBeLeft BrregError.FjernetAvJuridiskeArsaker(
+                FjernetBrregEnhetDto(
+                    organisasjonsnummer = Organisasjonsnummer("433695968"),
+                    slettetDato = LocalDate.of(2025, 5, 24),
+                ),
+            )
+        }
+
+        test("søk med navn skal returnere en liste med treff") {
+            val brregClient = BrregClient(
+                clientEngine = createMockEngine {
+                    get("/enhetsregisteret/api/underenheter?navn=Digitaliseringsdirektoratet") {
+                        respondJson(BrregFixtures.SOK_UNDERENHET)
+                    }
+                },
+            )
+
+            brregClient.searchUnderenhet("Digitaliseringsdirektoratet") shouldBeRight listOf(
+                BrregUnderenhetDto(
+                    organisasjonsnummer = Organisasjonsnummer("924203617"),
+                    organisasjonsform = "BEDR",
+                    navn = "DIGITALISERINGSDIREKTORATET AVD BRØNNØYSUND",
+                    overordnetEnhet = Organisasjonsnummer("991825827"),
+                ),
+            )
+        }
+
+        test("søk med navn skal returnere tom liste hvis ingen treff") {
+            val brregClient = BrregClient(
+                clientEngine = createMockEngine {
+                    get("/enhetsregisteret/api/underenheter?navn=foobarbaz") {
+                        respondJson(BrregFixtures.SOK_UNDERENHET_INGEN_TREFF)
+                    }
+                },
+            )
+
+            brregClient.searchUnderenhet("foobarbaz") shouldBeRight emptyList()
+        }
+    }
+
     context("getBrregEnhet") {
         test("skal hente hovedenhet fra brreg gitt orgnr til hovedenhet") {
             val brregClient = BrregClient(

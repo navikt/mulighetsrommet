@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.brreg
 
 import arrow.core.Either
 import arrow.core.left
-import arrow.core.raise.either
 import arrow.core.right
 import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
@@ -79,76 +78,52 @@ class BrregClient(
             }
     }
 
-    suspend fun getUnderenheterForHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, List<BrregUnderenhetDto>> {
+    suspend fun searchUnderenhet(search: String): Either<BrregError, List<BrregUnderenhet>> {
+        return when (val orgnr = Organisasjonsnummer.parse(search)) {
+            null -> {
+                val response = client.get("/enhetsregisteret/api/underenheter") {
+                    parameter("size", 20)
+                    parameter("navn", search)
+                }
+                parseResponse<EmbeddedUnderenheter>(response).map { data ->
+                    data._embedded?.underenheter?.map { toBrregUnderenhet(it) } ?: emptyList()
+                }
+            }
+
+            else -> getUnderenhet(orgnr).fold(
+                { error ->
+                    if (error is BrregError.NotFound) {
+                        getUnderenheterForHovedenhet(orgnr)
+                    } else {
+                        error.left()
+                    }
+                },
+                { underenhet -> listOf(underenhet).right() },
+            )
+        }
+    }
+
+    suspend fun getUnderenheterForHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, List<BrregUnderenhet>> {
         val underenheterResponse = client.get("/enhetsregisteret/api/underenheter") {
             parameter("size", 1000)
             parameter("overordnetEnhet", orgnr.value)
         }
 
-        return parseResponse<EmbeddedUnderenheter>(underenheterResponse)
-            .map { data ->
-                data._embedded?.underenheter?.map { underenhet ->
-                    BrregUnderenhetDto(
-                        organisasjonsnummer = underenhet.organisasjonsnummer,
-                        organisasjonsform = underenhet.organisasjonsform.kode,
-                        navn = underenhet.navn,
-                        overordnetEnhet = orgnr,
-                    )
-                } ?: emptyList()
-            }
+        return parseResponse<EmbeddedUnderenheter>(underenheterResponse).map { data ->
+            data._embedded?.underenheter?.map { toBrregUnderenhet(it) } ?: emptyList()
+        }
     }
 
-    suspend fun getHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregHovedenhet> = either {
+    suspend fun getHovedenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregHovedenhet> {
         val response = client.get("/enhetsregisteret/api/enheter/${orgnr.value}")
 
-        val enhet = parseResponse<OverordnetEnhet>(response).bind()
-        if (enhet.slettedato != null) {
-            SlettetBrregHovedenhetDto(
-                organisasjonsnummer = enhet.organisasjonsnummer,
-                organisasjonsform = enhet.organisasjonsform.kode,
-                navn = enhet.navn,
-                slettetDato = enhet.slettedato,
-            )
-        } else {
-            BrregHovedenhetDto(
-                organisasjonsnummer = enhet.organisasjonsnummer,
-                organisasjonsform = enhet.organisasjonsform.kode,
-                navn = enhet.navn,
-                overordnetEnhet = enhet.overordnetEnhet,
-                postadresse = enhet.postadresse?.toBrregAdresse(),
-                forretningsadresse = enhet.forretningsadresse?.toBrregAdresse(),
-            )
-        }
+        return parseResponse<OverordnetEnhet>(response).map { toBrregHovedenhet(it) }
     }
 
-    suspend fun getUnderenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregUnderenhet> = either {
+    suspend fun getUnderenhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregUnderenhet> {
         val response = client.get("/enhetsregisteret/api/underenheter/${orgnr.value}")
 
-        val enhet = parseResponse<Underenhet>(response).bind()
-
-        when {
-            enhet.slettedato != null -> {
-                SlettetBrregUnderenhetDto(
-                    organisasjonsnummer = enhet.organisasjonsnummer,
-                    organisasjonsform = enhet.organisasjonsform.kode,
-                    navn = enhet.navn,
-                    slettetDato = enhet.slettedato,
-                )
-            }
-
-            enhet.overordnetEnhet == null -> {
-                throw IllegalStateException("Fant underenhet uten overordnet enhet bra brreg: ${enhet.organisasjonsnummer}")
-            }
-
-            else -> {
-                BrregUnderenhetDto(
-                    organisasjonsnummer = enhet.organisasjonsnummer,
-                    organisasjonsform = enhet.organisasjonsform.kode,
-                    navn = enhet.navn,
-                    overordnetEnhet = enhet.overordnetEnhet,
-                )
-            }
-        }
+        return parseResponse<Underenhet>(response).map { toBrregUnderenhet(it) }
     }
 
     private suspend inline fun <reified T> parseResponse(response: HttpResponse): Either<BrregError, T> {
@@ -178,5 +153,47 @@ class BrregClient(
                 BrregError.Error.left()
             }
         }
+    }
+}
+
+private fun toBrregHovedenhet(enhet: OverordnetEnhet): BrregHovedenhet = if (enhet.slettedato != null) {
+    SlettetBrregHovedenhetDto(
+        organisasjonsnummer = enhet.organisasjonsnummer,
+        organisasjonsform = enhet.organisasjonsform.kode,
+        navn = enhet.navn,
+        slettetDato = enhet.slettedato,
+    )
+} else {
+    BrregHovedenhetDto(
+        organisasjonsnummer = enhet.organisasjonsnummer,
+        organisasjonsform = enhet.organisasjonsform.kode,
+        navn = enhet.navn,
+        overordnetEnhet = enhet.overordnetEnhet,
+        postadresse = enhet.postadresse?.toBrregAdresse(),
+        forretningsadresse = enhet.forretningsadresse?.toBrregAdresse(),
+    )
+}
+
+private fun toBrregUnderenhet(enhet: Underenhet): BrregUnderenhet = when {
+    enhet.slettedato != null -> {
+        SlettetBrregUnderenhetDto(
+            organisasjonsnummer = enhet.organisasjonsnummer,
+            organisasjonsform = enhet.organisasjonsform.kode,
+            navn = enhet.navn,
+            slettetDato = enhet.slettedato,
+        )
+    }
+
+    enhet.overordnetEnhet == null -> {
+        throw IllegalStateException("Fant underenhet uten overordnet enhet bra brreg: ${enhet.organisasjonsnummer}")
+    }
+
+    else -> {
+        BrregUnderenhetDto(
+            organisasjonsnummer = enhet.organisasjonsnummer,
+            organisasjonsform = enhet.organisasjonsform.kode,
+            navn = enhet.navn,
+            overordnetEnhet = enhet.overordnetEnhet,
+        )
     }
 }
