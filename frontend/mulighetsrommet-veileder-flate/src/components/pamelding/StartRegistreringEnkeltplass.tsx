@@ -9,7 +9,7 @@ interface Props {
   harRettPaaTiltak: boolean;
 }
 
-export function StartPameldingEnkeltplass({ tiltakstype, harRettPaaTiltak }: Props): ReactNode {
+export function StartRegistreringEnkeltplass({ tiltakstype, harRettPaaTiltak }: Props): ReactNode {
   const { tiltakskode } = tiltakstype;
 
   if (!tiltakskode || !kanOppretteEnkeltplass(tiltakstype)) {
@@ -27,7 +27,7 @@ export function StartPameldingEnkeltplass({ tiltakstype, harRettPaaTiltak }: Pro
       disabled={!harRettPaaTiltak}
       onClick={opprettDeltakelseRoute.navigate}
     >
-      Start påmelding
+      Start registrering
     </Button>
   );
 }
