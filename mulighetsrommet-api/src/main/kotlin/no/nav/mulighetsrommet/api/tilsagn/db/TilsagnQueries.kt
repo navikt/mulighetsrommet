@@ -442,6 +442,20 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun setFreeTextSearch(id: UUID, content: List<String>) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn
+            set fts = to_tsvector('norwegian', :content)
+            where id = :id
+        """.trimIndent()
+        val params = mapOf(
+            "id" to id,
+            "content" to content.joinToString(" "),
+        )
+        session.execute(queryOf(query, params))
+    }
+
     private fun Row.toTilsagn(): Tilsagn {
         val id = uuid("id")
         val valuta = string("valuta").let { Valuta.valueOf(it) }
