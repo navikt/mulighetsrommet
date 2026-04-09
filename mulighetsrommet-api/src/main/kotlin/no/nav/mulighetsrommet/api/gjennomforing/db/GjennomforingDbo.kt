@@ -31,7 +31,7 @@ data class GjennomforingDbo(
     val pameldingType: GjennomforingPameldingType,
     val avtaleId: UUID?,
     val prismodellId: UUID?,
-    val kostnadssted: NavEnhetNummer?,
+    val ansvarligEnhet: NavEnhetNummer?,
     val oppmoteSted: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,

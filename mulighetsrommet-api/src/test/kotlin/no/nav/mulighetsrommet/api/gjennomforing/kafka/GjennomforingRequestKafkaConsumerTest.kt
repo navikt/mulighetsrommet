@@ -93,7 +93,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
                 it.id shouldBe gjennomforingId
                 it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 it.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
-                it.kostnadssted.enhetsnummer shouldBe NavEnhetNummer("0400")
+                it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
             }
         }
 

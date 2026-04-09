@@ -54,7 +54,7 @@ class GjennomforingRequestKafkaConsumer(
             prisbetingelser = request.prisinformasjon,
             deltidsprosent = 100.0,
             antallPlasser = 1,
-            kostnadssted = request.kostnadssted,
+            ansvarligEnhet = request.kostnadssted,
             navn = null,
             startDato = null,
             sluttDato = null,
