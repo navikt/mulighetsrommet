@@ -57,6 +57,14 @@ class ArrangorService(
             .mapLeft { ArrangorError.BrregError(it) }
     }
 
+    suspend fun brregSokUnderenheter(sok: String): Either<ArrangorError, List<BrregUnderenhet>> {
+        if (sok.isBlank()) {
+            return ArrangorError.TomtSok().left()
+        }
+
+        return brregClient.searchUnderenhet(sok).mapLeft { ArrangorError.BrregError(it) }
+    }
+
     suspend fun brregUnderenheter(orgnr: Organisasjonsnummer): Either<ArrangorError, List<BrregUnderenhet>> {
         val arrangor = db.session { queries.arrangor.get(orgnr) }
         if (arrangor != null && arrangor.erUtenlandsk) {
