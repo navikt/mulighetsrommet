@@ -6,7 +6,7 @@ export function useSokNavAnsatt(q: string, id: string) {
   const debouncedSok = useDebounce(q, 300);
 
   return useApiQuery({
-    queryKey: QueryKeys.sokNavansatt(q, id),
+    queryKey: QueryKeys.sokNavansatt(debouncedSok, id),
     queryFn: () => AnsattService.sokAnsatte({ query: { q: debouncedSok.trim() } }),
     enabled: !!debouncedSok,
   });
