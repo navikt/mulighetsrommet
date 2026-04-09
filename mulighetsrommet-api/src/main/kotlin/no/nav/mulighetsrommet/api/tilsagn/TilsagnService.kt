@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -135,7 +134,7 @@ class TilsagnService(
                 queries.totrinnskontroll.upsert(opprettelse)
 
                 logEndring("Sendt til godkjenning", dbo.id, navIdent).also {
-                    updateFreeTextSearch(dbo, gjennomforing)
+                    updateFreeTextSearch(dbo)
                 }
             }
     }
@@ -864,15 +863,11 @@ class TilsagnService(
         }
     }
 
-    private fun QueryContext.updateFreeTextSearch(tilsagn: TilsagnDbo, gjennomforing: GjennomforingTiltaksadministrasjon) {
+    private fun QueryContext.updateFreeTextSearch(tilsagn: TilsagnDbo) {
         val fts = listOf(tilsagn.bestillingsnummer) +
             tilsagn.bestillingsnummer.replace("/", " ") +
             tilsagn.periode.toFreeTextSearch() +
-            tilsagn.type.displayName() +
-            gjennomforing.tiltakstype.navn +
-            gjennomforing.navn +
-            gjennomforing.arrangor.navn +
-            gjennomforing.arrangor.organisasjonsnummer.toString()
+            tilsagn.type.displayName()
 
         queries.tilsagn.setFreeTextSearch(tilsagn.id, fts)
     }

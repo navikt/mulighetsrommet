@@ -8,17 +8,10 @@ set fts = to_tsvector('norwegian',
                       concat_ws(' ',
                                 t.bestillingsnummer,
                                 regexp_replace(t.bestillingsnummer, '/', ' '),
-                                to_char(lower(periode), 'DD.MM.YYYY'),
-                                to_char((upper(periode) - interval '1 day')::date, 'DD.MM.YYYY'),
-                                t.tilsagn_type,
-                                ts.navn,
-                                g.navn,
-                                a.navn,
-                                a.organisasjonsnummer
+                                to_char(lower(t.periode), 'DD.MM.YYYY'),
+                                to_char((upper(t.periode) - interval '1 day')::date, 'DD.MM.YYYY'),
+                                t.tilsagn_type
                       )
-          )
-from gjennomforing g
-    join tiltakstype ts on ts.id = g.tiltakstype_id
-    join arrangor a on a.id = g.arrangor_id
-where
-    t.gjennomforing_id = g.id
+          );
+
+create index tilsagn_fts_idx on tilsagn using gin (fts);

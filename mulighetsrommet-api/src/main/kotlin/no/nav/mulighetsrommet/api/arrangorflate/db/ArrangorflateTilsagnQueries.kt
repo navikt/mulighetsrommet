@@ -52,7 +52,12 @@ class ArrangorflateTilsagnQueries(val session: Session) {
             select *, count(*) over() as total_count
             from view_arrangorflate_tilsagn_kompakt
             where
-                (:search::text is null or fts @@ to_tsquery('norwegian', :search))
+                (:search::text is null
+                    or (
+                    fts @@ to_tsquery('norwegian', :search)
+                    or gjennomforing_fts @@ to_tsquery('norwegian', :search)
+                    )
+                )
                 and arrangor_organisasjonsnummer = any (:orgnr_list::text[])
                 and status = any (:status_list::text[])
             order by $order
