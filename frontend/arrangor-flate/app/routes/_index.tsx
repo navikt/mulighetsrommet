@@ -46,7 +46,10 @@ export default function Oversikt() {
           {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
         </Button>
       </HStack>
-      <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as "aktive" | "historiske")}>
+      <Tabs
+        value={currentTab}
+        onChange={(tab) => setTab(tab as "aktive" | "historiske" | "tilsagnsoversikt")}
+      >
         <Tabs.List>
           <Tabs.Tab value="aktive" label={tekster.bokmal.utbetaling.oversiktFaner.aktive} />
           <Tabs.Tab value="historiske" label={tekster.bokmal.utbetaling.oversiktFaner.historiske} />
@@ -60,6 +63,7 @@ export default function Oversikt() {
             <TilsagnTabellContent />
           ) : (
             <UtbetalingTabellContent
+              key={currentTab}
               type={
                 currentTab === "aktive"
                   ? ArrangorflateFilterType.AKTIVE
