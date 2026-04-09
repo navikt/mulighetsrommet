@@ -77,7 +77,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             prisinformasjon = "prisinformasjon",
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-            kostnadssted = NavEnhetNummer("0400"),
+            ansvarligEnhet = NavEnhetNummer("0400"),
         )
 
         test("oppretter enkeltplass-gjennomføring når arrangør finnes i databasen") {
@@ -93,7 +93,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
                 it.id shouldBe gjennomforingId
                 it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 it.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
-                it.kostnadssted.enhetsnummer shouldBe NavEnhetNummer("0400")
+                it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
             }
         }
 
@@ -127,7 +127,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
                 tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
                 prisinformasjon = "andre prisbetingelser",
                 organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                kostnadssted = NavEnhetNummer("0400"),
+                ansvarligEnhet = NavEnhetNummer("0400"),
             )
             consumer.consume(
                 gjennomforingId,

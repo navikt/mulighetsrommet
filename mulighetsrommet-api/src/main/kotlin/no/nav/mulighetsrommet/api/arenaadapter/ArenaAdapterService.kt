@@ -80,7 +80,7 @@ class ArenaAdapterService(
                 status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
                 deltidsprosent = arenaGjennomforing.deltidsprosent,
                 antallPlasser = arenaGjennomforing.antallPlasser,
-                kostnadssted = NavEnhetNummer(arenaGjennomforing.arenaAnsvarligEnhet),
+                ansvarligEnhet = NavEnhetNummer(arenaGjennomforing.arenaAnsvarligEnhet),
                 arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
             )
