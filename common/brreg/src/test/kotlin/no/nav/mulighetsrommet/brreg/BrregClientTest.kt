@@ -13,7 +13,7 @@ import java.time.LocalDate
 
 class BrregClientTest : FunSpec({
 
-    context("sokOverordnetEnhet") {
+    context("searchHovedenhet") {
         test("Søk etter enheter skal returnere en liste med treff") {
             val brregClient = BrregClient(
                 clientEngine = createMockEngine {
@@ -23,7 +23,7 @@ class BrregClientTest : FunSpec({
                 },
             )
 
-            brregClient.sokHovedenhet("Digitaliseringsdirektoratet") shouldBeRight listOf(
+            brregClient.searchHovedenhet("Digitaliseringsdirektoratet") shouldBeRight listOf(
                 BrregHovedenhetDto(
                     organisasjonsnummer = Organisasjonsnummer("991825827"),
                     organisasjonsform = "ORGL",
@@ -54,7 +54,7 @@ class BrregClientTest : FunSpec({
                 },
             )
 
-            brregClient.sokHovedenhet("foobarbaz") shouldBeRight emptyList()
+            brregClient.searchHovedenhet("foobarbaz") shouldBeRight emptyList()
         }
     }
 

@@ -44,7 +44,7 @@ class ArrangorService(
             return ArrangorError.TomtSok().left()
         }
 
-        return brregClient.sokHovedenhet(sok)
+        return brregClient.searchHovedenhet(sok)
             .map { hovedenheter ->
                 val utenlandskeVirksomheter = db.session {
                     queries.arrangor.getAll(sok = sok, utenlandsk = true).items.map {

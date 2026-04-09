@@ -52,15 +52,15 @@ class BrregClient(
         )
     }
 
-    suspend fun sokHovedenhet(orgnr: String): Either<BrregError, List<BrregHovedenhetDto>> {
-        val sokEllerOppslag = when (Organisasjonsnummer.isValid(orgnr)) {
+    suspend fun searchHovedenhet(search: String): Either<BrregError, List<BrregHovedenhetDto>> {
+        val sokEllerOppslag = when (Organisasjonsnummer.isValid(search)) {
             true -> "organisasjonsnummer"
             false -> "navn"
         }
 
         val response = client.get("/enhetsregisteret/api/enheter") {
             parameter("size", 20)
-            parameter(sokEllerOppslag, orgnr)
+            parameter(sokEllerOppslag, search)
         }
 
         return parseResponse<EmbeddedEnheter>(response)
