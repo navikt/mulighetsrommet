@@ -76,6 +76,7 @@ class ApiDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecLi
             "utbetaling_linje_status_type",
             "tilsagn_type",
             "tilsagn_status_type",
+            "personopplysning",
         )
 
         val tableNames =

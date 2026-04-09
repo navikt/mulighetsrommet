@@ -1364,7 +1364,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/PersonopplysningData"
+                  $ref: "#/components/schemas/Personopplysning"
         default:
           description: Problem details
           headers: {}
@@ -3582,13 +3582,13 @@ components:
         personopplysninger:
           type: array
           items:
-            $ref: "#/components/schemas/Personopplysning"
+            $ref: "#/components/schemas/Personopplysning.Type"
         personvernBekreftet:
           type: boolean
       required:
       - personopplysninger
       - personvernBekreftet
-    Personopplysning:
+    Personopplysning.Type:
       type: string
       enum:
       - NAVN
@@ -3615,6 +3615,7 @@ components:
       - NASJONALITET
       - ADRESSESPERRE
       - VERGEMAL
+      - STEMME
     VeilederinfoRequest:
       type: object
       properties:
@@ -3833,6 +3834,25 @@ components:
       enum:
       - LOKAL
       - SPESIALENHET
+    Personopplysning:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/Personopplysning.Type"
+        title:
+          type: string
+        helpText:
+          type:
+          - "null"
+          - string
+        sortKey:
+          type: integer
+          format: int32
+      required:
+      - helpText
+      - sortKey
+      - title
+      - type
     AmoKategoriseringDto:
       type: object
       properties:
@@ -5242,21 +5262,6 @@ components:
       - beskrivelse
       - navn
       - type
-    PersonopplysningData:
-      type: object
-      properties:
-        personopplysning:
-          $ref: "#/components/schemas/Personopplysning"
-        tittel:
-          type: string
-        hjelpetekst:
-          type:
-          - "null"
-          - string
-      required:
-      - hjelpetekst
-      - personopplysning
-      - tittel
     TilsagnStatus:
       type: string
       enum:

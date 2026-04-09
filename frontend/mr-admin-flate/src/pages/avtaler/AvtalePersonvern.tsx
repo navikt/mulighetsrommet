@@ -1,7 +1,7 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { PersonopplysningData } from "@tiltaksadministrasjon/api-client";
+import { Personopplysning } from "@tiltaksadministrasjon/api-client";
 import { Alert, BodyShort, HelpText, HStack, List, VStack, Box } from "@navikt/ds-react";
 
 export function AvtalePersonvern() {
@@ -26,7 +26,7 @@ export function AvtalePersonvern() {
   }
 
   const checkedPersonopplysninger = personopplysninger?.filter((p) =>
-    avtale.personopplysninger.includes(p.personopplysning),
+    avtale.personopplysninger.map((ap) => ap.type).includes(p.type),
   );
 
   return (
@@ -35,9 +35,9 @@ export function AvtalePersonvern() {
       {checkedPersonopplysninger && (
         <Box marginBlock="space-12" asChild>
           <List data-aksel-migrated-v8 size="small" as="ul">
-            {checkedPersonopplysninger.map((p: PersonopplysningData) => (
-              <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
-                {p.tittel}
+            {checkedPersonopplysninger.map((p: Personopplysning) => (
+              <ListWithHelpText helpText={p.helpText} key={p.type}>
+                {p.title}
               </ListWithHelpText>
             ))}
           </List>
@@ -48,17 +48,17 @@ export function AvtalePersonvern() {
 }
 
 function ListWithHelpText({
-  hjelpetekst,
+  helpText,
   children,
 }: {
-  hjelpetekst: string | null;
+  helpText: string | null;
   children: React.ReactNode;
 }) {
   return (
     <List.Item>
       <HStack align="center" gap="space-4">
         {children}
-        {hjelpetekst && <HelpText>{hjelpetekst}</HelpText>}
+        {helpText && <HelpText>{helpText}</HelpText>}
       </HStack>
     </List.Item>
   );

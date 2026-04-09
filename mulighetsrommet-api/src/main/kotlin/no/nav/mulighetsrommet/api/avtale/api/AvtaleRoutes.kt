@@ -96,7 +96,7 @@ data class DetaljerRequest(
 
 @Serializable
 data class PersonvernRequest(
-    val personopplysninger: List<Personopplysning>,
+    val personopplysninger: List<Personopplysning.Type>,
     val personvernBekreftet: Boolean,
 )
 
