@@ -72,7 +72,7 @@ export function GjennomforingDetaljer() {
     ...(isEnkeltplass(gjennomforing) && gjennomforing.ansvarligEnhet
       ? [
           {
-            key: "Ansvarlig enhet",
+            key: gjennomforingTekster.ansvarligEnhet.label,
             value: `${gjennomforing.ansvarligEnhet.navn} (${gjennomforing.ansvarligEnhet.enhetsnummer})`,
           },
         ]
