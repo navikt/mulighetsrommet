@@ -22,6 +22,7 @@ import { OppdaterPrisModal } from "@/components/avtaler/OppdaterPrisModal";
 import { useAvtaleHandlinger } from "@/api/avtaler/useAvtale";
 import { OppdaterRammedetaljerModal } from "@/components/avtaler/OppdaterRammedetaljerModal";
 import { Handlinger } from "@/components/handlinger/Handlinger";
+import { AdministratorGuard } from "@/components/handlinger/AdministratorGuard";
 
 interface Props {
   avtale: AvtaleDto;
@@ -84,6 +85,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
       },
     );
   }
+  const administratorer = avtale.administratorer.map((a) => a.navIdent);
 
   return (
     <KnapperadContainer>
@@ -92,47 +94,50 @@ export function AvtaleKnapperad({ avtale }: Props) {
       </EndringshistorikkPopover>
       <Handlinger>
         {handlinger.includes(AvtaleHandling.REDIGER) && (
-          <ActionMenu.Item
-            onClick={() => {
-              if (
-                avtale.administratorer.length > 0 &&
-                !avtale.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
-              ) {
-                advarselModal.current?.showModal();
-              } else {
-                navigate(path);
-              }
-            }}
-          >
-            Rediger avtale
-          </ActionMenu.Item>
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => navigate(path)}>Rediger avtale</ActionMenu.Item>
+          </AdministratorGuard>
         )}
         {handlinger.includes(AvtaleHandling.REGISTRER_OPSJON) && (
-          <ActionMenu.Item
-            onClick={() => {
-              registrerOpsjonModalRef.current?.showModal();
-            }}
-          >
-            Registrer opsjon
-          </ActionMenu.Item>
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item
+              onClick={() => {
+                registrerOpsjonModalRef.current?.showModal();
+              }}
+            >
+              Registrer opsjon
+            </ActionMenu.Item>
+          </AdministratorGuard>
         )}
         {handlinger.includes(AvtaleHandling.OPPDATER_PRIS) && (
-          <ActionMenu.Item onClick={() => setOppdaterPrisModalOpen(true)}>
-            Oppdater pris
-          </ActionMenu.Item>
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => setOppdaterPrisModalOpen(true)}>
+              Oppdater pris
+            </ActionMenu.Item>
+          </AdministratorGuard>
         )}
         {handlinger.includes(AvtaleHandling.OPPDATER_RAMMEDETALJER) && (
-          <ActionMenu.Item onClick={() => setAvtaleModalOpen("Rammedetaljer")}>
-            Oppdater rammedetaljer
-          </ActionMenu.Item>
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => setAvtaleModalOpen("Rammedetaljer")}>
+              Oppdater rammedetaljer
+            </ActionMenu.Item>
+          </AdministratorGuard>
         )}
         {handlinger.includes(AvtaleHandling.AVBRYT) && (
-          <ActionMenu.Item onClick={() => setAvbrytModalOpen(true)}>Avbryt avtale</ActionMenu.Item>
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => setAvbrytModalOpen(true)}>
+              Avbryt avtale
+            </ActionMenu.Item>
+          </AdministratorGuard>
         )}
         {handlinger.includes(AvtaleHandling.OPPRETT_GJENNOMFORING) && (
-          <ActionMenu.Item onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}>
-            Opprett ny gjennomføring
-          </ActionMenu.Item>
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item
+              onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}
+            >
+              Opprett ny gjennomføring
+            </ActionMenu.Item>
+          </AdministratorGuard>
         )}
         <ActionMenu.Divider />
         {handlinger.includes(AvtaleHandling.DUPLISER) && (

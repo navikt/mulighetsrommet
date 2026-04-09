@@ -1,6 +1,4 @@
 import {
-  InfoCard,
-  BodyShort,
   Box,
   Heading,
   Tabs,
@@ -31,6 +29,7 @@ import {
 } from "~/hooks/useArrangorflateTiltakRader";
 import { flipObject } from "~/utils/object";
 import { useDebounce } from "@mr/frontend-common";
+import { IngenTreff } from "~/components/IngenTreff";
 
 export const meta: MetaFunction = () => {
   return [
@@ -155,24 +154,6 @@ function TiltaksOversiktContent({ type }: { type: ArrangorflateFilterType }) {
     }));
   }
 
-  if (paginertTiltaksRader.data.length === 0) {
-    return (
-      <Box marginBlock="space-16">
-        <InfoCard data-color="warning" className="my-10">
-          <InfoCard.Header>
-            <InfoCard.Title>Fant ingen registrerte tiltak</InfoCard.Title>
-          </InfoCard.Header>
-          <InfoCard.Content>
-            <BodyShort spacing>
-              Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
-            </BodyShort>
-            <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
-          </InfoCard.Content>
-        </InfoCard>
-      </Box>
-    );
-  }
-
   return (
     <>
       <Box paddingBlock="space-16" width="30rem">
@@ -198,6 +179,7 @@ function TiltaksOversiktContent({ type }: { type: ArrangorflateFilterType }) {
           ))}
         </Suspense>
       </Tabellvisning>
+      {paginertTiltaksRader.data.length === 0 && <IngenTreff type="tiltak" />}
     </>
   );
 }

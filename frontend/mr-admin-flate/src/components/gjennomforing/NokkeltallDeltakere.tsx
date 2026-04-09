@@ -1,9 +1,14 @@
 import { Heading } from "@navikt/ds-react";
-import * as Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
-import "highcharts/modules/accessibility";
 import { useRef } from "react";
 import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
+import Highcharts from "highcharts";
+import HighchartsReactModule from "highcharts-react-official";
+import type HighchartsReactType from "highcharts-react-official";
+
+import "highcharts/modules/accessibility";
+
+// Handle CJS/ESM interop
+const HighchartsReact = (HighchartsReactModule as any).default ?? HighchartsReactModule;
 
 interface Props {
   gjennomforingId: string;
@@ -11,7 +16,7 @@ interface Props {
 
 export function NokkeltallDeltakere({ gjennomforingId }: Props) {
   const { data: deltakerSummary } = useGjennomforingDeltakerSummary(gjennomforingId);
-  const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+  const chartComponentRef = useRef<HighchartsReactType.RefObject>(null);
 
   const dataArray = deltakerSummary.deltakereByStatus.map(({ status, count }) => ({
     name: status,

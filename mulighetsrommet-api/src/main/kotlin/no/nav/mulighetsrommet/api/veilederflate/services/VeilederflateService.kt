@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.veilederflate.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
@@ -28,18 +29,24 @@ import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.utils.CachedComputation
 import java.time.Duration
 import java.util.UUID
 
 class VeilederflateService(
+    private val config: Config = Config(),
     private val db: ApiDatabase,
     private val sanityService: SanityService,
     private val navEnhetService: NavEnhetService,
 ) {
     private val cachedTiltakstyper = CachedComputation<List<VeilederflateTiltakstype>>(
         expireAfterWrite = Duration.ofMinutes(30),
+    )
+
+    data class Config(
+        val features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     )
 
     fun hentInnsatsgrupper(): List<VeilederflateInnsatsgruppe> {
@@ -60,13 +67,16 @@ class VeilederflateService(
 
             sanityService.getTiltakstyper().mapNotNull { sanityTiltakstype ->
                 val tiltakstype = bySanityId[UUID.fromString(sanityTiltakstype._id)] ?: return@mapNotNull null
+                val tiltakskode = tiltakstype.tiltakskode
                 VeilederflateTiltakstype(
                     id = tiltakstype.id,
                     navn = tiltakstype.navn,
                     innsatsgrupper = tiltakstype.innsatsgrupper,
                     arenakode = tiltakstype.arenakode,
-                    tiltakskode = tiltakstype.tiltakskode,
-                    tiltaksgruppe = tiltakstype.tiltakskode?.gruppe?.tittel,
+                    tiltakskode = tiltakskode,
+                    features = tiltakskode?.let { config.features[it] } ?: setOf(),
+                    egenskaper = tiltakskode?.egenskaper ?: setOf(),
+                    tiltaksgruppe = tiltakskode?.gruppe?.tittel,
                     sanityId = sanityTiltakstype._id,
                     beskrivelse = sanityTiltakstype.beskrivelse,
                     regelverkLenker = sanityTiltakstype.regelverkLenker,

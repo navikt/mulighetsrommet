@@ -20,7 +20,7 @@ import {
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
-import { isGruppetiltak } from "@/api/gjennomforing/utils";
+import { isEnkeltplass, isGruppetiltak } from "@/api/gjennomforing/utils";
 import { GjennomforingDetaljerAvtale } from "@/pages/gjennomforing/GjennomforingDetaljerAvtale";
 import { GjennomforingDetaljerVarighet } from "@/pages/gjennomforing/GjennomforingDetaljerVarighet";
 import { GjennomforingDetaljerAdministratorer } from "@/pages/gjennomforing/GjennomforingDetaljerAdministratorer";
@@ -69,6 +69,14 @@ export function GjennomforingDetaljer() {
         </HStack>
       ),
     },
+    ...(isEnkeltplass(gjennomforing) && gjennomforing.kostnadssted
+      ? [
+          {
+            key: "Kostnadssted",
+            value: `${gjennomforing.kostnadssted.navn} (${gjennomforing.kostnadssted.enhetsnummer})`,
+          },
+        ]
+      : []),
   ];
 
   const { arrangor } = gjennomforing;

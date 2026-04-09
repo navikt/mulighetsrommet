@@ -3069,6 +3069,7 @@ components:
       type: string
       enum:
       - KAN_OPPRETTE_AVTALE
+      - KAN_OPPRETTE_ENKELTPLASS
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
@@ -3230,6 +3231,16 @@ components:
           type: string
         navn:
           type: string
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeFeature"
+          uniqueItems: true
+        egenskaper:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeEgenskap"
+          uniqueItems: true
         beskrivelse:
           type:
           - "null"
@@ -3274,7 +3285,9 @@ components:
       - arenakode
       - beskrivelse
       - delingMedBruker
+      - egenskaper
       - faneinnhold
+      - features
       - id
       - innsatsgrupper
       - kanKombineresMed
@@ -4837,15 +4850,30 @@ components:
           format: date
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
+        kostnadssted:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/KostnadsstedDto"
       required:
       - arrangor
       - id
+      - kostnadssted
       - lopenummer
       - navn
       - sluttDato
       - startDato
       - status
       - tiltaksnummer
+    KostnadsstedDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
     GjennomforingVeilederinfoDto:
       type: object
       properties:
@@ -5530,16 +5558,6 @@ components:
       required:
       - slutt
       - start
-    KostnadsstedDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-      required:
-      - enhetsnummer
-      - navn
     TilsagnStatusDto:
       type: object
       properties:

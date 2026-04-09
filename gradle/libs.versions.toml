@@ -1,15 +1,15 @@
 [versions]
-common-java-modules = "3.2026.03.04_12.35-b34c347c6239"
-flyway = "12.1.1"
+common-java-modules = "3.2026.04.08_08.37-229807cc181a"
+flyway = "12.2.0"
 koin-bom = "4.2.0"
-kotest = "6.1.7"
-kotest-testcontainers = "2.0.2"
+kotest = "6.1.10"
 kotlin = "2.3.20"
-ktor = "3.4.1"
+ktor = "3.4.2"
 logback = "1.5.32"
 metrics = "4.2.38"
 arrow = "2.2.2.1"
 micrometer = "1.16.4"
+testcontainers = "2.0.4"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -53,7 +53,7 @@ flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.28.2"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.64.0"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.64.1"
 
 hikaricp = "com.zaxxer:HikariCP:7.0.2"
 
@@ -64,8 +64,7 @@ koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
 kotest-assertions-arrow = "io.kotest.extensions:kotest-assertions-arrow:2.0.0"
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-assertions-table = { module = "io.kotest:kotest-assertions-table", version.ref = "kotest" }
-kotest-extensions-testcontainers = { module = "io.kotest.extensions:kotest-extensions-testcontainers", version.ref = "kotest-testcontainers" }
-kotest-extensions-testcontainers-kafka = { module = "io.kotest.extensions:kotest-extensions-testcontainers-kafka", version.ref = "kotest-testcontainers" }
+kotest-extensions-testcontainers = { module = "io.kotest:kotest-extensions-testcontainers", version.ref = "kotest" }
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
 kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0"
@@ -132,5 +131,8 @@ slf4j = "org.slf4j:slf4j-api:2.0.17"
 
 apache-poi = "org.apache.poi:poi:5.5.1"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.5.1"
+
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-kafka = { module = "org.testcontainers:testcontainers-kafka", version.ref = "testcontainers" }
 
 unleash = "io.getunleash:unleash-client-java:12.2.0"

@@ -24,6 +24,8 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.toDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
@@ -559,22 +561,20 @@ class UtbetalingService(
         )
 
         queries.utbetalingLinje.upsert(dbo)
-        queries.totrinnskontroll.upsert(
-            Totrinnskontroll(
-                id = UUID.randomUUID(),
-                entityId = id,
-                behandletAv = behandletAv,
-                aarsaker = emptyList(),
-                forklaring = null,
-                type = Totrinnskontroll.Type.OPPRETT,
-                behandletTidspunkt = LocalDateTime.now(),
-                besluttelse = null,
-                besluttetAv = null,
-                besluttetTidspunkt = null,
-                behandletAvNavn = null,
-                besluttetAvNavn = null,
-            ),
+
+        val opprettelse = TotrinnskontrollDbo(
+            id = UUID.randomUUID(),
+            entityId = id,
+            type = Totrinnskontroll.Type.OPPRETT,
+            behandletAv = behandletAv,
+            behandletTidspunkt = LocalDateTime.now(),
+            besluttetAv = null,
+            besluttetTidspunkt = null,
+            besluttelse = null,
+            aarsaker = emptyList(),
+            forklaring = null,
         )
+        queries.totrinnskontroll.upsert(opprettelse)
     }
 
     private fun TransactionalQueryContext.godkjennUtbetalingLinje(
@@ -592,15 +592,14 @@ class UtbetalingService(
         }
 
         queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.GODKJENT)
-        queries.totrinnskontroll.upsert(
-            opprettelse.copy(
-                besluttetAv = besluttetAv,
-                besluttelse = Besluttelse.GODKJENT,
-                besluttetTidspunkt = LocalDateTime.now(),
-                aarsaker = emptyList(),
-                forklaring = null,
-            ),
+        val godkjentOpprettelse = opprettelse.copy(
+            besluttetAv = besluttetAv,
+            besluttelse = Besluttelse.GODKJENT,
+            besluttetTidspunkt = LocalDateTime.now(),
+            aarsaker = emptyList(),
+            forklaring = null,
         )
+        queries.totrinnskontroll.upsert(godkjentOpprettelse.toDbo())
 
         val linjer = queries.utbetalingLinje.getByUtbetalingId(utbetalingLinje.utbetalingId)
             .associateWith { linje ->
@@ -691,17 +690,16 @@ class UtbetalingService(
         forklaring: String?,
         besluttetAv: Agent,
     ) {
-        val opprettelse = queries.totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.OPPRETT)
         queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.RETURNERT)
-        queries.totrinnskontroll.upsert(
-            opprettelse.copy(
-                besluttetAv = besluttetAv,
-                besluttelse = Besluttelse.AVVIST,
-                aarsaker = aarsaker.map { it.name },
-                forklaring = forklaring,
-                besluttetTidspunkt = LocalDateTime.now(),
-            ),
+        val opprettelse = queries.totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.OPPRETT)
+        val avvistOpprettelse = opprettelse.copy(
+            besluttetAv = besluttetAv,
+            besluttelse = Besluttelse.AVVIST,
+            aarsaker = aarsaker.map { it.name },
+            forklaring = forklaring,
+            besluttetTidspunkt = LocalDateTime.now(),
         )
+        queries.totrinnskontroll.upsert(avvistOpprettelse.toDbo())
     }
 
     private fun TransactionalQueryContext.logEndring(

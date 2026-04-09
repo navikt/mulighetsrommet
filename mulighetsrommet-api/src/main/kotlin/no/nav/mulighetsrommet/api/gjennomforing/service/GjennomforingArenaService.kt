@@ -62,6 +62,7 @@ class GjennomforingArenaService(
             arenaAnsvarligEnhet = opprett.arenaAnsvarligEnhet,
             oppstart = opprett.oppstart,
             pameldingType = opprett.pameldingType,
+            kostnadssted = null,
             avtaleId = null,
             prismodellId = null,
             oppmoteSted = null,

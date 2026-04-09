@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -47,6 +48,7 @@ data class UpsertGjennomforingEnkeltplass(
     val prisbetingelser: String?,
     val deltidsprosent: Double,
     val antallPlasser: Int,
+    val kostnadssted: NavEnhetNummer,
     val arenaTiltaksnummer: Tiltaksnummer?,
     val arenaAnsvarligEnhet: String?,
 )
@@ -175,6 +177,7 @@ class GjennomforingEnkeltplassService(
             arenaTiltaksnummer = upsert.arenaTiltaksnummer,
             arenaAnsvarligEnhet = upsert.arenaAnsvarligEnhet,
             prismodellId = prismodellId,
+            kostnadssted = upsert.kostnadssted,
             avtaleId = null,
             oppmoteSted = null,
             faneinnhold = null,
@@ -243,6 +246,7 @@ private fun toUpsertGjennomforingEnkeltplass(
     arrangorId = gjennomforing.arrangor.id,
     navn = gjennomforing.navn,
     prisbetingelser = gjennomforing.prismodell.prisbetingelser(),
+    kostnadssted = gjennomforing.kostnadssted.enhetsnummer,
     arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
     arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
     antallPlasser = gjennomforing.antallPlasser,
@@ -275,13 +279,21 @@ private fun toGjennomforingStatusType(deltaker: Deltaker): GjennomforingStatusTy
     -> GjennomforingStatusType.AVSLUTTET
 }
 
-private fun harEnkeltplassEndringer(opprett: UpsertGjennomforingEnkeltplass, gjennomforing: Gjennomforing): Boolean {
-    return opprett.navn != gjennomforing.navn ||
-        opprett.arenaTiltaksnummer?.value != gjennomforing.arena?.tiltaksnummer?.value ||
-        opprett.arrangorId != gjennomforing.arrangor.id ||
-        opprett.startDato != gjennomforing.startDato ||
-        opprett.sluttDato != gjennomforing.sluttDato ||
-        opprett.arenaAnsvarligEnhet != gjennomforing.arena?.ansvarligNavEnhet ||
-        opprett.deltidsprosent != gjennomforing.deltidsprosent ||
-        opprett.status != gjennomforing.status
-}
+private fun harEnkeltplassEndringer(
+    opprett: UpsertGjennomforingEnkeltplass,
+    gjennomforing: GjennomforingEnkeltplass,
+): Boolean = opprett != UpsertGjennomforingEnkeltplass(
+    id = gjennomforing.id,
+    tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+    arrangorId = gjennomforing.arrangor.id,
+    navn = gjennomforing.navn,
+    startDato = gjennomforing.startDato,
+    sluttDato = gjennomforing.sluttDato,
+    status = gjennomforing.status,
+    prisbetingelser = gjennomforing.prismodell.prisbetingelser(),
+    deltidsprosent = gjennomforing.deltidsprosent,
+    antallPlasser = gjennomforing.antallPlasser,
+    kostnadssted = gjennomforing.kostnadssted.enhetsnummer,
+    arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+    arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
+)

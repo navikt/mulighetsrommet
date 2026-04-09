@@ -39,6 +39,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
         ): ArenaMigreringTiltaksgjennomforingDto {
             val enhetsnummer = gjennomforing.arena?.ansvarligNavEnhet
                 ?: (gjennomforing as? GjennomforingAvtale)?.kontorstruktur?.firstOrNull()?.region?.enhetsnummer?.value
+                ?: (gjennomforing as? GjennomforingEnkeltplass)?.kostnadssted?.enhetsnummer?.value
                 ?: error("navRegion or arenaAnsvarligEnhet was null! Should not be possible!")
 
             val arenaStatus = when (gjennomforing.status) {

@@ -16,41 +16,37 @@ class TotrinnskontrollQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     test("totrinnskontroll kan besluttes to ganger") {
-        database.runAndRollback { session ->
+        database.runAndRollback {
             val id = UUID.randomUUID()
             val entityId = UUID.randomUUID()
 
             queries.totrinnskontroll.upsert(
-                Totrinnskontroll(
+                TotrinnskontrollDbo(
                     id = id,
                     entityId = entityId,
-                    behandletAv = Tiltaksadministrasjon,
-                    aarsaker = emptyList(),
-                    forklaring = null,
                     type = Totrinnskontroll.Type.OPPRETT,
+                    behandletAv = Tiltaksadministrasjon,
                     behandletTidspunkt = LocalDateTime.now(),
                     besluttelse = Besluttelse.GODKJENT,
                     besluttetAv = Tiltaksadministrasjon,
                     besluttetTidspunkt = LocalDateTime.now(),
-                    besluttetAvNavn = null,
-                    behandletAvNavn = null,
+                    aarsaker = emptyList(),
+                    forklaring = null,
                 ),
             )
 
             queries.totrinnskontroll.upsert(
-                Totrinnskontroll(
+                TotrinnskontrollDbo(
                     id = id,
                     entityId = entityId,
-                    behandletAv = Tiltaksadministrasjon,
-                    aarsaker = emptyList(),
-                    forklaring = null,
                     type = Totrinnskontroll.Type.OPPRETT,
+                    behandletAv = Tiltaksadministrasjon,
                     behandletTidspunkt = LocalDateTime.now(),
                     besluttelse = Besluttelse.AVVIST,
                     besluttetAv = Arena,
-                    besluttetAvNavn = null,
-                    behandletAvNavn = null,
                     besluttetTidspunkt = LocalDateTime.now(),
+                    aarsaker = emptyList(),
+                    forklaring = null,
                 ),
             )
 

@@ -2,14 +2,12 @@ import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { AnsattService, Rolle } from "@tiltaksadministrasjon/api-client";
 
-export function useGjennomforingAdministratorer() {
+export function useNavAnsatte(roller: Rolle[]) {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.navansatt(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+    queryKey: QueryKeys.navansatte(roller),
     queryFn: () =>
       AnsattService.getAnsatte({
-        query: {
-          roller: [Rolle.TILTAKSGJENNOMFORINGER_SKRIV],
-        },
+        query: { roller: roller },
       }),
   });
 }
