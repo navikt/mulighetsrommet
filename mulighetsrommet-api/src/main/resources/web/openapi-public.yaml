@@ -107,7 +107,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/BrregHovedenhetDto"
+                  $ref: "#/components/schemas/BrregUnderenhetDto"
         "400":
           description: Søket er blankt
           headers: {}
@@ -301,7 +301,7 @@ components:
       required:
       - lopenr
       - opprettetAar
-    BrregHovedenhetDto:
+    BrregUnderenhetDto:
       type: object
       properties:
         organisasjonsnummer:
@@ -310,51 +310,13 @@ components:
           type: string
         navn:
           type: string
-        postadresse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/BrregAdresse"
-        forretningsadresse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/BrregAdresse"
         overordnetEnhet:
-          type:
-          - "null"
-          - string
+          type: string
       required:
-      - forretningsadresse
       - navn
       - organisasjonsform
       - organisasjonsnummer
       - overordnetEnhet
-      - postadresse
-    BrregAdresse:
-      type: object
-      properties:
-        landkode:
-          type:
-          - "null"
-          - string
-        postnummer:
-          type:
-          - "null"
-          - string
-        poststed:
-          type:
-          - "null"
-          - string
-        adresse:
-          type:
-          - "null"
-          - array
-          items:
-            type: string
-      required:
-      - adresse
-      - landkode
-      - postnummer
-      - poststed
     ProblemDetail:
       type: object
       additionalProperties: {}

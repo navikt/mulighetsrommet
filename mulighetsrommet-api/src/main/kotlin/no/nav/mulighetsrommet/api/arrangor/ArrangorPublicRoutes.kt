@@ -6,7 +6,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
@@ -31,7 +31,7 @@ private fun Route.enhetRoutes() {
         response {
             code(HttpStatusCode.OK) {
                 description = "Liste med underenheter"
-                body<List<BrregHovedenhetDto>>()
+                body<List<BrregUnderenhetDto>>()
             }
             code(HttpStatusCode.BadRequest) {
                 description = "Søket er blankt"
