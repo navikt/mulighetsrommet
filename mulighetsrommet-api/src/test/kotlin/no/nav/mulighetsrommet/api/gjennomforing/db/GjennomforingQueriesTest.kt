@@ -557,7 +557,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato.shouldBeNull()
                     it.status shouldBe GjennomforingStatusType.GJENNOMFORES
-                    it.kostnadssted shouldBe GjennomforingEnkeltplass.Kostnadssted(
+                    it.ansvarligEnhet shouldBe GjennomforingEnkeltplass.AnsvarligEnhet(
                         enhetsnummer = NavEnhetNummer("0400"),
                         navn = "Nav Innlandet",
                     )

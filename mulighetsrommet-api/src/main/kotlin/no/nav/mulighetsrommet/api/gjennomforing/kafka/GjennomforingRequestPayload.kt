@@ -20,6 +20,6 @@ sealed interface GjennomforingRequestPayload {
         val tiltakskode: Tiltakskode,
         val prisinformasjon: String,
         val organisasjonsnummer: Organisasjonsnummer,
-        val kostnadssted: NavEnhetNummer,
+        val ansvarligEnhet: NavEnhetNummer,
     ) : GjennomforingRequestPayload
 }

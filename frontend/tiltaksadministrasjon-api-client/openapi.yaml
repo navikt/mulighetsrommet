@@ -2983,7 +2983,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 7
+        - 8
     TiltakstypeDto:
       type: object
       properties:
@@ -4870,26 +4870,26 @@ components:
           format: date
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
-        kostnadssted:
+        ansvarligEnhet:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/KostnadsstedDto"
+          - $ref: "#/components/schemas/GjennomforingDto.AnsvarligEnhet"
       required:
+      - ansvarligEnhet
       - arrangor
       - id
-      - kostnadssted
       - lopenummer
       - navn
       - sluttDato
       - startDato
       - status
       - tiltaksnummer
-    KostnadsstedDto:
+    GjennomforingDto.AnsvarligEnhet:
       type: object
       properties:
-        navn:
-          type: string
         enhetsnummer:
+          type: string
+        navn:
           type: string
       required:
       - enhetsnummer
@@ -5563,6 +5563,16 @@ components:
       required:
       - slutt
       - start
+    KostnadsstedDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
     TilsagnStatusDto:
       type: object
       properties:
