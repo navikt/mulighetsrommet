@@ -19,6 +19,10 @@ export function MrApi() {
         <BodyShort>Starter en initial load av alle relevante tiltakstyper.</BodyShort>
       </RunTask>
 
+      <RunTask base={ApiBase.MR_API} task="sync-gjennomforing-avtale-fts">
+        <BodyShort>Oppdater FTS for gjennomføring.</BodyShort>
+      </RunTask>
+
       <RunTask
         base={ApiBase.MR_API}
         task="initial-load-gjennomforinger"
