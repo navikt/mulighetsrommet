@@ -35,7 +35,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
 
     fun getAll(
         tiltakstyper: List<UUID>,
-        organisasjonsnummer: List<Organisasjonsnummer>,
+        organisasjonsnummer: Set<Organisasjonsnummer>,
         prismodeller: List<PrismodellType>,
         filter: ArrangorflateTiltakFilter,
     ): PaginatedResult<ArrangorflateTiltak> = with(session) {
