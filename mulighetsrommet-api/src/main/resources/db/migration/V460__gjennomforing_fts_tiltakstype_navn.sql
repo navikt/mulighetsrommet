@@ -11,5 +11,6 @@ set fts = to_tsvector('norwegian',
           )
 from arrangor,
      tiltakstype
-where arrangor.id = gjennomforing.arrangor_id
+where gjennomforing.gjennomforing_type = 'AVTALE'::gjennomforing_type
+  and arrangor.id = gjennomforing.arrangor_id
   and gjennomforing.tiltakstype_id = tiltakstype.id;
