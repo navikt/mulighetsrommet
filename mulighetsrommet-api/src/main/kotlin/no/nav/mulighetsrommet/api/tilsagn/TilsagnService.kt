@@ -39,6 +39,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.toDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.validation.validation
@@ -61,6 +63,7 @@ import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.collections.orEmpty
 
 class TilsagnService(
     val config: Config,
@@ -77,20 +80,6 @@ class TilsagnService(
 
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
 
-        val totrinnskontroll = Totrinnskontroll(
-            id = UUID.randomUUID(),
-            entityId = request.id,
-            behandletAv = navIdent,
-            aarsaker = emptyList(),
-            forklaring = null,
-            type = Totrinnskontroll.Type.OPPRETT,
-            behandletTidspunkt = LocalDateTime.now(),
-            besluttelse = null,
-            besluttetAv = null,
-            besluttetTidspunkt = null,
-            besluttetAvNavn = null,
-            behandletAvNavn = null,
-        )
         val previous = queries.tilsagn.get(request.id)
         return TilsagnValidator
             .validate(
@@ -129,9 +118,24 @@ class TilsagnService(
             }
             .map { dbo ->
                 queries.tilsagn.upsert(dbo)
-                queries.totrinnskontroll.upsert(totrinnskontroll)
 
-                logEndring("Sendt til godkjenning", dbo.id, navIdent)
+                val opprettelse = TotrinnskontrollDbo(
+                    id = UUID.randomUUID(),
+                    entityId = request.id,
+                    type = Totrinnskontroll.Type.OPPRETT,
+                    behandletAv = navIdent,
+                    behandletTidspunkt = LocalDateTime.now(),
+                    besluttelse = null,
+                    besluttetAv = null,
+                    besluttetTidspunkt = null,
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                )
+                queries.totrinnskontroll.upsert(opprettelse)
+
+                logEndring("Sendt til godkjenning", dbo.id, navIdent).also {
+                    updateFreeTextSearch(dbo)
+                }
             }
     }
 
@@ -145,9 +149,9 @@ class TilsagnService(
             return FieldError.of("Kan ikke slette tilsagn som er godkjent").nel().left()
         }
 
-        val totrinnskontroll = queries.totrinnskontroll.getOrError(entityId = id, type = Totrinnskontroll.Type.OPPRETT)
-        if (totrinnskontroll.besluttetAv == navIdent && totrinnskontroll.behandletAv is NavIdent) {
-            sendNotifikasjonSlettetTilsagn(tilsagn, besluttetAv = navIdent, behandletAv = totrinnskontroll.behandletAv)
+        val opprettelse = queries.totrinnskontroll.getOrError(entityId = id, type = Totrinnskontroll.Type.OPPRETT)
+        if (opprettelse.besluttetAv == navIdent && opprettelse.behandletAv is NavIdent) {
+            sendNotifikasjonSlettetTilsagn(tilsagn, besluttetAv = navIdent, behandletAv = opprettelse.behandletAv)
         }
 
         queries.tilsagn.delete(id)
@@ -371,12 +375,12 @@ class TilsagnService(
             return FieldError.of("Du kan ikke beslutte et tilsagn du selv har opprettet").nel().left()
         }
 
-        val besluttetOpprettelse = opprettelse.copy(
+        val godkjentOpprettelse = opprettelse.copy(
             besluttetAv = besluttetAv,
             besluttetTidspunkt = LocalDateTime.now(),
             besluttelse = Besluttelse.GODKJENT,
         )
-        queries.totrinnskontroll.upsert(besluttetOpprettelse)
+        queries.totrinnskontroll.upsert(godkjentOpprettelse.toDbo())
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
         return logEndring("Tilsagn godkjent", tilsagn.id, besluttetAv).right()
@@ -406,7 +410,7 @@ class TilsagnService(
             aarsaker = aarsaker.map { it.name },
             forklaring = forklaring,
         )
-        queries.totrinnskontroll.upsert(avvistOpprettelse)
+        queries.totrinnskontroll.upsert(avvistOpprettelse.toDbo())
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
 
         return logEndring("Tilsagn returnert", tilsagn.id, besluttetAv).right()
@@ -422,21 +426,19 @@ class TilsagnService(
             "Kan bare annullere godkjente tilsagn"
         }
 
-        val totrinnskontroll = Totrinnskontroll(
+        val annullering = TotrinnskontrollDbo(
             id = UUID.randomUUID(),
             entityId = tilsagn.id,
-            behandletAv = behandletAv,
-            aarsaker = aarsaker,
-            forklaring = forklaring,
             type = Totrinnskontroll.Type.ANNULLER,
+            behandletAv = behandletAv,
             behandletTidspunkt = LocalDateTime.now(),
-            besluttelse = null,
             besluttetAv = null,
             besluttetTidspunkt = null,
-            besluttetAvNavn = null,
-            behandletAvNavn = null,
+            besluttelse = null,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
         )
-        queries.totrinnskontroll.upsert(totrinnskontroll)
+        queries.totrinnskontroll.upsert(annullering)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
 
         return logEndring("Sendt til annullering", tilsagn.id, behandletAv)
@@ -462,7 +464,7 @@ class TilsagnService(
             besluttetTidspunkt = LocalDateTime.now(),
             besluttelse = Besluttelse.GODKJENT,
         )
-        queries.totrinnskontroll.upsert(besluttetAnnullering)
+        queries.totrinnskontroll.upsert(besluttetAnnullering.toDbo())
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
 
         return logEndring("Tilsagn annullert", tilsagn.id, besluttetAv).right()
@@ -488,7 +490,7 @@ class TilsagnService(
             aarsaker = aarsaker.map { it.name },
             forklaring = forklaring,
         )
-        queries.totrinnskontroll.upsert(avvistAnnullering)
+        queries.totrinnskontroll.upsert(avvistAnnullering.toDbo())
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
         if (annullering.behandletAv is NavIdent) {
@@ -510,21 +512,19 @@ class TilsagnService(
             "Kan bare gjøre opp godkjente tilsagn"
         }
 
-        val totrinnskontroll = Totrinnskontroll(
+        val oppgjor = TotrinnskontrollDbo(
             id = UUID.randomUUID(),
             entityId = tilsagn.id,
-            behandletAv = agent,
-            aarsaker = aarsaker,
-            forklaring = forklaring,
             type = Totrinnskontroll.Type.GJOR_OPP,
+            behandletAv = agent,
             behandletTidspunkt = LocalDateTime.now(),
-            besluttelse = null,
             besluttetAv = null,
             besluttetTidspunkt = null,
-            besluttetAvNavn = null,
-            behandletAvNavn = null,
+            besluttelse = null,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
         )
-        queries.totrinnskontroll.upsert(totrinnskontroll)
+        queries.totrinnskontroll.upsert(oppgjor)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_OPPGJOR)
 
         return logEndring(operation, tilsagn.id, agent)
@@ -552,7 +552,7 @@ class TilsagnService(
             besluttetTidspunkt = LocalDateTime.now(),
             besluttelse = Besluttelse.GODKJENT,
         )
-        queries.totrinnskontroll.upsert(godkjentOppgjor)
+        queries.totrinnskontroll.upsert(godkjentOppgjor.toDbo())
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
 
         return logEndring(operation, tilsagn.id, besluttetAv).right()
@@ -578,7 +578,7 @@ class TilsagnService(
             aarsaker = aarsaker.map { it.name },
             forklaring = forklaring,
         )
-        queries.totrinnskontroll.upsert(avvistOppgjor)
+        queries.totrinnskontroll.upsert(avvistOppgjor.toDbo())
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
         if (oppgjor.behandletAv is NavIdent) {
@@ -795,7 +795,7 @@ class TilsagnService(
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
         val annullering = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-        val tilOppgjor = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+        val oppgjor = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
 
         return setOfNotNull(
             TilsagnHandling.REDIGER.takeIf { status == TilsagnStatus.RETURNERT },
@@ -816,7 +816,7 @@ class TilsagnService(
                     kostnadssted = tilsagn.kostnadssted.enhetsnummer,
                     opprettelse = opprettelse,
                     annullering = annullering,
-                    tilOppgjor = tilOppgjor,
+                    tilOppgjor = oppgjor,
                 )
             }
             .toSet()
@@ -861,5 +861,14 @@ class TilsagnService(
                 }
             }
         }
+    }
+
+    private fun QueryContext.updateFreeTextSearch(tilsagn: TilsagnDbo) {
+        val fts = listOf(tilsagn.bestillingsnummer) +
+            tilsagn.bestillingsnummer.replace("/", " ") +
+            tilsagn.periode.toFreeTextSearch() +
+            tilsagn.type.displayName()
+
+        queries.tilsagn.setFreeTextSearch(tilsagn.id, fts)
     }
 }

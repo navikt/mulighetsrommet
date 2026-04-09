@@ -5,7 +5,7 @@ import {
   ArrangorflateTilsagnFilterOrderBy,
   GetArrangorflateTilsagnRaderData,
 } from "api-client";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { queryClient } from "~/api/client";
 import { queryKeys } from "~/api/queryKeys";
 
@@ -17,7 +17,7 @@ function defaultFilter(): ArrangorflateTilsagnFilter {
   return {
     page: 1,
     size: PAGE_SIZE,
-    orderBy: ArrangorflateTilsagnFilterOrderBy.PERIODE,
+    orderBy: ArrangorflateTilsagnFilterOrderBy.SLUTT_DATO,
     direction: ArrangorflateFilterDirection.DESC,
   };
 }
@@ -26,6 +26,15 @@ export function useArrangorflateTilsagnRader() {
   const [filter, setFilter] = useState<ArrangorflateTilsagnFilter>({
     ...defaultFilter(),
   });
+
+  const updateSearch = useCallback(
+    (val: string) => {
+      const trimmedValue = val.trim();
+      if (filter.search !== trimmedValue)
+        setFilter((old) => ({ ...old, search: trimmedValue || undefined }));
+    },
+    [filter.search, setFilter],
+  );
 
   return {
     ...useSuspenseQuery({
@@ -43,5 +52,6 @@ export function useArrangorflateTilsagnRader() {
     }),
     filter,
     setFilter,
+    updateSearch,
   };
 }

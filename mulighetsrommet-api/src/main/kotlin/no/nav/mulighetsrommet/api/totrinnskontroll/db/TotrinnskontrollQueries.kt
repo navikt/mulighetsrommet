@@ -12,7 +12,7 @@ import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class TotrinnskontrollQueries(private val session: Session) {
-    fun upsert(totrinnskontroll: Totrinnskontroll) {
+    fun upsert(totrinnskontroll: TotrinnskontrollDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into totrinnskontroll (

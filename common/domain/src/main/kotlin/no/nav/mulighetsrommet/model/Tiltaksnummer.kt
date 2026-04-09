@@ -20,4 +20,10 @@ value class Tiltaksnummer(val value: String) {
         get() = value.split("/", "#").last().toInt()
 
     override fun toString(): String = value
+
+    fun toFreeTextSearch(): List<String> = listOfNotNull(
+        value,
+        aar.toString(),
+        lopenummer.toString(),
+    )
 }
