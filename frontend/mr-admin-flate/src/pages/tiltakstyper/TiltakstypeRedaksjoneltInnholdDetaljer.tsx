@@ -14,7 +14,7 @@ export function TiltakstypeRedaksjoneltInnholdDetaljer() {
       <TiltakstypeFaneinnholdContent
         beskrivelse={tiltakstype.beskrivelse ?? null}
         faneinnhold={tiltakstype.faneinnhold ?? null}
-        regelverklenker={tiltakstype.regelverklenker ?? []}
+        regelverklenker={tiltakstype.regelverklenker}
         kanKombineresMed={tiltakstype.kanKombineresMed}
       />
     </VStack>

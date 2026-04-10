@@ -6,7 +6,7 @@ import {
 } from "@api-client";
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
-import RegelverkInfo from "./RegelverkInfo";
+import { RegelverkInfo } from "./RegelverkInfo";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
@@ -75,14 +75,12 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
             regelverkLenker={[
               ...tiltakstype.regelverkLenker,
               {
-                _id: "klage",
                 regelverkLenkeNavn: "Avslag og klage",
                 regelverkUrl:
                   "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
                 beskrivelse: null,
               },
               {
-                _id: "vurdering",
                 regelverkLenkeNavn: "Tiltak hos familie/nærstående",
                 regelverkUrl:
                   "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",

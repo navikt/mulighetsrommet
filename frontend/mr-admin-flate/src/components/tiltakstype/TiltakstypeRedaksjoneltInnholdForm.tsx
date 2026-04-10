@@ -35,16 +35,14 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
   const { data: alleTiltakstyper } = useTiltakstyper();
 
   const methods = useForm<TiltakstypeRedaksjoneltInnholdFormValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(TiltakstypeRedaksjoneltInnholdSchema) as any,
     defaultValues: {
-      beskrivelse: tiltakstype.beskrivelse ?? null,
-      faneinnhold: tiltakstype.faneinnhold ?? null,
-      regelverklenker: tiltakstype.regelverklenker ?? [],
-      kanKombineresMed:
-        alleTiltakstyper
-          ?.filter((t) => tiltakstype.kanKombineresMed.includes(t.navn))
-          .map((t) => t.id) ?? [],
+      beskrivelse: tiltakstype.beskrivelse || null,
+      faneinnhold: tiltakstype.faneinnhold,
+      regelverklenker: tiltakstype.regelverklenker,
+      kanKombineresMed: alleTiltakstyper
+        .filter((t) => tiltakstype.kanKombineresMed.includes(t.navn))
+        .map((t) => t.id),
     },
   });
 
@@ -53,19 +51,32 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
   async function onSubmit(values: TiltakstypeRedaksjoneltInnholdFormValues) {
     await mutation.mutateAsync({
       beskrivelse: values.beskrivelse ?? null,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      faneinnhold: (values.faneinnhold as any) ?? null,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      regelverklenker: (values.regelverklenker as any) ?? [],
-      kanKombineresMed: values.kanKombineresMed ?? [],
+      faneinnhold: {
+        forHvemInfoboks: values.faneinnhold?.forHvemInfoboks || null,
+        forHvem: values.faneinnhold?.forHvem || null,
+        detaljerOgInnholdInfoboks: values.faneinnhold?.detaljerOgInnholdInfoboks || null,
+        detaljerOgInnhold: values.faneinnhold?.detaljerOgInnhold || null,
+        pameldingOgVarighetInfoboks: values.faneinnhold?.pameldingOgVarighetInfoboks || null,
+        pameldingOgVarighet: values.faneinnhold?.pameldingOgVarighet || null,
+        kontaktinfo: values.faneinnhold?.kontaktinfo || null,
+        kontaktinfoInfoboks: values.faneinnhold?.kontaktinfoInfoboks || null,
+        lenker: values.faneinnhold?.lenker || null,
+        delMedBruker: values.faneinnhold?.delMedBruker || null,
+        oppskrift: [],
+      },
+      regelverklenker: values.regelverklenker.map((lenke) => ({
+        regelverkUrl: lenke.regelverkUrl,
+        regelverkLenkeNavn: lenke.regelverkLenkeNavn || null,
+        beskrivelse: lenke.beskrivelse || null,
+      })),
+      kanKombineresMed: values.kanKombineresMed,
     });
     onSuccess();
   }
 
-  const andreKombinasjonOptions =
-    alleTiltakstyper
-      ?.filter((t) => t.id !== tiltakstype.id)
-      .map((t) => ({ value: t.id, label: t.navn })) ?? [];
+  const andreKombinasjonOptions = alleTiltakstyper
+    .filter((t) => t.id !== tiltakstype.id)
+    .map((t) => ({ value: t.id, label: t.navn }));
 
   return (
     <FormProvider {...methods}>
@@ -148,10 +159,7 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
                     label='Fremhevet informasjon i blå infoboks under fanen "For hvem"'
                     rows={3}
                   />
-                  <PortableTextFormEditor
-                    name="faneinnhold.forHvem"
-                    label="For hvem"
-                  />
+                  <PortableTextFormEditor name="faneinnhold.forHvem" label="For hvem" />
                 </DescriptionRichtextContainer>
               </Tabs.Panel>
 
@@ -190,10 +198,7 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
                     label='Fremhevet informasjon i blå infoboks under fanen "Kontaktinfo"'
                     rows={3}
                   />
-                  <PortableTextFormEditor
-                    name="faneinnhold.kontaktinfo"
-                    label="Kontaktinfo"
-                  />
+                  <PortableTextFormEditor name="faneinnhold.kontaktinfo" label="Kontaktinfo" />
                 </DescriptionRichtextContainer>
               </Tabs.Panel>
 
