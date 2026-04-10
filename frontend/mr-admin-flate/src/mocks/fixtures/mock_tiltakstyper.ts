@@ -23,7 +23,8 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
-    beskrivelse: "Arbeidsforberedende trening (AFT) er et tilbud for deg som har nedsatt arbeidsevne.",
+    beskrivelse:
+      "Arbeidsforberedende trening (AFT) er et tilbud for deg som har nedsatt arbeidsevne.",
     faneinnhold: null,
     regelverklenker: [],
     kanKombineresMed: [],
