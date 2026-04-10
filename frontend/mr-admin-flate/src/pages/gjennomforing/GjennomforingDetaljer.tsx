@@ -11,28 +11,47 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { BodyShort, Heading, HelpText, HStack, Link, Tag, VStack } from "@navikt/ds-react";
+import {
+  BodyShort,
+  Heading,
+  HelpText,
+  HStack,
+  InfoCard,
+  Link,
+  Tag,
+  VStack,
+} from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 import {
   Definisjonsliste,
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
-import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import {
+  MetadataFritekstfelt,
+  Separator,
+} from "@mr/frontend-common/components/datadriven/Metadata";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { isEnkeltplass, isGruppetiltak } from "@/api/gjennomforing/utils";
 import { GjennomforingDetaljerAvtale } from "@/pages/gjennomforing/GjennomforingDetaljerAvtale";
 import { GjennomforingDetaljerVarighet } from "@/pages/gjennomforing/GjennomforingDetaljerVarighet";
 import { GjennomforingDetaljerAdministratorer } from "@/pages/gjennomforing/GjennomforingDetaljerAdministratorer";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
-import { GjennomforingAvtaleDto } from "@tiltaksadministrasjon/api-client";
+import {
+  Besluttelse,
+  GjennomforingAvtaleDto,
+  TotrinnskontrollDto,
+} from "@tiltaksadministrasjon/api-client";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
+import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const detaljer = useGjennomforing(gjennomforingId);
-  const { gjennomforing, veilederinfo, utdanningslop, amoKategorisering, prismodell } = detaljer;
+  const { gjennomforing, veilederinfo, utdanningslop, amoKategorisering, prismodell, okonomi } =
+    detaljer;
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
   const { data: avtale } = usePotentialAvtale(
     isGruppetiltak(gjennomforing) ? gjennomforing.avtaleId : null,
@@ -69,7 +88,7 @@ export function GjennomforingDetaljer() {
         </HStack>
       ),
     },
-    ...(isEnkeltplass(gjennomforing) && gjennomforing.ansvarligEnhet
+    ...(isEnkeltplass(gjennomforing)
       ? [
           {
             key: gjennomforingTekster.ansvarligEnhet.label,
@@ -147,6 +166,7 @@ export function GjennomforingDetaljer() {
           {isGruppetiltak(gjennomforing) && !harStartet(gjennomforing) && (
             <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
           )}
+          {isEnkeltplass(gjennomforing) && okonomi && <OkonomiStatus okonomi={okonomi} />}
         </DetaljerLayout>
       </TwoColumnGrid>
       <Separator />
@@ -173,4 +193,58 @@ function HentTiltaksnummer({ id }: { id: string }) {
 
 function harStartet(gjennomforing: GjennomforingAvtaleDto) {
   return new Date() > new Date(gjennomforing.startDato);
+}
+
+function OkonomiStatus({ okonomi }: { okonomi: TotrinnskontrollDto }) {
+  if (isBesluttet(okonomi) && okonomi.besluttelse === Besluttelse.GODKJENT) {
+    return (
+      <InfoCard data-color="success">
+        <InfoCard.Header>
+          <InfoCard.Title>Økonomi godkjent</InfoCard.Title>
+        </InfoCard.Header>
+        <InfoCard.Content>
+          <BodyShort>
+            {okonomi.besluttetAv.navn} godkjente økonomi den{" "}
+            {formaterDato(okonomi.besluttetTidspunkt)}.
+          </BodyShort>
+        </InfoCard.Content>
+      </InfoCard>
+    );
+  }
+
+  if (isBesluttet(okonomi) && okonomi.besluttelse === Besluttelse.AVVIST) {
+    return (
+      <InfoCard data-color="danger">
+        <InfoCard.Header>
+          <InfoCard.Title>Økonomi avslått</InfoCard.Title>
+        </InfoCard.Header>
+        <InfoCard.Content>
+          <BodyShort>
+            {okonomi.besluttetAv.navn} avslo økonomi den {formaterDato(okonomi.besluttetTidspunkt)}.
+          </BodyShort>
+          {okonomi.forklaring && (
+            <MetadataFritekstfelt label="Forklaring" value={okonomi.forklaring} />
+          )}
+        </InfoCard.Content>
+      </InfoCard>
+    );
+  }
+
+  if (isTilBeslutning(okonomi)) {
+    return (
+      <InfoCard data-color="info">
+        <InfoCard.Header>
+          <InfoCard.Title>Økonomi venter på godkjenning</InfoCard.Title>
+        </InfoCard.Header>
+        <InfoCard.Content>
+          <BodyShort>
+            {okonomi.behandletAv.navn} sendte gjennomføringen til godkjenning den{" "}
+            {formaterDato(okonomi.behandletTidspunkt)}.
+          </BodyShort>
+        </InfoCard.Content>
+      </InfoCard>
+    );
+  }
+
+  throw Error("Unhåndtert status");
 }

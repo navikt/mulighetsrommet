@@ -1119,6 +1119,64 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/gjennomforinger/{id}/godkjenn-okonomi:
+    post:
+      tags:
+      - Gjennomforing
+      operationId: godkjennGjennomforingOkonomi
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Økonomi ble godkjent
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/gjennomforinger/{id}/avsla-okonomi:
+    post:
+      tags:
+      - Gjennomforing
+      operationId: avslaaGjennomforingOkonomi
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvslaaOkonomiRequest"
+        required: false
+      responses:
+        "200":
+          description: Økonomi ble avslått
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger/excel:
     post:
       tags:
@@ -5125,9 +5183,7 @@ components:
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
         ansvarligEnhet:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/GjennomforingDto.AnsvarligEnhet"
+          $ref: "#/components/schemas/GjennomforingDto.AnsvarligEnhet"
       required:
       - ansvarligEnhet
       - arrangor
@@ -5237,6 +5293,89 @@ components:
       required:
       - enhet
       - verdi
+    TotrinnskontrollDto:
+      anyOf:
+      - $ref: "#/components/schemas/TotrinnskontrollDto.Besluttet"
+      - $ref: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
+      discriminator:
+        propertyName: type
+        mapping:
+          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet: "#/components/schemas/TotrinnskontrollDto.Besluttet"
+          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
+    TotrinnskontrollDto.Besluttet:
+      type: object
+      properties:
+        behandletAv:
+          $ref: "#/components/schemas/AgentDto"
+        behandletTidspunkt:
+          type: string
+          format: date-time
+          default: null
+        aarsaker:
+          type: array
+          items:
+            type: string
+            default: null
+          default: null
+        forklaring:
+          type:
+          - "null"
+          - string
+          default: null
+        besluttetAv:
+          $ref: "#/components/schemas/AgentDto"
+        besluttetTidspunkt:
+          type: string
+          format: date-time
+          default: null
+        besluttelse:
+          $ref: "#/components/schemas/Besluttelse"
+      required:
+      - aarsaker
+      - behandletAv
+      - behandletTidspunkt
+      - besluttelse
+      - besluttetAv
+      - besluttetTidspunkt
+      - forklaring
+    AgentDto:
+      type: object
+      properties:
+        navn:
+          type: string
+          default: null
+      required:
+      - navn
+    Besluttelse:
+      type: string
+      enum:
+      - GODKJENT
+      - AVVIST
+    TotrinnskontrollDto.TilBeslutning:
+      type: object
+      properties:
+        behandletAv:
+          $ref: "#/components/schemas/AgentDto"
+        behandletTidspunkt:
+          type: string
+          format: date-time
+          default: null
+        aarsaker:
+          type: array
+          items:
+            type: string
+            default: null
+          default: null
+        forklaring:
+          type:
+          - "null"
+          - string
+          default: null
+      required:
+      - aarsaker
+      - behandletAv
+      - behandletTidspunkt
+      - forklaring
     GjennomforingDetaljerDto:
       type: object
       properties:
@@ -5258,9 +5397,14 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/UtdanningslopDto"
+        okonomi:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
       - amoKategorisering
       - gjennomforing
+      - okonomi
       - prismodell
       - tiltakstype
       - utdanningslop
@@ -5331,6 +5475,16 @@ components:
       - beskrivelse
       - periodeSlutt
       - periodeStart
+    AvslaaOkonomiRequest:
+      type: object
+      properties:
+        forklaring:
+          type:
+          - "null"
+          - string
+          default: null
+      required:
+      - forklaring
     GjennomforingType:
       type: string
       enum:
@@ -5555,6 +5709,7 @@ components:
       - OPPRETT_EKSTRATILSAGN
       - OPPRETT_TILSAGN_FOR_INVESTERINGER
       - OPPRETT_UTBETALING
+      - GODKJENN_ENKELTPLASS_OKONOMI
     PrismodellInfo:
       type: object
       properties:
@@ -6090,89 +6245,6 @@ components:
       required:
       - breakdown
       - expression
-    TotrinnskontrollDto:
-      anyOf:
-      - $ref: "#/components/schemas/TotrinnskontrollDto.Besluttet"
-      - $ref: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
-      discriminator:
-        propertyName: type
-        mapping:
-          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet: "#/components/schemas/TotrinnskontrollDto.Besluttet"
-          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
-    TotrinnskontrollDto.Besluttet:
-      type: object
-      properties:
-        behandletAv:
-          $ref: "#/components/schemas/AgentDto"
-        behandletTidspunkt:
-          type: string
-          format: date-time
-          default: null
-        aarsaker:
-          type: array
-          items:
-            type: string
-            default: null
-          default: null
-        forklaring:
-          type:
-          - "null"
-          - string
-          default: null
-        besluttetAv:
-          $ref: "#/components/schemas/AgentDto"
-        besluttetTidspunkt:
-          type: string
-          format: date-time
-          default: null
-        besluttelse:
-          $ref: "#/components/schemas/Besluttelse"
-      required:
-      - aarsaker
-      - behandletAv
-      - behandletTidspunkt
-      - besluttelse
-      - besluttetAv
-      - besluttetTidspunkt
-      - forklaring
-    AgentDto:
-      type: object
-      properties:
-        navn:
-          type: string
-          default: null
-      required:
-      - navn
-    Besluttelse:
-      type: string
-      enum:
-      - GODKJENT
-      - AVVIST
-    TotrinnskontrollDto.TilBeslutning:
-      type: object
-      properties:
-        behandletAv:
-          $ref: "#/components/schemas/AgentDto"
-        behandletTidspunkt:
-          type: string
-          format: date-time
-          default: null
-        aarsaker:
-          type: array
-          items:
-            type: string
-            default: null
-          default: null
-        forklaring:
-          type:
-          - "null"
-          - string
-          default: null
-      required:
-      - aarsaker
-      - behandletAv
-      - behandletTidspunkt
-      - forklaring
     TilsagnHandling:
       type: string
       enum:

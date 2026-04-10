@@ -51,7 +51,7 @@ function useHentData(gjennomforingId: string) {
 
   const kostnadssteder = useRelevanteKostnadssteder(
     defaults.type,
-    "ansvarligEnhet" in gjennomforing ? (gjennomforing.ansvarligEnhet?.enhetsnummer ?? null) : null,
+    "ansvarligEnhet" in gjennomforing ? gjennomforing.ansvarligEnhet.enhetsnummer : null,
     veilederinfo?.kontorstruktur ?? [],
   );
   return {

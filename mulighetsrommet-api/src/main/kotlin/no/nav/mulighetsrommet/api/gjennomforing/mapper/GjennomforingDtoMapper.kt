@@ -12,6 +12,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktpersonDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
@@ -56,9 +58,13 @@ object GjennomforingDtoMapper {
         prismodell = fromPrismodell(gjennomforing.prismodell),
         amoKategorisering = detaljer.amoKategorisering?.toDto(gjennomforing.tiltakstype.tiltakskode),
         utdanningslop = detaljer.utdanningslop,
+        okonomi = null,
     )
 
-    fun fromEnkeltplass(gjennomforing: GjennomforingEnkeltplass) = GjennomforingDetaljerDto(
+    fun fromEnkeltplass(
+        gjennomforing: GjennomforingEnkeltplass,
+        okonomi: Totrinnskontroll?,
+    ) = GjennomforingDetaljerDto(
         tiltakstype = gjennomforing.tiltakstype,
         gjennomforing = GjennomforingEnkeltplassDto(
             id = gjennomforing.id,
@@ -80,6 +86,7 @@ object GjennomforingDtoMapper {
         ),
         veilederinfo = null,
         prismodell = fromPrismodell(gjennomforing.prismodell),
+        okonomi = okonomi?.toDto(),
         amoKategorisering = null,
         utdanningslop = null,
     )

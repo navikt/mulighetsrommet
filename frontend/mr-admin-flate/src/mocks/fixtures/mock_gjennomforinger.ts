@@ -131,6 +131,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       prisbetingelser: "Maskert prisbetingelser",
       tilsagnPerDeltaker: false,
     },
+    okonomi: null,
   },
   {
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.ARBFORB),
@@ -184,6 +185,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       prisbetingelser: "Maskert prisbetingelser",
       tilsagnPerDeltaker: false,
     },
+    okonomi: null,
   },
   {
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.GRUFAGYRKE),
@@ -236,6 +238,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       prisbetingelser: "Maskert prisbetingelser",
       tilsagnPerDeltaker: false,
     },
+    okonomi: null,
   },
 ];
 

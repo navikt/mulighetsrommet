@@ -27,9 +27,11 @@ import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -61,14 +63,15 @@ class GjennomforingDetaljerService(
     fun getGjennomforingDetaljerDto(id: UUID): GjennomforingDetaljerDto? {
         val gjennomforing = getGjennomforingTiltaksadministrasjon(id) ?: return null
         return when (gjennomforing) {
-            is GjennomforingAvtale -> {
-                val detaljer = db.session {
-                    queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
-                }
+            is GjennomforingAvtale -> db.session {
+                val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
                 GjennomforingDtoMapper.fromGjennomforingAvtale(gjennomforing, detaljer)
             }
 
-            is GjennomforingEnkeltplass -> GjennomforingDtoMapper.fromEnkeltplass(gjennomforing)
+            is GjennomforingEnkeltplass -> db.session {
+                val okonomi = queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI)
+                GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi)
+            }
         }
     }
 
@@ -132,7 +135,7 @@ class GjennomforingDetaljerService(
         val gjennomforing = db.session { getGjennomforing(id) } ?: return setOf()
         return when (gjennomforing) {
             is GjennomforingAvtale -> getHandlingerGruppetiltak(gjennomforing, ansatt)
-            is GjennomforingEnkeltplass -> getHandlingerEnkeltplasser(ansatt)
+            is GjennomforingEnkeltplass -> getHandlingerEnkeltplasser(gjennomforing, ansatt)
             is GjennomforingArena -> setOf()
         }
     }
@@ -167,12 +170,30 @@ class GjennomforingDetaljerService(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
         )
-            .filter { tilgangTilHandling(it, ansatt) }
+            .filter { tilgangTilHandling(ansatt, it) }
+            .toSet()
+    }
+
+    private fun getHandlingerEnkeltplasser(
+        gjennomforing: GjennomforingEnkeltplass,
+        ansatt: NavAnsatt,
+    ): Set<GjennomforingHandling> {
+        return setOfNotNull(
+            GjennomforingHandling.OPPRETT_TILSAGN,
+            GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
+            GjennomforingHandling.OPPRETT_UTBETALING,
+            GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+        )
+            .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
             .toSet()
     }
 
     companion object {
-        fun tilgangTilHandling(handling: GjennomforingHandling, ansatt: NavAnsatt): Boolean {
+        fun tilgangTilHandling(
+            ansatt: NavAnsatt,
+            handling: GjennomforingHandling,
+            enheter: Set<NavEnhetNummer> = setOf(),
+        ): Boolean {
             val skrivGjennomforing = ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
             val oppfolgerGjennomforing = ansatt.hasGenerellRolle(Rolle.OPPFOLGER_GJENNOMFORING)
             val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
@@ -196,19 +217,12 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
                 GjennomforingHandling.OPPRETT_UTBETALING,
                 -> saksbehandlerOkonomi
+
+                GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+                -> ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, enheter)
             }
         }
     }
-}
-
-private fun getHandlingerEnkeltplasser(ansatt: NavAnsatt): Set<GjennomforingHandling> {
-    return setOfNotNull(
-        GjennomforingHandling.OPPRETT_TILSAGN,
-        GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
-        GjennomforingHandling.OPPRETT_UTBETALING,
-    )
-        .filter { GjennomforingDetaljerService.tilgangTilHandling(it, ansatt) }
-        .toSet()
 }
 
 private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when (this) {

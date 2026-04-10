@@ -33,7 +33,7 @@ class TotrinnskontrollQueries(private val session: Session) {
                 :behandlet_tidspunkt,
                 :aarsaker,
                 :forklaring,
-                :type::totrinnskontroll_type,
+                :type,
                 :besluttet_av,
                 :besluttet_tidspunkt,
                 :besluttelse::besluttelse
@@ -80,7 +80,7 @@ class TotrinnskontrollQueries(private val session: Session) {
             from totrinnskontroll
                 left join nav_ansatt nav_ansatt_behandlet on behandlet_av = nav_ansatt_behandlet.nav_ident
                 left join nav_ansatt nav_ansatt_besluttet on besluttet_av = nav_ansatt_besluttet.nav_ident
-            where entity_id = :entity_id::uuid and type = :type::totrinnskontroll_type
+            where entity_id = :entity_id::uuid and type = :type
             order by behandlet_tidspunkt desc
             limit 1
         """.trimIndent()
