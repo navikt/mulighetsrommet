@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeRedaksjoneltInnholdRequest
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.UUID
@@ -77,6 +78,21 @@ class TiltakstypeService(
         }
     }
 
+    fun upsertRedaksjoneltInnhold(id: UUID, request: TiltakstypeRedaksjoneltInnholdRequest): TiltakstypeDto? {
+        db.transaction {
+            queries.tiltakstype.upsertRedaksjoneltInnhold(id, request)
+            queries.tiltakstype.setKanKombineresMed(id, request.kanKombineresMed)
+        }
+        invalidateCaches()
+        return getById(id)
+    }
+
+    private fun invalidateCaches() {
+        cacheByTiltakskode.invalidateAll()
+        cacheByArenakode.invalidateAll()
+        cacheByFilter.invalidateAll()
+    }
+
     private fun Tiltakstype.toTiltakstypeDto(): TiltakstypeDto? {
         val tiltakskode = tiltakskode ?: return null
         val features = config.features[tiltakskode] ?: setOf()
@@ -91,6 +107,10 @@ class TiltakstypeService(
             features = features,
             egenskaper = tiltakskode.egenskaper,
             gruppe = tiltakskode.gruppe?.tittel,
+            beskrivelse = beskrivelse,
+            faneinnhold = faneinnhold,
+            regelverklenker = regelverklenker,
+            kanKombineresMed = kanKombineresMed,
         )
     }
 }

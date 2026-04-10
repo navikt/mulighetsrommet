@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
+import no.nav.mulighetsrommet.api.tiltakstype.task.MigrerTiltakstypeInnholdFraSanity
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
@@ -47,6 +48,7 @@ fun Route.maamRoutes() {
 
     val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
     val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
+    val migrerTiltakstypeInnholdFraSanity: MigrerTiltakstypeInnholdFraSanity by inject()
     val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
     val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
     val generateUtbetaling: GenerateUtbetaling by inject()
@@ -101,6 +103,12 @@ fun Route.maamRoutes() {
 
             post("initial-load-tiltakstyper") {
                 val taskId = initialLoadTiltakstyper.schedule()
+
+                call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
+            }
+
+            post("migrer-tiltakstype-innhold-fra-sanity") {
+                val taskId = migrerTiltakstypeInnholdFraSanity.schedule()
 
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
             }

@@ -98,6 +98,45 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/tiltakstyper/{id}/redaksjonelt-innhold:
+    patch:
+      tags:
+      - Tiltakstype
+      operationId: upsertTiltakstypeRedaksjoneltInnhold
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TiltakstypeRedaksjoneltInnholdRequest"
+        required: false
+      responses:
+        "200":
+          description: Oppdatert tiltakstype
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltakstypeDto"
+        "404":
+          description: Tiltakstype ikke funnet
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/avtaler:
     put:
       tags:
@@ -3092,12 +3131,36 @@ components:
             $ref: "#/components/schemas/TiltakstypeEgenskap"
           uniqueItems: true
           default: null
+        beskrivelse:
+          type:
+          - "null"
+          - string
+          default: null
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        regelverklenker:
+          type: array
+          items:
+            $ref: "#/components/schemas/Regelverklenke"
+          default: null
+        kanKombineresMed:
+          type: array
+          items:
+            type: string
+            default: null
+          default: null
       required:
+      - beskrivelse
       - egenskaper
+      - faneinnhold
       - features
       - gruppe
       - id
+      - kanKombineresMed
       - navn
+      - regelverklenker
       - sanityId
       - sluttDato
       - startDato
@@ -3142,61 +3205,6 @@ components:
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
-    ProblemDetail:
-      type: object
-      additionalProperties: {}
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        status:
-          type: integer
-        detail:
-          type: string
-        instance:
-          type: string
-      required:
-      - detail
-      - status
-      - title
-      - type
-    Innsatsgruppe:
-      type: string
-      enum:
-      - GODE_MULIGHETER
-      - TRENGER_VEILEDNING
-      - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
-      - JOBBE_DELVIS
-      - LITEN_MULIGHET_TIL_A_JOBBE
-    RegelverkLenke:
-      type: object
-      properties:
-        _id:
-          type:
-          - "null"
-          - string
-          default: null
-        beskrivelse:
-          type:
-          - "null"
-          - string
-          default: null
-        regelverkUrl:
-          type:
-          - "null"
-          - string
-          default: null
-        regelverkLenkeNavn:
-          type:
-          - "null"
-          - string
-          default: null
-      required:
-      - _id
-      - beskrivelse
-      - regelverkLenkeNavn
-      - regelverkUrl
     Faneinnhold:
       type: object
       properties:
@@ -3309,6 +3317,53 @@ components:
       - lenke
       - lenkenavn
       - visKunForVeileder
+    Regelverklenke:
+      type: object
+      properties:
+        regelverkUrl:
+          type: string
+          default: null
+        regelverkLenkeNavn:
+          type:
+          - "null"
+          - string
+          default: null
+        beskrivelse:
+          type:
+          - "null"
+          - string
+          default: null
+      required:
+      - beskrivelse
+      - regelverkLenkeNavn
+      - regelverkUrl
+    ProblemDetail:
+      type: object
+      additionalProperties: {}
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+      - detail
+      - status
+      - title
+      - type
+    Innsatsgruppe:
+      type: string
+      enum:
+      - GODE_MULIGHETER
+      - TRENGER_VEILEDNING
+      - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
+      - JOBBE_DELVIS
+      - LITEN_MULIGHET_TIL_A_JOBBE
     VeilederflateTiltakstype:
       type: object
       properties:
@@ -3351,7 +3406,7 @@ components:
           - "null"
           - array
           items:
-            $ref: "#/components/schemas/RegelverkLenke"
+            $ref: "#/components/schemas/Regelverklenke"
           default: null
         faneinnhold:
           oneOf:
@@ -3397,6 +3452,35 @@ components:
       - sanityId
       - tiltaksgruppe
       - tiltakskode
+    TiltakstypeRedaksjoneltInnholdRequest:
+      type: object
+      properties:
+        beskrivelse:
+          type:
+          - "null"
+          - string
+          default: null
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        regelverklenker:
+          type: array
+          items:
+            $ref: "#/components/schemas/Regelverklenke"
+          default: null
+        kanKombineresMed:
+          type: array
+          items:
+            type: string
+            format: uuid
+            default: null
+          default: null
+      required:
+      - beskrivelse
+      - faneinnhold
+      - kanKombineresMed
+      - regelverklenker
     DetaljerRequest:
       type: object
       properties:

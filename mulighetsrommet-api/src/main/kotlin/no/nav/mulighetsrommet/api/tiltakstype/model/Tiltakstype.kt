@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.tiltakstype.model
 
+import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.Regelverklenke
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import java.time.LocalDate
@@ -16,4 +18,8 @@ data class Tiltakstype(
     val sluttDato: LocalDate?,
     val status: TiltakstypeStatus,
     val sanityId: UUID?,
+    val beskrivelse: String? = null,
+    val faneinnhold: Faneinnhold? = null,
+    val regelverklenker: List<Regelverklenke> = emptyList(),
+    val kanKombineresMed: List<String> = emptyList(),
 )

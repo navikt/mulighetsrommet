@@ -1504,7 +1504,7 @@ components:
           - "null"
           - array
           items:
-            $ref: "#/components/schemas/RegelverkLenke"
+            $ref: "#/components/schemas/Regelverklenke"
           default: null
         faneinnhold:
           oneOf:
@@ -1564,10 +1564,13 @@ components:
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
-    RegelverkLenke:
+    Regelverklenke:
       type: object
       properties:
-        _id:
+        regelverkUrl:
+          type: string
+          default: null
+        regelverkLenkeNavn:
           type:
           - "null"
           - string
@@ -1577,18 +1580,7 @@ components:
           - "null"
           - string
           default: null
-        regelverkUrl:
-          type:
-          - "null"
-          - string
-          default: null
-        regelverkLenkeNavn:
-          type:
-          - "null"
-          - string
-          default: null
       required:
-      - _id
       - beskrivelse
       - regelverkLenkeNavn
       - regelverkUrl

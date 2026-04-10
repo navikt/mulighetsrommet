@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.tiltakstype.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.Regelverklenke
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
@@ -25,6 +27,21 @@ data class TiltakstypeDto(
     val sanityId: UUID?,
     val features: Set<TiltakstypeFeature>,
     val egenskaper: Set<TiltakstypeEgenskap>,
+    val beskrivelse: String? = null,
+    val faneinnhold: Faneinnhold? = null,
+    val regelverklenker: List<Regelverklenke> = emptyList(),
+    val kanKombineresMed: List<String> = emptyList(),
+)
+
+@Serializable
+data class TiltakstypeRedaksjoneltInnholdRequest(
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+    val regelverklenker: List<Regelverklenke>,
+    val kanKombineresMed: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
 )
 
 enum class TiltakstypeFeature {
