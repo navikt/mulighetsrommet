@@ -353,7 +353,8 @@ class GjennomforingAvtaleService(
     private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingAvtale) {
         val fts = listOf(gjennomforing.navn, gjennomforing.arrangor.navn) +
             gjennomforing.lopenummer.toFreeTextSearch() +
-            gjennomforing.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty()
+            gjennomforing.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty() +
+            gjennomforing.tiltakstype.navn
 
         queries.gjennomforing.setFreeTextSearch(gjennomforing.id, fts)
     }

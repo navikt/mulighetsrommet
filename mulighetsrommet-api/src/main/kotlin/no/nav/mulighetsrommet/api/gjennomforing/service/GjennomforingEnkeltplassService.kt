@@ -200,7 +200,8 @@ class GjennomforingEnkeltplassService(
         val fts = listOf(gjennomforing.arrangor.navn) +
             gjennomforing.lopenummer.toFreeTextSearch() +
             gjennomforing.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty() +
-            listOfNotNull(norskIdent?.let { NorskIdentHasher.hash(it) })
+            listOfNotNull(norskIdent?.let { NorskIdentHasher.hash(it) }) +
+            gjennomforing.tiltakstype.navn
 
         queries.gjennomforing.setFreeTextSearch(gjennomforing.id, fts)
     }
