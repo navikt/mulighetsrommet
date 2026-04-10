@@ -28,7 +28,7 @@ fun main(args: Array<String>) {
         openApiSpecName to fileOutputPath
     }
 
-    val server = createServer(ServerConfig()) {
+    val server = createServer(ServerConfig(port = 0)) {
         configureAuthenticationForOpenApiGeneration()
         configureRouting()
         configureOpenApiGenerator()
