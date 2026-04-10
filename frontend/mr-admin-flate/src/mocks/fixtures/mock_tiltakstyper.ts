@@ -23,6 +23,10 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
+    beskrivelse: "Arbeidsforberedende trening (AFT) er et tilbud for deg som har nedsatt arbeidsevne.",
+    faneinnhold: null,
+    regelverklenker: [],
+    kanKombineresMed: [],
   },
   ARBRRHDAG: {
     id: "1d5bf722-02aa-4aa5-97e2-f359ea307a14",
@@ -38,6 +42,10 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
+    beskrivelse: null,
+    faneinnhold: null,
+    regelverklenker: [],
+    kanKombineresMed: [],
   },
   AVKLARAG: {
     id: "938c2e7b-91d6-4eee-97d3-a110ccbc5968",
@@ -53,6 +61,10 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
+    beskrivelse: null,
+    faneinnhold: null,
+    regelverklenker: [],
+    kanKombineresMed: [],
   },
   DIGIOPPARB: {
     id: "e47447e3-bbe4-4c41-839d-f352130b2e8a",
@@ -68,6 +80,10 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
+    beskrivelse: null,
+    faneinnhold: null,
+    regelverklenker: [],
+    kanKombineresMed: [],
   },
   GRUPPEAMO: {
     id: "9b52265c-914c-413d-bca4-e9d7b3f1bd8d",
@@ -83,6 +99,10 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
     ],
+    beskrivelse: null,
+    faneinnhold: null,
+    regelverklenker: [],
+    kanKombineresMed: [],
   },
   GRUFAGYRKE: {
     id: "53ecc473-c0ce-40ea-88c3-9f4a3131080b",
@@ -98,6 +118,10 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
     ],
+    beskrivelse: null,
+    faneinnhold: null,
+    regelverklenker: [],
+    kanKombineresMed: [],
   },
   JOBBK: {
     id: "95766f55-a456-4c4b-9a77-ca61ae214409",
@@ -113,6 +137,10 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
     ],
+    beskrivelse: null,
+    faneinnhold: null,
+    regelverklenker: [],
+    kanKombineresMed: [],
   },
   INDOPPFAG: {
     id: "71a51692-35c5-4951-84eb-a338b0a57210",
@@ -128,6 +156,10 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
+    beskrivelse: null,
+    faneinnhold: null,
+    regelverklenker: [],
+    kanKombineresMed: [],
   },
   VASV: {
     id: "6fb921d6-0a87-4b8a-82a4-067477c1e113",
@@ -143,6 +175,10 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
       TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
       TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
     ],
+    beskrivelse: null,
+    faneinnhold: null,
+    regelverklenker: [],
+    kanKombineresMed: [],
   },
 };
 
@@ -153,13 +189,11 @@ export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
     "AFT er et tiltak som skal bidra til å prøve ut tiltaksdeltakerens arbeidsevne og til å styrke mulighetene for å få ordinært arbeid. Det er et tiltak med individuell tilrettelegging som kan tilbys personer med sammensatte bistandsbehov som har fått sin arbeidsevne nedsatt og som har særlig usikre yrkesmessige forutsetninger.",
   regelverkLenker: [
     {
-      _id: "123",
       regelverkLenkeNavn: "Regelverk",
       regelverkUrl: "https://www.google.no",
       beskrivelse: null,
     },
     {
-      _id: "1234",
       regelverkLenkeNavn: "Rundskriv",
       regelverkUrl: "https://www.google.no",
       beskrivelse: null,

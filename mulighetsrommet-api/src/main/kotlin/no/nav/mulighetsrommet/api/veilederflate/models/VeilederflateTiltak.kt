@@ -4,7 +4,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.sanity.RegelverkLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -13,6 +12,7 @@ import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.PortableTextTypedObject
+import no.nav.mulighetsrommet.model.Regelverklenke
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -149,7 +149,7 @@ data class VeilederflateTiltakstype(
     val egenskaper: Set<TiltakstypeEgenskap>,
     val beskrivelse: String?,
     val innsatsgrupper: Set<Innsatsgruppe>?,
-    val regelverkLenker: List<RegelverkLenke>?,
+    val regelverkLenker: List<Regelverklenke>?,
     val faneinnhold: Faneinnhold?,
     val delingMedBruker: String?,
     val arenakode: String?,

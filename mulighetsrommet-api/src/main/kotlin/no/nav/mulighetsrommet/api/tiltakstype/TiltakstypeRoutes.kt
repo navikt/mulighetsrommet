@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.api.tiltakstype
 
 import io.github.smiley4.ktoropenapi.get
+import io.github.smiley4.ktoropenapi.patch
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
@@ -9,9 +11,12 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
+import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeRedaksjoneltInnholdRequest
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -105,6 +110,41 @@ fun Route.tiltakstypeRoutes() {
                 )
 
             call.respond(veilederflateTiltakstype)
+        }
+
+        authorize(Rolle.AVTALER_SKRIV) {
+            patch("{id}/redaksjonelt-innhold", {
+                tags = setOf("Tiltakstype")
+                operationId = "upsertTiltakstypeRedaksjoneltInnhold"
+                request {
+                    pathParameterUuid("id")
+                    body<TiltakstypeRedaksjoneltInnholdRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Oppdatert tiltakstype"
+                        body<TiltakstypeDto>()
+                    }
+                    code(HttpStatusCode.NotFound) {
+                        description = "Tiltakstype ikke funnet"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val request = call.receive<TiltakstypeRedaksjoneltInnholdRequest>()
+
+                val result = tiltakstypeService.upsertRedaksjoneltInnhold(id, request)
+                    ?: return@patch call.respondText(
+                        "Det finnes ikke noe tiltakstype med id $id",
+                        status = HttpStatusCode.NotFound,
+                    )
+
+                call.respond(result)
+            }
         }
     }
 }

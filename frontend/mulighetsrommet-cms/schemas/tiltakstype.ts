@@ -24,82 +24,6 @@ export const tiltakstype = defineType({
       validation: (Rule) => Rule.required().min(2).max(200),
     }),
     defineField({
-      name: "redaktor",
-      title: "Administratorer",
-      type: "array",
-      description: "Eiere av innholdet i denne tiltakstypen.",
-      of: [
-        {
-          type: "reference",
-          to: [{ type: "redaktor" }],
-        },
-      ],
-      validation: (rule) => rule.required().unique(),
-    }),
-    defineField({
-      name: "kombinasjon",
-      title: "Kan kombineres med",
-      description: "Her kan man legge til tiltakstyper som kan kombineres med denne tiltakstypen.",
-      type: "array",
-      of: [
-        {
-          type: "reference",
-          to: [{ type: "tiltakstype" }],
-        },
-      ],
-      validation: (Rule) => Rule.unique().error("Du kan bare ha én av hver tiltakstype"),
-    }),
-    defineField({
-      name: "beskrivelse",
-      title: "Beskrivelse",
-      type: "text",
-      rows: 5,
-      validation: (Rule) => Rule.max(1500),
-      description: "Kort beskrivelse av formål med tiltaket. ",
-    }),
-    defineField({
-      name: "innsatsgrupper",
-      title: "Innsatsgrupper",
-      type: "array",
-      readOnly: true,
-      options: {
-        layout: "tags",
-      },
-      of: [
-        {
-          type: "string",
-          options: {
-            list: [
-              { value: "GODE_MULIGHETER" },
-              { value: "TRENGER_VEILEDNING" },
-              { value: "TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE" },
-              { value: "JOBBE_DELVIS" },
-              { value: "LITEN_MULIGHET_TIL_A_JOBBE" },
-            ],
-          },
-        },
-      ],
-      validation: (Rule) => Rule.unique(),
-    }),
-    defineField({
-      name: "regelverkLenker",
-      title: "Regelverk",
-      type: "array",
-      of: [{ type: "reference", to: [{ type: "regelverklenke" }] }],
-    }),
-    defineField({
-      name: "faneinnhold",
-      title: "Faneinnhold",
-      type: "faneinnhold",
-    }),
-
-    defineField({
-      name: "delingMedBruker",
-      title: "Informasjon som kan deles med bruker",
-      description: "Informasjon om tiltaket som veileder kan dele med bruker.",
-      type: "text",
-    }),
-    defineField({
       name: "oppskrifter",
       title: "Oppskrifter",
       description:
@@ -113,7 +37,6 @@ export const tiltakstype = defineType({
   preview: {
     select: {
       title: "tiltakstypeNavn",
-      subtitle: "innsatsgruppe.tittel",
     },
   },
 });

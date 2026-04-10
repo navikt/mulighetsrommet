@@ -24,4 +24,11 @@ export const tiltakstypeHandlers = [
       return HttpResponse.json(mockVeilederflateTiltakstypeAFT);
     },
   ),
+
+  http.patch<{ id: string }>(
+    "*/api/tiltaksadministrasjon/tiltakstyper/:id/redaksjonelt-innhold",
+    () => {
+      return new HttpResponse(null, { status: 200 });
+    },
+  ),
 ];
