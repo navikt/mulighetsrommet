@@ -20,7 +20,7 @@ export function MrApi() {
       </RunTask>
 
       <RunTask base={ApiBase.MR_API} task="sync-gjennomforing-avtale-fts">
-        <BodyShort>Oppdater FTS for gjennomføring.</BodyShort>
+        <BodyShort>Oppdater FTS for alle avtale gjennomføringer</BodyShort>
       </RunTask>
 
       <RunTask
