@@ -11,7 +11,7 @@ import {
   AvtaleDto,
   Avtaletype,
   NavAnsattDto,
-  Personopplysning,
+  PersonopplysningType,
   PrismodellType,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
@@ -71,7 +71,7 @@ export type VeilederinformasjonValues = z.infer<typeof VeilederinformasjonStepSc
 export const PersonopplysningerSchema = z.object({
   personvern: z.object({
     personvernBekreftet: z.boolean({ error: "Du må ta stilling til personvern" }),
-    personopplysninger: z.enum(Personopplysning).array(),
+    personopplysninger: z.enum(PersonopplysningType).array(),
   }),
 });
 
@@ -198,7 +198,7 @@ export function defaultAvtaleData(
     },
     personvern: {
       personvernBekreftet: avtale?.personvernBekreftet,
-      personopplysninger: avtale?.personopplysninger ?? [],
+      personopplysninger: avtale?.personopplysninger?.map((p) => p.type) ?? [],
     },
     prismodeller:
       avtale?.prismodeller?.map((prismodell) => ({

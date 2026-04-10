@@ -44,7 +44,7 @@ class ArrangorService(
             return ArrangorError.TomtSok().left()
         }
 
-        return brregClient.sokHovedenhet(sok)
+        return brregClient.searchHovedenhet(sok)
             .map { hovedenheter ->
                 val utenlandskeVirksomheter = db.session {
                     queries.arrangor.getAll(sok = sok, utenlandsk = true).items.map {
@@ -55,6 +55,14 @@ class ArrangorService(
                 hovedenheter + utenlandskeVirksomheter
             }
             .mapLeft { ArrangorError.BrregError(it) }
+    }
+
+    suspend fun brregSokUnderenheter(sok: String): Either<ArrangorError, List<BrregUnderenhet>> {
+        if (sok.isBlank()) {
+            return ArrangorError.TomtSok().left()
+        }
+
+        return brregClient.searchUnderenhet(sok).mapLeft { ArrangorError.BrregError(it) }
     }
 
     suspend fun brregUnderenheter(orgnr: Organisasjonsnummer): Either<ArrangorError, List<BrregUnderenhet>> {

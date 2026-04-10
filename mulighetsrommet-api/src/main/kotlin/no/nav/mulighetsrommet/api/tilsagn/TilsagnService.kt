@@ -63,6 +63,7 @@ import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.collections.orEmpty
 
 class TilsagnService(
     val config: Config,
@@ -132,7 +133,9 @@ class TilsagnService(
                 )
                 queries.totrinnskontroll.upsert(opprettelse)
 
-                logEndring("Sendt til godkjenning", dbo.id, navIdent)
+                logEndring("Sendt til godkjenning", dbo.id, navIdent).also {
+                    updateFreeTextSearch(dbo)
+                }
             }
     }
 
@@ -858,5 +861,14 @@ class TilsagnService(
                 }
             }
         }
+    }
+
+    private fun QueryContext.updateFreeTextSearch(tilsagn: TilsagnDbo) {
+        val fts = listOf(tilsagn.bestillingsnummer) +
+            tilsagn.bestillingsnummer.replace("/", " ") +
+            tilsagn.periode.toFreeTextSearch() +
+            tilsagn.type.displayName()
+
+        queries.tilsagn.setFreeTextSearch(tilsagn.id, fts)
     }
 }

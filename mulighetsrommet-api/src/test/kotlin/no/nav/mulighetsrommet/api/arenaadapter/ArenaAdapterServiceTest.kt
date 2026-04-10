@@ -340,7 +340,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
                     it.navn shouldBe "En enkeltplass"
                     it.status shouldBe GjennomforingStatusType.GJENNOMFORES
-                    it.kostnadssted.enhetsnummer shouldBe NavEnhetNummer("0400")
+                    it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
                 }
             }
 
@@ -355,7 +355,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
                     it.arena?.ansvarligNavEnhet shouldBe "0300"
-                    it.kostnadssted.enhetsnummer shouldBe NavEnhetNummer("0300")
+                    it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0300")
                 }
             }
         }

@@ -46,7 +46,10 @@ export default function Oversikt() {
           {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
         </Button>
       </HStack>
-      <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as "aktive" | "historiske")}>
+      <Tabs
+        value={currentTab}
+        onChange={(tab) => setTab(tab as "aktive" | "historiske" | "tilsagnsoversikt")}
+      >
         <Tabs.List>
           <Tabs.Tab value="aktive" label={tekster.bokmal.utbetaling.oversiktFaner.aktive} />
           <Tabs.Tab value="historiske" label={tekster.bokmal.utbetaling.oversiktFaner.historiske} />
@@ -57,11 +60,10 @@ export default function Oversikt() {
         </Tabs.List>
         <Tabs.Panel value={currentTab}>
           {currentTab === "tilsagnsoversikt" ? (
-            <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
-              <TilsagnTabellContent />
-            </Suspense>
+            <TilsagnTabellContent />
           ) : (
             <UtbetalingTabellContent
+              key={currentTab}
               type={
                 currentTab === "aktive"
                   ? ArrangorflateFilterType.AKTIVE
@@ -182,7 +184,22 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateFilterType }) {
 }
 
 function TilsagnTabellContent() {
-  const { data: paginertTilsagnRader, filter, setFilter } = useArrangorflateTilsagnRader();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
+  const {
+    data: paginertTilsagnRader,
+    filter,
+    setFilter,
+    updateSearch,
+  } = useArrangorflateTilsagnRader();
+
+  function clearSearch() {
+    setSearch("");
+  }
+
+  useEffect(() => {
+    updateSearch(debouncedSearch);
+  }, [debouncedSearch, updateSearch]);
 
   const paginationProps: PaginationProps = {
     hidden: !paginertTilsagnRader.pagination.totalPages,
@@ -213,7 +230,8 @@ function TilsagnTabellContent() {
   const tilsagnSortKeyToParam: Record<string, ArrangorflateTilsagnFilterOrderBy> = {
     tiltakNavn: ArrangorflateTilsagnFilterOrderBy.TILTAK,
     arrangorNavn: ArrangorflateTilsagnFilterOrderBy.ARRANGOR,
-    startDato: ArrangorflateTilsagnFilterOrderBy.PERIODE,
+    startDato: ArrangorflateTilsagnFilterOrderBy.START_DATO,
+    sluttDato: ArrangorflateTilsagnFilterOrderBy.SLUTT_DATO,
     tilsagn: ArrangorflateTilsagnFilterOrderBy.TILSAGN,
     status: ArrangorflateTilsagnFilterOrderBy.STATUS,
   };
@@ -242,6 +260,17 @@ function TilsagnTabellContent() {
 
   return (
     <>
+      <Box paddingBlock="space-16" width="30rem">
+        <Search
+          label="Søk i tilsagn"
+          description="Tiltaksnavn, arrangør, periode, tilsagn"
+          hideLabel={false}
+          variant="simple"
+          width="30rem"
+          onChange={setSearch}
+          onClear={clearSearch}
+        />
+      </Box>
       <Tabellvisning
         kolonner={tilsagnKolonner}
         sort={filterToSortState(filter)}

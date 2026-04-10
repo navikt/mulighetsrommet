@@ -5,11 +5,14 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.model.Personopplysning
-import no.nav.mulighetsrommet.model.PersonopplysningData
 import no.nav.mulighetsrommet.model.ProblemDetail
+import org.koin.ktor.ext.inject
 
 fun Route.personopplysningRoutes() {
+    val db: ApiDatabase by inject()
+
     route("personopplysninger") {
         get({
             tags = setOf("Personopplysning")
@@ -17,7 +20,7 @@ fun Route.personopplysningRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Kodeverk over typer personopplysninger som kan deles mellom Nav og arrangør"
-                    body<List<PersonopplysningData>>()
+                    body<List<Personopplysning>>()
                 }
                 default {
                     description = "Problem details"
@@ -26,10 +29,8 @@ fun Route.personopplysningRoutes() {
             }
         }) {
             call.respond(
-                Personopplysning
-                    .entries
-                    .sortedBy { it.sortKey }
-                    .map { it.toPersonopplysningData() },
+                db.session { queries.avtale.getPersonopplysninger() }
+                    .sortedBy { it.sortKey },
             )
         }
     }

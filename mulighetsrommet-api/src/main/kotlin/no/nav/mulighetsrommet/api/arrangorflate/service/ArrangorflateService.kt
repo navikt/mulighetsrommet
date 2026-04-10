@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.service
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.arrangorflate.api.toArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
@@ -30,9 +31,6 @@ import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 import java.util.UUID
@@ -230,28 +228,6 @@ class ArrangorflateService(
                 navn = p.navn,
             )
         }
-    }
-
-    private fun QueryContext.toArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
-        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
-        val godkjentBelop = when (status) {
-            ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-            ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
-            ArrangorflateUtbetalingStatus.UTBETALT,
-            -> getGodkjentBelopForUtbetaling(utbetaling.id, utbetaling.beregning.output.pris.valuta)
-
-            ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-            ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
-            ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
-            ArrangorflateUtbetalingStatus.AVBRUTT,
-            -> null
-        }
-        return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, gjennomforing, status, godkjentBelop)
-    }
-
-    private fun QueryContext.getGodkjentBelopForUtbetaling(id: UUID, valuta: Valuta): ValutaBelop {
-        return queries.utbetalingLinje.getByUtbetalingId(id).sumOf { it.pris.belop }.withValuta(valuta)
     }
 }
 

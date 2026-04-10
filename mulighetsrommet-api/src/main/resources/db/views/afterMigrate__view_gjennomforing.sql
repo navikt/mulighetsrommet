@@ -27,8 +27,8 @@ select gjennomforing.id,
        gjennomforing.publisert,
        gjennomforing.tilgjengelig_for_arrangor_dato,
        gjennomforing.avtale_id,
-       kostnadssted.enhetsnummer           as kostnadssted_enhetsnummer,
-       kostnadssted.navn                   as kostnadssted_navn,
+       ansvarlig_enhet.enhetsnummer        as ansvarlig_enhet_enhetsnummer,
+       ansvarlig_enhet.navn                as ansvarlig_enhet_navn,
        prismodell.id                       as prismodell_id,
        prismodell.valuta                   as prismodell_valuta,
        prismodell.prismodell_type          as prismodell_type,
@@ -49,7 +49,7 @@ from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join prismodell on prismodell.id = gjennomforing.prismodell_id
-         left join nav_enhet kostnadssted on kostnadssted.enhetsnummer = gjennomforing.kostnadssted
+         left join nav_enhet ansvarlig_enhet on ansvarlig_enhet.enhetsnummer = gjennomforing.ansvarlig_enhet
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'enhetsnummer', enhet.enhetsnummer,

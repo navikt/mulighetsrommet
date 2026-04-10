@@ -35,7 +35,7 @@ import { useAtomValue } from "jotai";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { isTilbakemeldingerEnabled } from "@/apps/modia/features";
 import { OpprettAvtale } from "@/components/pamelding/OpprettAvtale";
-import { StartPameldingEnkeltplass } from "@/components/pamelding/StartPameldingEnkeltplass";
+import { StartRegistreringEnkeltplass } from "@/components/pamelding/StartRegistreringEnkeltplass";
 import { isProduction } from "@/environment";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
@@ -99,7 +99,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             )}
 
             {!isProduction && isTiltakEnkeltplass(tiltak) && (
-              <StartPameldingEnkeltplass
+              <StartRegistreringEnkeltplass
                 tiltakstype={tiltakstype}
                 harRettPaaTiltak={brukerHarRettPaaValgtTiltak}
               />

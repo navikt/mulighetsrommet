@@ -37,7 +37,6 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
-import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
@@ -423,9 +422,3 @@ private fun isEqual(
 ): Boolean {
     return request == GjennomforingRequestMapper.fromGjennomforing(previous, detaljer)
 }
-
-fun Tiltaksnummer.toFreeTextSearch(): List<String> = listOfNotNull(
-    value,
-    aar.toString(),
-    lopenummer.toString(),
-)

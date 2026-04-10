@@ -304,7 +304,7 @@ fun resolveTilsagnDefaults(
     )
 
     val kostnadssted = tilsagn?.kostnadssted?.enhetsnummer
-        ?: (gjennomforing as? GjennomforingEnkeltplass)?.kostnadssted?.enhetsnummer
+        ?: (gjennomforing as? GjennomforingEnkeltplass)?.ansvarligEnhet?.enhetsnummer
 
     return TilsagnRequest(
         id = UUID.randomUUID(),

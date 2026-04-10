@@ -1928,7 +1928,7 @@ components:
         personopplysningerSomKanBehandles:
           type: array
           items:
-            $ref: "#/components/schemas/PersonopplysningData"
+            $ref: "#/components/schemas/Personopplysning"
       required:
       - apentForPamelding
       - arrangor
@@ -1977,22 +1977,26 @@ components:
       required:
       - enhet
       - verdi
-    PersonopplysningData:
+    Personopplysning:
       type: object
       properties:
-        personopplysning:
-          $ref: "#/components/schemas/Personopplysning"
-        tittel:
+        type:
+          $ref: "#/components/schemas/Personopplysning.Type"
+        title:
           type: string
-        hjelpetekst:
+        helpText:
           type:
           - "null"
           - string
+        sortKey:
+          type: integer
+          format: int32
       required:
-      - hjelpetekst
-      - personopplysning
-      - tittel
-    Personopplysning:
+      - helpText
+      - sortKey
+      - title
+      - type
+    Personopplysning.Type:
       type: string
       enum:
       - NAVN
@@ -2019,6 +2023,7 @@ components:
       - NASJONALITET
       - ADRESSESPERRE
       - VERGEMAL
+      - STEMME
     SanityPerspective:
       type: string
       enum:

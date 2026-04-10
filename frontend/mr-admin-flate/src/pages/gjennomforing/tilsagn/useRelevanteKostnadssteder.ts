@@ -10,9 +10,7 @@ export function useRelevanteKostnadssteder(
   const { data: kostnadssteder } = useKostnadssteder();
 
   if (kostnadssted) {
-    return kostnadssteder
-      .filter(({ kostnadssteder }) => kostnadssteder.some((k) => k.enhetsnummer === kostnadssted))
-      .flatMap(({ kostnadssteder }) => kostnadssteder);
+    return kostnadssteder.flatMap(({ kostnadssteder }) => kostnadssteder);
   }
 
   const relevanteRegioner =

@@ -40,6 +40,7 @@ import java.sql.Array
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.String
 
 class AvtaleQueries(private val session: Session) {
     fun create(avtale: AvtaleDbo) = withTransaction(session) {
@@ -127,7 +128,7 @@ class AvtaleQueries(private val session: Session) {
         @Language("PostgreSQL")
         val updatePersonopplysninger = """
             insert into avtale_personopplysning (avtale_id, personopplysning)
-            values (?::uuid, ?::personopplysning)
+            values (?::uuid, ?)
             on conflict do nothing
         """.trimIndent()
         batchPreparedStatement(
@@ -144,7 +145,7 @@ class AvtaleQueries(private val session: Session) {
             queryOf(
                 deletePersonopplysninger,
                 avtaleId,
-                createArrayOfPersonopplysning(personvernDbo.personopplysninger),
+                createTextArray(personvernDbo.personopplysninger),
             ),
         )
     }
@@ -503,6 +504,20 @@ class AvtaleQueries(private val session: Session) {
 
         session.update(queryOf(query, sluttDato, avtaleId))
     }
+
+    fun getPersonopplysninger(): List<Personopplysning> {
+        @Language("PostgreSQL")
+        val query = """ select * from personopplysning """
+
+        return session.list(queryOf(query)) {
+            Personopplysning(
+                type = Personopplysning.Type.valueOf(it.string("value")),
+                title = it.string("title"),
+                helpText = it.stringOrNull("help_text"),
+                sortKey = it.int("sort_key"),
+            )
+        }
+    }
 }
 
 private fun Row.toAvtale(): Avtale {
@@ -612,7 +627,3 @@ fun Session.createArrayOfAvtaleStatus(
 fun Session.createArrayOfAvtaletype(
     avtaletypes: List<Avtaletype>,
 ): Array = createArrayOf("avtaletype", avtaletypes)
-
-fun Session.createArrayOfPersonopplysning(
-    personopplysnings: List<Personopplysning>,
-): Array = createArrayOf("personopplysning", personopplysnings)
