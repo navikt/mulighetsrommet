@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.avtale.model.AmoKategoriseringDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -61,6 +60,12 @@ sealed class GjennomforingDto {
         val beskrivelse: String?,
         val telefon: String?,
         val epost: String,
+    )
+
+    @Serializable
+    data class AnsvarligEnhet(
+        val enhetsnummer: NavEnhetNummer,
+        val navn: String,
     )
 
     @Serializable
@@ -122,7 +127,7 @@ data class GjennomforingEnkeltplassDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val status: Status,
-    val kostnadssted: KostnadsstedDto?,
+    val ansvarligEnhet: AnsvarligEnhet?,
 ) : GjennomforingDto()
 
 @Serializable

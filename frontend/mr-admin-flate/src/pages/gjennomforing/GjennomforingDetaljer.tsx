@@ -69,11 +69,11 @@ export function GjennomforingDetaljer() {
         </HStack>
       ),
     },
-    ...(isEnkeltplass(gjennomforing) && gjennomforing.kostnadssted
+    ...(isEnkeltplass(gjennomforing) && gjennomforing.ansvarligEnhet
       ? [
           {
-            key: "Kostnadssted",
-            value: `${gjennomforing.kostnadssted.navn} (${gjennomforing.kostnadssted.enhetsnummer})`,
+            key: gjennomforingTekster.ansvarligEnhet.label,
+            value: `${gjennomforing.ansvarligEnhet.navn} (${gjennomforing.ansvarligEnhet.enhetsnummer})`,
           },
         ]
       : []),

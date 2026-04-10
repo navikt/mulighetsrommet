@@ -57,9 +57,19 @@ from avtale
                             from avtale_prismodell
                                      join prismodell on prismodell_id = prismodell.id
                             where avtale_id = avtale.id) on true
-         left join lateral (select jsonb_agg(personopplysning) as personopplysninger_json
-                            from avtale_personopplysning
-                            where avtale_id = avtale.id) on true
+         left join lateral (
+             select jsonb_agg(
+                 jsonb_build_object(
+                     'type', ap.personopplysning,
+                     'title', p.title,
+                     'helpText', p.help_text,
+                     'sortKey', p.sort_key
+                 ) order by p.sort_key
+             ) as personopplysninger_json
+             from avtale_personopplysning ap
+             join personopplysning p on p.value = ap.personopplysning
+             where ap.avtale_id = avtale.id
+         ) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'navIdent', avtale_administrator.nav_ident,

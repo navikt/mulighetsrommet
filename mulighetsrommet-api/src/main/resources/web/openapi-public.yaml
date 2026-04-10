@@ -84,15 +84,15 @@ paths:
           description: Gjennomføringen ble ikke funnet
           headers: {}
       deprecated: false
-  /api/v1/arrangor/hovedenhet/sok/{term}:
+  /api/v1/arrangor/underenhet:
     get:
       tags:
       - Arrangor
-      description: Søk etter hovedenhet på orgnr eller navn
-      operationId: sokHovedenhet
+      description: Søk etter unrderenhet på orgnr eller navn
+      operationId: sokUnderenhet
       parameters:
-      - name: term
-        in: path
+      - name: sok
+        in: query
         required: true
         deprecated: false
         explode: false
@@ -100,14 +100,14 @@ paths:
           type: string
       responses:
         "200":
-          description: Liste av hovedenheter
+          description: Liste med underenheter
           headers: {}
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/BrregHovedenhetDto"
+                  $ref: "#/components/schemas/BrregUnderenhetDto"
         "400":
           description: Søket er blankt
           headers: {}
@@ -122,44 +122,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/v1/arrangor/hovedenhet/{orgnr}/underenheter:
-    get:
-      tags:
-      - Arrangor
-      description: Hent underliggende enheter
-      operationId: hentUnderenheter
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Liste av underenheter
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/BrregUnderenhetDto"
-        "400":
-          description: Feil format på organisasjonsnummer
-          headers: {}
-        "500":
-          description: Feil oppstod ved henting av underenheter fra Brreg
-          headers: {}
         default:
           description: Problem details
           headers: {}
@@ -339,7 +301,7 @@ components:
       required:
       - lopenr
       - opprettetAar
-    BrregHovedenhetDto:
+    BrregUnderenhetDto:
       type: object
       properties:
         organisasjonsnummer:
@@ -348,51 +310,13 @@ components:
           type: string
         navn:
           type: string
-        postadresse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/BrregAdresse"
-        forretningsadresse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/BrregAdresse"
         overordnetEnhet:
-          type:
-          - "null"
-          - string
+          type: string
       required:
-      - forretningsadresse
       - navn
       - organisasjonsform
       - organisasjonsnummer
       - overordnetEnhet
-      - postadresse
-    BrregAdresse:
-      type: object
-      properties:
-        landkode:
-          type:
-          - "null"
-          - string
-        postnummer:
-          type:
-          - "null"
-          - string
-        poststed:
-          type:
-          - "null"
-          - string
-        adresse:
-          type:
-          - "null"
-          - array
-          items:
-            type: string
-      required:
-      - adresse
-      - landkode
-      - postnummer
-      - poststed
     ProblemDetail:
       type: object
       additionalProperties: {}
@@ -412,21 +336,5 @@ components:
       - status
       - title
       - type
-    BrregUnderenhetDto:
-      type: object
-      properties:
-        organisasjonsnummer:
-          type: string
-        organisasjonsform:
-          type: string
-        navn:
-          type: string
-        overordnetEnhet:
-          type: string
-      required:
-      - navn
-      - organisasjonsform
-      - organisasjonsnummer
-      - overordnetEnhet
   examples: {}
 webhooks: {}

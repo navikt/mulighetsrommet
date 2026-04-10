@@ -202,7 +202,7 @@ class ArrangorServiceTest : FunSpec({
         }
 
         test("sok gir med utenlandske arrangører") {
-            coEvery { brregClient.sokHovedenhet(any()) } returns emptyList<BrregHovedenhetDto>().right()
+            coEvery { brregClient.searchHovedenhet(any()) } returns emptyList<BrregHovedenhetDto>().right()
 
             arrangorService.brregSok("Nord").shouldBeRight()[0] should {
                 it.navn shouldBe utenlandskArrangor.navn

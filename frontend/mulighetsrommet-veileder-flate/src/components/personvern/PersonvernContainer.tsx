@@ -11,7 +11,7 @@ import {
   Box,
 } from "@navikt/ds-react";
 import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
-import { PersonopplysningData, VeilederflateTiltakGruppe } from "@api-client";
+import { Personopplysning, VeilederflateTiltakGruppe } from "@api-client";
 import { useState } from "react";
 import { PersonvernIkon } from "@/ikoner/PersonvernIkon";
 
@@ -99,7 +99,7 @@ export function PersonvernContainer({ tiltak }: Props) {
 
 interface ListeOverPersonopplysningerProps {
   title: string;
-  personopplysninger: PersonopplysningData[];
+  personopplysninger: Personopplysning[];
 }
 
 function ListeOverPersonopplysninger({
@@ -118,12 +118,12 @@ function ListeOverPersonopplysninger({
       <Box marginBlock="space-12" asChild>
         <List data-aksel-migrated-v8 size="small">
           {personopplysninger.map((personopplysning) => (
-            <List.Item key={personopplysning.personopplysning} className="max-w-[75ch]">
+            <List.Item key={personopplysning.type} className="max-w-[75ch]">
               <HStack align={"end"} gap="space-4">
                 <div className="flex items-baseline gap-2">
-                  {personopplysning.tittel}{" "}
-                  {personopplysning.hjelpetekst ? (
-                    <HelpText>{personopplysning.hjelpetekst}</HelpText>
+                  {personopplysning.title}{" "}
+                  {personopplysning.helpText ? (
+                    <HelpText>{personopplysning.helpText}</HelpText>
                   ) : null}
                 </div>
               </HStack>

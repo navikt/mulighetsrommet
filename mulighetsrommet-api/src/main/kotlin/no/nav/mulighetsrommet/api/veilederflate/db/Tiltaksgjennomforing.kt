@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.PersonopplysningData
+import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.util.UUID
@@ -31,5 +31,5 @@ data class Tiltaksgjennomforing(
     val enheter: List<NavEnhetNummer>,
     val estimertVentetid: EstimertVentetid?,
     val personvernBekreftet: Boolean,
-    val personopplysningerSomKanBehandles: List<PersonopplysningData>,
+    val personopplysningerSomKanBehandles: List<Personopplysning>,
 )

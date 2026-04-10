@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.PersonopplysningData
+import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.PortableTextTypedObject
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
@@ -65,7 +65,7 @@ data class VeilederflateTiltakGruppe(
     val arrangor: VeilederflateArrangor,
     val estimertVentetid: EstimertVentetid?,
     val personvernBekreftet: Boolean,
-    val personopplysningerSomKanBehandles: List<PersonopplysningData>,
+    val personopplysningerSomKanBehandles: List<Personopplysning>,
 ) : VeilederflateTiltak()
 
 @Serializable

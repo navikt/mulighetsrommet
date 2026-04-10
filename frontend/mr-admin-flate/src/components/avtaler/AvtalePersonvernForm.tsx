@@ -40,10 +40,10 @@ export function AvtalePersonvernForm() {
             value={value}
           >
             {personopplysninger.map((p) => (
-              <Checkbox key={p.personopplysning} value={p.personopplysning} size="small">
+              <Checkbox key={p.type} value={p.type} size="small">
                 <HStack gap="space-8" align="center">
-                  {p.tittel}
-                  {p.hjelpetekst && <HelpText>{p.hjelpetekst}</HelpText>}
+                  {p.title}
+                  {p.helpText && <HelpText>{p.helpText}</HelpText>}
                 </HStack>
               </Checkbox>
             ))}
@@ -62,7 +62,7 @@ export function AvtalePersonvernForm() {
           } else {
             setValue(
               "personvern.personopplysninger",
-              personopplysninger.map(({ personopplysning }) => personopplysning),
+              personopplysninger.map(({ type }) => type),
             );
           }
         }}
