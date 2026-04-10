@@ -350,6 +350,11 @@ class GjennomforingAvtaleService(
         }
     }
 
+    fun updateFreeTextSearch(id: UUID) = db.transaction {
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(id)
+        updateFreeTextSearch(gjennomforing)
+    }
+
     private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingAvtale) {
         val fts = listOf(gjennomforing.navn, gjennomforing.arrangor.navn) +
             gjennomforing.lopenummer.toFreeTextSearch() +
