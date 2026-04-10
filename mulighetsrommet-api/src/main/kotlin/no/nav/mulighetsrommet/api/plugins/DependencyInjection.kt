@@ -51,6 +51,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
+import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
 import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
@@ -531,6 +532,7 @@ private fun tasks(config: AppConfig) = module {
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
     single { JournalforEnkeltplassTilsagnsbrev(get(), get(), get(), get(), get(), get()) }
     single { DistribuerTilsagnsbrev(get(), get()) }
+    single { UpdateGjennomforingAvtaleFreeTextSearch(get(), get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(
             get(),
@@ -563,6 +565,7 @@ private fun tasks(config: AppConfig) = module {
         val beregnUtbetaling: BeregnUtbetaling by inject()
         val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
         val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
+        val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
 
         val db: Database by inject()
 
@@ -577,6 +580,7 @@ private fun tasks(config: AppConfig) = module {
                 beregnUtbetaling.task,
                 journalforEnkeltplassTilsagnsbrev.task,
                 distribuerTilsagnsbrev.task,
+                updateGjennomforingAvtaleFreeTextSearch.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())

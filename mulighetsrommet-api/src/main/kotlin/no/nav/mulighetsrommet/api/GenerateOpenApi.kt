@@ -1,8 +1,18 @@
 package no.nav.mulighetsrommet.api
 
 import io.github.smiley4.ktoropenapi.OpenApiPlugin
+import io.ktor.server.application.Application
 import io.ktor.server.application.ServerReady
+import io.ktor.server.application.install
+import io.ktor.server.auth.Authentication
+import io.ktor.server.auth.AuthenticationContext
+import io.ktor.server.auth.AuthenticationProvider
+import io.ktor.server.routing.routing
+import no.nav.mulighetsrommet.api.plugins.configureOpenApiGenerator
+import no.nav.mulighetsrommet.api.plugins.configureRouting
 import no.nav.mulighetsrommet.api.routes.OpenApiSpec
+import no.nav.mulighetsrommet.api.routes.apiRoutes
+import no.nav.mulighetsrommet.ktor.ServerConfig
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.system.exitProcess
@@ -18,7 +28,14 @@ fun main(args: Array<String>) {
         openApiSpecName to fileOutputPath
     }
 
-    val server = createServer(ApplicationConfigLocal)
+    val server = createServer(ServerConfig()) {
+        configureAuthenticationForOpenApiGeneration()
+        configureRouting()
+        configureOpenApiGenerator()
+        routing {
+            apiRoutes(ApplicationConfigLocal)
+        }
+    }
 
     server.application.monitor.subscribe(ServerReady) {
         println("✅ Server is ready")
@@ -41,6 +58,23 @@ fun main(args: Array<String>) {
     }
 
     server.start(wait = false)
+}
+
+/**
+ * Installerer no-op authentication providers for alle [no.nav.mulighetsrommet.api.plugins.AuthProvider].
+ */
+private fun Application.configureAuthenticationForOpenApiGeneration() {
+    install(Authentication) {
+        no.nav.mulighetsrommet.api.plugins.AuthProvider.entries.forEach { authProvider ->
+            register(NoOpAuthenticationProvider(authProvider.name))
+        }
+    }
+}
+
+private class NoOpAuthenticationProvider(name: String) : AuthenticationProvider(object : Config(name) {}) {
+    override suspend fun onAuthenticate(context: AuthenticationContext) {
+        // No-op: kun for OpenAPI-generering – ingen requests autentiseres
+    }
 }
 
 private fun generateOpenApiSpec(spec: OpenApiSpec, outputPath: String) {

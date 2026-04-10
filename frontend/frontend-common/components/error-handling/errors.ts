@@ -7,11 +7,18 @@ type ProblemDetail = {
   [key: string]: unknown | string | number | undefined;
 };
 
-export function isProblemDetail(error: any): error is ProblemDetail {
-  return "status" in error && "detail" in error && "type" in error && "title" in error;
+export function isProblemDetail(error: unknown): error is ProblemDetail {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    "detail" in error &&
+    "type" in error &&
+    "title" in error
+  );
 }
 
-export function resolveErrorMessage(error: any): string {
+export function resolveErrorMessage(error: unknown): string {
   if (isProblemDetail(error)) {
     return error.detail;
   }
