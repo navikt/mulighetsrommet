@@ -10,7 +10,6 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -25,6 +24,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TO
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -42,7 +42,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
     fun createArenaAdapterService(
         sanityService: SanityService = mockk(),
-        deltakerClient: AmtDeltakerClient = mockk(),
+        personaliaService: PersonaliaService = mockk(),
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ) = ArenaAdapterService(
         db = database.db,
@@ -52,8 +52,8 @@ class ArenaAdapterServiceTest : FunSpec({
         gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
+            personaliaService,
             TiltakstypeService(TiltakstypeService.Config(features), database.db),
-            deltakerClient,
         ),
         gjennomforingAvtaleService = GjennomforingAvtaleService(
             GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),

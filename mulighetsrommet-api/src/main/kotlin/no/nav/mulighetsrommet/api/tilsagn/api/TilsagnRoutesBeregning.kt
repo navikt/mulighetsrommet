@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
@@ -161,7 +162,10 @@ fun Route.tilsagnRoutesBeregning() {
                     it.startDato == null || it.sluttDato == null ||
                         periode.intersects(Periode.fromInclusiveDates(it.startDato, it.sluttDato))
                 }
-            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.map { it.id })
+            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                deltakelser.map { it.id },
+                call.getAccessType(),
+            )
             deltakelser.map {
                 TilsagnDeltakerDto.from(it, personalia[it.id])
             }

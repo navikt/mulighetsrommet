@@ -329,6 +329,10 @@ val ApplicationConfigDev = AppConfig(
         projectId = System.getenv("SANITY_PROJECT_ID"),
         token = System.getenv("SANITY_AUTH_TOKEN"),
     ),
+    tilgangsmaskin = AuthenticatedHttpClientConfig(
+        url = "http://populasjonstilgangskontroll.tilgangsmaskin",
+        scope = "api://dev-gcp.tilgangsmaskin.populasjonstilgangskontroll/.default",
+    ),
     veilarboppfolgingConfig = AuthenticatedHttpClientConfig(
         url = "http://veilarboppfolging.poao/veilarboppfolging/api",
         scope = "api://dev-gcp.poao.veilarboppfolging/.default",

@@ -66,8 +66,8 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         val service = GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
-            TiltakstypeService(TiltakstypeService.Config(), database.db),
             mockk(),
+            TiltakstypeService(TiltakstypeService.Config(), database.db),
         )
 
         val gjennomforingId = UUID.randomUUID()

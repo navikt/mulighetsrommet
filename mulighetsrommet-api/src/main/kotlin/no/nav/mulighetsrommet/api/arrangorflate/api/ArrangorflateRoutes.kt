@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -68,6 +69,7 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tokenprovider.requireTokenX
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
@@ -119,7 +121,8 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
     suspend fun RoutingContext.getTilsagnOrRespondNotFound(): ArrangorflateTilsagnDto {
         val id: UUID by call.parameters
-        return arrangorflateService.getTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
+        val accessType = call.getAccessType().requireTokenX()
+        return arrangorflateService.getTilsagn(id, accessType) ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
     }
 
     fun RoutingContext.getUtbetalingOrRespondNotFound(): Utbetaling {
@@ -178,7 +181,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             if (tilganger.isEmpty()) {
                 return@get respondWithManglerTilgangHosArrangor()
             }
-
             val filter = getArrangorflateTilsagnFilter()
             val (totalCount, data) = db.session {
                 queries.arrangorflate.tilsagn
@@ -188,7 +190,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     )
                     .map { it.toRadDto() }
             }
-
             val response = PaginatedResponse.of(filter.pagination, totalCount, data)
             call.respond(response)
         }
@@ -273,7 +274,8 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             val utbetaling = getUtbetalingOrRespondNotFound()
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
-            val response = arrangorflateService.toArrangorflateUtbetaling(utbetaling)
+            val accessType = call.getAccessType().requireTokenX()
+            val response = arrangorflateService.toArrangorflateUtbetaling(utbetaling, accessType)
             call.respond(response)
         }
 
@@ -491,7 +493,8 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             val utbetaling = getUtbetalingOrRespondNotFound()
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
-            val tilsagn = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(utbetaling)
+            val accessType = call.getAccessType().requireTokenX()
+            val tilsagn = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(utbetaling, accessType)
 
             call.respond(tilsagn)
         }

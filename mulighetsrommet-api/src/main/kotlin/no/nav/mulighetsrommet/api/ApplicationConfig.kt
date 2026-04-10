@@ -39,6 +39,7 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
+    val tilgangsmaskin: AuthenticatedHttpClientConfig,
     val veilarboppfolgingConfig: AuthenticatedHttpClientConfig,
     val veilarbvedtaksstotteConfig: AuthenticatedHttpClientConfig,
     val veilarbdialogConfig: AuthenticatedHttpClientConfig,

@@ -9,8 +9,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDt
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
-import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTimeline
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
@@ -142,26 +140,7 @@ private fun getInnsendingsDetaljer(
 data class ArrangorflatePersonalia(
     val navn: String,
     val norskIdent: NorskIdent?,
-    val erSkjermet: Boolean,
-) {
-    companion object {
-        fun fromPersonalia(personalia: DeltakerPersonalia) = when (personalia.adressebeskyttelse) {
-            PdlGradering.UGRADERT -> {
-                ArrangorflatePersonalia(
-                    navn = personalia.navn,
-                    norskIdent = personalia.norskIdent,
-                    erSkjermet = personalia.erSkjermet,
-                )
-            }
-
-            else -> ArrangorflatePersonalia(
-                navn = "Adressebeskyttet",
-                norskIdent = null,
-                erSkjermet = personalia.erSkjermet,
-            )
-        }
-    }
-}
+)
 
 data class ArrangorflateBeregningDeltakelse(
     val personalia: ArrangorflatePersonalia?,

@@ -37,6 +37,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
@@ -241,6 +242,13 @@ private fun services(appConfig: AppConfig) = module {
     val azureAdTokenProvider = AzureAdTokenProvider(texasClient)
     val maskinportenTokenProvider = MaskinportenTokenProvider(texasClient)
 
+    single {
+        TilgangsmaskinClient(
+            baseUrl = appConfig.tilgangsmaskin.url,
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.tilgangsmaskin.scope),
+            clientEngine = appConfig.engine,
+        )
+    }
     single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
@@ -471,7 +479,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { PersonaliaService(get(), get(), get(), get()) }
+    single { PersonaliaService(get(), get(), get(), get(), get()) }
     single<FeatureToggleService> { UnleashFeatureToggleService(appConfig.unleash) }
     single { LagretFilterService(get()) }
     single {

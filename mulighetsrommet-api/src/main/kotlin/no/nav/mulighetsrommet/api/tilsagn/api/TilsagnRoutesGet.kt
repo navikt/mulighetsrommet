@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -56,7 +57,10 @@ fun Route.tilsagnRoutesGet() {
                 val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.toDto()
                 val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.toDto()
 
-                val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(tilsagn.deltakere.map { it.deltakerId })
+                val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                    tilsagn.deltakere.map { it.deltakerId },
+                    call.getAccessType(),
+                )
                 val deltakere = tilsagn.deltakere.map {
                     TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                 }

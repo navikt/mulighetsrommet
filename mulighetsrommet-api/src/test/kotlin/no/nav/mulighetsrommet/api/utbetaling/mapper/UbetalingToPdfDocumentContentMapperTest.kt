@@ -7,7 +7,6 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
@@ -23,6 +22,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDelt
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -284,43 +284,38 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
     )
 
     val personalia = mapOf(
-        deltaker1Id to DeltakerPersonalia(
+        deltaker1Id to Personalia(
             navn = "Ola Skjermet",
             norskIdent = NorskIdent("01010199999"),
             erSkjermet = true,
-            deltakerId = deltaker1Id,
             oppfolgingEnhet = null,
             adressebeskyttelse = PdlGradering.UGRADERT,
         ),
-        deltaker2Id to DeltakerPersonalia(
+        deltaker2Id to Personalia(
             navn = "Ola Nordmann",
             norskIdent = NorskIdent("01010199999"),
             erSkjermet = false,
-            deltakerId = deltaker2Id,
             oppfolgingEnhet = null,
             adressebeskyttelse = PdlGradering.UGRADERT,
         ),
-        deltaker3Id to DeltakerPersonalia(
+        deltaker3Id to Personalia(
             navn = "Kari Nordmann",
             norskIdent = NorskIdent("01010199998"),
             erSkjermet = false,
-            deltakerId = deltaker3Id,
             oppfolgingEnhet = null,
             adressebeskyttelse = PdlGradering.FORTROLIG,
         ),
-        deltaker4Id to DeltakerPersonalia(
+        deltaker4Id to Personalia(
             navn = "Kari Nordmann",
             norskIdent = NorskIdent("01010199997"),
             erSkjermet = false,
-            deltakerId = deltaker4Id,
             oppfolgingEnhet = null,
             adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
         ),
-        deltaker5Id to DeltakerPersonalia(
+        deltaker5Id to Personalia(
             navn = "Carrie Northfolk",
             norskIdent = NorskIdent("01010199996"),
             erSkjermet = false,
-            deltakerId = deltaker5Id,
             oppfolgingEnhet = null,
             adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND,
         ),
@@ -375,8 +370,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         test("fast sats per tiltaksplass per maned") {
             val pdfContent = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
                 utbetalingFastSats,
-                gjennomforing,
                 personalia,
+                gjennomforing,
             )
 
             jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedJournalpostFastSatsContent
@@ -384,8 +379,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         test("avtalt pris per time oppfølging per deltaker") {
             val pdfContent = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
                 utbetalingPrisPerTimeOppfolging,
-                gjennomforing,
                 personalia,
+                gjennomforing,
             )
 
             jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedJournalpostTimesPrisContent

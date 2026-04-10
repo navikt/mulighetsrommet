@@ -29,8 +29,8 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         service: GjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
-            TiltakstypeService(TiltakstypeService.Config(features), database.db),
             mockk(),
+            TiltakstypeService(TiltakstypeService.Config(features), database.db),
         ),
     ): ReplikerDeltakerEnkeltplassKafkaConsumer {
         return ReplikerDeltakerEnkeltplassKafkaConsumer(

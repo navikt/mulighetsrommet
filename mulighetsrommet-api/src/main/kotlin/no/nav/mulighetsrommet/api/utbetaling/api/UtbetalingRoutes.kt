@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
@@ -302,7 +303,10 @@ fun Route.utbetalingRoutes() {
                     val utbetaling = queries.utbetaling.getOrError(id)
                     val deltakelser = utbetaling.beregning.deltakelsePerioder().associateBy { it.deltakelseId }
 
-                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys.toList())
+                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                        deltakelser.keys.toList(),
+                        call.getAccessType(),
+                    )
 
                     val enheter = personalia.flatMapTo(mutableSetOf()) {
                         listOfNotNull(
@@ -388,8 +392,10 @@ fun Route.utbetalingRoutes() {
                         val opprettelse = queries.totrinnskontroll
                             .getOrError(linje.id, Totrinnskontroll.Type.OPPRETT)
 
-                        val personalia =
-                            personaliaService.getPersonaliaMedGeografiskEnhet(tilsagn.deltakere.map { it.deltakerId })
+                        val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                            tilsagn.deltakere.map { it.deltakerId },
+                            call.getAccessType(),
+                        )
                         val deltakere = tilsagn.deltakere.map {
                             TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                         }
@@ -420,7 +426,10 @@ fun Route.utbetalingRoutes() {
                         .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
                         .map { tilsagn ->
                             val deltakerIds = tilsagn.deltakere.map { it.deltakerId }
-                            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakerIds)
+                            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                                deltakerIds,
+                                call.getAccessType(),
+                            )
                             val deltakere = tilsagn.deltakere.map {
                                 TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
                             }

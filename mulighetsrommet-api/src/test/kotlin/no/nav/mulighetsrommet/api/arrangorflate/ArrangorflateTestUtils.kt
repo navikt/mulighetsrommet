@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.arrangorflate
 
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.request.post
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
@@ -260,6 +263,12 @@ object ArrangorflateTestUtils {
         }
     }
 
+    fun mockTilgangsmaskin(builder: MockEngineBuilder) {
+        builder.post("/tilgangsmaskin/api/v1/komplett") {
+            respond("", HttpStatusCode.NoContent)
+        }
+    }
+
     fun appConfig(
         oauth: MockOAuth2Server,
         engine: MockEngine = createMockEngine {
@@ -267,6 +276,7 @@ object ArrangorflateTestUtils {
             mockJournalpost(this)
             mockClamAvScan(this)
             mockAmtDeltaker(this)
+            mockTilgangsmaskin(this)
             mockKontoregisterOrganisasjon(this)
         },
     ) = createTestApplicationConfig().copy(

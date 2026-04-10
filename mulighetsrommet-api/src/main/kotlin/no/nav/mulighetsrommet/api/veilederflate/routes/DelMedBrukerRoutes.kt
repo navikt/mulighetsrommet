@@ -11,6 +11,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.dialog.DialogRequest
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogError
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
@@ -18,12 +19,10 @@ import no.nav.mulighetsrommet.api.veilederflate.models.DeltMedBrukerDto
 import no.nav.mulighetsrommet.api.veilederflate.models.TiltakDeltMedBrukerDto
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
-import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -66,7 +65,7 @@ fun Route.delMedBrukerRoutes() {
                 throw BadRequestException("sanityId eller gjennomforingId må inkluderes")
             }
 
-            val obo = AccessType.OBO(call.getAccessToken())
+            val obo = call.getAccessType()
 
             val dialogRequest = request.run {
                 DialogRequest(

@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
-import arrow.core.getOrElse
+import arrow.core.getOrNone
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
@@ -11,9 +11,6 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerError
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
@@ -23,6 +20,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -34,6 +33,7 @@ import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 import java.util.UUID
 
@@ -56,8 +56,8 @@ data class UpsertGjennomforingEnkeltplass(
 class GjennomforingEnkeltplassService(
     private val config: Config,
     private val db: ApiDatabase,
+    private val personaliaService: PersonaliaService,
     private val tiltakstyper: TiltakstypeService,
-    private val deltakerClient: AmtDeltakerClient,
 ) {
     data class Config(
         val gjennomforingV2Topic: String,
@@ -101,7 +101,8 @@ class GjennomforingEnkeltplassService(
         )
         queries.gjennomforing.setArenaData(arenadataDbo)
 
-        val personalia = getDeltakerPersonalia(id)
+        val personalia = getDeltakerPersonalia(id, AccessType.M2M)
+
         getOrError(id)
             .also { updateFreeTextSearch(it, personalia?.norskIdent) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
@@ -140,19 +141,12 @@ class GjennomforingEnkeltplassService(
         }
     }
 
-    private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID): DeltakerPersonalia? {
-        return getDeltaker(gjennomforingId)
-            ?.let { deltakerClient.hentPersonalia(listOf(it.id)) }
-            ?.map { personalia -> personalia.first() }
-            ?.getOrElse { error ->
-                when (error) {
-                    AmtDeltakerError.NotFound -> null
-
-                    AmtDeltakerError.BadRequest,
-                    AmtDeltakerError.Error,
-                    -> error("Klarte ikke hente personalia for deltaker til gjennomføring med id=$gjennomforingId error=$error")
-                }
-            }
+    private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID, accessType: AccessType): Personalia? {
+        val deltaker = getDeltaker(gjennomforingId)
+        return deltaker
+            ?.let { personaliaService.getPersonalia(listOf(it.id), accessType) }
+            ?.getOrNone(deltaker.id)
+            ?.getOrNull()
     }
 
     private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker? {

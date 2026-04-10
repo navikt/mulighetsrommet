@@ -4,7 +4,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsDetaljer
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningStengt
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.pdfgen.Format
@@ -25,6 +24,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataElement
@@ -67,8 +67,8 @@ object UbetalingToPdfDocumentContentMapper {
 
     fun toJournalpostPdfContent(
         utbetaling: Utbetaling,
+        personalia: Map<UUID, Personalia>,
         gjennomforing: GjennomforingAvtale,
-        personalia: Map<UUID, DeltakerPersonalia>,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Utbetaling",
         subject = "Krav om utbetaling fra ${utbetaling.arrangor.navn}",
@@ -269,7 +269,7 @@ private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
 
 private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
     beregning: UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-    personalia: Map<UUID, DeltakerPersonalia>,
+    personalia: Map<UUID, Personalia>,
 ) {
     section("Deltakerperioder") {
         table {
@@ -304,7 +304,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
 
 private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
     deltakelser: Set<DeltakelsePeriode>,
-    personalia: Map<UUID, DeltakerPersonalia>,
+    personalia: Map<UUID, Personalia>,
 ) {
     section("Deltakerperioder") {
         table {
@@ -333,7 +333,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     sectionHeader: String,
     deltakelseFaktorColumnName: String,
     deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
-    personalia: Map<UUID, DeltakerPersonalia>,
+    personalia: Map<UUID, Personalia>,
 ) {
     section(sectionHeader) {
         table {
@@ -354,7 +354,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     }
 }
 
-private fun deltakerNavnOgIdent(person: DeltakerPersonalia?): Array<TableBlock.Table.Cell> {
+private fun deltakerNavnOgIdent(person: Personalia?): Array<TableBlock.Table.Cell> {
     val erSkjermet = person?.erSkjermet == true
     val erAdressebeskyttet = person?.adressebeskyttelse != PdlGradering.UGRADERT
     return arrayOf(
@@ -370,7 +370,7 @@ private fun deltakerNavnOgIdent(person: DeltakerPersonalia?): Array<TableBlock.T
             when {
                 erSkjermet -> null
                 erAdressebeskyttet -> null
-                else -> person.norskIdent.value
+                else -> person.norskIdent?.value
             },
         ),
     )
