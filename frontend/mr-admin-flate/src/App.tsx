@@ -27,6 +27,9 @@ import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/Re
 import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
+import { TiltakstypePage } from "./pages/tiltakstyper/TiltakstypePage";
+import { TiltakstypeRedaksjoneltInnholdDetaljer } from "./pages/tiltakstyper/TiltakstypeRedaksjoneltInnholdDetaljer";
+import { RedigerTiltakstypeRedaksjoneltInnholdFormPage } from "./pages/tiltakstyper/RedigerTiltakstypeRedaksjoneltInnholdFormPage";
 import { Suspense } from "react";
 import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
@@ -201,7 +204,15 @@ const routes: RouteObject[] = [
       }),
       route({
         path: "tiltakstyper/:tiltakstypeId",
-        element: <DetaljerTiltakstypePage />,
+        element: <TiltakstypePage />,
+        children: [
+          { index: true, element: <DetaljerTiltakstypePage /> },
+          { path: "redaksjonelt-innhold", element: <TiltakstypeRedaksjoneltInnholdDetaljer /> },
+          {
+            path: "redaksjonelt-innhold/rediger",
+            element: <RedigerTiltakstypeRedaksjoneltInnholdFormPage />,
+          },
+        ],
       }),
       route({
         path: "avtaler",
