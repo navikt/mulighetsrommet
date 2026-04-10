@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -85,7 +86,7 @@ class ArenaAdapterService(
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
             )
             when (gjennomforingEnkeltplassService.get(arenaGjennomforing.id)) {
-                null -> gjennomforingEnkeltplassService.create(upsert)
+                null -> gjennomforingEnkeltplassService.create(upsert, Arena)
                 else -> gjennomforingEnkeltplassService.update(upsert)
             }
         } else {

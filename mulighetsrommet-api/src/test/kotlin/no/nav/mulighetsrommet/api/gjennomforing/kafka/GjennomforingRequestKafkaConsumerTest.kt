@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
@@ -75,9 +76,10 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         val request = GjennomforingRequestPayload.OpprettEnkeltplass(
             gjennomforingId = gjennomforingId,
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-            prisinformasjon = "prisinformasjon",
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            prisinformasjon = "prisinformasjon",
             ansvarligEnhet = NavEnhetNummer("0400"),
+            opprettetAv = NavIdent("B123456"),
         )
 
         test("oppretter enkeltplass-gjennomføring når arrangør finnes i databasen") {
@@ -125,9 +127,10 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             val requestMedAndrePrisbetingelser = GjennomforingRequestPayload.OpprettEnkeltplass(
                 gjennomforingId = gjennomforingId,
                 tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-                prisinformasjon = "andre prisbetingelser",
                 organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                prisinformasjon = "andre prisbetingelser",
                 ansvarligEnhet = NavEnhetNummer("0400"),
+                opprettetAv = NavIdent("B123456"),
             )
             consumer.consume(
                 gjennomforingId,

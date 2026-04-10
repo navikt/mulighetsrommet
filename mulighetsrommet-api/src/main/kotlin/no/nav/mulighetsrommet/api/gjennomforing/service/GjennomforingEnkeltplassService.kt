@@ -22,19 +22,27 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.validation.Validated
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 data class UpsertGjennomforingEnkeltplass(
@@ -63,13 +71,20 @@ class GjennomforingEnkeltplassService(
         val gjennomforingV2Topic: String,
     )
 
-    fun create(create: UpsertGjennomforingEnkeltplass): Validated<GjennomforingEnkeltplass> = db.transaction {
+    fun create(create: UpsertGjennomforingEnkeltplass, agent: Agent): Validated<GjennomforingEnkeltplass> = db.transaction {
         if (queries.gjennomforing.getGjennomforing(create.id) != null) {
             return FieldError.of("Gjennomføringen er allerede opprettet").nel().left()
         }
 
         upsert(create)
-            .also { updateFreeTextSearch(it, null) }
+            .also {
+                when (agent) {
+                    is Arena -> Unit
+                    is NavIdent -> createTotrinnskontroll(it.id, Totrinnskontroll.Type.OPPRETT, agent)
+                    Tiltaksadministrasjon, Arrangor -> error("$agent er ikke tillatt å opprette enkeltplasser")
+                }
+            }
+            .also { updateFreeTextSearch(it, norskIdent = null) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
             .right()
     }
@@ -194,6 +209,26 @@ class GjennomforingEnkeltplassService(
         )
         queries.gjennomforing.upsert(dbo)
         return getOrError(dbo.id)
+    }
+
+    private fun QueryContext.createTotrinnskontroll(
+        gjennomforingId: UUID,
+        type: Totrinnskontroll.Type,
+        behandletAv: Agent,
+    ) {
+        val dbo = TotrinnskontrollDbo(
+            id = UUID.randomUUID(),
+            entityId = gjennomforingId,
+            type = type,
+            behandletAv = behandletAv,
+            behandletTidspunkt = LocalDateTime.now(),
+            aarsaker = emptyList(),
+            forklaring = null,
+            besluttelse = null,
+            besluttetAv = null,
+            besluttetTidspunkt = null,
+        )
+        queries.totrinnskontroll.upsert(dbo)
     }
 
     private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingEnkeltplass, norskIdent: NorskIdent?) {
