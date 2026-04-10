@@ -272,11 +272,6 @@ data class TilsagnIdRequest(
 )
 
 @Serializable
-data class GjennomforingTypeRequest(
-    val gjennomforingType: GjennomforingType,
-)
-
-@Serializable
 data class ScheduledTaskDto(
     val taskName: String,
     val taskInstance: String,
