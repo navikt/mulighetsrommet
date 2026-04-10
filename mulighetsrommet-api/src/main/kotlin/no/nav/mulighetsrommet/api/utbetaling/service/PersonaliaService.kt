@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -41,14 +42,24 @@ class PersonaliaService(
 
         val tilgangerByDeltakerId: Map<UUID, Boolean> = when (accessType) {
             is AccessType.OBO.AzureAd -> {
-                val identer = amtPersonalia.map { it.norskIdent }
-                val tilgangsmaskinResponse = tilgangsmaskinClient.bulk(identer, accessType)
-                amtPersonalia.associate { p ->
-                    val harTilgang = requireNotNull(tilgangsmaskinResponse.resultater.find { it.brukerId == p.norskIdent.value }) {
-                        "Fant ikke deltakerId: ${p.deltakerId} i respons fra tilgangsmaskin"
+                when (NaisEnv.current()) {
+                    NaisEnv.Local,
+                    NaisEnv.DevGCP,
+                    -> {
+                        val identer = amtPersonalia.map { it.norskIdent }
+                        val tilgangsmaskinResponse = tilgangsmaskinClient.bulk(identer, accessType)
+                        amtPersonalia.associate { p ->
+                            val harTilgang = requireNotNull(tilgangsmaskinResponse.resultater.find { it.brukerId == p.norskIdent.value }) {
+                                "Fant ikke deltakerId: ${p.deltakerId} i respons fra tilgangsmaskin"
+                            }
+                                .harTilgang()
+                            p.deltakerId to harTilgang
+                        }
                     }
-                        .harTilgang()
-                    p.deltakerId to harTilgang
+
+                    NaisEnv.ProdGCP -> amtPersonalia.associate {
+                        it.deltakerId to (it.adressebeskyttelse == PdlGradering.UGRADERT && !it.erSkjermet)
+                    }
                 }
             }
 

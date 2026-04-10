@@ -13,13 +13,13 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.teamLogsError
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
+import kotlin.collections.List
 
 class TilgangsmaskinClient(
     private val baseUrl: String,
@@ -32,6 +32,11 @@ class TilgangsmaskinClient(
     }
 
     suspend fun bulk(identer: List<NorskIdent>, obo: AccessType.OBO.AzureAd): TilgangsmaskinResponse {
+        if (identer.isEmpty()) {
+            return TilgangsmaskinResponse(
+                resultater = emptyList(),
+            )
+        }
         val response = client.post("$baseUrl/api/v1/bulk/obo") {
             bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -71,7 +76,6 @@ data class TilgangsmaskinRequest(
 
 @Serializable
 data class TilgangsmaskinResponse(
-    val ansattId: NavIdent,
     val resultater: List<Resultat>,
 ) {
     @Serializable

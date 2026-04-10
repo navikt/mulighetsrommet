@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.UUID
@@ -59,7 +58,6 @@ class PersonaliaServiceTest : FunSpec({
                 personalia.copy(erSkjermet = true),
             ).right()
             coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
-                ansattId = NavIdent("X123456"),
                 resultater = listOf(
                     TilgangsmaskinResponse.Resultat(
                         brukerId = personalia.norskIdent.value,
@@ -116,7 +114,6 @@ class PersonaliaServiceTest : FunSpec({
                 personalia.copy(adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND),
             ).right()
             coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
-                ansattId = NavIdent("X123456"),
                 resultater = listOf(
                     TilgangsmaskinResponse.Resultat(
                         brukerId = personalia.norskIdent.value,
@@ -171,7 +168,6 @@ class PersonaliaServiceTest : FunSpec({
                 ),
             ).right()
             coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
-                ansattId = NavIdent("X123456"),
                 resultater = listOf(
                     TilgangsmaskinResponse.Resultat(
                         brukerId = personalia.norskIdent.value,
@@ -225,7 +221,6 @@ class PersonaliaServiceTest : FunSpec({
                 ),
             ).right()
             coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
-                ansattId = NavIdent("X123456"),
                 resultater = listOf(
                     TilgangsmaskinResponse.Resultat(
                         brukerId = personalia.norskIdent.value,
@@ -283,7 +278,6 @@ class PersonaliaServiceTest : FunSpec({
             )
             coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(personalia).right()
             coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
-                ansattId = NavIdent("X123456"),
                 resultater = listOf(
                     TilgangsmaskinResponse.Resultat(
                         brukerId = personalia.norskIdent.value,
