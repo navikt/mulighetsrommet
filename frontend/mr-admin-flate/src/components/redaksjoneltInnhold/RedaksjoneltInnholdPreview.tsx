@@ -1,5 +1,5 @@
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
-import { Alert, BodyLong, Heading, VStack } from "@navikt/ds-react";
+import { Alert, BodyLong, Heading, HStack, Label, Link, VStack } from "@navikt/ds-react";
 import { LokalInformasjonContainer, PortableText } from "@mr/frontend-common";
 import { Suspense, useState } from "react";
 import { Laster } from "../laster/Laster";
@@ -17,6 +17,7 @@ import {
   GjennomforingKontaktpersonDto,
   GjennomforingTiltakstype,
   Kontorstruktur,
+  Regelverklenke,
 } from "@tiltaksadministrasjon/api-client";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 
@@ -168,6 +169,126 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         )}
       </RedaksjoneltInnholdContainer>
     </TwoColumnGrid>
+  );
+}
+
+interface TiltakstypeFaneinnholdContentProps {
+  beskrivelse: string | null;
+  faneinnhold: Faneinnhold | null;
+  regelverklenker?: Regelverklenke[];
+  kanKombineresMed?: string[];
+}
+
+export function TiltakstypeFaneinnholdContent({
+  beskrivelse,
+  faneinnhold,
+  regelverklenker,
+  kanKombineresMed,
+}: TiltakstypeFaneinnholdContentProps) {
+  return (
+    <RedaksjoneltInnholdContainer>
+      {beskrivelse && (
+        <>
+          <Heading size="medium">Generell informasjon</Heading>
+          <BodyLong size="large" style={{ whiteSpace: "pre-wrap" }}>
+            {beskrivelse}
+          </BodyLong>
+        </>
+      )}
+
+      {someValuesExists([faneinnhold?.forHvem, faneinnhold?.forHvemInfoboks]) ? (
+        <>
+          <Heading size="medium">For hvem</Heading>
+          <DetaljerFane
+            tiltakstype={faneinnhold?.forHvem}
+            tiltakstypeAlert={faneinnhold?.forHvemInfoboks}
+          />
+        </>
+      ) : null}
+
+      {someValuesExists([
+        faneinnhold?.detaljerOgInnhold,
+        faneinnhold?.detaljerOgInnholdInfoboks,
+      ]) ? (
+        <>
+          <Heading size="medium">Detaljer og innhold</Heading>
+          <DetaljerFane
+            tiltakstype={faneinnhold?.detaljerOgInnhold}
+            tiltakstypeAlert={faneinnhold?.detaljerOgInnholdInfoboks}
+          />
+        </>
+      ) : null}
+
+      {someValuesExists([
+        faneinnhold?.pameldingOgVarighet,
+        faneinnhold?.pameldingOgVarighetInfoboks,
+      ]) ? (
+        <>
+          <Heading size="medium">Påmelding og varighet</Heading>
+          <DetaljerFane
+            tiltakstype={faneinnhold?.pameldingOgVarighet}
+            tiltakstypeAlert={faneinnhold?.pameldingOgVarighetInfoboks}
+          />
+        </>
+      ) : null}
+
+      {someValuesExists([faneinnhold?.kontaktinfo, faneinnhold?.kontaktinfoInfoboks]) ? (
+        <>
+          <Heading size="medium">Kontaktinfo</Heading>
+          <DetaljerFane
+            tiltakstype={faneinnhold?.kontaktinfo}
+            tiltakstypeAlert={faneinnhold?.kontaktinfoInfoboks}
+          />
+        </>
+      ) : null}
+
+      {someValuesExists([faneinnhold?.lenker]) ? (
+        <div className="prose">
+          <Heading size="medium">Lenker</Heading>
+          <LenkerList lenker={faneinnhold?.lenker || []} />
+        </div>
+      ) : null}
+
+      {faneinnhold?.delMedBruker ? (
+        <>
+          <Heading size="medium">Del med bruker</Heading>
+          <BodyLong as="div" size="small" className="prose">
+            {faneinnhold.delMedBruker}
+          </BodyLong>
+        </>
+      ) : null}
+
+      {regelverklenker && regelverklenker.length > 0 && (
+        <>
+          <Heading size="medium">Regelverk</Heading>
+          <VStack gap="space-2">
+            {regelverklenker.map((lenke) => (
+              <HStack key={lenke.regelverkUrl} gap="space-4" align="center">
+                <Link href={lenke.regelverkUrl} target="_blank">
+                  {lenke.regelverkLenkeNavn ?? lenke.regelverkUrl}
+                </Link>
+                {lenke.beskrivelse && (
+                  <Label size="small" as="span">
+                    {lenke.beskrivelse}
+                  </Label>
+                )}
+              </HStack>
+            ))}
+          </VStack>
+        </>
+      )}
+
+      {kanKombineresMed && kanKombineresMed.length > 0 && (
+        <>
+          <Heading size="medium">Kan kombineres med</Heading>
+          <VStack gap="space-2">
+            {kanKombineresMed.map((navn) => (
+              <BodyLong key={navn}>{navn}</BodyLong>
+            ))}
+          </VStack>
+        </>
+      )}
+    </RedaksjoneltInnholdContainer>
   );
 }
 
