@@ -2,8 +2,8 @@ import z from "zod";
 
 export const RegelverklenkeSchema = z
   .object({
-    regelverkUrl: z.url({ error: "Du må oppgi en gyldig URL" }),
-    regelverkLenkeNavn: z.string().nullish(),
+    url: z.url({ error: "Du må oppgi en gyldig URL" }),
+    navn: z.string().nullish(),
     beskrivelse: z.string().nullish(),
   })
   .array();

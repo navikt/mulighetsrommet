@@ -1,10 +1,11 @@
-package no.nav.mulighetsrommet.api.tiltakstype
+package no.nav.mulighetsrommet.api.tiltakstype.service
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
+import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
@@ -128,8 +129,8 @@ class TiltakstypeService(
                 regelverklenker = sanityTiltakstype?.regelverkLenker?.mapNotNull { lenke ->
                     lenke.regelverkUrl?.let { url ->
                         Regelverklenke(
-                            regelverkUrl = url,
-                            regelverkLenkeNavn = lenke.regelverkLenkeNavn,
+                            url = url,
+                            navn = lenke.regelverkLenkeNavn,
                             beskrivelse = lenke.beskrivelse,
                         )
                     }

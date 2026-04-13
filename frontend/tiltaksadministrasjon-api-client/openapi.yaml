@@ -3321,10 +3321,10 @@ components:
     Regelverklenke:
       type: object
       properties:
-        regelverkUrl:
+        url:
           type: string
           default: null
-        regelverkLenkeNavn:
+        navn:
           type:
           - "null"
           - string
@@ -3336,8 +3336,8 @@ components:
           default: null
       required:
       - beskrivelse
-      - regelverkLenkeNavn
-      - regelverkUrl
+      - navn
+      - url
     ProblemDetail:
       type: object
       additionalProperties: {}

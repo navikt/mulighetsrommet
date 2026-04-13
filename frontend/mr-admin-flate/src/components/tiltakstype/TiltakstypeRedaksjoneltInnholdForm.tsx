@@ -57,8 +57,8 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onC
         oppskrift: [],
       },
       regelverklenker: values.regelverklenker.map((lenke) => ({
-        regelverkUrl: lenke.regelverkUrl,
-        regelverkLenkeNavn: lenke.regelverkLenkeNavn || null,
+        url: lenke.url,
+        navn: lenke.navn || null,
         beskrivelse: lenke.beskrivelse || null,
       })),
       kanKombineresMed: values.kanKombineresMed,
@@ -119,15 +119,15 @@ function RegelverklenkerSkjema() {
     <FormListInput
       name="regelverklenker"
       addButtonLabel="Legg til regelverkslenke"
-      emptyItem={{ regelverkUrl: "", regelverkLenkeNavn: null, beskrivelse: null }}
+      emptyItem={{ url: "", navn: null, beskrivelse: null }}
       renderItem={(index) => (
         <HStack gap="space-8">
           <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
-            name={`regelverklenker.${index}.regelverkUrl`}
+            name={`regelverklenker.${index}.url`}
             label="URL"
           />
           <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
-            name={`regelverklenker.${index}.regelverkLenkeNavn`}
+            name={`regelverklenker.${index}.navn`}
             label="Lenketekst"
           />
           <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>

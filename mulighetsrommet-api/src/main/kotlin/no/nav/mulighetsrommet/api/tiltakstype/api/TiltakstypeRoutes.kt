@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.tiltakstype
+package no.nav.mulighetsrommet.api.tiltakstype.api
 
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.patch
@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeRedaksjoneltInnholdRequest
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.model.ProblemDetail

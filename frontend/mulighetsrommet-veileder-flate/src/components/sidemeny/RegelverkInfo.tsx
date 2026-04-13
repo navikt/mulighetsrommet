@@ -10,13 +10,13 @@ interface RegelverklenkeProps {
 }
 
 function RegelverklenkeComponent({ regelverkLenke }: RegelverklenkeProps) {
-  if (!regelverkLenke.regelverkUrl) {
+  if (!regelverkLenke.url) {
     return null;
   }
 
   return (
-    <Link target="_blank" href={regelverkLenke.regelverkUrl} key={regelverkLenke.regelverkUrl}>
-      {regelverkLenke.regelverkLenkeNavn}{" "}
+    <Link target="_blank" href={regelverkLenke.url} key={regelverkLenke.url}>
+      {regelverkLenke.navn}{" "}
     </Link>
   );
 }
@@ -26,7 +26,7 @@ export function RegelverkInfo({ regelverkLenker }: RegelverkInfoProps) {
     <VStack gap="space-1" align="end">
       {regelverkLenker &&
         regelverkLenker.map((lenke) => (
-          <RegelverklenkeComponent key={lenke.regelverkUrl} regelverkLenke={lenke} />
+          <RegelverklenkeComponent key={lenke.url} regelverkLenke={lenke} />
         ))}
     </VStack>
   );

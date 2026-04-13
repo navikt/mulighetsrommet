@@ -27,10 +27,10 @@ data class TiltakstypeDto(
     val sanityId: UUID?,
     val features: Set<TiltakstypeFeature>,
     val egenskaper: Set<TiltakstypeEgenskap>,
-    val beskrivelse: String? = null,
-    val faneinnhold: Faneinnhold? = null,
-    val regelverklenker: List<Regelverklenke> = emptyList(),
-    val kanKombineresMed: List<String> = emptyList(),
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+    val regelverklenker: List<Regelverklenke>,
+    val kanKombineresMed: List<String>,
 )
 
 @Serializable

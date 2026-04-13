@@ -190,13 +190,13 @@ export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
     "AFT er et tiltak som skal bidra til å prøve ut tiltaksdeltakerens arbeidsevne og til å styrke mulighetene for å få ordinært arbeid. Det er et tiltak med individuell tilrettelegging som kan tilbys personer med sammensatte bistandsbehov som har fått sin arbeidsevne nedsatt og som har særlig usikre yrkesmessige forutsetninger.",
   regelverkLenker: [
     {
-      regelverkLenkeNavn: "Regelverk",
-      regelverkUrl: "https://www.google.no",
+      navn: "Regelverk",
+      url: "https://www.google.no",
       beskrivelse: null,
     },
     {
-      regelverkLenkeNavn: "Rundskriv",
-      regelverkUrl: "https://www.google.no",
+      navn: "Rundskriv",
+      url: "https://www.google.no",
       beskrivelse: null,
     },
   ],

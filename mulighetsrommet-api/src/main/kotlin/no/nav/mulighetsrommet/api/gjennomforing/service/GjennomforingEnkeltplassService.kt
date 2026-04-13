@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Map
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.toDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse

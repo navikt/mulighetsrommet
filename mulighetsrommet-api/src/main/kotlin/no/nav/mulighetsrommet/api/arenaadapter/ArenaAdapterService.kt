@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.service.OpprettGjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate

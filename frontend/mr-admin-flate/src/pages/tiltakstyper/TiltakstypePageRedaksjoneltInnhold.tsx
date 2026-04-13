@@ -42,9 +42,9 @@ function TiltakstypeRedaksjoneltInnhold({ tiltakstype }: { tiltakstype: Tiltakst
             <Heading size="medium">Regelverk</Heading>
             <VStack gap="space-2">
               {regelverklenker.map((lenke) => (
-                <HStack key={lenke.regelverkUrl} gap="space-4" align="center">
-                  <Link href={lenke.regelverkUrl} target="_blank">
-                    {lenke.regelverkLenkeNavn ?? lenke.regelverkUrl}
+                <HStack key={lenke.url} gap="space-4" align="center">
+                  <Link href={lenke.url} target="_blank">
+                    {lenke.navn ?? lenke.url}
                   </Link>
                   {lenke.beskrivelse && (
                     <Label size="small" as="span">

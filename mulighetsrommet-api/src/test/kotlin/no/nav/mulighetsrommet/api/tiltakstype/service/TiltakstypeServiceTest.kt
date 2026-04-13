@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.tiltakstype
+package no.nav.mulighetsrommet.api.tiltakstype.service
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -68,7 +68,7 @@ class TiltakstypeServiceTest : FunSpec({
 
             dto.beskrivelse shouldBe "Sanity-beskrivelse"
             dto.faneinnhold?.forHvemInfoboks shouldBe "Sanity-infoboks"
-            dto.regelverklenker.first().regelverkUrl shouldBe "https://sanity.example.com"
+            dto.regelverklenker.first().url shouldBe "https://sanity.example.com"
             dto.kanKombineresMed shouldBe listOf("Oppfølging")
         }
 
@@ -91,7 +91,7 @@ class TiltakstypeServiceTest : FunSpec({
 
             dto.beskrivelse shouldBe "DB-beskrivelse"
             dto.faneinnhold?.forHvemInfoboks shouldBe "DB-infoboks"
-            dto.regelverklenker.first().regelverkUrl shouldBe "https://db.example.com"
+            dto.regelverklenker.first().url shouldBe "https://db.example.com"
             dto.kanKombineresMed.shouldBeEmpty()
         }
     }
@@ -111,7 +111,7 @@ class TiltakstypeServiceTest : FunSpec({
 
             dto.beskrivelse shouldBe "Oppdatert beskrivelse"
             dto.faneinnhold shouldBe null
-            dto.regelverklenker.first().regelverkUrl shouldBe "https://nav.no/regelverk"
+            dto.regelverklenker.first().url shouldBe "https://nav.no/regelverk"
         }
     }
 })

@@ -18,8 +18,8 @@ data class Tiltakstype(
     val sluttDato: LocalDate?,
     val status: TiltakstypeStatus,
     val sanityId: UUID?,
-    val beskrivelse: String? = null,
-    val faneinnhold: Faneinnhold? = null,
-    val regelverklenker: List<Regelverklenke> = emptyList(),
-    val kanKombineresMed: List<String> = emptyList(),
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+    val regelverklenker: List<Regelverklenke>,
+    val kanKombineresMed: List<String>,
 )
