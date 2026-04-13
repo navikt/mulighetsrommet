@@ -1,14 +1,4 @@
-import {
-  Alert,
-  BodyLong,
-  Box,
-  Button,
-  Heading,
-  HStack,
-  Switch,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
+import { Alert, BodyLong, Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
 import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
@@ -17,7 +7,9 @@ import { PortableText } from "@mr/frontend-common";
 import { PortableTextFormEditor } from "../portableText/PortableTextEditor";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
+import { FormTextField } from "@/components/skjema/FormTextField";
 import { useFieldArray, useFormContext } from "react-hook-form";
+import { FormCheckbox } from "@/components/skjema/FormCheckbox";
 
 interface Props {
   path: string;
@@ -201,7 +193,7 @@ function RedaksjoneltInnholdLenkerForm({ path }: TabPanelProps) {
 
 function LenkerFields({ path }: TabPanelProps) {
   const fp = (suffix: string) => [path, suffix].filter(Boolean).join(".");
-  const { control, register } = useFormContext();
+  const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name: fp("faneinnhold.lenker"),
@@ -223,23 +215,15 @@ function LenkerFields({ path }: TabPanelProps) {
         {fields.map((lenke, index) => {
           return (
             <VStack gap="space-8" key={lenke.id}>
-              <TextField
-                size="small"
-                label="Lenkenavn"
-                {...register(fp(`faneinnhold.lenker.${index}.lenkenavn`))}
-              />
-              <TextField
-                size="small"
-                label="Lenke"
-                {...register(fp(`faneinnhold.lenker.${index}.lenke`))}
-              />
+              <FormTextField name={fp(`faneinnhold.lenker.${index}.lenkenavn`)} label="Lenkenavn" />
+              <FormTextField name={fp(`faneinnhold.lenker.${index}.lenke`)} label="Lenke" />
               <HStack gap="space-8">
-                <Switch {...register(fp(`faneinnhold.lenker.${index}.apneINyFane`))}>
+                <FormCheckbox name={fp(`faneinnhold.lenker.${index}.apneINyFane`)}>
                   Åpne i ny fane
-                </Switch>
-                <Switch {...register(fp(`faneinnhold.lenker.${index}.visKunForVeileder`))}>
+                </FormCheckbox>
+                <FormCheckbox name={fp(`faneinnhold.lenker.${index}.visKunForVeileder`)}>
                   Vis kun i Modia
-                </Switch>
+                </FormCheckbox>
               </HStack>
               <HStack justify="end">
                 <Button

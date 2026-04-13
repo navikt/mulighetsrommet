@@ -1,4 +1,4 @@
-import { Button, Heading, HelpText, HStack, Label, TextField, VStack } from "@navikt/ds-react";
+import { Button, Heading, HelpText, HStack, Label, VStack } from "@navikt/ds-react";
 import {
   GjennomforingKontaktpersonDto,
   GjennomforingRequest,
@@ -18,6 +18,7 @@ import { ControlledSokeSelect } from "@mr/frontend-common";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
+import { FormTextField } from "@/components/skjema/FormTextField";
 
 interface Props {
   tiltakId: string;
@@ -78,7 +79,7 @@ function RegionerOgEnheterOgKontaktpersoner({
   kontaktpersonForm: boolean;
   lagredeKontaktpersoner: GjennomforingKontaktpersonDto[];
 }) {
-  const { register, control } = useFormContext();
+  const { control } = useFormContext();
 
   const {
     fields: kontaktpersonFields,
@@ -100,7 +101,6 @@ function RegionerOgEnheterOgKontaktpersoner({
           size="small"
           placeholder="Velg en"
           label={avtaletekster.navRegionerLabel}
-          {...register("veilederinformasjon.navRegioner")}
           name={"veilederinformasjon.navRegioner"}
           options={regionerOptions}
         />
@@ -111,7 +111,7 @@ function RegionerOgEnheterOgKontaktpersoner({
           placeholder="Velg en"
           label={avtaletekster.navEnheterLabel}
           helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
-          {...register("veilederinformasjon.navKontorer")}
+          name={"veilederinformasjon.navKontorer"}
           options={kontorerOptions}
         />
         <ControlledMultiSelect
@@ -121,7 +121,7 @@ function RegionerOgEnheterOgKontaktpersoner({
           placeholder="Velg en (valgfritt)"
           label={avtaletekster.navAndreEnheterLabel}
           helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
-          {...register("veilederinformasjon.navAndreEnheter")}
+          name={"veilederinformasjon.navAndreEnheter"}
           options={andreEnheterOptions}
         />
         {kontaktpersonForm && (
@@ -186,7 +186,7 @@ function SokEtterKontaktperson({
 }) {
   const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
   const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery, id);
-  const { register, watch } = useFormContext<GjennomforingRequest>();
+  const { watch } = useFormContext<GjennomforingRequest>();
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner").map((k) => k.navIdent);
@@ -225,20 +225,15 @@ function SokEtterKontaktperson({
         size="small"
         placeholder="Søk etter kontaktperson"
         label={gjennomforingTekster.kontaktpersonNav.navnLabel}
-        {...register(`kontaktpersoner.${index}.navIdent`, {
-          shouldUnregister: true,
-        })}
+        name={`kontaktpersoner.${index}.navIdent`}
         onInputChange={setKontaktpersonerQuery}
         options={kontaktpersonerOption(index)}
       />
-      <TextField
-        size="small"
+      <FormTextField<GjennomforingRequest>
+        name={`kontaktpersoner.${index}.beskrivelse`}
         label={gjennomforingTekster.kontaktpersonNav.beskrivelseLabel}
         placeholder="Unngå personopplysninger"
         maxLength={67}
-        {...register(`kontaktpersoner.${index}.beskrivelse`, {
-          shouldUnregister: true,
-        })}
       />
     </>
   );
