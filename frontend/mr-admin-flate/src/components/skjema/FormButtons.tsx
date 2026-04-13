@@ -37,7 +37,13 @@ export function FormButtons({
       )}
       <Spacer />
       <ValideringsfeilOppsummering />
-      <Button size="small" onClick={handleCancel} variant="tertiary" type="button" disabled={isPending}>
+      <Button
+        size="small"
+        onClick={handleCancel}
+        variant="tertiary"
+        type="button"
+        disabled={isPending}
+      >
         {cancelLabel}
       </Button>
       <Button size="small" type="submit" disabled={isPending} loading={isPending}>

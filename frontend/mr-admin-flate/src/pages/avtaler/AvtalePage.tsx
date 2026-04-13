@@ -5,7 +5,6 @@ import { Box, Heading, Tabs } from "@navikt/ds-react";
 import { useLocation, useMatch } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtalePersonvern } from "./AvtalePersonvern";
 import { GjennomforingerForAvtalePage } from "../gjennomforing/GjennomforingerForAvtalePage";
@@ -15,6 +14,7 @@ import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 import { ContentBox } from "@/layouts/ContentBox";
+import { AvtaleRedaksjoneltInnhold } from "@/pages/avtaler/AvtaleRedaksjoneltInnhold";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -94,7 +94,7 @@ function getTab(currentTab: AvtaleTab, avtale: AvtaleDto) {
     case AvtaleTab.VEILEDERINFORMASJON:
       return (
         <AvtalePageLayout avtale={avtale}>
-          <RedaksjoneltInnholdPreview />
+          <AvtaleRedaksjoneltInnhold />
         </AvtalePageLayout>
       );
     case AvtaleTab.GJENNOMFORINGER:

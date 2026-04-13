@@ -28,7 +28,7 @@ import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utb
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltakstypePage } from "./pages/tiltakstyper/TiltakstypePage";
-import { TiltakstypeRedaksjoneltInnholdDetaljer } from "./pages/tiltakstyper/TiltakstypeRedaksjoneltInnholdDetaljer";
+import { TiltakstypePageRedaksjoneltInnhold } from "./pages/tiltakstyper/TiltakstypePageRedaksjoneltInnhold";
 import { RedigerTiltakstypeRedaksjoneltInnholdFormPage } from "./pages/tiltakstyper/RedigerTiltakstypeRedaksjoneltInnholdFormPage";
 import { Suspense } from "react";
 import { Laster } from "./components/laster/Laster";
@@ -38,11 +38,10 @@ import { OpprettAvtaleFormPage } from "./pages/avtaler/OpprettAvtaleFormPage";
 import { OpprettGjennomforingFormPage } from "./pages/gjennomforing/OpprettGjennomforingFormPage";
 import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
 import { GjennomforingDetaljer } from "./pages/gjennomforing/GjennomforingDetaljer";
-import { RedaksjoneltInnholdGjennomforing } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdGjennomforing";
+import { GjennomforingRedaksjoneltInnhold } from "./pages/gjennomforing/GjennomforingRedaksjoneltInnhold";
 import { AvtaleDetaljer } from "./pages/avtaler/AvtaleDetaljer";
 import { AvtalePersonvern } from "./pages/avtaler/AvtalePersonvern";
 import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
-import { RedaksjoneltInnholdPreview } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { InnsendingoversiktPage } from "./pages/innsendinger/InnsendingsoversiktPage";
@@ -57,6 +56,7 @@ import { UtbetalingPage } from "@/pages/gjennomforing/utbetaling/UtbetalingPage"
 import { Behandlingsoversikt } from "./pages/gjennomforing/Tilskuddsbehandling/Behandlingsoversikt";
 import { BehandlingPage } from "./pages/gjennomforing/Tilskuddsbehandling/BehandlingPage";
 import { RedigerUtbetalingPage } from "@/pages/gjennomforing/utbetaling/RedigerUtbetalingPage";
+import { AvtaleRedaksjoneltInnhold } from "@/pages/avtaler/AvtaleRedaksjoneltInnhold";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -124,7 +124,7 @@ function route(config: Omit<NonIndexRouteObject, "errorElement">): NonIndexRoute
 const AVTALE_ROUTES: RouteObject[] = [
   { index: true, element: <AvtaleDetaljer /> },
   { path: "personvern", element: <AvtalePersonvern /> },
-  { path: "veilederinformasjon", element: <RedaksjoneltInnholdPreview /> },
+  { path: "veilederinformasjon", element: <AvtaleRedaksjoneltInnhold /> },
   { path: "gjennomforinger", element: <GjennomforingerForAvtalePage /> },
 ];
 
@@ -140,7 +140,7 @@ const AVTALE_FORM_ROUTES: RouteObject[] = [
 
 const GJENNOMFORING_ROUTES: RouteObject[] = [
   { index: true, element: <GjennomforingDetaljer /> },
-  { path: "redaksjonelt-innhold", element: <RedaksjoneltInnholdGjennomforing /> },
+  { path: "redaksjonelt-innhold", element: <GjennomforingRedaksjoneltInnhold /> },
   { path: "deltakerliste/*", element: <DeltakerlisteContainer /> },
   { path: "tilskuddsbehandlinger", element: <Behandlingsoversikt /> },
   { path: "tilsagn", element: <TilsagnForGjennomforingPage /> },
@@ -207,7 +207,7 @@ const routes: RouteObject[] = [
         element: <TiltakstypePage />,
         children: [
           { index: true, element: <DetaljerTiltakstypePage /> },
-          { path: "redaksjonelt-innhold", element: <TiltakstypeRedaksjoneltInnholdDetaljer /> },
+          { path: "redaksjonelt-innhold", element: <TiltakstypePageRedaksjoneltInnhold /> },
         ],
       }),
       route({

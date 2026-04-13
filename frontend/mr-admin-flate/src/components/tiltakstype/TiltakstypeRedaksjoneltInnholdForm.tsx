@@ -1,16 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileTextIcon, LinkIcon, PaperplaneIcon, PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Alert, Box, Button, Heading, HStack, Tabs, VStack } from "@navikt/ds-react";
+import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
+import { Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
-import { PortableTextFormEditor } from "@/components/portableText/PortableTextEditor";
-import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
-import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
 import { usePatchTiltakstypeRedaksjoneltInnhold } from "@/api/tiltakstyper/usePatchTiltakstypeRedaksjoneltInnhold";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
-import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { FormButtons } from "@/components/skjema/FormButtons";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
@@ -19,6 +14,7 @@ import {
   TiltakstypeRedaksjoneltInnholdSchema,
 } from "@/schemas/tiltakstypeRedaksjoneltInnhold";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -84,143 +80,10 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onC
         />
         <Separator />
         <TwoColumnGrid separator>
-          <RedaksjoneltInnholdContainer>
-            <Heading size="medium" level="3">
-              Generell informasjon
-            </Heading>
-
-            <Alert size="small" variant="info">
-              Ikke del personopplysninger i fritekstfeltene
-            </Alert>
-
-            <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
-              name="beskrivelse"
-              label="Beskrivelse"
-              description="Kort beskrivelse av formål med tiltakstypen."
-              rows={5}
-            />
-
-            <Heading size="medium" level="3">
-              Faneinnhold
-            </Heading>
-            <Tabs size="small" defaultValue="for_hvem">
-              <Tabs.List>
-                <Tabs.Tab
-                  value="for_hvem"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> For hvem
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="detaljer_og_innhold"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> Detaljer og innhold
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="pamelding_og_varighet"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> Påmelding og varighet
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="kontaktinfo"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <FileTextIcon style={{ fontSize: "1.5rem" }} /> Kontaktinfo
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="lenker"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <LinkIcon style={{ fontSize: "1.5rem" }} /> Lenker
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-                <Tabs.Tab
-                  value="del_med_bruker"
-                  label={
-                    <RedaksjoneltInnholdTabTittel>
-                      <PaperplaneIcon style={{ fontSize: "1.5rem" }} /> Del med bruker
-                    </RedaksjoneltInnholdTabTittel>
-                  }
-                />
-              </Tabs.List>
-
-              <Tabs.Panel value="for_hvem">
-                <DescriptionRichtextContainer>
-                  <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
-                    name="faneinnhold.forHvemInfoboks"
-                    label='Fremhevet informasjon i blå infoboks under fanen "For hvem"'
-                    rows={3}
-                  />
-                  <PortableTextFormEditor name="faneinnhold.forHvem" label="For hvem" />
-                </DescriptionRichtextContainer>
-              </Tabs.Panel>
-
-              <Tabs.Panel value="detaljer_og_innhold">
-                <DescriptionRichtextContainer>
-                  <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
-                    name="faneinnhold.detaljerOgInnholdInfoboks"
-                    label='Fremhevet informasjon i blå infoboks under fanen "Detaljer og innhold"'
-                    rows={3}
-                  />
-                  <PortableTextFormEditor
-                    name="faneinnhold.detaljerOgInnhold"
-                    label="Detaljer og innhold"
-                  />
-                </DescriptionRichtextContainer>
-              </Tabs.Panel>
-
-              <Tabs.Panel value="pamelding_og_varighet">
-                <DescriptionRichtextContainer>
-                  <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
-                    name="faneinnhold.pameldingOgVarighetInfoboks"
-                    label='Fremhevet informasjon i blå infoboks under fanen "Påmelding og varighet"'
-                    rows={3}
-                  />
-                  <PortableTextFormEditor
-                    name="faneinnhold.pameldingOgVarighet"
-                    label="Påmelding og varighet"
-                  />
-                </DescriptionRichtextContainer>
-              </Tabs.Panel>
-
-              <Tabs.Panel value="kontaktinfo">
-                <DescriptionRichtextContainer>
-                  <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
-                    name="faneinnhold.kontaktinfoInfoboks"
-                    label='Fremhevet informasjon i blå infoboks under fanen "Kontaktinfo"'
-                    rows={3}
-                  />
-                  <PortableTextFormEditor name="faneinnhold.kontaktinfo" label="Kontaktinfo" />
-                </DescriptionRichtextContainer>
-              </Tabs.Panel>
-
-              <Tabs.Panel value="lenker">
-                <FaneinnholdLenker />
-              </Tabs.Panel>
-
-              <Tabs.Panel value="del_med_bruker">
-                <DescriptionRichtextContainer>
-                  <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
-                    name="faneinnhold.delMedBruker"
-                    label="Informasjon som kan deles med bruker"
-                    description="Informasjon om tiltaket som veileder kan dele med bruker."
-                    rows={5}
-                  />
-                </DescriptionRichtextContainer>
-              </Tabs.Panel>
-            </Tabs>
-          </RedaksjoneltInnholdContainer>
+          <RedaksjoneltInnholdForm
+            path=""
+            description="Kort beskrivelse av formål med tiltakstypen."
+          />
 
           <VStack gap="space-16" paddingBlock="space-4">
             <Heading size="medium" level="3">
@@ -296,53 +159,5 @@ function RegelverklenkerSkjema() {
         </Box>
       ))}
     </VStack>
-  );
-}
-
-function FaneinnholdLenker() {
-  const { control } = useFormContext<TiltakstypeRedaksjoneltInnholdFormValues>();
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "faneinnhold.lenker",
-  });
-
-  return (
-    <DescriptionRichtextContainer>
-      <Button
-        type="button"
-        size="small"
-        variant="primary"
-        onClick={() =>
-          append({ lenke: "", lenkenavn: "", visKunForVeileder: false, apneINyFane: false })
-        }
-      >
-        Registrer ny lenke
-      </Button>
-      <VStack gap="space-20">
-        {fields.map((lenke, index) => (
-          <VStack gap="space-8" key={lenke.id}>
-            <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
-              name={`faneinnhold.lenker.${index}.lenkenavn`}
-              label="Lenkenavn"
-            />
-            <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
-              name={`faneinnhold.lenker.${index}.lenke`}
-              label="Lenke"
-            />
-            <HStack justify="end">
-              <Button
-                type="button"
-                size="small"
-                variant="danger"
-                icon={<XMarkIcon />}
-                onClick={() => remove(index)}
-              >
-                Fjern
-              </Button>
-            </HStack>
-          </VStack>
-        ))}
-      </VStack>
-    </DescriptionRichtextContainer>
   );
 }
