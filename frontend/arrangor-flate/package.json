@@ -58,7 +58,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.11.1",
     "@eslint/js": "10.0.1",
-    "@hey-api/openapi-ts": "0.91.1",
+    "@hey-api/openapi-ts": "0.95.0",
     "@playwright/test": "1.58.2",
     "@react-router/dev": "7.13.2",
     "@react-router/fs-routes": "7.13.2",
