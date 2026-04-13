@@ -3,10 +3,13 @@ package no.nav.mulighetsrommet.api.tiltakstype
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeRedaksjoneltInnholdRequest
+import no.nav.mulighetsrommet.model.Regelverklenke
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.UUID
@@ -15,6 +18,7 @@ import java.util.concurrent.TimeUnit
 class TiltakstypeService(
     private val config: Config = Config(),
     private val db: ApiDatabase,
+    private val sanityService: SanityService,
 ) {
 
     data class Config(
@@ -47,22 +51,21 @@ class TiltakstypeService(
         return config.features[tiltakskode].orEmpty().contains(TiltakstypeFeature.UTFASET)
     }
 
-    fun getAll(filter: TiltakstypeFilter): List<TiltakstypeDto> = CacheUtils.tryCacheFirstNotNull(cacheByFilter, filter) {
+    suspend fun getAll(
+        filter: TiltakstypeFilter,
+    ): List<TiltakstypeDto> = CacheUtils.tryCacheFirstNotNull(cacheByFilter, filter) {
         val tiltakskoder = config.features
             .filterValues { it.containsAll(filter.features) }
             .mapTo(mutableSetOf()) { it.key }
 
-        db.session {
-            queries.tiltakstype
-                .getAll(
-                    tiltakskoder = tiltakskoder,
-                    sortering = filter.sortering,
-                )
-                .mapNotNull { it.toTiltakstypeDto() }
+        val tiltakstyper = db.session {
+            queries.tiltakstype.getAll(tiltakskoder = tiltakskoder, sortering = filter.sortering)
         }
+
+        tiltakstyper.mapNotNull { it.toTiltakstypeDto() }
     }
 
-    fun getById(id: UUID): TiltakstypeDto? = db.session {
+    suspend fun getById(id: UUID): TiltakstypeDto? = db.session {
         queries.tiltakstype.get(id)?.toTiltakstypeDto()
     }
 
@@ -78,7 +81,7 @@ class TiltakstypeService(
         }
     }
 
-    fun upsertRedaksjoneltInnhold(id: UUID, request: TiltakstypeRedaksjoneltInnholdRequest): TiltakstypeDto? {
+    suspend fun upsertRedaksjoneltInnhold(id: UUID, request: TiltakstypeRedaksjoneltInnholdRequest): TiltakstypeDto? {
         db.transaction {
             queries.tiltakstype.upsertRedaksjoneltInnhold(id, request)
             queries.tiltakstype.setKanKombineresMed(id, request.kanKombineresMed)
@@ -93,10 +96,12 @@ class TiltakstypeService(
         cacheByFilter.invalidateAll()
     }
 
-    private fun Tiltakstype.toTiltakstypeDto(): TiltakstypeDto? {
+    private suspend fun Tiltakstype.toTiltakstypeDto(): TiltakstypeDto? {
         val tiltakskode = tiltakskode ?: return null
+
         val features = config.features[tiltakskode] ?: setOf()
-        return TiltakstypeDto(
+
+        val dto = TiltakstypeDto(
             id = id,
             navn = navn,
             tiltakskode = tiltakskode,
@@ -112,5 +117,30 @@ class TiltakstypeService(
             regelverklenker = regelverklenker,
             kanKombineresMed = kanKombineresMed,
         )
+
+        return if (features.contains(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD)) {
+            dto
+        } else {
+            val sanityTiltakstype = sanityId?.let { getSanityTiltakstype(it) }
+            dto.copy(
+                beskrivelse = sanityTiltakstype?.beskrivelse,
+                faneinnhold = sanityTiltakstype?.faneinnhold,
+                regelverklenker = sanityTiltakstype?.regelverkLenker?.mapNotNull { lenke ->
+                    lenke.regelverkUrl?.let { url ->
+                        Regelverklenke(
+                            regelverkUrl = url,
+                            regelverkLenkeNavn = lenke.regelverkLenkeNavn,
+                            beskrivelse = lenke.beskrivelse,
+                        )
+                    }
+                } ?: emptyList(),
+                kanKombineresMed = sanityTiltakstype?.kanKombineresMed ?: emptyList(),
+            )
+        }
+    }
+
+    private suspend fun getSanityTiltakstype(sanityId: UUID): SanityTiltakstype? {
+        val sanityData = sanityService.getTiltakstyper().associateBy { it._id }
+        return sanityData[sanityId.toString()]
     }
 }

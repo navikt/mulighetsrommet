@@ -1556,6 +1556,7 @@ components:
       - VISES_I_TILTAKSADMINISTRASJON
       - MIGRERT
       - UTFASET
+      - MIGRERT_REDAKSJONELT_INNHOLD
     TiltakstypeEgenskap:
       type: string
       enum:

@@ -59,4 +59,9 @@ enum class TiltakstypeFeature {
      * Kan fortsatt redigeres, men ikke opprettes nye.
      */
     UTFASET,
+
+    /**
+     * Redaksjonelt innhold hentes fra databasen i stedet for Sanity.
+     */
+    MIGRERT_REDAKSJONELT_INNHOLD,
 }

@@ -60,9 +60,14 @@ val ApplicationConfigLocal = AppConfig(
             val vises = setOf(
                 TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
             )
+            val migrertMedInnholdFraDatabase = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+                TiltakstypeFeature.MIGRERT,
+                TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD,
+            )
             mapOf(
                 Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrertMedInnholdFraDatabase,
                 Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
                 Tiltakskode.AVKLARING to migrert,
                 Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,

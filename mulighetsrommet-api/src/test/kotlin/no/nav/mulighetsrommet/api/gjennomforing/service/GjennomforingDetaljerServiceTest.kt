@@ -16,11 +16,13 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFil
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
+import no.nav.mulighetsrommet.model.Tiltakskode
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.time.LocalDate
 import java.util.UUID
@@ -60,11 +62,15 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         domain.initialize(database.db)
     }
 
-    fun createService() = GjennomforingDetaljerService(
-        db = database.db,
-        tiltakstypeService = TiltakstypeService(db = database.db),
-        navAnsattService = mockk(),
-    )
+    fun createService(): GjennomforingDetaljerService {
+        val features = Tiltakskode.entries.associateWith { setOf(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD) }
+        val tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db, mockk())
+        return GjennomforingDetaljerService(
+            db = database.db,
+            tiltakstypeService = tiltakstypeService,
+            navAnsattService = mockk(),
+        )
+    }
 
     context("getGjennomforingDetaljerDto") {
         test("returnerer detaljer for en gruppetiltak-gjennomføring (AVTALE)") {

@@ -222,7 +222,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     fun createTiltakshistorikkService(isEnabled: () -> Boolean = { false }) = TiltakshistorikkService(
         historiskeIdenterQuery = historiskeIdenterQuery,
-        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(migrertConfig), database.db),
+        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(migrertConfig), database.db, mockk()),
         amtDeltakerClient = amtDeltakerClient,
         tiltakshistorikkClient = tiltakshistorikkClient,
         features = object : FeatureToggleService {

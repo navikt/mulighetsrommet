@@ -83,7 +83,7 @@ class GjennomforingDetaljerService(
         }
     }
 
-    fun getAllKompaktDto(
+    suspend fun getAllKompaktDto(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
@@ -113,7 +113,7 @@ class GjennomforingDetaljerService(
         }
     }
 
-    fun exportToExcel(
+    suspend fun exportToExcel(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): File {

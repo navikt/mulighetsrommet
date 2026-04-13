@@ -26,13 +26,13 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
 
     fun createConsumer(
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
-        service: GjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
+    ): ReplikerDeltakerEnkeltplassKafkaConsumer {
+        val service = GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
             mockk(),
-            TiltakstypeService(TiltakstypeService.Config(features), database.db),
-        ),
-    ): ReplikerDeltakerEnkeltplassKafkaConsumer {
+            TiltakstypeService(TiltakstypeService.Config(features), database.db, mockk()),
+        )
         return ReplikerDeltakerEnkeltplassKafkaConsumer(
             db = database.db,
             service = service,
