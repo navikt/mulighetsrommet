@@ -80,7 +80,7 @@ jobs:
       - name: Bygg applikasjon
         run: npx turbo run pack:demo --filter=@mr/arrangor-flate
       - name: Push docker image to GAR
-        uses: nais/docker-build-push@078e460885ed0424b60d45ce9220b4be1748be9d # v0
+        uses: nais/docker-build-push@45d352fb62fb52ccb5ff6cba22c047fa02b35321 # v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
@@ -106,7 +106,7 @@ jobs:
       - name: Bygg applikasjon
         run: npx turbo run pack --filter=@mr/arrangor-flate
       - name: Push docker image to GAR
-        uses: nais/docker-build-push@078e460885ed0424b60d45ce9220b4be1748be9d # v0
+        uses: nais/docker-build-push@45d352fb62fb52ccb5ff6cba22c047fa02b35321 # v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
@@ -132,7 +132,7 @@ jobs:
       - name: Bygg applikasjon
         run: npx turbo run pack --filter=@mr/arrangor-flate
       - name: Push docker image to GAR
-        uses: nais/docker-build-push@078e460885ed0424b60d45ce9220b4be1748be9d # v0
+        uses: nais/docker-build-push@45d352fb62fb52ccb5ff6cba22c047fa02b35321 # v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
