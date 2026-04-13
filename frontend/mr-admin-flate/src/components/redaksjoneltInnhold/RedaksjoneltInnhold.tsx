@@ -18,7 +18,9 @@ export function RedaksjoneltInnhold({ tiltakstype, beskrivelse, faneinnhold }: P
     <RedaksjoneltInnholdContainer>
       {tiltakstype.beskrivelse && (
         <>
-          <Heading size="medium">Generell informasjon</Heading>
+          <Heading size="medium" level="2">
+            Generell informasjon
+          </Heading>
           <BodyLong size="large" style={{ whiteSpace: "pre-wrap" }}>
             {tiltakstype.beskrivelse}
           </BodyLong>
@@ -31,7 +33,9 @@ export function RedaksjoneltInnhold({ tiltakstype, beskrivelse, faneinnhold }: P
           </BodyLong>
         </LokalInformasjonContainer>
       )}
-      <Heading size="medium">Faneinnhold</Heading>
+      <Heading size="medium" level="3">
+        Faneinnhold
+      </Heading>
       <RedaksjoneltInnholdTabs
         forHvem={
           <DetaljerFane

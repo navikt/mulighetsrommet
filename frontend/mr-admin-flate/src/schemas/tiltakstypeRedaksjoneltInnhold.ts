@@ -1,13 +1,5 @@
 import z from "zod";
 
-export const RegelverklenkeSchema = z
-  .object({
-    url: z.url({ error: "Du må oppgi en gyldig URL" }),
-    navn: z.string().nullish(),
-    beskrivelse: z.string().nullish(),
-  })
-  .array();
-
 export const TiltakstypeRedaksjoneltInnholdSchema = z.object({
   beskrivelse: z.string().nullish(),
   faneinnhold: z
@@ -33,7 +25,7 @@ export const TiltakstypeRedaksjoneltInnholdSchema = z.object({
       delMedBruker: z.string().nullish(),
     })
     .nullish(),
-  regelverklenker: RegelverklenkeSchema,
+  faglenker: z.array(z.object({ id: z.uuid() })),
   kanKombineresMed: z.array(z.uuid()),
 });
 

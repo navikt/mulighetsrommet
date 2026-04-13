@@ -6,13 +6,14 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeFilter
+import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeRedaksjoneltInnholdRequest
-import no.nav.mulighetsrommet.model.Regelverklenke
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
+import no.nav.mulighetsrommet.utils.toUUID
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -84,8 +85,9 @@ class TiltakstypeService(
 
     suspend fun upsertRedaksjoneltInnhold(id: UUID, request: TiltakstypeRedaksjoneltInnholdRequest): TiltakstypeDto? {
         db.transaction {
-            queries.tiltakstype.upsertRedaksjoneltInnhold(id, request)
+            queries.tiltakstype.upsertRedaksjoneltInnhold(id, request.beskrivelse, request.faneinnhold)
             queries.tiltakstype.setKanKombineresMed(id, request.kanKombineresMed)
+            queries.tiltakstype.setFaglenker(id, request.faglenker)
         }
         invalidateCaches()
         return getById(id)
@@ -115,7 +117,7 @@ class TiltakstypeService(
             gruppe = tiltakskode.gruppe?.tittel,
             beskrivelse = beskrivelse,
             faneinnhold = faneinnhold,
-            regelverklenker = regelverklenker,
+            faglenker = faglenker,
             kanKombineresMed = kanKombineresMed,
         )
 
@@ -126,9 +128,10 @@ class TiltakstypeService(
             dto.copy(
                 beskrivelse = sanityTiltakstype?.beskrivelse,
                 faneinnhold = sanityTiltakstype?.faneinnhold,
-                regelverklenker = sanityTiltakstype?.regelverkLenker?.mapNotNull { lenke ->
+                faglenker = sanityTiltakstype?.regelverkLenker?.mapNotNull { lenke ->
                     lenke.regelverkUrl?.let { url ->
-                        Regelverklenke(
+                        RedaksjoneltInnholdLenke(
+                            id = lenke._id!!.toUUID(),
                             url = url,
                             navn = lenke.regelverkLenkeNavn,
                             beskrivelse = lenke.beskrivelse,

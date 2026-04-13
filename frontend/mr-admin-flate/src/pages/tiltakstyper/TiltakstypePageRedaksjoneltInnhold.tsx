@@ -20,41 +20,49 @@ export function TiltakstypePageRedaksjoneltInnhold() {
 }
 
 function TiltakstypeRedaksjoneltInnhold({ tiltakstype }: { tiltakstype: TiltakstypeDto }) {
-  const { regelverklenker, kanKombineresMed } = tiltakstype;
+  const { faglenker, kanKombineresMed } = tiltakstype;
 
   return (
     <TwoColumnGrid separator>
       <RedaksjoneltInnhold tiltakstype={tiltakstype} beskrivelse={null} faneinnhold={null} />
       <RedaksjoneltInnholdContainer>
-        {kanKombineresMed.length > 0 && (
-          <>
-            <Heading size="medium">Kan kombineres med</Heading>
-            <VStack gap="space-2">
-              {kanKombineresMed.map((navn) => (
-                <BodyLong key={navn}>{navn}</BodyLong>
-              ))}
-            </VStack>
-          </>
+        <Heading size="medium" level="3">
+          Kan kombineres med
+        </Heading>
+        {kanKombineresMed.length > 0 ? (
+          <VStack>
+            {kanKombineresMed.map((navn) => (
+              <BodyLong key={navn}>{navn}</BodyLong>
+            ))}
+          </VStack>
+        ) : (
+          <BodyLong size="small" as="span">
+            Ikke registrert
+          </BodyLong>
         )}
 
-        {regelverklenker.length > 0 && (
-          <>
-            <Heading size="medium">Regelverk</Heading>
-            <VStack gap="space-2">
-              {regelverklenker.map((lenke) => (
-                <HStack key={lenke.url} gap="space-4" align="center">
-                  <Link href={lenke.url} target="_blank">
-                    {lenke.navn ?? lenke.url}
-                  </Link>
-                  {lenke.beskrivelse && (
-                    <Label size="small" as="span">
-                      {lenke.beskrivelse}
-                    </Label>
-                  )}
-                </HStack>
-              ))}
-            </VStack>
-          </>
+        <Heading size="medium" level="3">
+          Faglenker
+        </Heading>
+        {faglenker.length > 0 ? (
+          <VStack>
+            {faglenker.map((lenke) => (
+              <HStack key={lenke.id} gap="space-4" align="center">
+                <Link href={lenke.url} target="_blank">
+                  {lenke.navn ?? lenke.url}
+                </Link>
+                {lenke.beskrivelse && (
+                  <Label size="small" as="span">
+                    {lenke.beskrivelse}
+                  </Label>
+                )}
+              </HStack>
+            ))}
+          </VStack>
+        ) : (
+          <BodyLong size="small" as="span">
+            Ingen faglenker registrert
+          </BodyLong>
         )}
       </RedaksjoneltInnholdContainer>
     </TwoColumnGrid>

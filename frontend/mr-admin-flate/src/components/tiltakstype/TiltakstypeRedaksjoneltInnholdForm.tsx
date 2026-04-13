@@ -1,11 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Heading, HStack, VStack } from "@navikt/ds-react";
-import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
+import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { RedaksjoneltInnholdLenke, TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
+import { useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { usePatchTiltakstypeRedaksjoneltInnhold } from "@/api/tiltakstyper/usePatchTiltakstypeRedaksjoneltInnhold";
+import { useRedaksjoneltInnholdLenker } from "@/api/redaksjonelt-innhold/useRedaksjoneltInnholdLenker";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
-import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormButtons } from "@/components/skjema/FormButtons";
+import { FormCombobox } from "@/components/skjema/FormCombobox";
 import { FormListInput } from "@/components/skjema/FormListInput";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
@@ -13,8 +16,8 @@ import {
   TiltakstypeRedaksjoneltInnholdFormValues,
   TiltakstypeRedaksjoneltInnholdSchema,
 } from "@/schemas/tiltakstypeRedaksjoneltInnhold";
-import { FormProvider, useForm } from "react-hook-form";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
+import { RedaksjoneltInnholdLenkeModal } from "@/components/tiltakstype/RedaksjoneltInnholdLenkeModal";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -25,13 +28,14 @@ interface Props {
 export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onCancel }: Props) {
   const mutation = usePatchTiltakstypeRedaksjoneltInnhold(tiltakstype.id);
   const { data: alleTiltakstyper } = useTiltakstyper();
+  const [modalOpen, setModalOpen] = useState(false);
 
   const methods = useForm<TiltakstypeRedaksjoneltInnholdFormValues>({
     resolver: zodResolver(TiltakstypeRedaksjoneltInnholdSchema) as any,
     defaultValues: {
       beskrivelse: tiltakstype.beskrivelse || null,
       faneinnhold: tiltakstype.faneinnhold,
-      regelverklenker: tiltakstype.regelverklenker,
+      faglenker: tiltakstype.faglenker.map((l) => ({ id: l.id })),
       kanKombineresMed: alleTiltakstyper
         .filter((t) => tiltakstype.kanKombineresMed.includes(t.navn))
         .map((t) => t.id),
@@ -56,11 +60,7 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onC
         delMedBruker: values.faneinnhold?.delMedBruker || null,
         oppskrift: [],
       },
-      regelverklenker: values.regelverklenker.map((lenke) => ({
-        url: lenke.url,
-        navn: lenke.navn || null,
-        beskrivelse: lenke.beskrivelse || null,
-      })),
+      faglenker: values.faglenker.map((l) => l.id),
       kanKombineresMed: values.kanKombineresMed,
     });
     onSuccess();
@@ -97,10 +97,21 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onC
               options={andreKombinasjonOptions}
             />
 
-            <Heading size="medium" level="3">
-              Regelverk
-            </Heading>
-            <RegelverklenkerSkjema />
+            <HStack justify="space-between" align="center">
+              <Heading size="medium" level="3">
+                Regelverk og rutiner
+              </Heading>
+              <Button
+                size="small"
+                variant="tertiary"
+                onClick={() => setModalOpen(true)}
+                type="button"
+              >
+                Administrer lenker
+              </Button>
+            </HStack>
+            <FaglenkerSkjema />
+            <RedaksjoneltInnholdLenkeModal open={modalOpen} onClose={() => setModalOpen(false)} />
           </VStack>
         </TwoColumnGrid>
         <Separator />
@@ -114,28 +125,27 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onC
   );
 }
 
-function RegelverklenkerSkjema() {
+function FaglenkerSkjema() {
+  const lenker = useRedaksjoneltInnholdLenker();
+
   return (
     <FormListInput
-      name="regelverklenker"
-      addButtonLabel="Legg til regelverkslenke"
-      emptyItem={{ url: "", navn: null, beskrivelse: null }}
+      name="faglenker"
+      addButtonLabel="Legg til faglenke"
+      emptyItem={{ id: "" }}
       renderItem={(index) => (
-        <HStack gap="space-8">
-          <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
-            name={`regelverklenker.${index}.url`}
-            label="URL"
-          />
-          <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
-            name={`regelverklenker.${index}.navn`}
-            label="Lenketekst"
-          />
-          <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
-            name={`regelverklenker.${index}.beskrivelse`}
-            label="Beskrivelse (intern)"
-          />
-        </HStack>
+        <FormCombobox
+          name={`faglenker.${index}.id`}
+          label="Faglenke"
+          hideLabel
+          options={lenker.map((l) => ({ value: l.id, label: getLabel(l) }))}
+          placeholder="Velg lenke..."
+        />
       )}
     />
   );
+}
+function getLabel(lenke: RedaksjoneltInnholdLenke) {
+  const label = lenke.navn ?? lenke.url;
+  return lenke.beskrivelse ? `${label} (${lenke.beskrivelse})` : label;
 }

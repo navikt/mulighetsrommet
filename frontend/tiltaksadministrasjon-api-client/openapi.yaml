@@ -7,6 +7,75 @@ externalDocs:
 servers: []
 tags: []
 paths:
+  /api/tiltaksadministrasjon/redaksjonelt-innhold/lenker:
+    get:
+      tags:
+      - RedaksjoneltInnhold
+      operationId: getLenker
+      parameters: []
+      responses:
+        "200":
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
+      deprecated: false
+  /api/tiltaksadministrasjon/redaksjonelt-innhold/lenker/{id}:
+    put:
+      tags:
+      - RedaksjoneltInnhold
+      operationId: upsertLenke
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RedaksjoneltInnholdLenkeRequest"
+        required: false
+      responses:
+        "200":
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
+      deprecated: false
+    delete:
+      tags:
+      - RedaksjoneltInnhold
+      operationId: deleteLenke
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Lenke ble slettet
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/tiltakstyper:
     get:
       tags:
@@ -3084,6 +3153,70 @@ components:
       type: number
       enum:
         - 8
+    RedaksjoneltInnholdLenke:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          default: null
+        url:
+          type: string
+          default: null
+        navn:
+          type:
+          - "null"
+          - string
+          default: null
+        beskrivelse:
+          type:
+          - "null"
+          - string
+          default: null
+      required:
+      - beskrivelse
+      - id
+      - navn
+      - url
+    RedaksjoneltInnholdLenkeRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          default: null
+        navn:
+          type:
+          - "null"
+          - string
+          default: null
+        beskrivelse:
+          type:
+          - "null"
+          - string
+          default: null
+      required:
+      - beskrivelse
+      - navn
+      - url
+    ProblemDetail:
+      type: object
+      additionalProperties: {}
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+      - detail
+      - status
+      - title
+      - type
     TiltakstypeDto:
       type: object
       properties:
@@ -3140,10 +3273,10 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Faneinnhold"
-        regelverklenker:
+        faglenker:
           type: array
           items:
-            $ref: "#/components/schemas/Regelverklenke"
+            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
           default: null
         kanKombineresMed:
           type: array
@@ -3154,13 +3287,13 @@ components:
       required:
       - beskrivelse
       - egenskaper
+      - faglenker
       - faneinnhold
       - features
       - gruppe
       - id
       - kanKombineresMed
       - navn
-      - regelverklenker
       - sanityId
       - sluttDato
       - startDato
@@ -3318,45 +3451,6 @@ components:
       - lenke
       - lenkenavn
       - visKunForVeileder
-    Regelverklenke:
-      type: object
-      properties:
-        url:
-          type: string
-          default: null
-        navn:
-          type:
-          - "null"
-          - string
-          default: null
-        beskrivelse:
-          type:
-          - "null"
-          - string
-          default: null
-      required:
-      - beskrivelse
-      - navn
-      - url
-    ProblemDetail:
-      type: object
-      additionalProperties: {}
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        status:
-          type: integer
-        detail:
-          type: string
-        instance:
-          type: string
-      required:
-      - detail
-      - status
-      - title
-      - type
     Innsatsgruppe:
       type: string
       enum:
@@ -3407,7 +3501,7 @@ components:
           - "null"
           - array
           items:
-            $ref: "#/components/schemas/Regelverklenke"
+            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
           default: null
         faneinnhold:
           oneOf:
@@ -3465,10 +3559,12 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Faneinnhold"
-        regelverklenker:
+        faglenker:
           type: array
           items:
-            $ref: "#/components/schemas/Regelverklenke"
+            type: string
+            format: uuid
+            default: null
           default: null
         kanKombineresMed:
           type: array
@@ -3479,9 +3575,9 @@ components:
           default: null
       required:
       - beskrivelse
+      - faglenker
       - faneinnhold
       - kanKombineresMed
-      - regelverklenker
     DetaljerRequest:
       type: object
       properties:

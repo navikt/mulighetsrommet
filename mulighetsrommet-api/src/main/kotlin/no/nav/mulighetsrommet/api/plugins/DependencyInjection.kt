@@ -70,6 +70,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
+import no.nav.mulighetsrommet.api.tiltakstype.service.RedaksjoneltInnholdLenkeService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
@@ -444,6 +445,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { TiltakstypeService(appConfig.tiltakstyper, get(), get()) }
+    single { RedaksjoneltInnholdLenkeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { KostnadsstedService(get()) }

@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tiltakstype.model
 
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innsatsgruppe
-import no.nav.mulighetsrommet.model.Regelverklenke
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import java.time.LocalDate
@@ -20,6 +19,6 @@ data class Tiltakstype(
     val sanityId: UUID?,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
-    val regelverklenker: List<Regelverklenke>,
+    val faglenker: List<RedaksjoneltInnholdLenke>,
     val kanKombineresMed: List<String>,
 )

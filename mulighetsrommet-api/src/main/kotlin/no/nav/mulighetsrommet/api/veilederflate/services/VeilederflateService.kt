@@ -76,7 +76,7 @@ class VeilederflateService(
                         tiltaksgruppe = tiltakskode?.gruppe?.tittel,
                         sanityId = tiltakstype.sanityId.toString(),
                         beskrivelse = tiltakstype.beskrivelse,
-                        regelverkLenker = tiltakstype.regelverklenker,
+                        regelverkLenker = tiltakstype.faglenker,
                         faneinnhold = tiltakstype.faneinnhold,
                         delingMedBruker = tiltakstype.faneinnhold?.delMedBruker,
                         kanKombineresMed = tiltakstype.kanKombineresMed,

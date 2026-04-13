@@ -1504,7 +1504,7 @@ components:
           - "null"
           - array
           items:
-            $ref: "#/components/schemas/Regelverklenke"
+            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
           default: null
         faneinnhold:
           oneOf:
@@ -1565,9 +1565,13 @@ components:
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
-    Regelverklenke:
+    RedaksjoneltInnholdLenke:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
+          default: null
         url:
           type: string
           default: null
@@ -1583,6 +1587,7 @@ components:
           default: null
       required:
       - beskrivelse
+      - id
       - navn
       - url
     Faneinnhold:

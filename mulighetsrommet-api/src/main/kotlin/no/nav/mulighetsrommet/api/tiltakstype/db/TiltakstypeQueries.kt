@@ -1,18 +1,16 @@
 package no.nav.mulighetsrommet.api.tiltakstype.db
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeRedaksjoneltInnholdRequest
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.Innsatsgruppe
-import no.nav.mulighetsrommet.model.Regelverklenke
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
@@ -197,24 +195,53 @@ class TiltakstypeQueries(private val session: Session) {
         )
     }
 
-    fun upsertRedaksjoneltInnhold(id: UUID, request: TiltakstypeRedaksjoneltInnholdRequest) = with(session) {
+    fun upsertRedaksjoneltInnhold(
+        id: UUID,
+        beskrivelse: String?,
+        faneinnhold: Faneinnhold?,
+    ) {
         @Language("PostgreSQL")
-        val query = """
+        val updateQuery = """
             update tiltakstype
-            set beskrivelse      = :beskrivelse,
-                faneinnhold      = :faneinnhold::jsonb,
-                regelverklenker  = :regelverklenker::jsonb
+            set beskrivelse = :beskrivelse,
+                faneinnhold = :faneinnhold::jsonb
             where id = :id::uuid
         """.trimIndent()
 
         val params = mapOf(
             "id" to id,
-            "beskrivelse" to request.beskrivelse,
-            "faneinnhold" to request.faneinnhold.let { Json.encodeToString<Faneinnhold?>(it) },
-            "regelverklenker" to Json.encodeToString(request.regelverklenker),
+            "beskrivelse" to beskrivelse,
+            "faneinnhold" to faneinnhold.let { Json.encodeToString<Faneinnhold?>(it) },
         )
+        session.execute(queryOf(updateQuery, params))
+    }
 
-        execute(queryOf(query, params))
+    fun setFaglenker(id: UUID, lenker: List<UUID>) {
+        @Language("PostgreSQL")
+        val deleteLinksQuery = """
+            delete
+            from tiltakstype_faglenke
+            where tiltakstype_id = ?::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(deleteLinksQuery, id))
+
+        if (lenker.isNotEmpty()) {
+            @Language("PostgreSQL")
+            val insertLinkQuery = """
+                insert into tiltakstype_faglenke (tiltakstype_id, lenke_id, sort_order)
+                values (:tiltakstype_id::uuid, :lenke_id::uuid, :sort_order)
+            """.trimIndent()
+
+            val params = lenker.mapIndexed { index, lenkeId ->
+                mapOf(
+                    "tiltakstype_id" to id,
+                    "lenke_id" to lenkeId,
+                    "sort_order" to index,
+                )
+            }
+            session.batchPreparedNamedStatement(insertLinkQuery, params)
+        }
     }
 
     fun setKanKombineresMed(id: UUID, kombineresmedIds: List<UUID>) = with(session) {
@@ -289,8 +316,8 @@ class TiltakstypeQueries(private val session: Session) {
             status = TiltakstypeStatus.valueOf(string("status")),
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
-            regelverklenker = stringOrNull("regelverklenker")
-                ?.let { Json.decodeFromString<List<Regelverklenke>>(it) }
+            faglenker = stringOrNull("faglenker")
+                ?.let { Json.decodeFromString<List<RedaksjoneltInnholdLenke>>(it) }
                 ?: emptyList(),
             kanKombineresMed = kanKombineresMed,
         )

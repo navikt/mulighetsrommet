@@ -75,11 +75,13 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
             regelverkLenker={[
               ...tiltakstype.regelverkLenker,
               {
+                id: "avslag-og-klage",
                 navn: "Avslag og klage",
                 url: "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
                 beskrivelse: null,
               },
               {
+                id: "tiltak-hos-familie",
                 navn: "Tiltak hos familie/nærstående",
                 url: "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
                 beskrivelse: null,

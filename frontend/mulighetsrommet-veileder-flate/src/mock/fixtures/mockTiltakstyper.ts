@@ -11,11 +11,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     egenskaper: [],
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -319,11 +321,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som har helseplager eller sosiale problemer.\n\nTiltaket blir tilpasset behovet ditt ut fra mulighetene dine på arbeidsmarkedet, og kan blant annet inneholde:\n- motivasjons- og mestringsaktiviteter\n- individuelt treningsopplegg med veiledning\n- arbeidsutprøving i trygge omgivelser\n- veiledning i livsstil\n\nDu kan lese mer om kurset på www.nav.no/arbeidsrettet-rehabilitering ",
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -588,11 +592,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "Jobbklubb er et kortvarig tiltak for deg som søker jobb. Når du deltar på jobbklubb, får du støtte og hjelp til å orientere deg på arbeidsmarkedet og være en aktiv jobbsøker.\n\nDu kan lese mer om kurset på www.nav.no/jobbklubb",
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -1356,11 +1362,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     sanityId: "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3",
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -1373,11 +1381,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   opplaring_fagskole: {
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -1810,11 +1820,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     sanityId: "5ac48c03-1f4c-4d4b-b862-050caca92080",
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -1836,11 +1848,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "Varig lønnstilskudd skal bidra til å skaffe eller beholde arbeid, samt motvirke overgang til uføre for personer med varig og vesentlig nedsatt arbeidsevne",
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -2152,11 +2166,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     innsatsgrupper: [Innsatsgruppe.JOBBE_DELVIS, Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE],
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -2512,11 +2528,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     sanityId: "ad998fc6-310e-45d4-a056-57732fed87b4",
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -2552,11 +2570,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     sanityId: "bbb8d042-b30e-4e4a-8cd0-210019b19de3",
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -2699,11 +2719,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
 
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -3000,11 +3022,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "Arbeidstrening gir deg trening så du er klar for arbeidslivet.\nOm dette er noe for deg så send meg en melding i Dialogen.",
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -3028,11 +3052,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "Har du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra Nav. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n",
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
@@ -3148,11 +3174,13 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     arenakode: "AVKLARAG",
     regelverkLenker: [
       {
+        id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
         url: "https://www.google.no",
         beskrivelse: null,
       },
       {
+        id: "22f5ecc0-b8a1-4bd7-8e5d-153a33140181",
         navn: "Rundskriv",
         url: "https://www.google.no",
         beskrivelse: null,
