@@ -1,19 +1,19 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Heading, HStack, VStack } from "@navikt/ds-react";
 import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 import { usePatchTiltakstypeRedaksjoneltInnhold } from "@/api/tiltakstyper/usePatchTiltakstypeRedaksjoneltInnhold";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormButtons } from "@/components/skjema/FormButtons";
+import { FormListInput } from "@/components/skjema/FormListInput";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import {
   TiltakstypeRedaksjoneltInnholdFormValues,
   TiltakstypeRedaksjoneltInnholdSchema,
 } from "@/schemas/tiltakstypeRedaksjoneltInnhold";
-import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 
 interface Props {
@@ -115,49 +115,27 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onC
 }
 
 function RegelverklenkerSkjema() {
-  const { control } = useFormContext<TiltakstypeRedaksjoneltInnholdFormValues>();
-  const { fields, append, remove } = useFieldArray({ control, name: "regelverklenker" });
-
   return (
-    <VStack gap="space-12">
-      <Button
-        type="button"
-        size="small"
-        variant="secondary"
-        icon={<PlusIcon />}
-        onClick={() => append({ regelverkUrl: "", regelverkLenkeNavn: null, beskrivelse: null })}
-      >
-        Legg til regelverkslenke
-      </Button>
-      {fields.map((field, index) => (
-        <Box key={field.id} padding="space-8" borderWidth="1" borderRadius="8">
-          <VStack gap="space-8">
-            <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
-              name={`regelverklenker.${index}.regelverkUrl`}
-              label="URL"
-            />
-            <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
-              name={`regelverklenker.${index}.regelverkLenkeNavn`}
-              label="Lenketekst"
-            />
-            <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
-              name={`regelverklenker.${index}.beskrivelse`}
-              label="Beskrivelse (intern)"
-            />
-            <HStack justify="end">
-              <Button
-                type="button"
-                size="small"
-                variant="danger"
-                icon={<XMarkIcon />}
-                onClick={() => remove(index)}
-              >
-                Fjern
-              </Button>
-            </HStack>
-          </VStack>
-        </Box>
-      ))}
-    </VStack>
+    <FormListInput
+      name="regelverklenker"
+      addButtonLabel="Legg til regelverkslenke"
+      emptyItem={{ regelverkUrl: "", regelverkLenkeNavn: null, beskrivelse: null }}
+      renderItem={(index) => (
+        <HStack gap="space-8">
+          <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
+            name={`regelverklenker.${index}.regelverkUrl`}
+            label="URL"
+          />
+          <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
+            name={`regelverklenker.${index}.regelverkLenkeNavn`}
+            label="Lenketekst"
+          />
+          <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
+            name={`regelverklenker.${index}.beskrivelse`}
+            label="Beskrivelse (intern)"
+          />
+        </HStack>
+      )}
+    />
   );
 }

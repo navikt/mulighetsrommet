@@ -1,24 +1,23 @@
-import { Button, Heading, HelpText, HStack, Label, VStack } from "@navikt/ds-react";
+import { Heading, HelpText, HStack, Label, VStack } from "@navikt/ds-react";
 import {
   GjennomforingKontaktpersonDto,
   GjennomforingRequest,
 } from "@tiltaksadministrasjon/api-client";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
-import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
-import { KontaktpersonButton } from "../kontaktperson/KontaktpersonButton";
 import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { FormTextField } from "@/components/skjema/FormTextField";
+import { FormListInput } from "@/components/skjema/FormListInput";
 
 interface Props {
   tiltakId: string;
@@ -79,17 +78,6 @@ function RegionerOgEnheterOgKontaktpersoner({
   kontaktpersonForm: boolean;
   lagredeKontaktpersoner: GjennomforingKontaktpersonDto[];
 }) {
-  const { control } = useFormContext();
-
-  const {
-    fields: kontaktpersonFields,
-    append: appendKontaktperson,
-    remove: removeKontaktperson,
-  } = useFieldArray({
-    name: "kontaktpersoner",
-    control,
-  });
-
   return (
     <>
       <Heading size="medium" spacing level="3">
@@ -134,39 +122,17 @@ function RegionerOgEnheterOgKontaktpersoner({
                 gjennomføringen."
               </HelpText>
             </HStack>
-            {kontaktpersonFields.map((field, index) => {
-              return (
-                <div
-                  className="bg-ax-bg-neutral-soft mt-4 p-2 relative border border-ax-border-neutral-subtle rounded"
-                  key={field.id}
-                >
-                  <Button
-                    className="p-0 float-right"
-                    variant="tertiary"
-                    size="small"
-                    type="button"
-                    onClick={() => removeKontaktperson(index)}
-                  >
-                    <XMarkIcon fontSize="1.5rem" />
-                  </Button>
-                  <div className="flex flex-col gap-4">
-                    <SokEtterKontaktperson
-                      index={index}
-                      id={field.id}
-                      lagredeKontaktpersoner={lagredeKontaktpersoner}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-            <KontaktpersonButton
-              onClick={() => appendKontaktperson({ navIdent: "", beskrivelse: "" })}
-              knappetekst={
-                <div className="flex items-center gap-2">
-                  <PlusIcon aria-label="Legg til ny kontaktperson" />
-                  Legg til ny kontaktperson
-                </div>
-              }
+            <FormListInput
+              name="kontaktpersoner"
+              addButtonLabel="Legg til ny kontaktperson"
+              emptyItem={{ navIdent: "", beskrivelse: "" }}
+              renderItem={(index, id) => (
+                <SokEtterKontaktperson
+                  index={index}
+                  id={id}
+                  lagredeKontaktpersoner={lagredeKontaktpersoner}
+                />
+              )}
             />
           </>
         )}
