@@ -52,14 +52,7 @@ class GjennomforingRequestKafkaConsumer(
             arrangorId = arrangor.id,
             status = GjennomforingStatusType.GJENNOMFORES,
             prisbetingelser = request.prisinformasjon,
-            deltidsprosent = 100.0,
-            antallPlasser = 1,
             ansvarligEnhet = request.ansvarligEnhet,
-            navn = null,
-            startDato = null,
-            sluttDato = null,
-            arenaTiltaksnummer = null,
-            arenaAnsvarligEnhet = null,
         )
         enkeltplasser.create(opprett, request.opprettetAv)
     }

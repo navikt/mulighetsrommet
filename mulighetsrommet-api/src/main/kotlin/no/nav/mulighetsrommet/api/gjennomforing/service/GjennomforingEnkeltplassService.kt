@@ -52,16 +52,16 @@ data class UpsertGjennomforingEnkeltplass(
     val id: UUID,
     val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
-    val navn: String?,
-    val startDato: LocalDate?,
-    val sluttDato: LocalDate?,
     val status: GjennomforingStatusType,
     val prisbetingelser: String?,
-    val deltidsprosent: Double,
-    val antallPlasser: Int,
     val ansvarligEnhet: NavEnhetNummer,
-    val arenaTiltaksnummer: Tiltaksnummer?,
-    val arenaAnsvarligEnhet: String?,
+    val startDato: LocalDate? = null,
+    val sluttDato: LocalDate? = null,
+    val navn: String? = null,
+    val deltidsprosent: Double = 100.0,
+    val antallPlasser: Int = 1,
+    val arenaTiltaksnummer: Tiltaksnummer? = null,
+    val arenaAnsvarligEnhet: String? = null,
 )
 
 class GjennomforingEnkeltplassService(

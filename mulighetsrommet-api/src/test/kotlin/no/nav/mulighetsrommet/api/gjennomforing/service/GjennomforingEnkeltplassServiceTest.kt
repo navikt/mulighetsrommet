@@ -69,16 +69,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         id = UUID.randomUUID(),
         tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         arrangorId = GjennomforingFixtures.EnkelAmo.arrangorId,
-        navn = null,
         startDato = LocalDate.of(2025, 1, 1),
         sluttDato = LocalDate.of(2025, 6, 1),
         status = GjennomforingStatusType.GJENNOMFORES,
-        prisbetingelser = null,
-        deltidsprosent = 100.0,
-        antallPlasser = 1,
         ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
-        arenaTiltaksnummer = null,
-        arenaAnsvarligEnhet = null,
+        prisbetingelser = null,
     )
 
     context("opprettelse gjennomføring") {
