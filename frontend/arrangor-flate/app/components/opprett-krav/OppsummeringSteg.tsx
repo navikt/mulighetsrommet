@@ -1,4 +1,4 @@
-import { FieldError, LabeledDataElement } from "@api-client";
+import { FieldError, LabeledDataElement, PeriodeType } from "@api-client";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import {
   Box,
@@ -59,7 +59,7 @@ export default function OppsummeringStep({
               value: formaterPeriode({
                 start: formState.periodeStart!,
                 slutt: formaterDato(
-                  formState.periodeInklusiv
+                  formState.periodeType === PeriodeType.INKLUSIV
                     ? addDuration(formState.periodeSlutt!, { days: 1 })!
                     : formState.periodeSlutt!,
                 )!,

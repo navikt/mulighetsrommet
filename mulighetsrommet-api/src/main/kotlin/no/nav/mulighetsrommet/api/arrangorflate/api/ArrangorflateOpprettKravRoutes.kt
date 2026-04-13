@@ -443,6 +443,12 @@ enum class GuidePanelType {
     AVTALT_PRIS,
 }
 
+@Serializable
+enum class PeriodeType {
+    Inklusiv,
+    Eksklusiv,
+}
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonClassDiscriminator("type")
@@ -629,6 +635,7 @@ data class OpprettKravUtbetalingSteg(
 data class OpprettKravUtbetalingRequest(
     val periodeStart: String,
     val periodeSlutt: String,
+    val periodeType: PeriodeType,
     val kidNummer: String? = null,
     val belop: Int,
     val vedlegg: List<Vedlegg>,
@@ -637,6 +644,7 @@ data class OpprettKravUtbetalingRequest(
 private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either<List<FieldError>, OpprettKravUtbetalingRequest> = either {
     var periodeStart: String? = null
     var periodeSlutt: String? = null
+    var periodeType: PeriodeType? = null
     var kidNummer: String? = null
     var belop: Int? = null
     val vedlegg: MutableList<Vedlegg> = mutableListOf()
@@ -650,6 +658,7 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either
                     "belop" -> belop = part.value.toInt()
                     "periodeStart" -> periodeStart = part.value
                     "periodeSlutt" -> periodeSlutt = part.value
+                    "periodeType" -> periodeType = part.value.let { PeriodeType.valueOf(it) }
                 }
             }
 
@@ -670,6 +679,7 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either
     OpprettKravUtbetalingRequest(
         periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
         periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
+        periodeType = requireNotNull(periodeType) { "Mangler periodeType" },
         kidNummer = kidNummer,
         belop = belop ?: 0, // Valuta hentes fra prismodell
         vedlegg = validatedVedlegg,

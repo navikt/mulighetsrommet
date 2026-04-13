@@ -5,6 +5,7 @@ import {
   GuidePanelType,
   OpprettKravInnsendingSteg,
   Periode,
+  PeriodeType,
 } from "@api-client";
 import {
   BodyShort,
@@ -27,7 +28,6 @@ import { LabeledDataElementList } from "../common/Definisjonsliste";
 import { Link as ReactRouterLink } from "react-router";
 import { errorAt } from "~/utils/validering";
 import {
-  addDuration,
   formaterPeriode,
   parseDate,
   subDuration,
@@ -194,6 +194,7 @@ function PeriodeVelgerVarianter({
           onPeriodeSelected={onPeriodeSelected}
           sessionPeriodeStart={sessionPeriodeStart}
           sessionPeriodeSlutt={sessionPeriodeSlutt}
+          updateFormState={updateFormState}
         />
       );
     case "DatoVelgerRange":
@@ -217,6 +218,7 @@ interface PeriodeSelectProps {
   periodeForslag: Array<Periode>;
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
+  updateFormState: (updates: Partial<OpprettKravFormState>) => void;
 }
 
 function PeriodeSelect({
@@ -224,6 +226,7 @@ function PeriodeSelect({
   periodeForslag,
   sessionPeriodeStart,
   sessionPeriodeSlutt,
+  updateFormState,
 }: PeriodeSelectProps) {
   function onChange(e: SyntheticEvent<HTMLSelectElement, Event>) {
     const selectedValue = (e.target as HTMLSelectElement).value;
@@ -232,6 +235,7 @@ function PeriodeSelect({
       return;
     }
     const selectedPeriode = periodeForslag[Number(selectedValue)];
+    updateFormState({ periodeType: PeriodeType.EKSKLUSIV });
     onPeriodeSelected(selectedPeriode);
   }
 
@@ -297,8 +301,8 @@ function PeriodeVelger({
   useEffect(() => {
     if (selectedStartDato && selectedSluttDato) {
       const start = yyyyMMddFormatting(selectedStartDato)!;
-      const slutt = yyyyMMddFormatting(addDuration(selectedSluttDato, { days: 1 }))!;
-      updateFormState({ periodeInklusiv: true });
+      const slutt = yyyyMMddFormatting(selectedSluttDato)!;
+      updateFormState({ periodeType: PeriodeType.INKLUSIV });
       onPeriodeSelected({ start, slutt });
     } else {
       onPeriodeSelected();
