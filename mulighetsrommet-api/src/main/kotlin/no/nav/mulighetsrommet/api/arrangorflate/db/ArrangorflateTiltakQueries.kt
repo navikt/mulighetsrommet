@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -58,11 +59,8 @@ class ArrangorflateTiltakQueries(private val session: Session) {
             from view_arrangorflate_tiltak
             where
               (:sok::text is null
-                or arrangor_navn ilike :sok
+                or fts @@ to_tsquery('norwegian', :fts)
                 or arrangor_organisasjonsnummer ilike :sok
-                or tiltakstype_navn ilike :sok
-                or navn ilike :sok
-                or lopenummer ilike :sok
                 or to_char(start_dato, 'DD.MM.YYYY') ilike :sok
                 or to_char(slutt_dato, 'DD.MM.YYYY') ilike :sok
               )
@@ -77,6 +75,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
+            "fts" to filter.sok?.toFTSPrefixQuery(),
             "sok" to filter.sok?.let { "%$it%" },
             "slutt_dato_cutoff" to filter.sluttDatoGreaterThanOrEqualTo,
             "tiltakstype_ids" to createUuidArray(tiltakstyper),
