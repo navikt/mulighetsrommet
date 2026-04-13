@@ -134,8 +134,8 @@ class GjennomforingDetaljerService(
         val ansatt = navAnsattService.getNavAnsattByNavIdent(navIdent) ?: return setOf()
         val gjennomforing = db.session { getGjennomforing(id) } ?: return setOf()
         return when (gjennomforing) {
-            is GjennomforingAvtale -> getHandlingerGruppetiltak(gjennomforing, ansatt)
-            is GjennomforingEnkeltplass -> getHandlingerEnkeltplasser(gjennomforing, ansatt)
+            is GjennomforingAvtale -> getHandlingerAvtale(gjennomforing, ansatt)
+            is GjennomforingEnkeltplass -> getHandlingerEnkeltplass(gjennomforing, ansatt)
             is GjennomforingArena -> setOf()
         }
     }
@@ -144,7 +144,7 @@ class GjennomforingDetaljerService(
         return queries.gjennomforing.getGjennomforing(id)
     }
 
-    private fun getHandlingerGruppetiltak(
+    private fun getHandlingerAvtale(
         gjennomforing: GjennomforingAvtale,
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
@@ -174,15 +174,18 @@ class GjennomforingDetaljerService(
             .toSet()
     }
 
-    private fun getHandlingerEnkeltplasser(
+    private fun getHandlingerEnkeltplass(
         gjennomforing: GjennomforingEnkeltplass,
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
+        val totrinnskontroll = db.session {
+            queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OPPRETT)
+        }
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
-            GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+            GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf { totrinnskontroll != null },
         )
             .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
             .toSet()
