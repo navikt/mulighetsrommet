@@ -1,20 +1,21 @@
 import { Lenke as LenkeComponent } from "@mr/frontend-common/components/lenke/Lenke";
-import { GuidePanel, Heading, List, Box } from "@navikt/ds-react";
+import { Box, GuidePanel, Heading, List } from "@navikt/ds-react";
 import { DokumentIkon } from "@/ikoner/DokumentIkon";
-
-export interface Lenke {
-  lenkenavn: string;
-  lenke: string;
-  apneINyFane: boolean;
-  visKunForVeileder: boolean;
-}
+import { VeilederflateTiltak } from "@api-client";
 
 interface Props {
-  lenker: Lenke[];
+  tiltak: VeilederflateTiltak;
+  skjulKunForVeileder?: boolean;
 }
 
-export function LenkeListe({ lenker }: Props) {
-  if (lenker.length === 0) return null;
+export function SidemenyLenker({ tiltak, skjulKunForVeileder }: Props) {
+  const lenker = [
+    ...(tiltak.tiltakstype.faneinnhold?.lenker ?? []),
+    ...(tiltak.faneinnhold?.lenker ?? []),
+  ].filter((link) => !skjulKunForVeileder || !link.visKunForVeileder);
+  if (lenker.length === 0) {
+    return null;
+  }
 
   return (
     <GuidePanel illustration={<DokumentIkon aria-label="Ikon for dokumenter" />}>

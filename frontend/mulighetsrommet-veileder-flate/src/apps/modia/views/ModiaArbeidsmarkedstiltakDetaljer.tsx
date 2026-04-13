@@ -14,7 +14,7 @@ import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifi
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
 import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGruppetiltak";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
-import { LenkeListe } from "@/components/sidemeny/Lenker";
+import { SidemenyLenker } from "@/components/sidemeny/SidemenyLenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
 import { paginationAtom } from "@/core/atoms";
@@ -140,7 +140,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </ArbeidsmarkedstiltakErrorBoundary>
             )}
 
-            {tiltak.faneinnhold?.lenker && <LenkeListe lenker={tiltak.faneinnhold.lenker} />}
+            <SidemenyLenker tiltak={tiltak} />
 
             {isTilbakemeldingerEnabled(tiltak) && (
               <TilbakemeldingsLenke

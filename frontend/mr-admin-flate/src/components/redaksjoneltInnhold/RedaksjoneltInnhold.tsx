@@ -1,4 +1,4 @@
-import { Alert, BodyLong, Box, Heading, List, VStack } from "@navikt/ds-react";
+import { Alert, BodyLong, Box, Heading, HStack, List, VStack } from "@navikt/ds-react";
 import { LokalInformasjonContainer, PortableText } from "@mr/frontend-common";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
 import { RedaksjoneltInnholdTabs } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabs";
@@ -12,6 +12,8 @@ interface Props {
 }
 
 export function RedaksjoneltInnhold({ tiltakstype, beskrivelse, faneinnhold }: Props) {
+  const lenker = [...(tiltakstype.faneinnhold?.lenker ?? []), ...(faneinnhold?.lenker ?? [])];
+
   return (
     <RedaksjoneltInnholdContainer>
       {tiltakstype.beskrivelse && (
@@ -57,17 +59,13 @@ export function RedaksjoneltInnhold({ tiltakstype, beskrivelse, faneinnhold }: P
         }
         kontaktinfo={
           <DetaljerFane
+            tiltakstype={tiltakstype.faneinnhold?.kontaktinfo}
+            tiltakstypeAlert={tiltakstype.faneinnhold?.kontaktinfoInfoboks}
             gjennomforing={faneinnhold?.kontaktinfo}
             gjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
           />
         }
-        lenker={
-          faneinnhold?.lenker?.length ? (
-            <div className="prose">
-              <RedaksjoneltInnholdLenker lenker={faneinnhold.lenker} />
-            </div>
-          ) : null
-        }
+        lenker={lenker.length ? <RedaksjoneltInnholdLenker lenker={lenker} /> : null}
         delMedBruker={
           (faneinnhold?.delMedBruker ?? tiltakstype.faneinnhold?.delMedBruker) ? (
             <BodyLong as="div" size="small" className="prose">
@@ -136,18 +134,16 @@ export function RedaksjoneltInnholdLenker({ lenker }: { lenker: FaneinnholdLenke
       <List data-aksel-migrated-v8 as="ul">
         {lenker.map((lenke, index) => (
           <List.Item key={index} className="break-words">
-            <VStack className="max-w-full overflow-hidden">
+            <HStack gap="space-16">
               <LenkeComponent
                 to={lenke.lenke}
                 target={lenke.apneINyFane ? "_blank" : "_self"}
-                rel={lenke.apneINyFane ? "noopener noreferrer" : undefined}
                 isExternal={lenke.apneINyFane}
-                className="break-all"
               >
                 {lenke.lenkenavn} ({lenke.lenke})
               </LenkeComponent>
-              {lenke.visKunForVeileder ? <small>Vises kun i Modia</small> : null}
-            </VStack>
+              {lenke.visKunForVeileder ? <small>(Vises kun i Modia)</small> : null}
+            </HStack>
           </List.Item>
         ))}
       </List>
