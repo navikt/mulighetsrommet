@@ -1,16 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileTextIcon, LinkIcon, PaperplaneIcon, PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import {
-  Alert,
-  Box,
-  Button,
-  Heading,
-  HStack,
-  Tabs,
-  Textarea,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
+import { Alert, Box, Button, Heading, HStack, Tabs, VStack } from "@navikt/ds-react";
 import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 import { PortableTextFormEditor } from "@/components/portableText/PortableTextEditor";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
@@ -19,6 +9,11 @@ import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/D
 import { usePatchTiltakstypeRedaksjoneltInnhold } from "@/api/tiltakstyper/usePatchTiltakstypeRedaksjoneltInnhold";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
+import { FormTextField } from "@/components/skjema/FormTextField";
+import { FormTextarea } from "@/components/skjema/FormTextarea";
+import { FormButtons } from "@/components/skjema/FormButtons";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import {
   TiltakstypeRedaksjoneltInnholdFormValues,
   TiltakstypeRedaksjoneltInnholdSchema,
@@ -28,9 +23,10 @@ import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook
 interface Props {
   tiltakstype: TiltakstypeDto;
   onSuccess: () => void;
+  onCancel?: () => void;
 }
 
-export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: Props) {
+export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onCancel }: Props) {
   const mutation = usePatchTiltakstypeRedaksjoneltInnhold(tiltakstype.id);
   const { data: alleTiltakstyper } = useTiltakstyper();
 
@@ -81,17 +77,24 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <VStack gap="space-16">
-          <Alert size="small" variant="info">
-            Ikke del personopplysninger i fritekstfeltene
-          </Alert>
-
+        <FormButtons
+          submitLabel="Lagre redaksjonelt innhold"
+          onCancel={onCancel}
+          isPending={mutation.isPending}
+        />
+        <Separator />
+        <TwoColumnGrid separator>
           <RedaksjoneltInnholdContainer>
             <Heading size="medium" level="3">
               Generell informasjon
             </Heading>
-            <Textarea
-              {...methods.register("beskrivelse")}
+
+            <Alert size="small" variant="info">
+              Ikke del personopplysninger i fritekstfeltene
+            </Alert>
+
+            <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
+              name="beskrivelse"
               label="Beskrivelse"
               description="Kort beskrivelse av formål med tiltakstypen."
               rows={5}
@@ -154,8 +157,8 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
 
               <Tabs.Panel value="for_hvem">
                 <DescriptionRichtextContainer>
-                  <Textarea
-                    {...methods.register("faneinnhold.forHvemInfoboks")}
+                  <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
+                    name="faneinnhold.forHvemInfoboks"
                     label='Fremhevet informasjon i blå infoboks under fanen "For hvem"'
                     rows={3}
                   />
@@ -165,8 +168,8 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
 
               <Tabs.Panel value="detaljer_og_innhold">
                 <DescriptionRichtextContainer>
-                  <Textarea
-                    {...methods.register("faneinnhold.detaljerOgInnholdInfoboks")}
+                  <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
+                    name="faneinnhold.detaljerOgInnholdInfoboks"
                     label='Fremhevet informasjon i blå infoboks under fanen "Detaljer og innhold"'
                     rows={3}
                   />
@@ -179,8 +182,8 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
 
               <Tabs.Panel value="pamelding_og_varighet">
                 <DescriptionRichtextContainer>
-                  <Textarea
-                    {...methods.register("faneinnhold.pameldingOgVarighetInfoboks")}
+                  <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
+                    name="faneinnhold.pameldingOgVarighetInfoboks"
                     label='Fremhevet informasjon i blå infoboks under fanen "Påmelding og varighet"'
                     rows={3}
                   />
@@ -193,8 +196,8 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
 
               <Tabs.Panel value="kontaktinfo">
                 <DescriptionRichtextContainer>
-                  <Textarea
-                    {...methods.register("faneinnhold.kontaktinfoInfoboks")}
+                  <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
+                    name="faneinnhold.kontaktinfoInfoboks"
                     label='Fremhevet informasjon i blå infoboks under fanen "Kontaktinfo"'
                     rows={3}
                   />
@@ -208,8 +211,8 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
 
               <Tabs.Panel value="del_med_bruker">
                 <DescriptionRichtextContainer>
-                  <Textarea
-                    {...methods.register("faneinnhold.delMedBruker")}
+                  <FormTextarea<TiltakstypeRedaksjoneltInnholdFormValues>
+                    name="faneinnhold.delMedBruker"
                     label="Informasjon som kan deles med bruker"
                     description="Informasjon om tiltaket som veileder kan dele med bruker."
                     rows={5}
@@ -217,12 +220,9 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
                 </DescriptionRichtextContainer>
               </Tabs.Panel>
             </Tabs>
+          </RedaksjoneltInnholdContainer>
 
-            <Heading size="medium" level="3">
-              Regelverk
-            </Heading>
-            <RegelverklenkerSkjema />
-
+          <VStack gap="space-16" paddingBlock="space-4">
             <Heading size="medium" level="3">
               Kan kombineres med
             </Heading>
@@ -230,23 +230,29 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess }: P
               name="kanKombineresMed"
               label="Tiltakstyper som kan kombineres med denne"
               placeholder="Søk etter tiltakstyper..."
+              size="small"
               options={andreKombinasjonOptions}
             />
-          </RedaksjoneltInnholdContainer>
 
-          <HStack gap="space-8">
-            <Button type="submit" loading={mutation.isPending}>
-              Lagre
-            </Button>
-          </HStack>
-        </VStack>
+            <Heading size="medium" level="3">
+              Regelverk
+            </Heading>
+            <RegelverklenkerSkjema />
+          </VStack>
+        </TwoColumnGrid>
+        <Separator />
+        <FormButtons
+          submitLabel="Lagre redaksjonelt innhold"
+          onCancel={onCancel}
+          isPending={mutation.isPending}
+        />
       </form>
     </FormProvider>
   );
 }
 
 function RegelverklenkerSkjema() {
-  const { register, control } = useFormContext<TiltakstypeRedaksjoneltInnholdFormValues>();
+  const { control } = useFormContext<TiltakstypeRedaksjoneltInnholdFormValues>();
   const { fields, append, remove } = useFieldArray({ control, name: "regelverklenker" });
 
   return (
@@ -263,20 +269,17 @@ function RegelverklenkerSkjema() {
       {fields.map((field, index) => (
         <Box key={field.id} padding="space-8" borderWidth="1" borderRadius="8">
           <VStack gap="space-8">
-            <TextField
-              size="small"
+            <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
+              name={`regelverklenker.${index}.regelverkUrl`}
               label="URL"
-              {...register(`regelverklenker.${index}.regelverkUrl`)}
             />
-            <TextField
-              size="small"
+            <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
+              name={`regelverklenker.${index}.regelverkLenkeNavn`}
               label="Lenketekst"
-              {...register(`regelverklenker.${index}.regelverkLenkeNavn`)}
             />
-            <TextField
-              size="small"
+            <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
+              name={`regelverklenker.${index}.beskrivelse`}
               label="Beskrivelse (intern)"
-              {...register(`regelverklenker.${index}.beskrivelse`)}
             />
             <HStack justify="end">
               <Button
@@ -297,7 +300,7 @@ function RegelverklenkerSkjema() {
 }
 
 function FaneinnholdLenker() {
-  const { register, control } = useFormContext<TiltakstypeRedaksjoneltInnholdFormValues>();
+  const { control } = useFormContext<TiltakstypeRedaksjoneltInnholdFormValues>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "faneinnhold.lenker",
@@ -318,15 +321,13 @@ function FaneinnholdLenker() {
       <VStack gap="space-20">
         {fields.map((lenke, index) => (
           <VStack gap="space-8" key={lenke.id}>
-            <TextField
-              size="small"
+            <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
+              name={`faneinnhold.lenker.${index}.lenkenavn`}
               label="Lenkenavn"
-              {...register(`faneinnhold.lenker.${index}.lenkenavn`)}
             />
-            <TextField
-              size="small"
+            <FormTextField<TiltakstypeRedaksjoneltInnholdFormValues>
+              name={`faneinnhold.lenker.${index}.lenke`}
               label="Lenke"
-              {...register(`faneinnhold.lenker.${index}.lenke`)}
             />
             <HStack justify="end">
               <Button

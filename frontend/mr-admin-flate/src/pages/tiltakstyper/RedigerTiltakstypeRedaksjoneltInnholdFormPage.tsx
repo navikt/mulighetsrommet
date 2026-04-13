@@ -37,7 +37,11 @@ export function RedigerTiltakstypeRedaksjoneltInnholdFormPage() {
       </Header>
       <ContentBox>
         <Box padding="space-16" background="default">
-          <TiltakstypeRedaksjoneltInnholdForm tiltakstype={tiltakstype} onSuccess={handleSuccess} />
+          <TiltakstypeRedaksjoneltInnholdForm
+            tiltakstype={tiltakstype}
+            onSuccess={handleSuccess}
+            onCancel={() => navigate(-1)}
+          />
         </Box>
       </ContentBox>
     </>

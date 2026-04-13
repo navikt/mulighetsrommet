@@ -208,11 +208,11 @@ const routes: RouteObject[] = [
         children: [
           { index: true, element: <DetaljerTiltakstypePage /> },
           { path: "redaksjonelt-innhold", element: <TiltakstypeRedaksjoneltInnholdDetaljer /> },
-          {
-            path: "redaksjonelt-innhold/rediger",
-            element: <RedigerTiltakstypeRedaksjoneltInnholdFormPage />,
-          },
         ],
+      }),
+      route({
+        path: "tiltakstyper/:tiltakstypeId/redaksjonelt-innhold/rediger",
+        element: <RedigerTiltakstypeRedaksjoneltInnholdFormPage />,
       }),
       route({
         path: "avtaler",
