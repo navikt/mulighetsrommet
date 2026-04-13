@@ -183,7 +183,6 @@ class GjennomforingDetaljerService(
         }
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
-            GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf { totrinnskontroll != null },
         )
