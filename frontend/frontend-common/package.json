@@ -35,9 +35,9 @@
   },
   "devDependencies": {
     "@mr/eslint-config-react-app": "workspace:*",
-    "@navikt/aksel-icons": "8.2.2",
-    "@navikt/ds-css": "8.2.2",
-    "@navikt/ds-react": "8.2.2",
+    "@navikt/aksel-icons": "8.9.0",
+    "@navikt/ds-css": "8.9.0",
+    "@navikt/ds-react": "8.9.0",
     "@types/react": "19.0.3",
     "@types/react-dom": "19.0.4",
     "@vitejs/plugin-react": "6.0.1",
