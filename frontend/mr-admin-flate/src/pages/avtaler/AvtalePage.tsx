@@ -2,19 +2,11 @@ import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { Box, Heading, Tabs } from "@navikt/ds-react";
-import { useLocation, useMatch } from "react-router";
+import { Outlet, useLocation, useMatch } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { AvtaleDetaljer } from "./AvtaleDetaljer";
-import { AvtalePersonvern } from "./AvtalePersonvern";
-import { GjennomforingerForAvtalePage } from "../gjennomforing/GjennomforingerForAvtalePage";
-import { AvtalePageLayout } from "./AvtalePageLayout";
-import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { DataElementStatusTag } from "@mr/frontend-common";
-import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
-import { ContentBox } from "@/layouts/ContentBox";
-import { AvtaleRedaksjoneltInnhold } from "@/pages/avtaler/AvtaleRedaksjoneltInnhold";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -77,43 +69,12 @@ function getTabLinks(avtaleId: string): AvtaleTabDetaljer[] {
   ];
 }
 
-function getTab(currentTab: AvtaleTab, avtale: AvtaleDto) {
-  switch (currentTab) {
-    case AvtaleTab.DETALJER:
-      return (
-        <AvtalePageLayout avtale={avtale}>
-          <AvtaleDetaljer />
-        </AvtalePageLayout>
-      );
-    case AvtaleTab.PERSONVERN:
-      return (
-        <AvtalePageLayout avtale={avtale}>
-          <AvtalePersonvern />
-        </AvtalePageLayout>
-      );
-    case AvtaleTab.VEILEDERINFORMASJON:
-      return (
-        <AvtalePageLayout avtale={avtale}>
-          <AvtaleRedaksjoneltInnhold />
-        </AvtalePageLayout>
-      );
-    case AvtaleTab.GJENNOMFORINGER:
-      return (
-        <InlineErrorBoundary>
-          <ContentBox>
-            <GjennomforingerForAvtalePage />
-          </ContentBox>
-        </InlineErrorBoundary>
-      );
-  }
-}
-
 export function AvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
-  const { pathname } = useLocation();
-  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: avtale } = useAvtale(avtaleId);
+  const { pathname } = useLocation();
   const currentTab = getCurrentTab(pathname);
+  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
 
   const brodsmuler = useAvtaleBrodsmuler(avtale.id);
 
@@ -144,7 +105,9 @@ export function AvtalePage() {
             ))}
           </Tabs.List>
         </Box>
-        <Tabs.Panel value={currentTab}>{getTab(currentTab, avtale)}</Tabs.Panel>
+        <Tabs.Panel value={currentTab}>
+          <Outlet />
+        </Tabs.Panel>
       </Tabs>
     </div>
   );

@@ -10,6 +10,7 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { getGjennomforingerForAvtaleFilterAtom } from "@/pages/gjennomforing/filter";
 import { useFilterState } from "@/filter/useFilterState";
+import { ContentBox } from "@/layouts/ContentBox";
 
 export function GjennomforingerForAvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
@@ -22,7 +23,7 @@ export function GjennomforingerForAvtalePage() {
   const { filter, updateFilter, resetToDefault, hasChanged } = useFilterState(filterAtom);
 
   return (
-    <>
+    <ContentBox>
       <FilterAndTableLayout
         filter={
           <GjennomforingFilter
@@ -62,6 +63,6 @@ export function GjennomforingerForAvtalePage() {
         setFilterOpen={setFilterOpen}
       />
       <TilToppenKnapp />
-    </>
+    </ContentBox>
   );
 }
