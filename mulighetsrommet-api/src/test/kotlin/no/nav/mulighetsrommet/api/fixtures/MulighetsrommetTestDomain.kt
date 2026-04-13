@@ -66,7 +66,12 @@ data class MulighetsrommetTestDomain(
             tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
             prismodeller.forEach { queries.prismodell.upsert(it) }
             avtaler.forEach { queries.avtale.create(it) }
-            gjennomforinger.forEach { queries.gjennomforing.upsert(it) }
+            gjennomforinger.forEach { gjennomforing ->
+                queries.gjennomforing.upsert(gjennomforing)
+                // Sett gjennomforing FTS, siden den er brukt i andre søk (navn/tiltaksnavn)
+                val tiltakstypeNavn = tiltakstyper.first { gjennomforing.tiltakstypeId == it.id }.navn
+                queries.gjennomforing.setFreeTextSearch(gjennomforing.id, listOf(gjennomforing.navn, tiltakstypeNavn))
+            }
             deltakere.forEach { queries.deltaker.upsert(it) }
             tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
