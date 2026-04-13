@@ -6,32 +6,26 @@ import {
   Heading,
   HStack,
   Switch,
-  Tabs,
   TextField,
   VStack,
 } from "@navikt/ds-react";
 import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
-import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
 import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
-import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
+import { RedaksjoneltInnholdTabs } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabs";
 import { PortableText } from "@mr/frontend-common";
 import { PortableTextFormEditor } from "../portableText/PortableTextEditor";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { useFieldArray, useFormContext } from "react-hook-form";
 
-interface RedaksjoneltInnholdFormProps {
+interface Props {
   path: string;
   description: string;
   tiltakstype?: TiltakstypeDto;
 }
 
-export function RedaksjoneltInnholdForm({
-  path,
-  description,
-  tiltakstype,
-}: RedaksjoneltInnholdFormProps) {
+export function RedaksjoneltInnholdForm({ path, description, tiltakstype }: Props) {
   const fp = (suffix: string) => [path, suffix].filter(Boolean).join(".");
 
   return (
@@ -50,76 +44,14 @@ export function RedaksjoneltInnholdForm({
         </>
       )}
       <Heading size="medium">Faneinnhold</Heading>
-      <Tabs size="small" defaultValue="for_hvem">
-        <Tabs.List>
-          <Tabs.Tab
-            value="for_hvem"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <FileTextIcon style={{ fontSize: "1.5rem" }} /> For hvem
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-          <Tabs.Tab
-            value="detaljer_og_innhold"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <FileTextIcon style={{ fontSize: "1.5rem" }} /> Detaljer og innhold
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-          <Tabs.Tab
-            value="pamelding_og_varighet"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <FileTextIcon style={{ fontSize: "1.5rem" }} /> Påmelding og varighet
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-          <Tabs.Tab
-            value="kontaktinfo"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <FileTextIcon style={{ fontSize: "1.5rem" }} /> Kontaktinfo
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-          <Tabs.Tab
-            value="lenker"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <LinkIcon style={{ fontSize: "1.5rem" }} /> Lenker
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-          <Tabs.Tab
-            value="del_med_bruker"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <PaperplaneIcon style={{ fontSize: "1.5rem" }} /> Del med bruker
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-        </Tabs.List>
-        <Tabs.Panel value="for_hvem">
-          <ForHvem tiltakstype={tiltakstype} path={path} />
-        </Tabs.Panel>
-        <Tabs.Panel value="detaljer_og_innhold">
-          <DetaljerOgInnhold tiltakstype={tiltakstype} path={path} />
-        </Tabs.Panel>
-        <Tabs.Panel value="pamelding_og_varighet">
-          <PameldingOgVarighet tiltakstype={tiltakstype} path={path} />
-        </Tabs.Panel>
-        <Tabs.Panel value="kontaktinfo">
-          <Kontaktinfo path={path} />
-        </Tabs.Panel>
-        <Tabs.Panel value="lenker">
-          <RedaksjoneltInnholdLenkerForm path={path} />
-        </Tabs.Panel>
-        <Tabs.Panel value="del_med_bruker">
-          <DelMedBruker tiltakstype={tiltakstype} path={path} />
-        </Tabs.Panel>
-      </Tabs>
+      <RedaksjoneltInnholdTabs
+        forHvem={<ForHvem tiltakstype={tiltakstype} path={path} />}
+        detaljerOgInnhold={<DetaljerOgInnhold tiltakstype={tiltakstype} path={path} />}
+        pameldingOgVarighet={<PameldingOgVarighet tiltakstype={tiltakstype} path={path} />}
+        kontaktinfo={<Kontaktinfo path={path} />}
+        lenker={<RedaksjoneltInnholdLenkerForm path={path} />}
+        delMedBruker={<DelMedBruker tiltakstype={tiltakstype} path={path} />}
+      />
     </RedaksjoneltInnholdContainer>
   );
 }

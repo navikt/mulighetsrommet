@@ -1,18 +1,17 @@
 import { Alert, BodyLong, Box, Heading, List, VStack } from "@navikt/ds-react";
 import { LokalInformasjonContainer, PortableText } from "@mr/frontend-common";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
+import { RedaksjoneltInnholdTabs } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabs";
 import { Faneinnhold, FaneinnholdLenke, TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 import { Lenke as LenkeComponent } from "@mr/frontend-common/components/lenke/Lenke";
 
-interface RedaksjoneltInnholdProps {
+interface Props {
   tiltakstype: TiltakstypeDto;
   beskrivelse: string | null;
   faneinnhold: Faneinnhold | null;
 }
 
-export function RedaksjoneltInnhold(props: RedaksjoneltInnholdProps) {
-  const { tiltakstype, beskrivelse, faneinnhold } = props;
-
+export function RedaksjoneltInnhold({ tiltakstype, beskrivelse, faneinnhold }: Props) {
   return (
     <RedaksjoneltInnholdContainer>
       {tiltakstype.beskrivelse && (
@@ -30,88 +29,55 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdProps) {
           </BodyLong>
         </LokalInformasjonContainer>
       )}
-      {someValuesExists([
-        faneinnhold?.forHvem,
-        faneinnhold?.forHvemInfoboks,
-        tiltakstype.faneinnhold?.forHvem,
-        tiltakstype.faneinnhold?.forHvemInfoboks,
-      ]) ? (
-        <>
-          <Heading size="medium">For hvem</Heading>
+      <Heading size="medium">Faneinnhold</Heading>
+      <RedaksjoneltInnholdTabs
+        forHvem={
           <DetaljerFane
-            gjennomforing={faneinnhold?.forHvem}
-            gjennomforingAlert={faneinnhold?.forHvemInfoboks}
             tiltakstype={tiltakstype.faneinnhold?.forHvem}
             tiltakstypeAlert={tiltakstype.faneinnhold?.forHvemInfoboks}
+            gjennomforing={faneinnhold?.forHvem}
+            gjennomforingAlert={faneinnhold?.forHvemInfoboks}
           />
-        </>
-      ) : null}
-
-      {someValuesExists([
-        faneinnhold?.detaljerOgInnhold,
-        faneinnhold?.detaljerOgInnholdInfoboks,
-        tiltakstype.faneinnhold?.detaljerOgInnhold,
-        tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks,
-      ]) ? (
-        <>
-          <Heading size="medium">Detaljer og innhold</Heading>
+        }
+        detaljerOgInnhold={
           <DetaljerFane
-            gjennomforing={faneinnhold?.detaljerOgInnhold}
-            gjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
             tiltakstype={tiltakstype.faneinnhold?.detaljerOgInnhold}
             tiltakstypeAlert={tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks}
+            gjennomforing={faneinnhold?.detaljerOgInnhold}
+            gjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
           />
-        </>
-      ) : null}
-
-      {someValuesExists([
-        faneinnhold?.pameldingOgVarighet,
-        faneinnhold?.pameldingOgVarighetInfoboks,
-        tiltakstype.faneinnhold?.pameldingOgVarighet,
-        tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks,
-      ]) ? (
-        <>
-          <Heading size="medium">Påmelding og varighet</Heading>
+        }
+        pameldingOgVarighet={
           <DetaljerFane
-            gjennomforing={faneinnhold?.pameldingOgVarighet}
-            gjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
             tiltakstype={tiltakstype.faneinnhold?.pameldingOgVarighet}
             tiltakstypeAlert={tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks}
+            gjennomforing={faneinnhold?.pameldingOgVarighet}
+            gjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
           />
-        </>
-      ) : null}
-
-      {someValuesExists([faneinnhold?.kontaktinfo, faneinnhold?.kontaktinfoInfoboks]) ? (
-        <>
-          <Heading size="medium">Kontaktinfo</Heading>
+        }
+        kontaktinfo={
           <DetaljerFane
             gjennomforing={faneinnhold?.kontaktinfo}
             gjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
           />
-        </>
-      ) : null}
-
-      {someValuesExists([faneinnhold?.lenker]) ? (
-        <div className="prose">
-          <Heading size="medium">Lenker</Heading>
-          <RedaksjoneltInnholdLenker lenker={faneinnhold?.lenker || []} />
-        </div>
-      ) : null}
-
-      {someValuesExists([faneinnhold?.delMedBruker, tiltakstype.faneinnhold?.delMedBruker]) ? (
-        <>
-          <Heading size="medium">Del med bruker</Heading>
-          <BodyLong as="div" size="small" className="prose">
-            {faneinnhold?.delMedBruker ?? tiltakstype.faneinnhold?.delMedBruker}
-          </BodyLong>
-        </>
-      ) : null}
+        }
+        lenker={
+          faneinnhold?.lenker?.length ? (
+            <div className="prose">
+              <RedaksjoneltInnholdLenker lenker={faneinnhold.lenker} />
+            </div>
+          ) : null
+        }
+        delMedBruker={
+          (faneinnhold?.delMedBruker ?? tiltakstype.faneinnhold?.delMedBruker) ? (
+            <BodyLong as="div" size="small" className="prose">
+              {faneinnhold?.delMedBruker ?? tiltakstype.faneinnhold?.delMedBruker}
+            </BodyLong>
+          ) : null
+        }
+      />
     </RedaksjoneltInnholdContainer>
   );
-}
-
-function someValuesExists(params: any[]): boolean {
-  return params.some((p) => !!p);
 }
 
 interface DetaljerFaneProps {
@@ -121,18 +87,18 @@ interface DetaljerFaneProps {
   tiltakstype?: any;
 }
 
-const DetaljerFane = ({
+function DetaljerFane({
   gjennomforingAlert,
   tiltakstypeAlert,
   gjennomforing,
   tiltakstype,
-}: DetaljerFaneProps) => {
+}: DetaljerFaneProps) {
   if (!gjennomforingAlert && !tiltakstypeAlert && !gjennomforing && !tiltakstype) {
-    return <></>;
+    return null;
   }
 
   return (
-    <div>
+    <VStack className="mt-4">
       {tiltakstype && (
         <>
           {tiltakstypeAlert && (
@@ -160,9 +126,9 @@ const DetaljerFane = ({
           </BodyLong>
         </LokalInformasjonContainer>
       )}
-    </div>
+    </VStack>
   );
-};
+}
 
 export function RedaksjoneltInnholdLenker({ lenker }: { lenker: FaneinnholdLenke[] }) {
   return (
