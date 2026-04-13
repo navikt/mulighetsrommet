@@ -288,9 +288,9 @@ class GjennomforingEnkeltplassService(
                 type = PrismodellType.ANNEN_AVTALT_PRIS,
                 valuta = Valuta.NOK,
                 prisbetingelser = prisbetingelser,
+                tilsagnPerDeltaker = true,
                 satser = null,
                 systemId = null,
-                tilsagnPerDeltaker = false,
             )
             queries.prismodell.upsert(prismodellDbo)
             queries.prismodell.getOrError(prismodellDbo.id)
