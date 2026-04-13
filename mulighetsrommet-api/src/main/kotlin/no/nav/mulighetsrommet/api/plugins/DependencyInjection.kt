@@ -72,7 +72,6 @@ import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
-import no.nav.mulighetsrommet.api.tiltakstype.task.MigrerTiltakstypeInnholdFraSanity
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerDeltakerKafkaConsumer
@@ -525,7 +524,6 @@ private fun tasks(config: AppConfig) = module {
             get(),
         )
     }
-    single { MigrerTiltakstypeInnholdFraSanity(get(), get()) }
     single { SynchronizeNavAnsatte(tasks.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(tasks.synchronizeUtdanninger, get(), get()) }
     single { GenerateUtbetaling(tasks.generateUtbetaling, get()) }
