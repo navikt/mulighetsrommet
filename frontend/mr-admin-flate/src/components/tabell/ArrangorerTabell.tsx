@@ -44,7 +44,7 @@ export function ArrangorerTabell({ filter, updateFilter, filterOpen }: Props) {
   const { data: arrangorer, pagination } = data;
 
   return (
-    <>
+    <div className="space-8">
       <ToolbarContainer tagsHeight={0} filterOpen={filterOpen}>
         {arrangorer.length > 0 ? (
           <PagineringsOversikt
@@ -121,7 +121,7 @@ export function ArrangorerTabell({ filter, updateFilter, filterOpen }: Props) {
           </PagineringContainer>
         ) : null}
       </TabellWrapper>
-    </>
+    </div>
   );
 }
 
