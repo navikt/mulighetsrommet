@@ -28,12 +28,7 @@ export function FormCombobox<TFieldValues extends FieldValues>({
   const { control } = useFormContext<TFieldValues>();
   const { field, fieldState } = useController({ name, control, rules });
 
-  // Inkluder gjeldende verdi som et alternativ selv om den ikke finnes i options-listen
-  // slik at valgte verdier alltid vises i comboboxen
-  const resolvedOptions: Option[] =
-    field.value && !options.some((o) => o.value === field.value)
-      ? [...options, { value: field.value, label: field.value }]
-      : options;
+  const resolvedOptions: Option[] = getResolvedOptions(options, field.value);
 
   const selectedOptions = resolvedOptions.filter((o) => o.value === field.value);
 
@@ -50,4 +45,14 @@ export function FormCombobox<TFieldValues extends FieldValues>({
       }}
     />
   );
+}
+
+/**
+ * Sørger for at `options` alltid inkluderer et valg for `value`.
+ * Dette sørger for at verdien lagret i form state alltid er synlig.
+ */
+function getResolvedOptions<V>(options: Option[], value: V) {
+  return value && !options.some((o) => o.value === value)
+    ? [...options, { value: value, label: value }]
+    : options;
 }
