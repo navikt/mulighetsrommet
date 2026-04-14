@@ -14,7 +14,7 @@ import {
 
 export function AvtaleInformasjonForVeiledereForm() {
   const [key, setKey] = useState(0);
-  const { data: tiltakstyper } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyper();
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");

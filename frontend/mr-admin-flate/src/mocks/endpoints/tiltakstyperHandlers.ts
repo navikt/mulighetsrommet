@@ -15,7 +15,7 @@ export const tiltakstypeHandlers = [
     },
   ),
 
-  http.patch<{ id: string }>(
+  http.post<{ id: string }>(
     "*/api/tiltaksadministrasjon/tiltakstyper/:id/redaksjonelt-innhold",
     () => {
       return new HttpResponse(null, { status: 200 });

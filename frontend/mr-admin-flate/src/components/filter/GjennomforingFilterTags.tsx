@@ -21,7 +21,7 @@ export function GjennomforingFilterTags({
   filterOpen,
   setTagsHeight,
 }: Props) {
-  const { data: tiltakstyper } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyper();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
   });

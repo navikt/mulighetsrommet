@@ -168,7 +168,7 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/tiltakstyper/{id}/redaksjonelt-innhold:
-    patch:
+    post:
       tags:
       - Tiltakstype
       operationId: upsertTiltakstypeRedaksjoneltInnhold

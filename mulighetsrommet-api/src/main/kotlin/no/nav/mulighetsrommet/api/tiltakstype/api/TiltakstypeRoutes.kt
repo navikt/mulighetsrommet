@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.tiltakstype.api
 
 import io.github.smiley4.ktoropenapi.get
-import io.github.smiley4.ktoropenapi.patch
+import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -114,7 +114,7 @@ fun Route.tiltakstypeRoutes() {
         }
 
         authorize(Rolle.AVTALER_SKRIV) {
-            patch("{id}/redaksjonelt-innhold", {
+            post("{id}/redaksjonelt-innhold", {
                 tags = setOf("Tiltakstype")
                 operationId = "upsertTiltakstypeRedaksjoneltInnhold"
                 request {
@@ -139,7 +139,7 @@ fun Route.tiltakstypeRoutes() {
                 val request = call.receive<TiltakstypeRedaksjoneltInnholdRequest>()
 
                 val result = tiltakstypeService.upsertRedaksjoneltInnhold(id, request)
-                    ?: return@patch call.respondText(
+                    ?: return@post call.respondText(
                         "Det finnes ikke noe tiltakstype med id $id",
                         status = HttpStatusCode.NotFound,
                     )

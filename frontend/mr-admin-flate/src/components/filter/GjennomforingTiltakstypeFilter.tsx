@@ -7,6 +7,6 @@ interface Props {
 }
 
 export function GjennomforingTiltakstypeFilter({ value, onChange }: Props) {
-  const { data: tiltakstyper } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyper();
   return <TiltakstypeFilter tiltakstyper={tiltakstyper} value={value} onChange={onChange} />;
 }

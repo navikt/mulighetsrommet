@@ -8,7 +8,7 @@ import {
   TiltakstypeService,
 } from "@tiltaksadministrasjon/api-client";
 
-export function usePatchTiltakstypeRedaksjoneltInnhold(id: string) {
+export function useUpdateTiltakstypeRedaksjoneltInnhold(id: string) {
   const queryClient = useQueryClient();
 
   return useApiMutation<
@@ -16,11 +16,12 @@ export function usePatchTiltakstypeRedaksjoneltInnhold(id: string) {
     ProblemDetail,
     TiltakstypeRedaksjoneltInnholdRequest
   >({
-    mutationFn: (body: TiltakstypeRedaksjoneltInnholdRequest) =>
-      TiltakstypeService.upsertTiltakstypeRedaksjoneltInnhold({
+    mutationFn(body: TiltakstypeRedaksjoneltInnholdRequest) {
+      return TiltakstypeService.upsertTiltakstypeRedaksjoneltInnhold({
         path: { id },
         body,
-      }),
+      });
+    },
     onSuccess() {
       return queryClient.invalidateQueries({
         queryKey: QueryKeys.tiltakstype(id),

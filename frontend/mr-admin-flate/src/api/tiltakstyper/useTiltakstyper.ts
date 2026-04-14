@@ -10,8 +10,10 @@ export function useTiltakstyper(filter: TiltakstypeFilterType = {}) {
     },
   };
 
-  return useApiSuspenseQuery({
+  const { data } = useApiSuspenseQuery({
     queryKey: QueryKeys.tiltakstyper(queryFilter),
     queryFn: () => TiltakstypeService.getTiltakstyper(queryFilter),
   });
+
+  return data;
 }

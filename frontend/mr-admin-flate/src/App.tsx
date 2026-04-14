@@ -29,7 +29,7 @@ import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstyp
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltakstypePage } from "./pages/tiltakstyper/TiltakstypePage";
 import { TiltakstypePageRedaksjoneltInnhold } from "./pages/tiltakstyper/TiltakstypePageRedaksjoneltInnhold";
-import { RedigerTiltakstypeRedaksjoneltInnholdFormPage } from "./pages/tiltakstyper/RedigerTiltakstypeRedaksjoneltInnholdFormPage";
+import { RedigerTiltakstypeRedaksjoneltInnholdPage } from "./pages/tiltakstyper/RedigerTiltakstypeRedaksjoneltInnholdPage";
 import { Suspense } from "react";
 import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
@@ -212,7 +212,7 @@ const routes: RouteObject[] = [
       }),
       route({
         path: "tiltakstyper/:tiltakstypeId/redaksjonelt-innhold/rediger",
-        element: <RedigerTiltakstypeRedaksjoneltInnholdFormPage />,
+        element: <RedigerTiltakstypeRedaksjoneltInnholdPage />,
       }),
       route({
         path: "avtaler",

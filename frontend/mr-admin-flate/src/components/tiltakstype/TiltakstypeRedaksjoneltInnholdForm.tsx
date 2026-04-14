@@ -3,7 +3,7 @@ import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { RedaksjoneltInnholdLenke, TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { usePatchTiltakstypeRedaksjoneltInnhold } from "@/api/tiltakstyper/usePatchTiltakstypeRedaksjoneltInnhold";
+import { useUpdateTiltakstypeRedaksjoneltInnhold } from "@/api/tiltakstyper/useUpdateTiltakstypeRedaksjoneltInnhold";
 import { useRedaksjoneltInnholdLenker } from "@/api/redaksjonelt-innhold/useRedaksjoneltInnholdLenker";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
@@ -26,8 +26,8 @@ interface Props {
 }
 
 export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onCancel }: Props) {
-  const mutation = usePatchTiltakstypeRedaksjoneltInnhold(tiltakstype.id);
-  const { data: alleTiltakstyper } = useTiltakstyper();
+  const mutation = useUpdateTiltakstypeRedaksjoneltInnhold(tiltakstype.id);
+  const tiltakstyper = useTiltakstyper();
   const [modalOpen, setModalOpen] = useState(false);
 
   const methods = useForm<TiltakstypeRedaksjoneltInnholdFormValues>({
@@ -36,7 +36,7 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onC
       beskrivelse: tiltakstype.beskrivelse || null,
       faneinnhold: tiltakstype.faneinnhold,
       faglenker: tiltakstype.faglenker.map((l) => ({ id: l.id })),
-      kanKombineresMed: alleTiltakstyper
+      kanKombineresMed: tiltakstyper
         .filter((t) => tiltakstype.kanKombineresMed.includes(t.navn))
         .map((t) => t.id),
     },
@@ -66,7 +66,7 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onC
     onSuccess();
   }
 
-  const andreKombinasjonOptions = alleTiltakstyper
+  const andreKombinasjonOptions = tiltakstyper
     .filter((t) => t.id !== tiltakstype.id)
     .map((t) => ({ value: t.id, label: t.navn }));
 
