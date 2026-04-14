@@ -14,7 +14,7 @@ export function TiltakstypeHandlinger() {
         <ActionMenu.Item
           onClick={() => navigate(`/tiltakstyper/${tiltakstypeId}/redaksjonelt-innhold/rediger`)}
         >
-          Rediger redaksjonelt innhold
+          Rediger informasjon for veiledere
         </ActionMenu.Item>
       </Handlinger>
     </KnapperadContainer>

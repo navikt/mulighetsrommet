@@ -70,11 +70,11 @@ class VeilederflateService(
                         features = dto?.features.orEmpty(),
                         egenskaper = dto?.egenskaper.orEmpty(),
                         tiltaksgruppe = dto?.gruppe,
-                        beskrivelse = dto?.beskrivelse,
-                        regelverkLenker = dto?.faglenker,
-                        faneinnhold = dto?.faneinnhold,
-                        delingMedBruker = dto?.faneinnhold?.delMedBruker,
-                        kanKombineresMed = dto?.kanKombineresMed.orEmpty(),
+                        beskrivelse = dto?.veilederinfo?.beskrivelse,
+                        regelverkLenker = dto?.veilederinfo?.faglenker,
+                        faneinnhold = dto?.veilederinfo?.faneinnhold,
+                        delingMedBruker = dto?.veilederinfo?.faneinnhold?.delMedBruker,
+                        kanKombineresMed = dto?.veilederinfo?.kanKombineresMed.orEmpty(),
                     )
                 }
         }

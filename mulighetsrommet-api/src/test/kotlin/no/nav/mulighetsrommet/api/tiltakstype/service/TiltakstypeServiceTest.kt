@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.tiltakstype.service
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -12,12 +11,14 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.sanity.RegelverkLenke
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
+import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeVeilederinfoRequest
 import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeRedaksjoneltInnholdRequest
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.utils.toUUID
 import java.util.UUID
 
 class TiltakstypeServiceTest : FunSpec({
@@ -25,18 +26,17 @@ class TiltakstypeServiceTest : FunSpec({
 
     val sanityId = UUID.randomUUID()
 
+    val sanityRegelverkLenke = RegelverkLenke(
+        _id = UUID.randomUUID().toString(),
+        regelverkUrl = "https://sanity.example.com",
+        regelverkLenkeNavn = "Sanity-lenke",
+    )
     val sanityTiltakstype = SanityTiltakstype(
         _id = sanityId.toString(),
         tiltakstypeNavn = "AFT fra Sanity",
         beskrivelse = "Sanity-beskrivelse",
         faneinnhold = Faneinnhold(forHvemInfoboks = "Sanity-infoboks"),
-        regelverkLenker = listOf(
-            RegelverkLenke(
-                _id = UUID.randomUUID().toString(),
-                regelverkUrl = "https://sanity.example.com",
-                regelverkLenkeNavn = "Sanity-lenke",
-            ),
-        ),
+        regelverkLenker = listOf(sanityRegelverkLenke),
         kanKombineresMed = listOf("Oppfølging"),
     )
 
@@ -75,10 +75,18 @@ class TiltakstypeServiceTest : FunSpec({
 
             val dto = service.getById(TiltakstypeFixtures.AFT.id).shouldNotBeNull()
 
-            dto.beskrivelse shouldBe "Sanity-beskrivelse"
-            dto.faneinnhold?.forHvemInfoboks shouldBe "Sanity-infoboks"
-            dto.faglenker.first().url shouldBe "https://sanity.example.com"
-            dto.kanKombineresMed shouldBe listOf("Oppfølging")
+            dto.veilederinfo shouldBe TiltakstypeVeilderinfo(
+                beskrivelse = "Sanity-beskrivelse",
+                faneinnhold = Faneinnhold(forHvemInfoboks = "Sanity-infoboks"),
+                faglenker = listOf(
+                    RedaksjoneltInnholdLenke(
+                        sanityRegelverkLenke._id!!.toUUID(),
+                        sanityRegelverkLenke.regelverkUrl!!,
+                        sanityRegelverkLenke.regelverkLenkeNavn,
+                    ),
+                ),
+                kanKombineresMed = listOf("Oppfølging"),
+            )
         }
 
         test("returnerer redaksjonelt innhold fra databasen når MIGRERT_REDAKSJONELT_INNHOLD er satt") {
@@ -86,7 +94,7 @@ class TiltakstypeServiceTest : FunSpec({
 
             service.upsertRedaksjoneltInnhold(
                 TiltakstypeFixtures.AFT.id,
-                TiltakstypeRedaksjoneltInnholdRequest(
+                TiltakstypeVeilederinfoRequest(
                     beskrivelse = "DB-beskrivelse",
                     faneinnhold = Faneinnhold(forHvemInfoboks = "DB-infoboks"),
                     faglenker = listOf(domain.regelverklenke[0].id),
@@ -96,10 +104,12 @@ class TiltakstypeServiceTest : FunSpec({
 
             val dto = service.getById(TiltakstypeFixtures.AFT.id).shouldNotBeNull()
 
-            dto.beskrivelse shouldBe "DB-beskrivelse"
-            dto.faneinnhold?.forHvemInfoboks shouldBe "DB-infoboks"
-            dto.faglenker.first().url shouldBe "https://db.example.com"
-            dto.kanKombineresMed.shouldBeEmpty()
+            dto.veilederinfo shouldBe TiltakstypeVeilderinfo(
+                beskrivelse = "DB-beskrivelse",
+                faneinnhold = Faneinnhold(forHvemInfoboks = "DB-infoboks"),
+                faglenker = listOf(domain.regelverklenke[0]),
+                kanKombineresMed = listOf(),
+            )
         }
     }
 
@@ -108,7 +118,7 @@ class TiltakstypeServiceTest : FunSpec({
             val service = createService(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD)
 
             val faneinnhold = Faneinnhold(kontaktinfoInfoboks = "Kontaktinfo")
-            val request = TiltakstypeRedaksjoneltInnholdRequest(
+            val request = TiltakstypeVeilederinfoRequest(
                 beskrivelse = "Oppdatert beskrivelse",
                 faneinnhold = faneinnhold,
                 faglenker = listOf(),
@@ -117,9 +127,12 @@ class TiltakstypeServiceTest : FunSpec({
 
             val dto = service.upsertRedaksjoneltInnhold(TiltakstypeFixtures.AFT.id, request).shouldNotBeNull()
 
-            dto.beskrivelse shouldBe "Oppdatert beskrivelse"
-            dto.faneinnhold shouldBe faneinnhold
-            dto.faglenker.shouldBeEmpty()
+            dto.veilederinfo shouldBe TiltakstypeVeilderinfo(
+                beskrivelse = "Oppdatert beskrivelse",
+                faneinnhold = faneinnhold,
+                faglenker = listOf(),
+                kanKombineresMed = listOf(),
+            )
         }
     }
 })

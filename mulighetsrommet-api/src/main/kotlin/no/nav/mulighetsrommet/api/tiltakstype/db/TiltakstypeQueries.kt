@@ -6,6 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.model.Faneinnhold
@@ -304,6 +305,10 @@ class TiltakstypeQueries(private val session: Session) {
             ?.let { Json.decodeFromString<List<String>>(it) }
             ?: emptyList()
 
+        val faglenker = stringOrNull("faglenker")
+            ?.let { Json.decodeFromString<List<RedaksjoneltInnholdLenke>>(it) }
+            ?: emptyList()
+
         return Tiltakstype(
             id = uuid("id"),
             navn = string("navn"),
@@ -314,12 +319,12 @@ class TiltakstypeQueries(private val session: Session) {
             sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
             status = TiltakstypeStatus.valueOf(string("status")),
-            beskrivelse = stringOrNull("beskrivelse"),
-            faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
-            faglenker = stringOrNull("faglenker")
-                ?.let { Json.decodeFromString<List<RedaksjoneltInnholdLenke>>(it) }
-                ?: emptyList(),
-            kanKombineresMed = kanKombineresMed,
+            veilederinfo = TiltakstypeVeilderinfo(
+                beskrivelse = stringOrNull("beskrivelse"),
+                faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+                faglenker = faglenker,
+                kanKombineresMed = kanKombineresMed,
+            ),
         )
     }
 

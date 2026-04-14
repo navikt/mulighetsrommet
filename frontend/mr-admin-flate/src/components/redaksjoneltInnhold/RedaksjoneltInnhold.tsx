@@ -12,17 +12,19 @@ interface Props {
 }
 
 export function RedaksjoneltInnhold({ tiltakstype, beskrivelse, faneinnhold }: Props) {
-  const lenker = [...(tiltakstype.faneinnhold?.lenker ?? []), ...(faneinnhold?.lenker ?? [])];
+  const veilederinfo = tiltakstype.veilederinfo;
+
+  const lenker = [...(veilederinfo.faneinnhold?.lenker ?? []), ...(faneinnhold?.lenker ?? [])];
 
   return (
     <RedaksjoneltInnholdContainer>
-      {tiltakstype.beskrivelse && (
+      {veilederinfo.beskrivelse && (
         <>
           <Heading size="medium" level="2">
             Generell informasjon
           </Heading>
           <BodyLong size="large" style={{ whiteSpace: "pre-wrap" }}>
-            {tiltakstype.beskrivelse}
+            {veilederinfo.beskrivelse}
           </BodyLong>
         </>
       )}
@@ -39,41 +41,41 @@ export function RedaksjoneltInnhold({ tiltakstype, beskrivelse, faneinnhold }: P
       <RedaksjoneltInnholdTabs
         forHvem={
           <DetaljerFane
-            tiltakstype={tiltakstype.faneinnhold?.forHvem}
-            tiltakstypeAlert={tiltakstype.faneinnhold?.forHvemInfoboks}
+            tiltakstype={veilederinfo.faneinnhold?.forHvem}
+            tiltakstypeAlert={veilederinfo.faneinnhold?.forHvemInfoboks}
             gjennomforing={faneinnhold?.forHvem}
             gjennomforingAlert={faneinnhold?.forHvemInfoboks}
           />
         }
         detaljerOgInnhold={
           <DetaljerFane
-            tiltakstype={tiltakstype.faneinnhold?.detaljerOgInnhold}
-            tiltakstypeAlert={tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks}
+            tiltakstype={veilederinfo.faneinnhold?.detaljerOgInnhold}
+            tiltakstypeAlert={veilederinfo.faneinnhold?.detaljerOgInnholdInfoboks}
             gjennomforing={faneinnhold?.detaljerOgInnhold}
             gjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
           />
         }
         pameldingOgVarighet={
           <DetaljerFane
-            tiltakstype={tiltakstype.faneinnhold?.pameldingOgVarighet}
-            tiltakstypeAlert={tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks}
+            tiltakstype={veilederinfo.faneinnhold?.pameldingOgVarighet}
+            tiltakstypeAlert={veilederinfo.faneinnhold?.pameldingOgVarighetInfoboks}
             gjennomforing={faneinnhold?.pameldingOgVarighet}
             gjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
           />
         }
         kontaktinfo={
           <DetaljerFane
-            tiltakstype={tiltakstype.faneinnhold?.kontaktinfo}
-            tiltakstypeAlert={tiltakstype.faneinnhold?.kontaktinfoInfoboks}
+            tiltakstype={veilederinfo.faneinnhold?.kontaktinfo}
+            tiltakstypeAlert={veilederinfo.faneinnhold?.kontaktinfoInfoboks}
             gjennomforing={faneinnhold?.kontaktinfo}
             gjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
           />
         }
         lenker={lenker.length ? <RedaksjoneltInnholdLenker lenker={lenker} /> : null}
         delMedBruker={
-          (faneinnhold?.delMedBruker ?? tiltakstype.faneinnhold?.delMedBruker) ? (
+          (faneinnhold?.delMedBruker ?? veilederinfo.faneinnhold?.delMedBruker) ? (
             <BodyLong as="div" size="small" className="prose">
-              {faneinnhold?.delMedBruker ?? tiltakstype.faneinnhold?.delMedBruker}
+              {faneinnhold?.delMedBruker ?? veilederinfo.faneinnhold?.delMedBruker}
             </BodyLong>
           ) : null
         }

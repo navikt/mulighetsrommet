@@ -28,8 +28,8 @@ import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utb
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltakstypePage } from "./pages/tiltakstyper/TiltakstypePage";
-import { TiltakstypePageRedaksjoneltInnhold } from "./pages/tiltakstyper/TiltakstypePageRedaksjoneltInnhold";
-import { RedigerTiltakstypeRedaksjoneltInnholdPage } from "./pages/tiltakstyper/RedigerTiltakstypeRedaksjoneltInnholdPage";
+import { TiltakstypeInformasjonForVeilederePage } from "./pages/tiltakstyper/TiltakstypeInformasjonForVeilederePage";
+import { TiltakstypePageRedigerInformasjonForVeiledere } from "./pages/tiltakstyper/TiltakstypePageRedigerInformasjonForVeiledere";
 import { Suspense } from "react";
 import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
@@ -207,12 +207,12 @@ const routes: RouteObject[] = [
         element: <TiltakstypePage />,
         children: [
           { index: true, element: <DetaljerTiltakstypePage /> },
-          { path: "redaksjonelt-innhold", element: <TiltakstypePageRedaksjoneltInnhold /> },
+          { path: "redaksjonelt-innhold", element: <TiltakstypeInformasjonForVeilederePage /> },
         ],
       }),
       route({
         path: "tiltakstyper/:tiltakstypeId/redaksjonelt-innhold/rediger",
-        element: <RedigerTiltakstypeRedaksjoneltInnholdPage />,
+        element: <TiltakstypePageRedigerInformasjonForVeiledere />,
       }),
       route({
         path: "avtaler",

@@ -6,11 +6,12 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeFilter
+import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeVeilederinfoRequest
 import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeRedaksjoneltInnholdRequest
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.mulighetsrommet.utils.toUUID
@@ -83,7 +84,7 @@ class TiltakstypeService(
         }
     }
 
-    suspend fun upsertRedaksjoneltInnhold(id: UUID, request: TiltakstypeRedaksjoneltInnholdRequest): TiltakstypeDto? {
+    suspend fun upsertRedaksjoneltInnhold(id: UUID, request: TiltakstypeVeilederinfoRequest): TiltakstypeDto? {
         db.transaction {
             queries.tiltakstype.upsertRedaksjoneltInnhold(id, request.beskrivelse, request.faneinnhold)
             queries.tiltakstype.setKanKombineresMed(id, request.kanKombineresMed)
@@ -104,28 +105,11 @@ class TiltakstypeService(
 
         val features = config.features[tiltakskode] ?: setOf()
 
-        val dto = TiltakstypeDto(
-            id = id,
-            navn = navn,
-            tiltakskode = tiltakskode,
-            startDato = startDato,
-            sluttDato = sluttDato,
-            status = status,
-            sanityId = sanityId,
-            features = features,
-            egenskaper = tiltakskode.egenskaper,
-            gruppe = tiltakskode.gruppe?.tittel,
-            beskrivelse = beskrivelse,
-            faneinnhold = faneinnhold,
-            faglenker = faglenker,
-            kanKombineresMed = kanKombineresMed,
-        )
-
-        return if (features.contains(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD)) {
-            dto
+        val veilederinfo = if (features.contains(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD)) {
+            veilederinfo
         } else {
             val sanityTiltakstype = sanityId?.let { getSanityTiltakstype(it) }
-            dto.copy(
+            TiltakstypeVeilderinfo(
                 beskrivelse = sanityTiltakstype?.beskrivelse,
                 faneinnhold = sanityTiltakstype?.faneinnhold,
                 faglenker = sanityTiltakstype?.regelverkLenker?.mapNotNull { lenke ->
@@ -141,6 +125,20 @@ class TiltakstypeService(
                 kanKombineresMed = sanityTiltakstype?.kanKombineresMed ?: emptyList(),
             )
         }
+
+        return TiltakstypeDto(
+            id = id,
+            navn = navn,
+            tiltakskode = tiltakskode,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            status = status,
+            sanityId = sanityId,
+            features = features,
+            egenskaper = tiltakskode.egenskaper,
+            gruppe = tiltakskode.gruppe?.tittel,
+            veilederinfo = veilederinfo,
+        )
     }
 
     private suspend fun getSanityTiltakstype(sanityId: UUID): SanityTiltakstype? {

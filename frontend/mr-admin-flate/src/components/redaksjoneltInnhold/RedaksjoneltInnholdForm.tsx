@@ -1,5 +1,5 @@
 import { Alert, BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
-import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
+import { TiltakstypeDto, TiltakstypeVeilderinfo } from "@tiltaksadministrasjon/api-client";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
 import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
 import { RedaksjoneltInnholdTabs } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabs";
@@ -10,6 +10,7 @@ import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormCheckbox } from "@/components/skjema/FormCheckbox";
 import { FormListInput } from "@/components/skjema/FormListInput";
+
 interface Props {
   path: string;
   description: string;
@@ -19,6 +20,7 @@ interface Props {
 export function RedaksjoneltInnholdForm({ path, description, tiltakstype }: Props) {
   const fp = (suffix: string) => [path, suffix].filter(Boolean).join(".");
 
+  const veilederinfo = tiltakstype?.veilederinfo;
   return (
     <RedaksjoneltInnholdContainer>
       <Heading size="medium" spacing level="3">
@@ -28,20 +30,20 @@ export function RedaksjoneltInnholdForm({ path, description, tiltakstype }: Prop
         Ikke del personopplysninger i fritekstfeltene
       </Alert>
       <FormTextarea name={fp("beskrivelse")} description={description} label="Beskrivelse" />
-      {tiltakstype?.beskrivelse && (
+      {veilederinfo?.beskrivelse && (
         <>
           <Heading size="medium">Generell informasjon</Heading>
-          <BodyLong style={{ whiteSpace: "pre-wrap" }}>{tiltakstype.beskrivelse}</BodyLong>
+          <BodyLong style={{ whiteSpace: "pre-wrap" }}>{veilederinfo.beskrivelse}</BodyLong>
         </>
       )}
       <Heading size="medium">Faneinnhold</Heading>
       <RedaksjoneltInnholdTabs
-        forHvem={<ForHvem tiltakstype={tiltakstype} path={path} />}
-        detaljerOgInnhold={<DetaljerOgInnhold tiltakstype={tiltakstype} path={path} />}
-        pameldingOgVarighet={<PameldingOgVarighet tiltakstype={tiltakstype} path={path} />}
+        forHvem={<ForHvem tiltakstype={veilederinfo} path={path} />}
+        detaljerOgInnhold={<DetaljerOgInnhold tiltakstype={veilederinfo} path={path} />}
+        pameldingOgVarighet={<PameldingOgVarighet tiltakstype={veilederinfo} path={path} />}
         kontaktinfo={<Kontaktinfo path={path} />}
         lenker={<RedaksjoneltInnholdLenkerForm path={path} />}
-        delMedBruker={<DelMedBruker tiltakstype={tiltakstype} path={path} />}
+        delMedBruker={<DelMedBruker tiltakstype={veilederinfo} path={path} />}
       />
     </RedaksjoneltInnholdContainer>
   );
@@ -49,7 +51,7 @@ export function RedaksjoneltInnholdForm({ path, description, tiltakstype }: Prop
 
 interface TabPanelProps {
   path: string;
-  tiltakstype?: TiltakstypeDto;
+  tiltakstype?: TiltakstypeVeilderinfo;
 }
 
 function ForHvem({ tiltakstype, path }: TabPanelProps) {
