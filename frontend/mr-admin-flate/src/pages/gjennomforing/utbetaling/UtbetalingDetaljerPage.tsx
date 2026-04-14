@@ -65,21 +65,42 @@ export function UtbetalingDetaljerPage() {
                 label={utbetalingTekster.metadata.periode}
                 value={formaterPeriode(utbetaling.periode)}
               />
-              {utbetaling.type.tagName && (
-                <MetadataVStack
-                  label={utbetalingTekster.metadata.type}
-                  value={
-                    <HStack gap="space-4">
-                      {utbetaling.type.displayName}
-                      <UtbetalingTypeTag type={utbetaling.type.displayName} />
-                    </HStack>
-                  }
-                />
-              )}
               <MetadataVStack
                 label={utbetalingTekster.beregning.belop.label}
                 value={formaterValutaBelop(utbetaling.beregning)}
               />
+              {utbetaling.type.tagName && (
+                <HGrid columns="1fr 1fr" gap="space-24">
+                  <MetadataVStack
+                    label={utbetalingTekster.metadata.type}
+                    value={
+                      <HStack gap="space-4">
+                        {utbetaling.type.displayName}
+                        <UtbetalingTypeTag type={utbetaling.type.displayName} />
+                      </HStack>
+                    }
+                  />
+                  {utbetaling.korreksjon?.opprinneligUtbetaling && (
+                    <MetadataVStack
+                      label={utbetalingTekster.korreksjon.gjelderUtbetaling}
+                      value={
+                        <Link
+                          as={ReactRouterLink}
+                          to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
+                        >
+                          Opprinnelig utbetaling
+                        </Link>
+                      }
+                    />
+                  )}
+                </HGrid>
+              )}
+              {utbetaling.korreksjon && (
+                <MetadataFritekstfelt
+                  label={utbetalingTekster.korreksjon.begrunnelse}
+                  value={utbetaling.korreksjon.begrunnelse}
+                />
+              )}
               {utbetaling.utbetalesTidligstDato && (
                 <MetadataVStack
                   label={utbetalingTekster.metadata.utbetalesTidligstDato}
@@ -113,25 +134,7 @@ export function UtbetalingDetaljerPage() {
                   }
                 />
               )}
-              {utbetaling.korreksjon?.opprinneligUtbetaling && (
-                <MetadataVStack
-                  label={utbetalingTekster.korreksjon.gjelderUtbetaling}
-                  value={
-                    <Link
-                      as={ReactRouterLink}
-                      to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
-                    >
-                      Opprinnelig utbetaling
-                    </Link>
-                  }
-                />
-              )}
-              {utbetaling.korreksjon && (
-                <MetadataFritekstfelt
-                  label={utbetalingTekster.korreksjon.begrunnelse}
-                  value={utbetaling.korreksjon.begrunnelse}
-                />
-              )}
+
               {utbetaling.begrunnelseMindreBetalt && (
                 <MetadataFritekstfelt
                   label={utbetalingTekster.metadata.begrunnelseMindreBetalt}
