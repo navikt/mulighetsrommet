@@ -46,7 +46,7 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
       {tiltaksnummer && (
         <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
           <BodyShort size="small" className="font-bold text-left">
-            Tiltaksnummer
+            Tiltaksnummer i Arena
           </BodyShort>
           <div className="flex items-start justify-end gap-1">
             <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
