@@ -15,6 +15,7 @@ import {
   OpprettKravDeltakere,
   OpprettKravVeiviserSteg,
   OpprettKravVeiviserStegDto,
+  PeriodeType,
 } from "api-client";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link as ReactRouterLink, MetaFunction, useNavigate } from "react-router";
@@ -52,7 +53,7 @@ export const meta: MetaFunction = () => {
 export interface OpprettKravFormState {
   periodeStart?: string;
   periodeSlutt?: string;
-  periodeInklusiv: boolean;
+  periodeType: PeriodeType;
   tilsagnId?: string;
   belop?: string;
   kontonummer?: string;
@@ -98,7 +99,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [formState, setFormState] = useState<OpprettKravFormState>({
-    periodeInklusiv: false,
+    periodeType: PeriodeType.EKSKLUSIV,
     files: [],
   });
   const [clientErrors, setClientErrors] = useState<FieldError[]>([]);
@@ -267,6 +268,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
       belop: Number(formState.belop),
       periodeStart: formState.periodeStart!,
       periodeSlutt: formState.periodeSlutt!,
+      periodeType: formState.periodeType,
       kidNummer: formState.kid || null,
       vedlegg: acceptedFiles.map((f) => f.file),
     });

@@ -195,6 +195,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
                 formData = formData {
                     append("periodeStart", "2024-01-01")
                     append("periodeSlutt", "2024-02-01")
+                    append("periodeType", "Eksklusiv")
                     append("kidNummer", "006402710013")
                     append("belop", 1000)
                     append(

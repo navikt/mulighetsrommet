@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
+import no.nav.mulighetsrommet.api.arrangorflate.api.PeriodeType
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -116,9 +117,20 @@ object ArrangorflateUtbetalingValidator {
             )
         }
 
+        val periode = when (request.periodeType) {
+            PeriodeType.Inklusiv -> Periode.fromInclusiveDates(
+                LocalDate.parse(request.periodeStart),
+                LocalDate.parse(request.periodeSlutt),
+            )
+
+            PeriodeType.Eksklusiv -> Periode(
+                LocalDate.parse(request.periodeStart),
+                LocalDate.parse(request.periodeSlutt),
+            )
+        }
         ArrangorflateOpprettUtbetaling(
             gjennomforingId = ctx.gjennomforingId,
-            periode = Periode(LocalDate.parse(request.periodeStart), LocalDate.parse(request.periodeSlutt)),
+            periode = periode,
             pris = request.belop.withValuta(ctx.valuta),
             kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             vedlegg = request.vedlegg,

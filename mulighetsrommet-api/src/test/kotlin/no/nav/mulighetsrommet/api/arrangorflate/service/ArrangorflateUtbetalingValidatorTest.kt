@@ -7,6 +7,7 @@ import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
+import no.nav.mulighetsrommet.api.arrangorflate.api.PeriodeType
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.clamav.Content
@@ -36,7 +37,8 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
 
             val request = OpprettKravUtbetalingRequest(
                 periodeStart = "2025-01-01",
-                periodeSlutt = "2025-02-01",
+                periodeSlutt = "2025-01-31",
+                periodeType = PeriodeType.Inklusiv,
                 belop = 1234,
                 vedlegg = vedlegg,
             )
@@ -57,7 +59,8 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
 
             val request = OpprettKravUtbetalingRequest(
                 periodeStart = "2025-06-01",
-                periodeSlutt = "2025-07-01",
+                periodeSlutt = "2025-06-30",
+                periodeType = PeriodeType.Inklusiv,
                 belop = 1234,
                 vedlegg = vedlegg,
             )
@@ -73,6 +76,7 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
             val request = OpprettKravUtbetalingRequest(
                 periodeStart = "2025-06-01",
                 periodeSlutt = "2025-07-01",
+                periodeType = PeriodeType.Eksklusiv,
                 kidNummer = null,
                 belop = 1234,
                 vedlegg = vedlegg,
