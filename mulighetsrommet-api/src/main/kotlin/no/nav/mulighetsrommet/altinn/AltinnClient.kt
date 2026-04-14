@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.altinn
 
 import arrow.core.Either
-import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.raise.context.either
 import io.ktor.client.call.body
