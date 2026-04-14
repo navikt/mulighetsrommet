@@ -121,6 +121,7 @@ class NavAnsattQueriesTest : FunSpec({
                     NavAnsattRolle.generell(Rolle.KONTAKTPERSON),
                     NavAnsattRolle.generell(Rolle.OKONOMI_LES),
                     NavAnsattRolle.generell(Rolle.OPPFOLGER_GJENNOMFORING),
+                    NavAnsattRolle.generell(Rolle.TILTAKSTYPER_SKRIV),
                 )
                 queries.ansatt.setRoller(ansatt1.navIdent, flereRoller)
                 queries.ansatt.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
