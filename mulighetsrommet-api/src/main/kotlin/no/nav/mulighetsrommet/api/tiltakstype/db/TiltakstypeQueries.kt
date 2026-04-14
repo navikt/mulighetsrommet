@@ -83,7 +83,7 @@ class TiltakstypeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_tiltakstype_dto
+            from view_tiltakstype
             where id = ?::uuid
         """.trimIndent()
 
@@ -107,7 +107,7 @@ class TiltakstypeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_tiltakstype_dto
+            from view_tiltakstype
             where tiltakskode = ?::tiltakskode
         """.trimIndent()
 
@@ -122,7 +122,7 @@ class TiltakstypeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_tiltakstype_dto
+            from view_tiltakstype
             where arena_kode = ?
         """.trimIndent()
 
@@ -152,7 +152,7 @@ class TiltakstypeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over() as total_count
-            from view_tiltakstype_dto
+            from view_tiltakstype
             where (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder))
               and (:statuser::text[] is null or status = any(:statuser))
             order by $order
