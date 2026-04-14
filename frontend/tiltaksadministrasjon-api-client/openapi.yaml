@@ -3152,7 +3152,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 8
+        - 9
     RedaksjoneltInnholdLenke:
       type: object
       properties:
