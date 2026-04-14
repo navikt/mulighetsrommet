@@ -1929,6 +1929,7 @@ paths:
           type: array
           items:
             type: string
+            default: null
       responses:
         "200":
           description: Utbetalingen ble opprettet
@@ -2023,6 +2024,7 @@ paths:
           type: array
           items:
             type: string
+            default: null
       - name: navEnheter
         in: query
         required: false
@@ -2032,6 +2034,7 @@ paths:
           type: array
           items:
             type: string
+            default: null
       - name: sort
         in: query
         required: false
@@ -2990,22 +2993,27 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
         gruppe:
           type:
           - "null"
           - string
+          default: null
         startDato:
           type: string
           format: date
+          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         status:
           $ref: "#/components/schemas/TiltakstypeStatus"
         sanityId:
@@ -3013,16 +3021,19 @@ components:
           - "null"
           - string
           format: uuid
+          default: null
         features:
           type: array
           items:
             $ref: "#/components/schemas/TiltakstypeFeature"
           uniqueItems: true
+          default: null
         egenskaper:
           type: array
           items:
             $ref: "#/components/schemas/TiltakstypeEgenskap"
           uniqueItems: true
+          default: null
       required:
       - egenskaper
       - features
@@ -3107,18 +3118,22 @@ components:
           type:
           - "null"
           - string
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         regelverkUrl:
           type:
           - "null"
           - string
+          default: null
         regelverkLenkeNavn:
           type:
           - "null"
           - string
+          default: null
       required:
       - _id
       - beskrivelse
@@ -3133,56 +3148,67 @@ components:
           - array
           items:
             $ref: "#/components/schemas/PortableTextTypedObject"
+          default: null
         forHvemInfoboks:
           type:
           - "null"
           - string
+          default: null
         detaljerOgInnhold:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/PortableTextTypedObject"
+          default: null
         detaljerOgInnholdInfoboks:
           type:
           - "null"
           - string
+          default: null
         pameldingOgVarighet:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/PortableTextTypedObject"
+          default: null
         pameldingOgVarighetInfoboks:
           type:
           - "null"
           - string
+          default: null
         kontaktinfo:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/PortableTextTypedObject"
+          default: null
         kontaktinfoInfoboks:
           type:
           - "null"
           - string
+          default: null
         oppskrift:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/PortableTextTypedObject"
+          default: null
         lenker:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/FaneinnholdLenke"
+          default: null
         delMedBruker:
           type:
           - "null"
           - string
+          default: null
       required:
       - delMedBruker
       - detaljerOgInnhold
@@ -3210,12 +3236,16 @@ components:
       properties:
         lenkenavn:
           type: string
+          default: null
         lenke:
           type: string
+          default: null
         apneINyFane:
           type: boolean
+          default: null
         visKunForVeileder:
           type: boolean
+          default: null
       required:
       - apneINyFane
       - lenke
@@ -3227,36 +3257,44 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         sanityId:
           type: string
+          default: null
         navn:
           type: string
+          default: null
         features:
           type: array
           items:
             $ref: "#/components/schemas/TiltakstypeFeature"
           uniqueItems: true
+          default: null
         egenskaper:
           type: array
           items:
             $ref: "#/components/schemas/TiltakstypeEgenskap"
           uniqueItems: true
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         innsatsgrupper:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/Innsatsgruppe"
+          default: null
         regelverkLenker:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/RegelverkLenke"
+          default: null
         faneinnhold:
           oneOf:
           - type: "null"
@@ -3265,10 +3303,12 @@ components:
           type:
           - "null"
           - string
+          default: null
         arenakode:
           type:
           - "null"
           - string
+          default: null
         tiltakskode:
           oneOf:
           - type: "null"
@@ -3277,10 +3317,13 @@ components:
           type:
           - "null"
           - string
+          default: null
         kanKombineresMed:
           type: array
           items:
             type: string
+            default: null
+          default: null
       required:
       - arenakode
       - beskrivelse
@@ -3301,6 +3344,7 @@ components:
       properties:
         navn:
           type: string
+          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
         arrangor:
@@ -3311,18 +3355,23 @@ components:
           type:
           - "null"
           - string
+          default: null
         startDato:
           type: string
           format: date
+          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         administratorer:
           type: array
           items:
             type: string
+            default: null
+          default: null
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         opsjonsmodell:
@@ -3352,15 +3401,20 @@ components:
       properties:
         hovedenhet:
           type: string
+          default: null
         underenheter:
           type: array
           items:
             type: string
+            default: null
+          default: null
         kontaktpersoner:
           type: array
           items:
             type: string
             format: uuid
+            default: null
+          default: null
       required:
       - hovedenhet
       - kontaktpersoner
@@ -3382,10 +3436,12 @@ components:
           - "null"
           - string
           format: date
+          default: null
         customOpsjonsmodellNavn:
           type:
           - "null"
           - string
+          default: null
       required:
       - customOpsjonsmodellNavn
       - opsjonMaksVarighet
@@ -3416,22 +3472,26 @@ components:
           - array
           items:
             $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Sertifisering"
+          default: null
         forerkort:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse"
+          default: null
         innholdElementer:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+          default: null
         norskprove:
           type:
           - "null"
           - boolean
+          default: null
       required:
       - bransje
       - forerkort
@@ -3466,8 +3526,10 @@ components:
         konseptId:
           type: integer
           format: int64
+          default: null
         label:
           type: string
+          default: null
       required:
       - konseptId
       - label
@@ -3508,12 +3570,15 @@ components:
         utdanningsprogram:
           type: string
           format: uuid
+          default: null
         utdanninger:
           type: array
           items:
             type: string
             format: uuid
+            default: null
           uniqueItems: true
+          default: null
       required:
       - utdanninger
       - utdanningsprogram
@@ -3523,6 +3588,7 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         type:
           $ref: "#/components/schemas/PrismodellType"
         valuta:
@@ -3531,14 +3597,17 @@ components:
           type:
           - "null"
           - string
+          default: null
         satser:
           type: array
           items:
             $ref: "#/components/schemas/AvtaltSatsRequest"
+          default: null
         tilsagnPerDeltaker:
           type:
           - "null"
           - boolean
+          default: null
       required:
       - id
       - prisbetingelser
@@ -3568,11 +3637,13 @@ components:
           - "null"
           - string
           format: date
+          default: null
         pris:
           type:
           - "null"
           - integer
           format: int32
+          default: null
       required:
       - gjelderFra
       - pris
@@ -3583,8 +3654,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Personopplysning.Type"
+          default: null
         personvernBekreftet:
           type: boolean
+          default: null
       required:
       - personopplysninger
       - personvernBekreftet
@@ -3623,10 +3696,13 @@ components:
           type: array
           items:
             type: string
+            default: null
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         faneinnhold:
           oneOf:
           - type: "null"
@@ -3641,12 +3717,14 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         detaljer:
           $ref: "#/components/schemas/DetaljerRequest"
         prismodeller:
           type: array
           items:
             $ref: "#/components/schemas/PrismodellRequest"
+          default: null
         personvern:
           $ref: "#/components/schemas/PersonvernRequest"
         veilederinformasjon:
@@ -3663,8 +3741,10 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
       required:
@@ -3677,20 +3757,26 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         organisasjonsnummer:
           type: string
+          default: null
         navn:
           type: string
+          default: null
         slettet:
           type: boolean
+          default: null
         underenheter:
           type: array
           items:
             $ref: "#/components/schemas/Avtale.ArrangorUnderenhet"
+          default: null
         kontaktpersoner:
           type: array
           items:
             $ref: "#/components/schemas/Avtale.ArrangorKontaktperson"
+          default: null
       required:
       - id
       - kontaktpersoner
@@ -3704,12 +3790,16 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         organisasjonsnummer:
           type: string
+          default: null
         navn:
           type: string
+          default: null
         slettet:
           type: boolean
+          default: null
       required:
       - id
       - navn
@@ -3721,18 +3811,23 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         telefon:
           type:
           - "null"
           - string
+          default: null
         epost:
           type: string
+          default: null
       required:
       - beskrivelse
       - epost
@@ -3761,12 +3856,14 @@ components:
       properties:
         value:
           type: string
+          default: null
         variant:
           $ref: "#/components/schemas/DataElement.Status.Variant"
         description:
           type:
           - "null"
           - string
+          default: null
       required:
       - description
       - value
@@ -3789,8 +3886,10 @@ components:
       properties:
         navIdent:
           type: string
+          default: null
         navn:
           type: string
+          default: null
       required:
       - navIdent
       - navn
@@ -3803,6 +3902,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Kontorstruktur.Kontor"
+          default: null
       required:
       - kontorer
       - region
@@ -3811,8 +3911,10 @@ components:
       properties:
         navn:
           type: string
+          default: null
         enhetsnummer:
           type: string
+          default: null
       required:
       - enhetsnummer
       - navn
@@ -3821,8 +3923,10 @@ components:
       properties:
         navn:
           type: string
+          default: null
         enhetsnummer:
           type: string
+          default: null
         type:
           $ref: "#/components/schemas/Kontorstruktur.Kontortype"
       required:
@@ -3841,13 +3945,16 @@ components:
           $ref: "#/components/schemas/Personopplysning.Type"
         title:
           type: string
+          default: null
         helpText:
           type:
           - "null"
           - string
+          default: null
         sortKey:
           type: integer
           format: int32
+          default: null
       required:
       - helpText
       - sortKey
@@ -3870,22 +3977,26 @@ components:
           - array
           items:
             $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+          default: null
         sertifiseringer:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Sertifisering"
+          default: null
         forerkort:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse"
+          default: null
         norskprove:
           type:
           - "null"
           - boolean
+          default: null
       required:
       - bransje
       - forerkort
@@ -3899,17 +4010,21 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         createdAt:
           type: string
           format: date-time
+          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         forrigeSluttDato:
           type: string
           format: date
+          default: null
         status:
           $ref: "#/components/schemas/OpsjonLoggStatus"
       required:
@@ -3932,6 +4047,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UtdanningslopDto.Utdanning"
+          default: null
       required:
       - utdanninger
       - utdanningsprogram
@@ -3941,8 +4057,10 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
       required:
       - id
       - navn
@@ -3952,8 +4070,10 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
       required:
       - id
       - navn
@@ -3963,6 +4083,7 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         type:
           $ref: "#/components/schemas/PrismodellType"
         satser:
@@ -3971,20 +4092,26 @@ components:
           - array
           items:
             $ref: "#/components/schemas/AvtaltSatsDto"
+          default: null
         valuta:
           $ref: "#/components/schemas/Valuta"
         prisbetingelser:
           type:
           - "null"
           - string
+          default: null
         tilsagnPerDeltaker:
           type: boolean
+          default: null
         navn:
           type: string
+          default: null
         beskrivelse:
           type: array
           items:
             type: string
+            default: null
+          default: null
       required:
       - beskrivelse
       - id
@@ -4000,6 +4127,7 @@ components:
         gjelderFra:
           type: string
           format: date
+          default: null
         pris:
           $ref: "#/components/schemas/ValutaBelop"
         gjelderTil:
@@ -4007,6 +4135,7 @@ components:
           - "null"
           - string
           format: date
+          default: null
       required:
       - gjelderFra
       - gjelderTil
@@ -4017,6 +4146,7 @@ components:
         belop:
           type: integer
           format: int32
+          default: null
         valuta:
           $ref: "#/components/schemas/Valuta"
       required:
@@ -4028,18 +4158,22 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         tiltakstype:
           $ref: "#/components/schemas/Avtale.Tiltakstype"
         navn:
           type: string
+          default: null
         avtalenummer:
           type:
           - "null"
           - string
+          default: null
         sakarkivNummer:
           type:
           - "null"
           - string
+          default: null
         arrangor:
           oneOf:
           - type: "null"
@@ -4047,11 +4181,13 @@ components:
         startDato:
           type: string
           format: date
+          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         status:
@@ -4060,14 +4196,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Avtale.Administrator"
+          default: null
         kontorstruktur:
           type: array
           items:
             $ref: "#/components/schemas/Kontorstruktur"
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         faneinnhold:
           oneOf:
           - type: "null"
@@ -4076,8 +4215,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Personopplysning"
+          default: null
         personvernBekreftet:
           type: boolean
+          default: null
         amoKategorisering:
           oneOf:
           - type: "null"
@@ -4088,6 +4229,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Avtale.OpsjonLoggDto"
+          default: null
         utdanningslop:
           oneOf:
           - type: "null"
@@ -4096,6 +4238,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PrismodellDto"
+          default: null
       required:
       - administratorer
       - amoKategorisering
@@ -4123,8 +4266,10 @@ components:
       properties:
         pointer:
           type: string
+          default: null
         detail:
           type: string
+          default: null
       required:
       - detail
       - pointer
@@ -4136,25 +4281,32 @@ components:
       properties:
         detail:
           type: string
+          default: null
         errors:
           type: array
           items:
             $ref: "#/components/schemas/FieldError"
+          default: null
         type:
           type: string
+          default: null
         title:
           type: string
+          default: null
         status:
           type: integer
           format: int32
+          default: null
         extensions:
           type: object
           additionalProperties:
             $ref: "#/components/schemas/JsonElement"
+          default: null
         instance:
           type:
           - "null"
           - string
+          default: null
       required:
       - detail
       - errors
@@ -4177,6 +4329,7 @@ components:
           - "null"
           - string
           format: date
+          default: null
         type:
           $ref: "#/components/schemas/OpprettOpsjonLoggRequest.Type"
       required:
@@ -4197,10 +4350,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AvbrytAvtaleAarsak"
+          default: null
         forklaring:
           type:
           - "null"
           - string
+          default: null
       required:
       - aarsaker
       - forklaring
@@ -4211,38 +4366,50 @@ components:
           type:
           - "null"
           - string
+          default: null
         tiltakstyper:
           type: array
           items:
             type: string
             format: uuid
+            default: null
+          default: null
         statuser:
           type: array
           items:
             $ref: "#/components/schemas/AvtaleStatusType"
+          default: null
         avtaletyper:
           type: array
           items:
             $ref: "#/components/schemas/Avtaletype"
+          default: null
         navEnheter:
           type: array
           items:
             type: string
+            default: null
+          default: null
         arrangorer:
           type: array
           items:
             type: string
             format: uuid
+            default: null
+          default: null
         personvernBekreftet:
           type:
           - "null"
           - boolean
+          default: null
         visMineAvtaler:
           type: boolean
+          default: null
         sort:
           type:
           - "null"
           - string
+          default: null
       required:
       - arrangorer
       - avtaletyper
@@ -4259,12 +4426,15 @@ components:
         totalCount:
           type: integer
           format: int32
+          default: null
         pageSize:
           type: integer
           format: int32
+          default: null
         totalPages:
           type: integer
           format: int32
+          default: null
       required:
       - pageSize
       - totalCount
@@ -4278,6 +4448,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AvtaleDto"
+          default: null
       required:
       - data
       - pagination
@@ -4298,11 +4469,14 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         operation:
           type: string
+          default: null
         editedAt:
           type: string
           format: date-time
+          default: null
         editedBy:
           $ref: "#/components/schemas/EndringshistorikkDto.User"
       required:
@@ -4319,10 +4493,12 @@ components:
       properties:
         navIdent:
           type: string
+          default: null
         navn:
           type:
           - "null"
           - string
+          default: null
       required:
       - navIdent
       - navn
@@ -4331,6 +4507,7 @@ components:
       properties:
         navn:
           type: string
+          default: null
       required:
       - navn
     EndringshistorikkDto:
@@ -4340,6 +4517,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/EndringshistorikkDto.Entry"
+          default: null
       required:
       - entries
     TOTAL_RAMME:
@@ -4355,12 +4533,14 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ValutaLongBelop"
+          default: null
         gjenstaendeRamme:
           $ref: "#/components/schemas/ValutaLongBelop"
         reservert:
           type: array
           items:
             $ref: "#/components/schemas/ValutaLongBelop"
+          default: null
       required:
       - gjenstaendeRamme
       - reservert
@@ -4373,6 +4553,7 @@ components:
         belop:
           type: integer
           format: int64
+          default: null
         valuta:
           $ref: "#/components/schemas/Valuta"
       required:
@@ -4389,6 +4570,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ValutaLongBelop"
+          default: null
         totaltUtbetalt:
           oneOf:
           - type: "null"
@@ -4397,6 +4579,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ValutaLongBelop"
+          default: null
       required:
       - reservert
       - totaltUtbetalt
@@ -4419,11 +4602,13 @@ components:
           - "null"
           - integer
           format: int64
+          default: null
         utbetaltArena:
           type:
           - "null"
           - integer
           format: int64
+          default: null
       required:
       - totalRamme
       - utbetaltArena
@@ -4437,11 +4622,13 @@ components:
           - "null"
           - integer
           format: int64
+          default: null
         utbetaltArena:
           type:
           - "null"
           - integer
           format: int64
+          default: null
       required:
       - totalRamme
       - utbetaltArena
@@ -4453,21 +4640,28 @@ components:
           type: array
           items:
             type: string
+            default: null
           uniqueItems: true
+          default: null
         navKontorer:
           type: array
           items:
             type: string
+            default: null
           uniqueItems: true
+          default: null
         navAndreEnheter:
           type: array
           items:
             type: string
+            default: null
           uniqueItems: true
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         faneinnhold:
           oneOf:
           - type: "null"
@@ -4483,10 +4677,12 @@ components:
       properties:
         navIdent:
           type: string
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
       required:
       - beskrivelse
       - navIdent
@@ -4504,10 +4700,12 @@ components:
           - "null"
           - integer
           format: int32
+          default: null
         enhet:
           type:
           - "null"
           - string
+          default: null
       required:
       - enhet
       - verdi
@@ -4522,40 +4720,50 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         tiltakstypeId:
           type: string
           format: uuid
+          default: null
         avtaleId:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         startDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         antallPlasser:
           type:
           - "null"
           - integer
           format: int32
+          default: null
         arrangorId:
           type:
           - "null"
           - string
           format: uuid
+          default: null
         arrangorKontaktpersoner:
           type: array
           items:
             type: string
             format: uuid
+            default: null
           uniqueItems: true
+          default: null
         veilederinformasjon:
           $ref: "#/components/schemas/GjennomforingVeilederinfoRequest"
         kontaktpersoner:
@@ -4563,11 +4771,14 @@ components:
           items:
             $ref: "#/components/schemas/GjennomforingRequest.Kontaktperson"
           uniqueItems: true
+          default: null
         administratorer:
           type: array
           items:
             type: string
+            default: null
           uniqueItems: true
+          default: null
         oppstart:
           oneOf:
           - type: "null"
@@ -4576,9 +4787,11 @@ components:
           type:
           - "null"
           - string
+          default: null
         deltidsprosent:
           type: number
           format: double
+          default: null
         estimertVentetid:
           oneOf:
           - type: "null"
@@ -4588,6 +4801,7 @@ components:
           - "null"
           - string
           format: date
+          default: null
         amoKategorisering:
           oneOf:
           - type: "null"
@@ -4601,6 +4815,7 @@ components:
           - "null"
           - string
           format: uuid
+          default: null
         pameldingType:
           oneOf:
           - type: "null"
@@ -4633,8 +4848,10 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
       required:
@@ -4656,54 +4873,67 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         lopenummer:
           type: string
+          default: null
         tiltaksnummer:
           type:
           - "null"
           - string
+          default: null
         arrangor:
           $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
         startDato:
           type: string
           format: date
+          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
         antallPlasser:
           type: integer
           format: int32
+          default: null
         avtaleId:
           type: string
           format: uuid
+          default: null
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
         pameldingType:
           $ref: "#/components/schemas/GjennomforingPameldingType"
         apentForPamelding:
           type: boolean
+          default: null
         deltidsprosent:
           type: number
           format: double
+          default: null
         tilgjengeligForArrangorDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         administratorer:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingDto.Administrator"
+          default: null
         stengt:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingDto.StengtPeriode"
+          default: null
         avbrytelse:
           oneOf:
           - type: "null"
@@ -4733,16 +4963,21 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         organisasjonsnummer:
           type: string
+          default: null
         navn:
           type: string
+          default: null
         slettet:
           type: boolean
+          default: null
         kontaktpersoner:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingDto.ArrangorKontaktperson"
+          default: null
       required:
       - id
       - kontaktpersoner
@@ -4755,18 +4990,23 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         telefon:
           type:
           - "null"
           - string
+          default: null
         epost:
           type: string
+          default: null
       required:
       - beskrivelse
       - epost
@@ -4795,8 +5035,10 @@ components:
       properties:
         navIdent:
           type: string
+          default: null
         navn:
           type: string
+          default: null
       required:
       - navIdent
       - navn
@@ -4806,14 +5048,18 @@ components:
         id:
           type: integer
           format: int32
+          default: null
         start:
           type: string
           format: date
+          default: null
         slutt:
           type: string
           format: date
+          default: null
         beskrivelse:
           type: string
+          default: null
       required:
       - beskrivelse
       - id
@@ -4826,10 +5072,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+          default: null
         forklaring:
           type:
           - "null"
           - string
+          default: null
       required:
       - aarsaker
       - forklaring
@@ -4848,14 +5096,18 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         lopenummer:
           type: string
+          default: null
         tiltaksnummer:
           type:
           - "null"
           - string
+          default: null
         arrangor:
           $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
         startDato:
@@ -4863,11 +5115,13 @@ components:
           - "null"
           - string
           format: date
+          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
         ansvarligEnhet:
@@ -4889,8 +5143,10 @@ components:
       properties:
         enhetsnummer:
           type: string
+          default: null
         navn:
           type: string
+          default: null
       required:
       - enhetsnummer
       - navn
@@ -4899,10 +5155,12 @@ components:
       properties:
         publisert:
           type: boolean
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         faneinnhold:
           oneOf:
           - type: "null"
@@ -4911,14 +5169,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Kontorstruktur"
+          default: null
         kontaktpersoner:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingKontaktpersonDto"
+          default: null
         oppmoteSted:
           type:
           - "null"
           - string
+          default: null
         estimertVentetid:
           oneOf:
           - type: "null"
@@ -4936,20 +5197,26 @@ components:
       properties:
         navIdent:
           type: string
+          default: null
         navn:
           type: string
+          default: null
         epost:
           type: string
+          default: null
         mobilnummer:
           type:
           - "null"
           - string
+          default: null
         hovedenhet:
           type: string
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
       required:
       - beskrivelse
       - epost
@@ -4963,8 +5230,10 @@ components:
         verdi:
           type: integer
           format: int32
+          default: null
         enhet:
           type: string
+          default: null
       required:
       - enhet
       - verdi
@@ -5003,10 +5272,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+          default: null
         forklaring:
           type:
           - "null"
           - string
+          default: null
       required:
       - aarsaker
       - forklaring
@@ -5015,6 +5286,7 @@ components:
       properties:
         publisert:
           type: boolean
+          default: null
       required:
       - publisert
     SetApentForPameldingRequest:
@@ -5022,6 +5294,7 @@ components:
       properties:
         apentForPamelding:
           type: boolean
+          default: null
       required:
       - apentForPamelding
     SetTilgjengligForArrangorRequest:
@@ -5031,6 +5304,7 @@ components:
           type:
           - "null"
           - string
+          default: null
       required:
       - tilgjengeligForArrangorDato
     SetStengtHosArrangorRequest:
@@ -5041,15 +5315,18 @@ components:
           - "null"
           - string
           format: date
+          default: null
         periodeSlutt:
           type:
           - "null"
           - string
           format: date
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
       required:
       - beskrivelse
       - periodeSlutt
@@ -5067,43 +5344,56 @@ components:
           type:
           - "null"
           - string
+          default: null
         navEnheter:
           type: array
           items:
             type: string
+            default: null
+          default: null
         tiltakstyper:
           type: array
           items:
             type: string
             format: uuid
+            default: null
+          default: null
         statuser:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingStatusType"
+          default: null
         sort:
           type:
           - "null"
           - string
+          default: null
         avtaleId:
           type:
           - "null"
           - string
           format: uuid
+          default: null
         arrangorer:
           type: array
           items:
             type: string
             format: uuid
+            default: null
+          default: null
         publisert:
           type:
           - "null"
           - boolean
+          default: null
         visMineGjennomforinger:
           type: boolean
+          default: null
         gjennomforingTyper:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingType"
+          default: null
       required:
       - arrangorer
       - avtaleId
@@ -5121,28 +5411,35 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         lopenummer:
           type: string
+          default: null
         startDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
         publisert:
           type: boolean
+          default: null
         kontorstruktur:
           type: array
           items:
             $ref: "#/components/schemas/Kontorstruktur"
+          default: null
         arrangor:
           $ref: "#/components/schemas/GjennomforingKompakt.ArrangorUnderenhet"
         tiltakstype:
@@ -5167,10 +5464,13 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         organisasjonsnummer:
           type: string
+          default: null
         navn:
           type: string
+          default: null
       required:
       - id
       - navn
@@ -5181,8 +5481,10 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
       required:
@@ -5198,6 +5500,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingKompaktDto"
+          default: null
       required:
       - data
       - pagination
@@ -5206,6 +5509,7 @@ components:
       properties:
         tiltaksnummer:
           type: string
+          default: null
       required:
       - tiltaksnummer
     DeltakerStatusSummary:
@@ -5213,9 +5517,11 @@ components:
       properties:
         status:
           type: string
+          default: null
         count:
           type: integer
           format: int32
+          default: null
       required:
       - count
       - status
@@ -5225,10 +5531,12 @@ components:
         antallDeltakere:
           type: integer
           format: int32
+          default: null
         deltakereByStatus:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerStatusSummary"
+          default: null
       required:
       - antallDeltakere
       - deltakereByStatus
@@ -5254,10 +5562,13 @@ components:
           $ref: "#/components/schemas/PrismodellType"
         navn:
           type: string
+          default: null
         beskrivelse:
           type: array
           items:
             type: string
+            default: null
+          default: null
       required:
       - beskrivelse
       - navn
@@ -5277,12 +5588,15 @@ components:
       properties:
         key:
           type: string
+          default: null
         label:
           type:
           - "null"
           - string
+          default: null
         sortable:
           type: boolean
+          default: null
         align:
           $ref: "#/components/schemas/DataDrivenTableDto.Column.Align"
       required:
@@ -5303,6 +5617,7 @@ components:
           type: object
           additionalProperties:
             $ref: "#/components/schemas/DataElement"
+          default: null
         content:
           oneOf:
           - type: "null"
@@ -5334,10 +5649,13 @@ components:
       properties:
         text:
           type: string
+          default: null
         href:
           type: string
+          default: null
         digest:
           type: string
+          default: null
       required:
       - digest
       - href
@@ -5364,8 +5682,10 @@ components:
           type:
           - "null"
           - string
+          default: null
         currency:
           type: string
+          default: null
       required:
       - currency
       - value
@@ -5374,6 +5694,7 @@ components:
       properties:
         buttonText:
           type: string
+          default: null
         modalContent:
           $ref: "#/components/schemas/DataElement.MultiLinkModal.ModalContent"
       required:
@@ -5384,12 +5705,15 @@ components:
       properties:
         header:
           type: string
+          default: null
         description:
           type: string
+          default: null
         links:
           type: array
           items:
             $ref: "#/components/schemas/DATA_ELEMENT_LINK"
+          default: null
       required:
       - description
       - header
@@ -5399,8 +5723,10 @@ components:
       properties:
         start:
           type: string
+          default: null
         slutt:
           type: string
+          default: null
       required:
       - slutt
       - start
@@ -5411,6 +5737,7 @@ components:
           type:
           - "null"
           - string
+          default: null
         format:
           oneOf:
           - type: "null"
@@ -5429,13 +5756,16 @@ components:
         startDate:
           type: string
           format: date
+          default: null
         endDate:
           type: string
           format: date
+          default: null
         rows:
           type: array
           items:
             $ref: "#/components/schemas/TimelineDto.Row"
+          default: null
       required:
       - endDate
       - rows
@@ -5447,8 +5777,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TimelineDto.Row.Period"
+          default: null
         label:
           type: string
+          default: null
       required:
       - label
       - periods
@@ -5457,18 +5789,23 @@ components:
       properties:
         key:
           type: string
+          default: null
         start:
           type: string
           format: date
+          default: null
         end:
           type: string
           format: date
+          default: null
         status:
           $ref: "#/components/schemas/TimelineDto.Row.Period.Variant"
         content:
           type: string
+          default: null
         hover:
           type: string
+          default: null
       required:
       - content
       - end
@@ -5491,10 +5828,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DataDrivenTableDto.Column"
+          default: null
         rows:
           type: array
           items:
             $ref: "#/components/schemas/DataDrivenTableDto.Row"
+          default: null
       required:
       - columns
       - rows
@@ -5504,6 +5843,7 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         type:
           $ref: "#/components/schemas/TilsagnType"
         periode:
@@ -5518,20 +5858,24 @@ components:
           $ref: "#/components/schemas/KostnadsstedDto"
         bestillingsnummer:
           type: string
+          default: null
         status:
           $ref: "#/components/schemas/TilsagnStatusDto"
         kommentar:
           type:
           - "null"
           - string
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         deltakere:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnDeltakerDto"
+          default: null
       required:
       - belopBrukt
       - belopGjenstaende
@@ -5557,9 +5901,11 @@ components:
         start:
           type: string
           format: date
+          default: null
         slutt:
           type: string
           format: date
+          default: null
       required:
       - slutt
       - start
@@ -5568,8 +5914,10 @@ components:
       properties:
         navn:
           type: string
+          default: null
         enhetsnummer:
           type: string
+          default: null
       required:
       - enhetsnummer
       - navn
@@ -5589,12 +5937,15 @@ components:
         deltakerId:
           type: string
           format: uuid
+          default: null
         norskIdent:
           type:
           - "null"
           - string
+          default: null
         navn:
           type: string
+          default: null
         oppfolgingEnhet:
           oneOf:
           - type: "null"
@@ -5607,6 +5958,7 @@ components:
           type:
           - "null"
           - string
+          default: null
         status:
           $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
       required:
@@ -5622,14 +5974,17 @@ components:
       properties:
         navn:
           type: string
+          default: null
         enhetsnummer:
           type: string
+          default: null
         type:
           $ref: "#/components/schemas/NavEnhetType"
         overordnetEnhet:
           type:
           - "null"
           - string
+          default: null
       required:
       - enhetsnummer
       - navn
@@ -5688,10 +6043,12 @@ components:
           type:
           - "null"
           - string
+          default: null
         entries:
           type: array
           items:
             $ref: "#/components/schemas/LabeledDataElement"
+          default: null
       required:
       - entries
       - header
@@ -5702,6 +6059,7 @@ components:
           $ref: "#/components/schemas/LabeledDataElementType"
         label:
           type: string
+          default: null
         value:
           oneOf:
           - type: "null"
@@ -5724,6 +6082,7 @@ components:
           - array
           items:
             $ref: "#/components/schemas/DataElement"
+          default: null
         breakdown:
           oneOf:
           - type: "null"
@@ -5748,19 +6107,24 @@ components:
         behandletTidspunkt:
           type: string
           format: date-time
+          default: null
         aarsaker:
           type: array
           items:
             type: string
+            default: null
+          default: null
         forklaring:
           type:
           - "null"
           - string
+          default: null
         besluttetAv:
           $ref: "#/components/schemas/AgentDto"
         besluttetTidspunkt:
           type: string
           format: date-time
+          default: null
         besluttelse:
           $ref: "#/components/schemas/Besluttelse"
       required:
@@ -5776,6 +6140,7 @@ components:
       properties:
         navn:
           type: string
+          default: null
       required:
       - navn
     Besluttelse:
@@ -5791,14 +6156,18 @@ components:
         behandletTidspunkt:
           type: string
           format: date-time
+          default: null
         aarsaker:
           type: array
           items:
             type: string
+            default: null
+          default: null
         forklaring:
           type:
           - "null"
           - string
+          default: null
       required:
       - aarsaker
       - behandletAv
@@ -5839,6 +6208,7 @@ components:
           items:
             $ref: "#/components/schemas/TilsagnHandling"
           uniqueItems: true
+          default: null
       required:
       - annullering
       - beregning
@@ -5860,21 +6230,25 @@ components:
           - "null"
           - integer
           format: int32
+          default: null
         prisbetingelser:
           type:
           - "null"
           - string
+          default: null
         linjer:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/TilsagnInputLinjeRequest"
+          default: null
         antallTimerOppfolgingPerDeltaker:
           type:
           - "null"
           - integer
           format: int32
+          default: null
       required:
       - antallPlasser
       - antallTimerOppfolgingPerDeltaker
@@ -5897,10 +6271,12 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         pris:
           oneOf:
           - type: "null"
@@ -5910,6 +6286,7 @@ components:
           - "null"
           - integer
           format: int32
+          default: null
       required:
       - antall
       - beskrivelse
@@ -5921,10 +6298,12 @@ components:
         deltakerId:
           type: string
           format: uuid
+          default: null
         innholdAnnet:
           type:
           - "null"
           - string
+          default: null
       required:
       - deltakerId
       - innholdAnnet
@@ -5936,39 +6315,47 @@ components:
           - "null"
           - string
           format: uuid
+          default: null
         type:
           $ref: "#/components/schemas/TilsagnType"
         gjennomforingId:
           type: string
           format: uuid
+          default: null
         kostnadssted:
           type:
           - "null"
           - string
+          default: null
         beregning:
           $ref: "#/components/schemas/TilsagnBeregningRequest"
         kommentar:
           type:
           - "null"
           - string
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         periodeStart:
           type:
           - "null"
           - string
+          default: null
         periodeSlutt:
           type:
           - "null"
           - string
+          default: null
         deltakere:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/TilsagnDeltakerRequest"
+          default: null
       required:
       - beregning
       - beskrivelse
@@ -5998,10 +6385,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnStatusAarsak"
+          default: null
         forklaring:
           type:
           - "null"
           - string
+          default: null
       required:
       - aarsaker
       - forklaring
@@ -6011,14 +6400,17 @@ components:
         gjennomforingId:
           type: string
           format: uuid
+          default: null
         periodeStart:
           type:
           - "null"
           - string
+          default: null
         periodeSlutt:
           type:
           - "null"
           - string
+          default: null
       required:
       - gjennomforingId
       - periodeSlutt
@@ -6028,10 +6420,12 @@ components:
       properties:
         tilsagnPerDeltaker:
           type: boolean
+          default: null
         deltakere:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnDeltakerDto"
+          default: null
       required:
       - deltakere
       - tilsagnPerDeltaker
@@ -6043,16 +6437,19 @@ components:
           - "null"
           - string
           format: date
+          default: null
         periodeSlutt:
           type:
           - "null"
           - string
           format: date
+          default: null
         beregning:
           $ref: "#/components/schemas/TilsagnBeregningRequest"
         gjennomforingId:
           type: string
           format: uuid
+          default: null
       required:
       - beregning
       - gjennomforingId
@@ -6073,6 +6470,7 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         status:
           $ref: "#/components/schemas/UtbetalingStatusDto"
         periode:
@@ -6081,6 +6479,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/KostnadsstedDto"
+          default: null
         belopUtbetalt:
           oneOf:
           - type: "null"
@@ -6121,14 +6520,17 @@ components:
       properties:
         displayName:
           type: string
+          default: null
         displayNameLong:
           type:
           - "null"
           - string
+          default: null
         tagName:
           type:
           - "null"
           - string
+          default: null
       required:
       - displayName
       - displayNameLong
@@ -6141,6 +6543,7 @@ components:
           - "null"
           - integer
           format: int32
+          default: null
         valuta:
           oneOf:
           - type: "null"
@@ -6154,40 +6557,49 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         gjennomforingId:
           type: string
           format: uuid
+          default: null
         korrigererUtbetaling:
           type:
           - "null"
           - string
           format: uuid
+          default: null
         periodeStart:
           type:
           - "null"
           - string
           format: date
+          default: null
         periodeSlutt:
           type:
           - "null"
           - string
           format: date
+          default: null
         journalpostId:
           type:
           - "null"
           - string
+          default: null
         korreksjonBegrunnelse:
           type:
           - "null"
           - string
+          default: null
         kommentar:
           type:
           - "null"
           - string
+          default: null
         kidNummer:
           type:
           - "null"
           - string
+          default: null
         pris:
           oneOf:
           - type: "null"
@@ -6209,9 +6621,11 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         gjennomforingId:
           type: string
           format: uuid
+          default: null
         type:
           $ref: "#/components/schemas/UtbetalingTypeDto"
         status:
@@ -6229,11 +6643,13 @@ components:
           - "null"
           - string
           format: date
+          default: null
         utbetalesTidligstDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         betalingsinformasjon:
           oneOf:
           - type: "null"
@@ -6242,6 +6658,7 @@ components:
           type:
           - "null"
           - string
+          default: null
         korreksjon:
           oneOf:
           - type: "null"
@@ -6250,14 +6667,17 @@ components:
           type:
           - "null"
           - string
+          default: null
         avbruttBegrunnelse:
           type:
           - "null"
           - string
+          default: null
         journalpostId:
           type:
           - "null"
           - string
+          default: null
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
       required:
@@ -6291,10 +6711,12 @@ components:
       properties:
         kontonummer:
           type: string
+          default: null
         kid:
           type:
           - "null"
           - string
+          default: null
       required:
       - kid
       - kontonummer
@@ -6303,12 +6725,16 @@ components:
       properties:
         bic:
           type: string
+          default: null
         iban:
           type: string
+          default: null
         bankNavn:
           type: string
+          default: null
         bankLandKode:
           type: string
+          default: null
       required:
       - bankLandKode
       - bankNavn
@@ -6320,8 +6746,10 @@ components:
         opprinneligUtbetaling:
           type: string
           format: uuid
+          default: null
         begrunnelse:
           type: string
+          default: null
       required:
       - begrunnelse
       - opprinneligUtbetaling
@@ -6347,6 +6775,7 @@ components:
           items:
             $ref: "#/components/schemas/UtbetalingHandling"
           uniqueItems: true
+          default: null
       required:
       - handlinger
       - utbetaling
@@ -6356,8 +6785,10 @@ components:
         deltakerId:
           type: string
           format: uuid
+          default: null
         beskrivelse:
           type: string
+          default: null
         type:
           $ref: "#/components/schemas/DeltakerAdvarselType"
       required:
@@ -6374,10 +6805,12 @@ components:
       properties:
         heading:
           type: string
+          default: null
         deltakerRegioner:
           type: array
           items:
             $ref: "#/components/schemas/Kontorstruktur"
+          default: null
         deltakerTableData:
           oneOf:
           - type: "null"
@@ -6388,10 +6821,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DataDetails"
+          default: null
         advarsler:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerAdvarselDto"
+          default: null
       required:
       - advarsler
       - deltakerRegioner
@@ -6405,6 +6840,7 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         tilsagn:
           $ref: "#/components/schemas/TilsagnDto"
         status:
@@ -6415,6 +6851,7 @@ components:
           $ref: "#/components/schemas/ValutaBelop"
         gjorOppTilsagn:
           type: boolean
+          default: null
         opprettelse:
           oneOf:
           - type: "null"
@@ -6424,6 +6861,7 @@ components:
           items:
             $ref: "#/components/schemas/UtbetalingLinjeHandling"
           uniqueItems: true
+          default: null
       required:
       - gjorOppTilsagn
       - handlinger
@@ -6462,21 +6900,25 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         gjennomforingId:
           type: string
           format: uuid
+          default: null
         periode:
           $ref: "#/components/schemas/Periode"
         kostnadssteder:
           type: array
           items:
             $ref: "#/components/schemas/KostnadsstedDto"
+          default: null
         pris:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/ValutaBelop"
         arrangor:
           type: string
+          default: null
         tiltakstype:
           $ref: "#/components/schemas/Utbetaling.Tiltakstype"
         status:
@@ -6495,6 +6937,7 @@ components:
       properties:
         navn:
           type: string
+          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
       required:
@@ -6506,9 +6949,11 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         tilsagnId:
           type: string
           format: uuid
+          default: null
         pris:
           oneOf:
           - type: "null"
@@ -6517,6 +6962,7 @@ components:
           type:
           - "null"
           - boolean
+          default: null
       required:
       - gjorOppTilsagn
       - id
@@ -6528,14 +6974,17 @@ components:
         utbetalingId:
           type: string
           format: uuid
+          default: null
         utbetalingLinjer:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingLinjeRequest"
+          default: null
         begrunnelseMindreBetalt:
           type:
           - "null"
           - string
+          default: null
       required:
       - begrunnelseMindreBetalt
       - utbetalingId
@@ -6554,10 +7003,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingLinjeReturnertAarsak"
+          default: null
         forklaring:
           type:
           - "null"
           - string
+          default: null
       required:
       - aarsaker
       - forklaring
@@ -6581,16 +7032,20 @@ components:
           items:
             $ref: "#/components/schemas/OppgaveType"
           uniqueItems: true
+          default: null
         tiltakskoder:
           type: array
           items:
             $ref: "#/components/schemas/Tiltakskode"
           uniqueItems: true
+          default: null
         regioner:
           type: array
           items:
             type: string
+            default: null
           uniqueItems: true
+          default: null
       required:
       - oppgavetyper
       - regioner
@@ -6601,20 +7056,24 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         type:
           $ref: "#/components/schemas/OppgaveType"
         navn:
           type: string
+          default: null
         enhet:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/OppgaveEnhet"
         title:
           type: string
+          default: null
         description:
           type:
           - "null"
           - string
+          default: null
         tiltakstype:
           $ref: "#/components/schemas/OppgaveTiltakstype"
         link:
@@ -6622,6 +7081,7 @@ components:
         createdAt:
           type: string
           format: date-time
+          default: null
       required:
       - createdAt
       - description
@@ -6637,8 +7097,10 @@ components:
       properties:
         nummer:
           type: string
+          default: null
         navn:
           type: string
+          default: null
       required:
       - navn
       - nummer
@@ -6649,6 +7111,7 @@ components:
           $ref: "#/components/schemas/Tiltakskode"
         navn:
           type: string
+          default: null
       required:
       - navn
       - tiltakskode
@@ -6657,8 +7120,10 @@ components:
       properties:
         linkText:
           type: string
+          default: null
         link:
           type: string
+          default: null
       required:
       - link
       - linkText
@@ -6667,6 +7132,7 @@ components:
       properties:
         navn:
           type: string
+          default: null
         type:
           $ref: "#/components/schemas/OppgaveType"
       required:
@@ -6692,17 +7158,21 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         type:
           $ref: "#/components/schemas/LagretFilterType"
         filter:
           $ref: "#/components/schemas/JsonElement"
         isDefault:
           type: boolean
+          default: null
         sortOrder:
           type: integer
           format: int32
+          default: null
       required:
       - filter
       - id
@@ -6719,6 +7189,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/RegionKostnadssteder.Kontor"
+          default: null
       required:
       - kostnadssteder
       - region
@@ -6727,8 +7198,10 @@ components:
       properties:
         navn:
           type: string
+          default: null
         enhetsnummer:
           type: string
+          default: null
       required:
       - enhetsnummer
       - navn
@@ -6737,8 +7210,10 @@ components:
       properties:
         navn:
           type: string
+          default: null
         enhetsnummer:
           type: string
+          default: null
       required:
       - enhetsnummer
       - navn
@@ -6762,24 +7237,31 @@ components:
         entraObjectId:
           type: string
           format: uuid
+          default: null
         navIdent:
           type: string
+          default: null
         fornavn:
           type: string
+          default: null
         etternavn:
           type: string
+          default: null
         hovedenhet:
           $ref: "#/components/schemas/NavAnsattDto.Hovedenhet"
         mobilnummer:
           type:
           - "null"
           - string
+          default: null
         epost:
           type: string
+          default: null
         roller:
           type: array
           items:
             $ref: "#/components/schemas/NavAnsattRolleDto"
+          default: null
       required:
       - entraObjectId
       - epost
@@ -6794,8 +7276,10 @@ components:
       properties:
         enhetsnummer:
           type: string
+          default: null
         navn:
           type: string
+          default: null
       required:
       - enhetsnummer
       - navn
@@ -6806,6 +7290,7 @@ components:
           $ref: "#/components/schemas/Rolle"
         navn:
           type: string
+          default: null
       required:
       - navn
       - rolle
@@ -6815,31 +7300,39 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         organisasjonsnummer:
           type: string
+          default: null
         organisasjonsform:
           type:
           - "null"
           - string
+          default: null
         navn:
           type: string
+          default: null
         overordnetEnhet:
           type:
           - "null"
           - string
+          default: null
         underenheter:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/ArrangorDto"
+          default: null
         slettetDato:
           type:
           - "null"
           - string
           format: date
+          default: null
         erUtenlandsk:
           type: boolean
+          default: null
       required:
       - erUtenlandsk
       - id
@@ -6863,6 +7356,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorDto"
+          default: null
       required:
       - data
       - pagination
@@ -6872,25 +7366,32 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         arrangorId:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         telefon:
           type:
           - "null"
           - string
+          default: null
         epost:
           type: string
+          default: null
         ansvarligFor:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorKontaktperson.Ansvar"
+          default: null
       required:
       - ansvarligFor
       - arrangorId
@@ -6911,22 +7412,28 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         telefon:
           type:
           - "null"
           - string
+          default: null
         beskrivelse:
           type:
           - "null"
           - string
+          default: null
         epost:
           type: string
+          default: null
         ansvarligFor:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorKontaktperson.Ansvar"
+          default: null
       required:
       - ansvarligFor
       - beskrivelse
@@ -6940,8 +7447,10 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
       required:
       - id
       - navn
@@ -6952,10 +7461,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
+          default: null
         avtaler:
           type: array
           items:
             $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
+          default: null
       required:
       - avtaler
       - gjennomforinger
@@ -6964,10 +7475,13 @@ components:
       properties:
         organisasjonsnummer:
           type: string
+          default: null
         organisasjonsform:
           type: string
+          default: null
         navn:
           type: string
+          default: null
         postadresse:
           oneOf:
           - type: "null"
@@ -6980,6 +7494,7 @@ components:
           type:
           - "null"
           - string
+          default: null
       required:
       - forretningsadresse
       - navn
@@ -6994,20 +7509,25 @@ components:
           type:
           - "null"
           - string
+          default: null
         postnummer:
           type:
           - "null"
           - string
+          default: null
         poststed:
           type:
           - "null"
           - string
+          default: null
         adresse:
           type:
           - "null"
           - array
           items:
             type: string
+            default: null
+          default: null
       required:
       - adresse
       - landkode
@@ -7018,12 +7538,16 @@ components:
       properties:
         organisasjonsnummer:
           type: string
+          default: null
         organisasjonsform:
           type: string
+          default: null
         navn:
           type: string
+          default: null
         overordnetEnhet:
           type: string
+          default: null
       required:
       - navn
       - organisasjonsform
@@ -7038,6 +7562,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UtdanningsprogramMedUtdanningerDto.Utdanning"
+          default: null
       required:
       - utdanninger
       - utdanningsprogram
@@ -7047,8 +7572,10 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
       required:
       - id
       - navn
@@ -7058,8 +7585,10 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
       required:
       - id
       - navn
@@ -7074,22 +7603,28 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         title:
           type: string
+          default: null
         description:
           type:
           - "null"
           - string
+          default: null
         user:
           type: string
+          default: null
         createdAt:
           type: string
           format: date-time
+          default: null
         readAt:
           type:
           - "null"
           - string
           format: date-time
+          default: null
         metadata:
           oneOf:
           - type: "null"
@@ -7107,8 +7642,10 @@ components:
       properties:
         linkText:
           type: string
+          default: null
         link:
           type: string
+          default: null
       required:
       - link
       - linkText
@@ -7121,6 +7658,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UserNotification"
+          default: null
       required:
       - data
       - pagination
@@ -7130,9 +7668,11 @@ components:
         readCount:
           type: integer
           format: int32
+          default: null
         unreadCount:
           type: integer
           format: int32
+          default: null
       required:
       - readCount
       - unreadCount
@@ -7142,6 +7682,7 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         status:
           $ref: "#/components/schemas/NotificationStatus"
       required:
@@ -7154,6 +7695,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SetNotificationStatusRequest.StatusRequest"
+          default: null
       required:
       - notifikasjoner
     Opplaeringtilskudd:
@@ -7162,8 +7704,10 @@ components:
         id:
           type: string
           format: uuid
+          default: null
         navn:
           type: string
+          default: null
         kode:
           $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
       required:
