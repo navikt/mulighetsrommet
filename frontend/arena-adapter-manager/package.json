@@ -23,10 +23,10 @@
   },
   "devDependencies": {
     "@mr/eslint-config-react-app": "workspace:*",
-    "@types/react": "19.0.3",
-    "@types/react-dom": "19.0.4",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.1",
-    "eslint": "10.0.0",
+    "eslint": "10.2.0",
     "typescript": "5.9.3",
     "vite": "8.0.5"
   }
