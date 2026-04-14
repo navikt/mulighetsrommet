@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
@@ -29,24 +29,19 @@ import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.utils.CachedComputation
 import java.time.Duration
 import java.util.UUID
 
 class VeilederflateService(
-    private val config: Config = Config(),
     private val db: ApiDatabase,
+    private val tiltakstypeService: TiltakstypeService,
     private val sanityService: SanityService,
     private val navEnhetService: NavEnhetService,
 ) {
     private val cachedTiltakstyper = CachedComputation<List<VeilederflateTiltakstype>>(
         expireAfterWrite = Duration.ofMinutes(30),
-    )
-
-    data class Config(
-        val features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     )
 
     fun hentInnsatsgrupper(): List<VeilederflateInnsatsgruppe> {
@@ -64,22 +59,22 @@ class VeilederflateService(
             db.session { queries.tiltakstype.getAll() }
                 .filter { it.sanityId != null }
                 .map { tiltakstype ->
-                    val tiltakskode = tiltakstype.tiltakskode
+                    val dto = tiltakstypeService.getById(tiltakstype.id)
                     VeilederflateTiltakstype(
                         id = tiltakstype.id,
                         navn = tiltakstype.navn,
                         innsatsgrupper = tiltakstype.innsatsgrupper,
                         arenakode = tiltakstype.arenakode,
-                        tiltakskode = tiltakskode,
-                        features = tiltakskode?.let { config.features[it] } ?: setOf(),
-                        egenskaper = tiltakskode?.egenskaper ?: setOf(),
-                        tiltaksgruppe = tiltakskode?.gruppe?.tittel,
                         sanityId = tiltakstype.sanityId.toString(),
-                        beskrivelse = tiltakstype.beskrivelse,
-                        regelverkLenker = tiltakstype.faglenker,
-                        faneinnhold = tiltakstype.faneinnhold,
-                        delingMedBruker = tiltakstype.faneinnhold?.delMedBruker,
-                        kanKombineresMed = tiltakstype.kanKombineresMed,
+                        tiltakskode = dto?.tiltakskode,
+                        features = dto?.features.orEmpty(),
+                        egenskaper = dto?.egenskaper.orEmpty(),
+                        tiltaksgruppe = dto?.gruppe,
+                        beskrivelse = dto?.beskrivelse,
+                        regelverkLenker = dto?.faglenker,
+                        faneinnhold = dto?.faneinnhold,
+                        delingMedBruker = dto?.faneinnhold?.delMedBruker,
+                        kanKombineresMed = dto?.kanKombineresMed.orEmpty(),
                     )
                 }
         }

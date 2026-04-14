@@ -410,7 +410,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
     single {
         VeilederflateService(
-            VeilederflateService.Config(appConfig.tiltakstyper.features),
+            get(),
             get(),
             get(),
             get(),
