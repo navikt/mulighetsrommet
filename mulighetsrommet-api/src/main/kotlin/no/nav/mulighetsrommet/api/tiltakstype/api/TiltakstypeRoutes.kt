@@ -113,7 +113,7 @@ fun Route.tiltakstypeRoutes() {
             call.respond(veilederflateTiltakstype)
         }
 
-        authorize(Rolle.AVTALER_SKRIV) {
+        authorize(Rolle.TILTAKSTYPER_SKRIV) {
             post("{id}/redaksjonelt-innhold", {
                 tags = setOf("Tiltakstype")
                 operationId = "upsertTiltakstypeRedaksjoneltInnhold"

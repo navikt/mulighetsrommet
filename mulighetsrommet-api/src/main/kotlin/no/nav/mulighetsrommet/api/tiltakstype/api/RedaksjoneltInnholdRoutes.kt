@@ -39,7 +39,7 @@ fun Route.redaksjoneltInnholdRoutes() {
             call.respond(redaksjoneltInnholdLenkeService.getAll())
         }
 
-        authorize(Rolle.AVTALER_SKRIV) {
+        authorize(Rolle.TILTAKSTYPER_SKRIV) {
             put("{id}", {
                 tags = setOf("RedaksjoneltInnhold")
                 operationId = "upsertLenke"
