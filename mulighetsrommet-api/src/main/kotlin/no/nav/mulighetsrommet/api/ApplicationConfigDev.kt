@@ -143,6 +143,11 @@ val ApplicationConfigDev = AppConfig(
             ),
 
             EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "6918b584-8d32-4bd4-a4f2-96f47ae6dd63".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_tiltakstype-skriv",
+                rolle = Rolle.TILTAKSTYPER_SKRIV,
+            ),
+            EntraGroupNavAnsattRolleMapping(
                 entraGroupId = "48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(),
                 kommentar = "0000-CA-Tiltaksadministrasjon_avtale-skriv",
                 rolle = Rolle.AVTALER_SKRIV,
