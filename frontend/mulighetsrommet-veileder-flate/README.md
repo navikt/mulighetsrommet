@@ -62,7 +62,7 @@ For å generere dette gjør du følgende:
    ```json
    {
      "NAVident": "B123456",
-     "oid": "0bab029e-e84e-4842-8a27-d153b29782cf"
+     "oid": "37ba79a1-c36d-4f45-8608-d582df321ecc"
    }
    ```
 5. Trykk `Sign in`

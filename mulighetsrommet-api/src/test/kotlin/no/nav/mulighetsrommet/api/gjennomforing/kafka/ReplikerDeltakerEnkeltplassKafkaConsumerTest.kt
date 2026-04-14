@@ -13,8 +13,8 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -26,13 +26,13 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
 
     fun createConsumer(
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
-        service: GjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
+    ): ReplikerDeltakerEnkeltplassKafkaConsumer {
+        val service = GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
             mockk(),
-            TiltakstypeService(TiltakstypeService.Config(features), database.db),
-        ),
-    ): ReplikerDeltakerEnkeltplassKafkaConsumer {
+            TiltakstypeService(TiltakstypeService.Config(features), database.db, mockk()),
+        )
         return ReplikerDeltakerEnkeltplassKafkaConsumer(
             db = database.db,
             service = service,

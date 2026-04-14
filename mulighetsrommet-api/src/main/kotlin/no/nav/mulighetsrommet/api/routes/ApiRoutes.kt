@@ -27,7 +27,8 @@ import no.nav.mulighetsrommet.api.plugins.OpenApiVersionHeader
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
-import no.nav.mulighetsrommet.api.tiltakstype.tiltakstypeRoutes
+import no.nav.mulighetsrommet.api.tiltakstype.api.redaksjoneltInnholdRoutes
+import no.nav.mulighetsrommet.api.tiltakstype.api.tiltakstypeRoutes
 import no.nav.mulighetsrommet.api.utbetaling.api.utbetalingRoutes
 import no.nav.mulighetsrommet.api.vedtak.opplaeringtilskuddRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.arbeidsmarkedstiltakRoutes
@@ -115,6 +116,7 @@ fun Route.apiRoutes(config: AppConfig) {
 }
 
 fun Route.tiltaksadministrasjonRoutes() {
+    redaksjoneltInnholdRoutes()
     tiltakstypeRoutes()
     avtaleRoutes()
     gjennomforingRoutes()

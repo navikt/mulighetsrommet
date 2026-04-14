@@ -1,5 +1,5 @@
 import { TiltakstypeIkon } from "@/components/ikoner/TiltakstypeIkon";
-import { TiltakstypeTabell } from "@/components/tabell/TiltakstypeTabell";
+import { TiltakstypeTable } from "@/components/tiltakstype/TiltakstypeTable";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -15,7 +15,7 @@ export function TiltakstyperPage() {
       <ContentBox>
         <ReloadAppErrorBoundary>
           <Suspense fallback={<Skeleton height={500} variant="rounded" />}>
-            <TiltakstypeTabell />
+            <TiltakstypeTable />
           </Suspense>
         </ReloadAppErrorBoundary>
       </ContentBox>

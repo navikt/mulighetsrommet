@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
+import no.nav.mulighetsrommet.api.tiltakstype.db.RedaksjoneltInnholdLenkeQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
@@ -67,6 +68,7 @@ open class QueryContext(open val session: Session) {
         val ansatt = NavAnsattQueries(session)
         val arrangor = ArrangorQueries(session)
         val tiltakstype = TiltakstypeQueries(session)
+        val regelverklenke = RedaksjoneltInnholdLenkeQueries(session)
         val avtale = AvtaleQueries(session)
         val prismodell = PrismodellQueries(session)
         val rammedetaljer = RammedetaljerQueries(session)

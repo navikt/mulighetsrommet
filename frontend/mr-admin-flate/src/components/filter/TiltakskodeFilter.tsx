@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function TiltakskodeFilter({ value, onChange }: Props) {
-  const { data: tiltakstyper } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyper();
   const groups = useTiltakskodeFilter(tiltakstyper);
   return (
     <CheckboxGroup

@@ -24,7 +24,7 @@ export function AvtaleFilterTags({
   filterOpen,
   setTagsHeight,
 }: Props) {
-  const { data: tiltakstyper } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyper();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,
   });

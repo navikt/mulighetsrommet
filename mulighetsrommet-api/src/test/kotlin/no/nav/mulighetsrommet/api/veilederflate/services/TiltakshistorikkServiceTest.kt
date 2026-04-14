@@ -18,8 +18,8 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseEierskap
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePamelding
@@ -222,7 +222,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     fun createTiltakshistorikkService(isEnabled: () -> Boolean = { false }) = TiltakshistorikkService(
         historiskeIdenterQuery = historiskeIdenterQuery,
-        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(migrertConfig), database.db),
+        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(migrertConfig), database.db, mockk()),
         amtDeltakerClient = amtDeltakerClient,
         tiltakshistorikkClient = tiltakshistorikkClient,
         features = object : FeatureToggleService {

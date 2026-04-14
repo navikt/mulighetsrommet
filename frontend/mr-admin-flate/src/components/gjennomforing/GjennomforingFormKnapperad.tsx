@@ -1,22 +1,17 @@
-import { Button } from "@navikt/ds-react";
-import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
-import { SkjemaKnapperad } from "@/components/skjema/SkjemaKnapperad";
+import { FormButtons } from "@/components/skjema/FormButtons";
 
 interface Props {
   redigeringsModus: boolean;
   onClose: () => void;
   isPending: boolean;
 }
+
 export function GjennomforingFormKnapperad({ redigeringsModus, onClose, isPending }: Props) {
   return (
-    <SkjemaKnapperad>
-      <ValideringsfeilOppsummering />
-      <Button size="small" onClick={onClose} variant="tertiary" type="button" disabled={isPending}>
-        Avbryt
-      </Button>
-      <Button size="small" type="submit" disabled={isPending}>
-        {isPending ? "Lagrer..." : redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
-      </Button>
-    </SkjemaKnapperad>
+    <FormButtons
+      onCancel={onClose}
+      isPending={isPending}
+      submitLabel={isPending ? "Lagrer..." : redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
+    />
   );
 }

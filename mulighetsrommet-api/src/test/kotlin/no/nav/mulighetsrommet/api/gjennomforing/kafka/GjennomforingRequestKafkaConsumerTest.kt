@@ -21,8 +21,8 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -58,7 +58,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
     ): GjennomforingRequestKafkaConsumer {
         return GjennomforingRequestKafkaConsumer(
             arrangorer = arrangorer,
-            tiltakstyper = TiltakstypeService(config = tiltakstypeConfig, db = database.db),
+            tiltakstyper = TiltakstypeService(config = tiltakstypeConfig, db = database.db, sanityService = mockk()),
             enkeltplasser = enkeltplasser,
         )
     }
@@ -68,7 +68,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
             mockk(),
-            TiltakstypeService(TiltakstypeService.Config(), database.db),
+            TiltakstypeService(TiltakstypeService.Config(), database.db, mockk()),
         )
 
         val gjennomforingId = UUID.randomUUID()

@@ -15,8 +15,8 @@ import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
@@ -54,7 +54,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             config = GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             db = database.db,
             personaliaService = mockk(),
-            tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.db),
+            tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.db, mockk()),
         )
     }
 

@@ -12,6 +12,7 @@ export const QueryKeys = {
   beregnTilsagn: (req: string) => ["beregn-tilsagn", req] as const,
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
   tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
+  redaksjoneltInnholdLenker: () => ["redaksjonelt-innhold", "lenker"] as const,
   oppgaver: (filter?: object) => ["oppgaver", { ...filter }] as const,
   oppgavetyper: () => ["oppgaver", "oppgavetyper"] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,

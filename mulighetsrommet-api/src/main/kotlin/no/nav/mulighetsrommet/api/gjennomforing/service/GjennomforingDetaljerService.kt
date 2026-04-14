@@ -24,9 +24,9 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeFilter
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -83,7 +83,7 @@ class GjennomforingDetaljerService(
         }
     }
 
-    fun getAllKompaktDto(
+    suspend fun getAllKompaktDto(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
@@ -113,7 +113,7 @@ class GjennomforingDetaljerService(
         }
     }
 
-    fun exportToExcel(
+    suspend fun exportToExcel(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): File {

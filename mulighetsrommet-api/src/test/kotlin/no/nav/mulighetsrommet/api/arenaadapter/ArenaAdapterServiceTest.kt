@@ -22,8 +22,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleServi
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
@@ -44,27 +44,34 @@ class ArenaAdapterServiceTest : FunSpec({
         sanityService: SanityService = mockk(),
         personaliaService: PersonaliaService = mockk(),
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
-    ) = ArenaAdapterService(
-        db = database.db,
-        sanityService = sanityService,
-        arrangorService = ArrangorService(database.db, mockk(), mockk()),
-        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db),
-        gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
-            GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+    ): ArenaAdapterService {
+        val tiltakstypeService = TiltakstypeService(
+            TiltakstypeService.Config(features),
             database.db,
-            personaliaService,
-            TiltakstypeService(TiltakstypeService.Config(features), database.db),
-        ),
-        gjennomforingAvtaleService = GjennomforingAvtaleService(
-            GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+            mockk(relaxed = true),
+        )
+        return ArenaAdapterService(
             db = database.db,
-            navAnsattService = mockk(),
-        ),
-        gjennomforingArenaService = GjennomforingArenaService(
-            GjennomforingArenaService.Config(TEST_GJENNOMFORING_V2_TOPIC),
-            database.db,
-        ),
-    )
+            sanityService = sanityService,
+            arrangorService = ArrangorService(database.db, mockk(), mockk()),
+            tiltakstypeService = tiltakstypeService,
+            gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
+                GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+                database.db,
+                personaliaService,
+                tiltakstypeService,
+            ),
+            gjennomforingAvtaleService = GjennomforingAvtaleService(
+                GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+                db = database.db,
+                navAnsattService = mockk(),
+            ),
+            gjennomforingArenaService = GjennomforingArenaService(
+                GjennomforingArenaService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+                database.db,
+            ),
+        )
+    }
 
     context("tiltak i egen regi") {
         val gjennomforing = ArenaGjennomforingDbo(

@@ -7,7 +7,7 @@ import { tiltakstypeFilterStateAtom } from "@/pages/tiltakstyper/filter";
 import { useFilterState } from "@/filter/useFilterState";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 
-export function TiltakstypeTabell() {
+export function TiltakstypeTable() {
   const { filter, updateFilter } = useFilterState(tiltakstypeFilterStateAtom);
 
   const sort = filter.values.sort?.tableSort;
@@ -26,7 +26,7 @@ export function TiltakstypeTabell() {
     });
   };
 
-  const { data: tiltakstyper } = useTiltakstyper(filter.values);
+  const tiltakstyper = useTiltakstyper(filter.values);
 
   return (
     <TabellWrapper className="m-0">

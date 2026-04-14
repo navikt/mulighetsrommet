@@ -1504,7 +1504,7 @@ components:
           - "null"
           - array
           items:
-            $ref: "#/components/schemas/RegelverkLenke"
+            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
           default: null
         faneinnhold:
           oneOf:
@@ -1556,6 +1556,7 @@ components:
       - VISES_I_TILTAKSADMINISTRASJON
       - MIGRERT
       - UTFASET
+      - MIGRERT_REDAKSJONELT_INNHOLD
     TiltakstypeEgenskap:
       type: string
       enum:
@@ -1564,10 +1565,17 @@ components:
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
-    RegelverkLenke:
+    RedaksjoneltInnholdLenke:
       type: object
       properties:
-        _id:
+        id:
+          type: string
+          format: uuid
+          default: null
+        url:
+          type: string
+          default: null
+        navn:
           type:
           - "null"
           - string
@@ -1577,21 +1585,11 @@ components:
           - "null"
           - string
           default: null
-        regelverkUrl:
-          type:
-          - "null"
-          - string
-          default: null
-        regelverkLenkeNavn:
-          type:
-          - "null"
-          - string
-          default: null
       required:
-      - _id
       - beskrivelse
-      - regelverkLenkeNavn
-      - regelverkUrl
+      - id
+      - navn
+      - url
     Faneinnhold:
       type: object
       properties:

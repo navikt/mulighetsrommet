@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tiltakstype.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
@@ -25,6 +26,24 @@ data class TiltakstypeDto(
     val sanityId: UUID?,
     val features: Set<TiltakstypeFeature>,
     val egenskaper: Set<TiltakstypeEgenskap>,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+    val faglenker: List<RedaksjoneltInnholdLenke>,
+    val kanKombineresMed: List<String>,
+)
+
+@Serializable
+data class TiltakstypeRedaksjoneltInnholdRequest(
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+    val faglenker: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
+    val kanKombineresMed: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
 )
 
 enum class TiltakstypeFeature {
@@ -42,4 +61,9 @@ enum class TiltakstypeFeature {
      * Kan fortsatt redigeres, men ikke opprettes nye.
      */
     UTFASET,
+
+    /**
+     * Redaksjonelt innhold hentes fra databasen i stedet for Sanity.
+     */
+    MIGRERT_REDAKSJONELT_INNHOLD,
 }

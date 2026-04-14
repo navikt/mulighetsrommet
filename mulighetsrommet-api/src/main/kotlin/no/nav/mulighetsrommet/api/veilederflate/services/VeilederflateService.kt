@@ -61,30 +61,27 @@ class VeilederflateService(
 
     suspend fun hentTiltakstyper(): List<VeilederflateTiltakstype> {
         return cachedTiltakstyper.getOrCompute {
-            val bySanityId = db.session { queries.tiltakstype.getAll() }
+            db.session { queries.tiltakstype.getAll() }
                 .filter { it.sanityId != null }
-                .associateBy { it.sanityId }
-
-            sanityService.getTiltakstyper().mapNotNull { sanityTiltakstype ->
-                val tiltakstype = bySanityId[UUID.fromString(sanityTiltakstype._id)] ?: return@mapNotNull null
-                val tiltakskode = tiltakstype.tiltakskode
-                VeilederflateTiltakstype(
-                    id = tiltakstype.id,
-                    navn = tiltakstype.navn,
-                    innsatsgrupper = tiltakstype.innsatsgrupper,
-                    arenakode = tiltakstype.arenakode,
-                    tiltakskode = tiltakskode,
-                    features = tiltakskode?.let { config.features[it] } ?: setOf(),
-                    egenskaper = tiltakskode?.egenskaper ?: setOf(),
-                    tiltaksgruppe = tiltakskode?.gruppe?.tittel,
-                    sanityId = sanityTiltakstype._id,
-                    beskrivelse = sanityTiltakstype.beskrivelse,
-                    regelverkLenker = sanityTiltakstype.regelverkLenker,
-                    faneinnhold = sanityTiltakstype.faneinnhold,
-                    delingMedBruker = sanityTiltakstype.delingMedBruker,
-                    kanKombineresMed = sanityTiltakstype.kanKombineresMed,
-                )
-            }
+                .map { tiltakstype ->
+                    val tiltakskode = tiltakstype.tiltakskode
+                    VeilederflateTiltakstype(
+                        id = tiltakstype.id,
+                        navn = tiltakstype.navn,
+                        innsatsgrupper = tiltakstype.innsatsgrupper,
+                        arenakode = tiltakstype.arenakode,
+                        tiltakskode = tiltakskode,
+                        features = tiltakskode?.let { config.features[it] } ?: setOf(),
+                        egenskaper = tiltakskode?.egenskaper ?: setOf(),
+                        tiltaksgruppe = tiltakskode?.gruppe?.tittel,
+                        sanityId = tiltakstype.sanityId.toString(),
+                        beskrivelse = tiltakstype.beskrivelse,
+                        regelverkLenker = tiltakstype.faglenker,
+                        faneinnhold = tiltakstype.faneinnhold,
+                        delingMedBruker = tiltakstype.faneinnhold?.delMedBruker,
+                        kanKombineresMed = tiltakstype.kanKombineresMed,
+                    )
+                }
         }
     }
 
