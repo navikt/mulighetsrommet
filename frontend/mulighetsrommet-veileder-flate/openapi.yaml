@@ -1909,6 +1909,8 @@ components:
           - string
         apentForPamelding:
           type: boolean
+        lopenummer:
+          type: string
         oppstartsdato:
           type: string
           format: date
@@ -1939,6 +1941,7 @@ components:
       - fylker
       - id
       - kontaktinfo
+      - lopenummer
       - navn
       - oppmoteSted
       - oppstart

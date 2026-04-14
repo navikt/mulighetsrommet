@@ -215,6 +215,7 @@ class VeilederflateService(
             estimertVentetid = gjennomforing.estimertVentetid,
             personvernBekreftet = gjennomforing.personvernBekreftet,
             personopplysningerSomKanBehandles = gjennomforing.personopplysningerSomKanBehandles,
+            lopenummer = gjennomforing.lopenummer,
         )
     }
 
