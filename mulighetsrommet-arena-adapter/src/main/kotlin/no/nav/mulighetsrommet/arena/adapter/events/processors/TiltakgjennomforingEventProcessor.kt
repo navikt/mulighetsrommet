@@ -181,9 +181,14 @@ class TiltakgjennomforingEventProcessor(
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, sanityId: UUID?) = Either
         .catch {
-            requireNotNull(DATO_FRA)
-            requireNotNull(LOKALTNAVN)
-            requireNotNull(ARBGIV_ID_ARRANGOR)
+            val fraDato = ArenaUtils.parseTimestamp(requireNotNull(DATO_FRA))
+            val navn = requireNotNull(LOKALTNAVN)
+            val arrangorId = requireNotNull(ARBGIV_ID_ARRANGOR)
+
+            val tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL)
+            if (tilDato != null) {
+                check(fraDato <= tilDato) { "ugyldig tilDato" }
+            }
 
             Tiltaksgjennomforing(
                 id = id,
@@ -191,10 +196,10 @@ class TiltakgjennomforingEventProcessor(
                 tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
                 sakId = SAK_ID,
                 tiltakskode = TILTAKSKODE,
-                arrangorId = ARBGIV_ID_ARRANGOR,
-                navn = LOKALTNAVN,
-                fraDato = ArenaUtils.parseTimestamp(DATO_FRA),
-                tilDato = ArenaUtils.parseNullableTimestamp(DATO_TIL),
+                arrangorId = arrangorId,
+                navn = navn,
+                fraDato = fraDato,
+                tilDato = tilDato,
                 apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
                 antallPlasser = ANTALL_DELTAKERE,
                 status = TILTAKSTATUSKODE,
