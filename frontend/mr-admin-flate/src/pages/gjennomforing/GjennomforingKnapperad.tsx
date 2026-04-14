@@ -4,6 +4,7 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
+import { GodkjennOkonomiModal } from "@/components/gjennomforing/GodkjennOkonomiModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { ExternalLinkIcon, LayersPlusIcon } from "@navikt/aksel-icons";
@@ -38,6 +39,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
+  const [godkjennOkonomiModalOpen, setGodkjennOkonomiModalOpen] = useState<boolean>(false);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
@@ -127,6 +129,14 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
             Dupliser
           </ActionMenu.Item>
         )}
+        {handlinger.includes(GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI) && (
+          <ActionMenu.Item
+            onClick={() => setGodkjennOkonomiModalOpen(true)}
+            icon={<LayersPlusIcon aria-hidden />}
+          >
+            Godkjenn økonomi
+          </ActionMenu.Item>
+        )}
       </Handlinger>
       <VarselModal
         modalRef={advarselModal}
@@ -152,6 +162,11 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
       <AvbrytGjennomforingModal
         open={avbrytModalOpen}
         setOpen={setAvbrytModalOpen}
+        gjennomforingId={gjennomforing.id}
+      />
+      <GodkjennOkonomiModal
+        open={godkjennOkonomiModalOpen}
+        setOpen={setGodkjennOkonomiModalOpen}
         gjennomforingId={gjennomforing.id}
       />
     </KnapperadContainer>

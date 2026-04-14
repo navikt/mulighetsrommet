@@ -1,19 +1,27 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -21,11 +29,13 @@ import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 
 class GjennomforingEnkeltplassServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
+        ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
         gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
     )
 
@@ -52,14 +62,100 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
     val migrert = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT))
 
+    val opprettetAv = NavAnsattFixture.DonaldDuck.navIdent
+    val besluttetAv = NavAnsattFixture.MikkeMus.navIdent
+
+    fun createEnkeltplass() = UpsertGjennomforingEnkeltplass(
+        id = UUID.randomUUID(),
+        tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        arrangorId = GjennomforingFixtures.EnkelAmo.arrangorId,
+        startDato = LocalDate.of(2025, 1, 1),
+        sluttDato = LocalDate.of(2025, 6, 1),
+        status = GjennomforingStatusType.GJENNOMFORES,
+        ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
+        prisbetingelser = null,
+    )
+
+    context("opprettelse gjennomføring") {
+        val service = createService()
+
+        test("oppretter totrinnskontroll når gjennomføringen opprettes av navident") {
+            val gjennomforing = createEnkeltplass()
+            service.create(gjennomforing, opprettetAv).shouldBeRight()
+
+            database.run {
+                queries.totrinnskontroll.getOrError(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).should {
+                    it.behandletAv shouldBe opprettetAv
+                    it.besluttelse.shouldBeNull()
+                }
+            }
+        }
+
+        test("oppretter ikke totrinnskontroll når gjennomføringen opprettes av Arena") {
+            val gjennomforing = createEnkeltplass()
+            service.create(gjennomforing, Arena).shouldBeRight()
+
+            database.run {
+                queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).shouldBeNull()
+            }
+        }
+    }
+    context("godkjennOkonomi") {
+        val service = createService()
+
+        test("godkjenner økonomi og setter besluttelse til GODKJENT") {
+            val gjennomforing = createEnkeltplass()
+            service.create(gjennomforing, opprettetAv).shouldBeRight()
+
+            service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
+
+            database.run {
+                queries.totrinnskontroll.getOrError(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).should {
+                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                    it.besluttetAv shouldBe besluttetAv
+                }
+            }
+        }
+
+        test("returnerer feil når behandletAv og besluttetAv er samme person") {
+            val gjennomforing = createEnkeltplass()
+            service.create(gjennomforing, opprettetAv).shouldBeRight()
+
+            service.godkjennOkonomi(gjennomforing.id, opprettetAv)
+                .shouldBeLeft()
+                .first().detail shouldBe "Du kan ikke godkjenne økonomi for en gjennomføring du selv har opprettet"
+        }
+    }
+
+    context("avslaaOkonomi") {
+        val service = createService()
+
+        test("avslår økonomi og setter besluttelse til AVVIST") {
+            val gjennomforing = createEnkeltplass()
+            service.create(gjennomforing, opprettetAv).shouldBeRight()
+
+            service.avvisOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil").shouldBeRight()
+
+            database.run {
+                queries.totrinnskontroll.getOrError(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).should {
+                    it.besluttelse shouldBe Besluttelse.AVVIST
+                    it.besluttetAv shouldBe besluttetAv
+                    it.forklaring shouldBe "Feil"
+                }
+            }
+        }
+    }
+
     context("updateFromDeltaker") {
+        val service = createService()
+
         test("lagrer hash av norsk ident i fritekstsøk for aktiv deltaker") {
             val deltaker = DeltakerFixtures.createDeltaker(
                 gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                 status = DeltakerStatusType.DELTAR,
             )
 
-            createService().updateFromDeltaker(deltaker, norskIdent)
+            service.updateFromDeltaker(deltaker, norskIdent)
 
             database.run {
                 queries.gjennomforing.getAll(search = "12345678910").items.shouldBeEmpty()
@@ -75,7 +171,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 status = DeltakerStatusType.FEILREGISTRERT,
             )
 
-            createService().updateFromDeltaker(deltaker, norskIdent)
+            service.updateFromDeltaker(deltaker, norskIdent)
 
             database.run {
                 queries.gjennomforing.getAll(
@@ -99,7 +195,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.DELTAR,
                 )
 
-                createService().updateFromDeltaker(deltaker, norskIdent)
+                service.updateFromDeltaker(deltaker, norskIdent)
             }
 
             test("kaster exception når gjennomføringen allerede har en annen deltaker") {
@@ -116,7 +212,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 )
 
                 shouldThrow<IllegalStateException> {
-                    createService().updateFromDeltaker(nyDeltaker, norskIdent)
+                    service.updateFromDeltaker(nyDeltaker, norskIdent)
                 }.message shouldBe "Enkeltplass med id=${GjennomforingFixtures.EnkelAmo.id} har allerede en annen deltaker"
             }
         }
@@ -130,7 +226,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2026, 6, 1),
                 )
 
-                val gjennomforing = createService().updateFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = service.updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
                 gjennomforing.sluttDato shouldBe GjennomforingFixtures.EnkelAmo.sluttDato
@@ -143,7 +239,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.DELTAR,
                 )
 
-                createService().updateFromDeltaker(deltaker, norskIdent)
+                service.updateFromDeltaker(deltaker, norskIdent)
 
                 database.run {
                     queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldBeEmpty()

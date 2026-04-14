@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
+import arrow.core.Either
 import arrow.core.getOrNone
 import arrow.core.left
 import arrow.core.nel
@@ -19,38 +20,48 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.toDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.validation.Validated
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 data class UpsertGjennomforingEnkeltplass(
     val id: UUID,
     val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
-    val navn: String?,
-    val startDato: LocalDate?,
-    val sluttDato: LocalDate?,
     val status: GjennomforingStatusType,
     val prisbetingelser: String?,
-    val deltidsprosent: Double,
-    val antallPlasser: Int,
     val ansvarligEnhet: NavEnhetNummer,
-    val arenaTiltaksnummer: Tiltaksnummer?,
-    val arenaAnsvarligEnhet: String?,
+    val startDato: LocalDate? = null,
+    val sluttDato: LocalDate? = null,
+    val navn: String? = null,
+    val deltidsprosent: Double = 100.0,
+    val antallPlasser: Int = 1,
+    val arenaTiltaksnummer: Tiltaksnummer? = null,
+    val arenaAnsvarligEnhet: String? = null,
 )
 
 class GjennomforingEnkeltplassService(
@@ -63,13 +74,20 @@ class GjennomforingEnkeltplassService(
         val gjennomforingV2Topic: String,
     )
 
-    fun create(create: UpsertGjennomforingEnkeltplass): Validated<GjennomforingEnkeltplass> = db.transaction {
+    fun create(create: UpsertGjennomforingEnkeltplass, agent: Agent): Validated<GjennomforingEnkeltplass> = db.transaction {
         if (queries.gjennomforing.getGjennomforing(create.id) != null) {
             return FieldError.of("Gjennomføringen er allerede opprettet").nel().left()
         }
 
         upsert(create)
-            .also { updateFreeTextSearch(it, null) }
+            .also {
+                when (agent) {
+                    is Arena -> Unit
+                    is NavIdent -> createTotrinnskontroll(it.id, Totrinnskontroll.Type.OKONOMI, agent)
+                    Tiltaksadministrasjon, Arrangor -> error("$agent er ikke tillatt å opprette enkeltplasser")
+                }
+            }
+            .also { updateFreeTextSearch(it, norskIdent = null) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
             .right()
     }
@@ -141,6 +159,45 @@ class GjennomforingEnkeltplassService(
         }
     }
 
+    fun godkjennOkonomi(id: UUID, navIdent: NavIdent): Either<List<FieldError>, GjennomforingEnkeltplass> = db.transaction {
+        val gjennomforing = getOrError(id)
+
+        val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OKONOMI)
+        if (opprettelse.behandletAv == navIdent) {
+            return FieldError.of("Du kan ikke godkjenne økonomi for en gjennomføring du selv har opprettet")
+                .nel()
+                .left()
+        }
+
+        val godkjentOpprettelse = opprettelse.copy(
+            besluttetAv = navIdent,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.GODKJENT,
+        )
+        queries.totrinnskontroll.upsert(godkjentOpprettelse.toDbo())
+
+        gjennomforing.right()
+    }
+
+    fun avvisOkonomi(
+        id: UUID,
+        navIdent: NavIdent,
+        forklaring: String?,
+    ): Either<List<FieldError>, GjennomforingEnkeltplass> = db.transaction {
+        val gjennomforing = getOrError(id)
+
+        val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OKONOMI)
+        val avvistOpprettelse = opprettelse.copy(
+            besluttetAv = navIdent,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.AVVIST,
+            forklaring = forklaring,
+        )
+        queries.totrinnskontroll.upsert(avvistOpprettelse.toDbo())
+
+        gjennomforing.right()
+    }
+
     private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID, accessType: AccessType): Personalia? {
         val deltaker = getDeltaker(gjennomforingId)
         return deltaker
@@ -190,6 +247,26 @@ class GjennomforingEnkeltplassService(
         return getOrError(dbo.id)
     }
 
+    private fun QueryContext.createTotrinnskontroll(
+        gjennomforingId: UUID,
+        type: Totrinnskontroll.Type,
+        behandletAv: Agent,
+    ) {
+        val dbo = TotrinnskontrollDbo(
+            id = UUID.randomUUID(),
+            entityId = gjennomforingId,
+            type = type,
+            behandletAv = behandletAv,
+            behandletTidspunkt = LocalDateTime.now(),
+            aarsaker = emptyList(),
+            forklaring = null,
+            besluttelse = null,
+            besluttetAv = null,
+            besluttetTidspunkt = null,
+        )
+        queries.totrinnskontroll.upsert(dbo)
+    }
+
     private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingEnkeltplass, norskIdent: NorskIdent?) {
         val fts = listOf(gjennomforing.arrangor.navn) +
             gjennomforing.lopenummer.toFreeTextSearch() +
@@ -211,9 +288,9 @@ class GjennomforingEnkeltplassService(
                 type = PrismodellType.ANNEN_AVTALT_PRIS,
                 valuta = Valuta.NOK,
                 prisbetingelser = prisbetingelser,
+                tilsagnPerDeltaker = true,
                 satser = null,
                 systemId = null,
-                tilsagnPerDeltaker = false,
             )
             queries.prismodell.upsert(prismodellDbo)
             queries.prismodell.getOrError(prismodellDbo.id)

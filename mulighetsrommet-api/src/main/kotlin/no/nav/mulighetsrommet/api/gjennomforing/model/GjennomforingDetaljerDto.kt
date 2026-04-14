@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AmoKategoriseringDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -30,6 +31,7 @@ data class GjennomforingDetaljerDto(
     val prismodell: PrismodellDto,
     val amoKategorisering: AmoKategoriseringDto?,
     val utdanningslop: UtdanningslopDto?,
+    val okonomi: TotrinnskontrollDto?,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -127,7 +129,7 @@ data class GjennomforingEnkeltplassDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val status: Status,
-    val ansvarligEnhet: AnsvarligEnhet?,
+    val ansvarligEnhet: AnsvarligEnhet,
 ) : GjennomforingDto()
 
 @Serializable

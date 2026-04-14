@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
@@ -73,6 +74,7 @@ fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
     val avtaleGjennomforinger: GjennomforingAvtaleService by inject()
     val gjennomforinger: GjennomforingDetaljerService by inject()
+    val enkeltplasser: GjennomforingEnkeltplassService by inject()
 
     route("gjennomforinger") {
         authorize(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) {
@@ -327,6 +329,62 @@ fun Route.gjennomforingRoutes() {
                 )
 
                 call.respond(HttpStatusCode.OK)
+            }
+        }
+
+        authorize(Rolle.BESLUTTER_TILSAGN) {
+            post("{id}/godkjenn-okonomi", {
+                tags = setOf("Gjennomforing")
+                operationId = "godkjennGjennomforingOkonomi"
+                request {
+                    pathParameterUuid("id")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Økonomi ble godkjent"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+
+                val result = enkeltplasser.godkjennOkonomi(id, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            post("{id}/avsla-okonomi", {
+                tags = setOf("Gjennomforing")
+                operationId = "avslaaGjennomforingOkonomi"
+                request {
+                    pathParameterUuid("id")
+                    body<AvslaaOkonomiRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Økonomi ble avslått"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+                val request = call.receive<AvslaaOkonomiRequest>()
+
+                val result = enkeltplasser.avvisOkonomi(id, navIdent, request.forklaring)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
             }
         }
 
@@ -680,6 +738,11 @@ data class PublisertRequest(
 )
 
 @Serializable
+data class AvslaaOkonomiRequest(
+    val forklaring: String? = null,
+)
+
+@Serializable
 data class SetApentForPameldingRequest(
     val apentForPamelding: Boolean,
 )
@@ -753,4 +816,5 @@ enum class GjennomforingHandling {
     OPPRETT_EKSTRATILSAGN,
     OPPRETT_TILSAGN_FOR_INVESTERINGER,
     OPPRETT_UTBETALING,
+    GODKJENN_ENKELTPLASS_OKONOMI,
 }
