@@ -3,7 +3,7 @@ import { ArrangorerTabell } from "@/components/tabell/ArrangorerTabell";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import { FilterTagsContainer, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { arrangorerFilterStateAtom } from "@/pages/arrangor/filter";
@@ -54,7 +54,11 @@ export function ArrangorerPage() {
             nullstillFilterButton={
               hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null
             }
-            tags={tag}
+            tags={
+              <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={() => {}}>
+                {tag}
+              </FilterTagsContainer>
+            }
             buttons={null}
             table={
               <ArrangorerTabell
