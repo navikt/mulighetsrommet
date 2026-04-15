@@ -10,6 +10,7 @@ import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormCheckbox } from "@/components/skjema/FormCheckbox";
 import { FormListInput } from "@/components/skjema/FormListInput";
+import { fp } from "@/components/skjema/helpers";
 
 interface Props {
   path: string;
@@ -18,8 +19,6 @@ interface Props {
 }
 
 export function RedaksjoneltInnholdForm({ path, description, tiltakstype }: Props) {
-  const fp = (suffix: string) => [path, suffix].filter(Boolean).join(".");
-
   const veilederinfo = tiltakstype?.veilederinfo;
   return (
     <RedaksjoneltInnholdContainer>
@@ -29,7 +28,7 @@ export function RedaksjoneltInnholdForm({ path, description, tiltakstype }: Prop
       <Alert size="small" variant="info">
         Ikke del personopplysninger i fritekstfeltene
       </Alert>
-      <FormTextarea name={fp("beskrivelse")} description={description} label="Beskrivelse" />
+      <FormTextarea name={fp(path, "beskrivelse")} description={description} label="Beskrivelse" />
       {veilederinfo?.beskrivelse && (
         <>
           <Heading size="medium">Generell informasjon</Heading>
@@ -55,8 +54,6 @@ interface TabPanelProps {
 }
 
 function ForHvem({ tiltakstype, path }: TabPanelProps) {
-  const fp = (suffix: string) => [path, suffix].filter(Boolean).join(".");
-
   return (
     <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.forHvemInfoboks && (
@@ -70,12 +67,12 @@ function ForHvem({ tiltakstype, path }: TabPanelProps) {
       <Separator />
       <DescriptionRichtextContainer>
         <FormTextarea
-          name={fp("faneinnhold.forHvemInfoboks")}
+          name={fp(path, "faneinnhold.forHvemInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «For hvem»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name={fp("faneinnhold.forHvem")}
+          name={fp(path, "faneinnhold.forHvem")}
           label="For hvem"
           description="Beskrivelse av hvem tiltakstypen passer for. Husk å bruke et kort og konsist språk."
         />
@@ -85,8 +82,6 @@ function ForHvem({ tiltakstype, path }: TabPanelProps) {
 }
 
 function DetaljerOgInnhold({ tiltakstype, path }: TabPanelProps) {
-  const fp = (suffix: string) => [path, suffix].filter(Boolean).join(".");
-
   return (
     <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks && (
@@ -99,12 +94,12 @@ function DetaljerOgInnhold({ tiltakstype, path }: TabPanelProps) {
 
       <DescriptionRichtextContainer>
         <FormTextarea
-          name={fp("faneinnhold.detaljerOgInnholdInfoboks")}
+          name={fp(path, "faneinnhold.detaljerOgInnholdInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Detaljer og innhold»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name={fp("faneinnhold.detaljerOgInnhold")}
+          name={fp(path, "faneinnhold.detaljerOgInnhold")}
           label="Detaljer og innhold"
           description="Beskrivelse av detaljer og innhold for tiltakstypen. Husk å bruke et kort og konsist språk."
         />
@@ -114,8 +109,6 @@ function DetaljerOgInnhold({ tiltakstype, path }: TabPanelProps) {
 }
 
 function PameldingOgVarighet({ tiltakstype, path }: TabPanelProps) {
-  const fp = (suffix: string) => [path, suffix].filter(Boolean).join(".");
-
   return (
     <VStack className="mt-4">
       {tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks && (
@@ -128,12 +121,12 @@ function PameldingOgVarighet({ tiltakstype, path }: TabPanelProps) {
 
       <DescriptionRichtextContainer>
         <FormTextarea
-          name={fp("faneinnhold.pameldingOgVarighetInfoboks")}
+          name={fp(path, "faneinnhold.pameldingOgVarighetInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Påmelding og varighet»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name={fp("faneinnhold.pameldingOgVarighet")}
+          name={fp(path, "faneinnhold.pameldingOgVarighet")}
           label="Påmelding og varighet"
           description="Beskrivelse av rutiner rundt påmelding og varighet i tiltaket. Husk å bruke et kort og konsist språk."
         />
@@ -143,18 +136,16 @@ function PameldingOgVarighet({ tiltakstype, path }: TabPanelProps) {
 }
 
 function Kontaktinfo({ path }: { path: string }) {
-  const fp = (suffix: string) => [path, suffix].filter(Boolean).join(".");
-
   return (
     <VStack className="mt-4">
       <VStack gap="space-20">
         <FormTextarea
-          name={fp("faneinnhold.kontaktinfoInfoboks")}
+          name={fp(path, "faneinnhold.kontaktinfoInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Kontaktinfo»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name={fp("faneinnhold.kontaktinfo")}
+          name={fp(path, "faneinnhold.kontaktinfo")}
           label="Kontaktinfo"
           description="Ekstra tekst om kontaktinfo."
         />
@@ -164,12 +155,10 @@ function Kontaktinfo({ path }: { path: string }) {
 }
 
 function DelMedBruker({ path }: TabPanelProps) {
-  const fp = (suffix: string) => [path, suffix].filter(Boolean).join(".");
-
   return (
     <VStack className="mt-4">
       <FormTextarea
-        name={fp("faneinnhold.delMedBruker")}
+        name={fp(path, "faneinnhold.delMedBruker")}
         label="Del med bruker"
         description='Bruk denne tekstboksen for å redigere teksten som sendes til bruker når man deler et tiltak. Det blir automatisk lagt til en "Hei" og en "Hilsen".'
       />
@@ -178,22 +167,19 @@ function DelMedBruker({ path }: TabPanelProps) {
 }
 
 function RedaksjoneltInnholdLenkerForm({ path }: TabPanelProps) {
-  const fp = (suffix: string) => [path, suffix].filter(Boolean).join(".");
-
+  const name = fp(path, "faneinnhold.lenker");
   return (
     <FormListInput
-      name={fp("faneinnhold.lenker")}
+      name={name}
       addButtonLabel="Registrer ny lenke"
       emptyItem={{ lenke: "", lenkenavn: "", apneINyFane: true, visKunForVeileder: false }}
       renderItem={(index) => (
         <HStack gap="space-8">
-          <FormTextField name={fp(`faneinnhold.lenker.${index}.lenke`)} label="URL" />
-          <FormTextField name={fp(`faneinnhold.lenker.${index}.lenkenavn`)} label="Lenketekst" />
+          <FormTextField name={fp(name, index, "lenke")} label="URL" />
+          <FormTextField name={fp(name, index, "lenkenavn")} label="Lenketekst" />
           <HStack gap="space-8">
-            <FormCheckbox name={fp(`faneinnhold.lenker.${index}.apneINyFane`)}>
-              Åpne i ny fane
-            </FormCheckbox>
-            <FormCheckbox name={fp(`faneinnhold.lenker.${index}.visKunForVeileder`)}>
+            <FormCheckbox name={fp(name, index, "apneINyFane")}>Åpne i ny fane</FormCheckbox>
+            <FormCheckbox name={fp(name, index, index, "visKunForVeileder")}>
               Vis kun i Modia
             </FormCheckbox>
           </HStack>

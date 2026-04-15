@@ -11,3 +11,7 @@ export function applyValidationErrors<T extends FieldValues>(
     form.setError(name, { type: "custom", message: e.detail });
   });
 }
+
+export function fp(...parts: (string | number)[]): string {
+  return [...parts].filter((part) => part !== "").join(".");
+}
