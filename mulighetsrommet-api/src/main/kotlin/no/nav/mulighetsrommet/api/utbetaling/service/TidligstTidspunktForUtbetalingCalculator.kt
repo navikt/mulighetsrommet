@@ -21,20 +21,7 @@ val tidligstTidspunktForUtbetalingProd = TidligstTidspunktForUtbetalingCalculato
             .atZone(ZoneId.of("Europe/Oslo"))
             .toInstant()
 
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.HOYERE_UTDANNING,
-        Tiltakskode.JOBBKLUBB,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
-        Tiltakskode.STUDIESPESIALISERING,
-        Tiltakskode.FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-        -> null
+        else -> null
     }
 }
 
@@ -50,19 +37,6 @@ val tidligstTidspunktForUtbetalingDev = TidligstTidspunktForUtbetalingCalculator
             .atZone(ZoneId.of("Europe/Oslo"))
             .toInstant()
 
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.HOYERE_UTDANNING,
-        Tiltakskode.JOBBKLUBB,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
-        Tiltakskode.STUDIESPESIALISERING,
-        Tiltakskode.FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-        -> null
+        else -> null
     }
 }

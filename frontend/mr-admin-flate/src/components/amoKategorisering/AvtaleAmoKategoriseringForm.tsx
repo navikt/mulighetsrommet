@@ -13,28 +13,14 @@ interface Props {
 }
 
 export function AvtaleAmoKategoriseringForm({ tiltakskode }: Props) {
-  switch (tiltakskode) {
-    case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
-    case Tiltakskode.ARBEIDSRETTET_REHABILITERING:
-    case Tiltakskode.AVKLARING:
-    case Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK:
-    case Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING:
-    case Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING:
-    case Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING:
-    case Tiltakskode.HOYERE_UTDANNING:
-    case Tiltakskode.JOBBKLUBB:
-    case Tiltakskode.OPPFOLGING:
-    case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
-    case Tiltakskode.FAG_OG_YRKESOPPLAERING:
-    case Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING:
-    case Tiltakskode.STUDIESPESIALISERING:
-      return null;
-    case Tiltakskode.ARBEIDSMARKEDSOPPLAERING:
-      return <AvtaleBransjeForm tiltakskode={Tiltakskode.ARBEIDSMARKEDSOPPLAERING} />;
-    case Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV:
-      return <NorskopplaeringGrunnleggendeGerdigheterFOVForm />;
-    case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
-      return <GruppeAmoForm />;
+  if (tiltakskode === Tiltakskode.ARBEIDSMARKEDSOPPLAERING) {
+    return <AvtaleBransjeForm tiltakskode={Tiltakskode.ARBEIDSMARKEDSOPPLAERING} />;
+  } else if (tiltakskode === Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV) {
+    return <NorskopplaeringGrunnleggendeGerdigheterFOVForm />;
+  } else if (tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) {
+    return <GruppeAmoForm />;
+  } else {
+    return null;
   }
 }
 

@@ -536,22 +536,6 @@ object AvtaleValidator {
         tiltakskode: Tiltakskode,
         amoKategorisering: AmoKategoriseringRequest?,
     ): Either<List<FieldError>, AmoKategorisering?> = when (tiltakskode) {
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-        Tiltakskode.AVKLARING,
-        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.HOYERE_UTDANNING,
-        Tiltakskode.JOBBKLUBB,
-        Tiltakskode.OPPFOLGING,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-        Tiltakskode.FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        ->
-            null
-
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
             requireValid(amoKategorisering?.kurstype != null) {
                 FieldError.of(
@@ -609,29 +593,14 @@ object AvtaleValidator {
 
         Tiltakskode.STUDIESPESIALISERING,
         -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
+
+        else -> null
     }?.toDbo().right()
 
     private fun FieldValidator.validateUtdanningslop(
         tiltakskode: Tiltakskode,
         utdanningslop: UtdanningslopDbo?,
     ): Either<List<FieldError>, Unit> = when (tiltakskode) {
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-        Tiltakskode.AVKLARING,
-        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.HOYERE_UTDANNING,
-        Tiltakskode.JOBBKLUBB,
-        Tiltakskode.OPPFOLGING,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
-        Tiltakskode.STUDIESPESIALISERING,
-        -> Unit
-
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         -> {
@@ -645,5 +614,7 @@ object AvtaleValidator {
                 FieldError.of("Du må velge minst ett lærefag", DetaljerRequest::utdanningslop)
             }
         }
+
+        else -> Unit
     }.right()
 }

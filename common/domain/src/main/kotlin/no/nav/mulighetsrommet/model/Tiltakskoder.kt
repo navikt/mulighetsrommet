@@ -146,6 +146,26 @@ enum class Tiltakskode(
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
+
+    /**
+     * Tiltak i egen regi (administreres fortsatt i Arena)
+     */
+    INDIVIDUELL_JOBBSTOTTE("INDJOBSTOT", egenskaper = setOf()),
+    INDIVIDUELL_JOBBSTOTTE_UNG("IPSUNG", egenskaper = setOf()),
+    ARBEID_MED_STOTTE("UTVAOONAV", egenskaper = setOf()),
+
+    /**
+     * Tiltakstyper hos team tiltak
+     */
+    ARBEIDSTRENING("ARBTREN", egenskaper = setOf()),
+    MIDLERTIDIG_LONNSTLSKUDD("MIDLONTIL", egenskaper = setOf()),
+    VARIG_LONNSTILSKUD("VARLONTIL", egenskaper = setOf()),
+    MENTOR("MENTOR", egenskaper = setOf()),
+    INKLUDERINGSTILSKUD("INKLUTILS", egenskaper = setOf()),
+    SOMMERJOBB("TILSJOBB", egenskaper = setOf()),
+    VTAO("VATIAROR", egenskaper = setOf()),
+    FIREARIG_LONNSTILSUDD(null, egenskaper = setOf()),
+
     ;
 
     fun harEgenskap(vararg egenskap: TiltakstypeEgenskap): Boolean {

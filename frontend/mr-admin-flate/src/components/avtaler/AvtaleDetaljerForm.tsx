@@ -261,6 +261,17 @@ function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; la
     case Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING:
     case Tiltakskode.HOYERE_UTDANNING:
     case Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING:
+    case Tiltakskode.INDIVIDUELL_JOBBSTOTTE:
+    case Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG:
+    case Tiltakskode.ARBEID_MED_STOTTE:
+    case Tiltakskode.ARBEIDSTRENING:
+    case Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD:
+    case Tiltakskode.VARIG_LONNSTILSKUD:
+    case Tiltakskode.MENTOR:
+    case Tiltakskode.INKLUDERINGSTILSKUD:
+    case Tiltakskode.SOMMERJOBB:
+    case Tiltakskode.VTAO:
+    case Tiltakskode.FIREARIG_LONNSTILSUDD:
       return [];
   }
 }

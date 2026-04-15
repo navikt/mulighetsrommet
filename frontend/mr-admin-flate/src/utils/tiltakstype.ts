@@ -1,4 +1,5 @@
 import {
+  Tiltakskode,
   TiltakstypeEgenskap,
   TiltakstypeFeature,
   TiltakstypeKompaktDto,
@@ -18,6 +19,21 @@ export function kreverDirekteVedtak(tiltakstype: TiltakstypeKompaktDto) {
 
 export function kreverDeltidsprosent(tiltakstype: TiltakstypeKompaktDto) {
   return harEgenskap(tiltakstype, TiltakstypeEgenskap.KREVER_DELTIDSPROSENT);
+}
+
+export function kreverUtdanningslop(tiltakskode: Tiltakskode): boolean {
+  return [Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING, Tiltakskode.FAG_OG_YRKESOPPLAERING].includes(
+    tiltakskode,
+  );
+}
+
+export function kreverAmo(tiltakskode: Tiltakskode): boolean {
+  return [
+    Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+    Tiltakskode.STUDIESPESIALISERING,
+    Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+  ].includes(tiltakskode);
 }
 
 function harEgenskap(tiltakstype: TiltakstypeKompaktDto, egenskap: TiltakstypeEgenskap): boolean {
