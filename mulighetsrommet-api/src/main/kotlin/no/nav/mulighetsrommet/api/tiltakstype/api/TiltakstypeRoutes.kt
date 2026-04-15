@@ -11,8 +11,10 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeHandling
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
@@ -71,6 +73,31 @@ fun Route.tiltakstypeRoutes() {
             )
 
             call.respond(tiltakstype)
+        }
+
+        get("{id}/handlinger", {
+            tags = setOf("Tiltakstype")
+            operationId = "getTiltakstypeHandlinger"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Mulige handlinger på tiltakstype for innlogget bruker"
+                    body<Set<TiltakstypeHandling>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
+            val navIdent = getNavIdent()
+
+            val handlinger = tiltakstypeService.getHandlinger(id, navIdent)
+
+            call.respond(handlinger)
         }
 
         authorize(Rolle.TILTAKSTYPER_SKRIV) {

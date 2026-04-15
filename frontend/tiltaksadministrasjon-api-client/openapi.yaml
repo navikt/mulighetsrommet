@@ -137,6 +137,39 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/tiltakstyper/{id}/handlinger:
+    get:
+      tags:
+      - Tiltakstype
+      operationId: getTiltakstypeHandlinger
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Mulige handlinger på tiltakstype for innlogget bruker
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltakstypeHandling"
+                uniqueItems: true
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/tiltakstyper/{id}/veilederinfo:
     post:
       tags:
@@ -3428,6 +3461,10 @@ components:
       - lenke
       - lenkenavn
       - visKunForVeileder
+    TiltakstypeHandling:
+      type: string
+      enum:
+      - REDIGER_VEILEDERINFO
     TiltakstypeVeilederinfoRequest:
       type: object
       properties:

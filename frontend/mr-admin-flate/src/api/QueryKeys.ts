@@ -10,6 +10,7 @@ import {
 export const QueryKeys = {
   tilsagnValgbareDeltakere: (req: string) => ["tilsagn-valgbare-deltakere", req] as const,
   beregnTilsagn: (req: string) => ["beregn-tilsagn", req] as const,
+  tiltakstypeHandlinger: (id: string) => ["tiltakstype-handlinger", id] as const,
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
   tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
   redaksjoneltInnholdLenker: () => ["redaksjonelt-innhold", "lenker"] as const,

@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.api.tiltakstype.service
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeFilter
@@ -11,7 +13,9 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeHandling
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.mulighetsrommet.utils.toUUID
@@ -22,6 +26,7 @@ class TiltakstypeService(
     private val config: Config = Config(),
     private val db: ApiDatabase,
     private val sanityService: SanityService,
+    private val navAnsattService: NavAnsattService,
 ) {
 
     data class Config(
@@ -92,6 +97,15 @@ class TiltakstypeService(
         }
         invalidateCaches()
         return getById(id)
+    }
+
+    fun getHandlinger(id: UUID, navIdent: NavIdent): Set<TiltakstypeHandling> {
+        val ansatt = navAnsattService.getNavAnsattByNavIdent(navIdent) ?: return setOf()
+        return setOfNotNull(
+            TiltakstypeHandling.REDIGER_VEILEDERINFO.takeIf {
+                ansatt.hasGenerellRolle(Rolle.TILTAKSTYPER_SKRIV)
+            },
+        )
     }
 
     private fun invalidateCaches() {

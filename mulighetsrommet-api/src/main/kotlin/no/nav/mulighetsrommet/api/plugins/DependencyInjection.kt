@@ -444,7 +444,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { TiltakstypeService(appConfig.tiltakstyper, get(), get()) }
+    single { TiltakstypeService(appConfig.tiltakstyper, get(), get(), get()) }
     single { RedaksjoneltInnholdLenkeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
