@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class PersonaliaService(
@@ -28,6 +29,8 @@ class PersonaliaService(
     private val tilgangsmaskinClient: TilgangsmaskinClient,
     private val navEnhetService: NavEnhetService,
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     suspend fun getPersonalia(
         deltakerIds: List<UUID>,
         accessType: AccessType,
@@ -48,6 +51,20 @@ class PersonaliaService(
                     -> {
                         val identer = amtPersonalia.map { it.norskIdent }
                         val tilgangsmaskinResponse = tilgangsmaskinClient.bulk(identer, accessType)
+                        log.debug(
+                            "tilgangsmaskinResponse: {}",
+                            tilgangsmaskinResponse.resultater.joinToString("\n") { resultat ->
+                                val detaljer = resultat.detaljer?.let { d ->
+                                    listOfNotNull(
+                                        "title=${d.title}",
+                                        d.extensions?.get("begrunnelse")?.let { "begrunnelse=$it" },
+                                        d.extensions?.get("kanOverstyres")?.let { "kanOverstyres=$it" },
+                                    ).joinToString(", ")
+                                }
+                                "brukerId=${resultat.brukerId}, status=${resultat.status}" + (detaljer?.let { ", $it" } ?: "")
+                            },
+                        )
+
                         amtPersonalia.associate { p ->
                             val harTilgang = requireNotNull(tilgangsmaskinResponse.resultater.find { it.brukerId == p.norskIdent.value }) {
                                 "Fant ikke deltakerId: ${p.deltakerId} i respons fra tilgangsmaskin"

@@ -1,13 +1,15 @@
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
-import { RedaksjoneltInnhold } from "./RedaksjoneltInnholdPreview";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { Laster } from "../laster/Laster";
+import { Laster } from "@/components/laster/Laster";
 import { Suspense } from "react";
+import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
+import { InformasjonForVeiledere } from "@/components/redaksjoneltInnhold/InformasjonForVeiledere";
 
-export function RedaksjoneltInnholdGjennomforing() {
+export function GjennomforingRedaksjoneltInnhold() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { tiltakstype, veilederinfo } = useGjennomforing(gjennomforingId);
+  const { veilederinfo, ...gjennomforing } = useGjennomforing(gjennomforingId);
+  const tiltakstype = useTiltakstype(gjennomforing.tiltakstype.id);
 
   if (!veilederinfo) {
     return null;
@@ -16,11 +18,11 @@ export function RedaksjoneltInnholdGjennomforing() {
   return (
     <Suspense fallback={<Laster tekst="Laster innhold" />}>
       <GjennomforingPageLayout>
-        <RedaksjoneltInnhold
+        <InformasjonForVeiledere
           tiltakstype={tiltakstype}
-          kontorstruktur={veilederinfo.kontorstruktur}
-          beskrivelse={veilederinfo.beskrivelse ?? null}
+          beskrivelse={veilederinfo.beskrivelse}
           faneinnhold={veilederinfo.faneinnhold}
+          kontorstruktur={veilederinfo.kontorstruktur}
           kontaktpersoner={veilederinfo.kontaktpersoner}
         />
       </GjennomforingPageLayout>

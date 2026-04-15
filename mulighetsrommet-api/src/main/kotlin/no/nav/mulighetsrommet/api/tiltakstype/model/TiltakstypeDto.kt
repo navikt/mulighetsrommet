@@ -25,6 +25,7 @@ data class TiltakstypeDto(
     val sanityId: UUID?,
     val features: Set<TiltakstypeFeature>,
     val egenskaper: Set<TiltakstypeEgenskap>,
+    val veilederinfo: TiltakstypeVeilderinfo,
 )
 
 enum class TiltakstypeFeature {
@@ -42,4 +43,9 @@ enum class TiltakstypeFeature {
      * Kan fortsatt redigeres, men ikke opprettes nye.
      */
     UTFASET,
+
+    /**
+     * Redaksjonelt innhold hentes fra databasen i stedet for Sanity.
+     */
+    MIGRERT_REDAKSJONELT_INNHOLD,
 }

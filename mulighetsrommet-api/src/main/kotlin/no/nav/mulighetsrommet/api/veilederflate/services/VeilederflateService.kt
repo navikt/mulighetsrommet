@@ -10,7 +10,11 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
+import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
@@ -29,24 +33,20 @@ import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.utils.CachedComputation
+import no.nav.mulighetsrommet.utils.toUUID
 import java.time.Duration
 import java.util.UUID
 
 class VeilederflateService(
-    private val config: Config = Config(),
     private val db: ApiDatabase,
+    private val tiltakstypeService: TiltakstypeService,
     private val sanityService: SanityService,
     private val navEnhetService: NavEnhetService,
 ) {
     private val cachedTiltakstyper = CachedComputation<List<VeilederflateTiltakstype>>(
         expireAfterWrite = Duration.ofMinutes(30),
-    )
-
-    data class Config(
-        val features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     )
 
     fun hentInnsatsgrupper(): List<VeilederflateInnsatsgruppe> {
@@ -61,29 +61,37 @@ class VeilederflateService(
 
     suspend fun hentTiltakstyper(): List<VeilederflateTiltakstype> {
         return cachedTiltakstyper.getOrCompute {
-            val bySanityId = db.session { queries.tiltakstype.getAll() }
-                .filter { it.sanityId != null }
-                .associateBy { it.sanityId }
+            val sanityTiltakstyper = sanityService.getTiltakstyper().associateBy { it._id }
 
-            sanityService.getTiltakstyper().mapNotNull { sanityTiltakstype ->
-                val tiltakstype = bySanityId[UUID.fromString(sanityTiltakstype._id)] ?: return@mapNotNull null
-                val tiltakskode = tiltakstype.tiltakskode
-                VeilederflateTiltakstype(
-                    id = tiltakstype.id,
-                    navn = tiltakstype.navn,
-                    innsatsgrupper = tiltakstype.innsatsgrupper,
-                    arenakode = tiltakstype.arenakode,
-                    tiltakskode = tiltakskode,
-                    features = tiltakskode?.let { config.features[it] } ?: setOf(),
-                    egenskaper = tiltakskode?.egenskaper ?: setOf(),
-                    tiltaksgruppe = tiltakskode?.gruppe?.tittel,
-                    sanityId = sanityTiltakstype._id,
-                    beskrivelse = sanityTiltakstype.beskrivelse,
-                    regelverkLenker = sanityTiltakstype.regelverkLenker,
-                    faneinnhold = sanityTiltakstype.faneinnhold,
-                    delingMedBruker = sanityTiltakstype.delingMedBruker,
-                    kanKombineresMed = sanityTiltakstype.kanKombineresMed,
-                )
+            db.session {
+                queries.tiltakstype.getAll().mapNotNull { tiltakstype ->
+                    val sanityId = tiltakstype.sanityId?.toString() ?: return@mapNotNull null
+
+                    val features = tiltakstype.tiltakskode?.let { tiltakstypeService.getFeatures(it) }.orEmpty()
+
+                    val veilederinfo = if (features.contains(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD)) {
+                        queries.tiltakstype.getVeilederinfo(tiltakstype.id)
+                    } else {
+                        sanityTiltakstyper[sanityId]?.toTiltakstypeVeilederinfo()
+                    }
+
+                    VeilederflateTiltakstype(
+                        sanityId = sanityId,
+                        id = tiltakstype.id,
+                        navn = tiltakstype.navn,
+                        innsatsgrupper = tiltakstype.innsatsgrupper,
+                        arenakode = tiltakstype.arenakode,
+                        tiltakskode = tiltakstype.tiltakskode,
+                        features = features,
+                        egenskaper = tiltakstype.tiltakskode?.egenskaper.orEmpty(),
+                        tiltaksgruppe = tiltakstype.tiltakskode?.gruppe?.tittel,
+                        beskrivelse = veilederinfo?.beskrivelse,
+                        regelverkLenker = veilederinfo?.faglenker,
+                        faneinnhold = veilederinfo?.faneinnhold,
+                        delingMedBruker = veilederinfo?.faneinnhold?.delMedBruker,
+                        kanKombineresMed = veilederinfo?.kanKombineresMed ?: emptyList(),
+                    )
+                }
             }
         }
     }
@@ -316,3 +324,19 @@ class VeilederflateService(
         }
     }
 }
+
+private fun SanityTiltakstype.toTiltakstypeVeilederinfo(): TiltakstypeVeilderinfo = TiltakstypeVeilderinfo(
+    beskrivelse = beskrivelse,
+    faneinnhold = faneinnhold,
+    faglenker = regelverkLenker?.mapNotNull { lenke ->
+        lenke.regelverkUrl?.let { url ->
+            RedaksjoneltInnholdLenke(
+                id = lenke._id!!.toUUID(),
+                url = url,
+                navn = lenke.regelverkLenkeNavn,
+                beskrivelse = lenke.beskrivelse,
+            )
+        }
+    } ?: emptyList(),
+    kanKombineresMed = kanKombineresMed,
+)

@@ -22,6 +22,7 @@ import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useAvtaleRammedetaljer } from "@/api/avtaler/useAvtaleRammedetaljer";
 import { AvtaleRammedetaljer } from "@/components/avtaler/AvtaleRammedetaljer";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
+import { AvtalePageLayout } from "@/pages/avtaler/AvtalePageLayout";
 
 export function AvtaleDetaljer() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
@@ -139,29 +140,31 @@ export function AvtaleDetaljer() {
   ];
 
   return (
-    <TwoColumnGrid separator>
-      <DetaljerLayout>
-        <Definisjonsliste title="Avtaleinformasjon" definitions={avtaleMeta} />
-        <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
-        <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
-        {avtale.opsjonerRegistrert.length > 0 && <RegistrerteOpsjoner readOnly />}
-        {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
-        {amoKategorisering &&
-          !kursOgTiltakErStudiespesialisering(
-            amoKategorisering.kurstype,
-            tiltakstype.tiltakskode,
-          ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
-        <PrismodellDetaljer prismodeller={avtale.prismodeller} />
-        <AvtaleRammedetaljer rammedetaljer={rammedetaljer} />
-      </DetaljerLayout>
-      <DetaljerLayout>
-        <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
-        {arrangor ? (
-          <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-        ) : (
-          <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
-        )}
-      </DetaljerLayout>
-    </TwoColumnGrid>
+    <AvtalePageLayout avtale={avtale}>
+      <TwoColumnGrid separator>
+        <DetaljerLayout>
+          <Definisjonsliste title="Avtaleinformasjon" definitions={avtaleMeta} />
+          <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
+          <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
+          {avtale.opsjonerRegistrert.length > 0 && <RegistrerteOpsjoner readOnly />}
+          {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
+          {amoKategorisering &&
+            !kursOgTiltakErStudiespesialisering(
+              amoKategorisering.kurstype,
+              tiltakstype.tiltakskode,
+            ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+          <PrismodellDetaljer prismodeller={avtale.prismodeller} />
+          <AvtaleRammedetaljer rammedetaljer={rammedetaljer} />
+        </DetaljerLayout>
+        <DetaljerLayout>
+          <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
+          {arrangor ? (
+            <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
+          ) : (
+            <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
+          )}
+        </DetaljerLayout>
+      </TwoColumnGrid>
+    </AvtalePageLayout>
   );
 }

@@ -45,7 +45,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.database.utils.Pagination

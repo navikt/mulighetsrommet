@@ -198,7 +198,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     Insert,
                     TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
                 ) {
-                    it.copy(DATO_TIL = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter))
+                    it.copy(
+                        DATO_FRA = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter),
+                        DATO_TIL = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter),
+                    )
                 }
 
                 val (event, mapping) = prepareEvent(eventWithOldSluttDato)

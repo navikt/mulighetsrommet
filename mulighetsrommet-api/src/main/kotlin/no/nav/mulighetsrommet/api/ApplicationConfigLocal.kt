@@ -24,8 +24,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.service.tidligstTidspunktForUtbetalingDev
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -60,9 +60,14 @@ val ApplicationConfigLocal = AppConfig(
             val vises = setOf(
                 TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
             )
+            val migrertMedInnholdFraDatabase = setOf(
+                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+                TiltakstypeFeature.MIGRERT,
+                TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD,
+            )
             mapOf(
                 Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrertMedInnholdFraDatabase,
                 Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
                 Tiltakskode.AVKLARING to migrert,
                 Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
@@ -143,6 +148,7 @@ val ApplicationConfigLocal = AppConfig(
         ),
         roles = setOf(
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TEAM_MULIGHETSROMMET),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKSTYPER_SKRIV),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.AVTALER_SKRIV),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKADMINISTRASJON_GENERELL),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.OPPFOLGER_GJENNOMFORING),

@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function InnsendingFilterTags({ filter, updateFilter, tiltakstypeId, filterOpen }: Props) {
-  const { data: tiltakstyper } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyper();
 
   const removeArrayItem = (key: keyof InnsendingFilterType, value: any) => {
     updateFilter({

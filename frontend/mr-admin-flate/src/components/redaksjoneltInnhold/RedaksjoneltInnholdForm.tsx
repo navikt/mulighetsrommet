@@ -1,0 +1,190 @@
+import { Alert, BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
+import { TiltakstypeDto, TiltakstypeVeilderinfo } from "@tiltaksadministrasjon/api-client";
+import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
+import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
+import { RedaksjoneltInnholdTabs } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabs";
+import { PortableText } from "@mr/frontend-common";
+import { PortableTextFormEditor } from "../portableText/PortableTextEditor";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { FormTextarea } from "@/components/skjema/FormTextarea";
+import { FormTextField } from "@/components/skjema/FormTextField";
+import { FormCheckbox } from "@/components/skjema/FormCheckbox";
+import { FormListInput } from "@/components/skjema/FormListInput";
+import { fp } from "@/components/skjema/helpers";
+
+interface Props {
+  path: string;
+  description: string;
+  tiltakstype?: TiltakstypeDto;
+}
+
+export function RedaksjoneltInnholdForm({ path, description, tiltakstype }: Props) {
+  const veilederinfo = tiltakstype?.veilederinfo;
+  return (
+    <RedaksjoneltInnholdContainer>
+      <Heading size="medium" spacing level="3">
+        Redaksjonelt innhold
+      </Heading>
+      <Alert size="small" variant="info">
+        Ikke del personopplysninger i fritekstfeltene
+      </Alert>
+      <FormTextarea name={fp(path, "beskrivelse")} description={description} label="Beskrivelse" />
+      {veilederinfo?.beskrivelse && (
+        <>
+          <Heading size="medium">Generell informasjon</Heading>
+          <BodyLong style={{ whiteSpace: "pre-wrap" }}>{veilederinfo.beskrivelse}</BodyLong>
+        </>
+      )}
+      <Heading size="medium">Faneinnhold</Heading>
+      <RedaksjoneltInnholdTabs
+        forHvem={<ForHvem tiltakstype={veilederinfo} path={path} />}
+        detaljerOgInnhold={<DetaljerOgInnhold tiltakstype={veilederinfo} path={path} />}
+        pameldingOgVarighet={<PameldingOgVarighet tiltakstype={veilederinfo} path={path} />}
+        kontaktinfo={<Kontaktinfo path={path} />}
+        lenker={<RedaksjoneltInnholdLenkerForm path={path} />}
+        delMedBruker={<DelMedBruker tiltakstype={veilederinfo} path={path} />}
+      />
+    </RedaksjoneltInnholdContainer>
+  );
+}
+
+interface TabPanelProps {
+  path: string;
+  tiltakstype?: TiltakstypeVeilderinfo;
+}
+
+function ForHvem({ tiltakstype, path }: TabPanelProps) {
+  return (
+    <VStack className="mt-4">
+      {tiltakstype?.faneinnhold?.forHvemInfoboks && (
+        <Alert style={{ whiteSpace: "pre-wrap" }} variant="info">
+          {tiltakstype.faneinnhold.forHvemInfoboks}
+        </Alert>
+      )}
+      {tiltakstype?.faneinnhold?.forHvem && (
+        <PortableText value={tiltakstype.faneinnhold.forHvem} />
+      )}
+      <Separator />
+      <DescriptionRichtextContainer>
+        <FormTextarea
+          name={fp(path, "faneinnhold.forHvemInfoboks")}
+          label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «For hvem»"
+          description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
+        />
+        <PortableTextFormEditor
+          name={fp(path, "faneinnhold.forHvem")}
+          label="For hvem"
+          description="Beskrivelse av hvem tiltakstypen passer for. Husk å bruke et kort og konsist språk."
+        />
+      </DescriptionRichtextContainer>
+    </VStack>
+  );
+}
+
+function DetaljerOgInnhold({ tiltakstype, path }: TabPanelProps) {
+  return (
+    <VStack className="mt-4">
+      {tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks && (
+        <Alert variant="info">{tiltakstype.faneinnhold.detaljerOgInnholdInfoboks}</Alert>
+      )}
+      {tiltakstype?.faneinnhold?.detaljerOgInnhold && (
+        <PortableText value={tiltakstype.faneinnhold.detaljerOgInnhold} />
+      )}
+      <Separator />
+
+      <DescriptionRichtextContainer>
+        <FormTextarea
+          name={fp(path, "faneinnhold.detaljerOgInnholdInfoboks")}
+          label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Detaljer og innhold»"
+          description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
+        />
+        <PortableTextFormEditor
+          name={fp(path, "faneinnhold.detaljerOgInnhold")}
+          label="Detaljer og innhold"
+          description="Beskrivelse av detaljer og innhold for tiltakstypen. Husk å bruke et kort og konsist språk."
+        />
+      </DescriptionRichtextContainer>
+    </VStack>
+  );
+}
+
+function PameldingOgVarighet({ tiltakstype, path }: TabPanelProps) {
+  return (
+    <VStack className="mt-4">
+      {tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks && (
+        <Alert variant="info">{tiltakstype.faneinnhold.pameldingOgVarighetInfoboks}</Alert>
+      )}
+      {tiltakstype?.faneinnhold?.pameldingOgVarighet && (
+        <PortableText value={tiltakstype.faneinnhold.pameldingOgVarighet} />
+      )}
+      <Separator />
+
+      <DescriptionRichtextContainer>
+        <FormTextarea
+          name={fp(path, "faneinnhold.pameldingOgVarighetInfoboks")}
+          label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Påmelding og varighet»"
+          description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
+        />
+        <PortableTextFormEditor
+          name={fp(path, "faneinnhold.pameldingOgVarighet")}
+          label="Påmelding og varighet"
+          description="Beskrivelse av rutiner rundt påmelding og varighet i tiltaket. Husk å bruke et kort og konsist språk."
+        />
+      </DescriptionRichtextContainer>
+    </VStack>
+  );
+}
+
+function Kontaktinfo({ path }: { path: string }) {
+  return (
+    <VStack className="mt-4">
+      <VStack gap="space-20">
+        <FormTextarea
+          name={fp(path, "faneinnhold.kontaktinfoInfoboks")}
+          label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Kontaktinfo»"
+          description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
+        />
+        <PortableTextFormEditor
+          name={fp(path, "faneinnhold.kontaktinfo")}
+          label="Kontaktinfo"
+          description="Ekstra tekst om kontaktinfo."
+        />
+      </VStack>
+    </VStack>
+  );
+}
+
+function DelMedBruker({ path }: TabPanelProps) {
+  return (
+    <VStack className="mt-4">
+      <FormTextarea
+        name={fp(path, "faneinnhold.delMedBruker")}
+        label="Del med bruker"
+        description='Bruk denne tekstboksen for å redigere teksten som sendes til bruker når man deler et tiltak. Det blir automatisk lagt til en "Hei" og en "Hilsen".'
+      />
+    </VStack>
+  );
+}
+
+function RedaksjoneltInnholdLenkerForm({ path }: TabPanelProps) {
+  const name = fp(path, "faneinnhold.lenker");
+  return (
+    <FormListInput
+      name={name}
+      addButtonLabel="Registrer ny lenke"
+      emptyItem={{ lenke: "", lenkenavn: "", apneINyFane: true, visKunForVeileder: false }}
+      renderItem={(index) => (
+        <HStack gap="space-8">
+          <FormTextField name={fp(name, index, "lenke")} label="URL" />
+          <FormTextField name={fp(name, index, "lenkenavn")} label="Lenketekst" />
+          <HStack gap="space-8">
+            <FormCheckbox name={fp(name, index, "apneINyFane")}>Åpne i ny fane</FormCheckbox>
+            <FormCheckbox name={fp(name, index, index, "visKunForVeileder")}>
+              Vis kun i Modia
+            </FormCheckbox>
+          </HStack>
+        </HStack>
+      )}
+    />
+  );
+}

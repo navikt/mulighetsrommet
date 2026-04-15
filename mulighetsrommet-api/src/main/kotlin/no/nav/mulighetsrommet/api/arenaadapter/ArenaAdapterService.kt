@@ -14,12 +14,13 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.service.OpprettGjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -85,7 +86,7 @@ class ArenaAdapterService(
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
             )
             when (gjennomforingEnkeltplassService.get(arenaGjennomforing.id)) {
-                null -> gjennomforingEnkeltplassService.create(upsert)
+                null -> gjennomforingEnkeltplassService.create(upsert, Arena)
                 else -> gjennomforingEnkeltplassService.update(upsert)
             }
         } else {

@@ -34,7 +34,7 @@ export function GjennomforingPage() {
     },
     currentTab === "tilskuddsbehandlinger" ? { tittel: "Tilskuddsbehandlinger" } : undefined,
     currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
-    currentTab === "redaksjonelt-innhold" ? { tittel: "Informasjon til veilederene" } : undefined,
+    currentTab === "redaksjonelt-innhold" ? { tittel: "Informasjon for veilederene" } : undefined,
     currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
     currentTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
   ];

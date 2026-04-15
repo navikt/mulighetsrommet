@@ -1,11 +1,15 @@
 package no.nav.mulighetsrommet.api.tiltakstype.db
 
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.DeltakerRegistreringInnholdDto
+import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -151,7 +155,7 @@ class TiltakstypeQueries(private val session: Session) {
 
         @Language("PostgreSQL")
         val query = """
-            select *, count(*) over() as total_count
+            select id, navn, tiltakskode, arena_kode, start_dato, slutt_dato, sanity_id, innsatsgrupper, status
             from view_tiltakstype
             where (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder))
               and (:statuser::text[] is null or status = any(:statuser))
@@ -159,6 +163,17 @@ class TiltakstypeQueries(private val session: Session) {
         """.trimIndent()
 
         return list(queryOf(query, parameters)) { it.toTiltakstype() }
+    }
+
+    fun getVeilederinfo(id: UUID): TiltakstypeVeilderinfo? = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            select beskrivelse, faneinnhold, faglenker, kan_kombineres_med
+            from view_tiltakstype
+            where id = ?::uuid
+        """.trimIndent()
+
+        return single(queryOf(query, id)) { it.toVeilederinfo() }
     }
 
     private fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? = with(session) {
@@ -190,6 +205,85 @@ class TiltakstypeQueries(private val session: Session) {
             ledetekst = result[0].first,
             innholdselementer = innholdselementer,
         )
+    }
+
+    fun upsertRedaksjoneltInnhold(
+        id: UUID,
+        beskrivelse: String?,
+        faneinnhold: Faneinnhold?,
+    ) {
+        @Language("PostgreSQL")
+        val updateQuery = """
+            update tiltakstype
+            set beskrivelse = :beskrivelse,
+                faneinnhold = :faneinnhold::jsonb
+            where id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+            "beskrivelse" to beskrivelse,
+            "faneinnhold" to faneinnhold.let { Json.encodeToString<Faneinnhold?>(it) },
+        )
+        session.execute(queryOf(updateQuery, params))
+    }
+
+    fun setFaglenker(id: UUID, lenker: List<UUID>) {
+        @Language("PostgreSQL")
+        val deleteLinksQuery = """
+            delete
+            from tiltakstype_faglenke
+            where tiltakstype_id = ?::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(deleteLinksQuery, id))
+
+        if (lenker.isNotEmpty()) {
+            @Language("PostgreSQL")
+            val insertLinkQuery = """
+                insert into tiltakstype_faglenke (tiltakstype_id, lenke_id, sort_order)
+                values (:tiltakstype_id::uuid, :lenke_id::uuid, :sort_order)
+            """.trimIndent()
+
+            val params = lenker.mapIndexed { index, lenkeId ->
+                mapOf(
+                    "tiltakstype_id" to id,
+                    "lenke_id" to lenkeId,
+                    "sort_order" to index,
+                )
+            }
+            session.batchPreparedNamedStatement(insertLinkQuery, params)
+        }
+    }
+
+    fun setKanKombineresMed(id: UUID, kombineresmedIds: List<UUID>) = with(session) {
+        @Language("PostgreSQL")
+        val deleteQuery = """
+            delete from tiltakstype_kombinasjon where tiltakstype_id = ?::uuid
+        """.trimIndent()
+
+        execute(queryOf(deleteQuery, id))
+
+        if (kombineresmedIds.isNotEmpty()) {
+            @Language("PostgreSQL")
+            val insertQuery = """
+                insert into tiltakstype_kombinasjon (tiltakstype_id, kombineres_med_id)
+                values (:tiltakstype_id::uuid, :kombineres_med_id::uuid)
+                on conflict do nothing
+            """.trimIndent()
+
+            kombineresmedIds.forEach { kombineresmedId ->
+                execute(
+                    queryOf(
+                        insertQuery,
+                        mapOf(
+                            "tiltakstype_id" to id,
+                            "kombineres_med_id" to kombineresmedId,
+                        ),
+                    ),
+                )
+            }
+        }
     }
 
     fun delete(id: UUID): Int = with(session) {
@@ -228,6 +322,23 @@ class TiltakstypeQueries(private val session: Session) {
             sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
             status = TiltakstypeStatus.valueOf(string("status")),
+        )
+    }
+
+    private fun Row.toVeilederinfo(): TiltakstypeVeilderinfo {
+        val kanKombineresMed = stringOrNull("kan_kombineres_med")
+            ?.let { Json.decodeFromString<List<String>>(it) }
+            ?: emptyList()
+
+        val faglenker = stringOrNull("faglenker")
+            ?.let { Json.decodeFromString<List<RedaksjoneltInnholdLenke>>(it) }
+            ?: emptyList()
+
+        return TiltakstypeVeilderinfo(
+            beskrivelse = stringOrNull("beskrivelse"),
+            faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+            faglenker = faglenker,
+            kanKombineresMed = kanKombineresMed,
         )
     }
 

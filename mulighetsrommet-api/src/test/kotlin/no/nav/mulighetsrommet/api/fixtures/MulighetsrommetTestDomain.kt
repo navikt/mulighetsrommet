@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
+import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
@@ -37,6 +38,7 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.DigitalOppfolging,
         TiltakstypeFixtures.ArbeidsrettetRehabilitering,
     ),
+    val regelverklenke: List<RedaksjoneltInnholdLenke> = listOf(),
     val prismodeller: List<PrismodellDbo> = listOf(
         PrismodellFixtures.AnnenAvtaltPris,
         PrismodellFixtures.AvtaltPrisPerTimeOppfolging,
@@ -65,6 +67,7 @@ data class MulighetsrommetTestDomain(
             arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
             tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
             prismodeller.forEach { queries.prismodell.upsert(it) }
+            regelverklenke.forEach { queries.regelverklenke.upsert(it) }
             avtaler.forEach { queries.avtale.create(it) }
             gjennomforinger.forEach { gjennomforing ->
                 queries.gjennomforing.upsert(gjennomforing)

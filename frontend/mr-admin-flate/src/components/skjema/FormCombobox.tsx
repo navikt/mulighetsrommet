@@ -1,0 +1,58 @@
+import { type ComboboxProps, UNSAFE_Combobox } from "@navikt/ds-react";
+import {
+  type FieldPath,
+  type FieldValues,
+  type RegisterOptions,
+  useController,
+  useFormContext,
+} from "react-hook-form";
+
+type Option = { label: string; value: string };
+
+type FormComboboxProps<TFieldValues extends FieldValues> = Omit<
+  ComboboxProps,
+  "value" | "onChange" | "error" | "name" | "options" | "selectedOptions" | "onToggleSelected"
+> & {
+  name: FieldPath<TFieldValues>;
+  options: Option[];
+  rules?: RegisterOptions<TFieldValues>;
+};
+
+export function FormCombobox<TFieldValues extends FieldValues>({
+  name,
+  options,
+  rules,
+  size = "small",
+  ...props
+}: FormComboboxProps<TFieldValues>) {
+  const { control } = useFormContext<TFieldValues>();
+  const { field, fieldState } = useController({ name, control, rules });
+
+  const resolvedOptions: Option[] = getResolvedOptions(options, field.value);
+
+  const selectedOptions = resolvedOptions.filter((o) => o.value === field.value);
+
+  return (
+    <UNSAFE_Combobox
+      {...props}
+      size={size}
+      name={field.name}
+      options={resolvedOptions}
+      selectedOptions={selectedOptions}
+      error={fieldState.error?.message}
+      onToggleSelected={(value, isSelected) => {
+        field.onChange(isSelected ? value : null);
+      }}
+    />
+  );
+}
+
+/**
+ * Sørger for at `options` alltid inkluderer et valg for `value`.
+ * Dette sørger for at verdien lagret i form state alltid er synlig.
+ */
+function getResolvedOptions<V>(options: Option[], value: V) {
+  return value && !options.some((o) => o.value === value)
+    ? [...options, { value: value, label: value }]
+    : options;
+}

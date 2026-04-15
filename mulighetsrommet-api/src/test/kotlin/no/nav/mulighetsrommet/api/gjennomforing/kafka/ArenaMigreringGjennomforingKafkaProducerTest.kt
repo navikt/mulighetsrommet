@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -93,6 +93,12 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             producerClient,
         )
 
+        fun configureTiltakstypeService(
+            migrert: TiltakstypeService.Config = TiltakstypeService.Config(),
+        ): TiltakstypeService {
+            return TiltakstypeService(migrert, database.db)
+        }
+
         afterEach {
             clearAllMocks()
         }
@@ -101,7 +107,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gruppetiltak.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(db = database.db)
+            val tiltakstyper = configureTiltakstypeService()
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
             consumeGjennomforing(consumer, gruppetiltak)
@@ -113,7 +119,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gruppetiltak.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(migrert, database.db)
+            val tiltakstyper = configureTiltakstypeService(migrert)
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
             consumeGjennomforing(consumer, gruppetiltak)
@@ -135,7 +141,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(enkeltplass.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(migrert, database.db)
+            val tiltakstyper = configureTiltakstypeService(migrert)
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
             consumeGjennomforing(consumer, enkeltplass)
@@ -160,7 +166,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
                 status = "AVSLU",
             )
 
-            val tiltakstyper = TiltakstypeService(migrert, database.db)
+            val tiltakstyper = configureTiltakstypeService(migrert)
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
             consumeGjennomforing(consumer, gruppetiltak)

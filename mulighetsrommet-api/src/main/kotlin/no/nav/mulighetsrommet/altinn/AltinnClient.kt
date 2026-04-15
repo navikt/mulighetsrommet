@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.altinn
 
 import arrow.core.Either
-import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.raise.context.either
 import io.ktor.client.call.body
@@ -37,19 +36,7 @@ class AltinnClient(
 
     suspend fun hentRettigheter(norskIdent: NorskIdent): Either<AltinnError, List<BedriftRettigheter>> {
         return hentAuthorizedParties(norskIdent)
-            .map {
-                val rettigheter = findAltinnRoller(it)
-                log.debug(
-                    "norskIdentHash: {}, rettighetCount: {}, rettighetOrgnr: {} totalCount: {}, totalOrgnr: {}",
-                    norskIdent.hashCode(),
-                    rettigheter.count(),
-                    rettigheter.map { it.organisasjonsnummer.value },
-                    partyCount(it),
-                    partyOrgnr(it),
-                )
-
-                rettigheter
-            }
+            .map { findAltinnRoller(it) }
     }
 
     private fun partyOrgnr(parties: List<AuthorizedParty>): List<String> = parties

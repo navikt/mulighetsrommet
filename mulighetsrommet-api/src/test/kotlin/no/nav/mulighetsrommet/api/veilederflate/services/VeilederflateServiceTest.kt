@@ -4,6 +4,7 @@ import arrow.core.nonEmptyListOf
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -23,6 +24,8 @@ import no.nav.mulighetsrommet.api.sanity.SanityArrangorKontaktperson
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe
@@ -31,6 +34,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.toUUID
 import java.util.UUID
 
@@ -139,11 +143,18 @@ class VeilederflateServiceTest : FunSpec({
         tiltakArbeidstrening2,
     )
 
-    fun createService() = VeilederflateService(
-        db = database.db,
-        sanityService = sanityService,
-        navEnhetService = NavEnhetService(database.db),
-    )
+    fun createService(features: Map<Tiltakskode, Set<TiltakstypeFeature>> = emptyMap()): VeilederflateService {
+        val tiltakstypeService = TiltakstypeService(
+            config = TiltakstypeService.Config(features),
+            db = database.db,
+        )
+        return VeilederflateService(
+            db = database.db,
+            tiltakstypeService = tiltakstypeService,
+            sanityService = sanityService,
+            navEnhetService = NavEnhetService(database.db),
+        )
+    }
 
     test("utleder gjennomføringer som enkeltplass anskaffet tiltak når de har arrangør") {
         val veilederFlateService = createService()
@@ -282,5 +293,55 @@ class VeilederflateServiceTest : FunSpec({
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldBeEmpty()
+    }
+
+    context("redaksjonelt innhold for tiltakstype hentes fra riktig kilde") {
+        val sanityBeskrivelse = "Beskrivelse fra Sanity"
+        val dbBeskrivelse = "Beskrivelse fra databasen"
+        val sanityFaneinnhold = Faneinnhold(forHvemInfoboks = "Sanity faneinnhold")
+        val dbFaneinnhold = Faneinnhold(forHvemInfoboks = "DB faneinnhold")
+
+        beforeEach {
+            database.run {
+                queries.tiltakstype.upsertRedaksjoneltInnhold(
+                    TiltakstypeFixtures.Oppfolging.id,
+                    dbBeskrivelse,
+                    dbFaneinnhold,
+                )
+            }
+            coEvery { sanityService.getTiltakstyper() } returns listOf(
+                tiltakstypeOppfolging.copy(
+                    beskrivelse = sanityBeskrivelse,
+                    faneinnhold = sanityFaneinnhold,
+                ),
+                tiltakstypeEnkelAmo,
+                tiltakstypeArbeidstrening,
+            )
+        }
+
+        afterEach {
+            database.run {
+                queries.tiltakstype.upsertRedaksjoneltInnhold(TiltakstypeFixtures.Oppfolging.id, null, null)
+            }
+        }
+
+        test("henter beskrivelse og faneinnhold fra Sanity når MIGRERT_REDAKSJONELT_INNHOLD ikke er aktivert") {
+            val tiltakstyper = createService().hentTiltakstyper()
+
+            val oppfolging = tiltakstyper.find { it.id == TiltakstypeFixtures.Oppfolging.id }
+            oppfolging.shouldNotBeNull()
+            oppfolging.beskrivelse shouldBe sanityBeskrivelse
+            oppfolging.faneinnhold shouldBe sanityFaneinnhold
+        }
+
+        test("henter beskrivelse og faneinnhold fra databasen når MIGRERT_REDAKSJONELT_INNHOLD er aktivert") {
+            val features = mapOf(Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD))
+            val tiltakstyper = createService(features).hentTiltakstyper()
+
+            val oppfolging = tiltakstyper.find { it.id == TiltakstypeFixtures.Oppfolging.id }
+            oppfolging.shouldNotBeNull()
+            oppfolging.beskrivelse shouldBe dbBeskrivelse
+            oppfolging.faneinnhold shouldBe dbFaneinnhold
+        }
     }
 })

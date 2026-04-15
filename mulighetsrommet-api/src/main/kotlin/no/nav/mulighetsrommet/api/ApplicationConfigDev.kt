@@ -10,8 +10,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.service.tidligstTidspunktForUtbetalingDev
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
@@ -142,6 +142,11 @@ val ApplicationConfigDev = AppConfig(
                 rolle = Rolle.KONTAKTPERSON,
             ),
 
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "6918b584-8d32-4bd4-a4f2-96f47ae6dd63".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_tiltakstype-skriv",
+                rolle = Rolle.TILTAKSTYPER_SKRIV,
+            ),
             EntraGroupNavAnsattRolleMapping(
                 entraGroupId = "48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(),
                 kommentar = "0000-CA-Tiltaksadministrasjon_avtale-skriv",

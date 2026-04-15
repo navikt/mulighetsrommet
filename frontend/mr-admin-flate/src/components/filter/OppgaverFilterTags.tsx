@@ -23,7 +23,7 @@ export function OppgaveFilterTags({
 }: Props) {
   const { data: oppgavetyper } = useGetOppgavetyper();
   const { data: regioner } = useKontorstruktur();
-  const { data: tiltakstyper } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyper();
 
   const removeArrayItem = (key: keyof OppgaverFilterType, value: any) => {
     updateFilter({

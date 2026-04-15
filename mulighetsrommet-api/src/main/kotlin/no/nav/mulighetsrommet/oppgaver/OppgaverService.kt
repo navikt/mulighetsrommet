@@ -409,7 +409,7 @@ private fun GjennomforingManglerAdministratorOppgaveData.toOppgave(ansatt: NavAn
     ),
     createdAt = oppdatertTidspunkt,
 ).takeIf {
-    GjennomforingDetaljerService.tilgangTilHandling(GjennomforingHandling.REDIGER, ansatt)
+    GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.REDIGER)
 }
 
 private fun getOkonomiOppgaveTitle(tiltakstype: OppgaveTiltakstype, gjennomforing: OppgaveGjennomforing): String {

@@ -11,7 +11,7 @@ function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
   const { data: defaults } = useTilsagnRequest(tilsagnId);
   const kostnadssteder = useRelevanteKostnadssteder(
     tilsagnDetaljer.tilsagn.type,
-    "ansvarligEnhet" in gjennomforing ? (gjennomforing.ansvarligEnhet?.enhetsnummer ?? null) : null,
+    "ansvarligEnhet" in gjennomforing ? gjennomforing.ansvarligEnhet.enhetsnummer : null,
     veilederinfo?.kontorstruktur ?? [],
   );
   return {

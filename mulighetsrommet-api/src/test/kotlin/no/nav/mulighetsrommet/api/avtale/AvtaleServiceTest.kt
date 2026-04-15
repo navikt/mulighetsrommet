@@ -40,8 +40,8 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
@@ -96,7 +96,7 @@ class AvtaleServiceTest : FunSpec({
         config = AvtaleService.Config(mapOf()),
         database.db,
         arrangorService,
-        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db),
+        TiltakstypeService(TiltakstypeService.Config(features), database.db),
         gjennomforingPublisher,
     )
 

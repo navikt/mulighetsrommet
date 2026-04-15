@@ -1,25 +1,36 @@
-import { RegelverkLenke } from "@api-client";
+import { RedaksjoneltInnholdLenke } from "@api-client";
 import { Link, VStack } from "@navikt/ds-react";
+
 interface RegelverkInfoProps {
-  regelverkLenker?: RegelverkLenke[];
+  regelverkLenker?: RedaksjoneltInnholdLenke[];
 }
 
-const RegelverkInfo = ({ regelverkLenker }: RegelverkInfoProps) => {
-  const regelverkLenkeComponent = (regelverkLenke: RegelverkLenke) => {
-    return (
-      regelverkLenke.regelverkUrl && (
-        <Link target="_blank" href={regelverkLenke.regelverkUrl} key={regelverkLenke._id}>
-          {regelverkLenke.regelverkLenkeNavn}{" "}
-        </Link>
-      )
-    );
-  };
+export function RegelverkInfo({ regelverkLenker }: RegelverkInfoProps) {
+  if (!regelverkLenker) {
+    return null;
+  }
 
   return (
     <VStack gap="space-1" align="end">
-      {regelverkLenker && regelverkLenker.map(regelverkLenkeComponent)}
+      {regelverkLenker.map((lenke) => (
+        <Regelverklenke key={lenke.url} lenke={lenke} />
+      ))}
     </VStack>
   );
-};
+}
 
-export default RegelverkInfo;
+interface RegelverklenkeProps {
+  lenke: RedaksjoneltInnholdLenke;
+}
+
+function Regelverklenke({ lenke }: RegelverklenkeProps) {
+  if (!lenke.url) {
+    return null;
+  }
+
+  return (
+    <Link target="_blank" href={lenke.url} key={lenke.url}>
+      {lenke.navn}{" "}
+    </Link>
+  );
+}

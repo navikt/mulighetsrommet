@@ -9,7 +9,7 @@ import { Alert } from "@navikt/ds-react";
 import { Innsatsgruppe, NavEnhetType } from "@api-client";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
-import { LenkeListe } from "@/components/sidemeny/Lenker";
+import { SidemenyLenker } from "@/components/sidemeny/SidemenyLenker";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
   const { data: tiltak } = usePreviewArbeidsmarkedstiltakById();
@@ -54,7 +54,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
                 <PersonvernContainer tiltak={tiltak} />
               </ArbeidsmarkedstiltakErrorBoundary>
             ) : null}
-            {tiltak.faneinnhold?.lenker && <LenkeListe lenker={tiltak.faneinnhold.lenker} />}
+            <SidemenyLenker tiltak={tiltak} />
           </>
         }
       />

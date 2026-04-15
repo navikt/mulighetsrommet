@@ -7,7 +7,7 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -52,15 +52,8 @@ class GjennomforingRequestKafkaConsumer(
             arrangorId = arrangor.id,
             status = GjennomforingStatusType.GJENNOMFORES,
             prisbetingelser = request.prisinformasjon,
-            deltidsprosent = 100.0,
-            antallPlasser = 1,
             ansvarligEnhet = request.ansvarligEnhet,
-            navn = null,
-            startDato = null,
-            sluttDato = null,
-            arenaTiltaksnummer = null,
-            arenaAnsvarligEnhet = null,
         )
-        enkeltplasser.create(opprett)
+        enkeltplasser.create(opprett, request.opprettetAv)
     }
 }
