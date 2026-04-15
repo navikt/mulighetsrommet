@@ -155,7 +155,7 @@ class TiltakstypeQueries(private val session: Session) {
 
         @Language("PostgreSQL")
         val query = """
-            select *, count(*) over() as total_count
+            select id, navn, tiltakskode, arena_kode, start_dato, slutt_dato, sanity_id, innsatsgrupper, status
             from view_tiltakstype
             where (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder))
               and (:statuser::text[] is null or status = any(:statuser))
@@ -163,6 +163,17 @@ class TiltakstypeQueries(private val session: Session) {
         """.trimIndent()
 
         return list(queryOf(query, parameters)) { it.toTiltakstype() }
+    }
+
+    fun getVeilederinfo(id: UUID): TiltakstypeVeilderinfo? = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            select beskrivelse, faneinnhold, faglenker, kan_kombineres_med
+            from view_tiltakstype
+            where id = ?::uuid
+        """.trimIndent()
+
+        return single(queryOf(query, id)) { it.toVeilederinfo() }
     }
 
     private fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? = with(session) {
@@ -301,14 +312,6 @@ class TiltakstypeQueries(private val session: Session) {
             ?.toSet()
             ?: emptySet()
 
-        val kanKombineresMed = stringOrNull("kan_kombineres_med")
-            ?.let { Json.decodeFromString<List<String>>(it) }
-            ?: emptyList()
-
-        val faglenker = stringOrNull("faglenker")
-            ?.let { Json.decodeFromString<List<RedaksjoneltInnholdLenke>>(it) }
-            ?: emptyList()
-
         return Tiltakstype(
             id = uuid("id"),
             navn = string("navn"),
@@ -319,12 +322,23 @@ class TiltakstypeQueries(private val session: Session) {
             sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
             status = TiltakstypeStatus.valueOf(string("status")),
-            veilederinfo = TiltakstypeVeilderinfo(
-                beskrivelse = stringOrNull("beskrivelse"),
-                faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
-                faglenker = faglenker,
-                kanKombineresMed = kanKombineresMed,
-            ),
+        )
+    }
+
+    private fun Row.toVeilederinfo(): TiltakstypeVeilderinfo {
+        val kanKombineresMed = stringOrNull("kan_kombineres_med")
+            ?.let { Json.decodeFromString<List<String>>(it) }
+            ?: emptyList()
+
+        val faglenker = stringOrNull("faglenker")
+            ?.let { Json.decodeFromString<List<RedaksjoneltInnholdLenke>>(it) }
+            ?: emptyList()
+
+        return TiltakstypeVeilderinfo(
+            beskrivelse = stringOrNull("beskrivelse"),
+            faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+            faglenker = faglenker,
+            kanKombineresMed = kanKombineresMed,
         )
     }
 

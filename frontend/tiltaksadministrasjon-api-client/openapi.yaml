@@ -98,7 +98,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TiltakstypeDto"
+                  $ref: "#/components/schemas/TiltakstypeKompaktDto"
         default:
           description: Problem details
           headers: {}
@@ -3220,7 +3220,7 @@ components:
       - status
       - title
       - type
-    TiltakstypeDto:
+    TiltakstypeKompaktDto:
       type: object
       properties:
         id:
@@ -3249,12 +3249,6 @@ components:
           default: null
         status:
           $ref: "#/components/schemas/TiltakstypeStatus"
-        sanityId:
-          type:
-          - "null"
-          - string
-          format: uuid
-          default: null
         features:
           type: array
           items:
@@ -3267,20 +3261,16 @@ components:
             $ref: "#/components/schemas/TiltakstypeEgenskap"
           uniqueItems: true
           default: null
-        veilederinfo:
-          $ref: "#/components/schemas/TiltakstypeVeilderinfo"
       required:
       - egenskaper
       - features
       - gruppe
       - id
       - navn
-      - sanityId
       - sluttDato
       - startDato
       - status
       - tiltakskode
-      - veilederinfo
     Tiltakskode:
       type: string
       enum:
@@ -3461,6 +3451,67 @@ components:
       - lenke
       - lenkenavn
       - visKunForVeileder
+    TiltakstypeDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          default: null
+        navn:
+          type: string
+          default: null
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        gruppe:
+          type:
+          - "null"
+          - string
+          default: null
+        startDato:
+          type: string
+          format: date
+          default: null
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+          default: null
+        status:
+          $ref: "#/components/schemas/TiltakstypeStatus"
+        sanityId:
+          type:
+          - "null"
+          - string
+          format: uuid
+          default: null
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeFeature"
+          uniqueItems: true
+          default: null
+        egenskaper:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeEgenskap"
+          uniqueItems: true
+          default: null
+        veilederinfo:
+          $ref: "#/components/schemas/TiltakstypeVeilderinfo"
+      required:
+      - egenskaper
+      - features
+      - gruppe
+      - id
+      - navn
+      - sanityId
+      - sluttDato
+      - startDato
+      - status
+      - tiltakskode
+      - veilederinfo
     TiltakstypeHandling:
       type: string
       enum:

@@ -16,5 +16,4 @@ data class Tiltakstype(
     val sluttDato: LocalDate?,
     val status: TiltakstypeStatus,
     val sanityId: UUID?,
-    val veilederinfo: TiltakstypeVeilderinfo,
 )

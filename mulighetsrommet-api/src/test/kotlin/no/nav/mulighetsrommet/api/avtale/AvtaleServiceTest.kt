@@ -96,7 +96,7 @@ class AvtaleServiceTest : FunSpec({
         config = AvtaleService.Config(mapOf()),
         database.db,
         arrangorService,
-        TiltakstypeService(TiltakstypeService.Config(features), database.db, mockk()),
+        TiltakstypeService(TiltakstypeService.Config(features), database.db),
         gjennomforingPublisher,
     )
 

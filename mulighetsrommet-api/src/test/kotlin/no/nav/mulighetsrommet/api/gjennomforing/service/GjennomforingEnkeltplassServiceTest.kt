@@ -54,7 +54,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             config = GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             db = database.db,
             personaliaService = mockk(),
-            tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.db, mockk()),
+            tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.db),
         )
     }
 

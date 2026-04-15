@@ -15,13 +15,14 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeHandling
-import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKompaktDto
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
 fun Route.tiltakstypeRoutes() {
-    val tiltakstypeService: TiltakstypeService by inject()
+    val tiltakstypeDetaljerService: TiltakstypeDetaljerService by inject()
 
     route("tiltakstyper") {
         get({
@@ -33,7 +34,7 @@ fun Route.tiltakstypeRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Tiltakstyper i Tiltaksadministrasjon"
-                    body<List<TiltakstypeDto>>()
+                    body<List<TiltakstypeKompaktDto>>()
                 }
                 default {
                     description = "Problem details"
@@ -43,7 +44,7 @@ fun Route.tiltakstypeRoutes() {
         }) {
             val filter = getTiltakstypeFilter()
 
-            val tiltakstyper = tiltakstypeService.getAll(filter)
+            val tiltakstyper = tiltakstypeDetaljerService.getAll(filter)
 
             call.respond(tiltakstyper)
         }
@@ -67,7 +68,7 @@ fun Route.tiltakstypeRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            val tiltakstype = tiltakstypeService.getById(id) ?: return@get call.respondText(
+            val tiltakstype = tiltakstypeDetaljerService.getById(id) ?: return@get call.respondText(
                 "Det finnes ikke noe tiltakstype med id $id",
                 status = HttpStatusCode.NotFound,
             )
@@ -95,7 +96,7 @@ fun Route.tiltakstypeRoutes() {
             val id: UUID by call.parameters
             val navIdent = getNavIdent()
 
-            val handlinger = tiltakstypeService.getHandlinger(id, navIdent)
+            val handlinger = tiltakstypeDetaljerService.getHandlinger(id, navIdent)
 
             call.respond(handlinger)
         }
@@ -125,7 +126,7 @@ fun Route.tiltakstypeRoutes() {
                 val id: UUID by call.parameters
                 val request = call.receive<TiltakstypeVeilederinfoRequest>()
 
-                val result = tiltakstypeService.upsertRedaksjoneltInnhold(id, request) ?: return@post call.respondText(
+                val result = tiltakstypeDetaljerService.upsertRedaksjoneltInnhold(id, request) ?: return@post call.respondText(
                     "Det finnes ikke noe tiltakstype med id $id",
                     status = HttpStatusCode.NotFound,
                 )

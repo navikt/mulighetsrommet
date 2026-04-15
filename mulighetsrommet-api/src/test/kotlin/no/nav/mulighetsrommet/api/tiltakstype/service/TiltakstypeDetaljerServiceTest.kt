@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.toUUID
 import java.util.UUID
 
-class TiltakstypeServiceTest : FunSpec({
+class TiltakstypeDetaljerServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val sanityId = UUID.randomUUID()
@@ -61,13 +61,20 @@ class TiltakstypeServiceTest : FunSpec({
         coEvery { sanityService.getTiltakstyper() } returns listOf(sanityTiltakstype)
     }
 
-    fun createService(vararg features: TiltakstypeFeature) = TiltakstypeService(
-        config = TiltakstypeService.Config(
-            features = mapOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to setOf(*features)),
-        ),
-        db = database.db,
-        sanityService = sanityService,
-    )
+    fun createService(vararg features: TiltakstypeFeature): TiltakstypeDetaljerService {
+        val tiltakstypeService = TiltakstypeService(
+            config = TiltakstypeService.Config(
+                features = mapOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to setOf(*features)),
+            ),
+            db = database.db,
+        )
+        return TiltakstypeDetaljerService(
+            db = database.db,
+            tiltakstypeService = tiltakstypeService,
+            sanityService = sanityService,
+            navAnsattService = mockk(),
+        )
+    }
 
     context("getById") {
         test("returnerer redaksjonelt innhold fra Sanity når MIGRERT_REDAKSJONELT_INNHOLD ikke er satt") {

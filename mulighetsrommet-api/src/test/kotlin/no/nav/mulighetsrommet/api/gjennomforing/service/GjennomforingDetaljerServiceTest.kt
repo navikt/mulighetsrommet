@@ -64,7 +64,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
 
     fun createService(): GjennomforingDetaljerService {
         val features = Tiltakskode.entries.associateWith { setOf(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD) }
-        val tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db, mockk())
+        val tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db)
         return GjennomforingDetaljerService(
             db = database.db,
             tiltakstypeService = tiltakstypeService,
