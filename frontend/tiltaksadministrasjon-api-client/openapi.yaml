@@ -98,7 +98,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TiltakstypeDto"
+                  $ref: "#/components/schemas/TiltakstypeKompaktDto"
         default:
           description: Problem details
           headers: {}
@@ -137,11 +137,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltakstyper/{id}/faneinnhold:
+  /api/tiltaksadministrasjon/tiltakstyper/{id}/handlinger:
     get:
       tags:
       - Tiltakstype
-      operationId: getTiltakstypeFaneinnhold
+      operationId: getTiltakstypeHandlinger
       parameters:
       - name: id
         in: path
@@ -153,12 +153,15 @@ paths:
           format: uuid
       responses:
         "200":
-          description: Faneinnhold for tiltakstype
+          description: Mulige handlinger på tiltakstype for innlogget bruker
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VeilederflateTiltakstype"
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltakstypeHandling"
+                uniqueItems: true
         default:
           description: Problem details
           headers: {}
@@ -167,11 +170,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltakstyper/{id}/redaksjonelt-innhold:
+  /api/tiltaksadministrasjon/tiltakstyper/{id}/veilederinfo:
     post:
       tags:
       - Tiltakstype
-      operationId: upsertTiltakstypeRedaksjoneltInnhold
+      operationId: updateVeilederinfo
       parameters:
       - name: id
         in: path
@@ -185,7 +188,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TiltakstypeRedaksjoneltInnholdRequest"
+              $ref: "#/components/schemas/TiltakstypeVeilederinfoRequest"
         required: false
       responses:
         "200":
@@ -3152,7 +3155,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 9
+        - 10
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -3217,7 +3220,7 @@ components:
       - status
       - title
       - type
-    TiltakstypeDto:
+    TiltakstypeKompaktDto:
       type: object
       properties:
         id:
@@ -3246,12 +3249,6 @@ components:
           default: null
         status:
           $ref: "#/components/schemas/TiltakstypeStatus"
-        sanityId:
-          type:
-          - "null"
-          - string
-          format: uuid
-          default: null
         features:
           type: array
           items:
@@ -3264,37 +3261,12 @@ components:
             $ref: "#/components/schemas/TiltakstypeEgenskap"
           uniqueItems: true
           default: null
-        beskrivelse:
-          type:
-          - "null"
-          - string
-          default: null
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
-        faglenker:
-          type: array
-          items:
-            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
-          default: null
-        kanKombineresMed:
-          type: array
-          items:
-            type: string
-            default: null
-          default: null
       required:
-      - beskrivelse
       - egenskaper
-      - faglenker
-      - faneinnhold
       - features
       - gruppe
       - id
-      - kanKombineresMed
       - navn
-      - sanityId
       - sluttDato
       - startDato
       - status
@@ -3339,6 +3311,34 @@ components:
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
+    TiltakstypeVeilderinfo:
+      type: object
+      properties:
+        beskrivelse:
+          type:
+          - "null"
+          - string
+          default: null
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        faglenker:
+          type: array
+          items:
+            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
+          default: null
+        kanKombineresMed:
+          type: array
+          items:
+            type: string
+            default: null
+          default: null
+      required:
+      - beskrivelse
+      - faglenker
+      - faneinnhold
+      - kanKombineresMed
     Faneinnhold:
       type: object
       properties:
@@ -3451,26 +3451,40 @@ components:
       - lenke
       - lenkenavn
       - visKunForVeileder
-    Innsatsgruppe:
-      type: string
-      enum:
-      - GODE_MULIGHETER
-      - TRENGER_VEILEDNING
-      - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
-      - JOBBE_DELVIS
-      - LITEN_MULIGHET_TIL_A_JOBBE
-    VeilederflateTiltakstype:
+    TiltakstypeDto:
       type: object
       properties:
         id:
           type: string
           format: uuid
           default: null
-        sanityId:
-          type: string
-          default: null
         navn:
           type: string
+          default: null
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        gruppe:
+          type:
+          - "null"
+          - string
+          default: null
+        startDato:
+          type: string
+          format: date
+          default: null
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+          default: null
+        status:
+          $ref: "#/components/schemas/TiltakstypeStatus"
+        sanityId:
+          type:
+          - "null"
+          - string
+          format: uuid
           default: null
         features:
           type: array
@@ -3484,70 +3498,25 @@ components:
             $ref: "#/components/schemas/TiltakstypeEgenskap"
           uniqueItems: true
           default: null
-        beskrivelse:
-          type:
-          - "null"
-          - string
-          default: null
-        innsatsgrupper:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/Innsatsgruppe"
-          default: null
-        regelverkLenker:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
-          default: null
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
-        delingMedBruker:
-          type:
-          - "null"
-          - string
-          default: null
-        arenakode:
-          type:
-          - "null"
-          - string
-          default: null
-        tiltakskode:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Tiltakskode"
-        tiltaksgruppe:
-          type:
-          - "null"
-          - string
-          default: null
-        kanKombineresMed:
-          type: array
-          items:
-            type: string
-            default: null
-          default: null
+        veilederinfo:
+          $ref: "#/components/schemas/TiltakstypeVeilderinfo"
       required:
-      - arenakode
-      - beskrivelse
-      - delingMedBruker
       - egenskaper
-      - faneinnhold
       - features
+      - gruppe
       - id
-      - innsatsgrupper
-      - kanKombineresMed
       - navn
-      - regelverkLenker
       - sanityId
-      - tiltaksgruppe
+      - sluttDato
+      - startDato
+      - status
       - tiltakskode
-    TiltakstypeRedaksjoneltInnholdRequest:
+      - veilederinfo
+    TiltakstypeHandling:
+      type: string
+      enum:
+      - REDIGER_VEILEDERINFO
+    TiltakstypeVeilederinfoRequest:
       type: object
       properties:
         beskrivelse:

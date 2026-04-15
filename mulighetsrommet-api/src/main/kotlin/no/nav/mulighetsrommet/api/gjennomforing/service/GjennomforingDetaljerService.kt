@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
-import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
@@ -83,14 +82,12 @@ class GjennomforingDetaljerService(
         }
     }
 
-    suspend fun getAllKompaktDto(
+    fun getAllKompaktDto(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
         val tiltakstyper = filter.tiltakstypeIder.ifEmpty {
-            tiltakstypeService
-                .getAll(TiltakstypeFilter(features = setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)))
-                .map { it.id }
+            tiltakstypeService.getAllIdsByFeatures(setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON))
         }
         queries.gjennomforing.getAll(
             pagination,
@@ -113,7 +110,7 @@ class GjennomforingDetaljerService(
         }
     }
 
-    suspend fun exportToExcel(
+    fun exportToExcel(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): File {

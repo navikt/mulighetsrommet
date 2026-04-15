@@ -23,7 +23,7 @@ import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useParams } from "react-router";
 import { useTiltakstyperForAvtaler } from "@/api/tiltakstyper/useTiltakstyperForAvtaler";
 import { erUtfaset } from "@/utils/tiltakstype";
-import { SkjemaKolonne } from "../../layouts/SkjemaKolonne";
+import { SkjemaKolonne } from "@/layouts/SkjemaKolonne";
 import { administratorOptions } from "../skjema/administratorOptions";
 import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
 

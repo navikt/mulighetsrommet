@@ -21,7 +21,7 @@ export function TiltakstypePage() {
       tittel: "Tiltakstype",
       lenke: currentTab === "detaljer" ? undefined : `/tiltakstyper/${tiltakstypeId}`,
     },
-    currentTab === "redaksjonelt-innhold" ? { tittel: "Redaksjonelt innhold" } : undefined,
+    currentTab === "redaksjonelt-innhold" ? { tittel: "Informasjon for veiledere" } : undefined,
   ];
 
   return (
@@ -80,7 +80,7 @@ function useTabs(tiltakstypeId: string): [string, Tab[]] {
 
   const tabConfigs = [
     { key: "detaljer", label: "Detaljer" },
-    { key: "redaksjonelt-innhold", label: "Redaksjonelt innhold" },
+    { key: "redaksjonelt-innhold", label: "Informasjon for veiledere" },
   ];
 
   const tabs: Tab[] = tabConfigs.map(({ key, label }) => ({

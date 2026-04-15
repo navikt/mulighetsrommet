@@ -3,7 +3,7 @@ import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { RedaksjoneltInnholdLenke, TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useUpdateTiltakstypeRedaksjoneltInnhold } from "@/api/tiltakstyper/useUpdateTiltakstypeRedaksjoneltInnhold";
+import { useUpdateTiltakstypeVeilederinfo } from "@/api/tiltakstyper/useUpdateTiltakstypeVeilederinfo";
 import { useRedaksjoneltInnholdLenker } from "@/api/redaksjonelt-innhold/useRedaksjoneltInnholdLenker";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
@@ -25,19 +25,23 @@ interface Props {
   onCancel?: () => void;
 }
 
-export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onCancel }: Props) {
-  const mutation = useUpdateTiltakstypeRedaksjoneltInnhold(tiltakstype.id);
+export function TiltakstypeInformasjonForVeiledereForm({
+  tiltakstype,
+  onSuccess,
+  onCancel,
+}: Props) {
+  const mutation = useUpdateTiltakstypeVeilederinfo(tiltakstype.id);
   const tiltakstyper = useTiltakstyper();
   const [modalOpen, setModalOpen] = useState(false);
 
   const methods = useForm<TiltakstypeRedaksjoneltInnholdFormValues>({
     resolver: zodResolver(TiltakstypeRedaksjoneltInnholdSchema) as any,
     defaultValues: {
-      beskrivelse: tiltakstype.beskrivelse || null,
-      faneinnhold: tiltakstype.faneinnhold,
-      faglenker: tiltakstype.faglenker.map((l) => ({ id: l.id })),
+      beskrivelse: tiltakstype.veilederinfo.beskrivelse || null,
+      faneinnhold: tiltakstype.veilederinfo.faneinnhold,
+      faglenker: tiltakstype.veilederinfo.faglenker.map((l) => ({ id: l.id })),
       kanKombineresMed: tiltakstyper
-        .filter((t) => tiltakstype.kanKombineresMed.includes(t.navn))
+        .filter((t) => tiltakstype.veilederinfo.kanKombineresMed.includes(t.navn))
         .map((t) => t.id),
     },
   });
@@ -73,11 +77,7 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onC
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <FormButtons
-          submitLabel="Lagre redaksjonelt innhold"
-          onCancel={onCancel}
-          isPending={mutation.isPending}
-        />
+        <FormButtons submitLabel="Lagre" onCancel={onCancel} isPending={mutation.isPending} />
         <Separator />
         <TwoColumnGrid separator>
           <RedaksjoneltInnholdForm
@@ -115,11 +115,7 @@ export function TiltakstypeRedaksjoneltInnholdForm({ tiltakstype, onSuccess, onC
           </VStack>
         </TwoColumnGrid>
         <Separator />
-        <FormButtons
-          submitLabel="Lagre redaksjonelt innhold"
-          onCancel={onCancel}
-          isPending={mutation.isPending}
-        />
+        <FormButtons submitLabel="Lagre" onCancel={onCancel} isPending={mutation.isPending} />
       </form>
     </FormProvider>
   );

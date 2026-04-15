@@ -1,8 +1,15 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
+import { TiltakstypeDto, TiltakstypeHandling } from "@tiltaksadministrasjon/api-client";
 import { paginertMockTiltakstyper } from "@/mocks/fixtures/mock_tiltakstyper";
 
 export const tiltakstypeHandlers = [
+  http.get<{ id: string }, undefined, TiltakstypeHandling[]>(
+    "/api/tiltaksadministrasjon/tiltakstyper/:id/handlinger",
+    () => {
+      return HttpResponse.json([TiltakstypeHandling.REDIGER_VEILEDERINFO]);
+    },
+  ),
+
   http.get<PathParams, TiltakstypeDto[]>("*/api/tiltaksadministrasjon/tiltakstyper", () => {
     return HttpResponse.json(paginertMockTiltakstyper);
   }),

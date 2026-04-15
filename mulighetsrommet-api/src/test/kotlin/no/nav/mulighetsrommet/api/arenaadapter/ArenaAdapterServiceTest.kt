@@ -48,7 +48,6 @@ class ArenaAdapterServiceTest : FunSpec({
         val tiltakstypeService = TiltakstypeService(
             TiltakstypeService.Config(features),
             database.db,
-            mockk(relaxed = true),
         )
         return ArenaAdapterService(
             db = database.db,

@@ -8,9 +8,8 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
-
 @Serializable
-data class TiltakstypeDto(
+data class TiltakstypeKompaktDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
@@ -21,31 +20,6 @@ data class TiltakstypeDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val status: TiltakstypeStatus,
-    @Serializable(with = UUIDSerializer::class)
-    val sanityId: UUID?,
     val features: Set<TiltakstypeFeature>,
     val egenskaper: Set<TiltakstypeEgenskap>,
-    val veilederinfo: TiltakstypeVeilderinfo,
 )
-
-enum class TiltakstypeFeature {
-    /**
-     * Vises i Tiltaksadministrasjon
-     */
-    VISES_I_TILTAKSADMINISTRASJON,
-
-    /**
-     * Administreres i Tiltaksadministrasjon og deles med Arena
-     */
-    MIGRERT,
-
-    /**
-     * Kan fortsatt redigeres, men ikke opprettes nye.
-     */
-    UTFASET,
-
-    /**
-     * Redaksjonelt innhold hentes fra databasen i stedet for Sanity.
-     */
-    MIGRERT_REDAKSJONELT_INNHOLD,
-}

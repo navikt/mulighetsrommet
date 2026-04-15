@@ -4,20 +4,16 @@ import { useApiMutation } from "@/hooks/useApiMutation";
 import {
   ProblemDetail,
   TiltakstypeDto,
-  TiltakstypeRedaksjoneltInnholdRequest,
   TiltakstypeService,
+  TiltakstypeVeilederinfoRequest,
 } from "@tiltaksadministrasjon/api-client";
 
-export function useUpdateTiltakstypeRedaksjoneltInnhold(id: string) {
+export function useUpdateTiltakstypeVeilederinfo(id: string) {
   const queryClient = useQueryClient();
 
-  return useApiMutation<
-    { data: TiltakstypeDto },
-    ProblemDetail,
-    TiltakstypeRedaksjoneltInnholdRequest
-  >({
-    mutationFn(body: TiltakstypeRedaksjoneltInnholdRequest) {
-      return TiltakstypeService.upsertTiltakstypeRedaksjoneltInnhold({
+  return useApiMutation<{ data: TiltakstypeDto }, ProblemDetail, TiltakstypeVeilederinfoRequest>({
+    mutationFn(body: TiltakstypeVeilederinfoRequest) {
+      return TiltakstypeService.updateVeilederinfo({
         path: { id },
         body,
       });

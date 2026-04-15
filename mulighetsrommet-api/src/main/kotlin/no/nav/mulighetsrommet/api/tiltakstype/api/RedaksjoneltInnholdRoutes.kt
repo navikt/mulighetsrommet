@@ -10,7 +10,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -95,10 +94,3 @@ fun Route.redaksjoneltInnholdRoutes() {
         }
     }
 }
-
-@Serializable
-data class RedaksjoneltInnholdLenkeRequest(
-    val url: String,
-    val navn: String?,
-    val beskrivelse: String?,
-)

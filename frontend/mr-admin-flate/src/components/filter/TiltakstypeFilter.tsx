@@ -1,9 +1,9 @@
 import { CheckboxGroup } from "@mr/frontend-common";
-import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
+import { TiltakstypeKompaktDto } from "@tiltaksadministrasjon/api-client";
 import { useMemo } from "react";
 
 interface Props {
-  tiltakstyper: TiltakstypeDto[];
+  tiltakstyper: TiltakstypeKompaktDto[];
   value: string[];
   onChange: (tiltakstyper: string[]) => void;
 }
@@ -21,7 +21,7 @@ export function TiltakstypeFilter({ tiltakstyper, value, onChange }: Props) {
   );
 }
 
-function useTiltakstyperFilter(tiltakstyper: TiltakstypeDto[]) {
+function useTiltakstyperFilter(tiltakstyper: TiltakstypeKompaktDto[]) {
   return useMemo(() => {
     const tiltakstyperByGroup = Object.entries(
       Object.groupBy(tiltakstyper, (tiltakstype) => tiltakstype.gruppe || ""),

@@ -7,20 +7,20 @@ import { RedaksjoneltInnholdLenke, TiltakstypeDto } from "@tiltaksadministrasjon
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { RedaksjoneltInnhold } from "@/components/redaksjoneltInnhold/RedaksjoneltInnhold";
 
-export function TiltakstypePageRedaksjoneltInnhold() {
+export function TiltakstypeInformasjonForVeilederePage() {
   const { data: tiltakstype } = useTiltakstypeById();
 
   return (
     <VStack>
       <TiltakstypeHandlinger />
       <Separator />
-      <TiltakstypeRedaksjoneltInnhold tiltakstype={tiltakstype} />
+      <TiltakstypeInformasjonForVeiledere tiltakstype={tiltakstype} />
     </VStack>
   );
 }
 
-function TiltakstypeRedaksjoneltInnhold({ tiltakstype }: { tiltakstype: TiltakstypeDto }) {
-  const { faglenker, kanKombineresMed } = tiltakstype;
+function TiltakstypeInformasjonForVeiledere({ tiltakstype }: { tiltakstype: TiltakstypeDto }) {
+  const { faglenker, kanKombineresMed } = tiltakstype.veilederinfo;
 
   return (
     <TwoColumnGrid separator>
