@@ -17,9 +17,7 @@ val tidligstTidspunktForUtbetalingProd = TidligstTidspunktForUtbetalingCalculato
         Tiltakskode.ARBEIDSRETTET_REHABILITERING,
         Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
         -> periode.getLastInclusiveDate()
-            .withDayOfMonth(7)
-            .plusMonths(1)
-            .plusDays(30)
+            .plusDays(37)
             .atStartOfDay()
             .atZone(ZoneId.of("Europe/Oslo"))
             .toInstant()
