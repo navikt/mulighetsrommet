@@ -146,17 +146,20 @@ data class VeilederflateTiltakstype(
     val id: UUID,
     val sanityId: String,
     val navn: String,
+    val tiltakskode: Tiltakskode?,
     val features: Set<TiltakstypeFeature>,
     val egenskaper: Set<TiltakstypeEgenskap>,
-    val beskrivelse: String?,
     val innsatsgrupper: Set<Innsatsgruppe>?,
-    val regelverkLenker: List<RedaksjoneltInnholdLenke>?,
-    val faneinnhold: Faneinnhold?,
-    val delingMedBruker: String?,
-    val arenakode: String?,
-    val tiltakskode: Tiltakskode?,
     val tiltaksgruppe: String?,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+    val faglenker: List<RedaksjoneltInnholdLenke>?,
     val kanKombineresMed: List<String>,
+
+    // TODO: felter under kan fjernes etter en graceperiode
+    val arenakode: String?,
+    val delingMedBruker: String?,
+    val regelverkLenker: List<RedaksjoneltInnholdLenke>?,
 )
 
 @Serializable

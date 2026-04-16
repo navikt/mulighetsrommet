@@ -1,19 +1,19 @@
 import { RedaksjoneltInnholdLenke } from "@api-client";
 import { Link, VStack } from "@navikt/ds-react";
 
-interface RegelverkInfoProps {
-  regelverkLenker?: RedaksjoneltInnholdLenke[];
+interface FaglenkerProps {
+  faglenker?: RedaksjoneltInnholdLenke[];
 }
 
-export function RegelverkInfo({ regelverkLenker }: RegelverkInfoProps) {
-  if (!regelverkLenker) {
+export function Faglenker({ faglenker }: FaglenkerProps) {
+  if (!faglenker) {
     return null;
   }
 
   return (
     <VStack gap="space-1" align="end">
-      {regelverkLenker.map((lenke) => (
-        <Regelverklenke key={lenke.url} lenke={lenke} />
+      {faglenker.map((lenke) => (
+        <Faglenke key={lenke.url} lenke={lenke} />
       ))}
     </VStack>
   );
@@ -23,7 +23,7 @@ interface RegelverklenkeProps {
   lenke: RedaksjoneltInnholdLenke;
 }
 
-function Regelverklenke({ lenke }: RegelverklenkeProps) {
+function Faglenke({ lenke }: RegelverklenkeProps) {
   if (!lenke.url) {
     return null;
   }

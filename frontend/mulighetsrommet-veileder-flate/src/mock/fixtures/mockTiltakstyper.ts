@@ -9,7 +9,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltaksgruppe: null,
     features: [],
     egenskaper: [],
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -184,7 +185,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     beskrivelse:
       "Opplæringstiltak i form av Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) er opplæring som fører frem mot fag- eller svennebrev, praksisbrev eller kompetansebevis som lærekandidat. \n\nOpplæringen skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ",
     navn: "Opplæring - Enkeltplass Fag- og yrkesopplæring",
-    regelverkLenker: null,
+    regelverkLenker: [],
+    faglenker: null,
     delingMedBruker: null,
     arenakode: null,
     tiltakskode: null,
@@ -319,7 +321,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     sanityId: "29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822",
     delingMedBruker:
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som har helseplager eller sosiale problemer.\n\nTiltaket blir tilpasset behovet ditt ut fra mulighetene dine på arbeidsmarkedet, og kan blant annet inneholde:\n- motivasjons- og mestringsaktiviteter\n- individuelt treningsopplegg med veiledning\n- arbeidsutprøving i trygge omgivelser\n- veiledning i livsstil\n\nDu kan lese mer om kurset på www.nav.no/arbeidsrettet-rehabilitering ",
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -590,7 +593,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     egenskaper: [],
     delingMedBruker:
       "Jobbklubb er et kortvarig tiltak for deg som søker jobb. Når du deltar på jobbklubb, får du støtte og hjelp til å orientere deg på arbeidsmarkedet og være en aktiv jobbsøker.\n\nDu kan lese mer om kurset på www.nav.no/jobbklubb",
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -1360,7 +1364,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     },
     id: "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3",
     sanityId: "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3",
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -1379,7 +1384,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     tiltakskode: null,
   },
   opplaring_fagskole: {
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -1818,7 +1824,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     navn: "Oppfølging",
     id: "5ac48c03-1f4c-4d4b-b862-050caca92080",
     sanityId: "5ac48c03-1f4c-4d4b-b862-050caca92080",
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -1846,7 +1853,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "Vi har et tilbud som jeg tenker kan passe for deg.  \n\nDet heter varig lønnstilskudd og er for deg med en varig og vesentlig nedsatt arbeidsevne. Tiltaket skal øke mulighetene for at du kan få en vanlig jobb. Du blir ansatt med vanlig lønn i en hel- eller deltidsstilling, mens arbeidsgiveren får et tilskudd til lønnen din. \n\nDu kan lese mer om tilbudet på https://www.nav.no/varig-lonnstilskudd",
     beskrivelse:
       "Varig lønnstilskudd skal bidra til å skaffe eller beholde arbeid, samt motvirke overgang til uføre for personer med varig og vesentlig nedsatt arbeidsevne",
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -2111,7 +2119,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     beskrivelse:
       "Opplæringstiltak i form av Gruppe Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ",
     kanKombineresMed: [],
-    regelverkLenker: null,
+    regelverkLenker: [],
+    faglenker: null,
     arenakode: null,
     tiltakskode: null,
   },
@@ -2164,7 +2173,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       lenker: null,
     },
     innsatsgrupper: [Innsatsgruppe.JOBBE_DELVIS, Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE],
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -2406,7 +2416,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       "Lønnstilskudd skal gi bistand til tiltaksdeltakere slik at de skaffer seg og/eller beholder, lønnet arbeid. Målet er at tiltaksdeltaker i størst mulig grad skal bli selvforsørget med en varig tilknytning til arbeidslivet.",
     navn: "Midlertidig lønnstilskudd",
     kanKombineresMed: [],
-    regelverkLenker: null,
+    regelverkLenker: [],
+    faglenker: null,
     arenakode: null,
     tiltakskode: null,
   },
@@ -2526,7 +2537,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     id: "ad998fc6-310e-45d4-a056-57732fed87b4",
     sanityId: "ad998fc6-310e-45d4-a056-57732fed87b4",
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -2568,7 +2580,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     id: "bbb8d042-b30e-4e4a-8cd0-210019b19de3",
     sanityId: "bbb8d042-b30e-4e4a-8cd0-210019b19de3",
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -2717,7 +2730,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     beskrivelse:
       "AFT er et tiltak som skal bidra til å prøve ut tiltaksdeltakerens arbeidsevne og til å styrke mulighetene for å få ordinært arbeid. Det er et tiltak med individuell tilrettelegging som kan tilbys personer med sammensatte bistandsbehov som har fått sin arbeidsevne nedsatt og som har særlig usikre yrkesmessige forutsetninger.",
 
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -3020,7 +3034,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     },
     delingMedBruker:
       "Arbeidstrening gir deg trening så du er klar for arbeidslivet.\nOm dette er noe for deg så send meg en melding i Dialogen.",
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -3050,7 +3065,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     sanityId: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
     delingMedBruker:
       "Har du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra Nav. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n",
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
@@ -3172,7 +3188,8 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     features: [],
     egenskaper: [],
     arenakode: "AVKLARAG",
-    regelverkLenker: [
+    regelverkLenker: [],
+    faglenker: [
       {
         id: "db0ea48f-cb63-416f-aa4d-1b210baec6bb",
         navn: "Regelverk",
