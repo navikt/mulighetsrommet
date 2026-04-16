@@ -267,11 +267,42 @@ enum class Tiltakskode(
 enum class TiltakstypeEgenskap {
     // TODO: erstatt med TILGJENGELIG_FOR_AVTALE
     KAN_OPPRETTE_AVTALE,
+
+    /**
+     * Indikerer at tiltakstypen er tilgjengelig for avtaler i Tiltaksadministrasjon.
+     * Dette styrer bl.a.
+     *   - Hvilke tiltakstyper som er synlig i filter for avtaler
+     *   - Validering av hvilke tiltakstyper som avtaler kan kobles til
+     */
     TILGJENGELIG_FOR_AVTALE,
+
+    /**
+     * Indikerer at tiltakstypen er tilgjengelig for tiltaksgjennomføringer i Tiltaksadministrasjon.
+     * Dette styrer bl.a.
+     *   - Hvilke tiltakstyper som er synlig i filter for gjennomføringer
+     *   - Validering av hvilke tiltakstyper som gjennomføring kan kobles til
+     */
     TILGJENGELIG_FOR_GJENNOMFORING,
+
+    /**
+     * Indikerer at det er mulig å opprette enkeltplasser for tiltakstypen.
+     */
     KAN_OPPRETTE_ENKELTPLASS,
+
+    /**
+     * Gjør deltidsprosent påkrevd i gjennomføringer
+     */
     KREVER_DELTIDSPROSENT,
+
+    /**
+     * Gjør deltakers innsøksform til "direkte vedtak" - altså at det er Nav-veileder som gjør vedtak om tiltaksplass.
+     * Hvis [KREVER_DIREKTE_VEDTAK] ikke er satt så kan innsøksform bestemmes av administrator for tiltaket.
+     */
     KREVER_DIREKTE_VEDTAK,
+
+    /**
+     * Indikerer at tiltakstypen støtter tilskudd for investeringer.
+     */
     STOTTER_TILSKUDD_FOR_INVESTERINGER,
 }
 
