@@ -12,18 +12,11 @@ import { Chips } from "@navikt/ds-react";
 interface Props {
   filter: AvtaleFilterType;
   updateFilter: (values: Partial<AvtaleFilterType>) => void;
-  tiltakstypeId?: string;
   filterOpen: boolean;
   setTagsHeight: (height: number) => void;
 }
 
-export function AvtaleFilterTags({
-  filter,
-  updateFilter,
-  tiltakstypeId,
-  filterOpen,
-  setTagsHeight,
-}: Props) {
+export function AvtaleFilterTags({ filter, updateFilter, filterOpen, setTagsHeight }: Props) {
   const tiltakstyper = useTiltakstyper();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,
@@ -68,15 +61,14 @@ export function AvtaleFilterTags({
             onClose={() => updateFilter({ navEnheter: [], page: 1 })}
           />
         )}
-        {!tiltakstypeId &&
-          filter.tiltakstyper.map((tiltakstype) => (
-            <Chips.Removable
-              key={tiltakstype}
-              onClick={() => removeArrayItem("tiltakstyper", tiltakstype)}
-            >
-              {tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
-            </Chips.Removable>
-          ))}
+        {filter.tiltakstyper.map((tiltakstype) => (
+          <Chips.Removable
+            key={tiltakstype}
+            onClick={() => removeArrayItem("tiltakstyper", tiltakstype)}
+          >
+            {tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
+          </Chips.Removable>
+        ))}
         {filter.arrangorer.map((id) => (
           <Chips.Removable key={id} onClick={() => removeArrayItem("arrangorer", id)}>
             {arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
