@@ -1486,6 +1486,15 @@ components:
         navn:
           type: string
           default: null
+        arenakode:
+          type:
+          - "null"
+          - string
+          default: null
+        tiltakskode:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Tiltakskode"
         features:
           type: array
           items:
@@ -1498,11 +1507,6 @@ components:
             $ref: "#/components/schemas/TiltakstypeEgenskap"
           uniqueItems: true
           default: null
-        beskrivelse:
-          type:
-          - "null"
-          - string
-          default: null
         innsatsgrupper:
           type:
           - "null"
@@ -1510,6 +1514,20 @@ components:
           items:
             $ref: "#/components/schemas/Innsatsgruppe"
           default: null
+        tiltaksgruppe:
+          type:
+          - "null"
+          - string
+          default: null
+        beskrivelse:
+          type:
+          - "null"
+          - string
+          default: null
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
         regelverkLenker:
           type:
           - "null"
@@ -1517,25 +1535,14 @@ components:
           items:
             $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
           default: null
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
+        faglenker:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
+          default: null
         delingMedBruker:
-          type:
-          - "null"
-          - string
-          default: null
-        arenakode:
-          type:
-          - "null"
-          - string
-          default: null
-        tiltakskode:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Tiltakskode"
-        tiltaksgruppe:
           type:
           - "null"
           - string
@@ -1551,6 +1558,7 @@ components:
       - beskrivelse
       - delingMedBruker
       - egenskaper
+      - faglenker
       - faneinnhold
       - features
       - id
@@ -1576,31 +1584,6 @@ components:
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
-    RedaksjoneltInnholdLenke:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          default: null
-        url:
-          type: string
-          default: null
-        navn:
-          type:
-          - "null"
-          - string
-          default: null
-        beskrivelse:
-          type:
-          - "null"
-          - string
-          default: null
-      required:
-      - beskrivelse
-      - id
-      - navn
-      - url
     Faneinnhold:
       type: object
       properties:
@@ -1713,6 +1696,31 @@ components:
       - lenke
       - lenkenavn
       - visKunForVeileder
+    RedaksjoneltInnholdLenke:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          default: null
+        url:
+          type: string
+          default: null
+        navn:
+          type:
+          - "null"
+          - string
+          default: null
+        beskrivelse:
+          type:
+          - "null"
+          - string
+          default: null
+      required:
+      - beskrivelse
+      - id
+      - navn
+      - url
     ApentForPamelding:
       type: string
       enum:
