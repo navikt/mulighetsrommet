@@ -1486,11 +1486,6 @@ components:
         navn:
           type: string
           default: null
-        arenakode:
-          type:
-          - "null"
-          - string
-          default: null
         tiltakskode:
           oneOf:
           - type: "null"
@@ -1528,13 +1523,6 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Faneinnhold"
-        regelverkLenker:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
-          default: null
         faglenker:
           type:
           - "null"
@@ -1542,16 +1530,28 @@ components:
           items:
             $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
           default: null
-        delingMedBruker:
-          type:
-          - "null"
-          - string
-          default: null
         kanKombineresMed:
           type: array
           items:
             type: string
             default: null
+          default: null
+        arenakode:
+          type:
+          - "null"
+          - string
+          default: null
+        delingMedBruker:
+          type:
+          - "null"
+          - string
+          default: null
+        regelverkLenker:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
           default: null
       required:
       - arenakode
