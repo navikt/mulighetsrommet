@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import org.intellij.lang.annotations.Language
-import java.sql.Array
 import java.util.UUID
 
 class TiltakstypeQueries(private val session: Session) {
@@ -35,7 +34,7 @@ class TiltakstypeQueries(private val session: Session) {
             values (
                 :id::uuid,
                 :navn,
-                :tiltakskode::tiltakskode,
+                :tiltakskode,
                 :arena_kode,
                 :start_dato,
                 :slutt_dato
@@ -112,7 +111,7 @@ class TiltakstypeQueries(private val session: Session) {
         val query = """
             select *
             from view_tiltakstype
-            where tiltakskode = ?::tiltakskode
+            where tiltakskode = ?
         """.trimIndent()
 
         val tiltakstype = single(queryOf(query, tiltakskode.name)) { it.toTiltakstype() }
@@ -139,7 +138,7 @@ class TiltakstypeQueries(private val session: Session) {
         sortering: String? = null,
     ): List<Tiltakstype> = with(session) {
         val parameters = mapOf(
-            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { createArrayOfTiltakskode(it) },
+            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { createTextArray(it) },
             "statuser" to statuser.ifEmpty { null }?.let { createTextArray(it) },
         )
 
@@ -157,7 +156,7 @@ class TiltakstypeQueries(private val session: Session) {
         val query = """
             select id, navn, tiltakskode, arena_kode, start_dato, slutt_dato, sanity_id, innsatsgrupper, status
             from view_tiltakstype
-            where (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder))
+            where (:tiltakskoder::text[] is null or tiltakskode = any(:tiltakskoder))
               and (:statuser::text[] is null or status = any(:statuser))
             order by $order
         """.trimIndent()
@@ -361,7 +360,3 @@ class TiltakstypeQueries(private val session: Session) {
         )
     }
 }
-
-fun Session.createArrayOfTiltakskode(
-    values: Collection<Tiltakskode>,
-): Array = createArrayOf("tiltakskode", values)
