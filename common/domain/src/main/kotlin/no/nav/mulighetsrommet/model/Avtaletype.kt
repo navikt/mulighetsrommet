@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.model
 
-enum class Avtaletype(val beskrivelse: String) {
+enum class Avtaletype(val tittel: String) {
     AVTALE("Avtale"),
     RAMMEAVTALE("Rammeavtale"),
     FORHANDSGODKJENT("Forhåndsgodkjent"),

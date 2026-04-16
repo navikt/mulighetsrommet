@@ -380,7 +380,7 @@ object AvtaleValidator {
         }
         validate(request.avtaletype in Avtaletyper.getAvtaletyperForTiltak(request.tiltakskode)) {
             FieldError.of(
-                "${request.avtaletype.beskrivelse} er ikke tillatt for tiltakstype ${ctx.tiltakstype.navn}",
+                "${request.avtaletype.tittel} er ikke tillatt for tiltakstype ${ctx.tiltakstype.navn}",
                 DetaljerRequest::avtaletype,
             )
         }
