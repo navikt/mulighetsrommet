@@ -3186,7 +3186,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 10
+        - 11
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -3348,7 +3348,6 @@ components:
     TiltakstypeEgenskap:
       type: string
       enum:
-      - KAN_OPPRETTE_AVTALE
       - TILGJENGELIG_FOR_AVTALE
       - TILGJENGELIG_FOR_GJENNOMFORING
       - KAN_OPPRETTE_ENKELTPLASS

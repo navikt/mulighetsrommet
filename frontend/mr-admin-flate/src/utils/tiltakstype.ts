@@ -10,10 +10,7 @@ export function erUtfaset(tiltakstype: TiltakstypeKompaktDto) {
 }
 
 export function erTilgjengligForAvtaler(tiltakstype: TiltakstypeKompaktDto) {
-  return (
-    harEgenskap(tiltakstype, TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE) ||
-    harEgenskap(tiltakstype, TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE)
-  );
+  return harEgenskap(tiltakstype, TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE);
 }
 
 export function erTilgjengeligForGjennomforinger(tiltakstype: TiltakstypeKompaktDto) {
