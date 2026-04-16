@@ -7,10 +7,10 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 object DatoUtils {
-    val europeanDatePattern = "dd.MM.yyyy"
+    const val EUROPEAN_DATE_FORMAT = "dd.MM.yyyy"
 
     fun LocalDate.formaterDatoTilEuropeiskDatoformat(): String {
-        return format(DateTimeFormatter.ofPattern(europeanDatePattern))
+        return format(DateTimeFormatter.ofPattern(EUROPEAN_DATE_FORMAT))
     }
 
     fun Instant.tilNorskDato(): LocalDate = atZone(ZoneId.of("Europe/Oslo")).toLocalDate()

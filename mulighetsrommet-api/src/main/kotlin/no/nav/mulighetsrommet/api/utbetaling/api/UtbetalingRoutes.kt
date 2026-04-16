@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
@@ -56,7 +55,6 @@ import java.util.UUID
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
     val utbetalingService: UtbetalingService by inject()
-    val tilsagnService: TilsagnService by inject()
     val personaliaService: PersonaliaService by inject()
 
     get("/utbetaling", {

@@ -33,11 +33,9 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
 
     pluginConfig.apply {
         on(AuthenticationChecked) { call ->
-            val principal = call.principal<NavAnsattMedRollerPrincipal>()
-
-            if (principal == null) {
-                return@on call.respond(HttpStatusCode.Unauthorized)
-            }
+            val principal =
+                call.principal<NavAnsattMedRollerPrincipal>()
+                    ?: return@on call.respond(HttpStatusCode.Unauthorized)
 
             if (principal.roller.isEmpty()) {
                 return@on call.respond(

@@ -213,21 +213,21 @@ class ArrangorflateService(
     suspend fun getPersonalia(deltakerIds: List<UUID>, accessType: AccessType.OBO.TokenX): Map<UUID, ArrangorflatePersonalia> {
         return personaliaService.getPersonalia(deltakerIds, accessType)
             .mapValues {
-                ArrangorflatePersonalia(
-                    norskIdent = it.value.norskIdent,
-                    navn = it.value.navn,
-                )
+                it.value.fold({
+                    ArrangorflatePersonalia.Avvist(
+                        grunn = it,
+                    )
+                }, {
+                    ArrangorflatePersonalia.Innvilget(
+                        norskIdent = it.norskIdent,
+                        navn = it.navn,
+                    )
+                })
             }
     }
 
-    suspend fun getTilsagnDeltakerPersonalia(deltakere: List<Tilsagn.Deltaker>, accessType: AccessType.OBO.TokenX): List<ArrangorflateTilsagnDto.DeltakerPersonalia> {
-        return getPersonalia(deltakere.map { it.deltakerId }, accessType).map { (deltakerId, p) ->
-            ArrangorflateTilsagnDto.DeltakerPersonalia(
-                deltakerId = deltakerId,
-                norskIdent = p.norskIdent,
-                navn = p.navn,
-            )
-        }
+    suspend fun getTilsagnDeltakerPersonalia(deltakere: List<Tilsagn.Deltaker>, accessType: AccessType.OBO.TokenX): List<ArrangorflatePersonalia> {
+        return getPersonalia(deltakere.map { it.deltakerId }, accessType).values.toList()
     }
 }
 
