@@ -44,7 +44,7 @@ export function GjennomforingFilterTags({
         {filter.navEnheter.length > 0 && (
           <KontorstrukturFilterTag
             navEnheter={filter.navEnheter}
-            onClose={() => updateFilter({ navEnheter: [], page: 1 })}
+            onClick={() => updateFilter({ navEnheter: [], page: 1 })}
           />
         )}
         {filter.tiltakstyper.map((tiltakstype) => (
