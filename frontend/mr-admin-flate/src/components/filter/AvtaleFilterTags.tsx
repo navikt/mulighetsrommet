@@ -1,5 +1,5 @@
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
+import { TiltakstypeFilterTags } from "@/components/filter/TiltakstypeFilterTags";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
@@ -12,19 +12,11 @@ import { Chips } from "@navikt/ds-react";
 interface Props {
   filter: AvtaleFilterType;
   updateFilter: (values: Partial<AvtaleFilterType>) => void;
-  tiltakstypeId?: string;
   filterOpen: boolean;
   setTagsHeight: (height: number) => void;
 }
 
-export function AvtaleFilterTags({
-  filter,
-  updateFilter,
-  tiltakstypeId,
-  filterOpen,
-  setTagsHeight,
-}: Props) {
-  const tiltakstyper = useTiltakstyper();
+export function AvtaleFilterTags({ filter, updateFilter, filterOpen, setTagsHeight }: Props) {
   const { data: arrangorer } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,
   });
@@ -65,18 +57,13 @@ export function AvtaleFilterTags({
         {filter.navEnheter.length > 0 && (
           <KontorstrukturFilterTag
             navEnheter={filter.navEnheter}
-            onClose={() => updateFilter({ navEnheter: [], page: 1 })}
+            onClick={() => updateFilter({ navEnheter: [], page: 1 })}
           />
         )}
-        {!tiltakstypeId &&
-          filter.tiltakstyper.map((tiltakstype) => (
-            <Chips.Removable
-              key={tiltakstype}
-              onClick={() => removeArrayItem("tiltakstyper", tiltakstype)}
-            >
-              {tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
-            </Chips.Removable>
-          ))}
+        <TiltakstypeFilterTags
+          ids={filter.tiltakstyper}
+          onRemove={(tiltakstype) => removeArrayItem("tiltakstyper", tiltakstype)}
+        />
         {filter.arrangorer.map((id) => (
           <Chips.Removable key={id} onClick={() => removeArrayItem("arrangorer", id)}>
             {arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
