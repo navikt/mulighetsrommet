@@ -11,6 +11,8 @@ enum class Tiltakskode(
         arenakode = "ARBRRHDAG",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
@@ -19,6 +21,8 @@ enum class Tiltakskode(
         arenakode = "AVKLARAG",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
@@ -27,6 +31,8 @@ enum class Tiltakskode(
         arenakode = "DIGIOPPARB",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
@@ -35,6 +41,8 @@ enum class Tiltakskode(
         arenakode = "JOBBK",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
     ),
@@ -43,6 +51,8 @@ enum class Tiltakskode(
         arenakode = "INDOPPFAG",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
@@ -55,6 +65,8 @@ enum class Tiltakskode(
         arenakode = "ARBFORB",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
             TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
@@ -64,6 +76,8 @@ enum class Tiltakskode(
         arenakode = "VASV",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
             TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
@@ -77,6 +91,8 @@ enum class Tiltakskode(
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -86,6 +102,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "ENKELAMO",
         egenskaper = setOf(
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -94,6 +111,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "ENKFAGYRKE",
         egenskaper = setOf(
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -103,6 +121,8 @@ enum class Tiltakskode(
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -113,6 +133,8 @@ enum class Tiltakskode(
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -122,6 +144,8 @@ enum class Tiltakskode(
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -130,6 +154,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "HOYEREUTD",
         egenskaper = setOf(
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -139,6 +164,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -149,6 +175,8 @@ enum class Tiltakskode(
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -159,6 +187,8 @@ enum class Tiltakskode(
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -235,7 +265,10 @@ enum class Tiltakskode(
 }
 
 enum class TiltakstypeEgenskap {
+    // TODO: erstatt med TILGJENGELIG_FOR_AVTALE
     KAN_OPPRETTE_AVTALE,
+    TILGJENGELIG_FOR_AVTALE,
+    TILGJENGELIG_FOR_GJENNOMFORING,
     KAN_OPPRETTE_ENKELTPLASS,
     KREVER_DELTIDSPROSENT,
     KREVER_DIREKTE_VEDTAK,

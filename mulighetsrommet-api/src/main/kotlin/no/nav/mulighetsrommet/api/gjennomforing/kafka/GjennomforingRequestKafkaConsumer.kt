@@ -39,7 +39,7 @@ class GjennomforingRequestKafkaConsumer(
         }
 
         require(request.tiltakskode.harEgenskap(TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS)) {
-            "Enkeltplass kan bare opprettes for tiltakstyper med støttet for enkeltplasser"
+            "Enkeltplass kan bare opprettes for tiltakstyper med støtte for enkeltplasser"
         }
 
         val arrangor = arrangorer
