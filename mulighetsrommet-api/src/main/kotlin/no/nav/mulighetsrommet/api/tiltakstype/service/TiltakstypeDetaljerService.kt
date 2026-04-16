@@ -69,7 +69,9 @@ class TiltakstypeDetaljerService(
             val sanityTiltakstype = tiltakstype.sanityId?.let { getSanityTiltakstype(it) }
             TiltakstypeVeilderinfo(
                 beskrivelse = sanityTiltakstype?.beskrivelse,
-                faneinnhold = sanityTiltakstype?.faneinnhold,
+                faneinnhold = sanityTiltakstype?.faneinnhold?.copy(
+                    delMedBruker = sanityTiltakstype.delingMedBruker,
+                ),
                 faglenker = sanityTiltakstype?.regelverkLenker?.mapNotNull { lenke ->
                     lenke.regelverkUrl?.let { url ->
                         RedaksjoneltInnholdLenke(
