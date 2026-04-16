@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.model.TiltakstypeSystem
 import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -45,8 +46,9 @@ class InitialLoadTiltakstyper(
 
     private suspend fun initialLoadTiltakstyper() = db.transaction {
         queries.tiltakstype.getAll().forEach { tiltakstype ->
-            val tiltakskode = tiltakstype.tiltakskode
-            if (tiltakskode != null) {
+            val tiltakskode = tiltakstype.tiltakskode ?: return@forEach
+
+            if (tiltakskode.system == TiltakstypeSystem.TILTAKSADMINISTRASJON) {
                 val eksternDto = requireNotNull(queries.tiltakstype.getEksternTiltakstype(tiltakstype.id)) {
                     "Klarte ikke hente ekstern tiltakstype for tiltakskode $tiltakskode"
                 }

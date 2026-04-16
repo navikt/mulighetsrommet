@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -41,7 +40,7 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype_navn,
                 nav_enheter_json
             from view_gjennomforing
-            where (:tiltakskoder::tiltakskode[] is null or tiltakstype_tiltakskode = any(:tiltakskoder::tiltakskode[]))
+            where (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any(:tiltakskoder))
                 and gjennomforing_type = 'AVTALE'
                 and status = 'GJENNOMFORES'
                 and (:nav_enheter::text[] is null or
@@ -52,7 +51,7 @@ class OppgaveQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { session.createArrayOfTiltakskode(it) },
+            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { session.createTextArray(it) },
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { session.createArrayOfValue(it) { it.value } },
         )
 
@@ -110,12 +109,12 @@ class OppgaveQueries(private val session: Session) {
                 ORDER BY entity_id, behandlet_tidspunkt DESC
             ) tk ON tk.entity_id = utbetaling_linje.id
             WHERE
-                (:tiltakskoder::tiltakskode[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder::tiltakskode[]))
+                (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
                 AND (:kostnadssteder::text[] IS NULL OR tilsagn.kostnadssted = ANY(:kostnadssteder))
         """.trimIndent()
 
         val params = mapOf(
-            "tiltakskoder" to tiltakskoder?.let { session.createArrayOfTiltakskode(it) },
+            "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
             "kostnadssteder" to kostnadssteder?.let { session.createArrayOfValue(it) { it.value } },
         )
 
@@ -218,11 +217,11 @@ class OppgaveQueries(private val session: Session) {
                       and tilsagn.periode && utbetaling.periode
                 ) ks on true
             where
-                (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[]));
+                (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder));
         """.trimIndent()
 
         val params = mapOf(
-            "tiltakskoder" to tiltakskoder?.let { session.createArrayOfTiltakskode(it) },
+            "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
         )
 
         return session.list(queryOf(utbetalingQuery, params)) { row ->
@@ -247,7 +246,7 @@ class OppgaveQueries(private val session: Session) {
 
         val parameters = mapOf(
             "nav_enheter" to navRegioner.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
-            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { session.createArrayOfTiltakskode(it) },
+            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { session.createTextArray(it) },
             "statuser" to statuser.ifEmpty { null }?.let { createArrayOfAvtaleStatus(statuser) },
         )
 
@@ -262,7 +261,7 @@ class OppgaveQueries(private val session: Session) {
                 nav_enheter_json
             from view_avtale
             where
-                (:tiltakskoder::tiltakskode[] is null or tiltakstype_tiltakskode = any(:tiltakskoder::tiltakskode[]))
+                (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any(:tiltakskoder))
                 and (:statuser::text[] is null or status = any(:statuser))
                 and (:nav_enheter::text[] is null or
                    exists(select true

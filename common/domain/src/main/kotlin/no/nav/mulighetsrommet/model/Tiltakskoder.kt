@@ -1,42 +1,58 @@
 package no.nav.mulighetsrommet.model
 
 enum class Tiltakskode(
+    val system: TiltakstypeSystem,
     val arenakode: String?,
     val egenskaper: Set<TiltakstypeEgenskap>,
     val gruppe: Tiltaksgruppe? = null,
 ) {
     ARBEIDSRETTET_REHABILITERING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "ARBRRHDAG",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
     AVKLARING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "AVKLARAG",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
     DIGITALT_OPPFOLGINGSTILTAK(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "DIGIOPPARB",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
     JOBBKLUBB(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "JOBBK",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
     ),
     OPPFOLGING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "INDOPPFAG",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
@@ -45,17 +61,23 @@ enum class Tiltakskode(
      * Forhåndsgodkjente tiltak
      */
     ARBEIDSFORBEREDENDE_TRENING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "ARBFORB",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
             TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
     ),
     VARIG_TILRETTELAGT_ARBEID_SKJERMET(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "VASV",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
             TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
@@ -65,82 +87,108 @@ enum class Tiltakskode(
      * Opplæringstiltak
      */
     ARBEIDSMARKEDSOPPLAERING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "ENKELAMO",
         egenskaper = setOf(
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     ENKELTPLASS_FAG_OG_YRKESOPPLAERING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "ENKFAGYRKE",
         egenskaper = setOf(
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     FAG_OG_YRKESOPPLAERING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     GRUPPE_ARBEIDSMARKEDSOPPLAERING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     GRUPPE_FAG_OG_YRKESOPPLAERING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     HOYERE_UTDANNING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "HOYEREUTD",
         egenskaper = setOf(
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     HOYERE_YRKESFAGLIG_UTDANNING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
     STUDIESPESIALISERING(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
             TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -148,24 +196,67 @@ enum class Tiltakskode(
     ),
 
     /**
-     * Tiltak i egen regi (administreres fortsatt i Arena)
+     * Tiltak i egen regi
      */
-    INDIVIDUELL_JOBBSTOTTE("INDJOBSTOT", egenskaper = setOf()),
-    INDIVIDUELL_JOBBSTOTTE_UNG("IPSUNG", egenskaper = setOf()),
-    ARBEID_MED_STOTTE("UTVAOONAV", egenskaper = setOf()),
+    INDIVIDUELL_JOBBSTOTTE(
+        system = TiltakstypeSystem.ARENA,
+        arenakode = "INDJOBSTOT",
+        egenskaper = setOf(),
+    ),
+    INDIVIDUELL_JOBBSTOTTE_UNG(
+        system = TiltakstypeSystem.ARENA,
+        arenakode = "IPSUNG",
+        egenskaper = setOf(),
+    ),
+    ARBEID_MED_STOTTE(
+        system = TiltakstypeSystem.ARENA,
+        arenakode = "UTVAOONAV",
+        egenskaper = setOf(),
+    ),
 
     /**
-     * Tiltakstyper hos team tiltak
+     * Tiltak hos arbeidsgiver
      */
-    ARBEIDSTRENING("ARBTREN", egenskaper = setOf()),
-    MIDLERTIDIG_LONNSTLSKUDD("MIDLONTIL", egenskaper = setOf()),
-    VARIG_LONNSTILSKUD("VARLONTIL", egenskaper = setOf()),
-    MENTOR("MENTOR", egenskaper = setOf()),
-    INKLUDERINGSTILSKUD("INKLUTILS", egenskaper = setOf()),
-    SOMMERJOBB("TILSJOBB", egenskaper = setOf()),
-    VTAO("VATIAROR", egenskaper = setOf()),
-    FIREARIG_LONNSTILSUDD(null, egenskaper = setOf()),
-
+    ARBEIDSTRENING(
+        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        arenakode = "ARBTREN",
+        egenskaper = setOf(),
+    ),
+    MIDLERTIDIG_LONNSTLSKUDD(
+        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        arenakode = "MIDLONTIL",
+        egenskaper = setOf(),
+    ),
+    VARIG_LONNSTILSKUD(
+        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        arenakode = "VARLONTIL",
+        egenskaper = setOf(),
+    ),
+    MENTOR(
+        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        arenakode = "MENTOR",
+        egenskaper = setOf(),
+    ),
+    INKLUDERINGSTILSKUD(
+        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        arenakode = "INKLUTILS",
+        egenskaper = setOf(),
+    ),
+    SOMMERJOBB(
+        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        arenakode = "TILSJOBB",
+        egenskaper = setOf(),
+    ),
+    VTAO(
+        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        arenakode = "VATIAROR",
+        egenskaper = setOf(),
+    ),
+    FIREARIG_LONNSTILSUDD(
+        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        arenakode = null,
+        egenskaper = setOf(),
+    ),
     ;
 
     fun harEgenskap(vararg egenskap: TiltakstypeEgenskap): Boolean {
@@ -174,15 +265,55 @@ enum class Tiltakskode(
 }
 
 enum class TiltakstypeEgenskap {
+    // TODO: erstatt med TILGJENGELIG_FOR_AVTALE
     KAN_OPPRETTE_AVTALE,
+
+    /**
+     * Indikerer at tiltakstypen er tilgjengelig for avtaler i Tiltaksadministrasjon.
+     * Dette styrer bl.a.
+     *   - Hvilke tiltakstyper som er synlig i filter for avtaler
+     *   - Validering av hvilke tiltakstyper som avtaler kan kobles til
+     */
+    TILGJENGELIG_FOR_AVTALE,
+
+    /**
+     * Indikerer at tiltakstypen er tilgjengelig for tiltaksgjennomføringer i Tiltaksadministrasjon.
+     * Dette styrer bl.a.
+     *   - Hvilke tiltakstyper som er synlig i filter for gjennomføringer
+     *   - Validering av hvilke tiltakstyper som gjennomføring kan kobles til
+     */
+    TILGJENGELIG_FOR_GJENNOMFORING,
+
+    /**
+     * Indikerer at det er mulig å opprette enkeltplasser for tiltakstypen.
+     */
     KAN_OPPRETTE_ENKELTPLASS,
+
+    /**
+     * Gjør deltidsprosent påkrevd i gjennomføringer
+     */
     KREVER_DELTIDSPROSENT,
+
+    /**
+     * Gjør deltakers innsøksform til "direkte vedtak" - altså at det er Nav-veileder som gjør vedtak om tiltaksplass.
+     * Hvis [KREVER_DIREKTE_VEDTAK] ikke er satt så kan innsøksform bestemmes av administrator for tiltaket.
+     */
     KREVER_DIREKTE_VEDTAK,
+
+    /**
+     * Indikerer at tiltakstypen støtter tilskudd for investeringer.
+     */
     STOTTER_TILSKUDD_FOR_INVESTERINGER,
 }
 
 enum class Tiltaksgruppe(val tittel: String) {
     OPPLAERING("Opplæringstiltak"),
+}
+
+enum class TiltakstypeSystem {
+    TILTAKSADMINISTRASJON,
+    ARENA,
+    TILTAK_ARBEIDSGIVER,
 }
 
 object Tiltakskoder {

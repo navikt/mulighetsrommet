@@ -104,11 +104,11 @@ class TiltakstypeQueriesTest : FunSpec({
                 @Language("PostgreSQL")
                 val query = """
                     insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                    values('jobbsoking', '${Tiltakskode.OPPFOLGING.name}::tiltakskode')
+                    values('jobbsoking', '${Tiltakskode.OPPFOLGING.name}')
                     on conflict do nothing;
 
                     insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                    values('kartlegge-helse', '${Tiltakskode.OPPFOLGING.name}::tiltakskode')
+                    values('kartlegge-helse', '${Tiltakskode.OPPFOLGING.name}')
                     on conflict do nothing;
 
                     update tiltakstype
