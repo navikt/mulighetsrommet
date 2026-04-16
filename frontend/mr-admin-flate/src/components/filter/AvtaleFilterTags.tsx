@@ -1,5 +1,5 @@
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
+import { TiltakstypeFilterTags } from "@/components/filter/TiltakstypeFilterTags";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
@@ -17,7 +17,6 @@ interface Props {
 }
 
 export function AvtaleFilterTags({ filter, updateFilter, filterOpen, setTagsHeight }: Props) {
-  const tiltakstyper = useTiltakstyper();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,
   });
@@ -61,14 +60,10 @@ export function AvtaleFilterTags({ filter, updateFilter, filterOpen, setTagsHeig
             onClick={() => updateFilter({ navEnheter: [], page: 1 })}
           />
         )}
-        {filter.tiltakstyper.map((tiltakstype) => (
-          <Chips.Removable
-            key={tiltakstype}
-            onClick={() => removeArrayItem("tiltakstyper", tiltakstype)}
-          >
-            {tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
-          </Chips.Removable>
-        ))}
+        <TiltakstypeFilterTags
+          ids={filter.tiltakstyper}
+          onRemove={(tiltakstype) => removeArrayItem("tiltakstyper", tiltakstype)}
+        />
         {filter.arrangorer.map((id) => (
           <Chips.Removable key={id} onClick={() => removeArrayItem("arrangorer", id)}>
             {arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
