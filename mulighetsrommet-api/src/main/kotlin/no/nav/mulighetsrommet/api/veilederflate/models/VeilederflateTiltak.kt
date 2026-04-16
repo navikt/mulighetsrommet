@@ -58,6 +58,7 @@ data class VeilederflateTiltakGruppe(
     val status: VeilederflateTiltakGruppeStatus,
     val tiltaksnummer: String?,
     val apentForPamelding: Boolean,
+    val lopenummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val oppstartsdato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

@@ -22,6 +22,7 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
     .reduce((prev, current) => (prev.order < current.order ? prev : current));
 
   const tiltaksnummer = "tiltaksnummer" in tiltak ? tiltak.tiltaksnummer : null;
+  const lopenummer = "lopenummer" in tiltak ? tiltak.lopenummer : null;
   const arrangor = "arrangor" in tiltak ? tiltak.arrangor : null;
 
   return (
@@ -31,10 +32,21 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
       id="sidemeny"
       className="max-w-[360px] xl:max-w-none"
     >
+      {lopenummer && (
+        <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+          <BodyShort size="small" className="font-bold text-left">
+            Løpenummer
+          </BodyShort>
+          <div className="flex items-start justify-end gap-1">
+            <BodyShort size="small">{lopenummer}</BodyShort>
+            <Kopiknapp kopitekst={lopenummer} dataTestId="knapp_kopier" />
+          </div>
+        </div>
+      )}
       {tiltaksnummer && (
         <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
           <BodyShort size="small" className="font-bold text-left">
-            Tiltaksnummer
+            Tiltaksnummer i Arena
           </BodyShort>
           <div className="flex items-start justify-end gap-1">
             <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>

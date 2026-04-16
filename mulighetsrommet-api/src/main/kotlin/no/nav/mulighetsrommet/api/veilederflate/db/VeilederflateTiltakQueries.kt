@@ -132,5 +132,6 @@ private fun Row.toTiltaksgjennomforing(): Tiltaksgjennomforing {
             type = status,
             beskrivelse = status.beskrivelse,
         ),
+        lopenummer = string("lopenummer"),
     )
 }
