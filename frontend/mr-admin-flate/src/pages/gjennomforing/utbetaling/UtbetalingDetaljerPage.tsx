@@ -106,7 +106,9 @@ export function UtbetalingDetaljerPage() {
                   label={
                     <HStack align="center" gap="space-4">
                       {utbetalingTekster.metadata.utbetalesTidligstDato}
-                      <HelpText>{utbetalingTekster.metadata.utbetalesTidligstDatoHelpText}</HelpText>
+                      <HelpText>
+                        {utbetalingTekster.metadata.utbetalesTidligstDatoHelpText}
+                      </HelpText>
                     </HStack>
                   }
                   value={formaterDato(utbetaling.utbetalesTidligstDato)}
