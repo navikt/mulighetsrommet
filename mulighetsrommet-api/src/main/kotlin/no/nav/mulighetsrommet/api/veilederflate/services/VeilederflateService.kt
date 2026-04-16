@@ -327,7 +327,9 @@ class VeilederflateService(
 
 private fun SanityTiltakstype.toTiltakstypeVeilederinfo(): TiltakstypeVeilderinfo = TiltakstypeVeilderinfo(
     beskrivelse = beskrivelse,
-    faneinnhold = faneinnhold,
+    faneinnhold = faneinnhold?.copy(
+        delMedBruker = delingMedBruker,
+    ),
     faglenker = regelverkLenker?.mapNotNull { lenke ->
         lenke.regelverkUrl?.let { url ->
             RedaksjoneltInnholdLenke(
