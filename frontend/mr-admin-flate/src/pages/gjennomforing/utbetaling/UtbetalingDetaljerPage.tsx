@@ -6,7 +6,7 @@ import {
   UtbetalingStatusDtoType,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { Box, CopyButton, Heading, HGrid, HStack, Link, VStack } from "@navikt/ds-react";
+import { Box, CopyButton, Heading, HelpText, HGrid, HStack, Link, VStack } from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
@@ -103,7 +103,14 @@ export function UtbetalingDetaljerPage() {
               )}
               {utbetaling.utbetalesTidligstDato && (
                 <MetadataVStack
-                  label={utbetalingTekster.metadata.utbetalesTidligstDato}
+                  label={
+                    <HStack align="center" gap="space-4">
+                      {utbetalingTekster.metadata.utbetalesTidligstDato}
+                      <HelpText>
+                        {utbetalingTekster.metadata.utbetalesTidligstDatoHelpText}
+                      </HelpText>
+                    </HStack>
+                  }
                   value={formaterDato(utbetaling.utbetalesTidligstDato)}
                 />
               )}
