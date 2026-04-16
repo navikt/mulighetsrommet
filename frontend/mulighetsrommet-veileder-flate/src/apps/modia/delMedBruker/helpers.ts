@@ -28,7 +28,11 @@ function hilsenTekst(veiledernavn?: string) {
 }
 
 export function getDelMedBrukerTekst(tiltak: VeilederflateTiltak): string | null {
-  return tiltak.faneinnhold?.delMedBruker ?? tiltak.tiltakstype.delingMedBruker;
+  return (
+    tiltak.faneinnhold?.delMedBruker ??
+    tiltak.tiltakstype.faneinnhold?.delMedBruker ??
+    tiltak.tiltakstype.delingMedBruker
+  );
 }
 
 export function erBrukerReservertMotDigitalKommunikasjon(brukerdata: Brukerdata): {
