@@ -42,12 +42,8 @@ class TiltakstypeDetaljerService(
     }
 
     fun getAll(filter: TiltakstypeFilter): List<TiltakstypeKompaktDto> {
-        val tiltakskoder = tiltakstypeService.getTiltakskodeByFeatures(
-            setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON),
-        )
-
         val tiltakstyper = db.session {
-            queries.tiltakstype.getAll(tiltakskoder = tiltakskoder, sortering = filter.sortering)
+            queries.tiltakstype.getAll(sortering = filter.sortering)
         }
 
         return tiltakstyper.mapNotNull { it.toTiltakstypeKompaktDto() }
