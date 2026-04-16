@@ -1,18 +1,10 @@
 package no.nav.mulighetsrommet.model
 
 enum class Tiltakskode(
-    val arenakode: String,
+    val arenakode: String?,
     val egenskaper: Set<TiltakstypeEgenskap>,
     val gruppe: Tiltaksgruppe? = null,
 ) {
-    ARBEIDSFORBEREDENDE_TRENING(
-        arenakode = "ARBFORB",
-        egenskaper = setOf(
-            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
-            TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
-            TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
-        ),
-    ),
     ARBEIDSRETTET_REHABILITERING(
         arenakode = "ARBRRHDAG",
         egenskaper = setOf(
@@ -48,6 +40,18 @@ enum class Tiltakskode(
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
+
+    /**
+     * Forhåndsgodkjente tiltak
+     */
+    ARBEIDSFORBEREDENDE_TRENING(
+        arenakode = "ARBFORB",
+        egenskaper = setOf(
+            TiltakstypeEgenskap.KAN_OPPRETTE_AVTALE,
+            TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
+            TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
+        ),
+    ),
     VARIG_TILRETTELAGT_ARBEID_SKJERMET(
         arenakode = "VASV",
         egenskaper = setOf(
@@ -57,6 +61,9 @@ enum class Tiltakskode(
         ),
     ),
 
+    /**
+     * Opplæringstiltak
+     */
     ARBEIDSMARKEDSOPPLAERING(
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
@@ -139,6 +146,26 @@ enum class Tiltakskode(
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
+
+    /**
+     * Tiltak i egen regi (administreres fortsatt i Arena)
+     */
+    INDIVIDUELL_JOBBSTOTTE("INDJOBSTOT", egenskaper = setOf()),
+    INDIVIDUELL_JOBBSTOTTE_UNG("IPSUNG", egenskaper = setOf()),
+    ARBEID_MED_STOTTE("UTVAOONAV", egenskaper = setOf()),
+
+    /**
+     * Tiltakstyper hos team tiltak
+     */
+    ARBEIDSTRENING("ARBTREN", egenskaper = setOf()),
+    MIDLERTIDIG_LONNSTLSKUDD("MIDLONTIL", egenskaper = setOf()),
+    VARIG_LONNSTILSKUD("VARLONTIL", egenskaper = setOf()),
+    MENTOR("MENTOR", egenskaper = setOf()),
+    INKLUDERINGSTILSKUD("INKLUTILS", egenskaper = setOf()),
+    SOMMERJOBB("TILSJOBB", egenskaper = setOf()),
+    VTAO("VATIAROR", egenskaper = setOf()),
+    FIREARIG_LONNSTILSUDD(null, egenskaper = setOf()),
+
     ;
 
     fun harEgenskap(vararg egenskap: TiltakstypeEgenskap): Boolean {

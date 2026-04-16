@@ -276,7 +276,7 @@ class GjennomforingValidatorTest : FunSpec({
             request.amoKategorisering,
         ).shouldBeLeft(
             listOf(
-                FieldError("/avtale.amoKategorisering", "Du må velge en kurstype for avtalen"),
+                FieldError("/avtaleId", "Du må velge en kurstype for avtalen"),
                 FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype"),
             ),
         )

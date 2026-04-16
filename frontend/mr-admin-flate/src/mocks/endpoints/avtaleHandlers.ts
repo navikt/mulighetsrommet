@@ -2,6 +2,8 @@ import { http, HttpResponse, PathParams } from "msw";
 import {
   AvtaleDto,
   AvtaleHandling,
+  Avtaletype,
+  AvtaletypeInfo,
   EndringshistorikkDto,
   PaginatedResponseAvtaleDto,
   PrismodellInfo,
@@ -11,6 +13,30 @@ import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
 
 export const avtaleHandlers = [
+  http.get<PathParams, undefined, AvtaletypeInfo[]>(
+    "*/api/tiltaksadministrasjon/avtaletyper",
+    () => {
+      return HttpResponse.json([
+        {
+          type: Avtaletype.FORHANDSGODKJENT,
+          tittel: "Forhåndsgodkjent",
+        },
+        {
+          type: Avtaletype.RAMMEAVTALE,
+          tittel: "Rammeavtale",
+        },
+        {
+          type: Avtaletype.AVTALE,
+          tittel: "Avtale",
+        },
+        {
+          type: Avtaletype.OFFENTLIG_OFFENTLIG,
+          tittel: "Offentlig-offentlig samarbeid",
+        },
+      ]);
+    },
+  ),
+
   http.get<PathParams, undefined, PrismodellInfo[]>(
     "*/api/tiltaksadministrasjon/prismodeller",
     () => {
