@@ -3,11 +3,11 @@ import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { ActionMenu } from "@navikt/ds-react";
 import { Link } from "react-router";
 
-export function Behandlingsoversikt() {
+export function TilskuddBehandlingerPage() {
   return (
     <KnapperadContainer>
       <Handlinger>
-        <ActionMenu.Item as={Link} to={`opprett-behandling`}>
+        <ActionMenu.Item as={Link} to={`opprett`}>
           Opprett tilskuddsbehandling
         </ActionMenu.Item>
       </Handlinger>

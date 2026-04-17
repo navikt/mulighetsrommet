@@ -8110,8 +8110,8 @@ components:
           type: string
           format: uuid
           default: null
-        tilskuddType:
-          $ref: "#/components/schemas/TilskuddType"
+        tilskuddOpplaeringType:
+          $ref: "#/components/schemas/TilskuddOpplaeringType"
         soknadBelop:
           type: integer
           format: int32
@@ -8133,15 +8133,17 @@ components:
       - kommentarVedtaksbrev
       - soknadBelop
       - soknadValuta
-      - tilskuddType
+      - tilskuddOpplaeringType
       - utbetalingMottaker
       - vedtakResultat
-    TilskuddType:
+    TilskuddOpplaeringType:
       type: string
       enum:
       - SKOLEPENGER
+      - STUDIEREISE
+      - EKSAMENSAVGIFT
       - SEMESTERAVGIFT
-      - EKSAMENSGEBYR
+      - INTEGRERT_BOTILBUD
     VedtakResultat:
       type: string
       enum:
@@ -8154,8 +8156,8 @@ components:
           type: string
           format: uuid
           default: null
-        tilskuddType:
-          $ref: "#/components/schemas/TilskuddType"
+        tilskuddOpplaeringType:
+          $ref: "#/components/schemas/TilskuddOpplaeringType"
         soknadBelop:
           oneOf:
           - type: "null"
@@ -8174,7 +8176,7 @@ components:
       - id
       - kommentarVedtaksbrev
       - soknadBelop
-      - tilskuddType
+      - tilskuddOpplaeringType
       - utbetalingMottaker
       - vedtakResultat
     TilskuddBehandlingRequest:
@@ -8189,10 +8191,14 @@ components:
           format: uuid
           default: null
         soknadJournalpostId:
-          type: string
+          type:
+          - "null"
+          - string
           default: null
         soknadDato:
-          type: string
+          type:
+          - "null"
+          - string
           format: date
           default: null
         periodeStart:

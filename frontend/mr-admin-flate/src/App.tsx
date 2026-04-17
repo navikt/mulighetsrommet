@@ -53,10 +53,10 @@ import { AvtalePersonvernForm } from "./components/avtaler/AvtalePersonvernForm"
 import { AvtaleInformasjonForVeiledereForm } from "./components/avtaler/AvtaleInformasjonForVeiledereForm";
 import { OpprettUtbetalingPage } from "@/pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
 import { UtbetalingPage } from "@/pages/gjennomforing/utbetaling/UtbetalingPage";
-import { Behandlingsoversikt } from "./pages/gjennomforing/Tilskuddsbehandling/Behandlingsoversikt";
-import { BehandlingPage } from "./pages/gjennomforing/Tilskuddsbehandling/BehandlingPage";
 import { RedigerUtbetalingPage } from "@/pages/gjennomforing/utbetaling/RedigerUtbetalingPage";
 import { AvtaleRedaksjoneltInnhold } from "@/pages/avtaler/AvtaleRedaksjoneltInnhold";
+import { TilskuddBehandlingFormPage } from "./pages/tilskudd-behandling/TilskuddBehandlingFormPage";
+import { TilskuddBehandlingerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingerPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -142,7 +142,7 @@ const GJENNOMFORING_ROUTES: RouteObject[] = [
   { index: true, element: <GjennomforingDetaljer /> },
   { path: "redaksjonelt-innhold", element: <GjennomforingRedaksjoneltInnhold /> },
   { path: "deltakerliste/*", element: <DeltakerlisteContainer /> },
-  { path: "tilskuddsbehandlinger", element: <Behandlingsoversikt /> },
+  { path: "tilskudd-behandling", element: <TilskuddBehandlingerPage /> },
   { path: "tilsagn", element: <TilsagnForGjennomforingPage /> },
   { path: "utbetalinger", element: <UtbetalingerForGjennomforingContainer /> },
 ];
@@ -241,15 +241,13 @@ const routes: RouteObject[] = [
         children: TILSAGN_ROUTES,
       }),
       {
-        path: "gjennomforinger/:gjennomforingId/tilskuddsbehandlinger",
-        element: <BehandlingPage />,
-        children: [
-          {
-            path: "opprett-behandling",
-            element: <BehandlingPage />,
-          },
-        ],
+        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling",
+        element: <TilskuddBehandlingerPage />,
       },
+      route({
+        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling/opprett",
+        element: <TilskuddBehandlingFormPage />,
+      }),
 
       route({
         path: "gjennomforinger/:gjennomforingId/skjema",
