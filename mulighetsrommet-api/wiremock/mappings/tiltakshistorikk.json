@@ -28,7 +28,7 @@
             "organisasjonsnummer": "123456789"
           },
           "opphav": "TEAM_KOMET",
-          "type": "GruppetiltakDeltakelse"
+          "type": "TeamKometDeltakelse"
         },
         {
           "norskIdent": "12345678901",
@@ -50,7 +50,7 @@
             "organisasjonsnummer": "123456789"
           },
           "opphav": "TEAM_KOMET",
-          "type": "GruppetiltakDeltakelse"
+          "type": "TeamKometDeltakelse"
         },
         {
           "norskIdent": "12345678901",
@@ -91,7 +91,7 @@
             "organisasjonsnummer": "983982433"
           },
           "opphav": "TEAM_TILTAK",
-          "type": "ArbeidsgiverAvtale"
+          "type": "TeamTiltakAvtale"
         }
       ]
     },

@@ -38,25 +38,49 @@ val ApplicationConfigProd = AppConfig(
                 TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
                 TiltakstypeFeature.MIGRERT,
                 TiltakstypeFeature.UTFASET,
+                TiltakstypeFeature.VISES_I_MODIA,
             )
             val migrert = setOf(
                 TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
                 TiltakstypeFeature.MIGRERT,
+                TiltakstypeFeature.VISES_I_MODIA,
             )
+            val visesModia = setOf(TiltakstypeFeature.VISES_I_MODIA)
             mapOf(
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to utfaset,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to utfaset,
+
                 Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
                 Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
                 Tiltakskode.AVKLARING to migrert,
                 Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
                 Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to utfaset,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to utfaset,
                 Tiltakskode.JOBBKLUBB to migrert,
                 Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
                 Tiltakskode.OPPFOLGING to migrert,
                 Tiltakskode.STUDIESPESIALISERING to migrert,
                 Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
+
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to visesModia,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to visesModia,
+                Tiltakskode.HOYERE_UTDANNING to visesModia,
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to visesModia,
+                Tiltakskode.ARBEIDSTRENING to visesModia,
+                Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD to visesModia,
+                Tiltakskode.VARIG_LONNSTILSKUD to visesModia,
+                Tiltakskode.MENTOR to visesModia,
+                Tiltakskode.INKLUDERINGSTILSKUD to visesModia,
+                Tiltakskode.SOMMERJOBB to visesModia,
+                Tiltakskode.VTAO to visesModia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG to visesModia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE to visesModia,
+                Tiltakskode.ARBEID_MED_STOTTE to visesModia,
+
+                /*
+                 * Nye tiltakstyper under utvikling
+                 */
+                Tiltakskode.FIREARIG_LONNSTILSUDD to setOf(),
             )
         },
     ),

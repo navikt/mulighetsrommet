@@ -7,6 +7,11 @@ enum class TiltakstypeFeature {
     VISES_I_TILTAKSADMINISTRASJON,
 
     /**
+     * Styrer hvilke tiltak (typer og gjennomføringer) som vises i Modia.
+     */
+    VISES_I_MODIA,
+
+    /**
      * Administreres i Tiltaksadministrasjon og deles med Arena
      */
     MIGRERT,

@@ -1571,6 +1571,7 @@ components:
       type: string
       enum:
       - VISES_I_TILTAKSADMINISTRASJON
+      - VISES_I_MODIA
       - MIGRERT
       - UTFASET
       - MIGRERT_REDAKSJONELT_INNHOLD
