@@ -1487,9 +1487,7 @@ components:
           type: string
           default: null
         tiltakskode:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Tiltakskode"
+          $ref: "#/components/schemas/Tiltakskode"
         features:
           type: array
           items:
@@ -1581,7 +1579,7 @@ components:
       enum:
       - TILGJENGELIG_FOR_AVTALE
       - TILGJENGELIG_FOR_GJENNOMFORING
-      - KAN_OPPRETTE_ENKELTPLASS
+      - STOTTER_ENKELTPLASSER
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER

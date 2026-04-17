@@ -66,7 +66,7 @@ object UtbetalingFixtures {
         status = UtbetalingStatusType.GENERERT,
         tiltakstype = Tiltakstype(
             navn = TiltakstypeFixtures.AFT.navn,
-            tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
+            tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
         ),
         arrangor = Arrangor(
             id = ArrangorFixtures.underenhet1.id,

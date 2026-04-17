@@ -66,7 +66,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
         var gjennomforing: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Dto.Gruppe(
             id = AFT1.id,
             navn = AFT1.navn,
-            tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
+            tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
             arrangor = TiltaksgjennomforingV2Dto.Arrangor(
                 organisasjonsnummer = Organisasjonsnummer("123123123"),
             ),

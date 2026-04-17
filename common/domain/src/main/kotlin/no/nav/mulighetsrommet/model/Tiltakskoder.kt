@@ -85,7 +85,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
             TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
-            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
+            TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -114,7 +114,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
             TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
-            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
+            TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -144,7 +144,7 @@ enum class Tiltakskode(
         arenakode = "HOYEREUTD",
         egenskaper = setOf(
             TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
-            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
+            TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -154,7 +154,7 @@ enum class Tiltakskode(
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
             TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
-            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
+            TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -165,7 +165,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
             TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
-            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
+            TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -176,7 +176,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
             TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
-            TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS,
+            TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -271,7 +271,7 @@ enum class TiltakstypeEgenskap {
     /**
      * Indikerer at det er mulig å opprette enkeltplasser for tiltakstypen.
      */
-    KAN_OPPRETTE_ENKELTPLASS,
+    STOTTER_ENKELTPLASSER,
 
     /**
      * Gjør deltidsprosent påkrevd i gjennomføringer

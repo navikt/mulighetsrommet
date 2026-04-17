@@ -146,7 +146,7 @@ data class VeilederflateTiltakstype(
     val id: UUID,
     val sanityId: String,
     val navn: String,
-    val tiltakskode: Tiltakskode?,
+    val tiltakskode: Tiltakskode,
     val features: Set<TiltakstypeFeature>,
     val egenskaper: Set<TiltakstypeEgenskap>,
     val innsatsgrupper: Set<Innsatsgruppe>?,

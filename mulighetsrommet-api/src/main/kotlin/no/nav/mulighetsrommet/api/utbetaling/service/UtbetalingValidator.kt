@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.api.AvbrytUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
@@ -126,6 +127,7 @@ object UtbetalingValidator {
 
     fun validateUpsertUtbetaling(
         request: UtbetalingRequest,
+        arrangor: ArrangorDto? = null,
     ): Either<List<FieldError>, UpsertUtbetaling> = validation {
         validateNotNull(request.periodeStart) {
             FieldError.of("Periodestart må være satt", UtbetalingRequest::periodeStart)
@@ -143,9 +145,16 @@ object UtbetalingValidator {
             }
         }
 
+        val utenlandskArrangor = arrangor?.erUtenlandsk ?: false
         val journalpostId = when (request.korrigererUtbetaling) {
-            null -> validateNotNull(request.journalpostId?.let { JournalpostId.parse(it) }) {
-                FieldError.of("Journalpost-ID er på ugyldig format", UtbetalingRequest::journalpostId)
+            null -> {
+                if (utenlandskArrangor) {
+                    null
+                } else {
+                    validateNotNull(request.journalpostId?.let { JournalpostId.parse(it) }) {
+                        FieldError.of("Journalpost-ID er på ugyldig format", UtbetalingRequest::journalpostId)
+                    }
+                }
             }
 
             else -> null
@@ -203,11 +212,14 @@ object UtbetalingValidator {
                 kommentar = kommentar,
             )
         } else {
+            if (!utenlandskArrangor) {
+                requireNotNull(journalpostId)
+            }
             UpsertUtbetaling.Anskaffelse(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
                 periode = periode,
-                journalpostId = requireNotNull(journalpostId),
+                journalpostId = journalpostId,
                 beregning = beregning,
                 kid = kid,
                 kommentar = kommentar,

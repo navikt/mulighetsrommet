@@ -3255,7 +3255,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 11
+        - 12
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -3419,7 +3419,7 @@ components:
       enum:
       - TILGJENGELIG_FOR_AVTALE
       - TILGJENGELIG_FOR_GJENNOMFORING
-      - KAN_OPPRETTE_ENKELTPLASS
+      - STOTTER_ENKELTPLASSER
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK
       - STOTTER_TILSKUDD_FOR_INVESTERINGER

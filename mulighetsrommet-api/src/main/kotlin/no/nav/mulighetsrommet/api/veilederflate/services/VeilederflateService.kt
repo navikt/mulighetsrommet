@@ -67,7 +67,7 @@ class VeilederflateService(
                 queries.tiltakstype.getAll().mapNotNull { tiltakstype ->
                     val sanityId = tiltakstype.sanityId?.toString() ?: return@mapNotNull null
 
-                    val features = tiltakstype.tiltakskode?.let { tiltakstypeService.getFeatures(it) }.orEmpty()
+                    val features = tiltakstypeService.getFeatures(tiltakstype.tiltakskode)
 
                     val veilederinfo = if (features.contains(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD)) {
                         queries.tiltakstype.getVeilederinfo(tiltakstype.id)
@@ -82,9 +82,9 @@ class VeilederflateService(
                         arenakode = tiltakstype.arenakode,
                         tiltakskode = tiltakstype.tiltakskode,
                         features = features,
-                        egenskaper = tiltakstype.tiltakskode?.egenskaper.orEmpty(),
+                        egenskaper = tiltakstype.tiltakskode.egenskaper,
                         innsatsgrupper = tiltakstype.innsatsgrupper,
-                        tiltaksgruppe = tiltakstype.tiltakskode?.gruppe?.tittel,
+                        tiltaksgruppe = tiltakstype.tiltakskode.gruppe?.tittel,
                         beskrivelse = veilederinfo?.beskrivelse,
                         faneinnhold = veilederinfo?.faneinnhold,
                         regelverkLenker = veilederinfo?.faglenker,

@@ -206,7 +206,23 @@ class AvtaleServiceTest : FunSpec({
             )
 
             avtaleService.create(request, bertilNavIdent).shouldBeLeft() shouldBe listOf(
-                FieldError.of("Nye avtaler kan ikke opprettes for denne tiltakstypen fordi den er utfaset"),
+                FieldError.of("Avtaler kan ikke opprettes for denne tiltakstypen fordi den er utfaset"),
+            )
+        }
+
+        test("får ikke opprette avtaler for tiltakstyper som er ment for enkeltplasser") {
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.Arbeidstrening),
+            ).initialize(database.db)
+
+            val arbeidstrening = AvtaleFixtures.createAvtaleRequest(Tiltakskode.ARBEIDSTRENING)
+            avtaleService.create(arbeidstrening, bertilNavIdent).shouldBeLeft() shouldBe listOf(
+                FieldError.of("Avtaler kan ikke opprettes for denne tiltakstypen"),
+            )
+
+            val hoyereUtdanning = AvtaleFixtures.createAvtaleRequest(Tiltakskode.HOYERE_UTDANNING)
+            avtaleService.create(hoyereUtdanning, bertilNavIdent).shouldBeLeft() shouldBe listOf(
+                FieldError.of("Avtaler kan ikke opprettes for denne tiltakstypen"),
             )
         }
 
