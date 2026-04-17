@@ -90,7 +90,7 @@ object TiltakstypeFixtures {
     val Arbeidstrening = TiltakstypeDbo(
         id = UUID.fromString("87cbc5c0-962e-4f34-93df-d78a887872a6"),
         navn = "Arbeidstrening",
-        tiltakskode = null,
+        tiltakskode = Tiltakskode.ARBEIDSTRENING,
         arenaKode = "ARBTREN",
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = null,
@@ -117,7 +117,7 @@ object TiltakstypeFixtures {
     val IPS = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "IPS",
-        tiltakskode = null,
+        tiltakskode = Tiltakskode.INDIVIDUELL_JOBBSTOTTE,
         arenaKode = "INDJOBSTOT",
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = null,

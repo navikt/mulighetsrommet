@@ -423,7 +423,7 @@ class AvtaleValidatorTest : FunSpec({
     test("utdanningsprogram er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
         val avtaleMedEndringer = avtaleRequest.copy(
             detaljer = avtaleRequest.detaljer.copy(
-                tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode!!,
+                tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
                 utdanningslop = null,
             ),
         )
@@ -436,7 +436,7 @@ class AvtaleValidatorTest : FunSpec({
     test("minst én utdanning er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
         val avtaleMedEndringer = avtaleRequest.copy(
             detaljer = avtaleRequest.detaljer.copy(
-                tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode!!,
+                tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
                 utdanningslop = UtdanningslopDbo(
                     utdanningsprogram = UUID.randomUUID(),
                     utdanninger = setOf(),
@@ -477,7 +477,7 @@ class AvtaleValidatorTest : FunSpec({
             avtaleStartDato: LocalDate = LocalDate.of(2025, 1, 1),
         ) = AvtaleValidator.ValidatePrismodellerContext(
             avtaletype = avtaletype,
-            tiltakskode = tiltakstype.tiltakskode!!,
+            tiltakskode = tiltakstype.tiltakskode,
             tiltakstypeNavn = tiltakstype.navn,
             gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             avtaleStartDato = avtaleStartDato,

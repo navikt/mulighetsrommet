@@ -44,7 +44,7 @@ class InitialLoadTiltakstyper(
         return id
     }
 
-    private suspend fun initialLoadTiltakstyper() = db.transaction {
+    suspend fun initialLoadTiltakstyper() = db.transaction {
         queries.tiltakstype.getAll().forEach { tiltakstype ->
             val tiltakskode = tiltakstype.tiltakskode ?: return@forEach
 
