@@ -31,7 +31,6 @@ export function VedtakForm() {
                 name={`vedtak.${index}.vedtaksresultat`}
                 legend="Vedtaksresultat"
                 horisontal
-                rules={{ required: "Velg vedtaksresultat" }}
               >
                 <Radio value="innvilgelse">Innvilgelse</Radio>
                 <Radio value="avslag">Avslag</Radio>

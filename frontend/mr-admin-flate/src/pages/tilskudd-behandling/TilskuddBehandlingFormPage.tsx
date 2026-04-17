@@ -17,6 +17,8 @@ import { Box, Button, Heading, HStack, Tabs } from "@navikt/ds-react";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { v4 } from "uuid";
+import { defaultVedtakRequest } from "@/components/tilskudd-behandling/defaultVedtakRequest";
 
 const tabs = [
   { key: "saksopplysninger", label: "Saksopplysninger" },
@@ -32,16 +34,14 @@ export function TilskuddBehandlingFormPage() {
 
   const methods = useForm<TilskuddBehandlingRequest>({
     defaultValues: {
+      id: v4(),
       gjennomforingId,
-      soknadJournalpostId: "",
+      periodeSlutt: null,
+      periodeStart: null,
+      soknadJournalpostId: null,
+      kostnadssted: null,
       soknadDato: null,
-      vedtak: [
-        {
-          tilskuddOpplaeringType: undefined,
-          soknadBelop: null,
-          vedtakResultat: undefined,
-        },
-      ],
+      vedtak: [defaultVedtakRequest],
     },
     mode: "onBlur",
   });

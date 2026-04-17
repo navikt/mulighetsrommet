@@ -7,30 +7,16 @@ import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormGroup } from "@/layouts/FormGroup";
 import {
   TilskuddBehandlingRequest,
-  TilskuddBehandlingRequestTilskuddVedtakRequest,
   TilskuddOpplaeringType,
   Valuta,
-  VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
-import { v4 } from "uuid";
 import { KostnadsstedOption, VelgKostnadssted } from "../tilsagn/form/VelgKostnadssted";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
-
-const tomtTilskudd: TilskuddBehandlingRequestTilskuddVedtakRequest = {
-  id: v4(),
-  tilskuddOpplaeringType: TilskuddOpplaeringType.SKOLEPENGER,
-  soknadBelop: {
-    belop: null,
-    valuta: Valuta.NOK,
-  },
-  kommentarVedtaksbrev: null,
-  vedtakResultat: VedtakResultat.INNVILGELSE,
-  utbetalingMottaker: "bruker",
-};
+import { defaultVedtakRequest } from "./defaultVedtakRequest";
 
 export function SaksopplysningerForm() {
-  const { control, watch } = useFormContext<TilskuddBehandlingRequest>();
+  const { control } = useFormContext<TilskuddBehandlingRequest>();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -115,7 +101,7 @@ export function SaksopplysningerForm() {
           size="small"
           variant="secondary"
           icon={<PlusIcon aria-hidden />}
-          onClick={() => append(tomtTilskudd)}
+          onClick={() => append(defaultVedtakRequest)}
         >
           Legg til tilskudd
         </Button>
