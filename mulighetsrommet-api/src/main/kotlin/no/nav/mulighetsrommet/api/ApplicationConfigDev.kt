@@ -38,33 +38,51 @@ val ApplicationConfigDev = AppConfig(
                 TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
                 TiltakstypeFeature.MIGRERT,
                 TiltakstypeFeature.UTFASET,
+                TiltakstypeFeature.VISES_I_MODIA,
             )
             val migrert = setOf(
                 TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
                 TiltakstypeFeature.MIGRERT,
+                TiltakstypeFeature.VISES_I_MODIA,
             )
-            val vises = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-            )
+            val visesAdmin = setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)
+            val visesModia = setOf(TiltakstypeFeature.VISES_I_MODIA)
             mapOf(
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to utfaset,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to utfaset,
+
                 Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
                 Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
                 Tiltakskode.AVKLARING to migrert,
                 Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
                 Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to utfaset,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to utfaset,
                 Tiltakskode.JOBBKLUBB to migrert,
                 Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
                 Tiltakskode.OPPFOLGING to migrert,
                 Tiltakskode.STUDIESPESIALISERING to migrert,
                 Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
 
-                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to vises,
-                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to vises,
-                Tiltakskode.HOYERE_UTDANNING to vises,
-                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to vises,
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to visesAdmin + visesModia,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to visesAdmin + visesModia,
+                Tiltakskode.HOYERE_UTDANNING to visesAdmin + visesModia,
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to visesAdmin + visesModia,
+
+                Tiltakskode.ARBEIDSTRENING to visesModia,
+                Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD to visesModia,
+                Tiltakskode.VARIG_LONNSTILSKUD to visesModia,
+                Tiltakskode.MENTOR to visesModia,
+                Tiltakskode.INKLUDERINGSTILSKUD to visesModia,
+                Tiltakskode.SOMMERJOBB to visesModia,
+                Tiltakskode.VTAO to visesModia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG to visesModia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE to visesModia,
+                Tiltakskode.ARBEID_MED_STOTTE to visesModia,
+
+                /*
+                 * Nye tiltakstyper under utvikling
+                 */
+                Tiltakskode.FIREARIG_LONNSTILSUDD to setOf(),
             )
         },
     ),

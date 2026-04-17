@@ -35,12 +35,16 @@ class TiltakstypeService(
         return config.features[tiltakskode].orEmpty()
     }
 
+    fun isEnabled(tiltakskode: Tiltakskode, feature: TiltakstypeFeature): Boolean {
+        return getFeatures(tiltakskode).contains(feature)
+    }
+
     fun erMigrert(tiltakskode: Tiltakskode): Boolean {
-        return getFeatures(tiltakskode).contains(TiltakstypeFeature.MIGRERT)
+        return isEnabled(tiltakskode, TiltakstypeFeature.MIGRERT)
     }
 
     fun erUtfaset(tiltakskode: Tiltakskode): Boolean {
-        return getFeatures(tiltakskode).contains(TiltakstypeFeature.UTFASET)
+        return isEnabled(tiltakskode, TiltakstypeFeature.UTFASET)
     }
 
     fun getTiltakskodeByFeatures(features: Set<TiltakstypeFeature>): Set<Tiltakskode> {

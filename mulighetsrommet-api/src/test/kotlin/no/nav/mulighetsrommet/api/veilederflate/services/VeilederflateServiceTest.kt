@@ -11,6 +11,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -142,8 +143,15 @@ class VeilederflateServiceTest : FunSpec({
         tiltakArbeidstrening1,
         tiltakArbeidstrening2,
     )
+    coEvery { sanityService.getTiltak(tiltakArbeidstrening1._id.toUUID(), any(), any()) } returns tiltakArbeidstrening1
 
-    fun createService(features: Map<Tiltakskode, Set<TiltakstypeFeature>> = emptyMap()): VeilederflateService {
+    fun createService(
+        features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(
+            Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.VISES_I_MODIA),
+            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.VISES_I_MODIA),
+            Tiltakskode.ARBEIDSTRENING to setOf(TiltakstypeFeature.VISES_I_MODIA),
+        ),
+    ): VeilederflateService {
         val tiltakstypeService = TiltakstypeService(
             config = TiltakstypeService.Config(features),
             db = database.db,
@@ -154,6 +162,48 @@ class VeilederflateServiceTest : FunSpec({
             sanityService = sanityService,
             navEnhetService = NavEnhetService(database.db),
         )
+    }
+
+    context("vises i modia") {
+        val veilederFlateService = createService(
+            features = mapOf(
+                Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.VISES_I_MODIA),
+                Tiltakskode.ARBEIDSTRENING to emptySet(),
+            ),
+        )
+
+        test("henter tiltakstyper når VISES_I_MODIA er aktivert") {
+            val tiltakstyper = veilederFlateService.hentTiltakstyper()
+
+            tiltakstyper.any { it.tiltakskode == Tiltakskode.OPPFOLGING } shouldBe true
+            tiltakstyper.any { it.tiltakskode == Tiltakskode.ARBEIDSTRENING } shouldBe false
+        }
+
+        test("hentTiltaksgjennomforinger filtrerer bort gjennomføringer for tiltakstyper uten VISES_I_MODIA") {
+            val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
+                enheter = nonEmptyListOf(NavEnhetNummer("0501")),
+                apentForPamelding = ApentForPamelding.APENT,
+                innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
+                cacheUsage = CacheUsage.NoCache,
+                erSykmeldtMedArbeidsgiver = false,
+            )
+
+            tiltak.shouldBeEmpty()
+        }
+
+        test("hentTiltaksgjennomforing henter gjennomføringer selv om tiltakstypen er uten VISES_I_MODIA") {
+            veilederFlateService.hentTiltaksgjennomforing(
+                GjennomforingFixtures.Oppfolging1.id,
+                SanityPerspective.PUBLISHED,
+                CacheUsage.NoCache,
+            ).shouldNotBeNull()
+
+            veilederFlateService.hentTiltaksgjennomforing(
+                tiltakArbeidstrening1._id.toUUID(),
+                SanityPerspective.PUBLISHED,
+                CacheUsage.NoCache,
+            ).shouldNotBeNull()
+        }
     }
 
     test("utleder gjennomføringer som enkeltplass anskaffet tiltak når de har arrangør") {
@@ -335,7 +385,12 @@ class VeilederflateServiceTest : FunSpec({
         }
 
         test("henter beskrivelse og faneinnhold fra databasen når MIGRERT_REDAKSJONELT_INNHOLD er aktivert") {
-            val features = mapOf(Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD))
+            val features = mapOf(
+                Tiltakskode.OPPFOLGING to setOf(
+                    TiltakstypeFeature.VISES_I_MODIA,
+                    TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD,
+                ),
+            )
             val tiltakstyper = createService(features).hentTiltakstyper()
 
             val oppfolging = tiltakstyper.find { it.id == TiltakstypeFixtures.Oppfolging.id }
