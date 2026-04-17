@@ -15,20 +15,30 @@
           "id": "550e8400-e29b-41d4-a716-446655440000",
           "status": {
             "type": "DELTAR",
-            "visningstekst": "Deltar",
             "aarsak": null,
             "opprettetDato": "2023-01-01T00:00:00"
+          },
+          "tiltakstype": {
+            "tiltakskode": "JOBBKLUBB",
+            "navn": "Jobbklubb"
           },
           "gjennomforing": {
             "id": "550e8400-e29b-41d4-a716-446655440001",
             "navn": "Jobbklubb",
-            "tiltakskode": "JOBBKLUBB"
+            "deltidsprosent": null
           },
           "arrangor": {
-            "organisasjonsnummer": "123456789"
+            "hovedenhet": null,
+            "underenhet": {
+              "organisasjonsnummer": "123456789",
+              "navn": "Arrangør AS"
+            }
           },
+          "deltidsprosent": null,
+          "dagerPerUke": null,
           "opphav": "TEAM_KOMET",
-          "type": "TeamKometDeltakelse"
+          "type": "TeamKometDeltakelse",
+          "tittel": "Jobbklubb hos Arrangør AS"
         },
         {
           "norskIdent": "12345678901",
@@ -37,61 +47,108 @@
           "id": "cac3b5bf-a10c-4dfa-a392-6866d0ce1efa",
           "status": {
             "type": "HAR_SLUTTET",
-            "visningstekst": "Har sluttet",
             "aarsak": "FATT_JOBB",
             "opprettetDato": "2023-01-01T00:00:00"
+          },
+          "tiltakstype": {
+            "tiltakskode": "ARBEIDSFORBEREDENDE_TRENING",
+            "navn": "Arbeidsforberedende trening"
           },
           "gjennomforing": {
             "id": "550e8400-e29b-41d4-a716-446655440001",
             "navn": "Arbeidsforberedende trening",
-            "tiltakskode": "ARBEIDSFORBEREDENDE_TRENING"
+            "deltidsprosent": null
           },
           "arrangor": {
-            "organisasjonsnummer": "123456789"
+            "hovedenhet": null,
+            "underenhet": {
+              "organisasjonsnummer": "123456789",
+              "navn": "Arrangør AS"
+            }
           },
+          "deltidsprosent": null,
+          "dagerPerUke": null,
           "opphav": "TEAM_KOMET",
-          "type": "TeamKometDeltakelse"
+          "type": "TeamKometDeltakelse",
+          "tittel": "Arbeidsforberedende trening hos Arrangør AS"
         },
         {
           "norskIdent": "12345678901",
           "startDato": "2023-01-01",
           "sluttDato": "2023-12-31",
           "id": "26b793f8-8f4a-4b79-bae9-b7769fdba52e",
-          "arenaTiltakskode": "ARBFORB",
+          "arenaId": 12345,
           "status": "TAKKET_NEI_TIL_TILBUD",
-          "beskrivelse": "Arbeidsforberedende trening hos Bedrift AS",
-          "arrangor": {
-            "organisasjonsnummer": "987654321"
+          "tiltakstype": {
+            "tiltakskode": "ARBFORB",
+            "navn": "Arbeidsforberedende trening"
           },
+          "gjennomforing": {
+            "id": "550e8400-e29b-41d4-a716-446655440002",
+            "navn": "Arbeidsforberedende trening",
+            "deltidsprosent": null
+          },
+          "arrangor": {
+            "hovedenhet": null,
+            "underenhet": {
+              "organisasjonsnummer": "987654321",
+              "navn": "Bedrift AS"
+            }
+          },
+          "deltidsprosent": null,
+          "dagerPerUke": null,
           "opphav": "ARENA",
-          "type": "ArenaDeltakelse"
+          "type": "ArenaDeltakelse",
+          "tittel": "Arbeidsforberedende trening hos Bedrift AS"
         },
         {
           "norskIdent": "12345678901",
           "startDato": "2021-01-01",
           "sluttDato": "2022-12-31",
           "id": "550e8400-e29b-41d4-a716-446655440004",
-          "arenaTiltakskode": "MENTOR",
+          "arenaId": 54321,
           "status": "FULLFORT",
-          "beskrivelse": "Mentor hos Joblearn AS",
-          "arrangor": {
-            "organisasjonsnummer": "987654321"
+          "tiltakstype": {
+            "tiltakskode": "MENTOR",
+            "navn": "Mentor"
           },
+          "gjennomforing": {
+            "id": "550e8400-e29b-41d4-a716-446655440003",
+            "navn": "Mentor",
+            "deltidsprosent": null
+          },
+          "arrangor": {
+            "hovedenhet": null,
+            "underenhet": {
+              "organisasjonsnummer": "987654321",
+              "navn": "Joblearn AS"
+            }
+          },
+          "deltidsprosent": null,
+          "dagerPerUke": null,
           "opphav": "ARENA",
-          "type": "ArenaDeltakelse"
+          "type": "ArenaDeltakelse",
+          "tittel": "Mentor hos Joblearn AS"
         },
         {
           "norskIdent": "12345678901",
           "startDato": "2022-01-01",
           "sluttDato": "2023-12-31",
           "id": "28c9eb94-7b9f-4bd8-a242-1bf80929322c",
-          "tiltakstype": "ARBEIDSTRENING",
           "status": "AVSLUTTET",
+          "tiltakstype": {
+            "tiltakskode": "ARBEIDSTRENING",
+            "navn": "Arbeidstrening"
+          },
+          "stillingsprosent": null,
+          "dagerPerUke": null,
           "arbeidsgiver": {
-            "organisasjonsnummer": "983982433"
+            "organisasjonsnummer": "983982433",
+            "navn": "Arbeidsgiver AS"
           },
           "opphav": "TEAM_TILTAK",
-          "type": "TeamTiltakAvtale"
+          "type": "TeamTiltakAvtale",
+          "tittel": "Arbeidstrening hos Arbeidsgiver AS"
         }
       ]
     },
