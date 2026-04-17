@@ -141,8 +141,9 @@ fun Route.utbetalingRoutes() {
             }) {
                 val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
+                val arrangor = db.session { queries.arrangor.getByGjennomforingId(request.gjennomforingId) }
 
-                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request, arrangor)
                     .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
                     .map { HttpStatusCode.Created }
@@ -168,8 +169,9 @@ fun Route.utbetalingRoutes() {
             }) {
                 val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
+                val arrangor = db.session { queries.arrangor.getByGjennomforingId(request.gjennomforingId) }
 
-                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request, arrangor)
                     .flatMap { utbetalingService.redigerUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke redigere utbetaling", it) }
                     .map { HttpStatusCode.OK }
