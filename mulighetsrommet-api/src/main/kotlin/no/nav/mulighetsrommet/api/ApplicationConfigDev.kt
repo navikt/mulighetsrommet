@@ -62,7 +62,7 @@ val ApplicationConfigDev = AppConfig(
                 Tiltakskode.OPPFOLGING to migrert,
                 Tiltakskode.STUDIESPESIALISERING to migrert,
                 Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
-                Tiltakskode.TILPASSET_JOBBSTOTTE to migrert,
+                Tiltakskode.TILPASSET_JOBBSTOTTE to migrert + TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD,
 
                 Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to visesAdmin + visesModia,
                 Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to visesAdmin + visesModia,
