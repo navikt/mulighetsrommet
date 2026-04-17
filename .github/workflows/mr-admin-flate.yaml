@@ -7,9 +7,9 @@ on:
       - package.json
       - pnpm-lock.yaml
       - turbo.json
-      - frontend/mr-admin-flate/**
-      - frontend/api-client/**
       - frontend/frontend-common/**
+      - frontend/tiltaksadministrasjon-api-client/**
+      - frontend/mr-admin-flate/**
   workflow_dispatch:
     inputs:
       environment:
