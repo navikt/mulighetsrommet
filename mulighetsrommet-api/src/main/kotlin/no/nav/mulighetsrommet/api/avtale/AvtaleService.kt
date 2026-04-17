@@ -57,6 +57,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.io.File
 import java.time.Instant
@@ -83,7 +84,9 @@ class AvtaleService(
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
         if (tiltakstypeService.erUtfaset(request.detaljer.tiltakskode)) {
-            raise(FieldError.of("Nye avtaler kan ikke opprettes for denne tiltakstypen fordi den er utfaset").nel())
+            raise(FieldError.of("Avtaler kan ikke opprettes for denne tiltakstypen fordi den er utfaset").nel())
+        } else if (!request.detaljer.tiltakskode.harEgenskap(TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE)) {
+            raise(FieldError.of("Avtaler kan ikke opprettes for denne tiltakstypen").nel())
         }
 
         val createAvtaleContext = db.session {
