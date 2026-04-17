@@ -73,6 +73,9 @@ object Prismodeller {
             PrismodellType.ANNEN_AVTALT_PRIS,
         )
 
+        Tiltakskode.TILPASSET_JOBBSTOTTE,
+        -> listOf(PrismodellType.ANNEN_AVTALT_PRIS)
+
         else -> listOf()
     }
 }

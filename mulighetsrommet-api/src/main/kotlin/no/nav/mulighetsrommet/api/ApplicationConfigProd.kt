@@ -80,6 +80,7 @@ val ApplicationConfigProd = AppConfig(
                 /*
                  * Nye tiltakstyper under utvikling
                  */
+                Tiltakskode.TILPASSET_JOBBSTOTTE to setOf(),
                 Tiltakskode.FIREARIG_LONNSTILSUDD to setOf(),
             )
         },

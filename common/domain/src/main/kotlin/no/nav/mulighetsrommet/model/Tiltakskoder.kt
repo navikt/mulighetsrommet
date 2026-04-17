@@ -75,6 +75,14 @@ enum class Tiltakskode(
             TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
     ),
+    TILPASSET_JOBBSTOTTE(
+        system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
+        arenakode = null,
+        egenskaper = setOf(
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
+            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+        ),
+    ),
 
     /**
      * Opplæringstiltak
