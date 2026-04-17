@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.plugins.OpenApiVersionHeader
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
+import no.nav.mulighetsrommet.api.tilskuddbehandling.api.tilskuddBehandlingRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.api.redaksjoneltInnholdRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.api.tiltakstypeRoutes
 import no.nav.mulighetsrommet.api.utbetaling.api.utbetalingRoutes
@@ -137,6 +138,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     utdanningRoutes()
     notificationRoutes()
     opplaeringtilskuddRoutes()
+    tilskuddBehandlingRoutes()
 }
 
 fun Route.veilederflateRoutes() {

@@ -70,6 +70,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
+import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tiltakstype.service.RedaksjoneltInnholdLenkeService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
@@ -496,6 +497,7 @@ private fun services(appConfig: AppConfig) = module {
             navAnsattService = get(),
         )
     }
+    single { TilskuddBehandlingService(get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get()) }
     single { ArrangorflateService(get(), get(), get()) }
