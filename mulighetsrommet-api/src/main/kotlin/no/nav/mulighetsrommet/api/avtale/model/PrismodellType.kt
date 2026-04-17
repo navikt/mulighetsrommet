@@ -50,6 +50,7 @@ object Prismodeller {
     fun getPrismodellerForTiltak(tiltakskode: Tiltakskode): List<PrismodellType> = when (tiltakskode) {
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        Tiltakskode.TILPASSET_JOBBSTOTTE,
         -> listOf(
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         )
@@ -72,9 +73,6 @@ object Prismodeller {
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             PrismodellType.ANNEN_AVTALT_PRIS,
         )
-
-        Tiltakskode.TILPASSET_JOBBSTOTTE,
-        -> listOf(PrismodellType.ANNEN_AVTALT_PRIS)
 
         else -> listOf()
     }
