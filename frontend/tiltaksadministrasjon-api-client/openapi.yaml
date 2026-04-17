@@ -3186,7 +3186,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 11
+        - 12
     RedaksjoneltInnholdLenke:
       type: object
       properties:
