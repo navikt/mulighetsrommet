@@ -54,7 +54,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             insert into tilskudd_vedtak (
                 id,
                 tilskudd_behandling_id,
-                tilskudd_type,
+                tilskudd_opplaering_id,
                 soknad_belop,
                 soknad_valuta,
                 vedtak_resultat,
@@ -63,7 +63,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             ) values (
                 :id::uuid,
                 :tilskudd_behandling_id::uuid,
-                :tilskudd_type,
+                (select id from tilskudd_opplaering where kode = :tilskudd_opplaering_kode),
                 :soknad_belop,
                 :soknad_valuta::currency,
                 :vedtak_resultat,
@@ -75,7 +75,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
         val params = mapOf(
             "id" to vedtak.id,
             "tilskudd_behandling_id" to tilskuddsbehandlingId,
-            "tilskudd_type" to vedtak.tilskuddType.name,
+            "tilskudd_opplaering_kode" to vedtak.tilskuddOpplaeringType.name,
             "soknad_belop" to vedtak.soknadBelop,
             "soknad_valuta" to vedtak.soknadValuta.name,
             "vedtak_resultat" to vedtak.vedtakResultat.name,

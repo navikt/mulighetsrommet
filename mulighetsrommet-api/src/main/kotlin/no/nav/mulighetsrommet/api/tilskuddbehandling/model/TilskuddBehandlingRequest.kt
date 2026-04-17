@@ -14,9 +14,9 @@ data class TilskuddBehandlingRequest(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    val soknadJournalpostId: String,
+    val soknadJournalpostId: String?,
     @Serializable(with = LocalDateSerializer::class)
-    val soknadDato: LocalDate,
+    val soknadDato: LocalDate?,
     val periodeStart: String?,
     val periodeSlutt: String?,
     val kostnadssted: NavEnhetNummer?,
@@ -26,7 +26,7 @@ data class TilskuddBehandlingRequest(
     data class TilskuddVedtakRequest(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val tilskuddType: TilskuddType,
+        val tilskuddOpplaeringType: TilskuddOpplaeringType,
         val soknadBelop: ValutaBelopRequest?,
         val vedtakResultat: VedtakResultat,
         val kommentarVedtaksbrev: String?,

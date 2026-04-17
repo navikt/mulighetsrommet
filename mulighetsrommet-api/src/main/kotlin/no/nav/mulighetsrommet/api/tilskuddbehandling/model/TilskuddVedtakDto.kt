@@ -9,7 +9,7 @@ import java.util.UUID
 data class TilskuddVedtakDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tilskuddType: TilskuddType,
+    val tilskuddOpplaeringType: TilskuddOpplaeringType,
     val soknadBelop: Int,
     val soknadValuta: Valuta,
     val vedtakResultat: VedtakResultat,

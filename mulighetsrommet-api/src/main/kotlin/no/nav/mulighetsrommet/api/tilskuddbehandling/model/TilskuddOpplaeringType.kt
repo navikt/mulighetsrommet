@@ -3,8 +3,10 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class TilskuddType {
+enum class TilskuddOpplaeringType {
     SKOLEPENGER,
+    STUDIEREISE,
+    EKSAMENSAVGIFT,
     SEMESTERAVGIFT,
-    EKSAMENSGEBYR,
+    INTEGRERT_BOTILBUD,
 }

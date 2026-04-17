@@ -12,7 +12,7 @@ from tilskudd_behandling tb
         select coalesce(jsonb_agg(
             jsonb_build_object(
                 'id', v.id,
-                'tilskuddType', v.tilskudd_type,
+                'tilskuddOpplaeringType', tilskudd_opplaering.kode,
                 'soknadBelop', v.soknad_belop,
                 'soknadValuta', v.soknad_valuta,
                 'vedtakResultat', v.vedtak_resultat,
@@ -20,4 +20,5 @@ from tilskudd_behandling tb
                 'utbetalingMottaker', v.utbetaling_mottaker
             )
         ), '[]') as vedtak_json from tilskudd_vedtak v
+            inner join tilskudd_opplaering on tilskudd_opplaering.id = v.tilskudd_opplaering_id
         where v.tilskudd_behandling_id = tb.id) on true;

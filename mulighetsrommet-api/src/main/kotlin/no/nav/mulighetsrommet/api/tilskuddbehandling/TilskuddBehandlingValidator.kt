@@ -24,11 +24,18 @@ object TilskuddBehandlingValidator {
         }
         val periodeSlutt = request.periodeSlutt?.parseOrNull()
         validateNotNull(periodeSlutt) {
-            FieldError.of("Periodeslutt må være satt", TilsagnRequest::periodeSlutt)
+            FieldError.of("Periodeslutt må være satt", TilskuddBehandlingRequest::periodeSlutt)
         }
-        requireValid(requireNotNull(periodeStart) < requireNotNull(periodeSlutt)) {
+        validateNotNull(request.soknadDato) {
+            FieldError.of("Søknadsdato må være satt", TilskuddBehandlingRequest::soknadDato)
+        }
+        validateNotNull(request.soknadJournalpostId) {
+            FieldError.of("JournalpostId må være satt", TilskuddBehandlingRequest::soknadJournalpostId)
+        }
+        validate(requireNotNull(periodeStart) < requireNotNull(periodeSlutt)) {
             FieldError.of("Periodestart må være før periodeslutt", TilskuddBehandlingRequest::periodeStart)
         }
+        requireValid(request.soknadDato != null && request.soknadJournalpostId != null)
 
         TilskuddBehandlingDbo(
             id = request.id,
@@ -53,7 +60,7 @@ object TilskuddBehandlingValidator {
 
         TilskuddVedtakDbo(
             id = req.id,
-            tilskuddType = req.tilskuddType,
+            tilskuddOpplaeringType = req.tilskuddOpplaeringType,
             soknadBelop = req.soknadBelop.belop,
             soknadValuta = req.soknadBelop.valuta,
             vedtakResultat = req.vedtakResultat,

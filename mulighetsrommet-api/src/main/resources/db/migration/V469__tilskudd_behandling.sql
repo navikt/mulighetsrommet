@@ -1,11 +1,4 @@
-CREATE TABLE tilskudd_type (
-    value TEXT NOT NULL PRIMARY KEY
-);
-
-INSERT INTO tilskudd_type (value) VALUES
-    ('SKOLEPENGER'),
-    ('SEMESTERAVGIFT'),
-    ('EKSAMENSGEBYR');
+drop view if exists view_tilskudd_behandling;
 
 CREATE TABLE vedtak_resultat (
     value TEXT NOT NULL PRIMARY KEY
@@ -27,7 +20,7 @@ CREATE TABLE tilskudd_behandling (
 CREATE TABLE tilskudd_vedtak (
     id uuid PRIMARY KEY,
     tilskudd_behandling_id uuid NOT NULL REFERENCES tilskudd_behandling(id),
-    tilskudd_type TEXT NOT NULL REFERENCES tilskudd_type(value),
+    tilskudd_opplaering_id uuid NOT NULL REFERENCES tilskudd_opplaering(id),
     soknad_belop INT NOT NULL,
     soknad_valuta currency NOT NULL,
     vedtak_resultat TEXT NOT NULL REFERENCES vedtak_resultat(value),

@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtakDbo
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddType
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -36,7 +36,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
         vedtak = listOf(
             TilskuddVedtakDbo(
                 id = UUID.randomUUID(),
-                tilskuddType = TilskuddType.SKOLEPENGER,
+                tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
                 soknadBelop = 50000,
                 soknadValuta = Valuta.NOK,
                 vedtakResultat = VedtakResultat.INNVILGELSE,
@@ -65,7 +65,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     it.vedtak.size shouldBe 1
                     it.vedtak.first() should { v ->
                         v.id shouldBe behandling.vedtak.first().id
-                        v.tilskuddType shouldBe TilskuddType.SKOLEPENGER
+                        v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.SKOLEPENGER
                         v.soknadBelop shouldBe 50000
                         v.soknadValuta shouldBe Valuta.NOK
                         v.vedtakResultat shouldBe VedtakResultat.INNVILGELSE
