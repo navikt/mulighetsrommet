@@ -153,7 +153,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
         throw Error("undefined datoVelgerType");
     }
 
-    if (!formState.tilsagnId) {
+    if (newErrors.length === 0 && !formState.tilsagnId) {
       newErrors.push({
         pointer: "/tilsagnId",
         detail: "Kan ikke opprette utbetalingskrav uten gyldig tilsagn",
