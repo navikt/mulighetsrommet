@@ -38,7 +38,7 @@ class GjennomforingRequestKafkaConsumer(
             "Enkeltplass kan bare opprettes når tiltakstypen er migrert"
         }
 
-        require(request.tiltakskode.harEgenskap(TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS)) {
+        require(request.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_ENKELTPLASSER)) {
             "Enkeltplass kan bare opprettes for tiltakstyper med støtte for enkeltplasser"
         }
 
