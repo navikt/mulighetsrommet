@@ -122,7 +122,7 @@ class DelMedBrukerService(
         val historikk = session.list(queryOf(query, fnr.value)) { row ->
             val tiltakstype = TiltakstypeDeltMedBruker(
                 tiltakskode = row.stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
-                arenakode = row.string("tiltakstype_arena_kode"),
+                arenakode = row.stringOrNull("tiltakstype_arena_kode"),
                 navn = row.string("tiltakstype_navn"),
             )
             val deling = DelingMedBruker(

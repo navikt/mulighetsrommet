@@ -24,6 +24,7 @@ object Avtaletyper {
         Tiltakskode.ARBEIDSRETTET_REHABILITERING,
         Tiltakskode.JOBBKLUBB,
         Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+        Tiltakskode.TILPASSET_JOBBSTOTTE,
         -> listOf(
             Avtaletype.RAMMEAVTALE,
             Avtaletype.AVTALE,
