@@ -1487,9 +1487,7 @@ components:
           type: string
           default: null
         tiltakskode:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Tiltakskode"
+          $ref: "#/components/schemas/Tiltakskode"
         features:
           type: array
           items:

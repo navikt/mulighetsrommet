@@ -10,15 +10,13 @@ interface Props {
 }
 
 export function StartRegistreringEnkeltplass({ tiltakstype, harRettPaaTiltak }: Props): ReactNode {
-  const { tiltakskode } = tiltakstype;
-
-  if (!tiltakskode || !kanOppretteEnkeltplass(tiltakstype)) {
+  if (!kanOppretteEnkeltplass(tiltakstype)) {
     return null;
   }
 
   const opprettDeltakelseRoute = resolveModiaRoute({
     route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE_OPPRETT_ENKELTPLASS,
-    tiltakskode: tiltakskode,
+    tiltakskode: tiltakstype.tiltakskode,
   });
 
   return (

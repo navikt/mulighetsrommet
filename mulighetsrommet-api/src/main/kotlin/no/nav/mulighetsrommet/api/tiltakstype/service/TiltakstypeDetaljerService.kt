@@ -46,14 +46,13 @@ class TiltakstypeDetaljerService(
             queries.tiltakstype.getAll(sortering = filter.sortering)
         }
 
-        return tiltakstyper.mapNotNull { it.toTiltakstypeKompaktDto() }
+        return tiltakstyper.map { it.toTiltakstypeKompaktDto() }
     }
 
     suspend fun getById(id: UUID): TiltakstypeDto? {
         val tiltakstype = db.session { queries.tiltakstype.get(id) } ?: return null
-        val tiltakskode = tiltakstype.tiltakskode ?: return null
-        val features = tiltakstypeService.getFeatures(tiltakskode)
 
+        val features = tiltakstypeService.getFeatures(tiltakstype.tiltakskode)
         val veilederinfo = if (features.contains(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD)) {
             db.session { queries.tiltakstype.getVeilederinfo(id) } ?: TiltakstypeVeilderinfo(
                 beskrivelse = null,
@@ -85,20 +84,19 @@ class TiltakstypeDetaljerService(
         return TiltakstypeDto(
             id = tiltakstype.id,
             navn = tiltakstype.navn,
-            tiltakskode = tiltakskode,
+            tiltakskode = tiltakstype.tiltakskode,
             startDato = tiltakstype.startDato,
             sluttDato = tiltakstype.sluttDato,
             status = tiltakstype.status,
             sanityId = tiltakstype.sanityId,
             features = features,
-            egenskaper = tiltakskode.egenskaper,
-            gruppe = tiltakskode.gruppe?.tittel,
+            egenskaper = tiltakstype.tiltakskode.egenskaper,
+            gruppe = tiltakstype.tiltakskode.gruppe?.tittel,
             veilederinfo = veilederinfo,
         )
     }
 
-    private fun Tiltakstype.toTiltakstypeKompaktDto(): TiltakstypeKompaktDto? {
-        val tiltakskode = tiltakskode ?: return null
+    private fun Tiltakstype.toTiltakstypeKompaktDto(): TiltakstypeKompaktDto {
         val features = tiltakstypeService.getFeatures(tiltakskode)
         return TiltakstypeKompaktDto(
             id = id,
