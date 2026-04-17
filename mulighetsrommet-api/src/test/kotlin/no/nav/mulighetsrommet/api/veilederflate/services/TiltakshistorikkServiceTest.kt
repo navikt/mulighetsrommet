@@ -68,7 +68,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.TeamKometDeltakelse(
         id = UUID.randomUUID(),
         tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
+            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
             navn = TiltakstypeFixtures.Oppfolging.navn,
         ),
         gjennomforing = Gjennomforing(

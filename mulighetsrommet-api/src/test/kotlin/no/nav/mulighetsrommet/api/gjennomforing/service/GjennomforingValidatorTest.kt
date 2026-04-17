@@ -51,7 +51,7 @@ class GjennomforingValidatorTest : FunSpec({
         tiltakstype = Avtale.Tiltakstype(
             navn = TiltakstypeFixtures.Oppfolging.navn,
             id = TiltakstypeFixtures.Oppfolging.id,
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
+            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         ),
         arrangor = Avtale.ArrangorHovedenhet(
             id = ArrangorFixtures.hovedenhet.id,
@@ -167,7 +167,7 @@ class GjennomforingValidatorTest : FunSpec({
                     tiltakstype = Avtale.Tiltakstype(
                         navn = TiltakstypeFixtures.Jobbklubb.navn,
                         id = TiltakstypeFixtures.Jobbklubb.id,
-                        tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode!!,
+                        tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode,
                     ),
                 ),
             ),
@@ -264,7 +264,7 @@ class GjennomforingValidatorTest : FunSpec({
     test("amoKategorisering er påkrevd for avtale og gjennomføring når tiltakstype er Gruppe AMO") {
         val avtaleUtenAmokategorisering = avtale.copy(
             tiltakstype = Avtale.Tiltakstype(
-                tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode!!,
+                tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
                 id = TiltakstypeFixtures.GruppeAmo.id,
                 navn = TiltakstypeFixtures.GruppeAmo.navn,
             ),
@@ -285,7 +285,7 @@ class GjennomforingValidatorTest : FunSpec({
     test("Kurselement må velges for gjennomføring når tiltakstype er Gruppe AMO") {
         val avtaleUtenAmokategorisering = avtale.copy(
             tiltakstype = Avtale.Tiltakstype(
-                tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode!!,
+                tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
                 id = TiltakstypeFixtures.GruppeAmo.id,
                 navn = TiltakstypeFixtures.GruppeAmo.navn,
             ),
@@ -305,7 +305,7 @@ class GjennomforingValidatorTest : FunSpec({
     test("utdanningsprogram og lærefag er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
         val avtaleGruFag = avtale.copy(
             tiltakstype = Avtale.Tiltakstype(
-                tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode!!,
+                tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
                 id = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
                 navn = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.navn,
             ),
@@ -531,7 +531,7 @@ class GjennomforingValidatorTest : FunSpec({
                         tiltakstype = Avtale.Tiltakstype(
                             navn = TiltakstypeFixtures.Jobbklubb.navn,
                             id = TiltakstypeFixtures.Jobbklubb.id,
-                            tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode!!,
+                            tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode,
                         ),
                     ),
                 ),
@@ -557,7 +557,7 @@ class GjennomforingValidatorTest : FunSpec({
                         tiltakstype = Avtale.Tiltakstype(
                             navn = TiltakstypeFixtures.Jobbklubb.navn,
                             id = TiltakstypeFixtures.Jobbklubb.id,
-                            tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode!!,
+                            tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode,
                         ),
                     ),
                 ),

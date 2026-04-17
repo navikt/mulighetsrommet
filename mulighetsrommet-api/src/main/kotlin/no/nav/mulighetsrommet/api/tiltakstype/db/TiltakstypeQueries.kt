@@ -299,7 +299,7 @@ class TiltakstypeQueries(private val session: Session) {
     private fun TiltakstypeDbo.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
-        "tiltakskode" to tiltakskode?.name,
+        "tiltakskode" to tiltakskode.name,
         "arena_kode" to arenaKode,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,

@@ -12,7 +12,7 @@ data class TiltakstypeDbo(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
-    val tiltakskode: Tiltakskode?,
+    val tiltakskode: Tiltakskode,
     val arenaKode: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
