@@ -10,7 +10,7 @@ data class Tiltakstype(
     val id: UUID,
     val navn: String,
     val innsatsgrupper: Set<Innsatsgruppe>,
-    val tiltakskode: Tiltakskode?,
+    val tiltakskode: Tiltakskode,
     val arenakode: String,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,

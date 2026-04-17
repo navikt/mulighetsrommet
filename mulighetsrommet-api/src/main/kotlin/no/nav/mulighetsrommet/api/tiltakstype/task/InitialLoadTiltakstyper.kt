@@ -46,11 +46,9 @@ class InitialLoadTiltakstyper(
 
     suspend fun initialLoadTiltakstyper() = db.transaction {
         queries.tiltakstype.getAll().forEach { tiltakstype ->
-            val tiltakskode = tiltakstype.tiltakskode ?: return@forEach
-
-            if (tiltakskode.system == TiltakstypeSystem.TILTAKSADMINISTRASJON) {
+            if (tiltakstype.tiltakskode.system == TiltakstypeSystem.TILTAKSADMINISTRASJON) {
                 val eksternDto = requireNotNull(queries.tiltakstype.getEksternTiltakstype(tiltakstype.id)) {
-                    "Klarte ikke hente ekstern tiltakstype for tiltakskode $tiltakskode"
+                    "Klarte ikke hente ekstern tiltakstype for tiltakskode ${tiltakstype.tiltakskode}"
                 }
 
                 logger.info("Publiserer tiltakstype til kafka id=${tiltakstype.id}")

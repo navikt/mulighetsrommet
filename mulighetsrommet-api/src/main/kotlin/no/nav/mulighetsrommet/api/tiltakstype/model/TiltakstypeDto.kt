@@ -30,7 +30,7 @@ data class TiltakstypeDto(
 
 enum class TiltakstypeFeature {
     /**
-     * Vises i Tiltaksadministrasjon
+     * Styrer om gjennomføringer vises i Tiltaksadministrasjon
      */
     VISES_I_TILTAKSADMINISTRASJON,
 

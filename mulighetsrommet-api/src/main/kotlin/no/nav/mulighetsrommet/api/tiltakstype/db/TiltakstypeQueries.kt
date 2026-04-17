@@ -316,7 +316,7 @@ class TiltakstypeQueries(private val session: Session) {
             navn = string("navn"),
             innsatsgrupper = innsatsgrupper,
             arenakode = string("arena_kode"),
-            tiltakskode = stringOrNull("tiltakskode")?.let { Tiltakskode.valueOf(it) },
+            tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             startDato = localDate("start_dato"),
             sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
