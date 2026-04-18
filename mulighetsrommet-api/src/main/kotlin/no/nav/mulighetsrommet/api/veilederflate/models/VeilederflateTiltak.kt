@@ -144,7 +144,8 @@ data class VeilederflateKontaktinfo(
 data class VeilederflateTiltakstype(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val sanityId: String,
+    @kotlinx.serialization.Transient
+    val sanityId: String? = null,
     val navn: String,
     val tiltakskode: Tiltakskode,
     val features: Set<TiltakstypeFeature>,
