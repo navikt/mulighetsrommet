@@ -73,6 +73,7 @@ enum class Tiltakskode(
         arenakode = null,
         egenskaper = setOf(
             TiltakstypeEgenskap.STOTTER_AVTALER,
+            TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
 
