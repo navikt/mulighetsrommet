@@ -26,6 +26,7 @@ class DelMedBrukerService(
     private val navEnhetService: NavEnhetService,
 ) {
     private val logger = LoggerFactory.getLogger(DelMedBrukerService::class.java)
+
     fun insertDelMedBruker(dbo: DelMedBrukerDbo): Unit = db.session {
         logger.teamLogsInfo(
             "Veileder (${dbo.navIdent}) deler tiltak med id: '${dbo.sanityId ?: dbo.gjennomforingId}' med bruker (${dbo.norskIdent.value})",

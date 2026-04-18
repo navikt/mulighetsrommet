@@ -32,6 +32,7 @@ import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.utils.CachedComputation
 import no.nav.mulighetsrommet.utils.toUUID
@@ -65,15 +66,20 @@ class VeilederflateService(
     }
 
     suspend fun hentOppskrifter(
-        tiltakstypeId: UUID,
+        tiltakskode: Tiltakskode,
         perspective: SanityPerspective,
     ): List<Oppskrift> {
-        return sanityService.getOppskrifter(tiltakstypeId, perspective)
+        val sanityId = getAllTiltakstyper()
+            .singleOrNull { it.tiltakskode == tiltakskode }
+            ?.sanityId
+            ?.toUUID()
+            ?: return emptyList()
+        return sanityService.getOppskrifter(sanityId, perspective)
     }
 
     suspend fun hentTiltaksgjennomforinger(
         enheter: NonEmptyList<NavEnhetNummer>,
-        tiltakstypeIds: List<String>? = null,
+        tiltakskoder: List<Tiltakskode>? = null,
         innsatsgruppe: Innsatsgruppe,
         apentForPamelding: ApentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
         search: String? = null,
@@ -81,13 +87,13 @@ class VeilederflateService(
         cacheUsage: CacheUsage,
     ): List<VeilederflateTiltak> = coroutineScope {
         val individuelleGjennomforinger = async {
-            hentSanityTiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForPamelding, search, cacheUsage)
+            hentSanityTiltak(enheter, tiltakskoder, innsatsgruppe, apentForPamelding, search, cacheUsage)
         }
 
         val gruppeGjennomforinger = async {
             hentGruppetiltak(
                 enheter,
-                tiltakstypeIds,
+                tiltakskoder,
                 innsatsgruppe,
                 apentForPamelding,
                 search,
@@ -120,8 +126,8 @@ class VeilederflateService(
             val sanityTiltakstyper = sanityService.getTiltakstyper().associateBy { it._id }
 
             db.session {
-                queries.tiltakstype.getAll().mapNotNull { tiltakstype ->
-                    val sanityId = tiltakstype.sanityId?.toString() ?: return@mapNotNull null
+                queries.tiltakstype.getAll().map { tiltakstype ->
+                    val sanityId = tiltakstype.sanityId?.toString()
 
                     val veilederinfo = if (
                         tiltakstypeService.isEnabled(
@@ -158,7 +164,7 @@ class VeilederflateService(
 
     private suspend fun hentSanityTiltak(
         enheter: NonEmptyList<NavEnhetNummer>,
-        tiltakstypeIds: List<String>?,
+        tiltakskoder: List<Tiltakskode>?,
         innsatsgruppe: Innsatsgruppe,
         apentForPamelding: ApentForPamelding,
         search: String?,
@@ -173,6 +179,10 @@ class VeilederflateService(
 
         val fylker = enheter.mapNotNull {
             navEnhetService.hentOverordnetFylkesenhet(it)?.enhetsnummer
+        }
+
+        val tiltakstypeIds = tiltakskoder?.let { tiltakskoder ->
+            getAllTiltakstyper().filter { it.tiltakskode in tiltakskoder }.map { it.sanityId }
         }
 
         return sanityGjennomforinger
@@ -190,7 +200,7 @@ class VeilederflateService(
 
     private suspend fun hentGruppetiltak(
         enheter: NonEmptyList<NavEnhetNummer>,
-        tiltakstypeIds: List<String>?,
+        tiltakskoder: List<Tiltakskode>?,
         innsatsgruppe: Innsatsgruppe,
         apentForPamelding: ApentForPamelding,
         search: String?,
@@ -199,7 +209,7 @@ class VeilederflateService(
         return queries.veilderTiltak
             .getAll(
                 search = search,
-                sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
+                tiltakskoder = tiltakskoder,
                 innsatsgruppe = innsatsgruppe,
                 brukersEnheter = enheter,
                 apentForPamelding = when (apentForPamelding) {

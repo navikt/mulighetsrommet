@@ -233,7 +233,7 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
+            tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
             apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -246,7 +246,7 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
+            tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
             apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -261,7 +261,7 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
+            tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
             apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -272,43 +272,11 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
+            tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
             apentForPamelding = ApentForPamelding.STENGT,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldBeEmpty()
-    }
-
-    test("filtrer vekk gjennomføringer nå sanityId er ukjent") {
-        val veilederFlateService = createService()
-
-        database.run {
-            queries.tiltakstype.setSanityId(TiltakstypeFixtures.Oppfolging.id, null)
-        }
-
-        veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf(NavEnhetNummer("0400")),
-            innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
-            apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
-            cacheUsage = CacheUsage.NoCache,
-            erSykmeldtMedArbeidsgiver = false,
-        ).shouldBeEmpty()
-
-        database.run {
-            queries.tiltakstype.setSanityId(TiltakstypeFixtures.Oppfolging.id, tiltakstypeOppfolging._id.toUUID())
-        }
-
-        veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf(NavEnhetNummer("0400")),
-            innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
-            apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
-            cacheUsage = CacheUsage.NoCache,
-            erSykmeldtMedArbeidsgiver = false,
-        ).shouldHaveSize(1).should { (first) ->
-            first.shouldBeInstanceOf<VeilederflateTiltakGruppe>().id shouldBe GjennomforingFixtures.Oppfolging1.id
-        }
     }
 
     test("henter ikke gjennomføringer fra Sanity når filter for 'Åpent for påmelding' er STENGT") {

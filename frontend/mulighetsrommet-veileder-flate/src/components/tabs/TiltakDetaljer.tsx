@@ -85,7 +85,7 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
             ) : null}
             {oppskrifterEnabled && (
               <OppskriftOversikt
-                tiltakstypeId={tiltakstype.sanityId}
+                tiltakskode={tiltakstype.tiltakskode}
                 setOppskriftId={setOppskriftId}
               />
             )}

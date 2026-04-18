@@ -496,8 +496,7 @@ paths:
         schema:
           type: array
           items:
-            type: string
-            default: null
+            $ref: "#/components/schemas/Tiltakskode"
       - name: erSykmeldtMedArbeidsgiver
         in: query
         required: false
@@ -553,19 +552,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/veilederflate/oppskrifter/{tiltakstypeId}:
+  /api/veilederflate/oppskrifter/{tiltakskode}:
     get:
       tags:
       - Oppskrifter
       operationId: getOppskrifter
       parameters:
-      - name: tiltakstypeId
+      - name: tiltakskode
         in: path
         required: true
         deprecated: false
         explode: false
         schema:
-          type: string
+          $ref: "#/components/schemas/Tiltakskode"
       - name: perspective
         in: query
         description: Hvilket Sanity-perspective du vil bruke
@@ -1481,9 +1480,6 @@ components:
           type: string
           format: uuid
           default: null
-        sanityId:
-          type: string
-          default: null
         navn:
           type: string
           default: null
@@ -1565,7 +1561,6 @@ components:
       - kanKombineresMed
       - navn
       - regelverkLenker
-      - sanityId
       - tiltaksgruppe
       - tiltakskode
     TiltakstypeFeature:
