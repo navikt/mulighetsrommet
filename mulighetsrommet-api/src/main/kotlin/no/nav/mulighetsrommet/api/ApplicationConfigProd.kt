@@ -34,48 +34,40 @@ private val kontaktpersonAdGruppeId = "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toU
 val ApplicationConfigProd = AppConfig(
     tiltakstyper = TiltakstypeService.Config(
         features = run {
-            val utfaset = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-                TiltakstypeFeature.MIGRERT,
-                TiltakstypeFeature.UTFASET,
-                TiltakstypeFeature.VISES_I_MODIA,
-            )
-            val migrert = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-                TiltakstypeFeature.MIGRERT,
-                TiltakstypeFeature.VISES_I_MODIA,
-            )
-            val visesModia = setOf(TiltakstypeFeature.VISES_I_MODIA)
+            val admin = setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)
+            val modia = setOf(TiltakstypeFeature.VISES_I_MODIA)
+            val migrert = setOf(TiltakstypeFeature.MIGRERT)
+            val utfaset = setOf(TiltakstypeFeature.UTFASET)
             mapOf(
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to utfaset,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to utfaset,
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to admin + modia + migrert + utfaset,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to admin + modia + migrert + utfaset,
 
-                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
-                Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
-                Tiltakskode.AVKLARING to migrert,
-                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
-                Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.JOBBKLUBB to migrert,
-                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
-                Tiltakskode.OPPFOLGING to migrert,
-                Tiltakskode.STUDIESPESIALISERING to migrert,
-                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
+                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to admin + modia + migrert,
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to admin + modia + migrert,
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING to admin + modia + migrert,
+                Tiltakskode.AVKLARING to admin + modia + migrert,
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to admin + modia + migrert,
+                Tiltakskode.FAG_OG_YRKESOPPLAERING to admin + modia + migrert,
+                Tiltakskode.JOBBKLUBB to admin + modia + migrert,
+                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to admin + modia + migrert,
+                Tiltakskode.OPPFOLGING to admin + modia + migrert,
+                Tiltakskode.STUDIESPESIALISERING to admin + modia + migrert,
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to admin + modia + migrert,
 
-                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to visesModia,
-                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to visesModia,
-                Tiltakskode.HOYERE_UTDANNING to visesModia,
-                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to visesModia,
-                Tiltakskode.ARBEIDSTRENING to visesModia,
-                Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD to visesModia,
-                Tiltakskode.VARIG_LONNSTILSKUD to visesModia,
-                Tiltakskode.MENTOR to visesModia,
-                Tiltakskode.INKLUDERINGSTILSKUD to visesModia,
-                Tiltakskode.SOMMERJOBB to visesModia,
-                Tiltakskode.VTAO to visesModia,
-                Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG to visesModia,
-                Tiltakskode.INDIVIDUELL_JOBBSTOTTE to visesModia,
-                Tiltakskode.ARBEID_MED_STOTTE to visesModia,
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to modia,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to modia,
+                Tiltakskode.HOYERE_UTDANNING to modia,
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to modia,
+                Tiltakskode.ARBEIDSTRENING to modia,
+                Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD to modia,
+                Tiltakskode.VARIG_LONNSTILSKUD to modia,
+                Tiltakskode.MENTOR to modia,
+                Tiltakskode.INKLUDERINGSTILSKUD to modia,
+                Tiltakskode.SOMMERJOBB to modia,
+                Tiltakskode.VTAO to modia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG to modia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE to modia,
+                Tiltakskode.ARBEID_MED_STOTTE to modia,
 
                 /*
                  * Nye tiltakstyper under utvikling

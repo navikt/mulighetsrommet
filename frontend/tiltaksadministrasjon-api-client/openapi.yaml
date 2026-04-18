@@ -3186,7 +3186,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 12
+        - 13
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -3350,8 +3350,7 @@ components:
     TiltakstypeEgenskap:
       type: string
       enum:
-      - TILGJENGELIG_FOR_AVTALE
-      - TILGJENGELIG_FOR_GJENNOMFORING
+      - STOTTER_AVTALER
       - STOTTER_ENKELTPLASSER
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK
