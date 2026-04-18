@@ -10,8 +10,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "ARBRRHDAG",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
@@ -19,8 +18,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "AVKLARAG",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
@@ -28,8 +26,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "DIGIOPPARB",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
@@ -37,8 +34,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "JOBBK",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
     ),
@@ -46,8 +42,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "INDOPPFAG",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
     ),
@@ -59,8 +54,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "ARBFORB",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
             TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
@@ -69,8 +63,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "VASV",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
             TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
@@ -79,8 +72,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = null,
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
         ),
     ),
 
@@ -91,8 +83,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -102,7 +93,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "ENKELAMO",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -111,7 +102,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "ENKFAGYRKE",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -120,8 +111,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -131,8 +121,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -141,8 +130,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
@@ -151,7 +139,6 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "HOYEREUTD",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -161,7 +148,6 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUFAGYRKE",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -171,8 +157,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -182,8 +167,7 @@ enum class Tiltakskode(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = "GRUPPEAMO",
         egenskaper = setOf(
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE,
-            TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING,
+            TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
         ),
@@ -261,23 +245,18 @@ enum class Tiltakskode(
 
 enum class TiltakstypeEgenskap {
     /**
-     * Indikerer at tiltakstypen er tilgjengelig for avtaler i Tiltaksadministrasjon.
-     * Dette styrer bl.a.
-     *   - Hvilke tiltakstyper som er synlig i filter for avtaler
-     *   - Validering av hvilke tiltakstyper som avtaler kan kobles til
+     * Gjør at tiltaket har systemstøtte for avtaler (inkludert gjennomføringer for avtaler).
+     * Dette inkluderer bl.a.
+     *   - Vises i filter for avtaler og gjennomføringer
+     *   - Avtaler, samt gjennomføringer for avtaler, kan opprettes for tiltaket
      */
-    TILGJENGELIG_FOR_AVTALE,
+    STOTTER_AVTALER,
 
     /**
-     * Indikerer at tiltakstypen er tilgjengelig for tiltaksgjennomføringer i Tiltaksadministrasjon.
-     * Dette styrer bl.a.
-     *   - Hvilke tiltakstyper som er synlig i filter for gjennomføringer
-     *   - Validering av hvilke tiltakstyper som gjennomføring kan kobles til
-     */
-    TILGJENGELIG_FOR_GJENNOMFORING,
-
-    /**
-     * Indikerer at det er mulig å opprette enkeltplasser for tiltakstypen.
+     * Gjør at tiltaket har systemstøtte for enkeltplass-gjennomføringer.
+     * Dette inkluderer bl.a.
+     *   - Vises i filter for gjennomføringer
+     *   - Enkeltplasser kan opprettes
      */
     STOTTER_ENKELTPLASSER,
 

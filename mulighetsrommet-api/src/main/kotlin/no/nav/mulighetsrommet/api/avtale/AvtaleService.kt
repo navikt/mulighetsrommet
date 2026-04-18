@@ -85,7 +85,7 @@ class AvtaleService(
     ): Either<List<FieldError>, Avtale> = either {
         if (tiltakstypeService.erUtfaset(request.detaljer.tiltakskode)) {
             raise(FieldError.of("Avtaler kan ikke opprettes for denne tiltakstypen fordi den er utfaset").nel())
-        } else if (!request.detaljer.tiltakskode.harEgenskap(TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE)) {
+        } else if (!request.detaljer.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_AVTALER)) {
             raise(FieldError.of("Avtaler kan ikke opprettes for denne tiltakstypen").nel())
         }
 

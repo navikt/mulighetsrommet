@@ -1574,8 +1574,7 @@ components:
     TiltakstypeEgenskap:
       type: string
       enum:
-      - TILGJENGELIG_FOR_AVTALE
-      - TILGJENGELIG_FOR_GJENNOMFORING
+      - STOTTER_AVTALER
       - STOTTER_ENKELTPLASSER
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK

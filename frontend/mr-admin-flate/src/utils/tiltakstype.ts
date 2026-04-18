@@ -10,11 +10,14 @@ export function erUtfaset(tiltakstype: TiltakstypeKompaktDto) {
 }
 
 export function erTilgjengligForAvtaler(tiltakstype: TiltakstypeKompaktDto) {
-  return harEgenskap(tiltakstype, TiltakstypeEgenskap.TILGJENGELIG_FOR_AVTALE);
+  return harEgenskap(tiltakstype, TiltakstypeEgenskap.STOTTER_AVTALER);
 }
 
 export function erTilgjengeligForGjennomforinger(tiltakstype: TiltakstypeKompaktDto) {
-  return harEgenskap(tiltakstype, TiltakstypeEgenskap.TILGJENGELIG_FOR_GJENNOMFORING);
+  return (
+    harEgenskap(tiltakstype, TiltakstypeEgenskap.STOTTER_AVTALER) ||
+    harEgenskap(tiltakstype, TiltakstypeEgenskap.STOTTER_ENKELTPLASSER)
+  );
 }
 
 export function kreverDirekteVedtak(tiltakstype: TiltakstypeKompaktDto) {
