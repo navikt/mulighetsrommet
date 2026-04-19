@@ -51,6 +51,15 @@ object TiltakstypeFixtures {
         sluttDato = null,
     )
 
+    val TilpassetJobbstotte = TiltakstypeDbo(
+        id = UUID.fromString("930ff2c1-2ab3-4787-aa9e-4006d26e8180"),
+        navn = "Tilpasset jobbstøtte",
+        tiltakskode = Tiltakskode.TILPASSET_JOBBSTOTTE,
+        arenaKode = null,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = null,
+    )
+
     val Jobbklubb = TiltakstypeDbo(
         id = UUID.fromString("801340cd-f0ae-4da9-a01c-caad692933a2"),
         navn = "Jobbklubb",

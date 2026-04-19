@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfoT
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateNavEnhet
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppeStatus
 import no.nav.mulighetsrommet.database.createArrayOfValue
-import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -42,7 +42,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
         brukersEnheter: List<NavEnhetNummer>,
         search: String? = null,
         apentForPamelding: Boolean? = null,
-        sanityTiltakstypeIds: List<UUID>? = null,
+        tiltakskoder: List<Tiltakskode>? = null,
         erSykmeldtMedArbeidsgiver: Boolean = false,
     ): List<Tiltaksgjennomforing> = with(session) {
         val parameters = mapOf(
@@ -50,7 +50,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
             "brukers_enheter" to createArrayOfValue(brukersEnheter) { it.value },
             "search" to search?.toFTSPrefixQuery(),
             "apent_for_pamelding" to apentForPamelding,
-            "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { createUuidArray(it) },
+            "tiltakskoder" to tiltakskoder?.let { createTextArray(it) },
             "er_sykmeldt_med_arbeidsgiver" to erSykmeldtMedArbeidsgiver,
         )
 
@@ -72,7 +72,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
                           where VeilederflateNavEnheter ->> 'enhetsnummer' = any(:brukers_enheter)
                           )
               and (:search::text is null or fts @@ to_tsquery('norwegian', :search))
-              and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype_sanity_id = any(:sanityTiltakstypeIds))
+              and (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any(:tiltakskoder))
               and (:apent_for_pamelding::boolean is null or apent_for_pamelding = :apent_for_pamelding)
         """.trimIndent()
 

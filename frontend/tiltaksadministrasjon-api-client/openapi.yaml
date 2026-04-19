@@ -3255,7 +3255,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 12
+        - 13
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -3381,6 +3381,7 @@ components:
       - OPPFOLGING
       - ARBEIDSFORBEREDENDE_TRENING
       - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - TILPASSET_JOBBSTOTTE
       - ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
@@ -3411,14 +3412,14 @@ components:
       type: string
       enum:
       - VISES_I_TILTAKSADMINISTRASJON
+      - VISES_I_MODIA
       - MIGRERT
       - UTFASET
       - MIGRERT_REDAKSJONELT_INNHOLD
     TiltakstypeEgenskap:
       type: string
       enum:
-      - TILGJENGELIG_FOR_AVTALE
-      - TILGJENGELIG_FOR_GJENNOMFORING
+      - STOTTER_AVTALER
       - STOTTER_ENKELTPLASSER
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK

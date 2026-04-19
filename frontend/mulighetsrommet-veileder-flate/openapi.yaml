@@ -496,8 +496,7 @@ paths:
         schema:
           type: array
           items:
-            type: string
-            default: null
+            $ref: "#/components/schemas/Tiltakskode"
       - name: erSykmeldtMedArbeidsgiver
         in: query
         required: false
@@ -553,19 +552,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/veilederflate/oppskrifter/{tiltakstypeId}:
+  /api/veilederflate/oppskrifter/{tiltakskode}:
     get:
       tags:
       - Oppskrifter
       operationId: getOppskrifter
       parameters:
-      - name: tiltakstypeId
+      - name: tiltakskode
         in: path
         required: true
         deprecated: false
         explode: false
         schema:
-          type: string
+          $ref: "#/components/schemas/Tiltakskode"
       - name: perspective
         in: query
         description: Hvilket Sanity-perspective du vil bruke
@@ -1119,6 +1118,7 @@ components:
       - OPPFOLGING
       - ARBEIDSFORBEREDENDE_TRENING
       - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - TILPASSET_JOBBSTOTTE
       - ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
@@ -1480,9 +1480,6 @@ components:
           type: string
           format: uuid
           default: null
-        sanityId:
-          type: string
-          default: null
         navn:
           type: string
           default: null
@@ -1564,21 +1561,20 @@ components:
       - kanKombineresMed
       - navn
       - regelverkLenker
-      - sanityId
       - tiltaksgruppe
       - tiltakskode
     TiltakstypeFeature:
       type: string
       enum:
       - VISES_I_TILTAKSADMINISTRASJON
+      - VISES_I_MODIA
       - MIGRERT
       - UTFASET
       - MIGRERT_REDAKSJONELT_INNHOLD
     TiltakstypeEgenskap:
       type: string
       enum:
-      - TILGJENGELIG_FOR_AVTALE
-      - TILGJENGELIG_FOR_GJENNOMFORING
+      - STOTTER_AVTALER
       - STOTTER_ENKELTPLASSER
       - KREVER_DELTIDSPROSENT
       - KREVER_DIREKTE_VEDTAK

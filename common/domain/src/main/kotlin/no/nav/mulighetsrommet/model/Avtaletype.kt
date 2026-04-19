@@ -15,6 +15,7 @@ object Avtaletyper {
     fun getAvtaletyperForTiltak(tiltakskode: Tiltakskode): List<Avtaletype> = when (tiltakskode) {
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        Tiltakskode.TILPASSET_JOBBSTOTTE,
         -> listOf(
             Avtaletype.FORHANDSGODKJENT,
         )

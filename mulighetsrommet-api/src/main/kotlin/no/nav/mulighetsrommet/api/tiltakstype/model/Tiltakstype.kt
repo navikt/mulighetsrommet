@@ -11,7 +11,7 @@ data class Tiltakstype(
     val navn: String,
     val innsatsgrupper: Set<Innsatsgruppe>,
     val tiltakskode: Tiltakskode,
-    val arenakode: String,
+    val arenakode: String?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
     val status: TiltakstypeStatus,

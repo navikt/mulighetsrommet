@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.veilederflate.services
 
 import arrow.core.NonEmptyList
-import io.ktor.server.plugins.NotFoundException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -33,6 +32,7 @@ import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.utils.CachedComputation
 import no.nav.mulighetsrommet.utils.toUUID
@@ -45,7 +45,7 @@ class VeilederflateService(
     private val sanityService: SanityService,
     private val navEnhetService: NavEnhetService,
 ) {
-    private val cachedTiltakstyper = CachedComputation<List<VeilederflateTiltakstype>>(
+    private val cachedAllTiltakstyper = CachedComputation<List<VeilederflateTiltakstype>>(
         expireAfterWrite = Duration.ofMinutes(30),
     )
 
@@ -60,16 +60,81 @@ class VeilederflateService(
     }
 
     suspend fun hentTiltakstyper(): List<VeilederflateTiltakstype> {
-        return cachedTiltakstyper.getOrCompute {
+        return getAllTiltakstyper().filter {
+            tiltakstypeService.isEnabled(it.tiltakskode, TiltakstypeFeature.VISES_I_MODIA)
+        }
+    }
+
+    suspend fun hentOppskrifter(
+        tiltakskode: Tiltakskode,
+        perspective: SanityPerspective,
+    ): List<Oppskrift> {
+        val sanityId = getAllTiltakstyper()
+            .singleOrNull { it.tiltakskode == tiltakskode }
+            ?.sanityId
+            ?.toUUID()
+            ?: return emptyList()
+        return sanityService.getOppskrifter(sanityId, perspective)
+    }
+
+    suspend fun hentTiltaksgjennomforinger(
+        enheter: NonEmptyList<NavEnhetNummer>,
+        tiltakskoder: List<Tiltakskode>? = null,
+        innsatsgruppe: Innsatsgruppe,
+        apentForPamelding: ApentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
+        search: String? = null,
+        erSykmeldtMedArbeidsgiver: Boolean,
+        cacheUsage: CacheUsage,
+    ): List<VeilederflateTiltak> = coroutineScope {
+        val individuelleGjennomforinger = async {
+            hentSanityTiltak(enheter, tiltakskoder, innsatsgruppe, apentForPamelding, search, cacheUsage)
+        }
+
+        val gruppeGjennomforinger = async {
+            hentGruppetiltak(
+                enheter,
+                tiltakskoder,
+                innsatsgruppe,
+                apentForPamelding,
+                search,
+                erSykmeldtMedArbeidsgiver,
+            )
+        }
+
+        (individuelleGjennomforinger.await() + gruppeGjennomforinger.await()).filter {
+            tiltakstypeService.isEnabled(it.tiltakstype.tiltakskode, TiltakstypeFeature.VISES_I_MODIA)
+        }
+    }
+
+    suspend fun hentTiltaksgjennomforing(
+        id: UUID,
+        sanityPerspective: SanityPerspective,
+        cacheUsage: CacheUsage,
+    ): VeilederflateTiltak {
+        return db.session { queries.veilderTiltak.get(id) }
+            ?.let { gjennomforing ->
+                toVeilederflateTiltak(gjennomforing)
+            }
+            ?: run {
+                val gjennomforing = sanityService.getTiltak(id, sanityPerspective, cacheUsage)
+                toVeilederflateTiltak(gjennomforing)
+            }
+    }
+
+    private suspend fun getAllTiltakstyper(): List<VeilederflateTiltakstype> {
+        return cachedAllTiltakstyper.getOrCompute {
             val sanityTiltakstyper = sanityService.getTiltakstyper().associateBy { it._id }
 
             db.session {
-                queries.tiltakstype.getAll().mapNotNull { tiltakstype ->
-                    val sanityId = tiltakstype.sanityId?.toString() ?: return@mapNotNull null
+                queries.tiltakstype.getAll().map { tiltakstype ->
+                    val sanityId = tiltakstype.sanityId?.toString()
 
-                    val features = tiltakstypeService.getFeatures(tiltakstype.tiltakskode)
-
-                    val veilederinfo = if (features.contains(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD)) {
+                    val veilederinfo = if (
+                        tiltakstypeService.isEnabled(
+                            tiltakstype.tiltakskode,
+                            TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD,
+                        )
+                    ) {
                         queries.tiltakstype.getVeilederinfo(tiltakstype.id)
                     } else {
                         sanityTiltakstyper[sanityId]?.toTiltakstypeVeilederinfo()
@@ -81,7 +146,7 @@ class VeilederflateService(
                         navn = tiltakstype.navn,
                         arenakode = tiltakstype.arenakode,
                         tiltakskode = tiltakstype.tiltakskode,
-                        features = features,
+                        features = tiltakstypeService.getFeatures(tiltakstype.tiltakskode),
                         egenskaper = tiltakstype.tiltakskode.egenskaper,
                         innsatsgrupper = tiltakstype.innsatsgrupper,
                         tiltaksgruppe = tiltakstype.tiltakskode.gruppe?.tittel,
@@ -97,58 +162,9 @@ class VeilederflateService(
         }
     }
 
-    suspend fun hentOppskrifter(
-        tiltakstypeId: UUID,
-        perspective: SanityPerspective,
-    ): List<Oppskrift> {
-        return sanityService.getOppskrifter(tiltakstypeId, perspective)
-    }
-
-    suspend fun hentTiltaksgjennomforinger(
-        enheter: NonEmptyList<NavEnhetNummer>,
-        tiltakstypeIds: List<String>? = null,
-        innsatsgruppe: Innsatsgruppe,
-        apentForPamelding: ApentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
-        search: String? = null,
-        erSykmeldtMedArbeidsgiver: Boolean,
-        cacheUsage: CacheUsage,
-    ): List<VeilederflateTiltak> = coroutineScope {
-        val individuelleGjennomforinger = async {
-            hentSanityTiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForPamelding, search, cacheUsage)
-        }
-
-        val gruppeGjennomforinger = async {
-            hentGruppetiltak(
-                enheter,
-                tiltakstypeIds,
-                innsatsgruppe,
-                apentForPamelding,
-                search,
-                erSykmeldtMedArbeidsgiver,
-            )
-        }
-
-        (individuelleGjennomforinger.await() + gruppeGjennomforinger.await())
-    }
-
-    suspend fun hentTiltaksgjennomforing(
-        id: UUID,
-        sanityPerspective: SanityPerspective,
-        cacheUsage: CacheUsage,
-    ): VeilederflateTiltak {
-        return db.session { queries.veilderTiltak.get(id) }
-            ?.let { gjennomforing ->
-                toVeilederflateTiltak(gjennomforing) ?: throw NotFoundException("Fant ikke gjennomføring for id '$id'")
-            }
-            ?: run {
-                val gjennomforing = sanityService.getTiltak(id, sanityPerspective, cacheUsage)
-                toVeilederflateTiltak(gjennomforing)
-            }
-    }
-
     private suspend fun hentSanityTiltak(
         enheter: NonEmptyList<NavEnhetNummer>,
-        tiltakstypeIds: List<String>?,
+        tiltakskoder: List<Tiltakskode>?,
         innsatsgruppe: Innsatsgruppe,
         apentForPamelding: ApentForPamelding,
         search: String?,
@@ -163,6 +179,10 @@ class VeilederflateService(
 
         val fylker = enheter.mapNotNull {
             navEnhetService.hentOverordnetFylkesenhet(it)?.enhetsnummer
+        }
+
+        val tiltakstypeIds = tiltakskoder?.let { tiltakskoder ->
+            getAllTiltakstyper().filter { it.tiltakskode in tiltakskoder }.map { it.sanityId }
         }
 
         return sanityGjennomforinger
@@ -180,7 +200,7 @@ class VeilederflateService(
 
     private suspend fun hentGruppetiltak(
         enheter: NonEmptyList<NavEnhetNummer>,
-        tiltakstypeIds: List<String>?,
+        tiltakskoder: List<Tiltakskode>?,
         innsatsgruppe: Innsatsgruppe,
         apentForPamelding: ApentForPamelding,
         search: String?,
@@ -189,7 +209,7 @@ class VeilederflateService(
         return queries.veilderTiltak
             .getAll(
                 search = search,
-                sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
+                tiltakskoder = tiltakskoder,
                 innsatsgruppe = innsatsgruppe,
                 brukersEnheter = enheter,
                 apentForPamelding = when (apentForPamelding) {
@@ -199,11 +219,14 @@ class VeilederflateService(
                 },
                 erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
             )
-            .mapNotNull { toVeilederflateTiltak(it) }
+            .map { toVeilederflateTiltak(it) }
     }
 
-    private suspend fun toVeilederflateTiltak(gjennomforing: Tiltaksgjennomforing): VeilederflateTiltak? {
-        val tiltakstype = hentTiltakstyper().find { it.tiltakskode == gjennomforing.tiltakskode } ?: return null
+    private suspend fun toVeilederflateTiltak(gjennomforing: Tiltaksgjennomforing): VeilederflateTiltak {
+        val tiltakstype = getAllTiltakstyper().singleOrNull { it.tiltakskode == gjennomforing.tiltakskode } ?: error(
+            "Tiltakstype mangler for tiltakskode=${gjennomforing.tiltakskode}",
+        )
+
         return VeilederflateTiltakGruppe(
             tiltakstype = tiltakstype,
             navn = gjennomforing.navn,
@@ -231,7 +254,9 @@ class VeilederflateService(
     private suspend fun toVeilederflateTiltak(
         gjennomforing: SanityTiltaksgjennomforing,
     ): VeilederflateTiltak {
-        val tiltakstype = hentTiltakstyper().single { it.sanityId == gjennomforing.tiltakstype._id }
+        val tiltakstype = getAllTiltakstyper().singleOrNull { it.sanityId == gjennomforing.tiltakstype._id } ?: error(
+            "Tiltakstype mangler for sanityId=${gjennomforing.tiltakstype._id}",
+        )
 
         val tiltaksansvarlige = gjennomforing.kontaktpersoner
             ?.mapNotNull { it.navKontaktperson }
