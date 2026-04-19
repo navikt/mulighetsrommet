@@ -1485,6 +1485,8 @@ components:
           default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
+        system:
+          $ref: "#/components/schemas/TiltakstypeSystem"
         features:
           type: array
           items:
@@ -1530,27 +1532,8 @@ components:
           items:
             $ref: "#/components/schemas/TiltakstypeKombinasjon"
           default: null
-        arenakode:
-          type:
-          - "null"
-          - string
-          default: null
-        delingMedBruker:
-          type:
-          - "null"
-          - string
-          default: null
-        regelverkLenker:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
-          default: null
       required:
-      - arenakode
       - beskrivelse
-      - delingMedBruker
       - egenskaper
       - faglenker
       - faneinnhold
@@ -1559,9 +1542,15 @@ components:
       - innsatsgrupper
       - kanKombineresMed
       - navn
-      - regelverkLenker
+      - system
       - tiltaksgruppe
       - tiltakskode
+    TiltakstypeSystem:
+      type: string
+      enum:
+      - TILTAKSADMINISTRASJON
+      - ARENA
+      - TILTAK_ARBEIDSGIVER
     TiltakstypeFeature:
       type: string
       enum:
@@ -1735,18 +1724,16 @@ components:
       - APENT_ELLER_STENGT
     VeilederflateTiltak:
       anyOf:
-      - $ref: "#/components/schemas/VeilederflateTiltakEgenRegi"
       - $ref: "#/components/schemas/VeilederflateTiltakEnkeltplass"
       - $ref: "#/components/schemas/VeilederflateTiltakEnkeltplassAnskaffet"
       - $ref: "#/components/schemas/VeilederflateTiltakGruppe"
       discriminator:
         propertyName: type
         mapping:
-          no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEgenRegi: "#/components/schemas/VeilederflateTiltakEgenRegi"
           no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass: "#/components/schemas/VeilederflateTiltakEnkeltplass"
           no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet: "#/components/schemas/VeilederflateTiltakEnkeltplassAnskaffet"
           no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe: "#/components/schemas/VeilederflateTiltakGruppe"
-    VeilederflateTiltakEgenRegi:
+    VeilederflateTiltakEnkeltplass:
       type: object
       properties:
         tiltakstype:
@@ -1865,58 +1852,6 @@ components:
       - LOPENDE
       - FELLES
       - ENKELTPLASS
-    VeilederflateTiltakEnkeltplass:
-      type: object
-      properties:
-        tiltakstype:
-          $ref: "#/components/schemas/VeilederflateTiltakstype"
-        navn:
-          type: string
-          default: null
-        beskrivelse:
-          type:
-          - "null"
-          - string
-          default: null
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
-        kontaktinfo:
-          $ref: "#/components/schemas/VeilederflateKontaktinfo"
-        oppstart:
-          $ref: "#/components/schemas/GjennomforingOppstartstype"
-        oppmoteSted:
-          type:
-          - "null"
-          - string
-          default: null
-        fylker:
-          type: array
-          items:
-            type: string
-            default: null
-          default: null
-        enheter:
-          type: array
-          items:
-            type: string
-            default: null
-          default: null
-        sanityId:
-          type: string
-          default: null
-      required:
-      - beskrivelse
-      - enheter
-      - faneinnhold
-      - fylker
-      - kontaktinfo
-      - navn
-      - oppmoteSted
-      - oppstart
-      - sanityId
-      - tiltakstype
     VeilederflateTiltakEnkeltplassAnskaffet:
       type: object
       properties:

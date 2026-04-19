@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.PortableTextTypedObject
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
+import no.nav.mulighetsrommet.model.TiltakstypeSystem
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -93,21 +94,6 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
 ) : VeilederflateTiltak()
 
 @Serializable
-data class VeilederflateTiltakEgenRegi(
-    override val tiltakstype: VeilederflateTiltakstype,
-    override val navn: String,
-    override val beskrivelse: String?,
-    override val faneinnhold: Faneinnhold?,
-    override val kontaktinfo: VeilederflateKontaktinfo,
-    override val oppstart: GjennomforingOppstartstype,
-    override val oppmoteSted: String?,
-    override val fylker: List<NavEnhetNummer>,
-    override val enheter: List<NavEnhetNummer>,
-    val sanityId: String,
-    val tiltaksnummer: String?,
-) : VeilederflateTiltak()
-
-@Serializable
 data class VeilederflateTiltakEnkeltplass(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -119,6 +105,7 @@ data class VeilederflateTiltakEnkeltplass(
     override val fylker: List<NavEnhetNummer>,
     override val enheter: List<NavEnhetNummer>,
     val sanityId: String,
+    val tiltaksnummer: String?,
 ) : VeilederflateTiltak()
 
 @Serializable
@@ -149,6 +136,7 @@ data class VeilederflateTiltakstype(
     val sanityId: String? = null,
     val navn: String,
     val tiltakskode: Tiltakskode,
+    val system: TiltakstypeSystem,
     val features: Set<TiltakstypeFeature>,
     val egenskaper: Set<TiltakstypeEgenskap>,
     val innsatsgrupper: Set<Innsatsgruppe>?,
@@ -157,11 +145,6 @@ data class VeilederflateTiltakstype(
     val faneinnhold: Faneinnhold?,
     val faglenker: List<RedaksjoneltInnholdLenke>?,
     val kanKombineresMed: List<TiltakstypeKombinasjon>,
-
-    // TODO: felter under kan fjernes etter en graceperiode
-    val arenakode: String?,
-    val delingMedBruker: String?,
-    val regelverkLenker: List<RedaksjoneltInnholdLenke>?,
 )
 
 @Serializable

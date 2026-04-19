@@ -146,6 +146,7 @@ export const tiltakMentor: VeilederflateTiltak & VeilederflateTiltakEnkeltplass 
   enheter: [],
   beskrivelse: null,
   faneinnhold: null,
+  tiltaksnummer: null,
 };
 
 export const tiltakAmoGruppe: VeilederflateTiltak & VeilederflateTiltakGruppe = {
@@ -557,6 +558,7 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltak & VeilederflateTilta
   enheter: [],
   beskrivelse: null,
   faneinnhold: null,
+  tiltaksnummer: null,
 };
 
 export const mockGjennomforinger: VeilederflateTiltak[] = [

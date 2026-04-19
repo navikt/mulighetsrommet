@@ -78,14 +78,14 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
         <BodyShort size="small">{minimumInnsatsgruppe.tittel}</BodyShort>
       </div>
       <TiltakVarighetInfo tiltak={tiltak} />
-      {(tiltakstype.faglenker || tiltakstype.regelverkLenker) && (
+      {tiltakstype.faglenker && (
         <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
           <BodyShort size="small" className="font-bold text-left">
             Regelverk og rutiner
           </BodyShort>
           <Faglenker
             faglenker={[
-              ...((tiltakstype.faglenker || tiltakstype.regelverkLenker) ?? []),
+              ...tiltakstype.faglenker,
               {
                 id: "avslag-og-klage",
                 navn: "Avslag og klage",
