@@ -6,6 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKombinasjon
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.DeltakerRegistreringInnholdDto
@@ -371,7 +372,7 @@ class TiltakstypeQueries(private val session: Session) {
 
     private fun Row.toVeilederinfo(): TiltakstypeVeilderinfo {
         val kanKombineresMed = stringOrNull("kan_kombineres_med")
-            ?.let { Json.decodeFromString<List<String>>(it) }
+            ?.let { Json.decodeFromString<List<TiltakstypeKombinasjon>>(it) }
             ?: emptyList()
 
         val faglenker = stringOrNull("faglenker")

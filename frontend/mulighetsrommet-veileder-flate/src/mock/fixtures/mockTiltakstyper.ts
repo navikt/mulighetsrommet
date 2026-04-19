@@ -1150,18 +1150,30 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       },
     ],
     kanKombineresMed: [
-      "Arbeidstrening",
-      "Arbeidsmarkedsopplæring (enkeltplass)",
-      "Arbeidsmarkedsopplæring (gruppe)",
-      "Fag- og yrkesopplæring eller fagskole (enkeltplass)",
-      "Fag- og yrkesopplæring (gruppe)",
-      "Høyere utdanning",
-      "Tilskudd til sommerjobb",
-      "Midlertidig lønnstilskudd",
-      "Varig lønnstilskudd",
-      "Inkluderingstilskudd",
-      "IPS (individuell jobbstøtte)",
-      "IPS (ung)",
+      { id: "a1000000-0000-0000-0000-000000000001", navn: "Arbeidstrening" },
+      {
+        id: "bbb8d042-b30e-4e4a-8cd0-210019b19de3",
+        navn: "Arbeidsmarkedsopplæring (enkeltplass)",
+      },
+      {
+        id: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
+        navn: "Arbeidsmarkedsopplæring (gruppe)",
+      },
+      {
+        id: "222a0065-9777-4e09-b2cf-4f48759f86e3",
+        navn: "Fag- og yrkesopplæring eller fagskole (enkeltplass)",
+      },
+      {
+        id: "7f353dcd-37c2-42f8-bab6-ac2a60669839",
+        navn: "Fag- og yrkesopplæring (gruppe)",
+      },
+      { id: "a1000000-0000-0000-0000-000000000002", navn: "Høyere utdanning" },
+      { id: "a1000000-0000-0000-0000-000000000003", navn: "Tilskudd til sommerjobb" },
+      { id: "a1000000-0000-0000-0000-000000000004", navn: "Midlertidig lønnstilskudd" },
+      { id: "a1000000-0000-0000-0000-000000000005", navn: "Varig lønnstilskudd" },
+      { id: "a1000000-0000-0000-0000-000000000006", navn: "Inkluderingstilskudd" },
+      { id: "a1000000-0000-0000-0000-000000000007", navn: "IPS (individuell jobbstøtte)" },
+      { id: "a1000000-0000-0000-0000-000000000008", navn: "IPS (ung)" },
     ],
     tiltakskode: Tiltakskode.MENTOR,
   },
@@ -1685,7 +1697,10 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     beskrivelse:
       "Avklaring skal kartlegge deltakerens muligheter for arbeid og behov for bistand til å skaffe eller beholde arbeid. Avklaringen skal bidra til at deltaker får økt innsikt i sine muligheter på arbeidsmarkedet og i egne ressurser og ferdigheter i jobbsammenheng.",
-    kanKombineresMed: ["Midlertidig lønnstilskud", "Inkluderingstilskudd"],
+    kanKombineresMed: [
+      { id: "a1000000-0000-0000-0000-000000000004", navn: "Midlertidig lønnstilskudd" },
+      { id: "a1000000-0000-0000-0000-000000000006", navn: "Inkluderingstilskudd" },
+    ],
     faneinnhold: {
       forHvemInfoboks: 'Infoboks i fanen "For hvem"',
       pameldingOgVarighet: [

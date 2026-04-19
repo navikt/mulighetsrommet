@@ -1528,8 +1528,7 @@ components:
         kanKombineresMed:
           type: array
           items:
-            type: string
-            default: null
+            $ref: "#/components/schemas/TiltakstypeKombinasjon"
           default: null
         arenakode:
           type:
@@ -1715,6 +1714,19 @@ components:
       - id
       - navn
       - url
+    TiltakstypeKombinasjon:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          default: null
+        navn:
+          type: string
+          default: null
+      required:
+      - id
+      - navn
     ApentForPamelding:
       type: string
       enum:

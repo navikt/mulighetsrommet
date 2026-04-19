@@ -3506,8 +3506,7 @@ components:
         kanKombineresMed:
           type: array
           items:
-            type: string
-            default: null
+            $ref: "#/components/schemas/TiltakstypeKombinasjon"
           default: null
       required:
       - beskrivelse
@@ -3626,6 +3625,19 @@ components:
       - lenke
       - lenkenavn
       - visKunForVeileder
+    TiltakstypeKombinasjon:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          default: null
+        navn:
+          type: string
+          default: null
+      required:
+      - id
+      - navn
     DeltakerRegistreringInnholdDto:
       type: object
       properties:

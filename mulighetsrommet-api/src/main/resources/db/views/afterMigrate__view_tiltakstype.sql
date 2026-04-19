@@ -28,7 +28,7 @@ from tiltakstype
                                      join redaksjonelt_innhold_lenke l on l.id = tl.lenke_id
                             where tl.tiltakstype_id = tiltakstype.id
     ) faglenker on true
-         left join lateral (select jsonb_agg(to_jsonb(t2.navn) order by t2.navn) as tiltakstyper
+         left join lateral (select jsonb_agg(jsonb_build_object('id', t2.id, 'navn', t2.navn) order by t2.navn) as tiltakstyper
                             from tiltakstype_kombinasjon k
                                      join tiltakstype t2 on t2.id = k.kombineres_med_id
                             where k.tiltakstype_id = tiltakstype.id

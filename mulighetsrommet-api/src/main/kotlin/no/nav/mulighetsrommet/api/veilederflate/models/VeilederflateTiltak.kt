@@ -6,6 +6,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKombinasjon
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -155,7 +156,7 @@ data class VeilederflateTiltakstype(
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
     val faglenker: List<RedaksjoneltInnholdLenke>?,
-    val kanKombineresMed: List<String>,
+    val kanKombineresMed: List<TiltakstypeKombinasjon>,
 
     // TODO: felter under kan fjernes etter en graceperiode
     val arenakode: String?,

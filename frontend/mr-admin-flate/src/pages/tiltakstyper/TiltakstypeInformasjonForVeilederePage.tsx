@@ -3,7 +3,11 @@ import { TiltakstypeHandlinger } from "@/pages/tiltakstyper/TiltakstypeHandlinge
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { BodyLong, Heading, HStack, Label, Link, VStack } from "@navikt/ds-react";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { RedaksjoneltInnholdLenke, TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
+import {
+  RedaksjoneltInnholdLenke,
+  TiltakstypeDto,
+  TiltakstypeKombinasjon,
+} from "@tiltaksadministrasjon/api-client";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { RedaksjoneltInnhold } from "@/components/redaksjoneltInnhold/RedaksjoneltInnhold";
 
@@ -33,7 +37,11 @@ function TiltakstypeInformasjonForVeiledere({ tiltakstype }: { tiltakstype: Tilt
   );
 }
 
-function TiltakstypeKanKombineresMed({ kanKombineresMed }: { kanKombineresMed: string[] }) {
+function TiltakstypeKanKombineresMed({
+  kanKombineresMed,
+}: {
+  kanKombineresMed: TiltakstypeKombinasjon[];
+}) {
   return (
     <>
       <Heading size="medium" level="3">
@@ -41,8 +49,8 @@ function TiltakstypeKanKombineresMed({ kanKombineresMed }: { kanKombineresMed: s
       </Heading>
       {kanKombineresMed.length > 0 ? (
         <VStack>
-          {kanKombineresMed.map((navn) => (
-            <BodyLong key={navn}>{navn}</BodyLong>
+          {kanKombineresMed.map(({ id, navn }) => (
+            <BodyLong key={id}>{navn}</BodyLong>
           ))}
         </VStack>
       ) : (
