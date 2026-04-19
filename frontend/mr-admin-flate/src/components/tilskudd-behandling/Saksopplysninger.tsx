@@ -1,5 +1,5 @@
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { Button, Heading, HStack, Radio, Spacer, VStack } from "@navikt/ds-react";
+import { Button, Heading, HStack, Radio, Spacer, TextField, VStack } from "@navikt/ds-react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormSelect } from "@/components/skjema/FormSelect";
@@ -16,7 +16,7 @@ import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { defaultVedtakRequest } from "./defaultVedtakRequest";
 
 export function SaksopplysningerForm() {
-  const { control } = useFormContext<TilskuddBehandlingRequest>();
+  const { control, register } = useFormContext<TilskuddBehandlingRequest>();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -49,11 +49,7 @@ export function SaksopplysningerForm() {
             <HStack align="center" justify="space-between">
               <VStack gap="space-8">
                 <HStack gap="space-24" align="start">
-                  <FormSelect
-                    label="Tilskuddstype"
-                    name={`vedtak.${index}.tilskuddType`}
-                    rules={{ required: "Tilskuddstype er påkrevd" }}
-                  >
+                  <FormSelect label="Tilskuddstype" name={`vedtak.${index}.tilskuddOpplaeringType`}>
                     <option value="">-- Velg tilskuddstype --</option>
                     {Object.keys(TilskuddOpplaeringType).map((tilskudd) => (
                       <option key={tilskudd} value={tilskudd}>
@@ -61,10 +57,17 @@ export function SaksopplysningerForm() {
                       </option>
                     ))}
                   </FormSelect>
-                  <FormTextField
+                  <TextField
+                    size="small"
+                    type="text"
                     label="Beløp fra søknad"
-                    name={`vedtak.${index}.soknadBelop.belop`}
-                    rules={{ required: "Beløp er påkrevd" }}
+                    {...register(`vedtak.${index}.soknadBelop.belop`, {
+                      setValueAs: (v: string) => (v === "" ? null : Number(v)),
+                      validate: (value: number | null) => {
+                        if (!Number.isInteger(value)) return "Beløp må være et heltall";
+                        return true;
+                      },
+                    })}
                   />
                   <FormSelect label="Valuta" name={`vedtak.${index}.soknadBelop.valuta`}>
                     <option value={Valuta.NOK}>NOK</option>

@@ -26,10 +26,10 @@ data class TilskuddBehandlingRequest(
     data class TilskuddVedtakRequest(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val tilskuddOpplaeringType: TilskuddOpplaeringType,
+        val tilskuddOpplaeringType: TilskuddOpplaeringType?,
         val soknadBelop: ValutaBelopRequest?,
-        val vedtakResultat: VedtakResultat,
+        val vedtakResultat: VedtakResultat?,
         val kommentarVedtaksbrev: String?,
-        val utbetalingMottaker: String,
+        val utbetalingMottaker: String?,
     )
 }

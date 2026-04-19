@@ -4,7 +4,7 @@ import { useFormContext } from "react-hook-form";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { FormGroup } from "@/layouts/FormGroup";
-import { TilskuddBehandlingRequest } from "@tiltaksadministrasjon/api-client";
+import { TilskuddBehandlingRequest, VedtakResultat } from "@tiltaksadministrasjon/api-client";
 
 export function VedtakForm() {
   const { watch } = useFormContext<TilskuddBehandlingRequest>();
@@ -28,12 +28,12 @@ export function VedtakForm() {
             <HStack gap="space-24" align="start" justify="space-between">
               <ControlledRadioGroup
                 size="small"
-                name={`vedtak.${index}.vedtaksresultat`}
+                name={`vedtak.${index}.vedtakResultat`}
                 legend="Vedtaksresultat"
                 horisontal
               >
-                <Radio value="innvilgelse">Innvilgelse</Radio>
-                <Radio value="avslag">Avslag</Radio>
+                <Radio value={VedtakResultat.INNVILGELSE}>Innvilgelse</Radio>
+                <Radio value={VedtakResultat.AVSLAG}>Avslag</Radio>
               </ControlledRadioGroup>
             </HStack>
           </FormGroup>

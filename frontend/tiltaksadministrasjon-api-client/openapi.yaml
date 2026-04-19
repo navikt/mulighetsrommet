@@ -8158,20 +8158,26 @@ components:
           format: uuid
           default: null
         tilskuddOpplaeringType:
-          $ref: "#/components/schemas/TilskuddOpplaeringType"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TilskuddOpplaeringType"
         soknadBelop:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/ValutaBelopRequest"
         vedtakResultat:
-          $ref: "#/components/schemas/VedtakResultat"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/VedtakResultat"
         kommentarVedtaksbrev:
           type:
           - "null"
           - string
           default: null
         utbetalingMottaker:
-          type: string
+          type:
+          - "null"
+          - string
           default: null
       required:
       - id

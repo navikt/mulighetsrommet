@@ -19,8 +19,14 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { v4 } from "uuid";
 import { defaultVedtakRequest } from "@/components/tilskudd-behandling/defaultVedtakRequest";
+import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
 
-const tabs = [
+interface Tab {
+  key: "vedtak" | "saksopplysninger";
+  label: string;
+}
+
+const tabs: Tab[] = [
   { key: "saksopplysninger", label: "Saksopplysninger" },
   { key: "vedtak", label: "Vedtak" },
 ];
@@ -28,11 +34,11 @@ const tabs = [
 export function TilskuddBehandlingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { gjennomforing } = useGjennomforing(gjennomforingId);
-  const [currentTab, setCurrentTab] = useState(tabs[0].key);
+  const [currentTab, setCurrentTab] = useState<Tab["key"]>(tabs[0].key);
   const navigate = useNavigate();
   const mutation = useOpprettTilskuddBehandling(gjennomforingId);
 
-  const methods = useForm<TilskuddBehandlingRequest>({
+  const form = useForm<TilskuddBehandlingRequest>({
     defaultValues: {
       id: v4(),
       gjennomforingId,
@@ -46,7 +52,11 @@ export function TilskuddBehandlingFormPage() {
     mode: "onBlur",
   });
 
-  const { handleSubmit, setError } = methods;
+  const {
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = form;
 
   const currentTabIndex = tabs.findIndex((tab) => tab.key === currentTab);
   const isFirstTab = currentTabIndex === 0;
@@ -80,8 +90,27 @@ export function TilskuddBehandlingFormPage() {
     });
   });
 
+  function tabHasErrors(tab: Tab): boolean {
+    const vedtakFields = ["vedtakResultat", "kommentarVedtaksbrev"];
+    const allVedtakErrors = Array.isArray(errors.vedtak)
+      ? errors.vedtak.flatMap((v) => Object.keys(v ?? {}))
+      : [];
+
+    switch (tab.key) {
+      case "vedtak":
+        return Array.isArray(errors.vedtak)
+          ? errors.vedtak.some((v) => vedtakFields.some((field) => field in (v ?? {})))
+          : false;
+      case "saksopplysninger":
+        return (
+          Object.keys(errors).some((field) => field !== "vedtak") ||
+          allVedtakErrors.some((field) => !vedtakFields.includes(field))
+        );
+    }
+  }
+
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...form}>
       <form onSubmit={onSubmit}>
         <title>Tilskuddsbehandling</title>
         <Brodsmuler
@@ -114,10 +143,16 @@ export function TilskuddBehandlingFormPage() {
         </Header>
         <WhitePaddedBox>
           <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-          <Tabs value={currentTab} onChange={setCurrentTab}>
+          <Tabs value={currentTab} onChange={(value) => setCurrentTab(value as Tab["key"])}>
             <Tabs.List>
               {tabs.map((tab) => (
-                <Tabs.Tab key={tab.key} value={tab.key} label={tab.label} />
+                <TabWithErrorBorder
+                  key={tab.key}
+                  onClick={() => {}}
+                  value={tab.key}
+                  label={tab.label}
+                  hasError={tabHasErrors(tab)}
+                />
               ))}
             </Tabs.List>
             <Box marginBlock="space-16">
