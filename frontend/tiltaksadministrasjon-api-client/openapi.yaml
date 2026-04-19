@@ -3181,6 +3181,75 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling/{gjennomforingId}:
+    get:
+      tags:
+      - TilskuddBehandling
+      description: Hent alle tilskuddsbehandlinger for en gjennomføring
+      operationId: getTilskuddBehandlingerByGjennomforingId
+      parameters:
+      - name: gjennomforingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Tilskuddsbehandlinger
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TilskuddBehandlingDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling:
+    post:
+      tags:
+      - TilskuddBehandling
+      description: Opprett tilskudd behandling
+      operationId: opprettTilskuddBehandling
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilskuddBehandlingRequest"
+        required: false
+      responses:
+        "200":
+          description: Tilskudd behandling opprettet
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilskuddBehandlingDto"
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
 components:
   schemas:
     OpenApiVersion:
@@ -7999,5 +8068,174 @@ components:
       - EKSAMENSAVGIFT
       - SEMESTERAVGIFT
       - INTEGRERT_BOTILBUD
+    TilskuddBehandlingDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          default: null
+        gjennomforingId:
+          type: string
+          format: uuid
+          default: null
+        soknadJournalpostId:
+          type: string
+          default: null
+        soknadDato:
+          type: string
+          format: date
+          default: null
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssted:
+          type: string
+          default: null
+        vedtak:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddVedtakDto"
+          default: null
+      required:
+      - gjennomforingId
+      - id
+      - kostnadssted
+      - periode
+      - soknadDato
+      - soknadJournalpostId
+      - vedtak
+    TilskuddVedtakDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          default: null
+        tilskuddOpplaeringType:
+          $ref: "#/components/schemas/TilskuddOpplaeringType"
+        soknadBelop:
+          type: integer
+          format: int32
+          default: null
+        soknadValuta:
+          $ref: "#/components/schemas/Valuta"
+        vedtakResultat:
+          $ref: "#/components/schemas/VedtakResultat"
+        kommentarVedtaksbrev:
+          type:
+          - "null"
+          - string
+          default: null
+        utbetalingMottaker:
+          type: string
+          default: null
+      required:
+      - id
+      - kommentarVedtaksbrev
+      - soknadBelop
+      - soknadValuta
+      - tilskuddOpplaeringType
+      - utbetalingMottaker
+      - vedtakResultat
+    TilskuddOpplaeringType:
+      type: string
+      enum:
+      - SKOLEPENGER
+      - STUDIEREISE
+      - EKSAMENSAVGIFT
+      - SEMESTERAVGIFT
+      - INTEGRERT_BOTILBUD
+    VedtakResultat:
+      type: string
+      enum:
+      - INNVILGELSE
+      - AVSLAG
+    TilskuddBehandlingRequest.TilskuddVedtakRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          default: null
+        tilskuddOpplaeringType:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TilskuddOpplaeringType"
+        soknadBelop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelopRequest"
+        vedtakResultat:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/VedtakResultat"
+        kommentarVedtaksbrev:
+          type:
+          - "null"
+          - string
+          default: null
+        utbetalingMottaker:
+          type:
+          - "null"
+          - string
+          default: null
+      required:
+      - id
+      - kommentarVedtaksbrev
+      - soknadBelop
+      - tilskuddOpplaeringType
+      - utbetalingMottaker
+      - vedtakResultat
+    TilskuddBehandlingRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          default: null
+        gjennomforingId:
+          type: string
+          format: uuid
+          default: null
+        soknadJournalpostId:
+          type:
+          - "null"
+          - string
+          default: null
+        soknadDato:
+          type:
+          - "null"
+          - string
+          format: date
+          default: null
+        periodeStart:
+          type:
+          - "null"
+          - string
+          default: null
+        periodeSlutt:
+          type:
+          - "null"
+          - string
+          default: null
+        kostnadssted:
+          type:
+          - "null"
+          - string
+          default: null
+        vedtak:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddBehandlingRequest.TilskuddVedtakRequest"
+          default: null
+      required:
+      - gjennomforingId
+      - id
+      - kostnadssted
+      - periodeSlutt
+      - periodeStart
+      - soknadDato
+      - soknadJournalpostId
+      - vedtak
   examples: {}
 webhooks: {}

@@ -14,6 +14,7 @@ export interface Brodsmule {
     | `/avtaler/${Id}`
     | "/gjennomforinger"
     | `/gjennomforinger/${Id}`
+    | `/gjennomforinger/${Id}/tilskudd-behandling`
     | "/arrangorer"
     | `/arrangorer/${Id}`;
 }

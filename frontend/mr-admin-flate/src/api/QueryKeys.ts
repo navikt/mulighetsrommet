@@ -87,4 +87,5 @@ export const QueryKeys = {
   innsendinger: (filter?: object) => ["innsendinger", { ...filter }] as const,
   arrangorBetalingsinfo: (orgnr: string) => ["arrangorBetalingsinfo", orgnr],
   opplaeringtilskudd: () => ["opplaeringtilskudd"],
+  tilskuddBehandlinger: (gjennomforingId?: string) => ["tilskudd-behandling", gjennomforingId],
 };
