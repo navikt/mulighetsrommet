@@ -143,17 +143,12 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
 
         val filter = getArrangorflateGjennomforingFilter()
         val (totalCount, items) = db.session {
-            val gyldigeTiltakstyper = queries.tiltakstype
-                .getAll()
-                .map { it.id }
-
             val gyldigePrismodeller = okonomiConfig.opprettKravPrismodeller
 
-            if (gyldigePrismodeller.isEmpty() || gyldigeTiltakstyper.isEmpty()) {
+            if (gyldigePrismodeller.isEmpty()) {
                 PaginatedResult(totalCount = 0, items = emptyList())
             } else {
                 queries.arrangorflate.tiltak.getAll(
-                    tiltakstyper = gyldigeTiltakstyper,
                     organisasjonsnummer = arrangorer,
                     prismodeller = gyldigePrismodeller,
                     filter = filter,
