@@ -28,6 +28,7 @@ import { LabeledDataElementList } from "../common/Definisjonsliste";
 import { Link as ReactRouterLink } from "react-router";
 import { errorAt } from "~/utils/validering";
 import {
+  addDuration,
   formaterDato,
   formaterPeriode,
   isLaterOrSameDay,
@@ -81,8 +82,12 @@ export default function InnsendingsinformasjonSteg({
           setFieldErrors(errors);
         } else {
           setValgtPeriode({
-            start: periodeStart!,
-            slutt: periodeSlutt!,
+            start: yyyyMMddFormatting(periodeStart)!,
+            slutt: yyyyMMddFormatting(
+              periodeType === PeriodeType.INKLUSIV
+                ? addDuration(periodeSlutt, { days: 1 })!
+                : periodeSlutt,
+            )!,
           });
         }
       }
@@ -332,7 +337,7 @@ function PeriodeVelger({
           error={errorAt("/periodeStart", errors)}
           name="periodeStart"
           id="periodeStart"
-          onBlur={(e) => setSelectedStartDato(e.target.value)}
+          onBlur={(e) => setSelectedStartDato(yyyyMMddFormatting(e.target.value))}
         />
       </DatePicker>
       <DatePicker
@@ -349,7 +354,7 @@ function PeriodeVelger({
           name="periodeSlutt"
           id="periodeSlutt"
           onBlur={(e) => {
-            setSelectedSluttDato(e.target.value);
+            setSelectedSluttDato(yyyyMMddFormatting(e.target.value));
           }}
         />
       </DatePicker>
