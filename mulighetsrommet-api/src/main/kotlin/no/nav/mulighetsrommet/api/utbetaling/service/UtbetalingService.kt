@@ -956,7 +956,7 @@ class UtbetalingService(
  */
 private class AttesterUtbetalingException(val errors: List<FieldError>) : Exception()
 
-fun kanRedigeres(utbetaling: Utbetaling): Boolean = utbetaling.innsending == null && when (utbetaling.status) {
+private fun kanRedigeres(utbetaling: Utbetaling): Boolean = utbetaling.innsending == null && when (utbetaling.status) {
     UtbetalingStatusType.GENERERT,
     UtbetalingStatusType.TIL_ATTESTERING,
     UtbetalingStatusType.FERDIG_BEHANDLET,
