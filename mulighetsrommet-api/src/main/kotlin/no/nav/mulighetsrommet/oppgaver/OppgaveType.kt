@@ -48,6 +48,11 @@ enum class OppgaveType(val navn: String, val rolle: Rolle, val kategori: Kategor
         rolle = Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
         kategori = Kategori.GJENNOMFORING,
     ),
+    ENKELTPLASS_TIL_GODKJENNING(
+        navn = "Enkeltplass til godkjenning",
+        rolle = Rolle.BESLUTTER_TILSAGN,
+        kategori = Kategori.ENKELTPLASS,
+    ),
 }
 
 enum class Kategori {
@@ -56,4 +61,5 @@ enum class Kategori {
     UTBETALING,
     AVTALE,
     GJENNOMFORING,
+    ENKELTPLASS,
 }

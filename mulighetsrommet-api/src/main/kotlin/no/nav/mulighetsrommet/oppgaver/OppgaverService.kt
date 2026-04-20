@@ -78,6 +78,15 @@ class OppgaverService(val db: ApiDatabase) {
                     ),
                 )
             }
+            if (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.ENKELTPLASS }) {
+                addAll(
+                    enkeltplassOppgaver(
+                        tiltakskoder = tiltakskoder,
+                        navEnheter = navEnheterForRegioner,
+                        ansatt = ansatt,
+                    ),
+                )
+            }
         }
 
         return oppgaver
@@ -145,6 +154,19 @@ class OppgaverService(val db: ApiDatabase) {
     ): List<Oppgave> {
         return queries.oppgave
             .getGjennomforingManglerAdministratorOppgaveData(tiltakskoder, navEnheter)
+            .mapNotNull { it.toOppgave(ansatt) }
+    }
+
+    private fun QueryContext.enkeltplassOppgaver(
+        tiltakskoder: Set<Tiltakskode>,
+        navEnheter: Set<NavEnhetNummer>,
+        ansatt: NavAnsatt,
+    ): List<Oppgave> {
+        return queries.oppgave
+            .getEnkeltplassOppgaveData(
+                tiltakskoder = tiltakskoder.ifEmpty { null },
+                navEnheter = navEnheter.ifEmpty { null },
+            )
             .mapNotNull { it.toOppgave(ansatt) }
     }
 
@@ -410,6 +432,29 @@ private fun GjennomforingManglerAdministratorOppgaveData.toOppgave(ansatt: NavAn
     createdAt = oppdatertTidspunkt,
 ).takeIf {
     GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.REDIGER)
+}
+
+private fun EnkeltplassOppgaveData.toOppgave(ansatt: NavAnsatt): Oppgave? {
+    return Oppgave(
+        id = gjennomforing.id,
+        type = OppgaveType.ENKELTPLASS_TIL_GODKJENNING,
+        navn = OppgaveType.ENKELTPLASS_TIL_GODKJENNING.navn,
+        enhet = ansvarligEnhet,
+        title = getOkonomiOppgaveTitle(tiltakstype, gjennomforing),
+        description = "Enkeltplassen er sendt til godkjenning",
+        tiltakstype = tiltakstype,
+        link = OppgaveLink(
+            linkText = "Se enkeltplass",
+            link = "/gjennomforinger/${gjennomforing.id}",
+        ),
+        createdAt = behandletTidspunkt,
+    ).takeIf {
+        behandletAv != ansatt.navIdent && GjennomforingDetaljerService.tilgangTilHandling(
+            ansatt,
+            GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+            setOf(ansvarligEnhet.nummer),
+        )
+    }
 }
 
 private fun getOkonomiOppgaveTitle(tiltakstype: OppgaveTiltakstype, gjennomforing: OppgaveGjennomforing): String {
