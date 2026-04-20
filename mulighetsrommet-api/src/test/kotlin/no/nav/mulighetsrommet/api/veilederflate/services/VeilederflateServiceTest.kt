@@ -133,11 +133,6 @@ class VeilederflateServiceTest : FunSpec({
     }
 
     val sanityService: SanityService = mockk(relaxed = true)
-    coEvery { sanityService.getTiltakstyper() } returns listOf(
-        tiltakstypeOppfolging,
-        tiltakstypeEnkelAmo,
-        tiltakstypeArbeidstrening,
-    )
     coEvery { sanityService.getAllTiltak(any(), any()) } returns listOf(
         tiltakEnkelAmo,
         tiltakArbeidstrening1,
@@ -314,9 +309,7 @@ class VeilederflateServiceTest : FunSpec({
     }
 
     context("redaksjonelt innhold for tiltakstype hentes fra riktig kilde") {
-        val sanityBeskrivelse = "Beskrivelse fra Sanity"
         val dbBeskrivelse = "Beskrivelse fra databasen"
-        val sanityFaneinnhold = Faneinnhold(forHvemInfoboks = "Sanity faneinnhold")
         val dbFaneinnhold = Faneinnhold(forHvemInfoboks = "DB faneinnhold")
 
         beforeEach {
@@ -327,14 +320,6 @@ class VeilederflateServiceTest : FunSpec({
                     dbFaneinnhold,
                 )
             }
-            coEvery { sanityService.getTiltakstyper() } returns listOf(
-                tiltakstypeOppfolging.copy(
-                    beskrivelse = sanityBeskrivelse,
-                    faneinnhold = sanityFaneinnhold,
-                ),
-                tiltakstypeEnkelAmo,
-                tiltakstypeArbeidstrening,
-            )
         }
 
         afterEach {

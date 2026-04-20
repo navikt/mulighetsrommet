@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.util.UUID
@@ -181,7 +180,6 @@ class DelMedBrukerServiceTest : FunSpec({
                     tiltakstype = SanityTiltakstype(
                         _id = UUID.randomUUID().toString(),
                         tiltakstypeNavn = "Arbeidsmarkedsopplæring (AMO) enkeltplass",
-                        innsatsgrupper = Innsatsgruppe.entries.toSet(),
                     ),
                 ),
                 SanityTiltaksgjennomforing(
@@ -190,7 +188,6 @@ class DelMedBrukerServiceTest : FunSpec({
                     tiltakstype = SanityTiltakstype(
                         _id = UUID.randomUUID().toString(),
                         tiltakstypeNavn = "Arbeidstrening",
-                        innsatsgrupper = Innsatsgruppe.entries.toSet(),
                     ),
                 ),
             )
