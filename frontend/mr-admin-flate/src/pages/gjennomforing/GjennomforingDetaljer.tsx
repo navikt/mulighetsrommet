@@ -219,7 +219,7 @@ function OkonomiStatus({ okonomi }: { okonomi: TotrinnskontrollDto }) {
           <InfoCard.Title>Økonomi avslått</InfoCard.Title>
         </InfoCard.Header>
         <InfoCard.Content>
-          <BodyShort>
+          <BodyShort spacing>
             {okonomi.besluttetAv.navn} avslo økonomi den {formaterDato(okonomi.besluttetTidspunkt)}.
           </BodyShort>
           {okonomi.forklaring && (
