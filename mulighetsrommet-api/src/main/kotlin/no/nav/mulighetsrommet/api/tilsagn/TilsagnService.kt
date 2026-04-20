@@ -839,14 +839,12 @@ class TilsagnService(
                 TilsagnHandling.SLETT,
                 TilsagnHandling.ANNULLER,
                 TilsagnHandling.GJOR_OPP,
-                ->
-                    saksbehandler
+                -> saksbehandler
 
                 TilsagnHandling.RETURNER,
                 TilsagnHandling.AVSLA_ANNULLERING,
                 TilsagnHandling.AVSLA_OPPGJOR,
-                ->
-                    beslutter
+                -> beslutter
 
                 TilsagnHandling.GODKJENN -> {
                     beslutter && opprettelse.behandletAv != ansatt.navIdent
