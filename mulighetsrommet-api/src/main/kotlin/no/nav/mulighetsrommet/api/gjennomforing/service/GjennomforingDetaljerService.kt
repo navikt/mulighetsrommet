@@ -176,7 +176,7 @@ class GjennomforingDetaljerService(
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
         val totrinnskontroll = db.session {
-            queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OPPRETT)
+            queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI)
         }
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
