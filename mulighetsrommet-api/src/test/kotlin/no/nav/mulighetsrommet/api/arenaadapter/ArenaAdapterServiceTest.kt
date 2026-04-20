@@ -366,6 +366,39 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
+        test("konverterer Arena-gjennomføring til enkeltplass når sluttdato endres til etter EnkeltplassSluttDatoCutoffDate") {
+            val service = createArenaAdapterService()
+
+            service.upsertTiltaksgjennomforing(
+                arenaGjennomforing.copy(
+                    startDato = LocalDate.of(2023, 1, 1),
+                    sluttDato = LocalDate.of(2024, 1, 1),
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                ),
+            )
+
+            database.run {
+                queries.gjennomforing.getGjennomforingArenaOrError(arenaGjennomforing.id).should {
+                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
+                }
+            }
+
+            service.upsertTiltaksgjennomforing(
+                arenaGjennomforing.copy(
+                    startDato = LocalDate.of(2023, 1, 1),
+                    sluttDato = LocalDate.of(2026, 6, 1),
+                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                ),
+            )
+
+            database.run {
+                queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.sluttDato shouldBe LocalDate.of(2026, 6, 1)
+                }
+            }
+        }
+
         test("oppretter enkeltplass som Arena-gjennomføring når sluttdato er før EnkeltplassSluttDatoCutoffDate") {
             val service = createArenaAdapterService()
 

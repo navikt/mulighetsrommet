@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
@@ -75,7 +76,8 @@ class GjennomforingEnkeltplassService(
     )
 
     fun create(create: UpsertGjennomforingEnkeltplass, agent: Agent): Validated<GjennomforingEnkeltplass> = db.transaction {
-        if (queries.gjennomforing.getGjennomforing(create.id) != null) {
+        val existing = queries.gjennomforing.getGjennomforing(create.id)
+        if (existing != null && existing !is GjennomforingArena) {
             return FieldError.of("Gjennomføringen er allerede opprettet").nel().left()
         }
 
