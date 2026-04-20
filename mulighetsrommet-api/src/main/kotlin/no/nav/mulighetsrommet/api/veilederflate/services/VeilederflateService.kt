@@ -9,10 +9,7 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
-import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
-import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
@@ -123,25 +120,11 @@ class VeilederflateService(
 
     private suspend fun getAllTiltakstyper(): List<VeilederflateTiltakstype> {
         return cachedAllTiltakstyper.getOrCompute {
-            val sanityTiltakstyper = sanityService.getTiltakstyper().associateBy { it._id }
-
             db.session {
                 queries.tiltakstype.getAll().map { tiltakstype ->
-                    val sanityId = tiltakstype.sanityId?.toString()
-
-                    val veilederinfo = if (
-                        tiltakstypeService.isEnabled(
-                            tiltakstype.tiltakskode,
-                            TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD,
-                        )
-                    ) {
-                        queries.tiltakstype.getVeilederinfo(tiltakstype.id)
-                    } else {
-                        sanityTiltakstyper[sanityId]?.toTiltakstypeVeilederinfo()
-                    }
-
+                    val veilederinfo = queries.tiltakstype.getVeilederinfo(tiltakstype.id)
                     VeilederflateTiltakstype(
-                        sanityId = sanityId,
+                        sanityId = tiltakstype.sanityId?.toString(),
                         id = tiltakstype.id,
                         navn = tiltakstype.navn,
                         arenakode = tiltakstype.arenakode,
@@ -350,21 +333,3 @@ class VeilederflateService(
         }
     }
 }
-
-private fun SanityTiltakstype.toTiltakstypeVeilederinfo(): TiltakstypeVeilderinfo = TiltakstypeVeilderinfo(
-    beskrivelse = beskrivelse,
-    faneinnhold = faneinnhold?.copy(
-        delMedBruker = delingMedBruker,
-    ),
-    faglenker = regelverkLenker?.mapNotNull { lenke ->
-        lenke.regelverkUrl?.let { url ->
-            RedaksjoneltInnholdLenke(
-                id = lenke._id!!.toUUID(),
-                url = url,
-                navn = lenke.regelverkLenkeNavn,
-                beskrivelse = lenke.beskrivelse,
-            )
-        }
-    } ?: emptyList(),
-    kanKombineresMed = kanKombineresMed,
-)
