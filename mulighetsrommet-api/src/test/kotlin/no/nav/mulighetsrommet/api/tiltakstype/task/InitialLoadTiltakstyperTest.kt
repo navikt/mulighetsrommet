@@ -96,21 +96,18 @@ class InitialLoadTiltakstyperTest : FunSpec({
             sanityService.patchSanityTiltakstype(
                 sanityIdOppfolging,
                 TiltakstypeFixtures.Oppfolging.navn,
-                setOf(Innsatsgruppe.TRENGER_VEILEDNING),
             )
         }
         coVerify(exactly = 1) {
             sanityService.patchSanityTiltakstype(
                 sanityIdArbeidsmedStotte,
                 TiltakstypeFixtures.IPS.navn,
-                emptySet(),
             )
         }
         coVerify(exactly = 0) {
             sanityService.patchSanityTiltakstype(
                 any(),
                 TiltakstypeFixtures.Arbeidstrening.navn,
-                any(),
             )
         }
     }

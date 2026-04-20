@@ -60,7 +60,6 @@ class InitialLoadTiltakstyper(
                 sanityService.patchSanityTiltakstype(
                     tiltakstype.sanityId,
                     tiltakstype.navn,
-                    tiltakstype.innsatsgrupper,
                 )
             }
         }
