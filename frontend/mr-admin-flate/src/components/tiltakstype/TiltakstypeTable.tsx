@@ -2,10 +2,8 @@ import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Table } from "@navikt/ds-react";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { TiltakstypeStatusTag } from "@/components/statuselementer/TiltakstypeStatusTag";
 import { tiltakstypeFilterStateAtom } from "@/pages/tiltakstyper/filter";
 import { useFilterState } from "@/filter/useFilterState";
-import { formaterDato } from "@mr/frontend-common/utils/date";
 
 export function TiltakstypeTable() {
   const { filter, updateFilter } = useFilterState(tiltakstypeFilterStateAtom);
@@ -53,8 +51,6 @@ export function TiltakstypeTable() {
         </Table.Header>
         <Table.Body>
           {tiltakstyper.map((tiltakstype) => {
-            const startDato = formaterDato(tiltakstype.startDato);
-            const sluttDato = tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-";
             return (
               <Table.Row key={tiltakstype.id}>
                 <Table.DataCell
@@ -63,11 +59,8 @@ export function TiltakstypeTable() {
                 >
                   <Lenke to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Lenke>
                 </Table.DataCell>
-                <Table.DataCell aria-label={`Startdato: ${startDato}`}>{startDato}</Table.DataCell>
-                <Table.DataCell aria-label={`Sluttdato: ${sluttDato}`}>{sluttDato}</Table.DataCell>
-                <Table.DataCell>
-                  <TiltakstypeStatusTag status={tiltakstype.status} />
-                </Table.DataCell>
+                <Table.DataCell>{tiltakstype.tiltakskode}</Table.DataCell>
+                <Table.DataCell>{tiltakstype.gruppe}</Table.DataCell>
               </Table.Row>
             );
           })}
@@ -78,7 +71,7 @@ export function TiltakstypeTable() {
 }
 
 interface ColumnHeader {
-  sortKey: Kolonne;
+  sortKey: "navn" | "tiltakskode" | "tiltaksgruppe";
   tittel: string;
   sortable: boolean;
   width: string;
@@ -92,30 +85,15 @@ const headers: ColumnHeader[] = [
     width: "3fr",
   },
   {
-    sortKey: "startdato",
-    tittel: "Startdato",
+    sortKey: "tiltakskode",
+    tittel: "Tiltakskode",
     sortable: true,
     width: "1fr",
   },
   {
-    sortKey: "sluttdato",
-    tittel: "Sluttdato",
+    sortKey: "tiltaksgruppe",
+    tittel: "Tiltaksgruppe",
     sortable: true,
-    width: "1fr",
-  },
-  {
-    sortKey: "status",
-    tittel: "Status",
-    sortable: false,
     width: "1fr",
   },
 ];
-
-type Kolonne =
-  | "navn"
-  | "avtalenummer"
-  | "arrangor"
-  | "region"
-  | "startdato"
-  | "sluttdato"
-  | "status";

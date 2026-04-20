@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import org.intellij.lang.annotations.Language
 import java.util.UUID
@@ -28,24 +27,18 @@ class TiltakstypeQueries(private val session: Session) {
                 id,
                 navn,
                 tiltakskode,
-                arena_kode,
-                start_dato,
-                slutt_dato
+                arena_kode
             )
             values (
                 :id::uuid,
                 :navn,
                 :tiltakskode,
-                :arena_kode,
-                :start_dato,
-                :slutt_dato
+                :arena_kode
             )
             on conflict (id)
                 do update set navn        = excluded.navn,
                               tiltakskode = excluded.tiltakskode,
-                              arena_kode = excluded.arena_kode,
-                              start_dato = excluded.start_dato,
-                              slutt_dato = excluded.slutt_dato
+                              arena_kode = excluded.arena_kode
         """.trimIndent()
 
         execute(queryOf(query, tiltakstype.toSqlParameters()))
@@ -135,30 +128,25 @@ class TiltakstypeQueries(private val session: Session) {
 
     fun getAll(
         tiltakskoder: Set<Tiltakskode> = setOf(),
-        statuser: List<TiltakstypeStatus> = emptyList(),
         sortering: String? = null,
     ): List<Tiltakstype> = with(session) {
         val parameters = mapOf(
             "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { createTextArray(it) },
-            "statuser" to statuser.ifEmpty { null }?.let { createTextArray(it) },
         )
 
         val order = when (sortering) {
             "navn-ascending" -> "navn asc"
             "navn-descending" -> "navn desc"
-            "startdato-ascending" -> "start_dato asc"
-            "startdato-descending" -> "start_dato desc"
-            "sluttdato-ascending" -> "slutt_dato asc"
-            "sluttdato-descending" -> "slutt_dato desc"
+            "tiltakskode-ascending" -> "tiltakskode asc"
+            "tiltakskode-descending" -> "tiltakskode desc"
             else -> "navn asc"
         }
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, arena_kode, start_dato, slutt_dato, sanity_id, innsatsgrupper, status
+            select id, navn, tiltakskode, arena_kode, sanity_id, innsatsgrupper
             from view_tiltakstype
             where (:tiltakskoder::text[] is null or tiltakskode = any(:tiltakskoder))
-              and (:statuser::text[] is null or status = any(:statuser))
             order by $order
         """.trimIndent()
 
@@ -347,8 +335,6 @@ class TiltakstypeQueries(private val session: Session) {
         "navn" to navn,
         "tiltakskode" to tiltakskode.name,
         "arena_kode" to arenaKode,
-        "start_dato" to startDato,
-        "slutt_dato" to sluttDato,
     )
 
     private fun Row.toTiltakstype(): Tiltakstype {
@@ -363,10 +349,7 @@ class TiltakstypeQueries(private val session: Session) {
             innsatsgrupper = innsatsgrupper,
             arenakode = stringOrNull("arena_kode"),
             tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
-            startDato = localDate("start_dato"),
-            sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
-            status = TiltakstypeStatus.valueOf(string("status")),
         )
     }
 

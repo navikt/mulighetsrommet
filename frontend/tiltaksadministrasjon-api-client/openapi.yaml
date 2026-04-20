@@ -3475,16 +3475,6 @@ components:
           type:
           - "null"
           - string
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        status:
-          $ref: "#/components/schemas/TiltakstypeStatus"
         features:
           type: array
           items:
@@ -3501,9 +3491,6 @@ components:
       - gruppe
       - id
       - navn
-      - sluttDato
-      - startDato
-      - status
       - tiltakskode
     Tiltakskode:
       type: string
@@ -3537,11 +3524,6 @@ components:
       - SOMMERJOBB
       - VTAO
       - FIREARIG_LONNSTILSUDD
-    TiltakstypeStatus:
-      type: string
-      enum:
-      - AKTIV
-      - AVSLUTTET
     TiltakstypeFeature:
       type: string
       enum:
@@ -3726,16 +3708,6 @@ components:
           type:
           - "null"
           - string
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        status:
-          $ref: "#/components/schemas/TiltakstypeStatus"
         sanityId:
           type:
           - "null"
@@ -3765,9 +3737,6 @@ components:
       - id
       - navn
       - sanityId
-      - sluttDato
-      - startDato
-      - status
       - tiltakskode
       - veilederinfo
     TiltakstypeHandling:
