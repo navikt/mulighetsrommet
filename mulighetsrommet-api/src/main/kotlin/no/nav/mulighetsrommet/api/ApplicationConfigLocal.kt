@@ -19,6 +19,8 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinRequest
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -215,6 +217,29 @@ val ApplicationConfigLocal = AppConfig(
     tilgangsmaskin = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/tilgangsmaskin",
         scope = "default",
+        engine = MockEngine { request ->
+            if (request.url.toString().endsWith("/api/v1/bulk/obo")) {
+                val jsonString = (request.body as TextContent).text
+                val requests = JsonIgnoreUnknownKeys.decodeFromString<List<TilgangsmaskinRequest>>(jsonString)
+
+                val payload =
+                    TilgangsmaskinResponse(
+                        requests.map { req ->
+                            TilgangsmaskinResponse.Resultat(
+                                req.brukerId,
+                                status = 204,
+                            )
+                        },
+                    )
+                respond(
+                    content = ByteReadChannel(JsonIgnoreUnknownKeys.encodeToString(payload)),
+                    status = HttpStatusCode.MultiStatus,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+            } else {
+                respondError(HttpStatusCode.NotFound, "Mangler MockEngine for Tilgangsmaskinen")
+            }
+        },
     ),
     veilarbvedtaksstotteConfig = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/veilarbvedtaksstotte/api",
