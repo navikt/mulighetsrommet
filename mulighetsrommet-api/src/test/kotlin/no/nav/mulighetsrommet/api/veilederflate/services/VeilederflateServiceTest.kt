@@ -343,21 +343,9 @@ class VeilederflateServiceTest : FunSpec({
             }
         }
 
-        test("henter beskrivelse og faneinnhold fra Sanity når MIGRERT_REDAKSJONELT_INNHOLD ikke er aktivert") {
-            val tiltakstyper = createService().hentTiltakstyper()
-
-            val oppfolging = tiltakstyper.find { it.id == TiltakstypeFixtures.Oppfolging.id }
-            oppfolging.shouldNotBeNull()
-            oppfolging.beskrivelse shouldBe sanityBeskrivelse
-            oppfolging.faneinnhold shouldBe sanityFaneinnhold
-        }
-
-        test("henter beskrivelse og faneinnhold fra databasen når MIGRERT_REDAKSJONELT_INNHOLD er aktivert") {
+        test("henter beskrivelse og faneinnhold fra databasen") {
             val features = mapOf(
-                Tiltakskode.OPPFOLGING to setOf(
-                    TiltakstypeFeature.VISES_I_MODIA,
-                    TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD,
-                ),
+                Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.VISES_I_MODIA),
             )
             val tiltakstyper = createService(features).hentTiltakstyper()
 
