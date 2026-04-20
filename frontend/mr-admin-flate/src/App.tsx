@@ -30,6 +30,8 @@ import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { TiltakstypePage } from "./pages/tiltakstyper/TiltakstypePage";
 import { TiltakstypeInformasjonForVeilederePage } from "./pages/tiltakstyper/TiltakstypeInformasjonForVeilederePage";
 import { TiltakstypePageRedigerInformasjonForVeiledere } from "./pages/tiltakstyper/TiltakstypePageRedigerInformasjonForVeiledere";
+import { TiltakstypeDeltakerRegistreringPage } from "./pages/tiltakstyper/TiltakstypeDeltakerRegistreringPage";
+import { TiltakstypePageRedigerDeltakerRegistrering } from "./pages/tiltakstyper/TiltakstypePageRedigerDeltakerRegistrering";
 import { Suspense } from "react";
 import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
@@ -208,11 +210,16 @@ const routes: RouteObject[] = [
         children: [
           { index: true, element: <DetaljerTiltakstypePage /> },
           { path: "redaksjonelt-innhold", element: <TiltakstypeInformasjonForVeilederePage /> },
+          { path: "deltaker-registrering", element: <TiltakstypeDeltakerRegistreringPage /> },
         ],
       }),
       route({
         path: "tiltakstyper/:tiltakstypeId/redaksjonelt-innhold/rediger",
         element: <TiltakstypePageRedigerInformasjonForVeiledere />,
+      }),
+      route({
+        path: "tiltakstyper/:tiltakstypeId/deltaker-registrering/rediger",
+        element: <TiltakstypePageRedigerDeltakerRegistrering />,
       }),
       route({
         path: "avtaler",

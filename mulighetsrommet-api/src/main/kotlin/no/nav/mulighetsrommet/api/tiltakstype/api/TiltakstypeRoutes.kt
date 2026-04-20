@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeHandling
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKompaktDto
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
+import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.UUID
@@ -101,6 +102,23 @@ fun Route.tiltakstypeRoutes() {
             call.respond(handlinger)
         }
 
+        get("innholdselementer", {
+            tags = setOf("Tiltakstype")
+            operationId = "getInnholdselementer"
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tilgjengelige innholdselementer for deltakerregistrering"
+                    body<List<Innholdselement>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            call.respond(tiltakstypeDetaljerService.getAllInnholdselementer())
+        }
+
         authorize(Rolle.TILTAKSTYPER_SKRIV) {
             post("{id}/veilederinfo", {
                 tags = setOf("Tiltakstype")
@@ -126,10 +144,44 @@ fun Route.tiltakstypeRoutes() {
                 val id: UUID by call.parameters
                 val request = call.receive<TiltakstypeVeilederinfoRequest>()
 
-                val result = tiltakstypeDetaljerService.upsertRedaksjoneltInnhold(id, request) ?: return@post call.respondText(
-                    "Det finnes ikke noe tiltakstype med id $id",
-                    status = HttpStatusCode.NotFound,
-                )
+                val result = tiltakstypeDetaljerService.upsertVeilederinfo(id, request)
+                    ?: return@post call.respondText(
+                        "Det finnes ikke noe tiltakstype med id $id",
+                        status = HttpStatusCode.NotFound,
+                    )
+
+                call.respond(result)
+            }
+
+            post("{id}/deltakerinfo", {
+                tags = setOf("Tiltakstype")
+                operationId = "updateDeltakerinfo"
+                request {
+                    pathParameterUuid("id")
+                    body<TiltakstypeDeltakerinfoRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Oppdatert tiltakstype"
+                        body<TiltakstypeDto>()
+                    }
+                    code(HttpStatusCode.NotFound) {
+                        description = "Tiltakstype ikke funnet"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val request = call.receive<TiltakstypeDeltakerinfoRequest>()
+
+                val result = tiltakstypeDetaljerService.upsertDeltakerinfo(id, request)
+                    ?: return@post call.respondText(
+                        "Det finnes ikke noe tiltakstype med id $id",
+                        status = HttpStatusCode.NotFound,
+                    )
 
                 call.respond(result)
             }

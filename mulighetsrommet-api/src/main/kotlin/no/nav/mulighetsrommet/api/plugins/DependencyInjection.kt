@@ -447,7 +447,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { TiltakstypeService(appConfig.tiltakstyper, get()) }
-    single { TiltakstypeDetaljerService(get(), get(), get(), get()) }
+    single { TiltakstypeDetaljerService(TiltakstypeDetaljerService.Config(appConfig.kafka.topics.sisteTiltakstyperTopic), get(), get(), get(), get()) }
     single { RedaksjoneltInnholdLenkeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }

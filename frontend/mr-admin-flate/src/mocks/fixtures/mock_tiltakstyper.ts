@@ -18,6 +18,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     sanityId: "d03363e0-7d46-411b-aec4-fb9449e30eb8",
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [TiltakstypeEgenskap.STOTTER_AVTALER, TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK],
+    deltakerinfo: null,
     veilederinfo: {
       beskrivelse:
         "Arbeidsforberedende trening (AFT) er et tilbud for deg som har nedsatt arbeidsevne.",
@@ -37,6 +38,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     sanityId: "29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822",
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [TiltakstypeEgenskap.STOTTER_AVTALER, TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK],
+    deltakerinfo: null,
     veilederinfo: {
       beskrivelse: null,
       faneinnhold: null,
@@ -55,6 +57,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     sanityId: "f9618e97-4510-49e2-b748-29cae84d9019",
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [TiltakstypeEgenskap.STOTTER_AVTALER, TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK],
+    deltakerinfo: null,
     veilederinfo: {
       beskrivelse: null,
       faneinnhold: null,
@@ -73,6 +76,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     sanityId: "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3",
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [TiltakstypeEgenskap.STOTTER_AVTALER, TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK],
+    deltakerinfo: null,
     veilederinfo: {
       beskrivelse: null,
       faneinnhold: null,
@@ -91,6 +95,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     sanityId: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [TiltakstypeEgenskap.STOTTER_AVTALER, TiltakstypeEgenskap.KREVER_DELTIDSPROSENT],
+    deltakerinfo: null,
     veilederinfo: {
       beskrivelse: null,
       faneinnhold: null,
@@ -109,6 +114,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     sanityId: "7f353dcd-37c2-42f8-bab6-ac2a60669839",
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [TiltakstypeEgenskap.STOTTER_AVTALER, TiltakstypeEgenskap.KREVER_DELTIDSPROSENT],
+    deltakerinfo: null,
     veilederinfo: {
       beskrivelse: null,
       faneinnhold: null,
@@ -127,6 +133,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     sanityId: "31e72dd8-ad05-4e81-a7f9-fd4c8f295864",
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [TiltakstypeEgenskap.STOTTER_AVTALER, TiltakstypeEgenskap.KREVER_DELTIDSPROSENT],
+    deltakerinfo: null,
     veilederinfo: {
       beskrivelse: null,
       faneinnhold: null,
@@ -145,6 +152,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     sanityId: "5ac48c03-1f4c-4d4b-b862-050caca92080",
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [TiltakstypeEgenskap.STOTTER_AVTALER, TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK],
+    deltakerinfo: null,
     veilederinfo: {
       beskrivelse: null,
       faneinnhold: null,
@@ -163,6 +171,7 @@ export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
     sanityId: "02509279-0a0f-4bd6-b506-f40111e4ba14",
     features: [TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON, TiltakstypeFeature.MIGRERT],
     egenskaper: [TiltakstypeEgenskap.STOTTER_AVTALER, TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK],
+    deltakerinfo: null,
     veilederinfo: {
       beskrivelse: null,
       faneinnhold: null,
