@@ -20,6 +20,14 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 class OppgaverService(val db: ApiDatabase) {
+    fun getOppgavetyper(ansatt: NavAnsatt): List<OppgaveTypeDto> {
+        val roller = ansatt.roller.map { it.rolle }.toSet()
+
+        return OppgaveType.entries
+            .filter { it.rolle in roller }
+            .map { OppgaveTypeDto(navn = it.navn, type = it) }
+    }
+
     fun oppgaver(
         oppgavetyper: Set<OppgaveType>,
         tiltakskoder: Set<Tiltakskode>,
