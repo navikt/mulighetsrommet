@@ -1103,7 +1103,14 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       detaljerOgInnholdInfoboks: null,
       oppskrift: null,
       pameldingOgVarighetInfoboks: null,
-      delMedBruker: null,
+      delMedBruker:
+        "Vi har nå et kurs som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og er et" +
+        " fysisk kurs hvor du lærer The Ways of a Jedi.\n\nMålet er at du skal bli en Jedi" +
+        " Mester. Du trener sammen med læremester Yoda og lærer blant annet hvordan bruke" +
+        " lyssverd, og du får" +
+        " individuell oppfølging av andre Jedi Mestere og deltar på gruppearbeid og deler" +
+        " erfaringer med andre Jedis. Du kan lese mer om kurset  på" +
+        " www.nav.no/mentor ",
       lenker: null,
     },
     beskrivelse:
