@@ -79,6 +79,7 @@ class ApiDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecLi
             "tilsagn_status_type",
             "vedtak_resultat",
             "tilskudd_opplaering",
+            "tilskudd_behandling_status",
             "totrinnskontroll_type",
             "personopplysning",
         )

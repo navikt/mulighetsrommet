@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -20,4 +21,21 @@ data class TilskuddBehandlingDto(
     val periode: Periode,
     val kostnadssted: NavEnhetNummer,
     val vedtak: List<TilskuddVedtakDto>,
+    val status: TilskuddBehandlingStatusDto,
 )
+
+@Serializable
+data class TilskuddBehandlingStatusDto(
+    val type: TilskuddBehandlingStatus,
+) {
+    val status: DataElement.Status = toTilskuddBehandlingStatusTag(type)
+}
+
+fun toTilskuddBehandlingStatusTag(status: TilskuddBehandlingStatus): DataElement.Status {
+    val variant = when (status) {
+        TilskuddBehandlingStatus.TIL_GODKJENNING -> DataElement.Status.Variant.INFO
+        TilskuddBehandlingStatus.GODKJENT -> DataElement.Status.Variant.SUCCESS
+        TilskuddBehandlingStatus.RETURNERT -> DataElement.Status.Variant.ERROR
+    }
+    return DataElement.Status(status.beskrivelse, variant)
+}

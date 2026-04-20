@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtakDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
@@ -47,6 +48,7 @@ object TilskuddBehandlingValidator {
             periode = Periode(periodeStart, periodeSlutt),
             kostnadssted = request.kostnadssted,
             vedtak = vedtak,
+            status = TilskuddBehandlingStatus.TIL_GODKJENNING,
         )
     }
 

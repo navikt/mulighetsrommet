@@ -5,6 +5,8 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakDto
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
@@ -23,14 +25,16 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 soknad_journalpost_id,
                 soknad_dato,
                 periode,
-                kostnadssted
+                kostnadssted,
+                status
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
                 :soknad_journalpost_id,
                 :soknad_dato,
                 :periode::daterange,
-                :kostnadssted
+                :kostnadssted,
+                :status
             )
         """.trimIndent()
 
@@ -41,6 +45,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "soknad_dato" to dbo.soknadDato,
             "periode" to dbo.periode.toDaterange(),
             "kostnadssted" to dbo.kostnadssted.value,
+            "status" to dbo.status.name,
         )
 
         execute(queryOf(query, params))
@@ -86,6 +91,17 @@ class TilskuddBehandlingQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
+    fun setStatus(id: UUID, status: TilskuddBehandlingStatus) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilskudd_behandling
+            set status = :status
+            where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
+    }
+
     fun get(id: UUID): TilskuddBehandlingDto? {
         @Language("PostgreSQL")
         val query = """
@@ -94,6 +110,10 @@ class TilskuddBehandlingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, mapOf("id" to id))) { it.toTilskuddBehandlingDto() }
+    }
+
+    fun getOrError(id: UUID): TilskuddBehandlingDto {
+        return checkNotNull(get(id)) { "Tilskuddsbehadling med id $id finnes ikke" }
     }
 
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingDto> {
@@ -115,4 +135,5 @@ private fun Row.toTilskuddBehandlingDto() = TilskuddBehandlingDto(
     periode = periode("periode"),
     kostnadssted = NavEnhetNummer(string("kostnadssted")),
     vedtak = Json.decodeFromString<List<TilskuddVedtakDto>>(string("vedtak_json")),
+    status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(string("status"))),
 )

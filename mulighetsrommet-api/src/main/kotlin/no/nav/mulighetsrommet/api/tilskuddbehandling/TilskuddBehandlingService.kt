@@ -1,11 +1,17 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.toDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDateTime
@@ -42,6 +48,76 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
                     }
                 }
             }
+    }
+
+    fun get(id: UUID): TilskuddBehandlingDto? {
+        return db.session {
+            queries.tilskuddBehandling.get(id)
+        }
+    }
+
+    fun godkjenn(
+        id: UUID,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, TilskuddBehandlingDto> = db.transaction {
+        val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
+            "TilskuddBehandling med id $id ble ikke funnet"
+        }
+        if (behandling.status.type !== TilskuddBehandlingStatus.TIL_GODKJENNING) {
+            return FieldError
+                .of("Tilskuddsbehandling kan ikke godkjennes fordi det har status ${behandling.status.type.beskrivelse}")
+                .nel()
+                .left()
+        }
+
+        val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT)
+        if (navIdent == opprettelse.behandletAv) {
+            return FieldError
+                .of("Du kan ikke beslutte en tilskuddsbehandling du selv har opprettet")
+                .nel()
+                .left()
+        }
+
+        val godkjentOpprettelse = opprettelse.copy(
+            besluttetAv = navIdent,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.GODKJENT,
+        )
+        queries.totrinnskontroll.upsert(godkjentOpprettelse.toDbo())
+        queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.GODKJENT)
+
+        queries.tilskuddBehandling.getOrError(id).right()
+    }
+
+    fun returner(
+        id: UUID,
+        navIdent: NavIdent,
+        aarsaker: List<String>,
+        forklaring: String?,
+    ): Either<List<FieldError>, TilskuddBehandlingDto> = db.transaction {
+        val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
+            "TilskuddBehandling med id $id ble ikke funnet"
+        }
+        if (behandling.status.type !== TilskuddBehandlingStatus.TIL_GODKJENNING) {
+            return FieldError
+                .of("Tilskuddsbehandling kan ikke returneres fordi det har status ${behandling.status.type.beskrivelse}")
+                .nel()
+                .left()
+        }
+
+        val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT)
+
+        val avvistOpprettelse = opprettelse.copy(
+            besluttetAv = navIdent,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.AVVIST,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
+        )
+        queries.totrinnskontroll.upsert(avvistOpprettelse.toDbo())
+        queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
+
+        queries.tilskuddBehandling.getOrError(id).right()
     }
 
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingDto> {
