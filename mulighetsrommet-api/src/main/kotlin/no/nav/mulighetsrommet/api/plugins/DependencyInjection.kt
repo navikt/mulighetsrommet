@@ -249,7 +249,7 @@ private fun services(appConfig: AppConfig) = module {
         TilgangsmaskinClient(
             baseUrl = appConfig.tilgangsmaskin.url,
             tokenProvider = azureAdTokenProvider.withScope(appConfig.tilgangsmaskin.scope),
-            clientEngine = appConfig.engine,
+            clientEngine = appConfig.tilgangsmaskin.engine ?: appConfig.engine,
         )
     }
     single {
