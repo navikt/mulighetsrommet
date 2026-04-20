@@ -124,6 +124,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -133,6 +134,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -267,10 +269,16 @@ enum class TiltakstypeEgenskap {
     KREVER_DELTIDSPROSENT,
 
     /**
-     * Gjør deltakers innsøksform til "direkte vedtak" - altså at det er Nav-veileder som gjør vedtak om tiltaksplass.
+     * Krever at innsøksform for deltakere er "direkte vedtak", altså at det er Nav-veileder som gjør vedtak om tiltaksplass.
      * Hvis [KREVER_DIREKTE_VEDTAK] ikke er satt så kan innsøksform bestemmes av administrator for tiltaket.
      */
     KREVER_DIREKTE_VEDTAK,
+
+    /**
+     * Krever at innsøksform for deltakere er "direkte vedtak" når oppstartstypen er "løpende".
+     * Hvis [KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART] ikke er satt så kan innsøksform bestemmes av administrator for tiltaket.
+     */
+    KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART,
 
     /**
      * Indikerer at tiltakstypen støtter tilskudd for investeringer.
