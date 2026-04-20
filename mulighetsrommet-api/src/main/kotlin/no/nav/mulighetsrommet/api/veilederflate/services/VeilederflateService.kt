@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateInnsatsgrupp
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfo
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfoTiltaksansvarlig
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltak
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEgenRegi
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe
@@ -30,7 +29,6 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.utils.CachedComputation
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.Duration
@@ -127,17 +125,15 @@ class VeilederflateService(
                         sanityId = tiltakstype.sanityId?.toString(),
                         id = tiltakstype.id,
                         navn = tiltakstype.navn,
-                        arenakode = tiltakstype.arenakode,
                         tiltakskode = tiltakstype.tiltakskode,
+                        system = tiltakstype.tiltakskode.system,
                         features = tiltakstypeService.getFeatures(tiltakstype.tiltakskode),
                         egenskaper = tiltakstype.tiltakskode.egenskaper,
-                        innsatsgrupper = tiltakstype.innsatsgrupper,
                         tiltaksgruppe = tiltakstype.tiltakskode.gruppe?.tittel,
+                        innsatsgrupper = tiltakstype.innsatsgrupper,
                         beskrivelse = veilederinfo?.beskrivelse,
                         faneinnhold = veilederinfo?.faneinnhold,
-                        regelverkLenker = veilederinfo?.faglenker,
                         faglenker = veilederinfo?.faglenker,
-                        delingMedBruker = veilederinfo?.faneinnhold?.delMedBruker,
                         kanKombineresMed = veilederinfo?.kanKombineresMed ?: emptyList(),
                     )
                 }
@@ -281,22 +277,6 @@ class VeilederflateService(
         val stedForGjennomforing = gjennomforing.stedForGjennomforing
 
         return when {
-            tiltakstype.arenakode != null && Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenakode) -> {
-                VeilederflateTiltakEgenRegi(
-                    tiltaksnummer = tiltaksnummer,
-                    beskrivelse = beskrivelse,
-                    faneinnhold = faneinnhold,
-                    kontaktinfo = kontaktinfo,
-                    oppstart = GjennomforingOppstartstype.LOPENDE,
-                    sanityId = sanityId,
-                    tiltakstype = tiltakstype,
-                    navn = navn,
-                    oppmoteSted = stedForGjennomforing,
-                    fylker = fylker,
-                    enheter = enheter,
-                )
-            }
-
             arrangor != null -> VeilederflateTiltakEnkeltplassAnskaffet(
                 tiltaksnummer = tiltaksnummer,
                 beskrivelse = beskrivelse,
@@ -313,6 +293,7 @@ class VeilederflateService(
             )
 
             else -> VeilederflateTiltakEnkeltplass(
+                tiltaksnummer = tiltaksnummer,
                 beskrivelse = beskrivelse,
                 faneinnhold = faneinnhold,
                 kontaktinfo = kontaktinfo,
