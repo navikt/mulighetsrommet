@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tiltakstype.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
@@ -26,4 +27,5 @@ data class TiltakstypeDto(
     val features: Set<TiltakstypeFeature>,
     val egenskaper: Set<TiltakstypeEgenskap>,
     val veilederinfo: TiltakstypeVeilderinfo,
+    val deltakerinfo: DeltakerRegistreringInnholdDto?,
 )

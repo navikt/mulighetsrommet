@@ -21,6 +21,13 @@ export function TiltakstypeHandlinger() {
             Rediger informasjon for veiledere
           </ActionMenu.Item>
         )}
+        {handlinger.includes(TiltakstypeHandling.REDIGER_DELTAKERINFO) && (
+          <ActionMenu.Item
+            onClick={() => navigate(`/tiltakstyper/${tiltakstypeId}/deltaker-registrering/rediger`)}
+          >
+            Rediger informasjon for deltakere
+          </ActionMenu.Item>
+        )}
       </Handlinger>
     </KnapperadContainer>
   );

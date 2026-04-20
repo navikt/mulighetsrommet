@@ -170,6 +170,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/tiltakstyper/innholdselementer:
+    get:
+      tags:
+      - Tiltakstype
+      operationId: getInnholdselementer
+      parameters: []
+      responses:
+        "200":
+          description: Tilgjengelige innholdselementer for deltakerregistrering
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Innholdselement"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/tiltakstyper/{id}/veilederinfo:
     post:
       tags:
@@ -189,6 +213,45 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/TiltakstypeVeilederinfoRequest"
+        required: false
+      responses:
+        "200":
+          description: Oppdatert tiltakstype
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltakstypeDto"
+        "404":
+          description: Tiltakstype ikke funnet
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tiltakstyper/{id}/deltakerinfo:
+    post:
+      tags:
+      - Tiltakstype
+      operationId: updateDeltakerinfo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TiltakstypeDeltakerinfoRequest"
         required: false
       responses:
         "200":
@@ -3564,6 +3627,32 @@ components:
       - lenke
       - lenkenavn
       - visKunForVeileder
+    DeltakerRegistreringInnholdDto:
+      type: object
+      properties:
+        innholdselementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/Innholdselement"
+          default: null
+        ledetekst:
+          type: string
+          default: null
+      required:
+      - innholdselementer
+      - ledetekst
+    Innholdselement:
+      type: object
+      properties:
+        tekst:
+          type: string
+          default: null
+        innholdskode:
+          type: string
+          default: null
+      required:
+      - innholdskode
+      - tekst
     TiltakstypeDto:
       type: object
       properties:
@@ -3613,7 +3702,12 @@ components:
           default: null
         veilederinfo:
           $ref: "#/components/schemas/TiltakstypeVeilderinfo"
+        deltakerinfo:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakerRegistreringInnholdDto"
       required:
+      - deltakerinfo
       - egenskaper
       - features
       - gruppe
@@ -3629,6 +3723,7 @@ components:
       type: string
       enum:
       - REDIGER_VEILEDERINFO
+      - REDIGER_DELTAKERINFO
     TiltakstypeVeilederinfoRequest:
       type: object
       properties:
@@ -3660,6 +3755,23 @@ components:
       - faglenker
       - faneinnhold
       - kanKombineresMed
+    TiltakstypeDeltakerinfoRequest:
+      type: object
+      properties:
+        ledetekst:
+          type:
+          - "null"
+          - string
+          default: null
+        innholdskoder:
+          type: array
+          items:
+            type: string
+            default: null
+          default: null
+      required:
+      - innholdskoder
+      - ledetekst
     DetaljerRequest:
       type: object
       properties:

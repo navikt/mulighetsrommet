@@ -175,7 +175,52 @@ class TiltakstypeQueries(private val session: Session) {
         return single(queryOf(query, id)) { it.toVeilederinfo() }
     }
 
-    private fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? = with(session) {
+    fun getAllInnholdselementer(): List<Innholdselement> = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            select innholdskode, tekst
+            from deltaker_registrering_innholdselement
+            order by tekst
+        """.trimIndent()
+
+        return list(queryOf(query)) {
+            Innholdselement(tekst = it.string("tekst"), innholdskode = it.string("innholdskode"))
+        }
+    }
+
+    fun upsertDeltakerRegistreringInnhold(id: UUID, ledetekst: String?, innholdskoder: List<String>) = with(session) {
+        @Language("PostgreSQL")
+        val updateLedetekstQuery = """
+            update tiltakstype
+            set deltaker_registrering_ledetekst = :ledetekst
+            where id = :id::uuid
+        """.trimIndent()
+
+        execute(queryOf(updateLedetekstQuery, mapOf("id" to id, "ledetekst" to ledetekst)))
+
+        @Language("PostgreSQL")
+        val deleteQuery = """
+            delete from tiltakstype_deltaker_registrering_innholdselement
+            where tiltakskode = (select tiltakskode from tiltakstype where id = ?::uuid)
+        """.trimIndent()
+
+        execute(queryOf(deleteQuery, id))
+
+        if (innholdskoder.isNotEmpty()) {
+            @Language("PostgreSQL")
+            val insertQuery = """
+                insert into tiltakstype_deltaker_registrering_innholdselement (innholdskode, tiltakskode)
+                select :innholdskode, tiltakskode from tiltakstype where id = :id::uuid
+                on conflict do nothing
+            """.trimIndent()
+
+            innholdskoder.forEach { innholdskode ->
+                execute(queryOf(insertQuery, mapOf("innholdskode" to innholdskode, "id" to id)))
+            }
+        }
+    }
+
+    fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
            select tiltakstype.deltaker_registrering_ledetekst, element.innholdskode, element.tekst
