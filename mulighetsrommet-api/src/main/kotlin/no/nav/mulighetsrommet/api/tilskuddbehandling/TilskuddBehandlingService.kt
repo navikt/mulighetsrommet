@@ -1,11 +1,15 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.toDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDateTime
@@ -42,6 +46,58 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
                     }
                 }
             }
+    }
+
+    fun get(id: UUID): TilskuddBehandlingDto? {
+        return db.session {
+            queries.tilskuddBehandling.get(id)
+        }
+    }
+
+    fun godkjenn(
+        id: UUID,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, TilskuddBehandlingDto> = db.transaction {
+        val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
+            "TilskuddBehandling med id $id ble ikke funnet"
+        }
+        val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT)
+
+        if (navIdent == opprettelse.behandletAv) {
+            return@transaction listOf(FieldError.of("Du kan ikke beslutte en behandling du selv har opprettet")).left()
+        }
+
+        val godkjentOpprettelse = opprettelse.copy(
+            besluttetAv = navIdent,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.GODKJENT,
+        )
+        queries.totrinnskontroll.upsert(godkjentOpprettelse.toDbo())
+
+        behandling.right()
+    }
+
+    fun returner(
+        id: UUID,
+        navIdent: NavIdent,
+        aarsaker: List<String>,
+        forklaring: String?,
+    ): Either<List<FieldError>, TilskuddBehandlingDto> = db.transaction {
+        val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
+            "TilskuddBehandling med id $id ble ikke funnet"
+        }
+        val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT)
+
+        val avvistOpprettelse = opprettelse.copy(
+            besluttetAv = navIdent,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.AVVIST,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
+        )
+        queries.totrinnskontroll.upsert(avvistOpprettelse.toDbo())
+
+        behandling.right()
     }
 
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingDto> {

@@ -6,7 +6,8 @@ select
     tb.soknad_dato,
     tb.periode,
     tb.kostnadssted,
-    vedtak_json
+    vedtak_json,
+    tb.status
 from tilskudd_behandling tb
     left join lateral (
         select coalesce(jsonb_agg(

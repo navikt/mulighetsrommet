@@ -88,4 +88,5 @@ export const QueryKeys = {
   arrangorBetalingsinfo: (orgnr: string) => ["arrangorBetalingsinfo", orgnr],
   opplaeringtilskudd: () => ["opplaeringtilskudd"],
   tilskuddBehandlinger: (gjennomforingId?: string) => ["tilskudd-behandling", gjennomforingId],
+  tilskuddBehandling: (behandlingId: string) => ["tilskudd-behandling", behandlingId],
 };

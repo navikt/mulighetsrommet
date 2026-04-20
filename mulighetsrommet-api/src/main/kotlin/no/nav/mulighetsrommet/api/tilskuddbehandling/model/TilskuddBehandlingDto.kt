@@ -20,4 +20,5 @@ data class TilskuddBehandlingDto(
     val periode: Periode,
     val kostnadssted: NavEnhetNummer,
     val vedtak: List<TilskuddVedtakDto>,
+    val status: TilskuddBehandlingStatus,
 )

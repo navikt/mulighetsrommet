@@ -57,6 +57,7 @@ import { OpprettUtbetalingPage } from "@/pages/gjennomforing/utbetaling/OpprettU
 import { UtbetalingPage } from "@/pages/gjennomforing/utbetaling/UtbetalingPage";
 import { RedigerUtbetalingPage } from "@/pages/gjennomforing/utbetaling/RedigerUtbetalingPage";
 import { AvtaleRedaksjoneltInnhold } from "@/pages/avtaler/AvtaleRedaksjoneltInnhold";
+import { TilskuddBehandlingDetaljerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingDetaljerPage";
 import { TilskuddBehandlingFormPage } from "./pages/tilskudd-behandling/TilskuddBehandlingFormPage";
 import { TilskuddBehandlingerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingerPage";
 
@@ -254,6 +255,10 @@ const routes: RouteObject[] = [
       route({
         path: "gjennomforinger/:gjennomforingId/tilskudd-behandling/opprett",
         element: <TilskuddBehandlingFormPage />,
+      }),
+      route({
+        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling/:behandlingId",
+        element: <TilskuddBehandlingDetaljerPage />,
       }),
 
       route({

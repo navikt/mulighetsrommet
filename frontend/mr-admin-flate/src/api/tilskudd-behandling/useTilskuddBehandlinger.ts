@@ -7,7 +7,7 @@ export function useTilskuddBehandlinger(gjennomforingId: string) {
     queryKey: QueryKeys.tilskuddBehandlinger(gjennomforingId),
     queryFn: async () =>
       TilskuddBehandlingService.getTilskuddBehandlingerByGjennomforingId({
-        path: { gjennomforingId },
+        query: { gjennomforingId },
       }),
   });
 }
