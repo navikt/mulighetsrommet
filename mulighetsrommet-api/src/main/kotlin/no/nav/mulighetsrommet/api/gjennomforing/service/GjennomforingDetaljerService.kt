@@ -181,7 +181,9 @@ class GjennomforingDetaljerService(
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
-            GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf { totrinnskontroll != null },
+            GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
+                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent
+            },
         )
             .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
             .toSet()
