@@ -15,14 +15,12 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
-import no.nav.mulighetsrommet.model.Tiltakskode
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.time.LocalDate
 import java.util.UUID
@@ -63,8 +61,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
     }
 
     fun createService(): GjennomforingDetaljerService {
-        val features = Tiltakskode.entries.associateWith { setOf(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD) }
-        val tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db)
+        val tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(), database.db)
         return GjennomforingDetaljerService(
             db = database.db,
             tiltakstypeService = tiltakstypeService,

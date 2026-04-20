@@ -51,13 +51,12 @@ val ApplicationConfigLocal = AppConfig(
             val admin = setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)
             val modia = setOf(TiltakstypeFeature.VISES_I_MODIA)
             val migrert = setOf(TiltakstypeFeature.MIGRERT)
-            val migrertInnhold = setOf(TiltakstypeFeature.MIGRERT_REDAKSJONELT_INNHOLD)
             val utfaset = setOf(TiltakstypeFeature.UTFASET)
             mapOf(
                 Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to admin + modia + migrert + utfaset,
                 Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to admin + modia + migrert + utfaset,
 
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to admin + modia + migrert + migrertInnhold,
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to admin + modia + migrert,
                 Tiltakskode.ARBEIDSMARKEDSOPPLAERING to admin + modia + migrert,
                 Tiltakskode.ARBEIDSRETTET_REHABILITERING to admin + modia + migrert,
                 Tiltakskode.AVKLARING to admin + modia + migrert,
@@ -69,7 +68,7 @@ val ApplicationConfigLocal = AppConfig(
                 Tiltakskode.STUDIESPESIALISERING to admin + modia + migrert,
                 Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to admin + modia + migrert,
 
-                Tiltakskode.TILPASSET_JOBBSTOTTE to admin + modia + migrertInnhold,
+                Tiltakskode.TILPASSET_JOBBSTOTTE to admin + modia,
 
                 Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to admin + modia,
                 Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin + modia,

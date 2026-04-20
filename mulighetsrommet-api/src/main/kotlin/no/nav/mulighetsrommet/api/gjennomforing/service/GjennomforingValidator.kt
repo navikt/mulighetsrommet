@@ -147,7 +147,14 @@ object GjennomforingValidator {
         }
 
         when (request.oppstart) {
-            GjennomforingOppstartstype.LOPENDE -> Unit
+            GjennomforingOppstartstype.LOPENDE -> if (ctx.harEgenskap(TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART)) {
+                validate(request.pameldingType == GjennomforingPameldingType.DIREKTE_VEDTAK) {
+                    FieldError.of(
+                        "Påmeldingstype må være “direkte vedtak” når tiltaket har løpende oppstart (gjelder ${ctx.avtale.tiltakstype.navn})",
+                        GjennomforingRequest::pameldingType,
+                    )
+                }
+            }
 
             GjennomforingOppstartstype.FELLES -> validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
                 FieldError.of(
