@@ -85,8 +85,9 @@ class ArenaAdapterService(
                 arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
             )
-            when (gjennomforingEnkeltplassService.get(arenaGjennomforing.id)) {
-                null -> gjennomforingEnkeltplassService.create(upsert, Arena)
+            val existing = db.session { queries.gjennomforing.getGjennomforing(arenaGjennomforing.id) }
+            when {
+                existing == null || existing is GjennomforingArena -> gjennomforingEnkeltplassService.create(upsert, Arena)
                 else -> gjennomforingEnkeltplassService.update(upsert)
             }
         } else {
