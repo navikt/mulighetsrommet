@@ -8314,6 +8314,16 @@ components:
       enum:
       - INNVILGELSE
       - AVSLAG
+    TilskuddBehandlingStatusDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/TilskuddBehandlingStatus"
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+      required:
+      - status
+      - type
     TilskuddBehandlingStatus:
       type: string
       enum:
@@ -8349,7 +8359,7 @@ components:
             $ref: "#/components/schemas/TilskuddVedtakDto"
           default: null
         status:
-          $ref: "#/components/schemas/TilskuddBehandlingStatus"
+          $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
       required:
       - gjennomforingId
       - id

@@ -60,7 +60,7 @@ export function TilskuddBehandlingDetaljerPage() {
     );
   }
 
-  const erTilGodkjenning = behandling.status === TilskuddBehandlingStatus.TIL_GODKJENNING;
+  const erTilGodkjenning = behandling.status.type === TilskuddBehandlingStatus.TIL_GODKJENNING;
 
   return (
     <>

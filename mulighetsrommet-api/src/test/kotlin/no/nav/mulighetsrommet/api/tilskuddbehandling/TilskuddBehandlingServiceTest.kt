@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
@@ -66,7 +67,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
             service.opprett(gyldigRequest, ansatt1).shouldBeRight()
 
             service.godkjenn(gyldigRequest.id, ansatt1).shouldBeLeft().shouldHaveSize(1).first().should {
-                it.detail shouldBe "Du kan ikke beslutte en behandling du selv har opprettet"
+                it.detail shouldBe "Du kan ikke beslutte en tilskuddsbehandling du selv har opprettet"
             }
         }
 
@@ -76,6 +77,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
             service.opprett(gyldigRequest, ansatt1).shouldBeRight()
 
             service.godkjenn(gyldigRequest.id, ansatt2).shouldBeRight()
+                .status.type shouldBe TilskuddBehandlingStatus.GODKJENT
         }
     }
 })

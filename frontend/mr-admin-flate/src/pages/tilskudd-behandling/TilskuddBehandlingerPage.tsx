@@ -2,32 +2,9 @@ import { useTilskuddBehandlinger } from "@/api/tilskudd-behandling/useTilskuddBe
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { TilskuddBehandlingStatus } from "@tiltaksadministrasjon/api-client";
-import { ActionMenu, Alert, Table, Tag } from "@navikt/ds-react";
+import { DataElementStatusTag } from "@mr/frontend-common";
+import { ActionMenu, Alert, Table } from "@navikt/ds-react";
 import { Link, useNavigate } from "react-router";
-
-function statusTag(status: TilskuddBehandlingStatus) {
-  switch (status) {
-    case TilskuddBehandlingStatus.TIL_GODKJENNING:
-      return (
-        <Tag variant="warning" size="small">
-          Til godkjenning
-        </Tag>
-      );
-    case TilskuddBehandlingStatus.GODKJENT:
-      return (
-        <Tag variant="success" size="small">
-          Godkjent
-        </Tag>
-      );
-    case TilskuddBehandlingStatus.RETURNERT:
-      return (
-        <Tag variant="neutral" size="small">
-          Returnert
-        </Tag>
-      );
-  }
-}
 
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -68,7 +45,9 @@ export function TilskuddBehandlingerPage() {
                   {b.periode.start} – {b.periode.slutt}
                 </Table.DataCell>
                 <Table.DataCell>{b.kostnadssted}</Table.DataCell>
-                <Table.DataCell>{statusTag(b.status)}</Table.DataCell>
+                <Table.DataCell>
+                  <DataElementStatusTag {...b.status.status} />
+                </Table.DataCell>
               </Table.Row>
             ))}
           </Table.Body>
