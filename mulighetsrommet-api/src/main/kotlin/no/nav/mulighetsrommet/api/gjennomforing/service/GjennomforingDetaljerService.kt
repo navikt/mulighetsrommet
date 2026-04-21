@@ -176,12 +176,14 @@ class GjennomforingDetaljerService(
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
         val totrinnskontroll = db.session {
-            queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OPPRETT)
+            queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI)
         }
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
-            GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf { totrinnskontroll != null },
+            GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
+                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent
+            },
         )
             .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
             .toSet()

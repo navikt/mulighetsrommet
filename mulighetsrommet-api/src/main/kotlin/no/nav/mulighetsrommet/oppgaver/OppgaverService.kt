@@ -16,10 +16,21 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 
-class OppgaverService(val db: ApiDatabase) {
+class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleService) {
+    fun getOppgavetyper(ansatt: NavAnsatt): List<OppgaveTypeDto> {
+        val roller = ansatt.roller.map { it.rolle }.toSet()
+
+        return OppgaveType.entries
+            .filter { it.rolle in roller }
+            .filter { isEnkeltplassEnabled() || it.kategori != Kategori.ENKELTPLASS }
+            .map { OppgaveTypeDto(navn = it.navn, type = it) }
+    }
+
     fun oppgaver(
         oppgavetyper: Set<OppgaveType>,
         tiltakskoder: Set<Tiltakskode>,
@@ -78,11 +89,21 @@ class OppgaverService(val db: ApiDatabase) {
                     ),
                 )
             }
+            if (isEnkeltplassEnabled() && (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.ENKELTPLASS })) {
+                addAll(
+                    enkeltplassOppgaver(
+                        tiltakskoder = tiltakskoder,
+                        navEnheter = navEnheterForRegioner,
+                        ansatt = ansatt,
+                    ),
+                )
+            }
         }
 
-        return oppgaver
-            .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
+        return oppgaver.filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
     }
+
+    private fun isEnkeltplassEnabled(): Boolean = features.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER)
 
     private fun QueryContext.tilsagnOppgaver(
         tiltakskoder: Set<Tiltakskode>,
@@ -145,6 +166,19 @@ class OppgaverService(val db: ApiDatabase) {
     ): List<Oppgave> {
         return queries.oppgave
             .getGjennomforingManglerAdministratorOppgaveData(tiltakskoder, navEnheter)
+            .mapNotNull { it.toOppgave(ansatt) }
+    }
+
+    private fun QueryContext.enkeltplassOppgaver(
+        tiltakskoder: Set<Tiltakskode>,
+        navEnheter: Set<NavEnhetNummer>,
+        ansatt: NavAnsatt,
+    ): List<Oppgave> {
+        return queries.oppgave
+            .getEnkeltplassOppgaveData(
+                tiltakskoder = tiltakskoder.ifEmpty { null },
+                navEnheter = navEnheter.ifEmpty { null },
+            )
             .mapNotNull { it.toOppgave(ansatt) }
     }
 
@@ -410,6 +444,29 @@ private fun GjennomforingManglerAdministratorOppgaveData.toOppgave(ansatt: NavAn
     createdAt = oppdatertTidspunkt,
 ).takeIf {
     GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.REDIGER)
+}
+
+private fun EnkeltplassOppgaveData.toOppgave(ansatt: NavAnsatt): Oppgave? {
+    return Oppgave(
+        id = gjennomforing.id,
+        type = OppgaveType.ENKELTPLASS_TIL_GODKJENNING,
+        navn = OppgaveType.ENKELTPLASS_TIL_GODKJENNING.navn,
+        enhet = ansvarligEnhet,
+        title = getOkonomiOppgaveTitle(tiltakstype, gjennomforing),
+        description = "Enkeltplassen er sendt til godkjenning",
+        tiltakstype = tiltakstype,
+        link = OppgaveLink(
+            linkText = "Se enkeltplass",
+            link = "/gjennomforinger/${gjennomforing.id}",
+        ),
+        createdAt = behandletTidspunkt,
+    ).takeIf {
+        behandletAv != ansatt.navIdent && GjennomforingDetaljerService.tilgangTilHandling(
+            ansatt,
+            GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+            setOf(ansvarligEnhet.nummer),
+        )
+    }
 }
 
 private fun getOkonomiOppgaveTitle(tiltakstype: OppgaveTiltakstype, gjennomforing: OppgaveGjennomforing): String {

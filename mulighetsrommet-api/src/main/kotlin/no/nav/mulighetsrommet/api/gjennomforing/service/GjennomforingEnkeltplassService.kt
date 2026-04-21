@@ -75,7 +75,10 @@ class GjennomforingEnkeltplassService(
         val gjennomforingV2Topic: String,
     )
 
-    fun create(create: UpsertGjennomforingEnkeltplass, agent: Agent): Validated<GjennomforingEnkeltplass> = db.transaction {
+    fun create(
+        create: UpsertGjennomforingEnkeltplass,
+        agent: Agent,
+    ): Validated<GjennomforingEnkeltplass> = db.transaction {
         val existing = queries.gjennomforing.getGjennomforing(create.id)
         if (existing != null && existing !is GjennomforingArena) {
             return FieldError.of("Gjennomføringen er allerede opprettet").nel().left()
@@ -94,7 +97,9 @@ class GjennomforingEnkeltplassService(
             .right()
     }
 
-    fun update(update: UpsertGjennomforingEnkeltplass): Validated<GjennomforingEnkeltplass> = db.transaction {
+    fun update(
+        update: UpsertGjennomforingEnkeltplass,
+    ): Validated<GjennomforingEnkeltplass> = db.transaction {
         return when (val gjennomforing = queries.gjennomforing.getGjennomforing(update.id)) {
             null -> FieldError.of("Gjennomføring finnes ikke").nel().left()
 
@@ -108,7 +113,10 @@ class GjennomforingEnkeltplassService(
         }
     }
 
-    suspend fun updateArenaData(id: UUID, arenadata: Gjennomforing.ArenaData): GjennomforingEnkeltplass = db.transaction {
+    suspend fun updateArenaData(
+        id: UUID,
+        arenadata: Gjennomforing.ArenaData,
+    ): GjennomforingEnkeltplass = db.transaction {
         val previous = getOrError(id)
         if (previous.arena == arenadata) {
             return previous
@@ -128,7 +136,10 @@ class GjennomforingEnkeltplassService(
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
     }
 
-    fun updateFromDeltaker(deltaker: Deltaker, norskIdent: NorskIdent): GjennomforingEnkeltplass = db.transaction {
+    fun updateFromDeltaker(
+        deltaker: Deltaker,
+        norskIdent: NorskIdent,
+    ): GjennomforingEnkeltplass = db.transaction {
         val gjennomforing = getOrError(deltaker.gjennomforingId)
 
         getDeltaker(deltaker.gjennomforingId)?.let {
@@ -161,7 +172,10 @@ class GjennomforingEnkeltplassService(
         }
     }
 
-    fun godkjennOkonomi(id: UUID, navIdent: NavIdent): Either<List<FieldError>, GjennomforingEnkeltplass> = db.transaction {
+    fun godkjennOkonomi(
+        id: UUID,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, GjennomforingEnkeltplass> = db.transaction {
         val gjennomforing = getOrError(id)
 
         val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OKONOMI)
