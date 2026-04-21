@@ -29,18 +29,14 @@ interface Props {
 }
 
 function skjemaPath(pathname: string): string {
-  if (pathname.includes("veilederinformasjon")) {
-    return "skjema/veilederinformasjon";
-  } else if (pathname.includes("personvern")) {
-    return "skjema/personvern";
-  } else {
-    return "skjema";
-  }
+  if (pathname.includes("veilederinformasjon")) return "veilederinformasjon/rediger";
+  if (pathname.includes("personvern")) return "personvern/rediger";
+  return "rediger";
 }
 
 type AvtaleModal = "Prismodell" | "Avbryt" | "Rammedetaljer";
 
-export function AvtaleKnapperad({ avtale }: Props) {
+export function AvtaleHandlinger({ avtale }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: handlinger } = useAvtaleHandlinger(avtale.id);
@@ -55,7 +51,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
   const path = `/avtaler/${avtale.id}/${skjemaPath(location.pathname)}`;
 
   function dupliserAvtale() {
-    navigate(`/avtaler/opprett-avtale`, {
+    navigate(`/avtaler/opprett`, {
       state: {
         dupliserAvtale: {
           tiltakstype: avtale.tiltakstype,

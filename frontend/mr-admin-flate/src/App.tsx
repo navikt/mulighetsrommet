@@ -37,6 +37,9 @@ import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
 import { UtbetalingDetaljerPage } from "./pages/gjennomforing/utbetaling/UtbetalingDetaljerPage";
 import { OpprettAvtaleFormPage } from "./pages/avtaler/OpprettAvtaleFormPage";
+import { RedigerAvtaleDetaljerPage } from "./pages/avtaler/RedigerAvtaleDetaljerPage";
+import { RedigerAvtalePersonvernPage } from "./pages/avtaler/RedigerAvtalePersonvernPage";
+import { RedigerAvtaleVeilederinformasjonPage } from "./pages/avtaler/RedigerAvtaleVeilederinformasjonPage";
 import { OpprettGjennomforingFormPage } from "./pages/gjennomforing/OpprettGjennomforingFormPage";
 import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
 import { GjennomforingDetaljer } from "./pages/gjennomforing/GjennomforingDetaljer";
@@ -44,15 +47,11 @@ import { GjennomforingRedaksjoneltInnhold } from "./pages/gjennomforing/Gjennomf
 import { AvtaleDetaljer } from "./pages/avtaler/AvtaleDetaljer";
 import { AvtalePersonvern } from "./pages/avtaler/AvtalePersonvern";
 import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
-import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { InnsendingoversiktPage } from "./pages/innsendinger/InnsendingsoversiktPage";
 import { UtdatertKlientBanner } from "./api/UtdatertKlientBanner";
 import { createHead, UnheadProvider } from "@unhead/react/client";
 import { Head } from "@unhead/react";
-import { AvtaleDetaljerForm } from "./components/avtaler/AvtaleDetaljerForm";
-import { AvtalePersonvernForm } from "./components/avtaler/AvtalePersonvernForm";
-import { AvtaleInformasjonForVeiledereForm } from "./components/avtaler/AvtaleInformasjonForVeiledereForm";
 import { OpprettUtbetalingPage } from "@/pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
 import { UtbetalingPage } from "@/pages/gjennomforing/utbetaling/UtbetalingPage";
 import { RedigerUtbetalingPage } from "@/pages/gjennomforing/utbetaling/RedigerUtbetalingPage";
@@ -129,16 +128,6 @@ const AVTALE_ROUTES: RouteObject[] = [
   { path: "personvern", element: <AvtalePersonvern /> },
   { path: "veilederinformasjon", element: <AvtaleRedaksjoneltInnhold /> },
   { path: "gjennomforinger", element: <GjennomforingerForAvtalePage /> },
-];
-
-const AVTALE_FORM_ROUTES: RouteObject[] = [
-  { index: true, element: <AvtaleDetaljerForm />, errorElement: <ErrorPage /> },
-  { path: "personvern", element: <AvtalePersonvernForm />, errorElement: <ErrorPage /> },
-  {
-    path: "veilederinformasjon",
-    element: <AvtaleInformasjonForVeiledereForm />,
-    errorElement: <ErrorPage />,
-  },
 ];
 
 const GJENNOMFORING_ROUTES: RouteObject[] = [
@@ -227,11 +216,15 @@ const routes: RouteObject[] = [
         element: <AvtalerPage />,
       }),
       route({ path: "avtaler/:avtaleId", element: <AvtalePage />, children: AVTALE_ROUTES }),
-      route({ path: "avtaler/opprett-avtale", element: <OpprettAvtaleFormPage /> }),
+      route({ path: "avtaler/opprett", element: <OpprettAvtaleFormPage /> }),
+      route({ path: "avtaler/:avtaleId/rediger", element: <RedigerAvtaleDetaljerPage /> }),
       route({
-        path: "avtaler/:avtaleId/skjema",
-        element: <AvtaleFormPage />,
-        children: AVTALE_FORM_ROUTES,
+        path: "avtaler/:avtaleId/personvern/rediger",
+        element: <RedigerAvtalePersonvernPage />,
+      }),
+      route({
+        path: "avtaler/:avtaleId/veilederinformasjon/rediger",
+        element: <RedigerAvtaleVeilederinformasjonPage />,
       }),
       route({
         path: "avtaler/:avtaleId/gjennomforinger/skjema",
