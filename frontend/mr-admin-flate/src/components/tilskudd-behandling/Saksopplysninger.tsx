@@ -10,26 +10,31 @@ import {
   TilskuddOpplaeringType,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
-import { KostnadsstedOption, VelgKostnadssted } from "../tilsagn/form/VelgKostnadssted";
+import { VelgKostnadssted } from "../tilsagn/form/VelgKostnadssted";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { defaultVedtakRequest } from "./defaultVedtakRequest";
+import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 
 export function SaksopplysningerForm() {
-  const { control, register } = useFormContext<TilskuddBehandlingRequest>();
+  const {
+    control,
+    register,
+    watch,
+    formState: { errors },
+  } = useFormContext<TilskuddBehandlingRequest>();
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "vedtak",
   });
 
-  const kostnadssteder: KostnadsstedOption[] = [
-    {
-      enhetsnummer: "0213",
-      navn: "Nav Nordre Follo",
-    },
-  ];
+  const { data: kostnadssteder } = useKostnadssteder();
 
+  function totaltBelop(): number {
+    return watch("vedtak").reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0);
+  }
   return (
     <>
       <Heading size="small" level="3" spacing>
@@ -42,8 +47,9 @@ export function SaksopplysningerForm() {
           <FormDateInput name="periodeStart" label="Periodestart" />
           <FormDateInput name="periodeSlutt" label="Periodeslutt" />
         </HStack>
-        <VelgKostnadssted kostnadssteder={kostnadssteder} />
-
+        <VelgKostnadssted
+          kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
+        />
         {fields.map((field, index) => (
           <FormGroup key={field.id}>
             <HStack align="center" justify="space-between">
@@ -61,6 +67,7 @@ export function SaksopplysningerForm() {
                     size="small"
                     type="text"
                     label="Beløp fra søknad"
+                    error={errors.vedtak?.[index]?.soknadBelop?.belop?.message}
                     {...register(`vedtak.${index}.soknadBelop.belop`, {
                       setValueAs: (v: string) => (v === "" ? null : Number(v)),
                       validate: (value: number | null) => {
@@ -108,6 +115,15 @@ export function SaksopplysningerForm() {
         >
           Legg til tilskudd
         </Button>
+        <TextField
+          size="small"
+          readOnly
+          label="Totalt beløp fra søknad"
+          value={formaterValutaBelop({
+            belop: totaltBelop(),
+            valuta: Valuta.NOK,
+          })}
+        />
       </VStack>
     </>
   );
