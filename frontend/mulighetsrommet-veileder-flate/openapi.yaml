@@ -473,7 +473,6 @@ paths:
           type: array
           items:
             type: string
-            default: null
       - name: search
         in: query
         required: false
@@ -611,7 +610,6 @@ paths:
           type: array
           items:
             type: string
-            default: null
       - name: search
         in: query
         required: false
@@ -635,7 +633,6 @@ paths:
           type: array
           items:
             type: string
-            default: null
       - name: erSykmeldtMedArbeidsgiver
         in: query
         required: false
@@ -712,7 +709,6 @@ paths:
           type: array
           items:
             type: string
-            default: null
       - name: search
         in: query
         required: false
@@ -736,7 +732,6 @@ paths:
           type: array
           items:
             type: string
-            default: null
       - name: erSykmeldtMedArbeidsgiver
         in: query
         required: false
@@ -838,21 +833,17 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         navn:
           type: string
-          default: null
         type:
           $ref: "#/components/schemas/LagretFilterType"
         filter:
           $ref: "#/components/schemas/JsonElement"
         isDefault:
           type: boolean
-          default: null
         sortOrder:
           type: integer
           format: int32
-          default: null
       required:
       - filter
       - id
@@ -884,7 +875,6 @@ components:
       properties:
         norskIdent:
           type: string
-          default: null
       required:
       - norskIdent
     Innsatsgruppe:
@@ -900,17 +890,14 @@ components:
       properties:
         navn:
           type: string
-          default: null
         enhetsnummer:
           type: string
-          default: null
         type:
           $ref: "#/components/schemas/NavEnhetType"
         overordnetEnhet:
           type:
           - "null"
           - string
-          default: null
       required:
       - enhetsnummer
       - navn
@@ -954,7 +941,6 @@ components:
       properties:
         erUnderManuellOppfolging:
           type: boolean
-          default: null
         krrStatus:
           $ref: "#/components/schemas/KrrStatus"
       required:
@@ -965,10 +951,8 @@ components:
       properties:
         kanVarsles:
           type: boolean
-          default: null
         erReservert:
           type: boolean
-          default: null
       required:
       - erReservert
       - kanVarsles
@@ -983,7 +967,6 @@ components:
       properties:
         fnr:
           type: string
-          default: null
         innsatsgruppe:
           oneOf:
           - type: "null"
@@ -992,25 +975,20 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NavEnhetDto"
-          default: null
         fornavn:
           type:
           - "null"
           - string
-          default: null
         manuellStatus:
           $ref: "#/components/schemas/ManuellStatusDto"
         erUnderOppfolging:
           type: boolean
-          default: null
         erSykmeldtMedArbeidsgiver:
           type: boolean
-          default: null
         varsler:
           type: array
           items:
             $ref: "#/components/schemas/BrukerdataVarsel"
-          default: null
       required:
       - enheter
       - erSykmeldtMedArbeidsgiver
@@ -1030,7 +1008,6 @@ components:
       properties:
         norskIdent:
           type: string
-          default: null
         type:
           $ref: "#/components/schemas/BrukerDeltakelseType"
       required:
@@ -1048,12 +1025,10 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         eierskap:
           $ref: "#/components/schemas/DeltakelseEierskap"
         tittel:
           type: string
-          default: null
         tiltakstype:
           $ref: "#/components/schemas/DeltakelseTiltakstype"
         innsoktDato:
@@ -1061,13 +1036,11 @@ components:
           - "null"
           - string
           format: date
-          default: null
         sistEndretDato:
           type:
           - "null"
           - string
           format: date
-          default: null
         periode:
           $ref: "#/components/schemas/DeltakelsePeriode"
         tilstand:
@@ -1100,7 +1073,6 @@ components:
       properties:
         navn:
           type: string
-          default: null
         tiltakskode:
           oneOf:
           - type: "null"
@@ -1148,13 +1120,11 @@ components:
           - "null"
           - string
           format: date
-          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
-          default: null
       required:
       - sluttDato
       - startDato
@@ -1174,7 +1144,6 @@ components:
           type:
           - "null"
           - string
-          default: null
       required:
       - aarsak
       - type
@@ -1183,14 +1152,12 @@ components:
       properties:
         value:
           type: string
-          default: null
         variant:
           $ref: "#/components/schemas/DataElement.Status.Variant"
         description:
           type:
           - "null"
           - string
-          default: null
       required:
       - description
       - value
@@ -1214,7 +1181,6 @@ components:
         gjennomforingId:
           type: string
           format: uuid
-          default: null
         status:
           $ref: "#/components/schemas/DeltakerStatusType"
       required:
@@ -1245,12 +1211,10 @@ components:
           items:
             $ref: "#/components/schemas/DeltakelserMelding"
           uniqueItems: true
-          default: null
         deltakelser:
           type: array
           items:
             $ref: "#/components/schemas/Deltakelse"
-          default: null
       required:
       - deltakelser
       - meldinger
@@ -1259,11 +1223,9 @@ components:
       properties:
         norskIdent:
           type: string
-          default: null
         tiltakId:
           type: string
           format: uuid
-          default: null
       required:
       - norskIdent
       - tiltakId
@@ -1272,35 +1234,27 @@ components:
       properties:
         overskrift:
           type: string
-          default: null
         tekst:
           type: string
-          default: null
         venterPaaSvarFraBruker:
           type: boolean
-          default: null
         fnr:
           type: string
-          default: null
         tiltakstypeId:
           type: string
           format: uuid
-          default: null
         gjennomforingId:
           type:
           - "null"
           - string
           format: uuid
-          default: null
         sanityId:
           type:
           - "null"
           - string
           format: uuid
-          default: null
         deltFraEnhet:
           type: string
-          default: null
       required:
       - deltFraEnhet
       - fnr
@@ -1315,7 +1269,6 @@ components:
       properties:
         dialogId:
           type: string
-          default: null
       required:
       - dialogId
     GetDelMedBrukerRequest:
@@ -1324,10 +1277,8 @@ components:
         tiltakId:
           type: string
           format: uuid
-          default: null
         norskIdent:
           type: string
-          default: null
       required:
       - norskIdent
       - tiltakId
@@ -1336,11 +1287,9 @@ components:
       properties:
         dialogId:
           type: string
-          default: null
         tidspunkt:
           type: string
           format: date-time
-          default: null
       required:
       - dialogId
       - tidspunkt
@@ -1350,7 +1299,6 @@ components:
         tiltakId:
           type: string
           format: uuid
-          default: null
         deling:
           $ref: "#/components/schemas/DelingMedBruker"
       required:
@@ -1361,7 +1309,6 @@ components:
       properties:
         norskIdent:
           type: string
-          default: null
       required:
       - norskIdent
     TiltakDeltMedBrukerDto:
@@ -1383,10 +1330,8 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         navn:
           type: string
-          default: null
       required:
       - id
       - navn
@@ -1401,10 +1346,8 @@ components:
           type:
           - "null"
           - string
-          default: null
         navn:
           type: string
-          default: null
       required:
       - arenakode
       - navn
@@ -1414,10 +1357,8 @@ components:
       properties:
         enhetsnummer:
           type: string
-          default: null
         navn:
           type: string
-          default: null
       required:
       - enhetsnummer
       - navn
@@ -1426,13 +1367,10 @@ components:
       properties:
         navIdent:
           type: string
-          default: null
         fornavn:
           type: string
-          default: null
         etternavn:
           type: string
-          default: null
         hovedenhet:
           $ref: "#/components/schemas/NavVeilederHovedenhet"
       required:
@@ -1451,7 +1389,6 @@ components:
       properties:
         fullfort:
           type: boolean
-          default: null
         joyrideType:
           $ref: "#/components/schemas/JoyrideType"
       required:
@@ -1462,13 +1399,11 @@ components:
       properties:
         tittel:
           type: string
-          default: null
         nokkel:
           $ref: "#/components/schemas/Innsatsgruppe"
         order:
           type: integer
           format: int32
-          default: null
       required:
       - nokkel
       - order
@@ -1479,10 +1414,8 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         navn:
           type: string
-          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
         system:
@@ -1492,30 +1425,25 @@ components:
           items:
             $ref: "#/components/schemas/TiltakstypeFeature"
           uniqueItems: true
-          default: null
         egenskaper:
           type: array
           items:
             $ref: "#/components/schemas/TiltakstypeEgenskap"
           uniqueItems: true
-          default: null
         innsatsgrupper:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/Innsatsgruppe"
-          default: null
         tiltaksgruppe:
           type:
           - "null"
           - string
-          default: null
         beskrivelse:
           type:
           - "null"
           - string
-          default: null
         faneinnhold:
           oneOf:
           - type: "null"
@@ -1526,12 +1454,10 @@ components:
           - array
           items:
             $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
-          default: null
         kanKombineresMed:
           type: array
           items:
             $ref: "#/components/schemas/TiltakstypeKombinasjon"
-          default: null
       required:
       - beskrivelse
       - egenskaper
@@ -1576,67 +1502,56 @@ components:
           - array
           items:
             $ref: "#/components/schemas/PortableTextTypedObject"
-          default: null
         forHvemInfoboks:
           type:
           - "null"
           - string
-          default: null
         detaljerOgInnhold:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/PortableTextTypedObject"
-          default: null
         detaljerOgInnholdInfoboks:
           type:
           - "null"
           - string
-          default: null
         pameldingOgVarighet:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/PortableTextTypedObject"
-          default: null
         pameldingOgVarighetInfoboks:
           type:
           - "null"
           - string
-          default: null
         kontaktinfo:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/PortableTextTypedObject"
-          default: null
         kontaktinfoInfoboks:
           type:
           - "null"
           - string
-          default: null
         oppskrift:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/PortableTextTypedObject"
-          default: null
         lenker:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/FaneinnholdLenke"
-          default: null
         delMedBruker:
           type:
           - "null"
           - string
-          default: null
       required:
       - delMedBruker
       - detaljerOgInnhold
@@ -1664,16 +1579,12 @@ components:
       properties:
         lenkenavn:
           type: string
-          default: null
         lenke:
           type: string
-          default: null
         apneINyFane:
           type: boolean
-          default: null
         visKunForVeileder:
           type: boolean
-          default: null
       required:
       - apneINyFane
       - lenke
@@ -1685,20 +1596,16 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         url:
           type: string
-          default: null
         navn:
           type:
           - "null"
           - string
-          default: null
         beskrivelse:
           type:
           - "null"
           - string
-          default: null
       required:
       - beskrivelse
       - id
@@ -1710,10 +1617,8 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         navn:
           type: string
-          default: null
       required:
       - id
       - navn
@@ -1741,12 +1646,10 @@ components:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         navn:
           type: string
-          default: null
         beskrivelse:
           type:
           - "null"
           - string
-          default: null
         faneinnhold:
           oneOf:
           - type: "null"
@@ -1759,27 +1662,20 @@ components:
           type:
           - "null"
           - string
-          default: null
         fylker:
           type: array
           items:
             type: string
-            default: null
-          default: null
         enheter:
           type: array
           items:
             type: string
-            default: null
-          default: null
         sanityId:
           type: string
-          default: null
         tiltaksnummer:
           type:
           - "null"
           - string
-          default: null
       required:
       - beskrivelse
       - enheter
@@ -1799,7 +1695,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/VeilederflateKontaktinfoTiltaksansvarlig"
-          default: null
       required:
       - tiltaksansvarlige
     VeilederflateKontaktinfoTiltaksansvarlig:
@@ -1809,12 +1704,10 @@ components:
           type:
           - "null"
           - string
-          default: null
         telefon:
           type:
           - "null"
           - string
-          default: null
         enhet:
           oneOf:
           - type: "null"
@@ -1823,12 +1716,10 @@ components:
           type:
           - "null"
           - string
-          default: null
         beskrivelse:
           type:
           - "null"
           - string
-          default: null
       required:
       - beskrivelse
       - enhet
@@ -1840,10 +1731,8 @@ components:
       properties:
         navn:
           type: string
-          default: null
         enhetsnummer:
           type: string
-          default: null
       required:
       - enhetsnummer
       - navn
@@ -1860,12 +1749,10 @@ components:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         navn:
           type: string
-          default: null
         beskrivelse:
           type:
           - "null"
           - string
-          default: null
         faneinnhold:
           oneOf:
           - type: "null"
@@ -1878,27 +1765,20 @@ components:
           type:
           - "null"
           - string
-          default: null
         fylker:
           type: array
           items:
             type: string
-            default: null
-          default: null
         enheter:
           type: array
           items:
             type: string
-            default: null
-          default: null
         sanityId:
           type: string
-          default: null
         tiltaksnummer:
           type:
           - "null"
           - string
-          default: null
         arrangor:
           $ref: "#/components/schemas/VeilederflateArrangor"
       required:
@@ -1921,17 +1801,14 @@ components:
           type:
           - "null"
           - string
-          default: null
         organisasjonsnummer:
           type:
           - "null"
           - string
-          default: null
         kontaktpersoner:
           type: array
           items:
             $ref: "#/components/schemas/VeilederflateArrangorKontaktperson"
-          default: null
       required:
       - kontaktpersoner
       - organisasjonsnummer
@@ -1942,23 +1819,18 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         navn:
           type: string
-          default: null
         epost:
           type: string
-          default: null
         telefon:
           type:
           - "null"
           - string
-          default: null
         beskrivelse:
           type:
           - "null"
           - string
-          default: null
       required:
       - beskrivelse
       - epost
@@ -1972,12 +1844,10 @@ components:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         navn:
           type: string
-          default: null
         beskrivelse:
           type:
           - "null"
           - string
-          default: null
         faneinnhold:
           oneOf:
           - type: "null"
@@ -1990,46 +1860,35 @@ components:
           type:
           - "null"
           - string
-          default: null
         fylker:
           type: array
           items:
             type: string
-            default: null
-          default: null
         enheter:
           type: array
           items:
             type: string
-            default: null
-          default: null
         id:
           type: string
           format: uuid
-          default: null
         status:
           $ref: "#/components/schemas/VeilederflateTiltakGruppeStatus"
         tiltaksnummer:
           type:
           - "null"
           - string
-          default: null
         apentForPamelding:
           type: boolean
-          default: null
         lopenummer:
           type: string
-          default: null
         oppstartsdato:
           type: string
           format: date
-          default: null
         sluttdato:
           type:
           - "null"
           - string
           format: date
-          default: null
         arrangor:
           $ref: "#/components/schemas/VeilederflateArrangor"
         estimertVentetid:
@@ -2038,12 +1897,10 @@ components:
           - $ref: "#/components/schemas/EstimertVentetid"
         personvernBekreftet:
           type: boolean
-          default: null
         personopplysningerSomKanBehandles:
           type: array
           items:
             $ref: "#/components/schemas/Personopplysning"
-          default: null
       required:
       - apentForPamelding
       - arrangor
@@ -2072,7 +1929,6 @@ components:
           $ref: "#/components/schemas/GjennomforingStatusType"
         beskrivelse:
           type: string
-          default: null
       required:
       - beskrivelse
       - type
@@ -2089,10 +1945,8 @@ components:
         verdi:
           type: integer
           format: int32
-          default: null
         enhet:
           type: string
-          default: null
       required:
       - enhet
       - verdi
@@ -2103,16 +1957,13 @@ components:
           $ref: "#/components/schemas/Personopplysning.Type"
         title:
           type: string
-          default: null
         helpText:
           type:
           - "null"
           - string
-          default: null
         sortKey:
           type: integer
           format: int32
-          default: null
       required:
       - helpText
       - sortKey
@@ -2157,21 +2008,16 @@ components:
       properties:
         _id:
           type: string
-          default: null
         navn:
           type: string
-          default: null
         beskrivelse:
           type: string
-          default: null
         steg:
           type: array
           items:
             $ref: "#/components/schemas/OppskriftSteg"
-          default: null
         _updatedAt:
           type: string
-          default: null
       required:
       - _id
       - _updatedAt
@@ -2183,18 +2029,14 @@ components:
       properties:
         _type:
           type: string
-          default: null
         _key:
           type: string
-          default: null
         navn:
           type: string
-          default: null
         innhold:
           type: array
           items:
             $ref: "#/components/schemas/PortableTextTypedObject"
-          default: null
       required:
       - _key
       - _type
@@ -2207,7 +2049,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Oppskrift"
-          default: null
       required:
       - data
     Kontorstruktur:
@@ -2219,7 +2060,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Kontorstruktur.Kontor"
-          default: null
       required:
       - kontorer
       - region
@@ -2228,10 +2068,8 @@ components:
       properties:
         navn:
           type: string
-          default: null
         enhetsnummer:
           type: string
-          default: null
       required:
       - enhetsnummer
       - navn
@@ -2240,10 +2078,8 @@ components:
       properties:
         navn:
           type: string
-          default: null
         enhetsnummer:
           type: string
-          default: null
         type:
           $ref: "#/components/schemas/Kontorstruktur.Kontortype"
       required:

@@ -222,7 +222,6 @@ paths:
                 type: array
                 items:
                   type: string
-                  default: null
         default:
           description: Problem details
           headers: {}
@@ -730,15 +729,12 @@ components:
         totalCount:
           type: integer
           format: int32
-          default: null
         pageSize:
           type: integer
           format: int32
-          default: null
         totalPages:
           type: integer
           format: int32
-          default: null
       required:
       - pageSize
       - totalCount
@@ -749,38 +745,29 @@ components:
         gjennomforingId:
           type: string
           format: uuid
-          default: null
         utbetalingId:
           type:
           - "null"
           - string
           format: uuid
-          default: null
         arrangorNavn:
           type: string
-          default: null
         organisasjonsnummer:
           type: string
-          default: null
         tiltakstypeNavn:
           type: string
-          default: null
         tiltakNavn:
           type: string
-          default: null
         lopenummer:
           type: string
-          default: null
         startDato:
           type: string
           format: date
-          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
-          default: null
         belop:
           oneOf:
           - type: "null"
@@ -789,7 +776,6 @@ components:
           type:
           - "null"
           - string
-          default: null
         status:
           oneOf:
           - type: "null"
@@ -813,7 +799,6 @@ components:
         belop:
           type: integer
           format: int32
-          default: null
         valuta:
           $ref: "#/components/schemas/Valuta"
       required:
@@ -843,7 +828,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorInnsendingRadDto"
-          default: null
       required:
       - data
       - pagination
@@ -873,11 +857,9 @@ components:
           $ref: "#/components/schemas/OpprettKravVeiviserSteg"
         navn:
           type: string
-          default: null
         order:
           type: integer
           format: int32
-          default: null
       required:
       - navn
       - order
@@ -901,12 +883,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/LabeledDataElement"
-          default: null
         tilsagn:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateTilsagnDto"
-          default: null
         datoVelger:
           $ref: "#/components/schemas/DatoVelger"
       required:
@@ -927,7 +907,6 @@ components:
           $ref: "#/components/schemas/LabeledDataElementType"
         label:
           type: string
-          default: null
         value:
           oneOf:
           - type: "null"
@@ -965,13 +944,10 @@ components:
       properties:
         text:
           type: string
-          default: null
         href:
           type: string
-          default: null
         digest:
           type: string
-          default: null
       required:
       - digest
       - href
@@ -998,10 +974,8 @@ components:
           type:
           - "null"
           - string
-          default: null
         currency:
           type: string
-          default: null
       required:
       - currency
       - value
@@ -1010,7 +984,6 @@ components:
       properties:
         buttonText:
           type: string
-          default: null
         modalContent:
           $ref: "#/components/schemas/DataElement.MultiLinkModal.ModalContent"
       required:
@@ -1021,15 +994,12 @@ components:
       properties:
         header:
           type: string
-          default: null
         description:
           type: string
-          default: null
         links:
           type: array
           items:
             $ref: "#/components/schemas/DATA_ELEMENT_LINK"
-          default: null
       required:
       - description
       - header
@@ -1039,10 +1009,8 @@ components:
       properties:
         start:
           type: string
-          default: null
         slutt:
           type: string
-          default: null
       required:
       - slutt
       - start
@@ -1051,14 +1019,12 @@ components:
       properties:
         value:
           type: string
-          default: null
         variant:
           $ref: "#/components/schemas/DataElement.Status.Variant"
         description:
           type:
           - "null"
           - string
-          default: null
       required:
       - description
       - value
@@ -1083,7 +1049,6 @@ components:
           type:
           - "null"
           - string
-          default: null
         format:
           oneOf:
           - type: "null"
@@ -1102,7 +1067,6 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         tiltakstype:
           $ref: "#/components/schemas/ArrangorflateTiltakstypeDto"
         gjennomforing:
@@ -1123,17 +1087,14 @@ components:
           $ref: "#/components/schemas/DataDetails"
         bestillingsnummer:
           type: string
-          default: null
         beskrivelse:
           type:
           - "null"
           - string
-          default: null
         deltakere:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateTilsagnDto.DeltakerPersonalia"
-          default: null
       required:
       - arrangor
       - beregning
@@ -1153,7 +1114,6 @@ components:
       properties:
         navn:
           type: string
-          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
       required:
@@ -1197,13 +1157,10 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         navn:
           type: string
-          default: null
         lopenummer:
           type: string
-          default: null
       required:
       - id
       - lopenummer
@@ -1214,13 +1171,10 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         organisasjonsnummer:
           type: string
-          default: null
         navn:
           type: string
-          default: null
       required:
       - id
       - navn
@@ -1237,11 +1191,9 @@ components:
         start:
           type: string
           format: date
-          default: null
         slutt:
           type: string
           format: date
-          default: null
       required:
       - slutt
       - start
@@ -1262,12 +1214,10 @@ components:
           type:
           - "null"
           - string
-          default: null
         entries:
           type: array
           items:
             $ref: "#/components/schemas/LabeledDataElement"
-          default: null
       required:
       - entries
       - header
@@ -1277,15 +1227,12 @@ components:
         deltakerId:
           type: string
           format: uuid
-          default: null
         norskIdent:
           type:
           - "null"
           - string
-          default: null
         navn:
           type: string
-          default: null
       required:
       - deltakerId
       - navn
@@ -1305,7 +1252,6 @@ components:
         maksSluttdato:
           type: string
           format: date
-          default: null
       required:
       - maksSluttdato
     DatoVelgerSelect:
@@ -1315,7 +1261,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Periode"
-          default: null
       required:
       - periodeForslag
     OpprettKravUtbetalingSteg:
@@ -1325,7 +1270,6 @@ components:
           type:
           - "null"
           - string
-          default: null
         valuta:
           $ref: "#/components/schemas/Valuta"
       required:
@@ -1341,7 +1285,6 @@ components:
         minAntallVedlegg:
           type: integer
           format: int32
-          default: null
       required:
       - guidePanel
       - minAntallVedlegg
@@ -1358,7 +1301,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/OpprettKravVeiviserStegDto"
-          default: null
         innsendingSteg:
           $ref: "#/components/schemas/OpprettKravInnsendingSteg"
         utbetalingSteg:
@@ -1382,7 +1324,6 @@ components:
           $ref: "#/components/schemas/Periode"
         beskrivelse:
           type: string
-          default: null
       required:
       - beskrivelse
       - periode
@@ -1393,12 +1334,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DataDrivenTableDto.Column"
-          default: null
         rows:
           type: array
           items:
             $ref: "#/components/schemas/DataDrivenTableDto.Row"
-          default: null
       required:
       - columns
       - rows
@@ -1407,15 +1346,12 @@ components:
       properties:
         key:
           type: string
-          default: null
         label:
           type:
           - "null"
           - string
-          default: null
         sortable:
           type: boolean
-          default: null
         align:
           $ref: "#/components/schemas/DataDrivenTableDto.Column.Align"
       required:
@@ -1436,7 +1372,6 @@ components:
           type: object
           additionalProperties:
             $ref: "#/components/schemas/DataElement"
-          default: null
         content:
           oneOf:
           - type: "null"
@@ -1450,16 +1385,13 @@ components:
         startDate:
           type: string
           format: date
-          default: null
         endDate:
           type: string
           format: date
-          default: null
         rows:
           type: array
           items:
             $ref: "#/components/schemas/TimelineDto.Row"
-          default: null
       required:
       - endDate
       - rows
@@ -1471,10 +1403,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TimelineDto.Row.Period"
-          default: null
         label:
           type: string
-          default: null
       required:
       - label
       - periods
@@ -1483,23 +1413,18 @@ components:
       properties:
         key:
           type: string
-          default: null
         start:
           type: string
           format: date
-          default: null
         end:
           type: string
           format: date
-          default: null
         status:
           $ref: "#/components/schemas/TimelineDto.Row.Period.Variant"
         content:
           type: string
-          default: null
         hover:
           type: string
-          default: null
       required:
       - content
       - end
@@ -1525,14 +1450,12 @@ components:
           items:
             $ref: "#/components/schemas/StengtPeriode"
           uniqueItems: true
-          default: null
         tabell:
           $ref: "#/components/schemas/DataDrivenTableDto"
         tabellFooter:
           type: array
           items:
             $ref: "#/components/schemas/DataDetails"
-          default: null
       required:
       - guidePanel
       - stengtHosArrangor
@@ -1548,28 +1471,22 @@ components:
       properties:
         periodeStart:
           type: string
-          default: null
         periodeSlutt:
           type: string
-          default: null
         periodeType:
           $ref: "#/components/schemas/PeriodeType"
         kidNummer:
           type:
           - "null"
           - string
-          default: null
         belop:
           type: integer
           format: int32
-          default: null
         vedlegg:
           type: array
           items:
             type: string
             format: binary
-            default: null
-          default: null
       required:
       - belop
       - kidNummer
@@ -1583,7 +1500,6 @@ components:
         id:
           type: string
           format: uuid
-          default: null
       required:
       - id
     ArrangorflateTilsagnFilter.OrderBy:
@@ -1601,27 +1517,20 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         organisasjonsnummer:
           type: string
-          default: null
         tiltakTypeNavn:
           type: string
-          default: null
         tiltakNavn:
           type: string
-          default: null
         arrangorNavn:
           type: string
-          default: null
         periode:
           $ref: "#/components/schemas/Periode"
         tilsagnType:
           type: string
-          default: null
         bestillingsnummer:
           type: string
-          default: null
         status:
           $ref: "#/components/schemas/TilsagnStatus"
       required:
@@ -1643,7 +1552,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateTilsagnRadDto"
-          default: null
       required:
       - data
       - pagination
@@ -1660,12 +1568,10 @@ components:
       properties:
         kontonummer:
           type: string
-          default: null
         kid:
           type:
           - "null"
           - string
-          default: null
       required:
       - kid
       - kontonummer
@@ -1674,14 +1580,12 @@ components:
       properties:
         displayName:
           type: string
-          default: null
         pris:
           $ref: "#/components/schemas/ValutaBelop"
         stengt:
           type: array
           items:
             $ref: "#/components/schemas/StengtPeriode"
-          default: null
         deltakelser:
           oneOf:
           - type: "null"
@@ -1690,7 +1594,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DataDetails"
-          default: null
       required:
       - deltakelser
       - displayName
@@ -1702,17 +1605,14 @@ components:
       properties:
         displayName:
           type: string
-          default: null
         displayNameLong:
           type:
           - "null"
           - string
-          default: null
         tagName:
           type:
           - "null"
           - string
-          default: null
       required:
       - displayName
       - displayNameLong
@@ -1723,7 +1623,6 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         tilsagn:
           $ref: "#/components/schemas/ArrangorflateTilsagnSummary"
         status:
@@ -1733,7 +1632,6 @@ components:
           - "null"
           - string
           format: date-time
-          default: null
         pris:
           $ref: "#/components/schemas/ValutaBelop"
       required:
@@ -1748,10 +1646,8 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         bestillingsnummer:
           type: string
-          default: null
       required:
       - bestillingsnummer
       - id
@@ -1769,10 +1665,8 @@ components:
         deltakerId:
           type: string
           format: uuid
-          default: null
         beskrivelse:
           type: string
-          default: null
         type:
           $ref: "#/components/schemas/DeltakerAdvarselType"
       required:
@@ -1796,7 +1690,6 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         status:
           $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
         innsendtAvArrangorDato:
@@ -1804,24 +1697,19 @@ components:
           - "null"
           - string
           format: date
-          default: null
         utbetalesTidligstDato:
           type:
           - "null"
           - string
           format: date
-          default: null
         kanViseBeregning:
           type: boolean
-          default: null
         createdAt:
           type: string
           format: date-time
-          default: null
         updatedAt:
           type: string
           format: date-time
-          default: null
         tiltakstype:
           $ref: "#/components/schemas/ArrangorflateTiltakstypeDto"
         gjennomforing:
@@ -1844,17 +1732,14 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/LabeledDataElement"
-          default: null
         linjer:
           type: array
           items:
             $ref: "#/components/schemas/ArrangforflateUtbetalingLinje"
-          default: null
         advarsler:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerAdvarselDto"
-          default: null
         kanAvbrytes:
           $ref: "#/components/schemas/ArrangorAvbrytStatus"
         avbruttDato:
@@ -1862,16 +1747,13 @@ components:
           - "null"
           - string
           format: date
-          default: null
         kanRegenereres:
           type: boolean
-          default: null
         regenerertId:
           type:
           - "null"
           - string
           format: uuid
-          default: null
       required:
       - advarsler
       - arrangor
@@ -1900,12 +1782,10 @@ components:
       properties:
         updatedAt:
           type: string
-          default: null
         kid:
           type:
           - "null"
           - string
-          default: null
       required:
       - kid
       - updatedAt
@@ -1914,10 +1794,8 @@ components:
       properties:
         pointer:
           type: string
-          default: null
         detail:
           type: string
-          default: null
       required:
       - detail
       - pointer
@@ -1929,32 +1807,25 @@ components:
       properties:
         detail:
           type: string
-          default: null
         errors:
           type: array
           items:
             $ref: "#/components/schemas/FieldError"
-          default: null
         type:
           type: string
-          default: null
         title:
           type: string
-          default: null
         status:
           type: integer
           format: int32
-          default: null
         extensions:
           type: object
           additionalProperties:
             $ref: "#/components/schemas/JsonElement"
-          default: null
         instance:
           type:
           - "null"
           - string
-          default: null
       required:
       - detail
       - errors
@@ -1969,22 +1840,18 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         mottattDato:
           type: string
           format: date
-          default: null
         utbetalesTidligstDato:
           type:
           - "null"
           - string
           format: date
-          default: null
         kontonummer:
           type:
           - "null"
           - string
-          default: null
       required:
       - id
       - kontonummer
@@ -1997,7 +1864,6 @@ components:
           type:
           - "null"
           - string
-          default: null
       required:
       - begrunnelse
     KontonummerResponse:
@@ -2005,7 +1871,6 @@ components:
       properties:
         kontonummer:
           type: string
-          default: null
       required:
       - kontonummer
     FeatureToggle:
