@@ -41,7 +41,7 @@ class KafkaConsumerOrchestrator(
         /**
          * The number of records to process per batch by the consumer record processor.
          */
-        val consumerRecordProcessorBatchSize: Int = 100,
+        val consumerRecordProcessorBatchSize: Int = 10_000,
 
         /**
          * How long the consumer record processor should wait before checking for new stored records.
