@@ -142,15 +142,12 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         opprettetTidspunkt:
           type: string
           format: date-time
-          default: null
         oppdatertTidspunkt:
           type: string
           format: date-time
-          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
         arrangor:
@@ -201,7 +198,6 @@ components:
       properties:
         organisasjonsnummer:
           type: string
-          default: null
       required:
       - organisasjonsnummer
     GjennomforingStatusType:
@@ -217,15 +213,12 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         opprettetTidspunkt:
           type: string
           format: date-time
-          default: null
         oppdatertTidspunkt:
           type: string
           format: date-time
-          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
         arrangor:
@@ -234,17 +227,14 @@ components:
           $ref: "#/components/schemas/GjennomforingStatusType"
         navn:
           type: string
-          default: null
         startDato:
           type: string
           format: date
-          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
-          default: null
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
         pameldingType:
@@ -254,23 +244,18 @@ components:
           - "null"
           - string
           format: date
-          default: null
         apentForPamelding:
           type: boolean
-          default: null
         antallPlasser:
           type: integer
           format: int32
-          default: null
         deltidsprosent:
           type: number
           format: double
-          default: null
         oppmoteSted:
           type:
           - "null"
           - string
-          default: null
       required:
       - antallPlasser
       - apentForPamelding
@@ -314,7 +299,6 @@ components:
         id:
           type: string
           format: uuid
-          default: null
       required:
       - id
     TiltaksgjennomforingArenaDataDto:
@@ -323,11 +307,9 @@ components:
         opprettetAar:
           type: integer
           format: int32
-          default: null
         lopenr:
           type: integer
           format: int32
-          default: null
       required:
       - lopenr
       - opprettetAar
@@ -336,16 +318,12 @@ components:
       properties:
         organisasjonsnummer:
           type: string
-          default: null
         organisasjonsform:
           type: string
-          default: null
         navn:
           type: string
-          default: null
         overordnetEnhet:
           type: string
-          default: null
       required:
       - navn
       - organisasjonsform
