@@ -1,9 +1,7 @@
 import { Heading, HelpText, HStack, Label, VStack } from "@navikt/ds-react";
-import {
-  GjennomforingKontaktpersonDto,
-  GjennomforingRequest,
-} from "@tiltaksadministrasjon/api-client";
+import { GjennomforingKontaktpersonDto } from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
+import { GjennomforingFormValues } from "@/pages/gjennomforing/gjennomforingFormUtils";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
@@ -152,7 +150,7 @@ function SokEtterKontaktperson({
 }) {
   const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
   const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery, id);
-  const { watch } = useFormContext<GjennomforingRequest>();
+  const { watch } = useFormContext<GjennomforingFormValues>();
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner").map((k) => k.navIdent);
@@ -195,7 +193,7 @@ function SokEtterKontaktperson({
         onInputChange={setKontaktpersonerQuery}
         options={kontaktpersonerOption(index)}
       />
-      <FormTextField<GjennomforingRequest>
+      <FormTextField<GjennomforingFormValues>
         name={`kontaktpersoner.${index}.beskrivelse`}
         label={gjennomforingTekster.kontaktpersonNav.beskrivelseLabel}
         placeholder="Unngå personopplysninger"

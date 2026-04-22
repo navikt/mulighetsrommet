@@ -19,7 +19,8 @@ import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
-import { RedigerGjennomforingFormPage } from "./pages/gjennomforing/RedigerGjennomforingFormPage";
+import { RedigerGjennomforingDetaljerPage } from "./pages/gjennomforing/RedigerGjennomforingDetaljerPage";
+import { RedigerGjennomforingVeilederinformasjonPage } from "./pages/gjennomforing/RedigerGjennomforingVeilederinformasjonPage";
 import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
@@ -40,7 +41,7 @@ import { OpprettAvtaleFormPage } from "./pages/avtaler/OpprettAvtaleFormPage";
 import { RedigerAvtaleDetaljerPage } from "./pages/avtaler/RedigerAvtaleDetaljerPage";
 import { RedigerAvtalePersonvernPage } from "./pages/avtaler/RedigerAvtalePersonvernPage";
 import { RedigerAvtaleVeilederinformasjonPage } from "./pages/avtaler/RedigerAvtaleVeilederinformasjonPage";
-import { OpprettGjennomforingFormPage } from "./pages/gjennomforing/OpprettGjennomforingFormPage";
+import { OpprettGjennomforingPage } from "./pages/gjennomforing/OpprettGjennomforingPage";
 import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
 import { GjennomforingDetaljer } from "./pages/gjennomforing/GjennomforingDetaljer";
 import { GjennomforingRedaksjoneltInnhold } from "./pages/gjennomforing/GjennomforingRedaksjoneltInnhold";
@@ -227,8 +228,8 @@ const routes: RouteObject[] = [
         element: <RedigerAvtaleVeilederinformasjonPage />,
       }),
       route({
-        path: "avtaler/:avtaleId/gjennomforinger/skjema",
-        element: <OpprettGjennomforingFormPage />,
+        path: "avtaler/:avtaleId/opprett-gjennomforing",
+        element: <OpprettGjennomforingPage />,
       }),
       route({ path: "gjennomforinger/", element: <GjennomforingerPage /> }),
       route({
@@ -255,12 +256,12 @@ const routes: RouteObject[] = [
       }),
 
       route({
-        path: "gjennomforinger/:gjennomforingId/skjema",
-        element: <RedigerGjennomforingFormPage />,
+        path: "gjennomforinger/:gjennomforingId/rediger",
+        element: <RedigerGjennomforingDetaljerPage />,
       }),
       route({
-        path: "gjennomforinger/:gjennomforingId/redaksjonelt-innhold/skjema",
-        element: <RedigerGjennomforingFormPage />,
+        path: "gjennomforinger/:gjennomforingId/redaksjonelt-innhold/rediger",
+        element: <RedigerGjennomforingVeilederinformasjonPage />,
       }),
       route({
         path: "gjennomforinger/:gjennomforingId/utbetalinger",

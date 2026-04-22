@@ -129,7 +129,7 @@ export function AvtaleHandlinger({ avtale }: Props) {
         {handlinger.includes(AvtaleHandling.OPPRETT_GJENNOMFORING) && (
           <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
             <ActionMenu.Item
-              onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}
+              onClick={() => navigate(`/avtaler/${avtale.id}/opprett-gjennomforing`)}
             >
               Opprett ny gjennomføring
             </ActionMenu.Item>

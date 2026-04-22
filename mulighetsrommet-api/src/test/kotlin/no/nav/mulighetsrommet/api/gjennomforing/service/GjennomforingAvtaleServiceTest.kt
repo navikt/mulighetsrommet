@@ -27,11 +27,13 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -78,7 +80,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             val service = createService()
 
-            service.upsert(gjennomforing, bertilNavIdent, today = LocalDate.of(2023, 1, 2))
+            service.create(gjennomforing, bertilNavIdent, today = LocalDate.of(2023, 1, 2))
                 .shouldBeLeft().shouldContainAll(
                     listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avsluttet")),
                 )
@@ -91,7 +93,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
         val request = GjennomforingFixtures.createGjennomforingRequest(AvtaleFixtures.oppfolging)
 
         test("oppretting av gjennomføring blir lagret som et utgående kafka-record") {
-            service.upsert(request, bertilNavIdent).shouldBeRight()
+            service.create(request, bertilNavIdent).shouldBeRight()
 
             database.run {
                 shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
@@ -104,9 +106,9 @@ class GjennomforingAvtaleServiceTest : FunSpec({
         }
 
         test("navn på tiltak og arrangør blir tilgjengelig via fritekstsøk") {
-            val gjennomforing = request.copy(navn = "Veldig rart navn")
+            val gjennomforing = request.copy(detaljer = request.detaljer.copy(navn = "Veldig rart navn"))
 
-            service.upsert(gjennomforing, bertilNavIdent).shouldBeRight()
+            service.create(gjennomforing, bertilNavIdent).shouldBeRight()
 
             database.db.session {
                 queries.gjennomforing.getAll(search = "merkelig").items.shouldBeEmpty()
@@ -117,7 +119,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
         }
 
         test("løpenummer og tiltaksnummer fra Arena blir tilgjengelig via fritekstsøk") {
-            val gjennomforing = service.upsert(request, bertilNavIdent).shouldBeRight()
+            val gjennomforing = service.create(request, bertilNavIdent).shouldBeRight()
 
             database.db.session {
                 queries.gjennomforing.getAll(
@@ -156,7 +158,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                     navKontorer = setOf(Gjovik.enhetsnummer, Sagene.enhetsnummer),
                 ),
             )
-            createService().upsert(gjennomforing, bertilNavIdent).shouldBeRight().should {
+            createService().create(gjennomforing, bertilNavIdent).shouldBeRight().should {
                 it.kontorstruktur.shouldHaveSize(1)
                 it.kontorstruktur[0].kontorer.shouldHaveSize(1)
                 it.kontorstruktur[0].kontorer[0].enhetsnummer shouldBe Gjovik.enhetsnummer
@@ -164,39 +166,122 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             }
         }
 
-        test("lagrer ikke duplikater som utgående kafka-records") {
-            service.upsert(request, bertilNavIdent)
-            service.upsert(request, bertilNavIdent)
-
-            database.run {
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1)
-            }
-        }
-
         test("Ingen administrator-notification hvis administratorer er samme som opprettet") {
             val navIdent = NavAnsattFixture.DonaldDuck.navIdent
 
-            val gjennomforing = request.copy(
-                administratorer = setOf(navIdent),
-            )
-            service.upsert(gjennomforing, navIdent).shouldBeRight()
+            val gjennomforing = request.copy(detaljer = request.detaljer.copy(administratorer = setOf(navIdent)))
+            service.create(gjennomforing, navIdent).shouldBeRight()
 
             database.assertTable("user_notification").isEmpty
         }
+    }
 
-        test("Bare nye administratorer får notifikasjon når man endrer gjennomføring") {
+    context("oppdatere detaljer for gjennomføring") {
+        val service = createService()
+
+        val createRequest = GjennomforingFixtures.createGjennomforingRequest(AvtaleFixtures.oppfolging)
+
+        test("oppdaterer navn og publiserer til kafka") {
+            service.create(createRequest, bertilNavIdent).shouldBeRight()
+
+            val detaljerRequest = createRequest.detaljer.copy(navn = "Oppdatert navn")
+
+            val updated = service.updateDetaljer(createRequest.id, detaljerRequest, bertilNavIdent).shouldBeRight()
+            updated.navn shouldBe "Oppdatert navn"
+
+            database.run {
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 2)
+            }
+        }
+
+        test("gir feil hvis gjennomføringen ikke finnes") {
+            service.updateDetaljer(createRequest.id, createRequest.detaljer.copy(navn = "Test"), bertilNavIdent)
+                .shouldBeLeft().shouldContainAll(
+                    listOf(FieldError.root("Gjennomføringen finnes ikke")),
+                )
+        }
+
+        test("Bare nye administratorer får notifikasjon ved oppdatering") {
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
-            val gjennomforing = request.copy(
-                administratorer = setOf(identAnsatt2, identAnsatt1),
-            )
-            service.upsert(gjennomforing, identAnsatt1).shouldBeRight()
+            service.create(
+                createRequest.copy(detaljer = createRequest.detaljer.copy(administratorer = setOf(identAnsatt1))),
+                identAnsatt1,
+            ).shouldBeRight()
+
+            val detaljerRequest = createRequest.detaljer.copy(administratorer = setOf(identAnsatt1, identAnsatt2))
+
+            service.updateDetaljer(createRequest.id, detaljerRequest, identAnsatt1).shouldBeRight()
 
             database.assertTable("user_notification")
                 .hasNumberOfRows(1)
                 .column("user_id")
                 .containsValues(identAnsatt2.value)
+        }
+    }
+
+    context("oppdatere veilederinformasjon for gjennomføring") {
+        val service = createService()
+
+        val createRequest = GjennomforingFixtures.createGjennomforingRequest(
+            AvtaleFixtures.oppfolging,
+            navRegioner = setOf(Innlandet.enhetsnummer),
+            navKontorer = setOf(Gjovik.enhetsnummer),
+        )
+
+        test("oppdaterer navEnheter og beskrivelse og publiserer til kafka") {
+            service.create(createRequest, bertilNavIdent).shouldBeRight()
+
+            val veilederinfoRequest = GjennomforingVeilederinfoRequest(
+                navRegioner = setOf(Innlandet.enhetsnummer),
+                navKontorer = setOf(Gjovik.enhetsnummer),
+                navAndreEnheter = setOf(),
+                beskrivelse = "Ny beskrivelse",
+                faneinnhold = null,
+            )
+
+            service.updateVeilederinfo(createRequest.id, veilederinfoRequest, bertilNavIdent).shouldBeRight()
+
+            database.db.session {
+                val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(createRequest.id)
+                detaljer.beskrivelse shouldBe "Ny beskrivelse"
+                detaljer.kontorstruktur.shouldHaveSize(1)
+            }
+
+            database.run {
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 2)
+            }
+        }
+
+        test("gir valideringsfeil hvis navEnhet ikke tilhører avtalen") {
+            service.create(createRequest, bertilNavIdent).shouldBeRight()
+
+            val veilederinfoRequest = GjennomforingVeilederinfoRequest(
+                navRegioner = setOf(NavEnhetNummer("0000")),
+                navKontorer = setOf(),
+                navAndreEnheter = setOf(),
+                beskrivelse = null,
+                faneinnhold = null,
+            )
+
+            service.updateVeilederinfo(createRequest.id, veilederinfoRequest, bertilNavIdent)
+                .shouldBeLeft()
+        }
+
+        test("gir feil hvis gjennomføringen ikke finnes") {
+            val veilederinfoRequest = GjennomforingVeilederinfoRequest(
+                navRegioner = setOf(Innlandet.enhetsnummer),
+                navKontorer = setOf(),
+                navAndreEnheter = setOf(),
+                beskrivelse = null,
+                faneinnhold = null,
+            )
+
+            service.updateVeilederinfo(createRequest.id, veilederinfoRequest, bertilNavIdent)
+                .shouldBeLeft().shouldContainAll(
+                    listOf(FieldError.root("Gjennomføringen finnes ikke")),
+                )
         }
     }
 

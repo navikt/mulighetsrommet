@@ -7,7 +7,6 @@ import {
   GjennomforingAvtaleDto,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
-  GjennomforingRequest,
   GjennomforingVeilederinfoDto,
   TiltakstypeDto,
   Rolle,
@@ -26,6 +25,7 @@ import {
 } from "@navikt/ds-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
+import { GjennomforingFormValues } from "@/pages/gjennomforing/gjennomforingFormUtils";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModal";
 import { administratorOptions } from "@/components/skjema/administratorOptions";
@@ -64,7 +64,7 @@ export function GjennomforingFormDetaljer(props: Props) {
     getValues,
     setValue,
     watch,
-  } = useFormContext<GjennomforingRequest>();
+  } = useFormContext<GjennomforingFormValues>();
 
   const watchStartDato = watch("startDato");
 
@@ -124,9 +124,6 @@ export function GjennomforingFormDetaljer(props: Props) {
               label={gjennomforingTekster.avtaleMedTiltakstype(avtale.tiltakstype.navn)}
               value={avtale.navn || ""}
             />
-            {errors.avtaleId?.message ? (
-              <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
-            ) : null}
             <GjennomforingAmoKategoriseringForm avtale={avtale} />
             <GjennomforingUtdanningslopForm avtale={avtale} />
           </FormGroup>
@@ -357,7 +354,7 @@ export function EstimertVentetidForm(props: EstimertVentetidFormProps) {
     formState: { errors },
     setValue,
     watch,
-  } = useFormContext<GjennomforingRequest>();
+  } = useFormContext<GjennomforingFormValues>();
 
   useEffect(() => {
     const resetEstimertVentetid = () => {

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
@@ -19,28 +20,30 @@ object GjennomforingRequestMapper {
         id = gjennomforing.id,
         tiltakstypeId = gjennomforing.tiltakstype.id,
         avtaleId = gjennomforing.avtaleId,
-        navn = gjennomforing.navn,
-        startDato = gjennomforing.startDato,
-        sluttDato = gjennomforing.sluttDato,
-        antallPlasser = gjennomforing.antallPlasser,
-        arrangorId = gjennomforing.arrangor.id,
-        arrangorKontaktpersoner = detaljer.arrangorKontaktpersoner.map { it.id }.toSet(),
+        detaljer = GjennomforingDetaljerRequest(
+            navn = gjennomforing.navn,
+            startDato = gjennomforing.startDato,
+            sluttDato = gjennomforing.sluttDato,
+            antallPlasser = gjennomforing.antallPlasser,
+            arrangorId = gjennomforing.arrangor.id,
+            arrangorKontaktpersoner = detaljer.arrangorKontaktpersoner.map { it.id }.toSet(),
+            kontaktpersoner = detaljer.kontaktpersoner.map { it.toGjennomforingRequestKontaktperson() }.toSet(),
+            administratorer = detaljer.administratorer.map { it.navIdent }.toSet(),
+            oppstart = gjennomforing.oppstart,
+            oppmoteSted = detaljer.oppmoteSted,
+            deltidsprosent = gjennomforing.deltidsprosent,
+            estimertVentetid = detaljer.estimertVentetid?.toEstimertVentetid(),
+            tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
+            amoKategorisering = detaljer.amoKategorisering?.toAmoKategorieringRequest(),
+            utdanningslop = detaljer.utdanningslop?.toUtdanningslopDbo(),
+            prismodellId = gjennomforing.prismodell.id,
+            pameldingType = gjennomforing.pameldingType,
+        ),
         veilederinformasjon = detaljer.toGjennomforingVeilederinfoRequest(),
-        kontaktpersoner = detaljer.kontaktpersoner.map { it.toGjennomforingRequestKontaktperson() }.toSet(),
-        administratorer = detaljer.administratorer.map { it.navIdent }.toSet(),
-        oppstart = gjennomforing.oppstart,
-        oppmoteSted = detaljer.oppmoteSted,
-        deltidsprosent = gjennomforing.deltidsprosent,
-        estimertVentetid = detaljer.estimertVentetid?.toEstimertVentetid(),
-        tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
-        amoKategorisering = detaljer.amoKategorisering?.toAmoKategorieringRequest(),
-        utdanningslop = detaljer.utdanningslop?.toUtdanningslopDbo(),
-        prismodellId = gjennomforing.prismodell.id,
-        pameldingType = gjennomforing.pameldingType,
     )
 
-    private fun GjennomforingAvtaleDetaljer.EstimertVentetid.toEstimertVentetid(): GjennomforingRequest.EstimertVentetid {
-        return GjennomforingRequest.EstimertVentetid(verdi, enhet)
+    private fun GjennomforingAvtaleDetaljer.EstimertVentetid.toEstimertVentetid(): GjennomforingDetaljerRequest.EstimertVentetid {
+        return GjennomforingDetaljerRequest.EstimertVentetid(verdi, enhet)
     }
 
     private fun GjennomforingAvtaleDetaljer.toGjennomforingVeilederinfoRequest(): GjennomforingVeilederinfoRequest {
@@ -57,8 +60,8 @@ object GjennomforingRequestMapper {
         )
     }
 
-    private fun GjennomforingAvtaleDetaljer.GjennomforingKontaktperson.toGjennomforingRequestKontaktperson(): GjennomforingRequest.Kontaktperson {
-        return GjennomforingRequest.Kontaktperson(navIdent, beskrivelse)
+    private fun GjennomforingAvtaleDetaljer.GjennomforingKontaktperson.toGjennomforingRequestKontaktperson(): GjennomforingDetaljerRequest.Kontaktperson {
+        return GjennomforingDetaljerRequest.Kontaktperson(navIdent, beskrivelse)
     }
 
     private fun AmoKategorisering.toAmoKategorieringRequest(): AmoKategoriseringRequest? {
