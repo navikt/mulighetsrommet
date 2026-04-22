@@ -45,6 +45,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -65,6 +66,8 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
@@ -101,10 +104,11 @@ fun Route.gjennomforingRoutes() {
             }) {
                 val request = call.receive<GjennomforingRequest>()
                 val navIdent = getNavIdent()
+                val accessType = call.getAccessType().requireAzureAd()
 
                 val result = avtaleGjennomforinger.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
-                    .flatMap { gjennomforinger.getOrInternalServerError(it.id) }
+                    .flatMap { gjennomforinger.getOrInternalServerError(it.id, accessType) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -264,13 +268,14 @@ fun Route.gjennomforingRoutes() {
                 val id: UUID by call.pathParameters
                 val navIdent = getNavIdent()
                 val request = call.receive<SetStengtHosArrangorRequest>()
+                val accessType = call.getAccessType().requireAzureAd()
 
                 val result = request.validate()
                     .flatMap { (periode, beskrivelse) ->
                         avtaleGjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
-                    .flatMap { gjennomforinger.getOrInternalServerError(it.id) }
+                    .flatMap { gjennomforinger.getOrInternalServerError(it.id, accessType) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -471,8 +476,9 @@ fun Route.gjennomforingRoutes() {
             }
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
+            val accessType = call.getAccessType().requireAzureAd()
 
-            gjennomforinger.getGjennomforingDetaljerDto(id)
+            gjennomforinger.getGjennomforingDetaljerDto(id, accessType)
                 ?.let { call.respond(it) }
                 ?: call.respondUkjentGjennomforing(id)
         }
@@ -496,7 +502,8 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            gjennomforinger.getGjennomforingDetaljerDto(id)
+            val accessType = call.getAccessType().requireAzureAd()
+            gjennomforinger.getGjennomforingDetaljerDto(id, accessType)
                 ?.let { detaljer ->
                     val tiltaksnummer = when (detaljer.gjennomforing) {
                         is GjennomforingAvtaleDto -> detaljer.gjennomforing.tiltaksnummer
@@ -595,8 +602,8 @@ fun Route.gjennomforingRoutes() {
     }
 }
 
-private fun GjennomforingDetaljerService.getOrInternalServerError(id: UUID): Either<InternalServerError, GjennomforingDetaljerDto> {
-    return getGjennomforingDetaljerDto(id)?.right()
+private suspend fun GjennomforingDetaljerService.getOrInternalServerError(id: UUID, accessType: AccessType.OBO.AzureAd): Either<InternalServerError, GjennomforingDetaljerDto> {
+    return getGjennomforingDetaljerDto(id, accessType)?.right()
         ?: InternalServerError("Klarte ikke hente detaljer om gjennomforing=$id").left()
 }
 
