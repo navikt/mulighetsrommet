@@ -6,6 +6,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -16,11 +17,13 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFil
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.time.LocalDate
 import java.util.UUID
@@ -60,12 +63,15 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         domain.initialize(database.db)
     }
 
+    val personaliaService = mockk<PersonaliaService>()
+
     fun createService(): GjennomforingDetaljerService {
         val tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(), database.db)
         return GjennomforingDetaljerService(
             db = database.db,
             tiltakstypeService = tiltakstypeService,
             navAnsattService = mockk(),
+            personaliaService = personaliaService,
         )
     }
 
@@ -73,7 +79,10 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         test("returnerer detaljer for en gruppetiltak-gjennomføring (AVTALE)") {
             val service = createService()
 
-            val dto = service.getGjennomforingDetaljerDto(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
+            val dto = service.getGjennomforingDetaljerDto(
+                GjennomforingFixtures.Oppfolging1.id,
+                AccessType.OBO.AzureAd("X123456"),
+            ).shouldNotBeNull()
 
             val gjennomforing = dto.gjennomforing.shouldBeTypeOf<GjennomforingAvtaleDto>()
             gjennomforing.id shouldBe GjennomforingFixtures.Oppfolging1.id
@@ -81,9 +90,13 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         }
 
         test("returnerer detaljer for en enkeltplass-gjennomføring") {
+            coEvery { personaliaService.getPersonalia(any(), any()) } returns emptyMap()
             val service = createService()
 
-            val dto = service.getGjennomforingDetaljerDto(GjennomforingFixtures.EnkelAmo.id).shouldNotBeNull()
+            val dto = service.getGjennomforingDetaljerDto(
+                GjennomforingFixtures.EnkelAmo.id,
+                AccessType.OBO.AzureAd("X123456"),
+            ).shouldNotBeNull()
 
             dto.gjennomforing.shouldBeTypeOf<GjennomforingEnkeltplassDto>().id shouldBe GjennomforingFixtures.EnkelAmo.id
         }
@@ -91,7 +104,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         test("returnerer null når gjennomføring ikke finnes") {
             val service = createService()
 
-            service.getGjennomforingDetaljerDto(UUID.randomUUID()).shouldBeNull()
+            service.getGjennomforingDetaljerDto(UUID.randomUUID(), AccessType.OBO.AzureAd("X123456")).shouldBeNull()
         }
     }
 

@@ -5558,6 +5558,88 @@ components:
       - behandletAv
       - behandletTidspunkt
       - forklaring
+    DeltakerDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type:
+          - "null"
+          - string
+        norskIdent:
+          type:
+          - "null"
+          - string
+        oppfolgingEnhet:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/NavEnhetDto"
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+        innholdAnnet:
+          type:
+          - "null"
+          - string
+      required:
+      - id
+      - innholdAnnet
+      - navn
+      - norskIdent
+      - oppfolgingEnhet
+      - status
+    NavEnhetDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+        type:
+          $ref: "#/components/schemas/NavEnhetType"
+        overordnetEnhet:
+          type:
+          - "null"
+          - string
+      required:
+      - enhetsnummer
+      - navn
+      - overordnetEnhet
+      - type
+    NavEnhetType:
+      type: string
+      enum:
+      - KO
+      - FYLKE
+      - TILTAK
+      - AAREG
+      - ALS
+      - ARK
+      - DIR
+      - DOKSENTER
+      - EKSTERN
+      - FORVALTNING
+      - FPY
+      - HELFO
+      - HMS
+      - INNKREV
+      - INTRO
+      - IT
+      - KLAGE
+      - KONTAKT
+      - KONTROLL
+      - LOKAL
+      - OKONOMI
+      - OTENESTE
+      - OPPFUTLAND
+      - OTENESE
+      - RIKSREV
+      - ROBOT
+      - ROL
+      - TILLIT
+      - UTLAND
+      - YTA
     GjennomforingDetaljerDto:
       type: object
       properties:
@@ -5583,8 +5665,13 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/TotrinnskontrollDto"
+        enkeltplassDeltaker:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakerDto"
       required:
       - amoKategorisering
+      - enkeltplassDeltaker
       - gjennomforing
       - okonomi
       - prismodell
@@ -6232,57 +6319,6 @@ components:
       - norskIdent
       - oppfolgingEnhet
       - status
-    NavEnhetDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        type:
-          $ref: "#/components/schemas/NavEnhetType"
-        overordnetEnhet:
-          type:
-          - "null"
-          - string
-      required:
-      - enhetsnummer
-      - navn
-      - overordnetEnhet
-      - type
-    NavEnhetType:
-      type: string
-      enum:
-      - KO
-      - FYLKE
-      - TILTAK
-      - AAREG
-      - ALS
-      - ARK
-      - DIR
-      - DOKSENTER
-      - EKSTERN
-      - FORVALTNING
-      - FPY
-      - HELFO
-      - HMS
-      - INNKREV
-      - INTRO
-      - IT
-      - KLAGE
-      - KONTAKT
-      - KONTROLL
-      - LOKAL
-      - OKONOMI
-      - OTENESTE
-      - OPPFUTLAND
-      - OTENESE
-      - RIKSREV
-      - ROBOT
-      - ROL
-      - TILLIT
-      - UTLAND
-      - YTA
     TilsagnBeregningDto:
       type: object
       properties:

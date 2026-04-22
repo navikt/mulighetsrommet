@@ -1,28 +1,24 @@
-import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useOpprettTilskuddBehandling } from "@/api/tilskudd-behandling/mutations";
-import { Header } from "@/components/detaljside/Header";
-import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
-import { Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
+import { defaultVedtakRequest } from "@/components/tilskudd-behandling/defaultVedtakRequest";
 import { SaksopplysningerForm } from "@/components/tilskudd-behandling/Saksopplysninger";
 import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { TilskuddBehandlingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { GavelSoundBlockFillIcon } from "@navikt/aksel-icons";
-import { Box, Button, Heading, HStack, Tabs } from "@navikt/ds-react";
+import { Button, HStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { v4 } from "uuid";
-import { defaultVedtakRequest } from "@/components/tilskudd-behandling/defaultVedtakRequest";
-import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
+import {
+  TilskuddBehandlingLayout,
+  TilskuddBehandlingTab,
+} from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
 
 interface Tab {
-  key: "vedtak" | "saksopplysninger";
+  key: TilskuddBehandlingTab;
   label: string;
 }
 
@@ -33,8 +29,7 @@ const tabs: Tab[] = [
 
 export function TilskuddBehandlingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { gjennomforing } = useGjennomforing(gjennomforingId);
-  const [currentTab, setCurrentTab] = useState<Tab["key"]>(tabs[0].key);
+  const [currentTab, setCurrentTab] = useState<TilskuddBehandlingTab>(tabs[0].key);
   const navigate = useNavigate();
   const mutation = useOpprettTilskuddBehandling(gjennomforingId);
 
@@ -112,97 +107,61 @@ export function TilskuddBehandlingFormPage() {
   return (
     <FormProvider {...form}>
       <form onSubmit={onSubmit}>
-        <title>Tilskuddsbehandling</title>
-        <Brodsmuler
-          brodsmuler={[
-            {
-              tittel: "Gjennomføringer",
-              lenke: `/gjennomforinger`,
-            },
-            {
-              tittel: "Gjennomføring",
-              lenke: `/gjennomforinger/${gjennomforingId}`,
-            },
-            {
-              tittel: "Tilskuddsbehandlinger",
-              lenke: `/gjennomforinger/${gjennomforingId}/tilskudd-behandling` as const,
-            },
-            { tittel: "Opprett behandling" },
-          ]}
-        />
-        <Header>
-          <GavelSoundBlockFillIcon
-            color="var(--ax-text-brand-blue-decoration)"
-            aria-hidden
-            width="2.5rem"
-            height="2.5rem"
-          />
-          <Heading size="large" level="2">
-            Tilskuddsbehandling
-          </Heading>
-        </Header>
-        <WhitePaddedBox>
-          <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-          <Tabs value={currentTab} onChange={(value) => setCurrentTab(value as Tab["key"])}>
-            <Tabs.List>
-              {tabs.map((tab) => (
-                <TabWithErrorBorder
-                  key={tab.key}
-                  onClick={() => {}}
-                  value={tab.key}
-                  label={tab.label}
-                  hasError={tabHasErrors(tab)}
-                />
-              ))}
-            </Tabs.List>
-            <Box marginBlock="space-16">
-              <TwoColumnGrid separator>
-                <Box>
-                  <Tabs.Panel value="saksopplysninger">
-                    <div>
-                      <SaksopplysningerForm />
-                    </div>
-                  </Tabs.Panel>
-                  <Tabs.Panel value="vedtak">
-                    <VedtakForm />
-                  </Tabs.Panel>
-                </Box>
-                <Heading size="medium" level="3" spacing>
-                  Oppsummering
-                </Heading>
-              </TwoColumnGrid>
-            </Box>
-          </Tabs>
-          <Separator />
-          <HStack gap="space-8" marginBlock="space-16" justify="end">
-            {isFirstTab ? (
-              <Button
-                variant="tertiary"
-                size="small"
-                type="button"
-                onClick={() => navigate(listUrl)}
-              >
-                Avbryt
-              </Button>
-            ) : (
-              <Button variant="tertiary" size="small" type="button" onClick={goToPreviousTab}>
-                Tilbake
-              </Button>
-            )}
-            {isLastTab ? (
-              <HStack gap="space-4" align="center">
-                <ValideringsfeilOppsummering />
-                <Button variant="primary" size="small" type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? "Sender til attestering..." : "Send til attestering"}
+        <TilskuddBehandlingLayout
+          gjennomforingId={gjennomforingId}
+          currentTab={currentTab}
+          onTabChange={setCurrentTab}
+          tabList={tabs.map((tab) => (
+            <TabWithErrorBorder
+              key={tab.key}
+              onClick={() => {}}
+              value={tab.key}
+              label={tab.label}
+              hasError={tabHasErrors(tab)}
+            />
+          ))}
+          saksopplysningerContent={
+            <div>
+              <SaksopplysningerForm />
+            </div>
+          }
+          vedtakContent={<VedtakForm />}
+          actions={
+            <HStack gap="space-8" marginBlock="space-16" justify="end">
+              {isFirstTab ? (
+                <Button
+                  variant="tertiary"
+                  size="small"
+                  type="button"
+                  onClick={() => navigate(listUrl)}
+                >
+                  Avbryt
                 </Button>
-              </HStack>
-            ) : (
-              <Button variant="primary" size="small" type="button" onClick={goToNextTab}>
-                Neste
-              </Button>
-            )}
-          </HStack>
-        </WhitePaddedBox>
+              ) : (
+                <Button variant="tertiary" size="small" type="button" onClick={goToPreviousTab}>
+                  Tilbake
+                </Button>
+              )}
+              {isLastTab ? (
+                <HStack gap="space-4" align="center">
+                  <ValideringsfeilOppsummering />
+                  <Button
+                    variant="primary"
+                    size="small"
+                    type="submit"
+                    disabled={mutation.isPending}
+                  >
+                    {mutation.isPending ? "Sender til attestering..." : "Send til attestering"}
+                  </Button>
+                </HStack>
+              ) : (
+                <Button variant="primary" size="small" type="button" onClick={goToNextTab}>
+                  Neste
+                </Button>
+              )}
+            </HStack>
+          }
+        />
       </form>
     </FormProvider>
   );

@@ -27,6 +27,9 @@ import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -35,6 +38,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.io.File
 import java.util.UUID
 import kotlin.io.path.createTempFile
@@ -44,6 +48,7 @@ class GjennomforingDetaljerService(
     private val db: ApiDatabase,
     private val tiltakstypeService: TiltakstypeService,
     private val navAnsattService: NavAnsattService,
+    private val personaliaService: PersonaliaService,
 ) {
     fun getTiltaksgjennomforingV2Dto(id: UUID): TiltaksgjennomforingV2Dto? = db.session {
         val gjennomforing = getGjennomforing(id) ?: return null
@@ -59,7 +64,7 @@ class GjennomforingDetaljerService(
         }
     }
 
-    fun getGjennomforingDetaljerDto(id: UUID): GjennomforingDetaljerDto? {
+    suspend fun getGjennomforingDetaljerDto(id: UUID, accessType: AccessType.OBO.AzureAd): GjennomforingDetaljerDto? {
         val gjennomforing = getGjennomforingTiltaksadministrasjon(id) ?: return null
         return when (gjennomforing) {
             is GjennomforingAvtale -> db.session {
@@ -69,7 +74,9 @@ class GjennomforingDetaljerService(
 
             is GjennomforingEnkeltplass -> db.session {
                 val okonomi = queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI)
-                GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi)
+                val deltakerOgPersonalia = getDeltakerOgPersonalia(gjennomforing.id, accessType)
+
+                GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerOgPersonalia)
             }
         }
     }
@@ -107,6 +114,23 @@ class GjennomforingDetaljerService(
         ).let { (totalCount, items) ->
             val data = items.map { it.toKompaktDto() }
             PaginatedResponse.of(pagination, totalCount, data)
+        }
+    }
+
+    private suspend fun QueryContext.getDeltakerOgPersonalia(
+        gjennomforingId: UUID,
+        accessType: AccessType,
+    ): Pair<Deltaker, Personalia?>? {
+        val deltakelser = queries.deltaker.getByGjennomforingId(gjennomforingId)
+        if (deltakelser.size > 1) {
+            error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet kun én)")
+        }
+        return deltakelser.firstOrNull()?.let {
+            it to personaliaService
+                .getPersonalia(listOf(it.id), accessType)
+                .getOrElse(it.id) {
+                    null
+                }
         }
     }
 

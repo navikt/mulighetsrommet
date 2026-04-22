@@ -46,12 +46,20 @@ import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
+import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const detaljer = useGjennomforing(gjennomforingId);
-  const { gjennomforing, veilederinfo, utdanningslop, amoKategorisering, prismodell, okonomi } =
-    detaljer;
+  const {
+    gjennomforing,
+    veilederinfo,
+    utdanningslop,
+    amoKategorisering,
+    prismodell,
+    okonomi,
+    enkeltplassDeltaker,
+  } = detaljer;
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
   const { data: avtale } = usePotentialAvtale(
     isGruppetiltak(gjennomforing) ? gjennomforing.avtaleId : null,
@@ -167,6 +175,9 @@ export function GjennomforingDetaljer() {
             <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
           )}
           {isEnkeltplass(gjennomforing) && okonomi && <OkonomiStatus okonomi={okonomi} />}
+          {isEnkeltplass(gjennomforing) && enkeltplassDeltaker && (
+            <DeltakerinformasjonOgBetalingsbetingelser deltaker={enkeltplassDeltaker} />
+          )}
         </DetaljerLayout>
       </TwoColumnGrid>
       <Separator />
