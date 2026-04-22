@@ -51,12 +51,12 @@ export function TiltakstypeDeltakerRegistreringForm({ tiltakstype, onSuccess, on
           <FormTextarea
             name="ledetekst"
             label="Ledetekst"
-            description="Tekst som vises til deltaker ved registrering"
+            description="Tekst som som beskriver tiltaket og som vises til deltaker som blir meldt på."
           />
           <FormCheckboxGroup
             name="innholdskoder"
             legend="Innholdselementer"
-            description="Velg hvilke elementer som skal være tilgjengelig for deltaker ved registrering"
+            description="Velg hvilke elementer som skal være tilgjengelig ved påmelding av deltakere."
             options={options}
           />
         </TwoColumnGrid>
