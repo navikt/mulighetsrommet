@@ -2,7 +2,7 @@ import { Box, UNSAFE_Combobox } from "@navikt/ds-react";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { ArrangorKobling } from "node_modules/@tiltaksadministrasjon/api-client/build/types.gen";
 import { arrangorOptions } from "@/utils/filterUtils";
-import { useMemo, useCallback, memo, useState } from "react";
+import { useMemo, useCallback, memo, useState, useRef } from "react";
 
 interface Props {
   filter: string[];
@@ -16,6 +16,7 @@ export const ArrangorerFilter = memo(function ArrangorerFilter({
   arrangorKobling,
 }: Props) {
   const [searchInput, setSearchInput] = useState("");
+  const isTogglingRef = useRef(false);
 
   const { data: arrangorer } = useArrangorer(arrangorKobling, {
     sok: searchInput,
@@ -29,6 +30,7 @@ export const ArrangorerFilter = memo(function ArrangorerFilter({
 
   const handleToggleSelected = useCallback(
     (option: string, isSelected: boolean) => {
+      isTogglingRef.current = true;
       if (isSelected) {
         updateFilter([...filter, option]);
       } else {
@@ -51,7 +53,14 @@ export const ArrangorerFilter = memo(function ArrangorerFilter({
         options={options}
         onToggleSelected={handleToggleSelected}
         shouldAutocomplete
-        onChange={(value) => setSearchInput(value)}
+        value={searchInput}
+        onChange={(value) => {
+          if (isTogglingRef.current) {
+            isTogglingRef.current = false;
+            return;
+          }
+          setSearchInput(value);
+        }}
       />
     </Box>
   );
