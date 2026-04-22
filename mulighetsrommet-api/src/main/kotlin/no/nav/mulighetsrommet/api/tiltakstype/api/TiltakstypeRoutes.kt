@@ -30,7 +30,8 @@ fun Route.tiltakstypeRoutes() {
             tags = setOf("Tiltakstype")
             operationId = "getTiltakstyper"
             request {
-                queryParameter<String>("sort")
+                queryParameter<TiltakstypeSortField>("sortField")
+                queryParameter<SortDirection>("sortDirection")
             }
             response {
                 code(HttpStatusCode.OK) {

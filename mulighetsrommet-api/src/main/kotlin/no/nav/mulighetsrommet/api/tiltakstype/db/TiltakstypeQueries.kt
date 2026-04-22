@@ -4,6 +4,8 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.tiltakstype.api.SortDirection
+import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeSortField
 import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKombinasjon
@@ -128,18 +130,17 @@ class TiltakstypeQueries(private val session: Session) {
 
     fun getAll(
         tiltakskoder: Set<Tiltakskode> = setOf(),
-        sortering: String? = null,
+        sortField: TiltakstypeSortField = TiltakstypeSortField.NAVN,
+        sortDirection: SortDirection = SortDirection.ASC,
     ): List<Tiltakstype> = with(session) {
         val parameters = mapOf(
             "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { createTextArray(it) },
         )
 
-        val order = when (sortering) {
-            "navn-ascending" -> "navn asc"
-            "navn-descending" -> "navn desc"
-            "tiltakskode-ascending" -> "tiltakskode asc"
-            "tiltakskode-descending" -> "tiltakskode desc"
-            else -> "navn asc"
+        val dir = if (sortDirection == SortDirection.ASC) "asc" else "desc"
+        val order = when (sortField) {
+            TiltakstypeSortField.NAVN -> "navn $dir"
+            TiltakstypeSortField.TILTAKSKODE -> "tiltakskode $dir"
         }
 
         @Language("PostgreSQL")

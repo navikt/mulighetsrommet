@@ -82,13 +82,20 @@ paths:
       - Tiltakstype
       operationId: getTiltakstyper
       parameters:
-      - name: sort
+      - name: sortField
         in: query
         required: false
         deprecated: false
         explode: false
         schema:
-          type: string
+          $ref: "#/components/schemas/TiltakstypeSortField"
+      - name: sortDirection
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/SortDirection"
       responses:
         "200":
           description: Tiltakstyper i Tiltaksadministrasjon
@@ -3461,6 +3468,16 @@ components:
       - status
       - title
       - type
+    TiltakstypeSortField:
+      type: string
+      enum:
+      - NAVN
+      - TILTAKSKODE
+    SortDirection:
+      type: string
+      enum:
+      - ASC
+      - DESC
     TiltakstypeKompaktDto:
       type: object
       properties:

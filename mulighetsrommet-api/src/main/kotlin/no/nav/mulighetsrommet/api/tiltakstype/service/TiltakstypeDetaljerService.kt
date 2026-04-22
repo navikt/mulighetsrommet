@@ -62,15 +62,9 @@ class TiltakstypeDetaljerService(
     }
 
     fun getAll(filter: TiltakstypeFilter): List<TiltakstypeKompaktDto> {
-        val tiltakstyper = db.session {
-            queries.tiltakstype.getAll(sortering = filter.sortering)
+        return db.session {
+            queries.tiltakstype.getAll(sortField = filter.sortField, sortDirection = filter.sortDirection)
         }.map { it.toTiltakstypeKompaktDto() }
-
-        return when (filter.sortering) {
-            "tiltaksgruppe-ascending" -> tiltakstyper.sortedBy { it.gruppe }
-            "tiltaksgruppe-descending" -> tiltakstyper.sortedByDescending { it.gruppe }
-            else -> tiltakstyper
-        }
     }
 
     fun getById(id: UUID): TiltakstypeDto? = db.session {
