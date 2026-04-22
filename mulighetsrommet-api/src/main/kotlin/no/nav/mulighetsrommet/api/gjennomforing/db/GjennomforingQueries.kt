@@ -149,6 +149,75 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun updateDetaljer(gjennomforing: GjennomforingDbo) {
+        @Language("PostgreSQL")
+        val query = """
+            update gjennomforing
+            set tiltakstype_id                  = :tiltakstype_id::uuid,
+                arrangor_id                     = :arrangor_id::uuid,
+                gjennomforing_type              = :gjennomforing_type::gjennomforing_type,
+                oppstart                        = :oppstart::gjennomforing_oppstartstype,
+                pamelding_type                  = :pamelding_type::pamelding_type,
+                navn                            = :navn,
+                start_dato                      = :start_dato,
+                slutt_dato                      = :slutt_dato,
+                status                          = :status::gjennomforing_status,
+                deltidsprosent                  = :deltidsprosent,
+                antall_plasser                  = :antall_plasser,
+                avtale_id                       = :avtale_id::uuid,
+                prismodell_id                   = :prismodell_id::uuid,
+                oppmote_sted                    = :oppmote_sted,
+                estimert_ventetid_verdi         = :estimert_ventetid_verdi,
+                estimert_ventetid_enhet         = :estimert_ventetid_enhet,
+                tilgjengelig_for_arrangor_dato  = :tilgjengelig_for_arrangor_dato
+            where id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to gjennomforing.id,
+            "tiltakstype_id" to gjennomforing.tiltakstypeId,
+            "arrangor_id" to gjennomforing.arrangorId,
+            "gjennomforing_type" to gjennomforing.type.name,
+            "oppstart" to gjennomforing.oppstart.name,
+            "pamelding_type" to gjennomforing.pameldingType.name,
+            "navn" to gjennomforing.navn,
+            "start_dato" to gjennomforing.startDato,
+            "slutt_dato" to gjennomforing.sluttDato,
+            "status" to gjennomforing.status.name,
+            "deltidsprosent" to gjennomforing.deltidsprosent,
+            "antall_plasser" to gjennomforing.antallPlasser,
+            "avtale_id" to gjennomforing.avtaleId,
+            "prismodell_id" to gjennomforing.prismodellId,
+            "oppmote_sted" to gjennomforing.oppmoteSted,
+            "estimert_ventetid_verdi" to gjennomforing.estimertVentetidVerdi,
+            "estimert_ventetid_enhet" to gjennomforing.estimertVentetidEnhet,
+            "tilgjengelig_for_arrangor_dato" to gjennomforing.tilgjengeligForArrangorDato,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
+    fun setRedaksjoneltInnhold(id: UUID, beskrivelse: String?, faneinnhold: Faneinnhold?) {
+        @Language("PostgreSQL")
+        val query = """
+            update gjennomforing
+            set beskrivelse = :beskrivelse,
+                faneinnhold = :faneinnhold::jsonb
+            where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to id,
+                    "beskrivelse" to beskrivelse,
+                    "faneinnhold" to faneinnhold?.let { Json.encodeToString<Faneinnhold>(it) },
+                ),
+            ),
+        )
+    }
+
     fun setNavEnheter(id: UUID, navEnheter: Set<NavEnhetNummer>) = with(session) {
         @Language("PostgreSQL")
         val upsertEnhet = """

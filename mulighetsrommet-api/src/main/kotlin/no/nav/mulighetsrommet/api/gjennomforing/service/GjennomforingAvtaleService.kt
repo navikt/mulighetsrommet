@@ -14,16 +14,16 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingRequestMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -51,24 +51,13 @@ class GjennomforingAvtaleService(
         val gjennomforingV2Topic: String,
     )
 
-    suspend fun upsert(
+    suspend fun create(
         request: GjennomforingRequest,
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, GjennomforingAvtale> = either {
         val id = request.id
-        val (previous, detaljer) = db.session {
-            Pair(
-                getGjennomforingAvtale(id),
-                queries.gjennomforing.getGjennomforingAvtaleDetaljer(id),
-            )
-        }
-
-        if (previous != null && detaljer != null && isEqual(request, previous, detaljer)) {
-            return@either previous
-        }
-
-        val ctx = getValidatorCtx(request, previous, today)
+        val ctx = getValidatorCtx(request, null, today)
 
         val result = GjennomforingValidator
             .validate(request, ctx)
@@ -83,10 +72,61 @@ class GjennomforingAvtaleService(
             queries.gjennomforing.upsert(result.gjennomforing)
             setAdministratorer(id, result.administratorer, navIdent, result.gjennomforing.navn)
             queries.gjennomforing.setKontaktpersoner(id, result.kontaktpersoner)
-            queries.gjennomforing.setArrangorKontaktpersoner(id, request.arrangorKontaktpersoner)
+            queries.gjennomforing.setArrangorKontaktpersoner(id, request.detaljer.arrangorKontaktpersoner)
             GjennomforingValidator.validateNavEnheter(ctx.avtale, request.veilederinformasjon).bind().let {
                 queries.gjennomforing.setNavEnheter(id, it)
             }
+            GjennomforingValidator.validateUtdanningslop(ctx.avtale, request.detaljer.utdanningslop).bind().let {
+                queries.gjennomforing.setUtdanningslop(id, it)
+            }
+            GjennomforingValidator.validateAmoKategorisering(ctx.avtale, request.detaljer.amoKategorisering).bind().let {
+                queries.gjennomforing.setAmoKategorisering(id, it)
+            }
+
+            logEndring("Opprettet gjennomføring", id, navIdent)
+                .also { updateFreeTextSearch(it) }
+                .also { publishToKafka(it) }
+        }
+    }
+
+    suspend fun updateDetaljer(
+        id: UUID,
+        request: GjennomforingDetaljerRequest,
+        navIdent: NavIdent,
+        today: LocalDate = LocalDate.now(),
+    ): Either<List<FieldError>, GjennomforingAvtale> = either {
+        val previous = db.session { getGjennomforingAvtale(id) }
+            ?: raise(listOf(FieldError.root("Gjennomføringen finnes ikke")))
+
+        val fullRequest = GjennomforingRequest(
+            id = id,
+            tiltakstypeId = previous.tiltakstype.id,
+            avtaleId = previous.avtaleId,
+            detaljer = request,
+            veilederinformasjon = GjennomforingVeilederinfoRequest(
+                navRegioner = emptySet(),
+                navKontorer = emptySet(),
+                navAndreEnheter = emptySet(),
+                beskrivelse = null,
+                faneinnhold = null,
+            ),
+        )
+        val ctx = getValidatorCtx(fullRequest, previous, today)
+
+        val result = GjennomforingValidator
+            .validate(fullRequest, ctx)
+            .onRight { result ->
+                result.kontaktpersoner.forEach {
+                    navAnsattService.addUserToKontaktpersoner(it.navIdent)
+                }
+            }
+            .bind()
+
+        db.transaction {
+            queries.gjennomforing.updateDetaljer(result.gjennomforing)
+            setAdministratorer(id, result.administratorer, navIdent, result.gjennomforing.navn)
+            queries.gjennomforing.setKontaktpersoner(id, result.kontaktpersoner)
+            queries.gjennomforing.setArrangorKontaktpersoner(id, request.arrangorKontaktpersoner)
             GjennomforingValidator.validateUtdanningslop(ctx.avtale, request.utdanningslop).bind().let {
                 queries.gjennomforing.setUtdanningslop(id, it)
             }
@@ -94,13 +134,29 @@ class GjennomforingAvtaleService(
                 queries.gjennomforing.setAmoKategorisering(id, it)
             }
 
-            val operation = if (ctx.previous == null) {
-                "Opprettet gjennomføring"
-            } else {
-                "Redigerte gjennomføring"
-            }
-            logEndring(operation, id, navIdent)
+            logEndring("Detaljer redigert", id, navIdent)
                 .also { updateFreeTextSearch(it) }
+                .also { publishToKafka(it) }
+        }
+    }
+
+    fun updateVeilederinfo(
+        id: UUID,
+        request: GjennomforingVeilederinfoRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, GjennomforingAvtale> = either {
+        val previous = db.session { getGjennomforingAvtale(id) }
+            ?: raise(listOf(FieldError.root("Gjennomføringen finnes ikke")))
+
+        val avtale = db.session { queries.avtale.getOrError(previous.avtaleId) }
+
+        db.transaction {
+            GjennomforingValidator.validateNavEnheter(avtale, request).bind().let {
+                queries.gjennomforing.setNavEnheter(id, it)
+            }
+            queries.gjennomforing.setRedaksjoneltInnhold(id, request.beskrivelse, request.faneinnhold)
+
+            logEndring("Informasjon for veiledere redigert", id, navIdent)
                 .also { publishToKafka(it) }
         }
     }
@@ -303,9 +359,9 @@ class GjennomforingAvtaleService(
         today: LocalDate,
     ): GjennomforingValidator.Ctx = db.session {
         val avtale = queries.avtale.getOrError(request.avtaleId)
-        val kontaktpersoner = request.kontaktpersoner.mapNotNull { queries.ansatt.getByNavIdent(it.navIdent) }
-        val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
-        val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
+        val kontaktpersoner = request.detaljer.kontaktpersoner.mapNotNull { queries.ansatt.getByNavIdent(it.navIdent) }
+        val administratorer = request.detaljer.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
+        val arrangor = request.detaljer.arrangorId?.let { queries.arrangor.getById(it) }
         val antallDeltakere = queries.deltaker.getByGjennomforingId(request.id).size
         val status = resolveStatus(previous?.status, request, today)
         return GjennomforingValidator.Ctx(
@@ -337,7 +393,7 @@ class GjennomforingAvtaleService(
         return when (previous) {
             GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> previous
 
-            else -> if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
+            else -> if (request.detaljer.sluttDato == null || !request.detaljer.sluttDato.isBefore(today)) {
                 GjennomforingStatusType.GJENNOMFORES
             } else {
                 GjennomforingStatusType.AVSLUTTET
@@ -414,12 +470,4 @@ class GjennomforingAvtaleService(
         )
         queries.kafkaProducerRecord.storeRecord(recordV2)
     }
-}
-
-private fun isEqual(
-    request: GjennomforingRequest,
-    previous: GjennomforingAvtale,
-    detaljer: GjennomforingAvtaleDetaljer,
-): Boolean {
-    return request == GjennomforingRequestMapper.fromGjennomforing(previous, detaljer)
 }

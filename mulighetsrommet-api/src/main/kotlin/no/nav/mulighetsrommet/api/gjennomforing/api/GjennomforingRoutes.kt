@@ -82,14 +82,13 @@ fun Route.gjennomforingRoutes() {
         authorize(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) {
             put({
                 tags = setOf("Gjennomforing")
-                operationId = "upsertGjennomforing"
+                operationId = "createGjennomforing"
                 request {
                     body<GjennomforingRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Gjennomføring ble upsertet"
-                        body<GjennomforingDetaljerDto>()
+                        description = "Gjennomføring ble opprettet"
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
@@ -103,11 +102,75 @@ fun Route.gjennomforingRoutes() {
             }) {
                 val request = call.receive<GjennomforingRequest>()
                 val navIdent = getNavIdent()
-                val accessType = call.getAccessType().requireAzureAd()
 
-                val result = avtaleGjennomforinger.upsert(request, navIdent)
+                val result = avtaleGjennomforinger.create(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
-                    .flatMap { gjennomforinger.getOrInternalServerError(it.id, accessType) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            put("{id}/detaljer", {
+                tags = setOf("Gjennomforing")
+                operationId = "updateGjennomforingDetaljer"
+                request {
+                    pathParameterUuid("id")
+                    body<GjennomforingDetaljerRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Detaljer ble oppdatert"
+                        body<GjennomforingDetaljerDto>()
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val navIdent = getNavIdent()
+                val request = call.receive<GjennomforingDetaljerRequest>()
+
+                val result = avtaleGjennomforinger.updateDetaljer(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            put("{id}/veilederinformasjon", {
+                tags = setOf("Gjennomforing")
+                operationId = "updateGjennomforingVeilederinformasjon"
+                request {
+                    pathParameterUuid("id")
+                    body<GjennomforingVeilederinfoRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Veilederinformasjon ble oppdatert"
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val navIdent = getNavIdent()
+                val request = call.receive<GjennomforingVeilederinfoRequest>()
+
+                val result = avtaleGjennomforinger.updateVeilederinfo(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
             }
@@ -670,45 +733,9 @@ data class GjennomforingRequest(
     val tiltakstypeId: UUID,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
-    val navn: String,
-    @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?,
-    val antallPlasser: Int?,
-    @Serializable(with = UUIDSerializer::class)
-    val arrangorId: UUID?,
-    val arrangorKontaktpersoner: Set<
-        @Serializable(with = UUIDSerializer::class)
-        UUID,
-        >,
+    val detaljer: GjennomforingDetaljerRequest,
     val veilederinformasjon: GjennomforingVeilederinfoRequest,
-    val kontaktpersoner: Set<Kontaktperson>,
-    val administratorer: Set<NavIdent>,
-    val oppstart: GjennomforingOppstartstype?,
-    val oppmoteSted: String?,
-    val deltidsprosent: Double,
-    val estimertVentetid: EstimertVentetid?,
-    @Serializable(with = LocalDateSerializer::class)
-    val tilgjengeligForArrangorDato: LocalDate?,
-    val amoKategorisering: AmoKategoriseringRequest?,
-    val utdanningslop: UtdanningslopDbo? = null,
-    @Serializable(with = UUIDSerializer::class)
-    val prismodellId: UUID?,
-    val pameldingType: GjennomforingPameldingType?,
-) {
-    @Serializable
-    data class EstimertVentetid(
-        val verdi: Int?,
-        val enhet: String?,
-    )
-
-    @Serializable
-    data class Kontaktperson(
-        val navIdent: NavIdent,
-        val beskrivelse: String?,
-    )
-}
+)
 
 @Serializable
 data class GjennomforingVeilederinfoRequest(
@@ -788,6 +815,47 @@ data class SetStengtHosArrangorRequest(
 data class SetTilgjengligForArrangorRequest(
     val tilgjengeligForArrangorDato: String?,
 )
+
+@Serializable
+data class GjennomforingDetaljerRequest(
+    val navn: String,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
+    val antallPlasser: Int?,
+    @Serializable(with = UUIDSerializer::class)
+    val arrangorId: UUID?,
+    val arrangorKontaktpersoner: Set<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
+    val kontaktpersoner: Set<Kontaktperson>,
+    val administratorer: Set<NavIdent>,
+    val oppstart: GjennomforingOppstartstype?,
+    val oppmoteSted: String?,
+    val deltidsprosent: Double,
+    val estimertVentetid: EstimertVentetid?,
+    @Serializable(with = LocalDateSerializer::class)
+    val tilgjengeligForArrangorDato: LocalDate?,
+    val amoKategorisering: AmoKategoriseringRequest?,
+    val utdanningslop: UtdanningslopDbo? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val prismodellId: UUID?,
+    val pameldingType: GjennomforingPameldingType?,
+) {
+    @Serializable
+    data class EstimertVentetid(
+        val verdi: Int?,
+        val enhet: String?,
+    )
+
+    @Serializable
+    data class Kontaktperson(
+        val navIdent: NavIdent,
+        val beskrivelse: String?,
+    )
+}
 
 @Serializable
 enum class GjennomforingHandling {

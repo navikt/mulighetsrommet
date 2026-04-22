@@ -4,10 +4,10 @@ import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
   AvtaleArrangorHovedenhet,
-  GjennomforingRequest,
 } from "@tiltaksadministrasjon/api-client";
 import { useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
+import { GjennomforingFormValues } from "@/pages/gjennomforing/gjennomforingFormUtils";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
@@ -25,7 +25,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
     formState: { errors },
     setValue,
     control,
-  } = useFormContext<GjennomforingRequest>();
+  } = useFormContext<GjennomforingFormValues>();
 
   const { data: arrangorKontaktpersoner } = useArrangorKontaktpersoner(arrangor.id);
 

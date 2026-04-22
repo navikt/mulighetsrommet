@@ -1,11 +1,11 @@
 import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
 import {
   AvtaleDto,
-  GjennomforingRequest,
   GjennomforingService,
   GjennomforingVeilederinfoDto,
 } from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
+import { GjennomforingFormValues } from "@/pages/gjennomforing/gjennomforingFormUtils";
 import { useState } from "react";
 import { GjennomforingList } from "./GjennomforingList";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
@@ -21,7 +21,7 @@ export function GjennomforingInformasjonForVeiledereForm({ avtale, veilederinfo 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
 
-  const { setValue, watch } = useFormContext<GjennomforingRequest>();
+  const { setValue, watch } = useFormContext<GjennomforingFormValues>();
 
   function kopierRedaksjoneltInnhold({
     beskrivelse,

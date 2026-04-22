@@ -1,6 +1,7 @@
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingService } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingDetaljerDto, GjennomforingService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export function useEnkeltplassGjennomforingOrError(id: string) {
   const data = useGjennomforing(id);
@@ -17,6 +18,11 @@ export function useGjennomforing(id: string) {
     queryFn: () => GjennomforingService.getGjennomforing({ path: { id } }),
   });
   return result.data;
+}
+
+export function useGjennomforingByPathParam(): GjennomforingDetaljerDto {
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  return useGjennomforing(gjennomforingId);
 }
 
 export function useGjennomforingHandlinger(id: string) {

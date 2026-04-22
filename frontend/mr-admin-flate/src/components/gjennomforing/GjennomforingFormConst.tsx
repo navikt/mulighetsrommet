@@ -6,7 +6,6 @@ import {
   GjennomforingDto,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
-  GjennomforingRequest,
   GjennomforingVeilederinfoDto,
   NavAnsattDto,
   PrismodellDto,
@@ -18,6 +17,7 @@ import {
 import { DeepPartial } from "react-hook-form";
 import { amoKategoriseringRequest } from "@/schemas/avtale";
 import { kreverDirekteVedtak } from "@/utils/tiltakstype";
+import { GjennomforingFormValues } from "@/pages/gjennomforing/gjennomforingFormUtils";
 
 function defaultArrangor(
   avtale: AvtaleDto,
@@ -43,14 +43,13 @@ export function defaultGjennomforingData(
   prismodell: PrismodellDto | null,
   amoKategorisering: AmoKategoriseringDto | null,
   utdanningslop: UtdanningslopDto | null,
-): DeepPartial<GjennomforingRequest> {
+): DeepPartial<GjennomforingFormValues> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, veilederinfo);
 
   const defaultOppstart = getDefaultOppstart(tiltakstype);
   const oppstart = gjennomforing?.oppstart || defaultOppstart;
   return {
     navn: gjennomforing?.navn || avtale.navn,
-    avtaleId: avtale.id,
     administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
       ansatt.navIdent,
     ],

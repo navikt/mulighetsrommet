@@ -943,7 +943,7 @@ paths:
     put:
       tags:
       - Gjennomforing
-      operationId: upsertGjennomforing
+      operationId: createGjennomforing
       parameters: []
       requestBody:
         content:
@@ -953,12 +953,8 @@ paths:
         required: false
       responses:
         "200":
-          description: Gjennomføring ble upsertet
+          description: Gjennomføring ble opprettet
           headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GjennomforingDetaljerDto"
         "400":
           description: Valideringsfeil
           headers: {}
@@ -1009,6 +1005,88 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginatedResponse_GjennomforingKompaktDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/gjennomforinger/{id}/detaljer:
+    put:
+      tags:
+      - Gjennomforing
+      operationId: updateGjennomforingDetaljer
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GjennomforingDetaljerRequest"
+        required: false
+      responses:
+        "200":
+          description: Detaljer ble oppdatert
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GjennomforingDetaljerDto"
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/gjennomforinger/{id}/veilederinformasjon:
+    put:
+      tags:
+      - Gjennomforing
+      operationId: updateGjennomforingVeilederinformasjon
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GjennomforingVeilederinfoRequest"
+        required: false
+      responses:
+        "200":
+          description: Veilederinformasjon ble oppdatert
+          headers: {}
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
         default:
           description: Problem details
           headers: {}
@@ -4817,6 +4895,140 @@ components:
       - totalRamme
       - utbetaltArena
       - valuta
+    GjennomforingDetaljerRequest:
+      type: object
+      properties:
+        navn:
+          type: string
+        startDato:
+          type:
+          - "null"
+          - string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        antallPlasser:
+          type:
+          - "null"
+          - integer
+          format: int32
+        arrangorId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        arrangorKontaktpersoner:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingDetaljerRequest.Kontaktperson"
+          uniqueItems: true
+        administratorer:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        oppstart:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingOppstartstype"
+        oppmoteSted:
+          type:
+          - "null"
+          - string
+        deltidsprosent:
+          type: number
+          format: double
+        estimertVentetid:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingDetaljerRequest.EstimertVentetid"
+        tilgjengeligForArrangorDato:
+          type:
+          - "null"
+          - string
+          format: date
+        amoKategorisering:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/AmoKategoriseringRequest"
+        utdanningslop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtdanningslopDbo"
+        prismodellId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        pameldingType:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingPameldingType"
+      required:
+      - administratorer
+      - amoKategorisering
+      - antallPlasser
+      - arrangorId
+      - arrangorKontaktpersoner
+      - deltidsprosent
+      - estimertVentetid
+      - kontaktpersoner
+      - navn
+      - oppmoteSted
+      - oppstart
+      - pameldingType
+      - prismodellId
+      - sluttDato
+      - startDato
+      - tilgjengeligForArrangorDato
+      - utdanningslop
+    GjennomforingDetaljerRequest.Kontaktperson:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - navIdent
+    GjennomforingOppstartstype:
+      type: string
+      enum:
+      - LOPENDE
+      - FELLES
+      - ENKELTPLASS
+    GjennomforingDetaljerRequest.EstimertVentetid:
+      type: object
+      properties:
+        verdi:
+          type:
+          - "null"
+          - integer
+          format: int32
+        enhet:
+          type:
+          - "null"
+          - string
+      required:
+      - enhet
+      - verdi
+    GjennomforingPameldingType:
+      type: string
+      enum:
+      - DIREKTE_VEDTAK
+      - TRENGER_GODKJENNING
     GjennomforingVeilederinfoRequest:
       type: object
       properties:
@@ -4849,44 +5061,6 @@ components:
       - navAndreEnheter
       - navKontorer
       - navRegioner
-    GjennomforingRequest.Kontaktperson:
-      type: object
-      properties:
-        navIdent:
-          type: string
-        beskrivelse:
-          type:
-          - "null"
-          - string
-      required:
-      - beskrivelse
-      - navIdent
-    GjennomforingOppstartstype:
-      type: string
-      enum:
-      - LOPENDE
-      - FELLES
-      - ENKELTPLASS
-    GjennomforingRequest.EstimertVentetid:
-      type: object
-      properties:
-        verdi:
-          type:
-          - "null"
-          - integer
-          format: int32
-        enhet:
-          type:
-          - "null"
-          - string
-      required:
-      - enhet
-      - verdi
-    GjennomforingPameldingType:
-      type: string
-      enum:
-      - DIREKTE_VEDTAK
-      - TRENGER_GODKJENNING
     GjennomforingRequest:
       type: object
       properties:
@@ -4899,104 +5073,15 @@ components:
         avtaleId:
           type: string
           format: uuid
-        navn:
-          type: string
-        startDato:
-          type:
-          - "null"
-          - string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        antallPlasser:
-          type:
-          - "null"
-          - integer
-          format: int32
-        arrangorId:
-          type:
-          - "null"
-          - string
-          format: uuid
-        arrangorKontaktpersoner:
-          type: array
-          items:
-            type: string
-            format: uuid
-          uniqueItems: true
+        detaljer:
+          $ref: "#/components/schemas/GjennomforingDetaljerRequest"
         veilederinformasjon:
           $ref: "#/components/schemas/GjennomforingVeilederinfoRequest"
-        kontaktpersoner:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingRequest.Kontaktperson"
-          uniqueItems: true
-        administratorer:
-          type: array
-          items:
-            type: string
-          uniqueItems: true
-        oppstart:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/GjennomforingOppstartstype"
-        oppmoteSted:
-          type:
-          - "null"
-          - string
-        deltidsprosent:
-          type: number
-          format: double
-        estimertVentetid:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/GjennomforingRequest.EstimertVentetid"
-        tilgjengeligForArrangorDato:
-          type:
-          - "null"
-          - string
-          format: date
-        amoKategorisering:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/AmoKategoriseringRequest"
-        utdanningslop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDbo"
-        prismodellId:
-          type:
-          - "null"
-          - string
-          format: uuid
-        pameldingType:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/GjennomforingPameldingType"
       required:
-      - administratorer
-      - amoKategorisering
-      - antallPlasser
-      - arrangorId
-      - arrangorKontaktpersoner
       - avtaleId
-      - deltidsprosent
-      - estimertVentetid
+      - detaljer
       - id
-      - kontaktpersoner
-      - navn
-      - oppmoteSted
-      - oppstart
-      - pameldingType
-      - prismodellId
-      - sluttDato
-      - startDato
-      - tilgjengeligForArrangorDato
       - tiltakstypeId
-      - utdanningslop
       - veilederinformasjon
     Gjennomforing.Tiltakstype:
       type: object
