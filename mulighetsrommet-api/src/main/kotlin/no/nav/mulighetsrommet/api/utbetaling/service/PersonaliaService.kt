@@ -54,8 +54,7 @@ class PersonaliaService(
 
                         if (tilgangsmaskinResponse.resultater.isNotEmpty()) {
                             log.debug(
-                                "tilgangsmaskinResponse for navident {}: {}",
-                                tilgangsmaskinResponse.brukerId,
+                                "tilgangsmaskinResponse: {}",
                                 tilgangsmaskinResponse.resultater.joinToString("\n") { resultat ->
                                     val detaljer = resultat.detaljer?.let { d ->
                                         listOfNotNull(
