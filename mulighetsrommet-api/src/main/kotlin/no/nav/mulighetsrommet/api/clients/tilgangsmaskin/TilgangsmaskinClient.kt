@@ -34,6 +34,7 @@ class TilgangsmaskinClient(
     suspend fun bulk(identer: List<NorskIdent>, obo: AccessType.OBO.AzureAd): TilgangsmaskinResponse {
         if (identer.isEmpty()) {
             return TilgangsmaskinResponse(
+                brukerId = "",
                 resultater = emptyList(),
             )
         }
@@ -76,6 +77,7 @@ data class TilgangsmaskinRequest(
 
 @Serializable
 data class TilgangsmaskinResponse(
+    val brukerId: String,
     val resultater: List<Resultat>,
 ) {
     @Serializable
