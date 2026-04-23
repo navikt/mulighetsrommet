@@ -8,7 +8,6 @@ import {
   GjennomforingVeilederinfoRequest,
   UtdanningslopDbo,
 } from "@tiltaksadministrasjon/api-client";
-import { DeepPartial } from "react-hook-form";
 
 export type GjennomforingFormValues = GjennomforingDetaljerRequest & {
   veilederinformasjon: GjennomforingVeilederinfoRequest;
@@ -16,78 +15,41 @@ export type GjennomforingFormValues = GjennomforingDetaljerRequest & {
 
 export function toCreateGjennomforingRequest(
   id: string,
-  data: DeepPartial<GjennomforingFormValues>,
+  data: GjennomforingFormValues,
   avtale: AvtaleDto,
 ): GjennomforingRequest {
   return {
     id,
     tiltakstypeId: avtale.tiltakstype.id,
     avtaleId: avtale.id,
-    detaljer: {
-      navn: data.navn ?? "",
-      startDato: data.startDato ?? null,
-      sluttDato: data.sluttDato || null,
-      antallPlasser: data.antallPlasser ?? null,
-      arrangorId: data.arrangorId ?? null,
-      arrangorKontaktpersoner: (data.arrangorKontaktpersoner ?? []).filter(
-        (k): k is string => k !== undefined,
-      ),
-      kontaktpersoner: (data.kontaktpersoner ?? [])
-        .filter((k) => k !== undefined && k.navIdent !== "")
-        .map((k) => ({ navIdent: k?.navIdent ?? "", beskrivelse: k?.beskrivelse ?? null })),
-      administratorer: (data.administratorer ?? []).filter((k): k is string => k !== undefined),
-      oppstart: data.oppstart ?? null,
-      oppmoteSted: data.oppmoteSted ?? null,
-      deltidsprosent: data.deltidsprosent ?? 100,
-      estimertVentetid: data.estimertVentetid
-        ? (data.estimertVentetid as GjennomforingDetaljerRequestEstimertVentetid)
-        : null,
-      tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato ?? null,
-      amoKategorisering: (data.amoKategorisering as AmoKategoriseringRequest | null) ?? null,
-      utdanningslop: (data.utdanningslop as UtdanningslopDbo | null) ?? null,
-      pameldingType: data.pameldingType ?? null,
-      prismodellId: data.prismodellId || null,
-    },
-    veilederinformasjon: {
-      navRegioner: (data.veilederinformasjon?.navRegioner ?? []).filter(
-        (k): k is string => k !== undefined,
-      ),
-      navKontorer: (data.veilederinformasjon?.navKontorer ?? []).filter(
-        (k): k is string => k !== undefined,
-      ),
-      navAndreEnheter: (data.veilederinformasjon?.navAndreEnheter ?? []).filter(
-        (k): k is string => k !== undefined,
-      ),
-      beskrivelse: data.veilederinformasjon?.beskrivelse ?? null,
-      faneinnhold: (data.veilederinformasjon?.faneinnhold as Faneinnhold | null) ?? null,
-    },
+    detaljer: toGjennomforingDetaljerRequest(data),
+    veilederinformasjon: toGjennomforingVeilederinfoRequest(data),
   };
 }
 
-export function toGjennomforingDetaljerRequest(
-  data: GjennomforingFormValues,
-): GjennomforingDetaljerRequest {
+export function toGjennomforingDetaljerRequest(data: GjennomforingFormValues) {
   return {
     navn: data.navn,
     startDato: data.startDato,
     sluttDato: data.sluttDato || null,
     antallPlasser: data.antallPlasser,
-    arrangorId: data.arrangorId,
+    arrangorId: data.arrangorId ?? null,
     arrangorKontaktpersoner: data.arrangorKontaktpersoner,
-    kontaktpersoner: data.kontaktpersoner.map((k) => ({
-      navIdent: k.navIdent,
-      beskrivelse: k.beskrivelse ?? null,
-    })),
+    kontaktpersoner: data.kontaktpersoner
+      .filter((k) => k.navIdent !== "")
+      .map((k) => ({ navIdent: k.navIdent, beskrivelse: k.beskrivelse ?? null })),
     administratorer: data.administratorer,
-    oppstart: data.oppstart,
-    oppmoteSted: data.oppmoteSted,
+    oppstart: data.oppstart ?? null,
+    oppmoteSted: data.oppmoteSted ?? null,
     deltidsprosent: data.deltidsprosent,
-    estimertVentetid: data.estimertVentetid ?? null,
+    estimertVentetid: data.estimertVentetid
+      ? (data.estimertVentetid as GjennomforingDetaljerRequestEstimertVentetid)
+      : null,
     tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato ?? null,
-    amoKategorisering: data.amoKategorisering ?? null,
-    utdanningslop: data.utdanningslop ?? null,
+    amoKategorisering: (data.amoKategorisering as AmoKategoriseringRequest | null) ?? null,
+    utdanningslop: (data.utdanningslop as UtdanningslopDbo | null) ?? null,
+    pameldingType: data.pameldingType ?? null,
     prismodellId: data.prismodellId || null,
-    pameldingType: data.pameldingType,
   };
 }
 
@@ -98,7 +60,10 @@ export function toGjennomforingVeilederinfoRequest(
     navRegioner: data.veilederinformasjon.navRegioner,
     navKontorer: data.veilederinformasjon.navKontorer,
     navAndreEnheter: data.veilederinformasjon.navAndreEnheter,
-    beskrivelse: data.veilederinformasjon.beskrivelse,
-    faneinnhold: data.veilederinformasjon.faneinnhold,
+    beskrivelse: data.veilederinformasjon.beskrivelse ?? null,
+    faneinnhold: (data.veilederinformasjon.faneinnhold as Faneinnhold | null) ?? null,
+    kontaktpersoner: data.kontaktpersoner
+      .filter((k) => k.navIdent !== "")
+      .map((k) => ({ navIdent: k.navIdent, beskrivelse: k.beskrivelse ?? null })),
   };
 }

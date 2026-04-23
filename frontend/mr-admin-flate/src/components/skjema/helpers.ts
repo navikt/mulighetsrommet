@@ -5,9 +5,11 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 export function applyValidationErrors<T extends FieldValues>(
   form: UseFormReturn<T>,
   error: ValidationError,
+  mapFieldName?: (name: string) => string,
 ) {
   error.errors.forEach((e) => {
-    const name = jsonPointerToFieldPath(e.pointer) as Path<T>;
+    const rawName = jsonPointerToFieldPath(e.pointer);
+    const name = (mapFieldName ? mapFieldName(rawName) : rawName) as Path<T>;
     form.setError(name, { type: "custom", message: e.detail });
   });
 }

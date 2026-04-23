@@ -239,6 +239,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 navAndreEnheter = setOf(),
                 beskrivelse = "Ny beskrivelse",
                 faneinnhold = null,
+                kontaktpersoner = emptySet(),
             )
 
             service.updateVeilederinfo(createRequest.id, veilederinfoRequest, bertilNavIdent).shouldBeRight()
@@ -263,6 +264,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 navAndreEnheter = setOf(),
                 beskrivelse = null,
                 faneinnhold = null,
+                kontaktpersoner = emptySet(),
             )
 
             service.updateVeilederinfo(createRequest.id, veilederinfoRequest, bertilNavIdent)
@@ -276,6 +278,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 navAndreEnheter = setOf(),
                 beskrivelse = null,
                 faneinnhold = null,
+                kontaktpersoner = emptySet(),
             )
 
             service.updateVeilederinfo(createRequest.id, veilederinfoRequest, bertilNavIdent)

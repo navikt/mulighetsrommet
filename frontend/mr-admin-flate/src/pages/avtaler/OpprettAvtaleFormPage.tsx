@@ -6,9 +6,9 @@ import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm"
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import {
-  avtaleFormSchema,
   AvtaleFormValues,
   defaultAvtaleData,
   PersonopplysningerSchema,
@@ -16,27 +16,18 @@ import {
   VeilederinformasjonStepSchema,
 } from "@/schemas/avtale";
 import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { useWizardForm, WizardStep } from "@/hooks/useWizardForm";
+import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { JSX, useCallback, useState } from "react";
-import { DeepPartial, FieldValues, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
-import { ZodObject } from "zod";
+import { FormProvider } from "react-hook-form";
 import { mapNameToSchemaPropertyName, toOpprettAvtaleRequest } from "./avtaleFormUtils";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
-interface Step {
-  key: string;
-  schema: ZodObject;
-  Component: JSX.Element;
-}
-
-const steps: Step[] = [
+const steps: WizardStep[] = [
   {
     key: "Detaljer",
     schema: avtaleDetaljerFormSchema,
@@ -62,83 +53,38 @@ const steps: Step[] = [
 export function OpprettAvtaleFormPage() {
   const brodsmuler: Array<Brodsmule | undefined> = [
     { tittel: "Avtaler", lenke: "/avtaler" },
-    {
-      tittel: "Ny avtale",
-    },
+    { tittel: "Ny avtale" },
   ];
 
   const navigate = useNavigate();
-
   const queryClient = useQueryClient();
   const location = useLocation();
   const opprettAvtale = useOpprettAvtale();
   const { data: ansatt } = useHentAnsatt();
-  const [activeStep, setActiveStep] = useState<number>(1);
-  const [collectedData, setCollectedData] = useState<DeepPartial<AvtaleFormValues>>(
-    defaultAvtaleData(ansatt, location.state?.dupliserAvtale),
-  );
 
-  const currentStep = steps[activeStep - 1];
-  const methods = useForm({
-    resolver: zodResolver(currentStep.schema as ZodObject<any>),
-    defaultValues: collectedData,
-    mode: "onSubmit",
-  });
-
-  const handleValidationError = useCallback(
-    (validation: ValidationError) => {
-      validation.errors.forEach((error) => {
-        const name = mapNameToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
-        methods.setError(name, { type: "custom", message: error.detail });
+  const {
+    activeStep,
+    currentStep,
+    isLastStep,
+    methods,
+    handleStepChange,
+    handleStepBack,
+    handleStepForward,
+  } = useWizardForm<AvtaleFormValues>({
+    steps,
+    defaultValues: defaultAvtaleData(ansatt, location.state?.dupliserAvtale),
+    onCancel: () => navigate("/avtaler"),
+    onSubmit: (data) => {
+      opprettAvtale.mutate(toOpprettAvtaleRequest(data), {
+        onSuccess: ({ data: avtale }) => {
+          queryClient.setQueryData(QueryKeys.avtale(avtale.id), avtale);
+          navigate(`/avtaler/${avtale.id}`);
+        },
+        onValidationError: (error: ValidationError) =>
+          applyValidationErrors(methods, error, mapNameToSchemaPropertyName),
       });
     },
-    [methods],
-  );
-
-  const onSubmit = async (data: AvtaleFormValues) =>
-    opprettAvtale.mutate(toOpprettAvtaleRequest(data), {
-      onValidationError: (error: ValidationError) => {
-        handleValidationError(error);
-      },
-      onSuccess: (dto: { data: AvtaleDto }) => {
-        queryClient.setQueryData(QueryKeys.avtale(dto.data.id), dto.data);
-        navigate(`/avtaler/${dto.data.id}`);
-      },
-    });
-
-  const handleStepChange = (val: number) => {
-    methods.trigger();
-    if (methods.formState.isValid) {
-      setActiveStep(val);
-    } else return;
-  };
-  const handleBackStep = () => {
-    if (activeStep === 1) {
-      navigate("/avtaler");
-    }
-    setActiveStep(activeStep - 1);
-  };
-
-  const handleForwardStep: SubmitHandler<FieldValues> = async (data) => {
-    const mergedData = { ...collectedData, ...data };
-    setCollectedData(mergedData);
-
-    if (!isLastStep(activeStep, steps)) {
-      setActiveStep(activeStep + 1);
-    } else {
-      const result = avtaleFormSchema.safeParse(mergedData);
-      if (result.success) {
-        await onSubmit(result.data);
-      } else {
-        result.error.issues.forEach((err) => {
-          methods.setError(err.path.join("."), {
-            type: "manual",
-            message: err.message,
-          });
-        });
-      }
-    }
-  };
+  });
 
   return (
     <>
@@ -171,26 +117,21 @@ export function OpprettAvtaleFormPage() {
         </Stepper>
         <Separator />
         <FormProvider {...methods}>
-          <form onSubmit={handleForwardStep}>
+          <form onSubmit={methods.handleSubmit(handleStepForward)}>
             <VStack gap="space-8">
               {currentStep.Component}
               <Separator />
               <HStack gap="space-8" justify="end">
                 <ValideringsfeilOppsummering />
-                <Button
-                  size="small"
-                  type="button"
-                  variant="tertiary"
-                  onClick={() => handleBackStep()}
-                >
+                <Button size="small" type="button" variant="tertiary" onClick={handleStepBack}>
                   {activeStep === 1 ? "Avbryt" : "Tilbake"}
                 </Button>
                 <Button
                   size="small"
                   type="button"
-                  onClick={methods.handleSubmit(handleForwardStep)}
+                  onClick={methods.handleSubmit(handleStepForward)}
                 >
-                  {isLastStep(activeStep, steps) ? "Opprett avtale" : "Neste"}
+                  {isLastStep ? "Opprett avtale" : "Neste"}
                 </Button>
               </HStack>
             </VStack>
@@ -199,8 +140,4 @@ export function OpprettAvtaleFormPage() {
       </Box>
     </>
   );
-}
-
-function isLastStep(activeStep: number, steps: Step[]) {
-  return activeStep === steps.length;
 }
