@@ -1,21 +1,21 @@
 import { z } from "zod";
-import { createSorteringProps } from "@/api/atoms";
+import { SortDirection, TiltakstypeSortField } from "@tiltaksadministrasjon/api-client";
 import { createFilterValidator } from "@/filter/filter-validator";
 import { createFilterStateAtom } from "@/filter/filter-state";
 
 const TiltakstypeFilterSchema = z.object({
-  sort: createSorteringProps(z.string()).optional(),
+  sort: z.object({
+    field: z.enum(TiltakstypeSortField),
+    direction: z.enum(SortDirection),
+  }),
 });
 
 export type TiltakstypeFilterType = z.infer<typeof TiltakstypeFilterSchema>;
 
-const defaultTiltakstypeFilter: TiltakstypeFilterType = {
+export const defaultTiltakstypeFilter: TiltakstypeFilterType = {
   sort: {
-    sortString: "navn-ascending",
-    tableSort: {
-      orderBy: "navn",
-      direction: "ascending",
-    },
+    field: TiltakstypeSortField.NAVN,
+    direction: SortDirection.ASC,
   },
 };
 

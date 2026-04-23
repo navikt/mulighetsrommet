@@ -1,12 +1,13 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { TiltakstypeService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { TiltakstypeFilterType } from "@/pages/tiltakstyper/filter";
+import { defaultTiltakstypeFilter, TiltakstypeFilterType } from "@/pages/tiltakstyper/filter";
 
-export function useTiltakstyper(filter: TiltakstypeFilterType = {}) {
+export function useTiltakstyper(filter: TiltakstypeFilterType = defaultTiltakstypeFilter) {
   const queryFilter = {
     query: {
-      sort: filter.sort?.sortString,
+      sortField: filter.sort.field,
+      sortDirection: filter.sort.direction,
     },
   };
 

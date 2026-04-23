@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 import no.nav.mulighetsrommet.model.Tiltakskode
-import java.time.LocalDate
 import java.util.UUID
 
 object TiltakstypeFixtures {
@@ -11,8 +10,6 @@ object TiltakstypeFixtures {
         navn = "Arbeidsforberedende trening",
         tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         arenaKode = "ARBFORB",
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = null,
     )
 
     val VTA = TiltakstypeDbo(
@@ -20,8 +17,6 @@ object TiltakstypeFixtures {
         navn = "Varig tilrettelagt arbeid i skjermet virksomhet",
         tiltakskode = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
         arenaKode = "VASV",
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = null,
     )
 
     val ArbeidsrettetRehabilitering = TiltakstypeDbo(
@@ -29,8 +24,6 @@ object TiltakstypeFixtures {
         navn = "Arbeidsrettet rehabilitering",
         tiltakskode = Tiltakskode.ARBEIDSRETTET_REHABILITERING,
         arenaKode = "ARBRRHDAG",
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = null,
     )
 
     val GruppeAmo = TiltakstypeDbo(
@@ -38,8 +31,6 @@ object TiltakstypeFixtures {
         navn = "Arbeidsmarkedsopplæring (Gruppe)",
         tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         arenaKode = "GRUPPEAMO",
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = null,
     )
 
     val Oppfolging = TiltakstypeDbo(
@@ -47,8 +38,6 @@ object TiltakstypeFixtures {
         navn = "Oppfølging",
         tiltakskode = Tiltakskode.OPPFOLGING,
         arenaKode = "INDOPPFAG",
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = null,
     )
 
     val TilpassetJobbstotte = TiltakstypeDbo(
@@ -56,8 +45,6 @@ object TiltakstypeFixtures {
         navn = "Tilpasset jobbstøtte",
         tiltakskode = Tiltakskode.TILPASSET_JOBBSTOTTE,
         arenaKode = null,
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = null,
     )
 
     val Jobbklubb = TiltakstypeDbo(
@@ -65,8 +52,6 @@ object TiltakstypeFixtures {
         navn = "Jobbklubb",
         tiltakskode = Tiltakskode.JOBBKLUBB,
         arenaKode = "JOBBK",
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = null,
     )
 
     val DigitalOppfolging = TiltakstypeDbo(
@@ -74,8 +59,6 @@ object TiltakstypeFixtures {
         navn = "Digitalt jobbsøkerkurs",
         tiltakskode = Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
         arenaKode = "DIGIOPPARB",
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = null,
     )
 
     val Avklaring = TiltakstypeDbo(
@@ -83,8 +66,6 @@ object TiltakstypeFixtures {
         navn = "Avklaring",
         tiltakskode = Tiltakskode.AVKLARING,
         arenaKode = "AVKLARAG",
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = null,
     )
 
     val GruppeFagOgYrkesopplaering = TiltakstypeDbo(
@@ -92,8 +73,6 @@ object TiltakstypeFixtures {
         navn = "Fag- og yrkesopplæring (Gruppe)",
         tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         arenaKode = "GRUFAGYRKE",
-        startDato = LocalDate.of(2023, 1, 11),
-        sluttDato = null,
     )
 
     val Arbeidstrening = TiltakstypeDbo(
@@ -101,8 +80,6 @@ object TiltakstypeFixtures {
         navn = "Arbeidstrening",
         tiltakskode = Tiltakskode.ARBEIDSTRENING,
         arenaKode = "ARBTREN",
-        startDato = LocalDate.of(2023, 1, 11),
-        sluttDato = null,
     )
 
     val Amo = TiltakstypeDbo(
@@ -110,8 +87,6 @@ object TiltakstypeFixtures {
         navn = "AMO",
         tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
         arenaKode = "GRUPPEAMO",
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = null,
     )
 
     val EnkelAmo = TiltakstypeDbo(
@@ -119,8 +94,6 @@ object TiltakstypeFixtures {
         navn = "Enkel AMO",
         tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         arenaKode = "ENKELAMO",
-        startDato = LocalDate.of(2023, 1, 11),
-        sluttDato = null,
     )
 
     val IPS = TiltakstypeDbo(
@@ -128,7 +101,5 @@ object TiltakstypeFixtures {
         navn = "IPS",
         tiltakskode = Tiltakskode.INDIVIDUELL_JOBBSTOTTE,
         arenaKode = "INDJOBSTOT",
-        startDato = LocalDate.of(2023, 1, 11),
-        sluttDato = null,
     )
 }

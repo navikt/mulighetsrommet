@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.tiltakstype.db
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.data.forAll
-import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -13,9 +11,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
-import java.time.LocalDate
 import java.util.UUID
 
 class TiltakstypeQueriesTest : FunSpec({
@@ -34,29 +30,12 @@ class TiltakstypeQueriesTest : FunSpec({
     }
 
     context("filtrering") {
-        val tiltakstypeStarterIFremtiden = TiltakstypeFixtures.AFT.copy(
-            startDato = LocalDate.now().plusDays(1),
-            sluttDato = LocalDate.now().plusMonths(1),
-        )
-        val tiltakstypeHarStartet = TiltakstypeFixtures.Jobbklubb.copy(
-            startDato = LocalDate.now(),
-            sluttDato = LocalDate.now().plusMonths(1),
-        )
-        val tiltakstypeErAvsluttet = TiltakstypeFixtures.Oppfolging.copy(
-            startDato = LocalDate.now().minusMonths(1),
-            sluttDato = LocalDate.now().minusDays(1),
-        )
-        val tiltakstypeEnkelAmo = TiltakstypeFixtures.EnkelAmo.copy(
-            startDato = LocalDate.now(),
-            sluttDato = LocalDate.now().plusMonths(1),
-        )
-
         test("filtrering på tiltakskode") {
             database.runAndRollback {
-                queries.tiltakstype.upsert(tiltakstypeStarterIFremtiden)
-                queries.tiltakstype.upsert(tiltakstypeHarStartet)
-                queries.tiltakstype.upsert(tiltakstypeErAvsluttet)
-                queries.tiltakstype.upsert(tiltakstypeEnkelAmo)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.AFT)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.Jobbklubb)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.EnkelAmo)
 
                 queries.tiltakstype.getAll(
                     tiltakskoder = setOf(
@@ -65,32 +44,10 @@ class TiltakstypeQueriesTest : FunSpec({
                         Tiltakskode.OPPFOLGING,
                     ),
                 ) shouldContainExactlyIds listOf(
-                    tiltakstypeStarterIFremtiden.id,
-                    tiltakstypeHarStartet.id,
-                    tiltakstypeErAvsluttet.id,
+                    TiltakstypeFixtures.AFT.id,
+                    TiltakstypeFixtures.Jobbklubb.id,
+                    TiltakstypeFixtures.Oppfolging.id,
                 )
-            }
-        }
-
-        test("filtrering på status") {
-            database.runAndRollback {
-                queries.tiltakstype.upsert(tiltakstypeStarterIFremtiden)
-                queries.tiltakstype.upsert(tiltakstypeHarStartet)
-                queries.tiltakstype.upsert(tiltakstypeErAvsluttet)
-                queries.tiltakstype.upsert(tiltakstypeEnkelAmo)
-
-                forAll(
-                    row(
-                        listOf(TiltakstypeStatus.AKTIV),
-                        listOf(tiltakstypeStarterIFremtiden.id, tiltakstypeHarStartet.id, tiltakstypeEnkelAmo.id),
-                    ),
-                    row(
-                        listOf(TiltakstypeStatus.AVSLUTTET),
-                        listOf(tiltakstypeErAvsluttet.id),
-                    ),
-                ) { statuser, expectedIds ->
-                    queries.tiltakstype.getAll(statuser = statuser) shouldContainExactlyIds expectedIds
-                }
             }
         }
     }

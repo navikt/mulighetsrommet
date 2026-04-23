@@ -62,11 +62,9 @@ class TiltakstypeDetaljerService(
     }
 
     fun getAll(filter: TiltakstypeFilter): List<TiltakstypeKompaktDto> {
-        val tiltakstyper = db.session {
-            queries.tiltakstype.getAll(sortering = filter.sortering)
-        }
-
-        return tiltakstyper.map { it.toTiltakstypeKompaktDto() }
+        return db.session {
+            queries.tiltakstype.getAll(sortField = filter.sortField, sortDirection = filter.sortDirection)
+        }.map { it.toTiltakstypeKompaktDto() }
     }
 
     fun getById(id: UUID): TiltakstypeDto? = db.session {
@@ -87,9 +85,6 @@ class TiltakstypeDetaljerService(
             id = tiltakstype.id,
             navn = tiltakstype.navn,
             tiltakskode = tiltakstype.tiltakskode,
-            startDato = tiltakstype.startDato,
-            sluttDato = tiltakstype.sluttDato,
-            status = tiltakstype.status,
             sanityId = tiltakstype.sanityId,
             features = features,
             egenskaper = tiltakstype.tiltakskode.egenskaper,
@@ -110,9 +105,6 @@ class TiltakstypeDetaljerService(
             navn = navn,
             tiltakskode = tiltakskode,
             gruppe = tiltakskode.gruppe?.tittel,
-            startDato = startDato,
-            sluttDato = sluttDato,
-            status = status,
             features = features,
             egenskaper = tiltakskode.egenskaper,
         )
