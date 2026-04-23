@@ -1,34 +1,45 @@
 import { useUpsertDetaljer } from "@/api/avtaler/useUpsertDetaljer";
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { useEditForm } from "@/hooks/useEditForm";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { AvtaleFormValues, defaultAvtaleData } from "@/schemas/avtale";
 import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
-import { mapNameToSchemaPropertyName, toDetaljerRequest } from "./avtaleFormUtils";
+import { toDetaljerRequest } from "./avtaleFormUtils";
 import { RedigerAvtalePageLayout } from "./RedigerAvtalePageLayout";
-import { DetaljerRequest } from "@tiltaksadministrasjon/api-client";
+import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
+import { FormContainer } from "@/components/skjema/FormContainer";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Resolver, useForm } from "react-hook-form";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 export function RedigerAvtaleDetaljerPage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const navigate = useNavigate();
   const { data: avtale } = useAvtale(avtaleId);
   const { data: ansatt } = useHentAnsatt();
+  const mutation = useUpsertDetaljer(avtaleId);
 
-  const { methods, onSubmit } = useEditForm<AvtaleFormValues, DetaljerRequest>({
-    schema: avtaleDetaljerFormSchema,
+  const methods = useForm<AvtaleFormValues>({
+    resolver: zodResolver(avtaleDetaljerFormSchema as any) as Resolver<AvtaleFormValues>,
     defaultValues: defaultAvtaleData(ansatt, avtale),
-    mutation: useUpsertDetaljer(avtaleId),
-    toRequest: (data) => toDetaljerRequest({ data }),
-    onSuccess: () => navigate(`/avtaler/${avtaleId}`),
-    mapErrorFieldName: mapNameToSchemaPropertyName,
+  });
+
+  const onSubmit = methods.handleSubmit((data) => {
+    mutation.mutate(toDetaljerRequest({ data }), {
+      onSuccess: () => navigate(`/avtaler/${avtaleId}`),
+      onValidationError: (validation: ValidationError) => {
+        applyValidationErrors(methods, validation);
+      },
+    });
   });
 
   return (
-    <RedigerAvtalePageLayout seksjonsnavn="avtaledetaljer" methods={methods} onSubmit={onSubmit}>
-      <AvtaleDetaljerForm />
+    <RedigerAvtalePageLayout>
+      <FormContainer heading="Redigerer detaljer" methods={methods} onSubmit={onSubmit}>
+        <AvtaleDetaljerForm />
+      </FormContainer>
     </RedigerAvtalePageLayout>
   );
 }

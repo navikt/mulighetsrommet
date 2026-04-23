@@ -9,11 +9,10 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { defaultGjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
 import { GjennomforingInformasjonForVeiledereForm } from "@/components/gjennomforing/GjennomforingInformasjonForVeiledereForm";
-import { useEditForm } from "@/hooks/useEditForm";
 import { gjennomforingVeilederinfoSchema } from "@/schemas/gjennomforing";
 import {
   GjennomforingAvtaleDto,
-  GjennomforingVeilederinfoRequest,
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { RedigerGjennomforingPageLayout } from "@/pages/gjennomforing/RedigerGjennomforingPageLayout";
@@ -21,6 +20,10 @@ import {
   GjennomforingFormValues,
   toGjennomforingVeilederinfoRequest,
 } from "./gjennomforingFormUtils";
+import { FormContainer } from "@/components/skjema/FormContainer";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Resolver, useForm } from "react-hook-form";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 export function RedigerGjennomforingVeilederinformasjonPage() {
   const detaljer = useGjennomforingByPathParam();
@@ -49,11 +52,10 @@ function RedigerVeilederinformasjonForm({ gjennomforingId, gjennomforing }: Form
   const { data: ansatt } = useHentAnsatt();
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
 
-  const { methods, onSubmit } = useEditForm<
-    GjennomforingFormValues,
-    GjennomforingVeilederinfoRequest
-  >({
-    schema: gjennomforingVeilederinfoSchema,
+  const mutation = useUpdateGjennomforingVeilederinformasjon(gjennomforingId);
+
+  const methods = useForm<GjennomforingFormValues>({
+    resolver: zodResolver(gjennomforingVeilederinfoSchema as any) as Resolver<GjennomforingFormValues>,
     defaultValues: defaultGjennomforingData(
       ansatt,
       tiltakstype,
@@ -64,21 +66,29 @@ function RedigerVeilederinformasjonForm({ gjennomforingId, gjennomforing }: Form
       detaljer.amoKategorisering,
       detaljer.utdanningslop,
     ),
-    mutation: useUpdateGjennomforingVeilederinformasjon(gjennomforingId),
-    toRequest: toGjennomforingVeilederinfoRequest,
-    onSuccess: () => navigate(`/gjennomforinger/${gjennomforingId}/redaksjonelt-innhold`),
+  });
+
+  const onSubmit = methods.handleSubmit((data) => {
+    mutation.mutate(toGjennomforingVeilederinfoRequest(data), {
+      onSuccess: () => navigate(`/gjennomforinger/${gjennomforingId}/redaksjonelt-innhold`),
+      onValidationError: (validation: ValidationError) => {
+        applyValidationErrors(methods, validation);
+      },
+    });
   });
 
   return (
-    <RedigerGjennomforingPageLayout
-      seksjonsnavn="informasjon for veiledere"
-      methods={methods}
-      onSubmit={onSubmit}
-    >
-      <GjennomforingInformasjonForVeiledereForm
-        avtale={avtale}
-        veilederinfo={detaljer.veilederinfo}
-      />
+    <RedigerGjennomforingPageLayout>
+      <FormContainer
+        heading="Redigerer informasjon for veiledere"
+        methods={methods}
+        onSubmit={onSubmit}
+      >
+        <GjennomforingInformasjonForVeiledereForm
+          avtale={avtale}
+          veilederinfo={detaljer.veilederinfo}
+        />
+      </FormContainer>
     </RedigerGjennomforingPageLayout>
   );
 }

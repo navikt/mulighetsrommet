@@ -9,15 +9,18 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { defaultGjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
 import { GjennomforingFormDetaljer } from "@/components/gjennomforing/GjennomforingFormDetaljer";
-import { useEditForm } from "@/hooks/useEditForm";
 import { gjennomforingDetaljerSchema } from "@/schemas/gjennomforing";
 import {
   GjennomforingAvtaleDto,
-  GjennomforingDetaljerRequest,
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { RedigerGjennomforingPageLayout } from "@/pages/gjennomforing/RedigerGjennomforingPageLayout";
 import { GjennomforingFormValues, toGjennomforingDetaljerRequest } from "./gjennomforingFormUtils";
+import { FormContainer } from "@/components/skjema/FormContainer";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Resolver, useForm } from "react-hook-form";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 export function RedigerGjennomforingDetaljerPage() {
   const detaljer = useGjennomforingByPathParam();
@@ -46,8 +49,10 @@ function RedigerDetaljerForm({ gjennomforingId, gjennomforing }: FormProps) {
   const { data: ansatt } = useHentAnsatt();
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
 
-  const { methods, onSubmit } = useEditForm<GjennomforingFormValues, GjennomforingDetaljerRequest>({
-    schema: gjennomforingDetaljerSchema,
+  const mutation = useUpdateGjennomforingDetaljer(gjennomforingId);
+
+  const methods = useForm<GjennomforingFormValues>({
+    resolver: zodResolver(gjennomforingDetaljerSchema as any) as Resolver<GjennomforingFormValues>,
     defaultValues: defaultGjennomforingData(
       ansatt,
       tiltakstype,
@@ -58,20 +63,28 @@ function RedigerDetaljerForm({ gjennomforingId, gjennomforing }: FormProps) {
       detaljer.amoKategorisering,
       detaljer.utdanningslop,
     ),
-    mutation: useUpdateGjennomforingDetaljer(gjennomforingId),
-    toRequest: toGjennomforingDetaljerRequest,
-    onSuccess: () => navigate(`/gjennomforinger/${gjennomforingId}`),
+  });
+
+  const onSubmit = methods.handleSubmit((data) => {
+    mutation.mutate(toGjennomforingDetaljerRequest(data), {
+      onSuccess: () => navigate(`/gjennomforinger/${gjennomforingId}`),
+      onValidationError: (validation: ValidationError) => {
+        applyValidationErrors(methods, validation);
+      },
+    });
   });
 
   return (
-    <RedigerGjennomforingPageLayout seksjonsnavn="detaljer" methods={methods} onSubmit={onSubmit}>
-      <GjennomforingFormDetaljer
-        tiltakstype={tiltakstype}
-        avtale={avtale}
-        gjennomforing={gjennomforing}
-        veilederinfo={detaljer.veilederinfo}
-        deltakere={null}
-      />
+    <RedigerGjennomforingPageLayout>
+      <FormContainer heading="Redigerer detaljer" methods={methods} onSubmit={onSubmit}>
+        <GjennomforingFormDetaljer
+          tiltakstype={tiltakstype}
+          avtale={avtale}
+          gjennomforing={gjennomforing}
+          veilederinfo={detaljer.veilederinfo}
+          deltakere={null}
+        />
+      </FormContainer>
     </RedigerGjennomforingPageLayout>
   );
 }

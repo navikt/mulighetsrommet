@@ -1,7 +1,6 @@
 import { useUpsertVeilederinformasjon } from "@/api/avtaler/useUpsertVeilederinformasjon";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { useEditForm } from "@/hooks/useEditForm";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import {
@@ -11,30 +10,43 @@ import {
 } from "@/schemas/avtale";
 import { toVeilederinfoRequest } from "./avtaleFormUtils";
 import { RedigerAvtalePageLayout } from "./RedigerAvtalePageLayout";
-import { VeilederinfoRequest } from "@tiltaksadministrasjon/api-client";
+import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
+import { FormContainer } from "@/components/skjema/FormContainer";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Resolver, useForm } from "react-hook-form";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 export function RedigerAvtaleVeilederinformasjonPage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const navigate = useNavigate();
   const { data: avtale } = useAvtale(avtaleId);
   const { data: ansatt } = useHentAnsatt();
+  const mutation = useUpsertVeilederinformasjon(avtaleId);
 
-  const { methods, onSubmit } = useEditForm<AvtaleFormValues, VeilederinfoRequest>({
-    schema: VeilederinformasjonStepSchema,
+  const methods = useForm<AvtaleFormValues>({
+    resolver: zodResolver(VeilederinformasjonStepSchema as any) as Resolver<AvtaleFormValues>,
     defaultValues: defaultAvtaleData(ansatt, avtale),
-    mutation: useUpsertVeilederinformasjon(avtaleId),
-    toRequest: (data) => toVeilederinfoRequest({ data }),
-    onSuccess: () => navigate(`/avtaler/${avtaleId}/veilederinformasjon`),
+  });
+
+  const onSubmit = methods.handleSubmit((data) => {
+    mutation.mutate(toVeilederinfoRequest({ data }), {
+      onSuccess: () => navigate(`/avtaler/${avtaleId}/veilederinformasjon`),
+      onValidationError: (validation: ValidationError) => {
+        applyValidationErrors(methods, validation);
+      },
+    });
   });
 
   return (
-    <RedigerAvtalePageLayout
-      seksjonsnavn="veilederinformasjon"
-      methods={methods}
-      onSubmit={onSubmit}
-    >
-      <AvtaleInformasjonForVeiledereForm />
+    <RedigerAvtalePageLayout>
+      <FormContainer
+        heading="Redigerer informasjon for veiledere"
+        methods={methods}
+        onSubmit={onSubmit}
+      >
+        <AvtaleInformasjonForVeiledereForm />
+      </FormContainer>
     </RedigerAvtalePageLayout>
   );
 }

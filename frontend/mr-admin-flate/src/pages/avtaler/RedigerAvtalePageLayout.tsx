@@ -5,23 +5,16 @@ import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { DataElementStatusTag } from "@mr/frontend-common";
-import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { Heading } from "@navikt/ds-react";
-import { AvtaleFormValues } from "@/schemas/avtale";
-import { ReactNode, SubmitEventHandler } from "react";
-import { FormProvider, UseFormReturn } from "react-hook-form";
-import { FormButtons } from "@/components/skjema/FormButtons";
+import { ReactNode } from "react";
 import { useHead } from "@unhead/react";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 
 interface Props {
-  seksjonsnavn: string;
-  methods: UseFormReturn<AvtaleFormValues>;
-  onSubmit: SubmitEventHandler<HTMLFormElement>;
   children: ReactNode;
 }
 
-export function RedigerAvtalePageLayout({ seksjonsnavn, methods, onSubmit, children }: Props) {
+export function RedigerAvtalePageLayout({ children }: Props) {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
 
@@ -35,7 +28,7 @@ export function RedigerAvtalePageLayout({ seksjonsnavn, methods, onSubmit, child
         brodsmuler={[
           { tittel: "Avtaler", lenke: "/avtaler" },
           { tittel: "Avtale", lenke: `/avtaler/${avtaleId}` },
-          { tittel: `Rediger ${seksjonsnavn}` },
+          { tittel: "Rediger avtale" },
         ]}
       />
       <Header>
@@ -46,17 +39,7 @@ export function RedigerAvtalePageLayout({ seksjonsnavn, methods, onSubmit, child
         <DataElementStatusTag {...avtale.status.status} />
       </Header>
       <WhitePaddedBox>
-        <InlineErrorBoundary>
-          <FormProvider {...methods}>
-            <form onSubmit={onSubmit}>
-              <FormButtons heading={`Redigerer ${seksjonsnavn}`} />
-              <Separator />
-              {children}
-              <Separator />
-              <FormButtons />
-            </form>
-          </FormProvider>
-        </InlineErrorBoundary>
+        <InlineErrorBoundary>{children}</InlineErrorBoundary>
       </WhitePaddedBox>
     </div>
   );

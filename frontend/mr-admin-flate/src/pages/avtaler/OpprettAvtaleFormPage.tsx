@@ -1,6 +1,5 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useOpprettAvtale } from "@/api/avtaler/useOpprettAvtale";
-import { QueryKeys } from "@/api/QueryKeys";
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
 import { Header } from "@/components/detaljside/Header";
@@ -19,13 +18,13 @@ import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
 import { useWizardForm, WizardStep } from "@/hooks/useWizardForm";
 import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router";
 import { FormProvider } from "react-hook-form";
-import { mapNameToSchemaPropertyName, toOpprettAvtaleRequest } from "./avtaleFormUtils";
+import { toOpprettAvtaleRequest } from "./avtaleFormUtils";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { v4 as uuidv4 } from "uuid";
 
 const steps: WizardStep[] = [
   {
@@ -57,7 +56,6 @@ export function OpprettAvtaleFormPage() {
   ];
 
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const location = useLocation();
   const opprettAvtale = useOpprettAvtale();
   const { data: ansatt } = useHentAnsatt();
@@ -75,13 +73,10 @@ export function OpprettAvtaleFormPage() {
     defaultValues: defaultAvtaleData(ansatt, location.state?.dupliserAvtale),
     onCancel: () => navigate("/avtaler"),
     onSubmit: (data) => {
-      opprettAvtale.mutate(toOpprettAvtaleRequest(data), {
-        onSuccess: ({ data: avtale }) => {
-          queryClient.setQueryData(QueryKeys.avtale(avtale.id), avtale);
-          navigate(`/avtaler/${avtale.id}`);
-        },
-        onValidationError: (error: ValidationError) =>
-          applyValidationErrors(methods, error, mapNameToSchemaPropertyName),
+      const id = uuidv4();
+      opprettAvtale.mutate(toOpprettAvtaleRequest(id, data), {
+        onSuccess: () => navigate(`/avtaler/${id}`),
+        onValidationError: (error: ValidationError) => applyValidationErrors(methods, error),
       });
     },
   });

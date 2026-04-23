@@ -14,9 +14,9 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
-export function toOpprettAvtaleRequest(data: AvtaleFormValues): OpprettAvtaleRequest {
+export function toOpprettAvtaleRequest(id: string, data: AvtaleFormValues): OpprettAvtaleRequest {
   return {
-    id: v4(),
+    id,
     detaljer: toDetaljerRequest({ data: data }),
     veilederinformasjon: toVeilederinfoRequest({ data: data }),
     personvern: toPersonvernRequest({ data: data }),
@@ -85,15 +85,4 @@ export function toVeilederinfoRequest({
       .concat(veilederinformasjon.navKontorer)
       .concat(veilederinformasjon.navAndreEnheter),
   };
-}
-
-export function mapNameToSchemaPropertyName(name: string) {
-  const mapping: { [name: string]: string } = {
-    opsjonsmodell: "opsjonsmodell.type",
-    opsjonMaksVarighet: "opsjonsmodell.opsjonMaksVarighet",
-    customOpsjonsmodellNavn: "opsjonsmodell.customOpsjonsmodellNavn",
-    tiltakstypeId: "tiltakskode",
-    utdanningslop: "utdanningslop.utdanninger",
-  };
-  return (mapping[name] ?? name) as keyof AvtaleFormValues;
 }
