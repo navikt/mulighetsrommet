@@ -77,7 +77,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
             service.opprett(gyldigRequest, ansatt1).shouldBeRight()
 
             service.godkjenn(gyldigRequest.id, ansatt2).shouldBeRight()
-                .status.type shouldBe TilskuddBehandlingStatus.GODKJENT
+                .status.type shouldBe TilskuddBehandlingStatus.FERDIG_BEHANDLET
         }
     }
 })

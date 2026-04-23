@@ -7812,8 +7812,8 @@ components:
     TilskuddBehandlingStatus:
       type: string
       enum:
-      - TIL_GODKJENNING
-      - GODKJENT
+      - TIL_ATTESTERING
+      - FERDIG_BEHANDLET
       - RETURNERT
     TilskuddBehandlingDto:
       type: object
