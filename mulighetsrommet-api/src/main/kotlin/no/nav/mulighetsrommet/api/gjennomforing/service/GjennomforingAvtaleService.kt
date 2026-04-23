@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -110,6 +111,7 @@ class GjennomforingAvtaleService(
                 navAndreEnheter = emptySet(),
                 beskrivelse = null,
                 faneinnhold = null,
+                kontaktpersoner = emptySet(),
             ),
         )
         val ctx = getValidatorCtx(fullRequest, previous, today)
@@ -141,7 +143,7 @@ class GjennomforingAvtaleService(
         }
     }
 
-    fun updateVeilederinfo(
+    suspend fun updateVeilederinfo(
         id: UUID,
         request: GjennomforingVeilederinfoRequest,
         navIdent: NavIdent,
@@ -151,11 +153,19 @@ class GjennomforingAvtaleService(
 
         val avtale = db.session { queries.avtale.getOrError(previous.avtaleId) }
 
+        request.kontaktpersoner.forEach {
+            navAnsattService.addUserToKontaktpersoner(it.navIdent)
+        }
+
         db.transaction {
             GjennomforingValidator.validateNavEnheter(avtale, request).bind().let {
                 queries.gjennomforing.setNavEnheter(id, it)
             }
             queries.gjennomforing.setRedaksjoneltInnhold(id, request.beskrivelse, request.faneinnhold)
+            queries.gjennomforing.setKontaktpersoner(
+                id,
+                request.kontaktpersoner.map { GjennomforingKontaktpersonDbo(it.navIdent, it.beskrivelse) }.toSet(),
+            )
 
             logEndring("Informasjon for veiledere redigert", id, navIdent)
                 .also { publishToKafka(it) }

@@ -4,11 +4,7 @@ import {
   GjennomforingPameldingType,
 } from "@tiltaksadministrasjon/api-client";
 
-export const gjennomforingDetaljerSchema = z.object({}).loose();
-
-export const gjennomforingVeilederinfoSchema = z.object({}).loose();
-
-export const gjennomforingDetaljerWizardSchema = z
+export const gjennomforingDetaljerSchema = z
   .object({
     navn: z.string().min(1, "Navn er påkrevd"),
     startDato: z.string({ error: "Du må sette en startdato" }).min(1, "Du må sette en startdato"),
@@ -26,12 +22,18 @@ export const gjennomforingDetaljerWizardSchema = z
   })
   .loose();
 
-export const gjennomforingVeilederinfoWizardSchema = z
+export const gjennomforingVeilederinfoSchema = z
   .object({
-    veilederinformasjon: z.object({
-      navRegioner: z.string().array().min(1, "Du må velge minst én Nav-region"),
-      navKontorer: z.string().array(),
-      navAndreEnheter: z.string().array(),
-    }),
+    veilederinformasjon: z
+      .object({
+        navRegioner: z.string().array().min(1, "Du må velge minst én Nav-region"),
+        navKontorer: z.string().array(),
+        navAndreEnheter: z.string().array(),
+      })
+      .loose(),
   })
   .loose();
+
+export const gjennomforingWizardSchema = gjennomforingDetaljerSchema.extend(
+  gjennomforingVeilederinfoSchema.shape,
+);

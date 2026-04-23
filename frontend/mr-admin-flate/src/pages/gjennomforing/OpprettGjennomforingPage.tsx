@@ -11,31 +11,23 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import {
-  gjennomforingDetaljerWizardSchema,
-  gjennomforingVeilederinfoWizardSchema,
+  gjennomforingVeilederinfoSchema,
+  gjennomforingWizardSchema,
 } from "@/schemas/gjennomforing";
+import { useWizardForm, WizardStep } from "@/hooks/useWizardForm";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
-import { JSX, useState } from "react";
-import { DeepPartial, FieldValues, FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { FormProvider } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import { GjennomforingFormValues, toCreateGjennomforingRequest } from "./gjennomforingFormUtils";
-import { applyValidationErrors } from "@/components/skjema/helpers";
-import { ZodObject } from "zod";
 import { v4 as uuidv4 } from "uuid";
 
 const brodsmuler: Array<Brodsmule | undefined> = [
   { tittel: "Gjennomføringer", lenke: "/gjennomforinger" },
-  { tittel: "Ny gjennomføring" },
+  { tittel: "Opprett gjennomføring" },
 ];
-
-interface Step {
-  key: string;
-  schema: ZodObject;
-  Component: JSX.Element;
-}
 
 export function OpprettGjennomforingPage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
@@ -46,24 +38,10 @@ export function OpprettGjennomforingPage() {
   const { data: ansatt } = useHentAnsatt();
   const createGjennomforing = useCreateGjennomforing();
 
-  const [activeStep, setActiveStep] = useState(1);
-  const [collectedData, setCollectedData] = useState<DeepPartial<GjennomforingFormValues>>(
-    defaultGjennomforingData(
-      ansatt,
-      tiltakstype,
-      avtale,
-      location.state?.dupliserGjennomforing?.gjennomforing,
-      location.state?.dupliserGjennomforing?.veilederinfo,
-      null,
-      null,
-      null,
-    ),
-  );
-
-  const steps: Step[] = [
+  const steps: WizardStep[] = [
     {
       key: "Detaljer",
-      schema: gjennomforingDetaljerWizardSchema,
+      schema: gjennomforingWizardSchema,
       Component: (
         <GjennomforingFormDetaljer
           tiltakstype={tiltakstype}
@@ -76,48 +54,41 @@ export function OpprettGjennomforingPage() {
     },
     {
       key: "Informasjon for veiledere",
-      schema: gjennomforingVeilederinfoWizardSchema,
+      schema: gjennomforingVeilederinfoSchema,
       Component: <GjennomforingInformasjonForVeiledereForm avtale={avtale} veilederinfo={null} />,
     },
   ];
 
-  const currentStep = steps[activeStep - 1];
-  const methods = useForm({
-    resolver: zodResolver(currentStep.schema as ZodObject<any>),
-    defaultValues: collectedData,
-    mode: "onSubmit",
-  });
-
-  const handleBackStep = () => {
-    if (activeStep === 1) {
-      navigate(-1);
-    } else {
-      setActiveStep(activeStep - 1);
-    }
-  };
-
-  const handleStepChange = (val: number) => {
-    methods.trigger();
-    if (methods.formState.isValid) {
-      setActiveStep(val);
-    }
-  };
-
-  const handleForwardStep: SubmitHandler<FieldValues> = (data) => {
-    const mergedData = { ...collectedData, ...data };
-    setCollectedData(mergedData);
-
-    if (activeStep < steps.length) {
-      setActiveStep(activeStep + 1);
-    } else {
+  const {
+    activeStep,
+    currentStep,
+    isLastStep,
+    methods,
+    handleStepChange,
+    handleStepBack,
+    handleStepForward,
+  } = useWizardForm<GjennomforingFormValues>({
+    steps,
+    defaultValues: defaultGjennomforingData(
+      ansatt,
+      tiltakstype,
+      avtale,
+      location.state?.dupliserGjennomforing?.gjennomforing,
+      location.state?.dupliserGjennomforing?.veilederinfo,
+      null,
+      null,
+      null,
+    ),
+    onCancel: () => navigate(-1),
+    onSubmit: (data) => {
       const id = uuidv4();
-      const request = toCreateGjennomforingRequest(id, mergedData, avtale);
+      const request = toCreateGjennomforingRequest(id, data, avtale);
       createGjennomforing.mutate(request, {
         onSuccess: () => navigate(`/gjennomforinger/${id}`),
         onValidationError: (error: ValidationError) => applyValidationErrors(methods, error),
       });
-    }
-  };
+    },
+  });
 
   return (
     <>
@@ -126,7 +97,7 @@ export function OpprettGjennomforingPage() {
       <Header>
         <GjennomforingIkon />
         <Heading size="large" level="2">
-          Opprett ny gjennomføring
+          Opprett gjennomføring
         </Heading>
       </Header>
       <Box
@@ -151,22 +122,22 @@ export function OpprettGjennomforingPage() {
         </Stepper>
         <Separator />
         <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(handleForwardStep)}>
+          <form onSubmit={methods.handleSubmit(handleStepForward)}>
             <VStack gap="space-8">
               {currentStep.Component}
               <Separator />
               <HStack gap="space-8" justify="end">
                 <ValideringsfeilOppsummering />
-                <Button size="small" type="button" variant="tertiary" onClick={handleBackStep}>
+                <Button size="small" type="button" variant="tertiary" onClick={handleStepBack}>
                   {activeStep === 1 ? "Avbryt" : "Tilbake"}
                 </Button>
                 <Button
                   size="small"
                   type="button"
                   loading={createGjennomforing.isPending}
-                  onClick={methods.handleSubmit(handleForwardStep)}
+                  onClick={methods.handleSubmit(handleStepForward)}
                 >
-                  {activeStep === steps.length ? "Opprett gjennomføring" : "Neste"}
+                  {isLastStep ? "Opprett gjennomføring" : "Neste"}
                 </Button>
               </HStack>
             </VStack>

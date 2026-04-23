@@ -121,7 +121,6 @@ fun Route.gjennomforingRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Detaljer ble oppdatert"
-                        body<GjennomforingDetaljerDto>()
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
@@ -767,6 +766,7 @@ data class GjennomforingVeilederinfoRequest(
     val navAndreEnheter: Set<NavEnhetNummer>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
+    val kontaktpersoner: Set<GjennomforingDetaljerRequest.Kontaktperson>,
 )
 
 @Serializable

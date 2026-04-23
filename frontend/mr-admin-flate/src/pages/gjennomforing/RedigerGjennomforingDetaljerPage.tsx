@@ -16,7 +16,7 @@ import {
   GjennomforingDetaljerRequest,
 } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
-import { RedigerGjennomforingPageLayout } from "./RedigerGjennomforingPageLayout";
+import { RedigerGjennomforingPageLayout } from "@/pages/gjennomforing/RedigerGjennomforingPageLayout";
 import { GjennomforingFormValues, toGjennomforingDetaljerRequest } from "./gjennomforingFormUtils";
 
 export function RedigerGjennomforingDetaljerPage() {

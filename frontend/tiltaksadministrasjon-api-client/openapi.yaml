@@ -1067,10 +1067,6 @@ paths:
         "200":
           description: Detaljer ble oppdatert
           headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GjennomforingDetaljerDto"
         "400":
           description: Valideringsfeil
           headers: {}
@@ -5189,9 +5185,15 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Faneinnhold"
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingDetaljerRequest.Kontaktperson"
+          uniqueItems: true
       required:
       - beskrivelse
       - faneinnhold
+      - kontaktpersoner
       - navAndreEnheter
       - navKontorer
       - navRegioner
@@ -5217,6 +5219,73 @@ components:
       - id
       - tiltakstypeId
       - veilederinformasjon
+    AvbrytGjennomforingAarsak:
+      type: string
+      enum:
+      - ENDRING_HOS_ARRANGOR
+      - BUDSJETT_HENSYN
+      - FOR_FAA_DELTAKERE
+      - FEILREGISTRERING
+      - AVBRUTT_I_ARENA
+      - ANNET
+    AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak:
+      type: object
+      properties:
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - forklaring
+    PublisertRequest:
+      type: object
+      properties:
+        publisert:
+          type: boolean
+      required:
+      - publisert
+    SetApentForPameldingRequest:
+      type: object
+      properties:
+        apentForPamelding:
+          type: boolean
+      required:
+      - apentForPamelding
+    SetTilgjengligForArrangorRequest:
+      type: object
+      properties:
+        tilgjengeligForArrangorDato:
+          type:
+          - "null"
+          - string
+      required:
+      - tilgjengeligForArrangorDato
+    SetStengtHosArrangorRequest:
+      type: object
+      properties:
+        periodeStart:
+          type:
+          - "null"
+          - string
+          format: date
+        periodeSlutt:
+          type:
+          - "null"
+          - string
+          format: date
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - periodeSlutt
+      - periodeStart
     Gjennomforing.Tiltakstype:
       type: object
       properties:
@@ -5423,15 +5492,6 @@ components:
       required:
       - aarsaker
       - forklaring
-    AvbrytGjennomforingAarsak:
-      type: string
-      enum:
-      - ENDRING_HOS_ARRANGOR
-      - BUDSJETT_HENSYN
-      - FOR_FAA_DELTAKERE
-      - FEILREGISTRERING
-      - AVBRUTT_I_ARENA
-      - ANNET
     GjennomforingEnkeltplassDto:
       type: object
       properties:
@@ -5749,64 +5809,6 @@ components:
       - tiltakstype
       - utdanningslop
       - veilederinfo
-    AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak:
-      type: object
-      properties:
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-        forklaring:
-          type:
-          - "null"
-          - string
-      required:
-      - aarsaker
-      - forklaring
-    PublisertRequest:
-      type: object
-      properties:
-        publisert:
-          type: boolean
-      required:
-      - publisert
-    SetApentForPameldingRequest:
-      type: object
-      properties:
-        apentForPamelding:
-          type: boolean
-      required:
-      - apentForPamelding
-    SetTilgjengligForArrangorRequest:
-      type: object
-      properties:
-        tilgjengeligForArrangorDato:
-          type:
-          - "null"
-          - string
-      required:
-      - tilgjengeligForArrangorDato
-    SetStengtHosArrangorRequest:
-      type: object
-      properties:
-        periodeStart:
-          type:
-          - "null"
-          - string
-          format: date
-        periodeSlutt:
-          type:
-          - "null"
-          - string
-          format: date
-        beskrivelse:
-          type:
-          - "null"
-          - string
-      required:
-      - beskrivelse
-      - periodeSlutt
-      - periodeStart
     AvslaaOkonomiRequest:
       type: object
       properties:

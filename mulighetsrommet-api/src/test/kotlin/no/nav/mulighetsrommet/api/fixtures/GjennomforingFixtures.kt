@@ -344,6 +344,7 @@ object GjennomforingFixtures {
                 navAndreEnheter = setOf(),
                 faneinnhold = null,
                 beskrivelse = null,
+                kontaktpersoner = emptySet(),
             ),
         )
     }
