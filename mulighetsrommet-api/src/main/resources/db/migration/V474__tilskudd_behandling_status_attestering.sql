@@ -1,4 +1,4 @@
--- Rename TIL_GODKJENNING -> TIL_ATTESTERING and GODKJENT -> ATTESTERT
+drop view if exists view_tilskudd_behandling;
 
 insert into tilskudd_behandling_status (value) values ('TIL_ATTESTERING'), ('FERDIG_BEHANDLET');
 
