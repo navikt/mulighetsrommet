@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v6 # Immutable release
         with:
           persist-credentials: false
-      - uses: navikt/digestabot@v1 # Immutable release
+      - uses: navikt/digestabot@v1.1.1 # Immutable release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           team: team-mulighetsrommet
