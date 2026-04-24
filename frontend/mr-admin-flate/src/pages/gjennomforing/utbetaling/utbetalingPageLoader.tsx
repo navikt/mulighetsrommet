@@ -17,13 +17,6 @@ export function useUtbetalingsLinjer(id: string) {
   });
 }
 
-export function useUtbetalingEndringshistorikk(id: string) {
-  return useApiSuspenseQuery({
-    queryKey: QueryKeys.utbetalingHistorikk(id),
-    queryFn: async () => UtbetalingService.getUtbetalingEndringshistorikk({ path: { id } }),
-  });
-}
-
 export function useUtbetalingBeregning(filter: { navEnheter: string[] }, id: string) {
   return useApiSuspenseQuery({
     queryKey: QueryKeys.utbetalingBeregning(filter, id),

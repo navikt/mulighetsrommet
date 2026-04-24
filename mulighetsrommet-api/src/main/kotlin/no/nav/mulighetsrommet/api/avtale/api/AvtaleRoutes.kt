@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
@@ -567,28 +566,6 @@ fun Route.avtaleRoutes() {
             avtaleService.get(id)
                 ?.let { call.respond(avtaleService.handlinger(it, ansatt)) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
-        }
-
-        get("{id}/historikk", {
-            tags = setOf("Avtale")
-            operationId = "getAvtaleEndringshistorikk"
-            request {
-                pathParameterUuid("id")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Avtalens endringshistorikk"
-                    body<EndringshistorikkDto>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-            val historikk = avtaleService.getEndringshistorikk(id)
-            call.respond(historikk)
         }
     }
 }

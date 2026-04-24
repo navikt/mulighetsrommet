@@ -20,13 +20,6 @@ export function useTilsagnRequest(id: string) {
   });
 }
 
-export function useTilsagnEndringshistorikk(id: string) {
-  return useApiSuspenseQuery({
-    queryKey: QueryKeys.tilsagnHistorikk(id),
-    queryFn: async () => TilsagnService.getTilsagnEndringshistorikk({ path: { id } }),
-  });
-}
-
 export function useTilsagnTableData(gjennomforingId: string) {
   return useApiSuspenseQuery({
     queryKey: QueryKeys.getAllTilsagn(gjennomforingId),

@@ -16,8 +16,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
@@ -334,30 +332,6 @@ fun Route.utbetalingRoutes() {
 
                 call.respond(beregning)
             }
-        }
-
-        get("/historikk", {
-            tags = setOf("Utbetaling")
-            operationId = "getUtbetalingEndringshistorikk"
-            request {
-                pathParameterUuid("id")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Utbetalingen ble opprettet"
-                    body<EndringshistorikkDto>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-            val historikk = db.session {
-                queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, id)
-            }
-            call.respond(historikk)
         }
 
         authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {

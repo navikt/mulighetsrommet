@@ -8,6 +8,7 @@ import { SaksopplysningerDetaljer } from "@/components/tilskudd-behandling/Sakso
 import { VedtakDetaljer } from "@/components/tilskudd-behandling/VedtakDetaljer";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import {
+  DocumentClass,
   FieldError,
   TilskuddBehandlingHandling,
   TilskuddBehandlingStatus,
@@ -20,12 +21,17 @@ import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/Tilsk
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { Handlinger } from "@/components/handlinger/Handlinger";
+import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
   const {
     data: { behandling, handlinger, opprettelse },
   } = useTilskuddBehandling(behandlingId);
+  const { data: historikk } = useEndringshistorikk(
+    behandling.id,
+    DocumentClass.TILSKUDD_BEHANDLING,
+  );
   const [currentTab, setCurrentTab] = useState<"saksopplysninger" | "vedtak">("saksopplysninger");
   const [returModalOpen, setReturModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -56,7 +62,6 @@ export function TilskuddBehandlingDetaljerPage() {
     );
   }
 
-  const historikk = { entries: [] };
   const erTilAttestering = behandling.status.type === TilskuddBehandlingStatus.TIL_ATTESTERING;
 
   return (

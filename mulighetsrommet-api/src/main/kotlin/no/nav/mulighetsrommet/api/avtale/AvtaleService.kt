@@ -36,7 +36,6 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -428,10 +427,6 @@ class AvtaleService(
             file.outputStream().use(it::write)
             file.toFile()
         }
-    }
-
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
-        queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
     }
 
     private fun schedulePublishGjennomforingerForAvtale(dto: Avtale) {

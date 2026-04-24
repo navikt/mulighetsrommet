@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.findAvtaltSats
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
@@ -137,10 +136,6 @@ class TilsagnService(
                     updateFreeTextSearch(dbo)
                 }
             }
-    }
-
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
-        queries.endringshistorikk.getEndringshistorikk(DocumentClass.TILSAGN, id)
     }
 
     fun slettTilsagn(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Unit> = db.transaction {

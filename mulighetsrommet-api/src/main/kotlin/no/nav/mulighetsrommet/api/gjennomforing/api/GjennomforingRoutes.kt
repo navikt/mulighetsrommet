@@ -32,7 +32,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
@@ -514,28 +513,6 @@ fun Route.gjennomforingRoutes() {
                         ?: call.respond(HttpStatusCode.NoContent)
                 }
                 ?: call.respondUkjentGjennomforing(id)
-        }
-
-        get("{id}/historikk", {
-            tags = setOf("Gjennomforing")
-            operationId = "getGjennomforingEndringshistorikk"
-            request {
-                pathParameterUuid("id")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Gjennomføringens endringshistorikk"
-                    body<EndringshistorikkDto>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-            val historikk = avtaleGjennomforinger.getEndringshistorikk(id)
-            call.respond(historikk)
         }
 
         get("{id}/deltaker-summary", {

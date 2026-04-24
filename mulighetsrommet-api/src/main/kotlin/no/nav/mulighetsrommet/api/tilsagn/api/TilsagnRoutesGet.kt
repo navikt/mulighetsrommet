@@ -6,7 +6,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getAccessType
@@ -76,28 +75,5 @@ fun Route.tilsagnRoutesGet() {
 
             call.respond(result)
         }
-    }
-
-    get("{id}/historikk", {
-        description = "Hent endringshistorikk for tilsagn"
-        tags = setOf("Tilsagn")
-        operationId = "getTilsagnEndringshistorikk"
-        request {
-            pathParameterUuid("id")
-        }
-        response {
-            code(HttpStatusCode.OK) {
-                description = "Endringshistorikk for tilsagn"
-                body<EndringshistorikkDto>()
-            }
-            default {
-                description = "Problem details"
-                body<ProblemDetail>()
-            }
-        }
-    }) {
-        val id = call.parameters.getOrFail<UUID>("id")
-        val historikk = service.getEndringshistorikk(id)
-        call.respond(historikk)
     }
 }
