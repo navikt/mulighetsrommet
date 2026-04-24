@@ -225,13 +225,14 @@ function OkonomiStatus({ okonomi }: { okonomi: TotrinnskontrollDto }) {
 
   if (isBesluttet(okonomi) && okonomi.besluttelse === Besluttelse.AVVIST) {
     return (
-      <InfoCard data-color="danger">
+      <InfoCard data-color="warning">
         <InfoCard.Header>
-          <InfoCard.Title>Økonomi avslått</InfoCard.Title>
+          <InfoCard.Title>Enkeltplass satt på vent</InfoCard.Title>
         </InfoCard.Header>
         <InfoCard.Content>
           <BodyShort spacing>
-            {okonomi.besluttetAv.navn} avslo økonomi den {formaterDato(okonomi.besluttetTidspunkt)}.
+            {okonomi.besluttetAv.navn} satte godkjenning av enkeltplass på vent den{" "}
+            {formaterDato(okonomi.besluttetTidspunkt)}.
           </BodyShort>
           {okonomi.forklaring && (
             <MetadataFritekstfelt label="Forklaring" value={okonomi.forklaring} />

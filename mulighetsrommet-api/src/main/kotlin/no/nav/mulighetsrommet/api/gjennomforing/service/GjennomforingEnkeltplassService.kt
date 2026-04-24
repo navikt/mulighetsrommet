@@ -207,7 +207,7 @@ class GjennomforingEnkeltplassService(
         logEndring("Enkeltplass ble godkjent", id, navIdent).right()
     }
 
-    fun avvisOkonomi(
+    fun settPaVentOkonomi(
         id: UUID,
         navIdent: NavIdent,
         forklaring: String?,
@@ -216,20 +216,20 @@ class GjennomforingEnkeltplassService(
 
         val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OKONOMI)
         if (opprettelse.besluttelse != null) {
-            return FieldError.of("Kan ikke avvise enkeltplass som allerede er behandlet")
+            return FieldError.of("Kan ikke sette enkeltplass på vent når den allerede er behandlet")
                 .nel()
                 .left()
         }
 
-        val avvistOpprettelse = opprettelse.copy(
+        val paVentOpprettelse = opprettelse.copy(
             besluttetAv = navIdent,
             besluttetTidspunkt = LocalDateTime.now(),
             besluttelse = Besluttelse.AVVIST,
             forklaring = forklaring,
         )
-        queries.totrinnskontroll.upsert(avvistOpprettelse.toDbo())
+        queries.totrinnskontroll.upsert(paVentOpprettelse.toDbo())
 
-        logEndring("Økonomi ble avvist", id, navIdent).right()
+        logEndring("Økonomi ble satt på vent", id, navIdent).right()
     }
 
     private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID, accessType: AccessType): Personalia? {

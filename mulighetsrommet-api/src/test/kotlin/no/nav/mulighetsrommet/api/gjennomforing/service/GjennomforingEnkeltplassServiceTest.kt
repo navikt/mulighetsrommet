@@ -130,7 +130,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val gjennomforing = createEnkeltplass()
             service.create(gjennomforing, opprettetAv).shouldBeRight()
 
-            service.avvisOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil prisbetingelser").shouldBeRight()
+            service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil prisbetingelser").shouldBeRight()
             service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
 
             database.run {
@@ -142,14 +142,14 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         }
     }
 
-    context("avslaaOkonomi") {
+    context("settPaVentOkonomi") {
         val service = createService()
 
-        test("avslår økonomi og setter besluttelse til AVVIST") {
+        test("setter økonomi på vent og setter besluttelse til AVVIST") {
             val gjennomforing = createEnkeltplass()
             service.create(gjennomforing, opprettetAv).shouldBeRight()
 
-            service.avvisOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil").shouldBeRight()
+            service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil").shouldBeRight()
 
             database.run {
                 queries.totrinnskontroll.getOrError(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).should {
@@ -168,11 +168,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.godkjennOkonomi(gjennomforing.id, besluttetAv)
                 .shouldBeLeft()
-                .first().detail shouldBe "Kan ikke avvise enkeltplass som allerede er behandlet"
+                .first().detail shouldBe "Kan ikke godkjenne enkeltplass som allerede er behandlet"
 
-            service.avvisOkonomi(gjennomforing.id, besluttetAv, forklaring = "Angret")
+            service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Angret")
                 .shouldBeLeft()
-                .first().detail shouldBe "Kan ikke avvise enkeltplass som allerede er behandlet"
+                .first().detail shouldBe "Kan ikke sette enkeltplass på vent når den allerede er behandlet"
         }
     }
 
