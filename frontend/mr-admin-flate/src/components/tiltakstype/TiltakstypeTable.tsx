@@ -2,28 +2,17 @@ import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Table } from "@navikt/ds-react";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { TiltakstypeStatusTag } from "@/components/statuselementer/TiltakstypeStatusTag";
 import { tiltakstypeFilterStateAtom } from "@/pages/tiltakstyper/filter";
 import { useFilterState } from "@/filter/useFilterState";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import { SortDirection, TiltakstypeSortField } from "@tiltaksadministrasjon/api-client";
 
 export function TiltakstypeTable() {
   const { filter, updateFilter } = useFilterState(tiltakstypeFilterStateAtom);
 
-  const sort = filter.values.sort?.tableSort;
+  const sort = filter.values.sort;
 
-  const handleSort = (sortKey: string) => {
-    const direction = sort?.direction === "ascending" ? "descending" : "ascending";
-
-    updateFilter({
-      sort: {
-        sortString: `${sortKey}-${direction}`,
-        tableSort: {
-          orderBy: sortKey,
-          direction,
-        },
-      },
-    });
+  const handleSort = (field: TiltakstypeSortField) => {
+    updateFilter({ sort: resolveSort(sort, field) });
   };
 
   const tiltakstyper = useTiltakstyper(filter.values);
@@ -31,15 +20,18 @@ export function TiltakstypeTable() {
   return (
     <TabellWrapper className="m-0">
       <Table
-        sort={sort}
-        onSortChange={(sortKey) => handleSort(sortKey)}
+        sort={{
+          orderBy: sort.field,
+          direction: sort.direction === SortDirection.DESC ? "descending" : "ascending",
+        }}
+        onSortChange={(sortKey) => handleSort(sortKey as TiltakstypeSortField)}
         className="bg-ax-bg-default border-separate border-spacing-0 border-t border-ax-neutral-300"
       >
         <Table.Header>
           <Table.Row>
             {headers.map((header) => (
               <Table.ColumnHeader
-                key={header.sortKey}
+                key={header.tittel}
                 sortKey={header.sortKey}
                 sortable={header.sortable}
                 style={{
@@ -53,8 +45,6 @@ export function TiltakstypeTable() {
         </Table.Header>
         <Table.Body>
           {tiltakstyper.map((tiltakstype) => {
-            const startDato = formaterDato(tiltakstype.startDato);
-            const sluttDato = tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-";
             return (
               <Table.Row key={tiltakstype.id}>
                 <Table.DataCell
@@ -63,11 +53,8 @@ export function TiltakstypeTable() {
                 >
                   <Lenke to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Lenke>
                 </Table.DataCell>
-                <Table.DataCell aria-label={`Startdato: ${startDato}`}>{startDato}</Table.DataCell>
-                <Table.DataCell aria-label={`Sluttdato: ${sluttDato}`}>{sluttDato}</Table.DataCell>
-                <Table.DataCell>
-                  <TiltakstypeStatusTag status={tiltakstype.status} />
-                </Table.DataCell>
+                <Table.DataCell>{tiltakstype.tiltakskode}</Table.DataCell>
+                <Table.DataCell>{tiltakstype.gruppe}</Table.DataCell>
               </Table.Row>
             );
           })}
@@ -78,7 +65,7 @@ export function TiltakstypeTable() {
 }
 
 interface ColumnHeader {
-  sortKey: Kolonne;
+  sortKey?: TiltakstypeSortField;
   tittel: string;
   sortable: boolean;
   width: string;
@@ -86,36 +73,33 @@ interface ColumnHeader {
 
 const headers: ColumnHeader[] = [
   {
-    sortKey: "navn",
+    sortKey: TiltakstypeSortField.NAVN,
     tittel: "Navn",
     sortable: true,
     width: "3fr",
   },
   {
-    sortKey: "startdato",
-    tittel: "Startdato",
+    sortKey: TiltakstypeSortField.TILTAKSKODE,
+    tittel: "Tiltakskode",
     sortable: true,
     width: "1fr",
   },
   {
-    sortKey: "sluttdato",
-    tittel: "Sluttdato",
-    sortable: true,
-    width: "1fr",
-  },
-  {
-    sortKey: "status",
-    tittel: "Status",
+    tittel: "Tiltaksgruppe",
     sortable: false,
     width: "1fr",
   },
 ];
 
-type Kolonne =
-  | "navn"
-  | "avtalenummer"
-  | "arrangor"
-  | "region"
-  | "startdato"
-  | "sluttdato"
-  | "status";
+function resolveSort(
+  current: { field: TiltakstypeSortField; direction: SortDirection },
+  next: TiltakstypeSortField,
+) {
+  if (current.field !== next) {
+    return { field: next, direction: SortDirection.ASC };
+  }
+
+  const direction =
+    current.direction === SortDirection.ASC ? SortDirection.DESC : SortDirection.ASC;
+  return { field: next, direction };
+}

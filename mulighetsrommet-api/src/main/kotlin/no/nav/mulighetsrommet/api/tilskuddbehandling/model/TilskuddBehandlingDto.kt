@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -8,6 +9,7 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.String
 
 @Serializable
 data class TilskuddBehandlingDto(
@@ -22,6 +24,38 @@ data class TilskuddBehandlingDto(
     val kostnadssted: NavEnhetNummer,
     val vedtak: List<TilskuddVedtakDto>,
     val status: TilskuddBehandlingStatusDto,
+    val opprettelse: TotrinnskontrollDto,
+    val handlinger: Set<TilskuddBehandlingHandling>,
+) {
+    companion object {
+        fun from(
+            tilskuddBehandling: TilskuddBehandling,
+            opprettelse: TotrinnskontrollDto,
+            handlinger: Set<TilskuddBehandlingHandling>,
+        ) = TilskuddBehandlingDto(
+            id = tilskuddBehandling.id,
+            gjennomforingId = tilskuddBehandling.gjennomforingId,
+            soknadJournalpostId = tilskuddBehandling.soknadJournalpostId,
+            soknadDato = tilskuddBehandling.soknadDato,
+            periode = tilskuddBehandling.periode,
+            kostnadssted = tilskuddBehandling.kostnadssted,
+            vedtak = tilskuddBehandling.vedtak,
+            status = TilskuddBehandlingStatusDto(tilskuddBehandling.status),
+            opprettelse = opprettelse,
+            handlinger = handlinger,
+        )
+    }
+}
+
+@Serializable
+data class TilskuddBehandlingKompakt(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = LocalDateSerializer::class)
+    val soknadDato: LocalDate,
+    val periode: Periode,
+    val kostnadssted: NavEnhetNummer,
+    val status: TilskuddBehandlingStatusDto,
 )
 
 @Serializable
@@ -33,9 +67,16 @@ data class TilskuddBehandlingStatusDto(
 
 fun toTilskuddBehandlingStatusTag(status: TilskuddBehandlingStatus): DataElement.Status {
     val variant = when (status) {
-        TilskuddBehandlingStatus.TIL_GODKJENNING -> DataElement.Status.Variant.INFO
-        TilskuddBehandlingStatus.GODKJENT -> DataElement.Status.Variant.SUCCESS
+        TilskuddBehandlingStatus.TIL_ATTESTERING -> DataElement.Status.Variant.INFO
+        TilskuddBehandlingStatus.FERDIG_BEHANDLET -> DataElement.Status.Variant.SUCCESS
         TilskuddBehandlingStatus.RETURNERT -> DataElement.Status.Variant.ERROR
     }
     return DataElement.Status(status.beskrivelse, variant)
+}
+
+@Serializable
+enum class TilskuddBehandlingHandling {
+    REDIGER,
+    ATTESTER,
+    RETURNER,
 }

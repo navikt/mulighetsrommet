@@ -1,8 +1,7 @@
-import { TiltakstypeFilterType } from "@/pages/tiltakstyper/filter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { erTilgjengeligForGjennomforinger } from "@/utils/tiltakstype";
 
-export function useTiltakstyperForGjennomforinger(filter: TiltakstypeFilterType = {}) {
-  const tiltakstyper = useTiltakstyper(filter);
+export function useTiltakstyperForGjennomforinger() {
+  const tiltakstyper = useTiltakstyper();
   return tiltakstyper.filter(erTilgjengeligForGjennomforinger);
 }

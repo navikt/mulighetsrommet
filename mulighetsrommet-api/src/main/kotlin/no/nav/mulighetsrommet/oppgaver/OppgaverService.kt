@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
@@ -27,7 +28,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
 
         return OppgaveType.entries
             .filter { it.rolle in roller }
-            .filter { isEnkeltplassEnabled() || it.kategori != Kategori.ENKELTPLASS }
+            .filter { isEnkeltplassEnabled() || it.kategori !in setOf(Kategori.ENKELTPLASS, Kategori.TILSKUDDBEHANDLING) }
             .map { OppgaveTypeDto(navn = it.navn, type = it) }
     }
 
@@ -94,6 +95,15 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                     enkeltplassOppgaver(
                         tiltakskoder = tiltakskoder,
                         navEnheter = navEnheterForRegioner,
+                        ansatt = ansatt,
+                    ),
+                )
+            }
+            if (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.TILSKUDDBEHANDLING }) {
+                addAll(
+                    tilskuddBehandlingOppgaver(
+                        tiltakskoder = tiltakskoder,
+                        kostnadssteder = navEnheterForRegioner,
                         ansatt = ansatt,
                     ),
                 )
@@ -174,12 +184,34 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
         navEnheter: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
-        return queries.oppgave
+        val tilGodkjenning = queries.oppgave
             .getEnkeltplassOppgaveData(
                 tiltakskoder = tiltakskoder.ifEmpty { null },
                 navEnheter = navEnheter.ifEmpty { null },
             )
             .mapNotNull { it.toOppgave(ansatt) }
+
+        val sattPaVent = queries.oppgave
+            .getEnkeltplassSattPaVentOppgaveData(
+                tiltakskoder = tiltakskoder.ifEmpty { null },
+                navEnheter = navEnheter.ifEmpty { null },
+            )
+            .mapNotNull { it.toOppgave(ansatt) }
+
+        return tilGodkjenning + sattPaVent
+    }
+
+    private fun QueryContext.tilskuddBehandlingOppgaver(
+        tiltakskoder: Set<Tiltakskode>,
+        kostnadssteder: Set<NavEnhetNummer>,
+        ansatt: NavAnsatt,
+    ): List<Oppgave> {
+        return queries.oppgave
+            .getTilskuddBehandlingOppgaveData(
+                tiltakskoder = tiltakskoder.ifEmpty { null },
+                kostnadssteder = kostnadssteder.ifEmpty { null },
+            )
+            .mapNotNull { toTilskuddBehandlingOppgave(it, ansatt) }
     }
 
     private fun byKostnadssted(
@@ -466,6 +498,69 @@ private fun EnkeltplassOppgaveData.toOppgave(ansatt: NavAnsatt): Oppgave? {
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
             setOf(ansvarligEnhet.nummer),
         )
+    }
+}
+
+private fun EnkeltplassSattPaVentOppgaveData.toOppgave(ansatt: NavAnsatt): Oppgave? {
+    return Oppgave(
+        id = gjennomforing.id,
+        type = OppgaveType.ENKELTPLASS_SATT_PA_VENT,
+        navn = OppgaveType.ENKELTPLASS_SATT_PA_VENT.navn,
+        enhet = ansvarligEnhet,
+        title = getOkonomiOppgaveTitle(tiltakstype, gjennomforing),
+        description = "Enkeltplassen er satt på vent av beslutter",
+        tiltakstype = tiltakstype,
+        link = OppgaveLink(
+            linkText = "Se enkeltplass",
+            link = "/gjennomforinger/${gjennomforing.id}",
+        ),
+        createdAt = besluttetTidspunkt,
+    ).takeIf {
+        GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.OPPRETT_UTBETALING)
+    }
+}
+
+private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ansatt: NavAnsatt): Oppgave? {
+    val link = OppgaveLink(
+        linkText = "Se tilskuddsbehandling",
+        link = "/gjennomforinger/${data.gjennomforing.id}/tilskudd-behandling/${data.id}",
+    )
+
+    val title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing)
+
+    return when (data.status) {
+        TilskuddBehandlingStatus.TIL_ATTESTERING -> {
+            Oppgave(
+                id = data.id,
+                type = OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING,
+                navn = OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING.navn,
+                enhet = data.kostnadssted,
+                title = title,
+                description = "Tilskuddsbehandling for perioden ${data.periode.formatPeriode()} er sendt til attestering",
+                tiltakstype = data.tiltakstype,
+                link = link,
+                createdAt = data.opprettelse.behandletTidspunkt,
+            ).takeIf {
+                data.opprettelse.behandletAv != ansatt.navIdent
+            }
+        }
+
+        TilskuddBehandlingStatus.RETURNERT -> {
+            requireNotNull(data.opprettelse.besluttetTidspunkt)
+            Oppgave(
+                id = data.id,
+                type = OppgaveType.TILSKUDDBEHANDLING_RETURNERT,
+                navn = OppgaveType.TILSKUDDBEHANDLING_RETURNERT.navn,
+                enhet = data.kostnadssted,
+                title = title,
+                description = "Tilskuddsbehandling for perioden ${data.periode.formatPeriode()} er returnert av attestant",
+                tiltakstype = data.tiltakstype,
+                link = link,
+                createdAt = data.opprettelse.besluttetTidspunkt,
+            )
+        }
+
+        TilskuddBehandlingStatus.FERDIG_BEHANDLET -> null
     }
 }
 

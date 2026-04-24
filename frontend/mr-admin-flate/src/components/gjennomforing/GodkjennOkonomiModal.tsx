@@ -1,5 +1,5 @@
 import { useGodkjennGjennomforingOkonomi } from "@/api/gjennomforing/useGodkjennGjennomforingOkonomi";
-import { useAvslaaGjennomforingOkonomi } from "@/api/gjennomforing/useAvslaaGjennomforingOkonomi";
+import { useSettPaVentGjennomforingOkonomi } from "@/api/gjennomforing/useSettPaVentGjennomforingOkonomi";
 import { BodyShort, Button, Modal, Textarea } from "@navikt/ds-react";
 import { useState } from "react";
 
@@ -11,14 +11,14 @@ interface Props {
 
 export function GodkjennOkonomiModal({ open, setOpen, gjennomforingId }: Props) {
   const godkjennMutation = useGodkjennGjennomforingOkonomi();
-  const avslaaMutation = useAvslaaGjennomforingOkonomi();
+  const settPaVentMutation = useSettPaVentGjennomforingOkonomi();
 
-  const [avslaaMode, setAvslaaMode] = useState(false);
+  const [settPaVentMode, setSettPaVentMode] = useState(false);
   const [forklaring, setForklaring] = useState("");
 
   function lukk() {
     setOpen(false);
-    setAvslaaMode(false);
+    setSettPaVentMode(false);
     setForklaring("");
   }
 
@@ -26,21 +26,21 @@ export function GodkjennOkonomiModal({ open, setOpen, gjennomforingId }: Props) 
     godkjennMutation.mutate({ id: gjennomforingId }, { onSuccess: lukk });
   }
 
-  function avsla() {
-    avslaaMutation.mutate(
+  function settPaVent() {
+    settPaVentMutation.mutate(
       { id: gjennomforingId, forklaring: forklaring || null },
       { onSuccess: lukk },
     );
   }
 
   return (
-    <Modal open={open} onClose={lukk} header={{ heading: "Godkjenn økonomi" }} width="medium">
+    <Modal open={open} onClose={lukk} header={{ heading: "Godkjenn enkeltplass" }} width="medium">
       <Modal.Body>
-        {avslaaMode ? (
+        {settPaVentMode ? (
           <>
             <BodyShort spacing>
-              Du er i ferd med å avslå økonomi for gjennomføringen. Du kan eventuelt legge inn en
-              forklaring nedenfor.
+              Du er i ferd med å sette økonomi for gjennomføringen på vent. Du kan eventuelt legge
+              inn en forklaring nedenfor.
             </BodyShort>
             <Textarea
               label="Forklaring (valgfritt)"
@@ -51,18 +51,18 @@ export function GodkjennOkonomiModal({ open, setOpen, gjennomforingId }: Props) 
           </>
         ) : (
           <BodyShort>
-            Bekreft at du har gjennomgått og godkjenner økonomien for gjennomføringen, eller avslå
-            dersom det er feil.
+            Bekreft at du har gjennomgått og godkjenner økonomien for gjennomføringen, eller sett på
+            vent dersom flere avklaringer er nødvendig.
           </BodyShort>
         )}
       </Modal.Body>
       <Modal.Footer>
-        {avslaaMode ? (
+        {settPaVentMode ? (
           <>
-            <Button variant="danger" onClick={avsla} loading={avslaaMutation.isPending}>
-              Avslå
+            <Button variant="primary" onClick={settPaVent} loading={settPaVentMutation.isPending}>
+              Sett på vent
             </Button>
-            <Button variant="secondary" onClick={() => setAvslaaMode(false)}>
+            <Button variant="secondary" onClick={() => setSettPaVentMode(false)}>
               Tilbake
             </Button>
           </>
@@ -71,8 +71,8 @@ export function GodkjennOkonomiModal({ open, setOpen, gjennomforingId }: Props) 
             <Button onClick={godkjenn} loading={godkjennMutation.isPending}>
               Bekreft
             </Button>
-            <Button variant="secondary" onClick={() => setAvslaaMode(true)}>
-              Avslå
+            <Button variant="secondary" onClick={() => setSettPaVentMode(true)}>
+              Sett på vent
             </Button>
           </>
         )}

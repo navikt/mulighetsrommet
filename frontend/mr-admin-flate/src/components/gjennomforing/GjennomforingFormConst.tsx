@@ -10,6 +10,7 @@ import {
   GjennomforingVeilederinfoDto,
   NavAnsattDto,
   PrismodellDto,
+  Tiltakskode,
   TiltakstypeDto,
   UtdanningslopDbo,
   UtdanningslopDto,
@@ -86,10 +87,20 @@ export function defaultGjennomforingData(
       : avtale.utdanningslop
         ? toUtdanningslopDbo(avtale.utdanningslop)
         : null,
-    oppmoteSted: veilederinfo?.oppmoteSted ?? null,
+    oppmoteSted: oppmoteSted(tiltakstype.tiltakskode, veilederinfo),
     pameldingType: gjennomforing?.pameldingType || getDefaultPameldingType(oppstart),
     prismodellId: prismodell?.id ?? avtale.prismodeller[0]?.id,
   };
+}
+
+function oppmoteSted(
+  tiltakskode: Tiltakskode,
+  veilederinfo: Partial<GjennomforingVeilederinfoDto> | null,
+): string | null {
+  if (tiltakskode === Tiltakskode.TILPASSET_JOBBSTOTTE) {
+    return null;
+  }
+  return veilederinfo?.oppmoteSted ?? null;
 }
 
 function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {

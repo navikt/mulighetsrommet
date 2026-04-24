@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytelseDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.DeltakerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
@@ -14,6 +15,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
@@ -59,11 +62,13 @@ object GjennomforingDtoMapper {
         amoKategorisering = detaljer.amoKategorisering?.toDto(gjennomforing.tiltakstype.tiltakskode),
         utdanningslop = detaljer.utdanningslop,
         okonomi = null,
+        enkeltplassDeltaker = null,
     )
 
     fun fromEnkeltplass(
         gjennomforing: GjennomforingEnkeltplass,
         okonomi: Totrinnskontroll?,
+        deltakerOgPersonalia: Pair<Deltaker, Personalia?>?,
     ) = GjennomforingDetaljerDto(
         tiltakstype = gjennomforing.tiltakstype,
         gjennomforing = GjennomforingEnkeltplassDto(
@@ -89,6 +94,7 @@ object GjennomforingDtoMapper {
         okonomi = okonomi?.toDto(),
         amoKategorisering = null,
         utdanningslop = null,
+        enkeltplassDeltaker = deltakerOgPersonalia?.toDto(),
     )
 
     fun fromGjennomforingStatus(status: GjennomforingStatusType): GjennomforingDto.Status {
@@ -144,3 +150,12 @@ object GjennomforingDtoMapper {
         navn = ansvarligEnhet.navn,
     )
 }
+
+fun Pair<Deltaker, Personalia?>.toDto() = DeltakerDto(
+    id = first.id,
+    status = first.status.type.toDataElement(),
+    innholdAnnet = first.innholdAnnet,
+    navn = second?.navn,
+    norskIdent = second?.norskIdent,
+    oppfolgingEnhet = second?.oppfolgingEnhet,
+)

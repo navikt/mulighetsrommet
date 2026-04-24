@@ -56,7 +56,7 @@ class TiltakstypeService(
     fun getAllIdsByFeatures(features: Set<TiltakstypeFeature>): List<UUID> {
         val tiltakskoder = getTiltakskodeByFeatures(features)
         return db.session {
-            queries.tiltakstype.getAll(tiltakskoder = tiltakskoder, sortering = null).map { it.id }
+            queries.tiltakstype.getAll(tiltakskoder = tiltakskoder).map { it.id }
         }
     }
 

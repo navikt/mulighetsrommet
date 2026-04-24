@@ -364,6 +364,16 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
+    context("oppmotested") {
+        test("oppmotested er ikke påkrevd") {
+            GjennomforingValidator.validate(request.copy(oppmoteSted = null), ctx).shouldBeRight()
+        }
+
+        test("oppmotested må være innenfor maks tegn grense") {
+            GjennomforingValidator.validate(request.copy(oppmoteSted = ":)".repeat(251)), ctx).shouldBeLeft()
+        }
+    }
+
     test("Nav-regioner og Nav-enheter er påkrevd") {
         GjennomforingValidator.validateNavEnheter(
             ctx.avtale,
@@ -391,7 +401,6 @@ class GjennomforingValidatorTest : FunSpec({
             it.shouldBe(setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer))
         }
     }
-
     context("når gjennonmføring allerede eksisterer") {
         val gjennomforing = GjennomforingValidator.Ctx.Gjennomforing(
             arrangorId = ArrangorFixtures.underenhet1.id,

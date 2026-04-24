@@ -1,0 +1,34 @@
+package no.nav.mulighetsrommet.api.fixtures
+
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtakDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
+import java.time.LocalDate
+import java.util.UUID
+
+object TilskuddFixtures {
+    val Behandling = TilskuddBehandlingDbo(
+        id = UUID.randomUUID(),
+        gjennomforingId = EnkelAmo.id,
+        soknadJournalpostId = "J-2024-001",
+        soknadDato = LocalDate.of(2024, 1, 15),
+        periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        vedtak = emptyList(),
+        status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+    )
+    val Vedtak = TilskuddVedtakDbo(
+        id = UUID.randomUUID(),
+        tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
+        soknadBelop = 50000,
+        soknadValuta = Valuta.NOK,
+        vedtakResultat = VedtakResultat.INNVILGELSE,
+        kommentarVedtaksbrev = null,
+        utbetalingMottaker = "Universitetet i Oslo",
+    )
+}

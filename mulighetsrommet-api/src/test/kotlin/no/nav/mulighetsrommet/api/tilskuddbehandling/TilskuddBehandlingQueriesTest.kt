@@ -45,7 +45,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 utbetalingMottaker = "Universitetet i Oslo",
             ),
         ),
-        status = TilskuddBehandlingStatus.TIL_GODKJENNING,
+        status = TilskuddBehandlingStatus.TIL_ATTESTERING,
     )
 
     context("insert and get") {
@@ -53,7 +53,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                queries.tilskuddBehandling.insert(behandling)
+                queries.tilskuddBehandling.upsert(behandling)
 
                 queries.tilskuddBehandling.get(behandling.id) should {
                     requireNotNull(it)

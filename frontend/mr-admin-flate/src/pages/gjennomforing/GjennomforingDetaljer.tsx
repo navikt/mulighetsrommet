@@ -46,12 +46,20 @@ import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
+import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const detaljer = useGjennomforing(gjennomforingId);
-  const { gjennomforing, veilederinfo, utdanningslop, amoKategorisering, prismodell, okonomi } =
-    detaljer;
+  const {
+    gjennomforing,
+    veilederinfo,
+    utdanningslop,
+    amoKategorisering,
+    prismodell,
+    okonomi,
+    enkeltplassDeltaker,
+  } = detaljer;
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
   const { data: avtale } = usePotentialAvtale(
     isGruppetiltak(gjennomforing) ? gjennomforing.avtaleId : null,
@@ -167,6 +175,9 @@ export function GjennomforingDetaljer() {
             <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
           )}
           {isEnkeltplass(gjennomforing) && okonomi && <OkonomiStatus okonomi={okonomi} />}
+          {isEnkeltplass(gjennomforing) && enkeltplassDeltaker && (
+            <DeltakerinformasjonOgBetalingsbetingelser deltaker={enkeltplassDeltaker} />
+          )}
         </DetaljerLayout>
       </TwoColumnGrid>
       <Separator />
@@ -214,13 +225,14 @@ function OkonomiStatus({ okonomi }: { okonomi: TotrinnskontrollDto }) {
 
   if (isBesluttet(okonomi) && okonomi.besluttelse === Besluttelse.AVVIST) {
     return (
-      <InfoCard data-color="danger">
+      <InfoCard data-color="warning">
         <InfoCard.Header>
-          <InfoCard.Title>Økonomi avslått</InfoCard.Title>
+          <InfoCard.Title>Enkeltplass satt på vent</InfoCard.Title>
         </InfoCard.Header>
         <InfoCard.Content>
           <BodyShort spacing>
-            {okonomi.besluttetAv.navn} avslo økonomi den {formaterDato(okonomi.besluttetTidspunkt)}.
+            {okonomi.besluttetAv.navn} satte godkjenning av enkeltplass på vent den{" "}
+            {formaterDato(okonomi.besluttetTidspunkt)}.
           </BodyShort>
           {okonomi.forklaring && (
             <MetadataFritekstfelt label="Forklaring" value={okonomi.forklaring} />

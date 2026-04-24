@@ -82,13 +82,20 @@ paths:
       - Tiltakstype
       operationId: getTiltakstyper
       parameters:
-      - name: sort
+      - name: sortField
         in: query
         required: false
         deprecated: false
         explode: false
         schema:
-          type: string
+          $ref: "#/components/schemas/TiltakstypeSortField"
+      - name: sortDirection
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/SortDirection"
       responses:
         "200":
           description: Tiltakstyper i Tiltaksadministrasjon
@@ -1319,11 +1326,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/gjennomforinger/{id}/avsla-okonomi:
+  /api/tiltaksadministrasjon/gjennomforinger/{id}/sett-pa-vent-okonomi:
     post:
       tags:
       - Gjennomforing
-      operationId: avslaaGjennomforingOkonomi
+      operationId: settPaVentGjennomforingOkonomi
       parameters:
       - name: id
         in: path
@@ -1337,11 +1344,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AvslaaOkonomiRequest"
+              $ref: "#/components/schemas/SettPaVentOkonomiRequest"
         required: false
       responses:
         "200":
-          description: Økonomi ble avslått
+          description: Økonomi ble satt på vent
           headers: {}
         default:
           description: Problem details
@@ -3461,6 +3468,16 @@ components:
       - status
       - title
       - type
+    TiltakstypeSortField:
+      type: string
+      enum:
+      - NAVN
+      - TILTAKSKODE
+    SortDirection:
+      type: string
+      enum:
+      - ASC
+      - DESC
     TiltakstypeKompaktDto:
       type: object
       properties:
@@ -3475,16 +3492,6 @@ components:
           type:
           - "null"
           - string
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        status:
-          $ref: "#/components/schemas/TiltakstypeStatus"
         features:
           type: array
           items:
@@ -3501,9 +3508,6 @@ components:
       - gruppe
       - id
       - navn
-      - sluttDato
-      - startDato
-      - status
       - tiltakskode
     Tiltakskode:
       type: string
@@ -3537,11 +3541,6 @@ components:
       - SOMMERJOBB
       - VTAO
       - FIREARIG_LONNSTILSUDD
-    TiltakstypeStatus:
-      type: string
-      enum:
-      - AKTIV
-      - AVSLUTTET
     TiltakstypeFeature:
       type: string
       enum:
@@ -3726,16 +3725,6 @@ components:
           type:
           - "null"
           - string
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        status:
-          $ref: "#/components/schemas/TiltakstypeStatus"
         sanityId:
           type:
           - "null"
@@ -3765,9 +3754,6 @@ components:
       - id
       - navn
       - sanityId
-      - sluttDato
-      - startDato
-      - status
       - tiltakskode
       - veilederinfo
     TiltakstypeHandling:
@@ -5558,6 +5544,88 @@ components:
       - behandletAv
       - behandletTidspunkt
       - forklaring
+    DeltakerDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type:
+          - "null"
+          - string
+        norskIdent:
+          type:
+          - "null"
+          - string
+        oppfolgingEnhet:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/NavEnhetDto"
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+        innholdAnnet:
+          type:
+          - "null"
+          - string
+      required:
+      - id
+      - innholdAnnet
+      - navn
+      - norskIdent
+      - oppfolgingEnhet
+      - status
+    NavEnhetDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+        type:
+          $ref: "#/components/schemas/NavEnhetType"
+        overordnetEnhet:
+          type:
+          - "null"
+          - string
+      required:
+      - enhetsnummer
+      - navn
+      - overordnetEnhet
+      - type
+    NavEnhetType:
+      type: string
+      enum:
+      - KO
+      - FYLKE
+      - TILTAK
+      - AAREG
+      - ALS
+      - ARK
+      - DIR
+      - DOKSENTER
+      - EKSTERN
+      - FORVALTNING
+      - FPY
+      - HELFO
+      - HMS
+      - INNKREV
+      - INTRO
+      - IT
+      - KLAGE
+      - KONTAKT
+      - KONTROLL
+      - LOKAL
+      - OKONOMI
+      - OTENESTE
+      - OPPFUTLAND
+      - OTENESE
+      - RIKSREV
+      - ROBOT
+      - ROL
+      - TILLIT
+      - UTLAND
+      - YTA
     GjennomforingDetaljerDto:
       type: object
       properties:
@@ -5583,8 +5651,13 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/TotrinnskontrollDto"
+        enkeltplassDeltaker:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakerDto"
       required:
       - amoKategorisering
+      - enkeltplassDeltaker
       - gjennomforing
       - okonomi
       - prismodell
@@ -5649,7 +5722,7 @@ components:
       - beskrivelse
       - periodeSlutt
       - periodeStart
-    AvslaaOkonomiRequest:
+    SettPaVentOkonomiRequest:
       type: object
       properties:
         forklaring:
@@ -5852,6 +5925,7 @@ components:
       - OPPRETT_TILSAGN_FOR_INVESTERINGER
       - OPPRETT_UTBETALING
       - GODKJENN_ENKELTPLASS_OKONOMI
+      - SETT_PA_VENT_ENKELTPLASS_OKONOMI
     PrismodellInfo:
       type: object
       properties:
@@ -6232,57 +6306,6 @@ components:
       - norskIdent
       - oppfolgingEnhet
       - status
-    NavEnhetDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        type:
-          $ref: "#/components/schemas/NavEnhetType"
-        overordnetEnhet:
-          type:
-          - "null"
-          - string
-      required:
-      - enhetsnummer
-      - navn
-      - overordnetEnhet
-      - type
-    NavEnhetType:
-      type: string
-      enum:
-      - KO
-      - FYLKE
-      - TILTAK
-      - AAREG
-      - ALS
-      - ARK
-      - DIR
-      - DOKSENTER
-      - EKSTERN
-      - FORVALTNING
-      - FPY
-      - HELFO
-      - HMS
-      - INNKREV
-      - INTRO
-      - IT
-      - KLAGE
-      - KONTAKT
-      - KONTROLL
-      - LOKAL
-      - OKONOMI
-      - OTENESTE
-      - OPPFUTLAND
-      - OTENESE
-      - RIKSREV
-      - ROBOT
-      - ROL
-      - TILLIT
-      - UTLAND
-      - YTA
     TilsagnBeregningDto:
       type: object
       properties:
@@ -7116,6 +7139,9 @@ components:
       - AVTALE_MANGLER_ADMINISTRATOR
       - GJENNOMFORING_MANGLER_ADMINISTRATOR
       - ENKELTPLASS_TIL_GODKJENNING
+      - ENKELTPLASS_SATT_PA_VENT
+      - TILSKUDDBEHANDLING_TIL_ATTESTERING
+      - TILSKUDDBEHANDLING_RETURNERT
     OppgaverFilter:
       type: object
       properties:
@@ -7776,9 +7802,15 @@ components:
     TilskuddBehandlingStatus:
       type: string
       enum:
-      - TIL_GODKJENNING
-      - GODKJENT
+      - TIL_ATTESTERING
+      - FERDIG_BEHANDLET
       - RETURNERT
+    TilskuddBehandlingHandling:
+      type: string
+      enum:
+      - REDIGER
+      - ATTESTER
+      - RETURNER
     TilskuddBehandlingDto:
       type: object
       properties:
@@ -7803,10 +7835,19 @@ components:
             $ref: "#/components/schemas/TilskuddVedtakDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+        opprettelse:
+          $ref: "#/components/schemas/TotrinnskontrollDto"
+        handlinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddBehandlingHandling"
+          uniqueItems: true
       required:
       - gjennomforingId
+      - handlinger
       - id
       - kostnadssted
+      - opprettelse
       - periode
       - soknadDato
       - soknadJournalpostId
