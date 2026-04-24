@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -40,7 +41,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Tilskuddsbehandling"
-                        body<TilskuddBehandlingDto>()
+                        body<TilskuddBehandlingDetaljerDto>()
                     }
                     default {
                         description = "Problem details"
@@ -50,7 +51,7 @@ fun Route.tilskuddBehandlingRoutes() {
             }) {
                 val tilskuddBehandlingId = call.parameters.getOrFail<UUID>("tilskuddBehandlingId")
                 val navIdent = getNavIdent()
-                val result = service.get(tilskuddBehandlingId, navIdent)
+                val result = service.getDetaljerDto(tilskuddBehandlingId, navIdent)
                     ?: return@get call.respond(HttpStatusCode.NotFound)
                 call.respond(result)
             }

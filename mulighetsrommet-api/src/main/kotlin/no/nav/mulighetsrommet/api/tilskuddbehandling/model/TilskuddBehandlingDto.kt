@@ -24,28 +24,14 @@ data class TilskuddBehandlingDto(
     val kostnadssted: NavEnhetNummer,
     val vedtak: List<TilskuddVedtakDto>,
     val status: TilskuddBehandlingStatusDto,
+)
+
+@Serializable
+data class TilskuddBehandlingDetaljerDto(
+    val behandling: TilskuddBehandlingDto,
     val opprettelse: TotrinnskontrollDto,
     val handlinger: Set<TilskuddBehandlingHandling>,
-) {
-    companion object {
-        fun from(
-            tilskuddBehandling: TilskuddBehandling,
-            opprettelse: TotrinnskontrollDto,
-            handlinger: Set<TilskuddBehandlingHandling>,
-        ) = TilskuddBehandlingDto(
-            id = tilskuddBehandling.id,
-            gjennomforingId = tilskuddBehandling.gjennomforingId,
-            soknadJournalpostId = tilskuddBehandling.soknadJournalpostId,
-            soknadDato = tilskuddBehandling.soknadDato,
-            periode = tilskuddBehandling.periode,
-            kostnadssted = tilskuddBehandling.kostnadssted,
-            vedtak = tilskuddBehandling.vedtak,
-            status = TilskuddBehandlingStatusDto(tilskuddBehandling.status),
-            opprettelse = opprettelse,
-            handlinger = handlinger,
-        )
-    }
-}
+)
 
 @Serializable
 data class TilskuddBehandlingKompakt(

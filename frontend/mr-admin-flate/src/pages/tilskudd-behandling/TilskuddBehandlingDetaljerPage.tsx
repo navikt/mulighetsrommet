@@ -23,7 +23,9 @@ import { Handlinger } from "@/components/handlinger/Handlinger";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
-  const { data: behandling } = useTilskuddBehandling(behandlingId);
+  const {
+    data: { behandling, handlinger, opprettelse },
+  } = useTilskuddBehandling(behandlingId);
   const [currentTab, setCurrentTab] = useState<"saksopplysninger" | "vedtak">("saksopplysninger");
   const [returModalOpen, setReturModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -59,7 +61,7 @@ export function TilskuddBehandlingDetaljerPage() {
 
   return (
     <TilskuddBehandlingLayout
-      opprettelse={behandling.opprettelse}
+      opprettelse={opprettelse}
       gjennomforingId={gjennomforingId}
       currentTab={currentTab}
       onTabChange={setCurrentTab}
@@ -74,7 +76,7 @@ export function TilskuddBehandlingDetaljerPage() {
               <ViewEndringshistorikk historikk={historikk} />
             </EndringshistorikkPopover>
             <Handlinger>
-              {behandling.handlinger.includes(TilskuddBehandlingHandling.REDIGER) && (
+              {handlinger.includes(TilskuddBehandlingHandling.REDIGER) && (
                 <ActionMenu.Item onSelect={() => navigate("rediger")}>Rediger</ActionMenu.Item>
               )}
             </Handlinger>
@@ -87,7 +89,7 @@ export function TilskuddBehandlingDetaljerPage() {
         <>
           {erTilAttestering && (
             <HStack gap="space-8" marginBlock="space-16" justify="end">
-              {behandling.handlinger.includes(TilskuddBehandlingHandling.RETURNER) && (
+              {handlinger.includes(TilskuddBehandlingHandling.RETURNER) && (
                 <Button
                   variant="secondary"
                   size="small"
@@ -97,7 +99,7 @@ export function TilskuddBehandlingDetaljerPage() {
                   Send i retur
                 </Button>
               )}
-              {behandling.handlinger.includes(TilskuddBehandlingHandling.ATTESTER) && (
+              {handlinger.includes(TilskuddBehandlingHandling.ATTESTER) && (
                 <Button variant="primary" size="small" type="button" onClick={attester}>
                   Attester
                 </Button>

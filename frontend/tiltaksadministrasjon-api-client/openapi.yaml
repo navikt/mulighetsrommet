@@ -3270,7 +3270,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TilskuddBehandlingDto"
+                $ref: "#/components/schemas/TilskuddBehandlingDetaljerDto"
         default:
           description: Problem details
           headers: {}
@@ -7745,6 +7745,39 @@ components:
       - EKSAMENSAVGIFT
       - SEMESTERAVGIFT
       - INTEGRERT_BOTILBUD
+    TilskuddBehandlingDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        gjennomforingId:
+          type: string
+          format: uuid
+        soknadJournalpostId:
+          type: string
+        soknadDato:
+          type: string
+          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssted:
+          type: string
+        vedtak:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddVedtakDto"
+        status:
+          $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+      required:
+      - gjennomforingId
+      - id
+      - kostnadssted
+      - periode
+      - soknadDato
+      - soknadJournalpostId
+      - status
+      - vedtak
     TilskuddVedtakDto:
       type: object
       properties:
@@ -7809,30 +7842,11 @@ components:
       - REDIGER
       - ATTESTER
       - RETURNER
-    TilskuddBehandlingDto:
+    TilskuddBehandlingDetaljerDto:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        gjennomforingId:
-          type: string
-          format: uuid
-        soknadJournalpostId:
-          type: string
-        soknadDato:
-          type: string
-          format: date
-        periode:
-          $ref: "#/components/schemas/Periode"
-        kostnadssted:
-          type: string
-        vedtak:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilskuddVedtakDto"
-        status:
-          $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+        behandling:
+          $ref: "#/components/schemas/TilskuddBehandlingDto"
         opprettelse:
           $ref: "#/components/schemas/TotrinnskontrollDto"
         handlinger:
@@ -7841,16 +7855,9 @@ components:
             $ref: "#/components/schemas/TilskuddBehandlingHandling"
           uniqueItems: true
       required:
-      - gjennomforingId
+      - behandling
       - handlinger
-      - id
-      - kostnadssted
       - opprettelse
-      - periode
-      - soknadDato
-      - soknadJournalpostId
-      - status
-      - vedtak
     TilskuddBehandlingRequest.TilskuddVedtakRequest:
       type: object
       properties:

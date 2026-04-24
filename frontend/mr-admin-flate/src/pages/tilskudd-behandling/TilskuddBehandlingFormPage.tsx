@@ -32,7 +32,8 @@ const tabs: Tab[] = [
 export function TilskuddBehandlingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { behandlingId } = useParams();
-  const { data: behandling } = usePotentialTilskuddBehandling(behandlingId ?? null);
+  const { data } = usePotentialTilskuddBehandling(behandlingId ?? null);
+  const behandling = data?.behandling;
   const [currentTab, setCurrentTab] = useState<TilskuddBehandlingTab>(tabs[0].key);
   const navigate = useNavigate();
   const mutation = useOpprettTilskuddBehandling(gjennomforingId);
@@ -133,7 +134,7 @@ export function TilskuddBehandlingFormPage() {
     <FormProvider {...form}>
       <form onSubmit={onSubmit}>
         <TilskuddBehandlingLayout
-          opprettelse={behandling?.opprettelse}
+          opprettelse={data?.opprettelse}
           gjennomforingId={gjennomforingId}
           currentTab={currentTab}
           onTabChange={setCurrentTab}
