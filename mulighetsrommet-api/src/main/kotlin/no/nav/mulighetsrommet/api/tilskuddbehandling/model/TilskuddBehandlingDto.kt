@@ -33,8 +33,8 @@ data class TilskuddBehandlingStatusDto(
 
 fun toTilskuddBehandlingStatusTag(status: TilskuddBehandlingStatus): DataElement.Status {
     val variant = when (status) {
-        TilskuddBehandlingStatus.TIL_GODKJENNING -> DataElement.Status.Variant.INFO
-        TilskuddBehandlingStatus.GODKJENT -> DataElement.Status.Variant.SUCCESS
+        TilskuddBehandlingStatus.TIL_ATTESTERING -> DataElement.Status.Variant.INFO
+        TilskuddBehandlingStatus.FERDIG_BEHANDLET -> DataElement.Status.Variant.SUCCESS
         TilskuddBehandlingStatus.RETURNERT -> DataElement.Status.Variant.ERROR
     }
     return DataElement.Status(status.beskrivelse, variant)

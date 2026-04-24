@@ -48,7 +48,7 @@ object TilskuddBehandlingValidator {
             periode = Periode(periodeStart, periodeSlutt),
             kostnadssted = request.kostnadssted,
             vedtak = vedtak,
-            status = TilskuddBehandlingStatus.TIL_GODKJENNING,
+            status = TilskuddBehandlingStatus.TIL_ATTESTERING,
         )
     }
 

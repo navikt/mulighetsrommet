@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -336,6 +337,68 @@ class OppgaveQueries(private val session: Session) {
             )
         }
     }
+
+    fun getTilskuddBehandlingOppgaveData(
+        tiltakskoder: Set<Tiltakskode>?,
+        kostnadssteder: Set<NavEnhetNummer>?,
+    ): List<TilskuddBehandlingOppgaveData> {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                tb.id,
+                tb.status,
+                tb.periode,
+                tb.kostnadssted,
+                nav_enhet.navn as kostnadssted_navn,
+                gjennomforing.id as gjennomforing_id,
+                gjennomforing.lopenummer as gjennomforing_lopenummer,
+                gjennomforing.navn as gjennomforing_navn,
+                gjennomforing.gjennomforing_type,
+                tiltakstype.tiltakskode as tiltakstype_tiltakskode,
+                tiltakstype.navn as tiltakstype_navn,
+                tk.behandlet_av,
+                tk.behandlet_tidspunkt,
+                tk.besluttet_tidspunkt
+            from tilskudd_behandling tb
+                inner join gjennomforing on gjennomforing.id = tb.gjennomforing_id
+                inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
+                inner join nav_enhet on nav_enhet.enhetsnummer = tb.kostnadssted
+                inner join (
+                    select distinct on (entity_id) *
+                    from totrinnskontroll
+                    where type = 'OPPRETT'
+                    order by entity_id, behandlet_tidspunkt desc
+                ) tk on tk.entity_id = tb.id
+            where
+                tb.status in ('TIL_ATTESTERING', 'RETURNERT')
+                and (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
+                and (:kostnadssteder::text[] is null or tb.kostnadssted = any(:kostnadssteder))
+        """.trimIndent()
+
+        val params = mapOf(
+            "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
+            "kostnadssteder" to kostnadssteder?.let { session.createArrayOfValue(it) { it.value } },
+        )
+
+        return session.list(queryOf(query, params)) { row ->
+            TilskuddBehandlingOppgaveData(
+                id = row.uuid("id"),
+                status = TilskuddBehandlingStatus.valueOf(row.string("status")),
+                periode = row.periode("periode"),
+                kostnadssted = OppgaveEnhet(
+                    navn = row.string("kostnadssted_navn"),
+                    nummer = NavEnhetNummer(row.string("kostnadssted")),
+                ),
+                opprettelse = TilskuddBehandlingOppgaveData.Opprettelse(
+                    behandletAv = row.string("behandlet_av").toAgent(),
+                    behandletTidspunkt = row.localDateTime("behandlet_tidspunkt"),
+                    besluttetTidspunkt = row.localDateTimeOrNull("besluttet_tidspunkt"),
+                ),
+                tiltakstype = row.toOppgaveTiltakstype(),
+                gjennomforing = row.toOppgaveGjennomforing(),
+            )
+        }
+    }
 }
 
 private fun Row.toOppgaveTiltakstype(): OppgaveTiltakstype = OppgaveTiltakstype(
@@ -405,6 +468,22 @@ data class EnkeltplassOppgaveData(
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing.Enkeltplass,
 )
+
+data class TilskuddBehandlingOppgaveData(
+    val id: UUID,
+    val status: TilskuddBehandlingStatus,
+    val periode: Periode,
+    val kostnadssted: OppgaveEnhet,
+    val opprettelse: Opprettelse,
+    val tiltakstype: OppgaveTiltakstype,
+    val gjennomforing: OppgaveGjennomforing,
+) {
+    data class Opprettelse(
+        val behandletAv: Agent,
+        val behandletTidspunkt: LocalDateTime,
+        val besluttetTidspunkt: LocalDateTime?,
+    )
+}
 
 private fun Row.toOppgaveGjennomforing(): OppgaveGjennomforing {
     val id = uuid("gjennomforing_id")

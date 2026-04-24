@@ -45,7 +45,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 utbetalingMottaker = "Universitetet i Oslo",
             ),
         ),
-        status = TilskuddBehandlingStatus.TIL_GODKJENNING,
+        status = TilskuddBehandlingStatus.TIL_ATTESTERING,
     )
 
     context("insert and get") {

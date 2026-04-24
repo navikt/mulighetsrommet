@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 
 enum class TilskuddBehandlingStatus(val beskrivelse: String) {
-    TIL_GODKJENNING("Til godkjenning"),
-    GODKJENT("Godkjent"),
+    TIL_ATTESTERING("Til attestering"),
+    FERDIG_BEHANDLET("Ferdig behandlet"),
     RETURNERT("Returnert"),
 }

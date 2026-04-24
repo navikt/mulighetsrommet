@@ -7138,6 +7138,8 @@ components:
       - AVTALE_MANGLER_ADMINISTRATOR
       - GJENNOMFORING_MANGLER_ADMINISTRATOR
       - ENKELTPLASS_TIL_GODKJENNING
+      - TILSKUDDBEHANDLING_TIL_ATTESTERING
+      - TILSKUDDBEHANDLING_RETURNERT
     OppgaverFilter:
       type: object
       properties:
@@ -7798,8 +7800,8 @@ components:
     TilskuddBehandlingStatus:
       type: string
       enum:
-      - TIL_GODKJENNING
-      - GODKJENT
+      - TIL_ATTESTERING
+      - FERDIG_BEHANDLET
       - RETURNERT
     TilskuddBehandlingDto:
       type: object

@@ -50,7 +50,7 @@ export function TilskuddBehandlingDetaljerPage() {
     );
   }
 
-  const erTilGodkjenning = behandling.status.type === TilskuddBehandlingStatus.TIL_GODKJENNING;
+  const erTilAttestering = behandling.status.type === TilskuddBehandlingStatus.TIL_ATTESTERING;
 
   return (
     <TilskuddBehandlingLayout
@@ -68,7 +68,7 @@ export function TilskuddBehandlingDetaljerPage() {
       actions={
         <>
           <HStack gap="space-8" marginBlock="space-16" justify="end">
-            {erTilGodkjenning && (
+            {erTilAttestering && (
               <>
                 <Button
                   variant="secondary"
