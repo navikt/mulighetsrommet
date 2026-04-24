@@ -125,6 +125,21 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 .shouldBeLeft()
                 .first().detail shouldBe "Du kan ikke godkjenne økonomi for en gjennomføring du selv har opprettet"
         }
+
+        test("kan godkjenne enkeltplass etter avvisning") {
+            val gjennomforing = createEnkeltplass()
+            service.create(gjennomforing, opprettetAv).shouldBeRight()
+
+            service.avvisOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil prisbetingelser").shouldBeRight()
+            service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
+
+            database.run {
+                queries.totrinnskontroll.getOrError(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).should {
+                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                    it.forklaring shouldBe null
+                }
+            }
+        }
     }
 
     context("avslaaOkonomi") {
@@ -143,6 +158,21 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     it.forklaring shouldBe "Feil"
                 }
             }
+        }
+
+        test("returnerer feil når enkeltplass allerede er behandlet") {
+            val gjennomforing = createEnkeltplass()
+            service.create(gjennomforing, opprettetAv).shouldBeRight()
+
+            service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
+
+            service.godkjennOkonomi(gjennomforing.id, besluttetAv)
+                .shouldBeLeft()
+                .first().detail shouldBe "Kan ikke avvise enkeltplass som allerede er behandlet"
+
+            service.avvisOkonomi(gjennomforing.id, besluttetAv, forklaring = "Angret")
+                .shouldBeLeft()
+                .first().detail shouldBe "Kan ikke avvise enkeltplass som allerede er behandlet"
         }
     }
 

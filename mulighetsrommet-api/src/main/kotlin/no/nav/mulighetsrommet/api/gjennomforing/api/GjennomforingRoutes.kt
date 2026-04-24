@@ -602,7 +602,10 @@ fun Route.gjennomforingRoutes() {
     }
 }
 
-private suspend fun GjennomforingDetaljerService.getOrInternalServerError(id: UUID, accessType: AccessType.OBO.AzureAd): Either<InternalServerError, GjennomforingDetaljerDto> {
+private suspend fun GjennomforingDetaljerService.getOrInternalServerError(
+    id: UUID,
+    accessType: AccessType.OBO.AzureAd,
+): Either<InternalServerError, GjennomforingDetaljerDto> {
     return getGjennomforingDetaljerDto(id, accessType)?.right()
         ?: InternalServerError("Klarte ikke hente detaljer om gjennomforing=$id").left()
 }
@@ -824,4 +827,5 @@ enum class GjennomforingHandling {
     OPPRETT_TILSAGN_FOR_INVESTERINGER,
     OPPRETT_UTBETALING,
     GODKJENN_ENKELTPLASS_OKONOMI,
+    SETT_PA_VENT_ENKELTPLASS_OKONOMI,
 }
