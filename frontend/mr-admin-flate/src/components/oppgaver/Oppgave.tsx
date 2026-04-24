@@ -18,12 +18,7 @@ export function Oppgave({ oppgave }: OppgaveProps) {
   const { title, navn, type, description, link, createdAt } = oppgave;
   return (
     <LinkCard>
-      <Box
-        asChild
-        borderRadius="12"
-        padding="space-8"
-        style={{ backgroundColor: "var(--ax-neutral-200A)" }}
-      >
+      <Box asChild borderRadius="12" padding="space-8" background="neutral-moderate">
         <LinkCard.Icon>
           <OppgaveIcon type={type} fontSize="2rem" />
         </LinkCard.Icon>
@@ -57,16 +52,18 @@ function OppgaveIcon({ type, fontSize }: { type: OppgaveType; fontSize?: string 
     case OppgaveType.AVTALE_MANGLER_ADMINISTRATOR:
     case OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR:
       return <HandshakeIcon fontSize={fontSize} />;
+    case OppgaveType.UTBETALING_RETURNERT:
+    case OppgaveType.UTBETALING_TIL_BEHANDLING:
+    case OppgaveType.UTBETALING_TIL_ATTESTERING:
+      return <BankNoteIcon fontSize={fontSize} />;
     case OppgaveType.TILSAGN_TIL_OPPGJOR:
     case OppgaveType.TILSAGN_TIL_ANNULLERING:
     case OppgaveType.TILSAGN_RETURNERT:
-      return <BankNoteIcon fontSize={fontSize} />;
-    case OppgaveType.UTBETALING_RETURNERT:
-    case OppgaveType.UTBETALING_TIL_BEHANDLING:
-      return <PiggybankIcon fontSize={fontSize} />;
-    case OppgaveType.UTBETALING_TIL_ATTESTERING:
     case OppgaveType.TILSAGN_TIL_GODKJENNING:
+      return <PiggybankIcon fontSize={fontSize} />;
     case OppgaveType.ENKELTPLASS_TIL_GODKJENNING:
+    case OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING:
+    case OppgaveType.TILSKUDDBEHANDLING_RETURNERT:
       return <GavelSoundBlockIcon fontSize={fontSize} />;
   }
 }
@@ -80,10 +77,12 @@ function getOppgaveVariant(type: OppgaveType) {
     case OppgaveType.TILSAGN_TIL_ANNULLERING:
     case OppgaveType.TILSAGN_RETURNERT:
     case OppgaveType.UTBETALING_RETURNERT:
+    case OppgaveType.TILSKUDDBEHANDLING_RETURNERT:
       return "error";
     case OppgaveType.TILSAGN_TIL_GODKJENNING:
     case OppgaveType.UTBETALING_TIL_ATTESTERING:
     case OppgaveType.ENKELTPLASS_TIL_GODKJENNING:
+    case OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING:
       return "info";
     case OppgaveType.UTBETALING_TIL_BEHANDLING:
       return "success";

@@ -73,7 +73,7 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
         val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
             "TilskuddBehandling med id $id ble ikke funnet"
         }
-        if (behandling.status !== TilskuddBehandlingStatus.TIL_GODKJENNING) {
+        if (behandling.status !== TilskuddBehandlingStatus.TIL_ATTESTERING) {
             return FieldError
                 .of("Tilskuddsbehandling kan ikke godkjennes fordi det har status ${behandling.status.beskrivelse}")
                 .nel()
@@ -94,7 +94,7 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
             besluttelse = Besluttelse.GODKJENT,
         )
         queries.totrinnskontroll.upsert(godkjentOpprettelse.toDbo())
-        queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.GODKJENT)
+        queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
         Unit.right()
     }
 
@@ -107,7 +107,7 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
         val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
             "TilskuddBehandling med id $id ble ikke funnet"
         }
-        if (behandling.status !== TilskuddBehandlingStatus.TIL_GODKJENNING) {
+        if (behandling.status !== TilskuddBehandlingStatus.TIL_ATTESTERING) {
             return FieldError
                 .of("Tilskuddsbehandling kan ikke returneres fordi det har status ${behandling.status.beskrivelse}")
                 .nel()
@@ -149,8 +149,8 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
 
         return setOfNotNull(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status == TilskuddBehandlingStatus.RETURNERT },
-            TilskuddBehandlingHandling.ATTESTER.takeIf { behandling.status == TilskuddBehandlingStatus.TIL_GODKJENNING },
-            TilskuddBehandlingHandling.RETURNER.takeIf { behandling.status == TilskuddBehandlingStatus.TIL_GODKJENNING },
+            TilskuddBehandlingHandling.ATTESTER.takeIf { behandling.status == TilskuddBehandlingStatus.TIL_ATTESTERING },
+            TilskuddBehandlingHandling.RETURNER.takeIf { behandling.status == TilskuddBehandlingStatus.TIL_ATTESTERING },
         )
             .filter {
                 tilgangTilHandling(

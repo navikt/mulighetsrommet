@@ -54,8 +54,8 @@ export function TilskuddBehandlingDetaljerPage() {
     );
   }
 
-  const erTilGodkjenning = behandling.status.type === TilskuddBehandlingStatus.TIL_GODKJENNING;
   const historikk = { entries: [] };
+  const erTilAttestering = behandling.status.type === TilskuddBehandlingStatus.TIL_ATTESTERING;
 
   return (
     <TilskuddBehandlingLayout
@@ -85,7 +85,7 @@ export function TilskuddBehandlingDetaljerPage() {
       vedtakContent={<VedtakDetaljer behandling={behandling} />}
       actions={
         <>
-          {erTilGodkjenning && (
+          {erTilAttestering && (
             <HStack gap="space-8" marginBlock="space-16" justify="end">
               {behandling.handlinger.includes(TilskuddBehandlingHandling.RETURNER) && (
                 <Button
