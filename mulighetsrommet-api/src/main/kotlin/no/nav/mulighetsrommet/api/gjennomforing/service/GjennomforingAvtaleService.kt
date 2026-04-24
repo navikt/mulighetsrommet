@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -57,41 +56,26 @@ class GjennomforingAvtaleService(
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, GjennomforingAvtale> = either {
-        val id = request.id
-        val ctx = getValidatorCtx(request, null, today)
+        db.session { queries.gjennomforing.getGjennomforing(request.id) }
+            ?.let { raise(listOf(FieldError.of("Gjennomføringen finnes allerede"))) }
 
-        val result = GjennomforingValidator
-            .validate(request, ctx)
-            .onRight { result ->
-                result.kontaktpersoner.forEach {
-                    navAnsattService.addUserToKontaktpersoner(it.navIdent)
-                }
-            }
+        val detaljerResult = validateDetaljer(request.id, request.tiltakstypeId, request.avtaleId, request.detaljer, null, today)
+            .bind()
+        val veilederinfoResult = validateVeilederinfo(request.avtaleId, request.veilederinformasjon)
             .bind()
 
         db.transaction {
-            queries.gjennomforing.upsert(result.gjennomforing)
-            setAdministratorer(id, result.administratorer, navIdent, result.gjennomforing.navn)
-            queries.gjennomforing.setKontaktpersoner(id, result.kontaktpersoner)
-            queries.gjennomforing.setArrangorKontaktpersoner(id, request.detaljer.arrangorKontaktpersoner)
-            GjennomforingValidator.validateNavEnheter(ctx.avtale, request.veilederinformasjon).bind().let {
-                queries.gjennomforing.setNavEnheter(id, it)
-            }
-            GjennomforingValidator.validateUtdanningslop(ctx.avtale, request.detaljer.utdanningslop).bind().let {
-                queries.gjennomforing.setUtdanningslop(id, it)
-            }
-            GjennomforingValidator.validateAmoKategorisering(ctx.avtale, request.detaljer.amoKategorisering).bind()
-                .let {
-                    queries.gjennomforing.setAmoKategorisering(id, it)
-                }
+            queries.gjennomforing.upsert(detaljerResult.gjennomforing)
+            persistDetaljer(request.id, detaljerResult, navIdent)
+            persistVeilederinfo(request.id, veilederinfoResult, request.veilederinformasjon)
 
-            logEndring("Opprettet gjennomføring", id, navIdent)
+            logEndring("Opprettet gjennomføring", request.id, navIdent)
                 .also { updateFreeTextSearch(it) }
                 .also { publishToKafka(it) }
         }
     }
 
-    suspend fun updateDetaljer(
+    fun updateDetaljer(
         id: UUID,
         request: GjennomforingDetaljerRequest,
         navIdent: NavIdent,
@@ -100,42 +84,11 @@ class GjennomforingAvtaleService(
         val previous = db.session { getGjennomforingAvtale(id) }
             ?: raise(listOf(FieldError.root("Gjennomføringen finnes ikke")))
 
-        val fullRequest = GjennomforingRequest(
-            id = id,
-            tiltakstypeId = previous.tiltakstype.id,
-            avtaleId = previous.avtaleId,
-            detaljer = request,
-            veilederinformasjon = GjennomforingVeilederinfoRequest(
-                navRegioner = emptySet(),
-                navKontorer = emptySet(),
-                navAndreEnheter = emptySet(),
-                beskrivelse = null,
-                faneinnhold = null,
-                kontaktpersoner = emptySet(),
-            ),
-        )
-        val ctx = getValidatorCtx(fullRequest, previous, today)
-
-        val result = GjennomforingValidator
-            .validate(fullRequest, ctx)
-            .onRight { result ->
-                result.kontaktpersoner.forEach {
-                    navAnsattService.addUserToKontaktpersoner(it.navIdent)
-                }
-            }
+        val detaljerResult = validateDetaljer(id, previous.tiltakstype.id, previous.avtaleId, request, previous, today)
             .bind()
 
         db.transaction {
-            queries.gjennomforing.updateDetaljer(result.gjennomforing)
-            setAdministratorer(id, result.administratorer, navIdent, result.gjennomforing.navn)
-            queries.gjennomforing.setKontaktpersoner(id, result.kontaktpersoner)
-            queries.gjennomforing.setArrangorKontaktpersoner(id, request.arrangorKontaktpersoner)
-            GjennomforingValidator.validateUtdanningslop(ctx.avtale, request.utdanningslop).bind().let {
-                queries.gjennomforing.setUtdanningslop(id, it)
-            }
-            GjennomforingValidator.validateAmoKategorisering(ctx.avtale, request.amoKategorisering).bind().let {
-                queries.gjennomforing.setAmoKategorisering(id, it)
-            }
+            persistDetaljer(id, detaljerResult, navIdent)
 
             logEndring("Detaljer redigert", id, navIdent)
                 .also { updateFreeTextSearch(it) }
@@ -151,21 +104,11 @@ class GjennomforingAvtaleService(
         val previous = db.session { getGjennomforingAvtale(id) }
             ?: raise(listOf(FieldError.root("Gjennomføringen finnes ikke")))
 
-        val avtale = db.session { queries.avtale.getOrError(previous.avtaleId) }
-
-        request.kontaktpersoner.forEach {
-            navAnsattService.addUserToKontaktpersoner(it.navIdent)
-        }
+        val veilederinfoResult = validateVeilederinfo(previous.avtaleId, request)
+            .bind()
 
         db.transaction {
-            GjennomforingValidator.validateNavEnheter(avtale, request).bind().let {
-                queries.gjennomforing.setNavEnheter(id, it)
-            }
-            queries.gjennomforing.setRedaksjoneltInnhold(id, request.beskrivelse, request.faneinnhold)
-            queries.gjennomforing.setKontaktpersoner(
-                id,
-                request.kontaktpersoner.map { GjennomforingKontaktpersonDbo(it.navIdent, it.beskrivelse) }.toSet(),
-            )
+            persistVeilederinfo(id, veilederinfoResult, request)
 
             logEndring("Informasjon for veiledere redigert", id, navIdent)
                 .also { publishToKafka(it) }
@@ -364,15 +307,65 @@ class GjennomforingAvtaleService(
         logEndring("Kontaktperson ble fjernet fra gjennomføringen", gjennomforingId, navIdent)
     }
 
+    private fun validateDetaljer(
+        id: UUID,
+        tiltakstypeId: UUID,
+        avtaleId: UUID,
+        request: GjennomforingDetaljerRequest,
+        previous: GjennomforingAvtale?,
+        today: LocalDate,
+    ): Either<List<FieldError>, GjennomforingValidator.DetaljerResult> {
+        val ctx = getValidatorCtx(id, avtaleId, request, previous, today)
+        return GjennomforingValidator.validateDetaljer(id, tiltakstypeId, avtaleId, request, ctx)
+    }
+
+    private suspend fun validateVeilederinfo(
+        avtaleId: UUID,
+        request: GjennomforingVeilederinfoRequest,
+    ): Either<List<FieldError>, GjennomforingValidator.VeilederinfoResult> {
+        val avtale = db.session { queries.avtale.getOrError(avtaleId) }
+        val kontaktpersoner = db.session {
+            request.kontaktpersoner.mapNotNull { queries.ansatt.getByNavIdent(it.navIdent) }
+        }
+        request.kontaktpersoner.forEach {
+            navAnsattService.addUserToKontaktpersoner(it.navIdent)
+        }
+        return GjennomforingValidator.validateVeilederinfo(request, avtale, kontaktpersoner)
+    }
+
+    private fun QueryContext.persistDetaljer(
+        id: UUID,
+        result: GjennomforingValidator.DetaljerResult,
+        navIdent: NavIdent,
+    ) {
+        queries.gjennomforing.updateDetaljer(result.detaljer)
+        setAdministratorer(id, result.administratorer, navIdent, result.gjennomforing.navn)
+        queries.gjennomforing.setArrangorKontaktpersoner(id, result.arrangorKontaktpersoner)
+        queries.gjennomforing.setUtdanningslop(id, result.utdanningslop)
+        queries.gjennomforing.setAmoKategorisering(id, result.amoKategorisering)
+    }
+
+    private fun QueryContext.persistVeilederinfo(
+        id: UUID,
+        result: GjennomforingValidator.VeilederinfoResult,
+        request: GjennomforingVeilederinfoRequest,
+    ) {
+        queries.gjennomforing.setNavEnheter(id, result.navEnheter)
+        queries.gjennomforing.setRedaksjoneltInnhold(id, request.beskrivelse, request.faneinnhold)
+        queries.gjennomforing.setKontaktpersoner(id, result.kontaktpersoner)
+    }
+
     private fun getValidatorCtx(
-        request: GjennomforingRequest,
+        id: UUID,
+        avtaleId: UUID,
+        request: GjennomforingDetaljerRequest,
         previous: GjennomforingAvtale?,
         today: LocalDate,
     ): GjennomforingValidator.Ctx = db.session {
-        val avtale = queries.avtale.getOrError(request.avtaleId)
-        val administratorer = request.detaljer.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
-        val arrangor = request.detaljer.arrangorId?.let { queries.arrangor.getById(it) }
-        val antallDeltakere = queries.deltaker.getByGjennomforingId(request.id).size
+        val avtale = queries.avtale.getOrError(avtaleId)
+        val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
+        val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
+        val antallDeltakere = queries.deltaker.getByGjennomforingId(id).size
         val status = resolveStatus(previous?.status, request, today)
         return GjennomforingValidator.Ctx(
             previous = previous?.let {
@@ -388,7 +381,6 @@ class GjennomforingAvtaleService(
             },
             avtale = avtale,
             arrangor = arrangor,
-            kontaktpersoner = listOf(),
             administratorer = administratorer,
             antallDeltakere = antallDeltakere,
             status = status,
@@ -397,13 +389,13 @@ class GjennomforingAvtaleService(
 
     private fun resolveStatus(
         previous: GjennomforingStatusType?,
-        request: GjennomforingRequest,
+        request: GjennomforingDetaljerRequest,
         today: LocalDate,
     ): GjennomforingStatusType {
         return when (previous) {
             GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> previous
 
-            else -> if (request.detaljer.sluttDato == null || !request.detaljer.sluttDato.isBefore(today)) {
+            else -> if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
                 GjennomforingStatusType.GJENNOMFORES
             } else {
                 GjennomforingStatusType.AVSLUTTET

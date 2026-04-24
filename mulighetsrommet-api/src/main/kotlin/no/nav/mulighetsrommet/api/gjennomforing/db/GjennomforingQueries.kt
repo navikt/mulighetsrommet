@@ -64,12 +64,6 @@ class GjennomforingQueries(private val session: Session) {
                                        antall_plasser,
                                        avtale_id,
                                        prismodell_id,
-                                       oppmote_sted,
-                                       faneinnhold,
-                                       beskrivelse,
-                                       estimert_ventetid_verdi,
-                                       estimert_ventetid_enhet,
-                                       tilgjengelig_for_arrangor_dato,
                                        ansvarlig_enhet,
                                        arena_tiltaksnummer,
                                        arena_ansvarlig_enhet)
@@ -87,12 +81,6 @@ class GjennomforingQueries(private val session: Session) {
                     :antall_plasser,
                     :avtale_id::uuid,
                     :prismodell_id::uuid,
-                    :oppmote_sted,
-                    :faneinnhold::jsonb,
-                    :beskrivelse,
-                    :estimert_ventetid_verdi,
-                    :estimert_ventetid_enhet,
-                    :tilgjengelig_for_arrangor_dato,
                     :ansvarlig_enhet,
                     :arena_tiltaksnummer,
                     :arena_ansvarlig_enhet)
@@ -109,12 +97,6 @@ class GjennomforingQueries(private val session: Session) {
                                            antall_plasser = excluded.antall_plasser,
                                            avtale_id  = excluded.avtale_id,
                                            prismodell_id  = excluded.prismodell_id,
-                                           oppmote_sted  = excluded.oppmote_sted,
-                                           faneinnhold  = excluded.faneinnhold,
-                                           beskrivelse  = excluded.beskrivelse,
-                                           estimert_ventetid_verdi  = excluded.estimert_ventetid_verdi,
-                                           estimert_ventetid_enhet  = excluded.estimert_ventetid_enhet,
-                                           tilgjengelig_for_arrangor_dato  = excluded.tilgjengelig_for_arrangor_dato,
                                            ansvarlig_enhet = excluded.ansvarlig_enhet,
                                            arena_tiltaksnummer = excluded.arena_tiltaksnummer,
                                            arena_ansvarlig_enhet = excluded.arena_ansvarlig_enhet
@@ -135,12 +117,6 @@ class GjennomforingQueries(private val session: Session) {
             "antall_plasser" to gjennomforing.antallPlasser,
             "avtale_id" to gjennomforing.avtaleId,
             "prismodell_id" to gjennomforing.prismodellId,
-            "oppmote_sted" to gjennomforing.oppmoteSted,
-            "faneinnhold" to gjennomforing.faneinnhold?.let { Json.encodeToString<Faneinnhold>(it) },
-            "beskrivelse" to gjennomforing.beskrivelse,
-            "estimert_ventetid_verdi" to gjennomforing.estimertVentetidVerdi,
-            "estimert_ventetid_enhet" to gjennomforing.estimertVentetidEnhet,
-            "tilgjengelig_for_arrangor_fra_dato" to gjennomforing.tilgjengeligForArrangorDato,
             "ansvarlig_enhet" to gjennomforing.ansvarligEnhet?.value,
             "arena_tiltaksnummer" to gjennomforing.arenaTiltaksnummer?.value,
             "arena_ansvarlig_enhet" to gjennomforing.arenaAnsvarligEnhet,
@@ -149,13 +125,11 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun updateDetaljer(gjennomforing: GjennomforingDbo) {
+    fun updateDetaljer(detaljer: GjennomforingDetaljerDbo) {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
-            set tiltakstype_id                  = :tiltakstype_id::uuid,
-                arrangor_id                     = :arrangor_id::uuid,
-                gjennomforing_type              = :gjennomforing_type::gjennomforing_type,
+            set arrangor_id                     = :arrangor_id::uuid,
                 oppstart                        = :oppstart::gjennomforing_oppstartstype,
                 pamelding_type                  = :pamelding_type::pamelding_type,
                 navn                            = :navn,
@@ -164,7 +138,6 @@ class GjennomforingQueries(private val session: Session) {
                 status                          = :status::gjennomforing_status,
                 deltidsprosent                  = :deltidsprosent,
                 antall_plasser                  = :antall_plasser,
-                avtale_id                       = :avtale_id::uuid,
                 prismodell_id                   = :prismodell_id::uuid,
                 oppmote_sted                    = :oppmote_sted,
                 estimert_ventetid_verdi         = :estimert_ventetid_verdi,
@@ -174,24 +147,21 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "id" to gjennomforing.id,
-            "tiltakstype_id" to gjennomforing.tiltakstypeId,
-            "arrangor_id" to gjennomforing.arrangorId,
-            "gjennomforing_type" to gjennomforing.type.name,
-            "oppstart" to gjennomforing.oppstart.name,
-            "pamelding_type" to gjennomforing.pameldingType.name,
-            "navn" to gjennomforing.navn,
-            "start_dato" to gjennomforing.startDato,
-            "slutt_dato" to gjennomforing.sluttDato,
-            "status" to gjennomforing.status.name,
-            "deltidsprosent" to gjennomforing.deltidsprosent,
-            "antall_plasser" to gjennomforing.antallPlasser,
-            "avtale_id" to gjennomforing.avtaleId,
-            "prismodell_id" to gjennomforing.prismodellId,
-            "oppmote_sted" to gjennomforing.oppmoteSted,
-            "estimert_ventetid_verdi" to gjennomforing.estimertVentetidVerdi,
-            "estimert_ventetid_enhet" to gjennomforing.estimertVentetidEnhet,
-            "tilgjengelig_for_arrangor_dato" to gjennomforing.tilgjengeligForArrangorDato,
+            "id" to detaljer.id,
+            "arrangor_id" to detaljer.arrangorId,
+            "oppstart" to detaljer.oppstart.name,
+            "pamelding_type" to detaljer.pameldingType.name,
+            "navn" to detaljer.navn,
+            "start_dato" to detaljer.startDato,
+            "slutt_dato" to detaljer.sluttDato,
+            "status" to detaljer.status.name,
+            "deltidsprosent" to detaljer.deltidsprosent,
+            "antall_plasser" to detaljer.antallPlasser,
+            "prismodell_id" to detaljer.prismodellId,
+            "oppmote_sted" to detaljer.oppmoteSted,
+            "estimert_ventetid_verdi" to detaljer.estimertVentetidVerdi,
+            "estimert_ventetid_enhet" to detaljer.estimertVentetidEnhet,
+            "tilgjengelig_for_arrangor_dato" to detaljer.tilgjengeligForArrangorDato,
         )
 
         session.execute(queryOf(query, params))
