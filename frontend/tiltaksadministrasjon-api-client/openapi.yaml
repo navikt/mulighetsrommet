@@ -7801,6 +7801,12 @@ components:
       - TIL_GODKJENNING
       - GODKJENT
       - RETURNERT
+    TilskuddBehandlingHandling:
+      type: string
+      enum:
+      - REDIGER
+      - ATTESTER
+      - RETURNER
     TilskuddBehandlingDto:
       type: object
       properties:
@@ -7825,10 +7831,19 @@ components:
             $ref: "#/components/schemas/TilskuddVedtakDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+        opprettelse:
+          $ref: "#/components/schemas/TotrinnskontrollDto"
+        handlinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddBehandlingHandling"
+          uniqueItems: true
       required:
       - gjennomforingId
+      - handlinger
       - id
       - kostnadssted
+      - opprettelse
       - periode
       - soknadDato
       - soknadJournalpostId

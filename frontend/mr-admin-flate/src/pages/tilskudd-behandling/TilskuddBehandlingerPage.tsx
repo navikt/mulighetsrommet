@@ -3,13 +3,12 @@ import { Handlinger } from "@/components/handlinger/Handlinger";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { DataElementStatusTag } from "@mr/frontend-common";
-import { ActionMenu, Alert, Table } from "@navikt/ds-react";
-import { Link, useNavigate } from "react-router";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { ActionMenu, Alert, Link, Table } from "@navikt/ds-react";
 
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: behandlinger } = useTilskuddBehandlinger(gjennomforingId);
-  const navigate = useNavigate();
 
   return (
     <>
@@ -33,20 +32,22 @@ export function TilskuddBehandlingerPage() {
               <Table.HeaderCell>Periode</Table.HeaderCell>
               <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
               <Table.HeaderCell>Status</Table.HeaderCell>
+              <Table.HeaderCell></Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {behandlinger.map((b) => (
-              <Table.Row onClick={() => navigate(b.id)} key={b.id}>
-                <Table.DataCell>
-                  <Link to={b.id}>{b.soknadDato}</Link>
-                </Table.DataCell>
+              <Table.Row key={b.id}>
+                <Table.DataCell>{b.soknadDato}</Table.DataCell>
                 <Table.DataCell>
                   {b.periode.start} – {b.periode.slutt}
                 </Table.DataCell>
                 <Table.DataCell>{b.kostnadssted}</Table.DataCell>
                 <Table.DataCell>
                   <DataElementStatusTag {...b.status.status} />
+                </Table.DataCell>
+                <Table.DataCell>
+                  <Lenke to={b.id}> Behandle </Lenke>
                 </Table.DataCell>
               </Table.Row>
             ))}
