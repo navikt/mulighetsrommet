@@ -53,7 +53,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                queries.tilskuddBehandling.insert(behandling)
+                queries.tilskuddBehandling.upsert(behandling)
 
                 queries.tilskuddBehandling.get(behandling.id) should {
                     requireNotNull(it)

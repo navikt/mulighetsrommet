@@ -64,7 +64,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
         test("kan ikke attestere sin egen behandling") {
             val service = TilskuddBehandlingService(database.db)
 
-            service.opprett(gyldigRequest, ansatt1).shouldBeRight()
+            service.upsert(gyldigRequest, ansatt1).shouldBeRight()
 
             service.godkjenn(gyldigRequest.id, ansatt1).shouldBeLeft().shouldHaveSize(1).first().should {
                 it.detail shouldBe "Du kan ikke beslutte en tilskuddsbehandling du selv har opprettet"
@@ -74,10 +74,10 @@ class TilskuddBehandlingServiceTest : FunSpec({
         test("annen ansatt kan attestere behandling") {
             val service = TilskuddBehandlingService(database.db)
 
-            service.opprett(gyldigRequest, ansatt1).shouldBeRight()
+            service.upsert(gyldigRequest, ansatt1).shouldBeRight()
 
             service.godkjenn(gyldigRequest.id, ansatt2).shouldBeRight()
-                .status.type shouldBe TilskuddBehandlingStatus.FERDIG_BEHANDLET
+            service.get(gyldigRequest.id, ansatt1)?.status?.type shouldBe TilskuddBehandlingStatus.FERDIG_BEHANDLET
         }
     }
 })

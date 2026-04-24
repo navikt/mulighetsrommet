@@ -80,7 +80,7 @@ export function TilsagnDetaljer() {
 
   return (
     <>
-      <ToTrinnsOpprettelsesForklaring opprettelse={opprettelse} />
+      <ToTrinnsOpprettelsesForklaring heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
       {isTilBeslutning(annullering) && (
         <AarsakerOgForklaring
           heading="Tilsagnet annulleres"

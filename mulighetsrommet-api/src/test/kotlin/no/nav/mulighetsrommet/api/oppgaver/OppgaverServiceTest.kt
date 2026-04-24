@@ -824,7 +824,7 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                queries.tilskuddBehandling.insert(TilskuddFixtures.Behandling)
+                queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
                 setTilGodkjenning(
                     TilskuddFixtures.Behandling.id,
                     Totrinnskontroll.Type.OPPRETT,
@@ -850,7 +850,7 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                queries.tilskuddBehandling.insert(TilskuddFixtures.Behandling)
+                queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
                 setTilGodkjenning(
                     TilskuddFixtures.Behandling.id,
                     Totrinnskontroll.Type.OPPRETT,
@@ -874,7 +874,7 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                queries.tilskuddBehandling.insert(
+                queries.tilskuddBehandling.upsert(
                     TilskuddFixtures.Behandling.copy(
                         status = TilskuddBehandlingStatus.RETURNERT,
                     ),
@@ -905,7 +905,7 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                queries.tilskuddBehandling.insert(
+                queries.tilskuddBehandling.upsert(
                     TilskuddFixtures.Behandling.copy(
                         status = TilskuddBehandlingStatus.FERDIG_BEHANDLET,
                         vedtak = listOf(TilskuddFixtures.Vedtak),
@@ -960,13 +960,13 @@ class OppgaverServiceTest : FunSpec({
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                queries.tilskuddBehandling.insert(TilskuddFixtures.Behandling)
+                queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
                 setTilGodkjenning(
                     TilskuddFixtures.Behandling.id,
                     Totrinnskontroll.Type.OPPRETT,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-                queries.tilskuddBehandling.insert(behandlingOslo)
+                queries.tilskuddBehandling.upsert(behandlingOslo)
                 setTilGodkjenning(
                     behandlingOslo.id,
                     Totrinnskontroll.Type.OPPRETT,

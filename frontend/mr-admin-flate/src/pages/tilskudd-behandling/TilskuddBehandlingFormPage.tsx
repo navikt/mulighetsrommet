@@ -10,12 +10,14 @@ import { TilskuddBehandlingRequest, ValidationError } from "@tiltaksadministrasj
 import { Button, HStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { v4 } from "uuid";
 import {
   TilskuddBehandlingLayout,
   TilskuddBehandlingTab,
 } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
+import { usePotentialTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
+import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 
 interface Tab {
   key: TilskuddBehandlingTab;
@@ -29,21 +31,44 @@ const tabs: Tab[] = [
 
 export function TilskuddBehandlingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { behandlingId } = useParams();
+  const { data: behandling } = usePotentialTilskuddBehandling(behandlingId ?? null);
   const [currentTab, setCurrentTab] = useState<TilskuddBehandlingTab>(tabs[0].key);
   const navigate = useNavigate();
   const mutation = useOpprettTilskuddBehandling(gjennomforingId);
 
   const form = useForm<TilskuddBehandlingRequest>({
-    defaultValues: {
-      id: v4(),
-      gjennomforingId,
-      periodeSlutt: null,
-      periodeStart: null,
-      soknadJournalpostId: null,
-      kostnadssted: null,
-      soknadDato: null,
-      vedtak: [defaultVedtakRequest],
-    },
+    defaultValues: behandling
+      ? {
+          id: behandling.id,
+          gjennomforingId: behandling.gjennomforingId,
+          periodeStart: yyyyMMddFormatting(behandling.periode.start),
+          periodeSlutt: yyyyMMddFormatting(addDuration(behandling.periode.slutt, { days: 1 })),
+          soknadJournalpostId: behandling.soknadJournalpostId,
+          kostnadssted: behandling.kostnadssted,
+          soknadDato: behandling.soknadDato,
+          vedtak: behandling.vedtak.map((v) => ({
+            id: v.id,
+            tilskuddOpplaeringType: v.tilskuddOpplaeringType,
+            soknadBelop: {
+              belop: v.soknadBelop,
+              valuta: v.soknadValuta,
+            },
+            vedtakResultat: v.vedtakResultat,
+            kommentarVedtaksbrev: v.kommentarVedtaksbrev,
+            utbetalingMottaker: v.utbetalingMottaker,
+          })),
+        }
+      : {
+          id: v4(),
+          gjennomforingId,
+          periodeSlutt: null,
+          periodeStart: null,
+          soknadJournalpostId: null,
+          kostnadssted: null,
+          soknadDato: null,
+          vedtak: [defaultVedtakRequest],
+        },
     mode: "onBlur",
   });
 
@@ -108,6 +133,7 @@ export function TilskuddBehandlingFormPage() {
     <FormProvider {...form}>
       <form onSubmit={onSubmit}>
         <TilskuddBehandlingLayout
+          opprettelse={behandling?.opprettelse}
           gjennomforingId={gjennomforingId}
           currentTab={currentTab}
           onTabChange={setCurrentTab}
@@ -120,11 +146,7 @@ export function TilskuddBehandlingFormPage() {
               hasError={tabHasErrors(tab)}
             />
           ))}
-          saksopplysningerContent={
-            <div>
-              <SaksopplysningerForm />
-            </div>
-          }
+          saksopplysningerContent={<SaksopplysningerForm />}
           vedtakContent={<VedtakForm />}
           actions={
             <HStack gap="space-8" marginBlock="space-16" justify="end">

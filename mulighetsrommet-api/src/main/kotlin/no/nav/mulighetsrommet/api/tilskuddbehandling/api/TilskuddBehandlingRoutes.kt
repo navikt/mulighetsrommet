@@ -49,7 +49,8 @@ fun Route.tilskuddBehandlingRoutes() {
                 }
             }) {
                 val tilskuddBehandlingId = call.parameters.getOrFail<UUID>("tilskuddBehandlingId")
-                val result = service.get(tilskuddBehandlingId)
+                val navIdent = getNavIdent()
+                val result = service.get(tilskuddBehandlingId, navIdent)
                     ?: return@get call.respond(HttpStatusCode.NotFound)
                 call.respond(result)
             }
@@ -102,7 +103,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 val request = call.receive<TilskuddBehandlingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = service.opprett(request, navIdent)
+                val result = service.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(result)

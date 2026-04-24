@@ -260,7 +260,10 @@ const routes: RouteObject[] = [
         path: "gjennomforinger/:gjennomforingId/tilskudd-behandling/:behandlingId",
         element: <TilskuddBehandlingDetaljerPage />,
       }),
-
+      route({
+        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling/:behandlingId/rediger",
+        element: <TilskuddBehandlingFormPage />,
+      }),
       route({
         path: "gjennomforinger/:gjennomforingId/skjema",
         element: <RedigerGjennomforingFormPage />,
