@@ -19,7 +19,7 @@
     "react-dom": "19.2.4",
     "react-hot-toast": "2.6.0",
     "react-router": "7.14.0",
-    "uuid": "13.0.0"
+    "uuid": "14.0.0"
   },
   "devDependencies": {
     "@mr/eslint-config-react-app": "workspace:*",
