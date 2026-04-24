@@ -1,10 +1,10 @@
 import {
   AvtaleFormValues,
-  PersonvernValues,
+  PersonopplysningerOutputValues,
   PrismodellValues,
-  VeilederinformasjonValues,
+  VeilederinfoOutputValues,
 } from "@/schemas/avtale";
-import { AvtaleDetaljerValues, getUtdanningslop } from "@/schemas/avtaledetaljer";
+import { AvtaleDetaljerOutputValues } from "@/schemas/avtaledetaljer";
 import {
   DetaljerRequest,
   OpprettAvtaleRequest,
@@ -18,7 +18,7 @@ export function toOpprettAvtaleRequest(id: string, data: AvtaleFormValues): Oppr
   return {
     id,
     detaljer: toDetaljerRequest({ data: data }),
-    veilederinformasjon: toVeilederinfoRequest({ data: data }),
+    veilederinformasjon: toVeilederinfoRequest(data),
     personvern: toPersonvernRequest({ data: data }),
     prismodeller: toPrismodellRequest({ data: data }),
   };
@@ -33,13 +33,17 @@ export function toPrismodellRequest({ data }: { data: PrismodellValues }): Prism
   }));
 }
 
-export function toPersonvernRequest({ data }: { data: PersonvernValues }): PersonvernRequest {
+export function toPersonvernRequest({
+  data,
+}: {
+  data: PersonopplysningerOutputValues;
+}): PersonvernRequest {
   return {
     ...data.personvern,
   };
 }
 
-export function toDetaljerRequest({ data }: { data: AvtaleDetaljerValues }): DetaljerRequest {
+export function toDetaljerRequest({ data }: { data: AvtaleDetaljerOutputValues }): DetaljerRequest {
   const detaljer = data.detaljer;
   return {
     ...detaljer,
@@ -52,15 +56,11 @@ export function toDetaljerRequest({ data }: { data: AvtaleDetaljerValues }): Det
       opsjonMaksVarighet: detaljer.opsjonsmodell.opsjonMaksVarighet || null,
       customOpsjonsmodellNavn: detaljer.opsjonsmodell.customOpsjonsmodellNavn || null,
     },
-    utdanningslop: getUtdanningslop(data),
+    utdanningslop: detaljer.utdanningslop || null,
   };
 }
 
-export function toVeilederinfoRequest({
-  data,
-}: {
-  data: VeilederinformasjonValues;
-}): VeilederinfoRequest {
+export function toVeilederinfoRequest(data: VeilederinfoOutputValues): VeilederinfoRequest {
   const veilederinformasjon = data.veilederinformasjon;
   return {
     beskrivelse: veilederinformasjon.beskrivelse,

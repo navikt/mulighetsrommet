@@ -3,8 +3,8 @@ import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
-import { GjennomforingFormValues } from "@/pages/gjennomforing/gjennomforingFormUtils";
 import { kreverUtdanningslop } from "@/utils/tiltakstype";
+import { GjennomforingFormValues } from "@/schemas/gjennomforing";
 
 interface Props {
   avtale: AvtaleDto;

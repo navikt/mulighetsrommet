@@ -830,7 +830,6 @@ data class GjennomforingDetaljerRequest(
         @Serializable(with = UUIDSerializer::class)
         UUID,
         >,
-    val kontaktpersoner: Set<Kontaktperson>,
     val administratorer: Set<NavIdent>,
     val oppstart: GjennomforingOppstartstype?,
     val oppmoteSted: String?,

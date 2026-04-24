@@ -5,11 +5,11 @@ import {
   GjennomforingVeilederinfoDto,
 } from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
-import { GjennomforingFormValues } from "@/pages/gjennomforing/gjennomforingFormUtils";
 import { useState } from "react";
 import { GjennomforingList } from "./GjennomforingList";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { InformasjonForVeiledereForm } from "@/components/redaksjoneltInnhold/InformasjonForVeiledereForm";
+import { GjennomforingFormValues } from "@/schemas/gjennomforing";
 
 interface Props {
   avtale: AvtaleDto;

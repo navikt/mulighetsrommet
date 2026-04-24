@@ -3,15 +3,15 @@ import {
   AvtaleDto,
   Faneinnhold,
   GjennomforingDetaljerRequest,
-  GjennomforingDetaljerRequestEstimertVentetid,
   GjennomforingRequest,
   GjennomforingVeilederinfoRequest,
   UtdanningslopDbo,
 } from "@tiltaksadministrasjon/api-client";
-
-export type GjennomforingFormValues = GjennomforingDetaljerRequest & {
-  veilederinformasjon: GjennomforingVeilederinfoRequest;
-};
+import {
+  GjennomforingDetaljerOutputValues,
+  GjennomforingFormValues,
+  GjennomforingVeilederinfoOutputValues,
+} from "@/schemas/gjennomforing";
 
 export function toCreateGjennomforingRequest(
   id: string,
@@ -27,34 +27,31 @@ export function toCreateGjennomforingRequest(
   };
 }
 
-export function toGjennomforingDetaljerRequest(data: GjennomforingFormValues) {
+export function toGjennomforingDetaljerRequest(
+  data: GjennomforingDetaljerOutputValues,
+): GjennomforingDetaljerRequest {
   return {
     navn: data.navn,
     startDato: data.startDato,
     sluttDato: data.sluttDato || null,
     antallPlasser: data.antallPlasser,
-    arrangorId: data.arrangorId ?? null,
+    arrangorId: data.arrangorId,
     arrangorKontaktpersoner: data.arrangorKontaktpersoner,
-    kontaktpersoner: data.kontaktpersoner
-      .filter((k) => k.navIdent !== "")
-      .map((k) => ({ navIdent: k.navIdent, beskrivelse: k.beskrivelse ?? null })),
     administratorer: data.administratorer,
-    oppstart: data.oppstart ?? null,
-    oppmoteSted: data.oppmoteSted ?? null,
+    oppstart: data.oppstart,
+    pameldingType: data.pameldingType,
+    oppmoteSted: data.oppmoteSted || null,
     deltidsprosent: data.deltidsprosent,
-    estimertVentetid: data.estimertVentetid
-      ? (data.estimertVentetid as GjennomforingDetaljerRequestEstimertVentetid)
-      : null,
-    tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato ?? null,
-    amoKategorisering: (data.amoKategorisering as AmoKategoriseringRequest | null) ?? null,
-    utdanningslop: (data.utdanningslop as UtdanningslopDbo | null) ?? null,
-    pameldingType: data.pameldingType ?? null,
+    estimertVentetid: data.estimertVentetid || null,
+    tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato || null,
+    amoKategorisering: data.amoKategorisering as AmoKategoriseringRequest | null,
+    utdanningslop: data.utdanningslop as UtdanningslopDbo | null,
     prismodellId: data.prismodellId || null,
   };
 }
 
 export function toGjennomforingVeilederinfoRequest(
-  data: GjennomforingFormValues,
+  data: GjennomforingVeilederinfoOutputValues,
 ): GjennomforingVeilederinfoRequest {
   return {
     navRegioner: data.veilederinformasjon.navRegioner,
@@ -62,8 +59,8 @@ export function toGjennomforingVeilederinfoRequest(
     navAndreEnheter: data.veilederinformasjon.navAndreEnheter,
     beskrivelse: data.veilederinformasjon.beskrivelse ?? null,
     faneinnhold: (data.veilederinformasjon.faneinnhold as Faneinnhold | null) ?? null,
-    kontaktpersoner: data.kontaktpersoner
+    kontaktpersoner: data.veilederinformasjon.kontaktpersoner
       .filter((k) => k.navIdent !== "")
-      .map((k) => ({ navIdent: k.navIdent, beskrivelse: k.beskrivelse ?? null })),
+      .map((k) => ({ navIdent: k.navIdent, beskrivelse: k.beskrivelse || null })),
   };
 }

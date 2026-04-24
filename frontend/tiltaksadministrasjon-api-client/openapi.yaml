@@ -4918,11 +4918,6 @@ components:
             type: string
             format: uuid
           uniqueItems: true
-        kontaktpersoner:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingDetaljerRequest.Kontaktperson"
-          uniqueItems: true
         administratorer:
           type: array
           items:
@@ -4973,7 +4968,6 @@ components:
       - arrangorKontaktpersoner
       - deltidsprosent
       - estimertVentetid
-      - kontaktpersoner
       - navn
       - oppmoteSted
       - oppstart
@@ -4983,18 +4977,6 @@ components:
       - startDato
       - tilgjengeligForArrangorDato
       - utdanningslop
-    GjennomforingDetaljerRequest.Kontaktperson:
-      type: object
-      properties:
-        navIdent:
-          type: string
-        beskrivelse:
-          type:
-          - "null"
-          - string
-      required:
-      - beskrivelse
-      - navIdent
     GjennomforingOppstartstype:
       type: string
       enum:
@@ -5059,6 +5041,18 @@ components:
       - navAndreEnheter
       - navKontorer
       - navRegioner
+    GjennomforingDetaljerRequest.Kontaktperson:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - navIdent
     GjennomforingRequest:
       type: object
       properties:

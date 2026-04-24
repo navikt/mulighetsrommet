@@ -11,6 +11,7 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import {
+  GjennomforingFormValues,
   gjennomforingVeilederinfoSchema,
   gjennomforingWizardSchema,
 } from "@/schemas/gjennomforing";
@@ -21,7 +22,7 @@ import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react"
 import { FormProvider } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { ValidationError } from "@tiltaksadministrasjon/api-client";
-import { GjennomforingFormValues, toCreateGjennomforingRequest } from "./gjennomforingFormUtils";
+import { toCreateGjennomforingRequest } from "./gjennomforingFormUtils";
 import { v4 as uuidv4 } from "uuid";
 
 const brodsmuler: Array<Brodsmule | undefined> = [

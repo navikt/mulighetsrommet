@@ -17,12 +17,12 @@ import {
 import { DeepPartial } from "react-hook-form";
 import { amoKategoriseringRequest } from "@/schemas/avtale";
 import { kreverDirekteVedtak } from "@/utils/tiltakstype";
-import { GjennomforingFormValues } from "@/pages/gjennomforing/gjennomforingFormUtils";
+import { GjennomforingFormValues } from "@/schemas/gjennomforing";
 
 function defaultArrangor(
   avtale: AvtaleDto,
   gjennomforing?: Partial<GjennomforingDto> | null,
-): string | null {
+): string | undefined {
   if (gjennomforing?.arrangor?.id) {
     return gjennomforing.arrangor.id;
   }
@@ -31,7 +31,7 @@ function defaultArrangor(
     return avtale.arrangor.underenheter[0].id;
   }
 
-  return null;
+  return undefined;
 }
 
 export function defaultGjennomforingData(
@@ -53,12 +53,12 @@ export function defaultGjennomforingData(
     administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
       ansatt.navIdent,
     ],
-    antallPlasser: gjennomforing?.antallPlasser ?? null,
+    antallPlasser: gjennomforing?.antallPlasser,
     startDato: gjennomforing
       ? gjennomforing.startDato
       : defaultOppstart === GjennomforingOppstartstype.LOPENDE
         ? avtale.startDato
-        : null,
+        : undefined,
     sluttDato: gjennomforing
       ? gjennomforing.sluttDato
       : defaultOppstart === GjennomforingOppstartstype.LOPENDE

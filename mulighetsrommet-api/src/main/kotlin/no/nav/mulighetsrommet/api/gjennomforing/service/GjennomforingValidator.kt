@@ -186,7 +186,7 @@ object GjennomforingValidator {
             FieldError.of("Du må velge en arrangør fra avtalen", GjennomforingDetaljerRequest::arrangorId)
         }
 
-        validateSlettetNavAnsatte(ctx.kontaktpersoner, GjennomforingDetaljerRequest::kontaktpersoner)
+        validateSlettetNavAnsatte(ctx.kontaktpersoner, GjennomforingVeilederinfoRequest::kontaktpersoner)
         validateSlettetNavAnsatte(ctx.administratorer, GjennomforingDetaljerRequest::administratorer)
         requireValid(ctx.arrangor != null) {
             FieldError.of(
@@ -204,6 +204,8 @@ object GjennomforingValidator {
         }
 
         requireValid(detaljer.antallPlasser != null && detaljer.startDato != null && detaljer.oppstart != null && detaljer.pameldingType != null && detaljer.prismodellId != null)
+
+        val veilederinfo = request.veilederinformasjon
         GjennomforingAvtaleResult(
             GjennomforingDbo(
                 id = request.id,
@@ -221,8 +223,8 @@ object GjennomforingValidator {
                 oppstart = detaljer.oppstart,
                 pameldingType = detaljer.pameldingType,
                 oppmoteSted = detaljer.oppmoteSted?.ifBlank { null },
-                faneinnhold = request.veilederinformasjon.faneinnhold,
-                beskrivelse = request.veilederinformasjon.beskrivelse,
+                faneinnhold = veilederinfo.faneinnhold,
+                beskrivelse = veilederinfo.beskrivelse,
                 estimertVentetidVerdi = detaljer.estimertVentetid?.verdi,
                 estimertVentetidEnhet = detaljer.estimertVentetid?.enhet,
                 tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
@@ -231,7 +233,9 @@ object GjennomforingValidator {
                 arenaAnsvarligEnhet = ctx.previous?.arena?.ansvarligNavEnhet,
             ),
             detaljer.administratorer,
-            detaljer.kontaktpersoner.map { GjennomforingKontaktpersonDbo(it.navIdent, it.beskrivelse) }.toSet(),
+            veilederinfo.kontaktpersoner
+                .map { GjennomforingKontaktpersonDbo(it.navIdent, it.beskrivelse) }
+                .toSet(),
             detaljer.arrangorKontaktpersoner,
         )
     }

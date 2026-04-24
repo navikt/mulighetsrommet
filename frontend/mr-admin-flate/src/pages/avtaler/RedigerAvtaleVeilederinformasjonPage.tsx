@@ -4,8 +4,9 @@ import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import {
-  AvtaleFormValues,
   defaultAvtaleData,
+  VeilederinfoInputValues,
+  VeilederinfoOutputValues,
   VeilederinformasjonStepSchema,
 } from "@/schemas/avtale";
 import { toVeilederinfoRequest } from "./avtaleFormUtils";
@@ -14,7 +15,7 @@ import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { FormContainer } from "@/components/skjema/FormContainer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Resolver, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 
 export function RedigerAvtaleVeilederinformasjonPage() {
@@ -24,13 +25,13 @@ export function RedigerAvtaleVeilederinformasjonPage() {
   const { data: ansatt } = useHentAnsatt();
   const mutation = useUpsertVeilederinformasjon(avtaleId);
 
-  const methods = useForm<AvtaleFormValues>({
-    resolver: zodResolver(VeilederinformasjonStepSchema as any) as Resolver<AvtaleFormValues>,
+  const methods = useForm<VeilederinfoInputValues, unknown, VeilederinfoOutputValues>({
+    resolver: zodResolver(VeilederinformasjonStepSchema),
     defaultValues: defaultAvtaleData(ansatt, avtale),
   });
 
   const onSubmit = methods.handleSubmit((data) => {
-    mutation.mutate(toVeilederinfoRequest({ data }), {
+    mutation.mutate(toVeilederinfoRequest(data), {
       onSuccess: () => navigate(`/avtaler/${avtaleId}/veilederinformasjon`),
       onValidationError: (validation: ValidationError) => {
         applyValidationErrors(methods, validation);

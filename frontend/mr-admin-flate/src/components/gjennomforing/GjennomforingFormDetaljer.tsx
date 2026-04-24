@@ -26,7 +26,6 @@ import {
 } from "@navikt/ds-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { GjennomforingFormValues } from "@/pages/gjennomforing/gjennomforingFormUtils";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModal";
 import { administratorOptions } from "@/components/skjema/administratorOptions";
@@ -42,6 +41,7 @@ import { ControlledSokeSelect } from "@mr/frontend-common";
 import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
 import { kreverDirekteVedtak, kreverDeltidsprosent } from "@/utils/tiltakstype";
 import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
+import { GjennomforingFormValues } from "@/schemas/gjennomforing";
 
 interface Props {
   tiltakstype: TiltakstypeDto;

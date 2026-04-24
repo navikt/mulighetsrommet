@@ -9,20 +9,18 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { defaultGjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
 import { GjennomforingInformasjonForVeiledereForm } from "@/components/gjennomforing/GjennomforingInformasjonForVeiledereForm";
-import { gjennomforingVeilederinfoSchema } from "@/schemas/gjennomforing";
 import {
-  GjennomforingAvtaleDto,
-  ValidationError,
-} from "@tiltaksadministrasjon/api-client";
+  GjennomforingVeilederinfoInputValues,
+  GjennomforingVeilederinfoOutputValues,
+  gjennomforingVeilederinfoSchema,
+} from "@/schemas/gjennomforing";
+import { GjennomforingAvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { RedigerGjennomforingPageLayout } from "@/pages/gjennomforing/RedigerGjennomforingPageLayout";
-import {
-  GjennomforingFormValues,
-  toGjennomforingVeilederinfoRequest,
-} from "./gjennomforingFormUtils";
+import { toGjennomforingVeilederinfoRequest } from "./gjennomforingFormUtils";
 import { FormContainer } from "@/components/skjema/FormContainer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Resolver, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 
 export function RedigerGjennomforingVeilederinformasjonPage() {
@@ -54,8 +52,12 @@ function RedigerVeilederinformasjonForm({ gjennomforingId, gjennomforing }: Form
 
   const mutation = useUpdateGjennomforingVeilederinformasjon(gjennomforingId);
 
-  const methods = useForm<GjennomforingFormValues>({
-    resolver: zodResolver(gjennomforingVeilederinfoSchema as any) as Resolver<GjennomforingFormValues>,
+  const methods = useForm<
+    GjennomforingVeilederinfoInputValues,
+    unknown,
+    GjennomforingVeilederinfoOutputValues
+  >({
+    resolver: zodResolver(gjennomforingVeilederinfoSchema),
     defaultValues: defaultGjennomforingData(
       ansatt,
       tiltakstype,

@@ -7,10 +7,10 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { GjennomforingFormValues } from "@/pages/gjennomforing/gjennomforingFormUtils";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
+import { GjennomforingFormValues } from "@/schemas/gjennomforing";
 
 interface Props {
   arrangor: AvtaleArrangorHovedenhet;
@@ -50,7 +50,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
               label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
               placeholder="Velg underenhet for tiltaksarrangør"
               selectedOptions={arrangorOptions.filter((option) =>
-                field.value?.includes(option.value),
+                field.value.includes(option.value),
               )}
               name={field.name}
               error={errors.arrangorId?.message}

@@ -9,17 +9,18 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { defaultGjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
 import { GjennomforingFormDetaljer } from "@/components/gjennomforing/GjennomforingFormDetaljer";
-import { gjennomforingDetaljerSchema } from "@/schemas/gjennomforing";
 import {
-  GjennomforingAvtaleDto,
-  ValidationError,
-} from "@tiltaksadministrasjon/api-client";
+  GjennomforingDetaljerInputValues,
+  GjennomforingDetaljerOutputValues,
+  gjennomforingDetaljerSchema,
+} from "@/schemas/gjennomforing";
+import { GjennomforingAvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { RedigerGjennomforingPageLayout } from "@/pages/gjennomforing/RedigerGjennomforingPageLayout";
-import { GjennomforingFormValues, toGjennomforingDetaljerRequest } from "./gjennomforingFormUtils";
+import { toGjennomforingDetaljerRequest } from "./gjennomforingFormUtils";
 import { FormContainer } from "@/components/skjema/FormContainer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Resolver, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 
 export function RedigerGjennomforingDetaljerPage() {
@@ -51,8 +52,12 @@ function RedigerDetaljerForm({ gjennomforingId, gjennomforing }: FormProps) {
 
   const mutation = useUpdateGjennomforingDetaljer(gjennomforingId);
 
-  const methods = useForm<GjennomforingFormValues>({
-    resolver: zodResolver(gjennomforingDetaljerSchema as any) as Resolver<GjennomforingFormValues>,
+  const methods = useForm<
+    GjennomforingDetaljerInputValues,
+    unknown,
+    GjennomforingDetaljerOutputValues
+  >({
+    resolver: zodResolver(gjennomforingDetaljerSchema),
     defaultValues: defaultGjennomforingData(
       ansatt,
       tiltakstype,

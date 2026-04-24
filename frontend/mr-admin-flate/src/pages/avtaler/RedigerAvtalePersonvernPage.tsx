@@ -3,14 +3,19 @@ import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm"
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { AvtaleFormValues, defaultAvtaleData, PersonopplysningerSchema } from "@/schemas/avtale";
+import {
+  defaultAvtaleData,
+  PersonopplysningerInputValues,
+  PersonopplysningerOutputValues,
+  PersonopplysningerSchema,
+} from "@/schemas/avtale";
 import { toPersonvernRequest } from "./avtaleFormUtils";
 import { RedigerAvtalePageLayout } from "./RedigerAvtalePageLayout";
 import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { FormContainer } from "@/components/skjema/FormContainer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Resolver, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 
 export function RedigerAvtalePersonvernPage() {
@@ -20,8 +25,8 @@ export function RedigerAvtalePersonvernPage() {
   const { data: ansatt } = useHentAnsatt();
   const mutation = useUpsertPersonvern(avtaleId);
 
-  const methods = useForm<AvtaleFormValues>({
-    resolver: zodResolver(PersonopplysningerSchema as any) as Resolver<AvtaleFormValues>,
+  const methods = useForm<PersonopplysningerInputValues, unknown, PersonopplysningerOutputValues>({
+    resolver: zodResolver(PersonopplysningerSchema),
     defaultValues: defaultAvtaleData(ansatt, avtale),
   });
 

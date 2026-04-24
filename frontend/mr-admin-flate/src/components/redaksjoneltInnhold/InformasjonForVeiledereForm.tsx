@@ -1,7 +1,6 @@
 import { Heading, HelpText, HStack, Label, VStack } from "@navikt/ds-react";
 import { GjennomforingKontaktpersonDto } from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
-import { GjennomforingFormValues } from "@/pages/gjennomforing/gjennomforingFormUtils";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
@@ -16,6 +15,7 @@ import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/Redaks
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormListInput } from "@/components/skjema/FormListInput";
+import { GjennomforingFormValues } from "@/schemas/gjennomforing";
 
 interface Props {
   tiltakId: string;
@@ -121,7 +121,7 @@ function RegionerOgEnheterOgKontaktpersoner({
               </HelpText>
             </HStack>
             <FormListInput
-              name="kontaktpersoner"
+              name="veilederinformasjon.kontaktpersoner"
               addButtonLabel="Legg til ny kontaktperson"
               emptyItem={{ navIdent: "", beskrivelse: "" }}
               renderItem={(index, id) => (
@@ -153,9 +153,11 @@ function SokEtterKontaktperson({
   const { watch } = useFormContext<GjennomforingFormValues>();
 
   const kontaktpersonerOption = (selectedIndex: number) => {
-    const excludedKontaktpersoner = watch("kontaktpersoner").map((k) => k.navIdent);
+    const excludedKontaktpersoner = watch("veilederinformasjon.kontaktpersoner").map(
+      (k) => k.navIdent,
+    );
 
-    const alleredeValgt = watch("kontaktpersoner")
+    const alleredeValgt = watch("veilederinformasjon.kontaktpersoner")
       .filter((_, i) => i === selectedIndex)
       .map((kontaktperson) => {
         const personFraSok = kontaktpersoner?.find((k) => k.navIdent === kontaktperson.navIdent);
@@ -189,12 +191,12 @@ function SokEtterKontaktperson({
         size="small"
         placeholder="Søk etter kontaktperson"
         label={gjennomforingTekster.kontaktpersonNav.navnLabel}
-        name={`kontaktpersoner.${index}.navIdent`}
+        name={`veilederinformasjon.kontaktpersoner.${index}.navIdent`}
         onInputChange={setKontaktpersonerQuery}
         options={kontaktpersonerOption(index)}
       />
       <FormTextField<GjennomforingFormValues>
-        name={`kontaktpersoner.${index}.beskrivelse`}
+        name={`veilederinformasjon.kontaktpersoner.${index}.beskrivelse`}
         label={gjennomforingTekster.kontaktpersonNav.beskrivelseLabel}
         placeholder="Unngå personopplysninger"
         maxLength={67}

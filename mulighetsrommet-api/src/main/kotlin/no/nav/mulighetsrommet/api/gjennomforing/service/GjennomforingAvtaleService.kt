@@ -80,9 +80,10 @@ class GjennomforingAvtaleService(
             GjennomforingValidator.validateUtdanningslop(ctx.avtale, request.detaljer.utdanningslop).bind().let {
                 queries.gjennomforing.setUtdanningslop(id, it)
             }
-            GjennomforingValidator.validateAmoKategorisering(ctx.avtale, request.detaljer.amoKategorisering).bind().let {
-                queries.gjennomforing.setAmoKategorisering(id, it)
-            }
+            GjennomforingValidator.validateAmoKategorisering(ctx.avtale, request.detaljer.amoKategorisering).bind()
+                .let {
+                    queries.gjennomforing.setAmoKategorisering(id, it)
+                }
 
             logEndring("Opprettet gjennomføring", id, navIdent)
                 .also { updateFreeTextSearch(it) }
@@ -369,7 +370,6 @@ class GjennomforingAvtaleService(
         today: LocalDate,
     ): GjennomforingValidator.Ctx = db.session {
         val avtale = queries.avtale.getOrError(request.avtaleId)
-        val kontaktpersoner = request.detaljer.kontaktpersoner.mapNotNull { queries.ansatt.getByNavIdent(it.navIdent) }
         val administratorer = request.detaljer.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
         val arrangor = request.detaljer.arrangorId?.let { queries.arrangor.getById(it) }
         val antallDeltakere = queries.deltaker.getByGjennomforingId(request.id).size
@@ -388,7 +388,7 @@ class GjennomforingAvtaleService(
             },
             avtale = avtale,
             arrangor = arrangor,
-            kontaktpersoner = kontaktpersoner,
+            kontaktpersoner = listOf(),
             administratorer = administratorer,
             antallDeltakere = antallDeltakere,
             status = status,
