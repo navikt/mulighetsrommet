@@ -62,6 +62,7 @@ function OppgaveIcon({ type, fontSize }: { type: OppgaveType; fontSize?: string 
     case OppgaveType.TILSAGN_TIL_GODKJENNING:
       return <PiggybankIcon fontSize={fontSize} />;
     case OppgaveType.ENKELTPLASS_TIL_GODKJENNING:
+    case OppgaveType.ENKELTPLASS_SATT_PA_VENT:
     case OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING:
     case OppgaveType.TILSKUDDBEHANDLING_RETURNERT:
       return <GavelSoundBlockIcon fontSize={fontSize} />;
@@ -73,6 +74,7 @@ function getOppgaveVariant(type: OppgaveType) {
     case OppgaveType.TILSAGN_TIL_OPPGJOR:
     case OppgaveType.AVTALE_MANGLER_ADMINISTRATOR:
     case OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR:
+    case OppgaveType.ENKELTPLASS_SATT_PA_VENT:
       return "warning";
     case OppgaveType.TILSAGN_TIL_ANNULLERING:
     case OppgaveType.TILSAGN_RETURNERT:

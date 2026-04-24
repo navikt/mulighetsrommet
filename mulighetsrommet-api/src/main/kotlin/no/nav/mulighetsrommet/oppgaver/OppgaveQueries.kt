@@ -80,6 +80,57 @@ class OppgaveQueries(private val session: Session) {
         }
     }
 
+    fun getEnkeltplassSattPaVentOppgaveData(
+        tiltakskoder: Set<Tiltakskode>?,
+        navEnheter: Set<NavEnhetNummer>?,
+    ): List<EnkeltplassSattPaVentOppgaveData> {
+        @Language("PostgreSQL")
+        val query = """
+            SELECT
+                gjennomforing.id,
+                gjennomforing.lopenummer,
+                gjennomforing.gjennomforing_type,
+                nav_enhet.enhetsnummer AS ansvarlig_enhet_enhetsnummer,
+                nav_enhet.navn AS ansvarlig_enhet_navn,
+                tiltakstype.tiltakskode AS tiltakstype_tiltakskode,
+                tiltakstype.navn AS tiltakstype_navn,
+                tk.besluttet_tidspunkt
+            FROM gjennomforing
+            INNER JOIN tiltakstype ON tiltakstype.id = gjennomforing.tiltakstype_id
+            INNER JOIN nav_enhet ON nav_enhet.enhetsnummer = gjennomforing.ansvarlig_enhet
+            INNER JOIN (
+                SELECT DISTINCT ON (entity_id) *
+                FROM totrinnskontroll
+                WHERE type = 'OKONOMI'
+                ORDER BY entity_id, behandlet_tidspunkt DESC
+            ) tk ON tk.entity_id = gjennomforing.id
+            WHERE gjennomforing.gjennomforing_type = 'ENKELTPLASS'
+                AND tk.besluttelse = 'AVVIST'
+                AND (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
+                AND (:nav_enheter::text[] IS NULL OR gjennomforing.ansvarlig_enhet = ANY(:nav_enheter))
+        """.trimIndent()
+
+        val params = mapOf(
+            "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
+            "nav_enheter" to navEnheter?.let { session.createArrayOfValue(it) { it.value } },
+        )
+
+        return session.list(queryOf(query, params)) { row ->
+            EnkeltplassSattPaVentOppgaveData(
+                ansvarligEnhet = OppgaveEnhet(
+                    nummer = NavEnhetNummer(row.string("ansvarlig_enhet_enhetsnummer")),
+                    navn = row.string("ansvarlig_enhet_navn"),
+                ),
+                besluttetTidspunkt = requireNotNull(row.localDateTimeOrNull("besluttet_tidspunkt")),
+                tiltakstype = row.toOppgaveTiltakstype(),
+                gjennomforing = OppgaveGjennomforing.Enkeltplass(
+                    id = row.uuid("id"),
+                    lopenummer = Tiltaksnummer(row.string("lopenummer")),
+                ),
+            )
+        }
+    }
+
     fun getGjennomforingManglerAdministratorOppgaveData(
         tiltakskoder: Set<Tiltakskode>,
         navEnheter: Set<NavEnhetNummer>,
@@ -465,6 +516,13 @@ data class EnkeltplassOppgaveData(
     val ansvarligEnhet: OppgaveEnhet,
     val behandletAv: Agent,
     val behandletTidspunkt: LocalDateTime,
+    val tiltakstype: OppgaveTiltakstype,
+    val gjennomforing: OppgaveGjennomforing.Enkeltplass,
+)
+
+data class EnkeltplassSattPaVentOppgaveData(
+    val ansvarligEnhet: OppgaveEnhet,
+    val besluttetTidspunkt: LocalDateTime,
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing.Enkeltplass,
 )

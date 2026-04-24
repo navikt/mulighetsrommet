@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -205,8 +206,11 @@ class GjennomforingDetaljerService(
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
+            GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
+                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.besluttelse == null
+            },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
-                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent
+                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.besluttelse != Besluttelse.GODKJENT
             },
         )
             .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
@@ -243,6 +247,7 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.OPPRETT_UTBETALING,
                 -> saksbehandlerOkonomi
 
+                GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
                 GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
                 -> ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, enheter)
             }

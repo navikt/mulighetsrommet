@@ -364,16 +364,16 @@ fun Route.gjennomforingRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
-            post("{id}/avsla-okonomi", {
+            post("{id}/sett-pa-vent-okonomi", {
                 tags = setOf("Gjennomforing")
-                operationId = "avslaaGjennomforingOkonomi"
+                operationId = "settPaVentGjennomforingOkonomi"
                 request {
                     pathParameterUuid("id")
-                    body<AvslaaOkonomiRequest>()
+                    body<SettPaVentOkonomiRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Økonomi ble avslått"
+                        description = "Økonomi ble satt på vent"
                     }
                     default {
                         description = "Problem details"
@@ -383,9 +383,9 @@ fun Route.gjennomforingRoutes() {
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<AvslaaOkonomiRequest>()
+                val request = call.receive<SettPaVentOkonomiRequest>()
 
-                val result = enkeltplasser.avvisOkonomi(id, navIdent, request.forklaring)
+                val result = enkeltplasser.settPaVentOkonomi(id, navIdent, request.forklaring)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -602,7 +602,10 @@ fun Route.gjennomforingRoutes() {
     }
 }
 
-private suspend fun GjennomforingDetaljerService.getOrInternalServerError(id: UUID, accessType: AccessType.OBO.AzureAd): Either<InternalServerError, GjennomforingDetaljerDto> {
+private suspend fun GjennomforingDetaljerService.getOrInternalServerError(
+    id: UUID,
+    accessType: AccessType.OBO.AzureAd,
+): Either<InternalServerError, GjennomforingDetaljerDto> {
     return getGjennomforingDetaljerDto(id, accessType)?.right()
         ?: InternalServerError("Klarte ikke hente detaljer om gjennomforing=$id").left()
 }
@@ -745,7 +748,7 @@ data class PublisertRequest(
 )
 
 @Serializable
-data class AvslaaOkonomiRequest(
+data class SettPaVentOkonomiRequest(
     val forklaring: String? = null,
 )
 
@@ -824,4 +827,5 @@ enum class GjennomforingHandling {
     OPPRETT_TILSAGN_FOR_INVESTERINGER,
     OPPRETT_UTBETALING,
     GODKJENN_ENKELTPLASS_OKONOMI,
+    SETT_PA_VENT_ENKELTPLASS_OKONOMI,
 }

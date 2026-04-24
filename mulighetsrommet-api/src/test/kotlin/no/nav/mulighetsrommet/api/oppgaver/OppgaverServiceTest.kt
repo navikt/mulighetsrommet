@@ -755,6 +755,80 @@ class OppgaverServiceTest : FunSpec({
             ).shouldBeEmpty()
         }
 
+        test("saksbehandler ser oppgave når enkeltplass er satt på vent") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setAvvist(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_SATT_PA_VENT),
+            )
+        }
+
+        test("ansatt uten saksbehandler-rolle ser ikke satt-på-vent oppgave") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setAvvist(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.ENKELTPLASS_SATT_PA_VENT),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ).shouldBeEmpty()
+        }
+
+        test("satt-på-vent enkeltplass vises ikke som til-godkjenning oppgave") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setAvvist(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ).shouldBeEmpty()
+        }
+
         test("enkeltplass oppgaver vises ikke når feature toggle er skrudd av") {
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),

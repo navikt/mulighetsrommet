@@ -1326,11 +1326,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/gjennomforinger/{id}/avsla-okonomi:
+  /api/tiltaksadministrasjon/gjennomforinger/{id}/sett-pa-vent-okonomi:
     post:
       tags:
       - Gjennomforing
-      operationId: avslaaGjennomforingOkonomi
+      operationId: settPaVentGjennomforingOkonomi
       parameters:
       - name: id
         in: path
@@ -1344,11 +1344,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AvslaaOkonomiRequest"
+              $ref: "#/components/schemas/SettPaVentOkonomiRequest"
         required: false
       responses:
         "200":
-          description: Økonomi ble avslått
+          description: Økonomi ble satt på vent
           headers: {}
         default:
           description: Problem details
@@ -5722,7 +5722,7 @@ components:
       - beskrivelse
       - periodeSlutt
       - periodeStart
-    AvslaaOkonomiRequest:
+    SettPaVentOkonomiRequest:
       type: object
       properties:
         forklaring:
@@ -5925,6 +5925,7 @@ components:
       - OPPRETT_TILSAGN_FOR_INVESTERINGER
       - OPPRETT_UTBETALING
       - GODKJENN_ENKELTPLASS_OKONOMI
+      - SETT_PA_VENT_ENKELTPLASS_OKONOMI
     PrismodellInfo:
       type: object
       properties:
@@ -7138,6 +7139,7 @@ components:
       - AVTALE_MANGLER_ADMINISTRATOR
       - GJENNOMFORING_MANGLER_ADMINISTRATOR
       - ENKELTPLASS_TIL_GODKJENNING
+      - ENKELTPLASS_SATT_PA_VENT
       - TILSKUDDBEHANDLING_TIL_ATTESTERING
       - TILSKUDDBEHANDLING_RETURNERT
     OppgaverFilter:
