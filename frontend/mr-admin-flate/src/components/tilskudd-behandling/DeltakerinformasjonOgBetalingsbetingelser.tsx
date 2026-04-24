@@ -42,10 +42,10 @@ export function DeltakerinformasjonOgBetalingsbetingelser({ deltaker }: Props) {
       </section>
       <section>
         <Heading size="small" level="3" spacing>
-          Betalingsbetingelser
+          Innhold i tiltaket
         </Heading>
         <Box background="neutral-soft" padding="space-16" borderRadius="8">
-          <BodyShort weight="semibold">Pris og betalingsbetingelser:</BodyShort>
+          <BodyShort weight="semibold">Annet:</BodyShort>
           <BodyShort>{deltaker.innholdAnnet}</BodyShort>
         </Box>
       </section>
