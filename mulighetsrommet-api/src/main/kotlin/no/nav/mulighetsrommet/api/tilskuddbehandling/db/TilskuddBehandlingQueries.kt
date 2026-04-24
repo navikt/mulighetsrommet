@@ -4,8 +4,9 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakDto
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
@@ -114,32 +115,32 @@ class TilskuddBehandlingQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
     }
 
-    fun get(id: UUID): TilskuddBehandling? {
+    fun get(id: UUID): TilskuddBehandlingDto? {
         @Language("PostgreSQL")
         val query = """
             select * from view_tilskudd_behandling
             where id = :id::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, mapOf("id" to id))) { it.toTilskuddBehandling() }
+        return session.single(queryOf(query, mapOf("id" to id))) { it.toTilskuddBehandlingDto() }
     }
 
-    fun getOrError(id: UUID): TilskuddBehandling {
+    fun getOrError(id: UUID): TilskuddBehandlingDto {
         return checkNotNull(get(id)) { "Tilskuddsbehadling med id $id finnes ikke" }
     }
 
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandling> {
+    fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingDto> {
         @Language("PostgreSQL")
         val query = """
             select * from view_tilskudd_behandling
             where gjennomforing_id = :gjennomforing_id::uuid
         """.trimIndent()
 
-        return session.list(queryOf(query, mapOf("gjennomforing_id" to gjennomforingId))) { it.toTilskuddBehandling() }
+        return session.list(queryOf(query, mapOf("gjennomforing_id" to gjennomforingId))) { it.toTilskuddBehandlingDto() }
     }
 }
 
-private fun Row.toTilskuddBehandling() = TilskuddBehandling(
+private fun Row.toTilskuddBehandlingDto() = TilskuddBehandlingDto(
     id = uuid("id"),
     gjennomforingId = uuid("gjennomforing_id"),
     soknadJournalpostId = string("soknad_journalpost_id"),
@@ -147,5 +148,5 @@ private fun Row.toTilskuddBehandling() = TilskuddBehandling(
     periode = periode("periode"),
     kostnadssted = NavEnhetNummer(string("kostnadssted")),
     vedtak = Json.decodeFromString<List<TilskuddVedtakDto>>(string("vedtak_json")),
-    status = TilskuddBehandlingStatus.valueOf(string("status")),
+    status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(string("status"))),
 )

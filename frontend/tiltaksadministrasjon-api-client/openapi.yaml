@@ -817,36 +817,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/avtaler/{id}/historikk:
-    get:
-      tags:
-      - Avtale
-      operationId: getAvtaleEndringshistorikk
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Avtalens endringshistorikk
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EndringshistorikkDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/avtaler/{id}/rammedetaljer:
     get:
       tags:
@@ -1463,36 +1433,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/gjennomforinger/{id}/historikk:
-    get:
-      tags:
-      - Gjennomforing
-      operationId: getGjennomforingEndringshistorikk
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Gjennomføringens endringshistorikk
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EndringshistorikkDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger/{id}/deltaker-summary:
     get:
       tags:
@@ -1760,37 +1700,6 @@ paths:
         "200":
           description: Tilsagn ble slettet
           headers: {}
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/tilsagn/{id}/historikk:
-    get:
-      tags:
-      - Tilsagn
-      description: Hent endringshistorikk for tilsagn
-      operationId: getTilsagnEndringshistorikk
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Endringshistorikk for tilsagn
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EndringshistorikkDto"
         default:
           description: Problem details
           headers: {}
@@ -2207,36 +2116,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UtbetalingBeregningDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/utbetaling/{id}/historikk:
-    get:
-      tags:
-      - Utbetaling
-      operationId: getUtbetalingEndringshistorikk
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Utbetalingen ble opprettet
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EndringshistorikkDto"
         default:
           description: Problem details
           headers: {}
@@ -3270,7 +3149,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TilskuddBehandlingDto"
+                $ref: "#/components/schemas/TilskuddBehandlingDetaljerDto"
         default:
           description: Problem details
           headers: {}
@@ -3397,6 +3276,43 @@ paths:
         "200":
           description: Tilskuddsbehandling ble returnert
           headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/historikk/{id}:
+    get:
+      tags:
+      - Endringshistorikk
+      operationId: getEndringshistorikk
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: documentClass
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/DocumentClass"
+      responses:
+        "200":
+          description: Endringshistorikk
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EndringshistorikkDto"
         default:
           description: Problem details
           headers: {}
@@ -4797,56 +4713,6 @@ components:
       - OPPDATER_PRIS
       - OPPDATER_RAMMEDETALJER
       - OPPRETT
-    EndringshistorikkDto.Entry:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        operation:
-          type: string
-        editedAt:
-          type: string
-          format: date-time
-        editedBy:
-          $ref: "#/components/schemas/EndringshistorikkDto.User"
-      required:
-      - editedAt
-      - editedBy
-      - id
-      - operation
-    EndringshistorikkDto.User:
-      anyOf:
-      - $ref: "#/components/schemas/EndringshistorikkDto.NavAnsatt"
-      - $ref: "#/components/schemas/EndringshistorikkDto.Systembruker"
-    EndringshistorikkDto.NavAnsatt:
-      type: object
-      properties:
-        navIdent:
-          type: string
-        navn:
-          type:
-          - "null"
-          - string
-      required:
-      - navIdent
-      - navn
-    EndringshistorikkDto.Systembruker:
-      type: object
-      properties:
-        navn:
-          type: string
-      required:
-      - navn
-    EndringshistorikkDto:
-      type: object
-      properties:
-        entries:
-          type: array
-          items:
-            $ref: "#/components/schemas/EndringshistorikkDto.Entry"
-      required:
-      - entries
     TOTAL_RAMME:
       type: object
       properties:
@@ -7747,6 +7613,39 @@ components:
       - EKSAMENSAVGIFT
       - SEMESTERAVGIFT
       - INTEGRERT_BOTILBUD
+    TilskuddBehandlingDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        gjennomforingId:
+          type: string
+          format: uuid
+        soknadJournalpostId:
+          type: string
+        soknadDato:
+          type: string
+          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssted:
+          type: string
+        vedtak:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddVedtakDto"
+        status:
+          $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+      required:
+      - gjennomforingId
+      - id
+      - kostnadssted
+      - periode
+      - soknadDato
+      - soknadJournalpostId
+      - status
+      - vedtak
     TilskuddVedtakDto:
       type: object
       properties:
@@ -7811,30 +7710,11 @@ components:
       - REDIGER
       - ATTESTER
       - RETURNER
-    TilskuddBehandlingDto:
+    TilskuddBehandlingDetaljerDto:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        gjennomforingId:
-          type: string
-          format: uuid
-        soknadJournalpostId:
-          type: string
-        soknadDato:
-          type: string
-          format: date
-        periode:
-          $ref: "#/components/schemas/Periode"
-        kostnadssted:
-          type: string
-        vedtak:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilskuddVedtakDto"
-        status:
-          $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+        behandling:
+          $ref: "#/components/schemas/TilskuddBehandlingDto"
         opprettelse:
           $ref: "#/components/schemas/TotrinnskontrollDto"
         handlinger:
@@ -7843,16 +7723,9 @@ components:
             $ref: "#/components/schemas/TilskuddBehandlingHandling"
           uniqueItems: true
       required:
-      - gjennomforingId
+      - behandling
       - handlinger
-      - id
-      - kostnadssted
       - opprettelse
-      - periode
-      - soknadDato
-      - soknadJournalpostId
-      - status
-      - vedtak
     TilskuddBehandlingRequest.TilskuddVedtakRequest:
       type: object
       properties:
@@ -7943,5 +7816,63 @@ components:
       required:
       - aarsaker
       - forklaring
+    DocumentClass:
+      type: string
+      enum:
+      - AVTALE
+      - GJENNOMFORING
+      - TILSAGN
+      - UTBETALING
+      - TILSKUDD_BEHANDLING
+    EndringshistorikkDto.Entry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        operation:
+          type: string
+        editedAt:
+          type: string
+          format: date-time
+        editedBy:
+          $ref: "#/components/schemas/EndringshistorikkDto.User"
+      required:
+      - editedAt
+      - editedBy
+      - id
+      - operation
+    EndringshistorikkDto.User:
+      anyOf:
+      - $ref: "#/components/schemas/EndringshistorikkDto.NavAnsatt"
+      - $ref: "#/components/schemas/EndringshistorikkDto.Systembruker"
+    EndringshistorikkDto.NavAnsatt:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type:
+          - "null"
+          - string
+      required:
+      - navIdent
+      - navn
+    EndringshistorikkDto.Systembruker:
+      type: object
+      properties:
+        navn:
+          type: string
+      required:
+      - navn
+    EndringshistorikkDto:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/EndringshistorikkDto.Entry"
+      required:
+      - entries
   examples: {}
 webhooks: {}

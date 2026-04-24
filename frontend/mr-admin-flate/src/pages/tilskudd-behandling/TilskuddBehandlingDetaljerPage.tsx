@@ -8,6 +8,7 @@ import { SaksopplysningerDetaljer } from "@/components/tilskudd-behandling/Sakso
 import { VedtakDetaljer } from "@/components/tilskudd-behandling/VedtakDetaljer";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import {
+  DocumentClass,
   FieldError,
   TilskuddBehandlingHandling,
   TilskuddBehandlingStatus,
@@ -20,10 +21,17 @@ import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/Tilsk
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { Handlinger } from "@/components/handlinger/Handlinger";
+import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
-  const { data: behandling } = useTilskuddBehandling(behandlingId);
+  const {
+    data: { behandling, handlinger, opprettelse },
+  } = useTilskuddBehandling(behandlingId);
+  const { data: historikk } = useEndringshistorikk(
+    behandling.id,
+    DocumentClass.TILSKUDD_BEHANDLING,
+  );
   const [currentTab, setCurrentTab] = useState<"saksopplysninger" | "vedtak">("saksopplysninger");
   const [returModalOpen, setReturModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -54,12 +62,11 @@ export function TilskuddBehandlingDetaljerPage() {
     );
   }
 
-  const historikk = { entries: [] };
   const erTilAttestering = behandling.status.type === TilskuddBehandlingStatus.TIL_ATTESTERING;
 
   return (
     <TilskuddBehandlingLayout
-      opprettelse={behandling.opprettelse}
+      opprettelse={opprettelse}
       gjennomforingId={gjennomforingId}
       currentTab={currentTab}
       onTabChange={setCurrentTab}
@@ -74,7 +81,7 @@ export function TilskuddBehandlingDetaljerPage() {
               <ViewEndringshistorikk historikk={historikk} />
             </EndringshistorikkPopover>
             <Handlinger>
-              {behandling.handlinger.includes(TilskuddBehandlingHandling.REDIGER) && (
+              {handlinger.includes(TilskuddBehandlingHandling.REDIGER) && (
                 <ActionMenu.Item onSelect={() => navigate("rediger")}>Rediger</ActionMenu.Item>
               )}
             </Handlinger>
@@ -87,7 +94,7 @@ export function TilskuddBehandlingDetaljerPage() {
         <>
           {erTilAttestering && (
             <HStack gap="space-8" marginBlock="space-16" justify="end">
-              {behandling.handlinger.includes(TilskuddBehandlingHandling.RETURNER) && (
+              {handlinger.includes(TilskuddBehandlingHandling.RETURNER) && (
                 <Button
                   variant="secondary"
                   size="small"
@@ -97,7 +104,7 @@ export function TilskuddBehandlingDetaljerPage() {
                   Send i retur
                 </Button>
               )}
-              {behandling.handlinger.includes(TilskuddBehandlingHandling.ATTESTER) && (
+              {handlinger.includes(TilskuddBehandlingHandling.ATTESTER) && (
                 <Button variant="primary" size="small" type="button" onClick={attester}>
                   Attester
                 </Button>

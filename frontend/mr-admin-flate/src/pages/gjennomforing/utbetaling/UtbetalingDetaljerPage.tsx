@@ -1,6 +1,7 @@
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import {
+  DocumentClass,
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingStatusDtoType,
@@ -15,7 +16,6 @@ import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import {
   useUtbetaling,
   useUtbetalingBeregning,
-  useUtbetalingEndringshistorikk,
   useUtbetalingsLinjer,
 } from "./utbetalingPageLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -28,11 +28,12 @@ import {
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { BetalingsinformasjonDetaljer } from "@/components/utbetaling/BetalingsinformasjonDetaljer";
+import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
 
-  const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
+  const { data: historikk } = useEndringshistorikk(utbetalingId, DocumentClass.UTBETALING);
   const { utbetaling, handlinger } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
 

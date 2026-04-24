@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import java.time.LocalDateTime
 import java.util.UUID
 
-class EndringshistorikkServiceTest : FunSpec({
+class EndringshistorikkQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     test("opprett og les endringshistorikk sortert med nyeste endringer først") {

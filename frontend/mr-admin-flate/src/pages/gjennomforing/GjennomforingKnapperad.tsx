@@ -1,5 +1,4 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { useGjennomforingEndringshistorikk } from "@/api/gjennomforing/useGjennomforingEndringshistorikk";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
@@ -14,6 +13,7 @@ import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import {
+  DocumentClass,
   GjennomforingAvtaleDto,
   GjennomforingDetaljerDto,
   GjennomforingDto,
@@ -27,6 +27,7 @@ import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { previewArbeidsmarkedstiltakUrl } from "@/constants";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { AdministratorGuard } from "@/components/handlinger/AdministratorGuard";
+import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 interface Props {
   ansatt: NavAnsattDto;
@@ -174,7 +175,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
 }
 
 function GjennomforingEndringshistorikk({ id }: { id: string }) {
-  const historikk = useGjennomforingEndringshistorikk(id);
+  const historikk = useEndringshistorikk(id, DocumentClass.GJENNOMFORING);
 
   return <ViewEndringshistorikk historikk={historikk.data} />;
 }
