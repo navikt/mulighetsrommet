@@ -184,12 +184,21 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
         navEnheter: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
-        return queries.oppgave
+        val tilGodkjenning = queries.oppgave
             .getEnkeltplassOppgaveData(
                 tiltakskoder = tiltakskoder.ifEmpty { null },
                 navEnheter = navEnheter.ifEmpty { null },
             )
             .mapNotNull { it.toOppgave(ansatt) }
+
+        val sattPaVent = queries.oppgave
+            .getEnkeltplassSattPaVentOppgaveData(
+                tiltakskoder = tiltakskoder.ifEmpty { null },
+                navEnheter = navEnheter.ifEmpty { null },
+            )
+            .mapNotNull { it.toOppgave(ansatt) }
+
+        return tilGodkjenning + sattPaVent
     }
 
     private fun QueryContext.tilskuddBehandlingOppgaver(
@@ -489,6 +498,25 @@ private fun EnkeltplassOppgaveData.toOppgave(ansatt: NavAnsatt): Oppgave? {
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
             setOf(ansvarligEnhet.nummer),
         )
+    }
+}
+
+private fun EnkeltplassSattPaVentOppgaveData.toOppgave(ansatt: NavAnsatt): Oppgave? {
+    return Oppgave(
+        id = gjennomforing.id,
+        type = OppgaveType.ENKELTPLASS_SATT_PA_VENT,
+        navn = OppgaveType.ENKELTPLASS_SATT_PA_VENT.navn,
+        enhet = ansvarligEnhet,
+        title = getOkonomiOppgaveTitle(tiltakstype, gjennomforing),
+        description = "Enkeltplassen er satt på vent av beslutter",
+        tiltakstype = tiltakstype,
+        link = OppgaveLink(
+            linkText = "Se enkeltplass",
+            link = "/gjennomforinger/${gjennomforing.id}",
+        ),
+        createdAt = besluttetTidspunkt,
+    ).takeIf {
+        GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.OPPRETT_UTBETALING)
     }
 }
 
