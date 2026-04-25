@@ -61,7 +61,7 @@
     "eslint": "10.2.0",
     "msw": "2.13.2",
     "playwright": "1.59.1",
-    "postcss": "8.5.9",
+    "postcss": "8.5.10",
     "tailwindcss": "4.2.2",
     "typescript": "5.9.3",
     "vite": "8.0.8",
