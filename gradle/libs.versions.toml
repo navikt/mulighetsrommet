@@ -1,6 +1,6 @@
 [versions]
 common-java-modules = "3.2026.04.08_08.37-229807cc181a"
-flyway = "12.3.0"
+flyway = "12.4.0"
 koin-bom = "4.2.1"
 kotest = "6.1.11"
 kotlin = "2.3.20"
@@ -8,7 +8,7 @@ ktor = "3.4.2"
 logback = "1.5.32"
 metrics = "4.2.38"
 arrow = "2.2.2.1"
-micrometer = "1.16.4"
+micrometer = "1.16.5"
 testcontainers = "2.0.4"
 
 [plugins]
@@ -36,12 +36,12 @@ ktor-openapi = [
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", version.ref = "arrow" }
 
-ktor-openapi = "io.github.smiley4:ktor-openapi:5.6.0"
-ktor-swagger-ui = "io.github.smiley4:ktor-swagger-ui:5.6.0"
-schema-kenerator-core = "io.github.smiley4:schema-kenerator-core:2.7.1"
-schema-kenerator-reflection = "io.github.smiley4:schema-kenerator-reflection:2.7.1"
-schema-kenerator-serialization = "io.github.smiley4:schema-kenerator-serialization:2.7.1"
-schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.7.1"
+ktor-openapi = "io.github.smiley4:ktor-openapi:5.7.0"
+ktor-swagger-ui = "io.github.smiley4:ktor-swagger-ui:5.7.0"
+schema-kenerator-core = "io.github.smiley4:schema-kenerator-core:2.7.2"
+schema-kenerator-reflection = "io.github.smiley4:schema-kenerator-reflection:2.7.2"
+schema-kenerator-serialization = "io.github.smiley4:schema-kenerator-serialization:2.7.2"
+schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.7.2"
 
 assertj-db = "org.assertj:assertj-db:3.0.2"
 
@@ -52,8 +52,8 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:16.7.1"
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.28.2"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.66.0"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.28.3"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.67.0"
 
 hikaricp = "com.zaxxer:HikariCP:7.0.2"
 
@@ -135,4 +135,4 @@ apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.5.1"
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainers-kafka = { module = "org.testcontainers:testcontainers-kafka", version.ref = "testcontainers" }
 
-unleash = "io.getunleash:unleash-client-java:12.2.0"
+unleash = "io.getunleash:unleash-client-java:12.2.1"
