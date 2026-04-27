@@ -154,11 +154,22 @@ components:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
         status:
           $ref: "#/components/schemas/GjennomforingStatusType"
+        oppstart:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
+        prisinformasjon:
+          type:
+          - "null"
+          - string
       required:
       - arrangor
       - id
       - oppdatertTidspunkt
       - opprettetTidspunkt
+      - oppstart
+      - pameldingType
+      - prisinformasjon
       - status
       - tiltakskode
     Tiltakskode:
@@ -207,6 +218,17 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
+    GjennomforingOppstartstype:
+      type: string
+      enum:
+      - LOPENDE
+      - FELLES
+      - ENKELTPLASS
+    GjennomforingPameldingType:
+      type: string
+      enum:
+      - DIREKTE_VEDTAK
+      - TRENGER_GODKJENNING
     TiltaksgjennomforingV2.Gruppe:
       type: object
       properties:
@@ -225,6 +247,10 @@ components:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
         status:
           $ref: "#/components/schemas/GjennomforingStatusType"
+        oppstart:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
         navn:
           type: string
         startDato:
@@ -235,10 +261,6 @@ components:
           - "null"
           - string
           format: date
-        oppstart:
-          $ref: "#/components/schemas/GjennomforingOppstartstype"
-        pameldingType:
-          $ref: "#/components/schemas/GjennomforingPameldingType"
         tilgjengeligForArrangorFraOgMedDato:
           type:
           - "null"
@@ -273,17 +295,6 @@ components:
       - status
       - tilgjengeligForArrangorFraOgMedDato
       - tiltakskode
-    GjennomforingOppstartstype:
-      type: string
-      enum:
-      - LOPENDE
-      - FELLES
-      - ENKELTPLASS
-    GjennomforingPameldingType:
-      type: string
-      enum:
-      - DIREKTE_VEDTAK
-      - TRENGER_GODKJENNING
     TiltaksgjennomforingV2Dto:
       anyOf:
       - $ref: "#/components/schemas/TiltaksgjennomforingV2.Enkeltplass"

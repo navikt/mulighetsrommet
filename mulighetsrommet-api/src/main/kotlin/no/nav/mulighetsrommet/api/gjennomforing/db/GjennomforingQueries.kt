@@ -870,6 +870,8 @@ private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),
         prismodell = toPrismodell(),
+        oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
+        pameldingType = GjennomforingPameldingType.valueOf(string("pamelding_type")),
         ansvarligEnhet = GjennomforingEnkeltplass.AnsvarligEnhet(
             enhetsnummer = NavEnhetNummer(string("ansvarlig_enhet_enhetsnummer")),
             navn = string("ansvarlig_enhet_navn"),
