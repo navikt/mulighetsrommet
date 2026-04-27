@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
@@ -363,7 +364,6 @@ class GjennomforingAvtaleService(
         today: LocalDate,
     ): GjennomforingValidator.Ctx = db.session {
         val avtale = queries.avtale.getOrError(avtaleId)
-        val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
         val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
         val antallDeltakere = queries.deltaker.getByGjennomforingId(id).size
         val status = resolveStatus(previous?.status, request, today)
@@ -381,7 +381,6 @@ class GjennomforingAvtaleService(
             },
             avtale = avtale,
             arrangor = arrangor,
-            administratorer = administratorer,
             antallDeltakere = antallDeltakere,
             status = status,
         )
@@ -421,18 +420,25 @@ class GjennomforingAvtaleService(
         return queries.gjennomforing.getGjennomforingAvtaleOrError(id)
     }
 
-    // TODO: valider slettede admins her i stedet
     private fun QueryContext.setAdministratorer(
         id: UUID,
         administratorer: Set<NavIdent>,
         navIdent: NavIdent,
         navn: String,
     ) {
-        val currentAdministratorer = queries.gjennomforing.getAdministratorer(id).orEmpty().map { it.navIdent }.toSet()
+        val validAdministratorer = administratorer
+            .mapNotNull { queries.ansatt.getByNavIdent(it) }
+            .filter { it.skalSlettesDato == null && it.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) }
+            .mapTo(mutableSetOf()) { it.navIdent }
 
-        queries.gjennomforing.setAdministratorer(id, administratorer)
+        val currentAdministratorer = queries.gjennomforing.getAdministratorer(id).orEmpty()
+            .map { it.navIdent }
+            .toSet()
 
-        val administratorsToNotify = (administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull()
+        queries.gjennomforing.setAdministratorer(id, validAdministratorer)
+
+        val administratorsToNotify = (validAdministratorer - currentAdministratorer - navIdent)
+            .toNonEmptyListOrNull()
             ?: return
 
         val notification = ScheduledNotification(

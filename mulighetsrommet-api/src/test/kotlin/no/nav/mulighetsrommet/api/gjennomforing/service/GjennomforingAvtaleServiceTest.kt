@@ -30,6 +30,8 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -58,7 +60,11 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             ArrangorFixtures.underenhet2,
         ),
         avtaler = listOf(AvtaleFixtures.oppfolging),
-    )
+    ) {
+        val admin = setOf(NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV))
+        queries.ansatt.setRoller(NavAnsattFixture.DonaldDuck.navIdent, admin)
+        queries.ansatt.setRoller(NavAnsattFixture.MikkeMus.navIdent, admin)
+    }
 
     beforeEach {
         domain.initialize(database.db)
@@ -165,15 +171,6 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 it.kontorstruktur[0].region.enhetsnummer shouldBe Innlandet.enhetsnummer
             }
         }
-
-        test("Ingen administrator-notification hvis administratorer er samme som opprettet") {
-            val navIdent = NavAnsattFixture.DonaldDuck.navIdent
-
-            val gjennomforing = request.copy(detaljer = request.detaljer.copy(administratorer = setOf(navIdent)))
-            service.create(gjennomforing, navIdent).shouldBeRight()
-
-            database.assertTable("user_notification").isEmpty
-        }
     }
 
     context("oppdatere detaljer for gjennomføring") {
@@ -199,25 +196,6 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 .shouldBeLeft().shouldContainAll(
                     listOf(FieldError.root("Gjennomføringen finnes ikke")),
                 )
-        }
-
-        test("Bare nye administratorer får notifikasjon ved oppdatering") {
-            val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
-            val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
-
-            service.create(
-                createRequest.copy(detaljer = createRequest.detaljer.copy(administratorer = setOf(identAnsatt1))),
-                identAnsatt1,
-            ).shouldBeRight()
-
-            val detaljerRequest = createRequest.detaljer.copy(administratorer = setOf(identAnsatt1, identAnsatt2))
-
-            service.updateDetaljer(createRequest.id, detaljerRequest, identAnsatt1).shouldBeRight()
-
-            database.assertTable("user_notification")
-                .hasNumberOfRows(1)
-                .column("user_id")
-                .containsValues(identAnsatt2.value)
         }
     }
 
@@ -443,6 +421,99 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                         it.operation shouldBe "Gjennomføringen ble avsluttet"
                     }
             }
+        }
+    }
+
+    context("administratorer") {
+        val service = createService()
+
+        test("gyldig administrator blir satt") {
+            val request = GjennomforingFixtures.createGjennomforingRequest(
+                AvtaleFixtures.oppfolging,
+                administratorer = setOf(NavAnsattFixture.DonaldDuck.navIdent),
+            )
+
+            service.create(request, bertilNavIdent).shouldBeRight()
+
+            database.db.session {
+                queries.gjennomforing.getAdministratorer(request.id).orEmpty()
+                    .map { it.navIdent } shouldBe listOf(NavAnsattFixture.DonaldDuck.navIdent)
+            }
+        }
+
+        test("administrator som er slettet filtreres vekk") {
+            val slettetAdmin = NavAnsattFixture.FetterAnton.copy(skalSlettesDato = LocalDate.now())
+            MulighetsrommetTestDomain(
+                ansatte = listOf(slettetAdmin),
+                additionalSetup = {
+                    queries.ansatt.setRoller(
+                        slettetAdmin.navIdent,
+                        setOf(NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)),
+                    )
+                },
+            ).initialize(database.db)
+
+            val request = GjennomforingFixtures.createGjennomforingRequest(
+                AvtaleFixtures.oppfolging,
+                administratorer = setOf(slettetAdmin.navIdent),
+            )
+
+            service.create(request, bertilNavIdent).shouldBeRight()
+
+            database.db.session {
+                queries.gjennomforing.getAdministratorer(request.id).orEmpty().shouldBeEmpty()
+            }
+        }
+
+        test("administrator uten TILTAKSGJENNOMFORINGER_SKRIV-rolle filtreres vekk") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.FetterAnton),
+            ).initialize(database.db)
+
+            val request = GjennomforingFixtures.createGjennomforingRequest(
+                AvtaleFixtures.oppfolging,
+                administratorer = setOf(NavAnsattFixture.FetterAnton.navIdent),
+            )
+
+            service.create(request, bertilNavIdent).shouldBeRight()
+
+            database.db.session {
+                queries.gjennomforing.getAdministratorer(request.id).orEmpty().shouldBeEmpty()
+            }
+        }
+
+        test("ingen notifikasjon hvis ny administrator er den samme som oppretter") {
+            val navIdent = NavAnsattFixture.DonaldDuck.navIdent
+            val request = GjennomforingFixtures.createGjennomforingRequest(
+                AvtaleFixtures.oppfolging,
+                administratorer = setOf(navIdent),
+            )
+
+            service.create(request, navIdent).shouldBeRight()
+
+            database.assertTable("user_notification").isEmpty
+        }
+
+        test("bare nye administratorer får notifikasjon ved oppdatering") {
+            val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
+            val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
+            val request = GjennomforingFixtures.createGjennomforingRequest(
+                AvtaleFixtures.oppfolging,
+                administratorer = setOf(identAnsatt1),
+            )
+
+            service.create(request, identAnsatt1).shouldBeRight()
+
+            service.updateDetaljer(
+                request.id,
+                request.detaljer.copy(administratorer = setOf(identAnsatt1, identAnsatt2)),
+                identAnsatt1,
+            ).shouldBeRight()
+
+            database.assertTable("user_notification")
+                .hasNumberOfRows(1)
+                .column("user_id")
+                .containsValues(identAnsatt2.value)
         }
     }
 

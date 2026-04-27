@@ -113,7 +113,6 @@ class GjennomforingValidatorTest : FunSpec({
         previous = null,
         avtale = avtale,
         arrangor = ArrangorFixtures.underenhet1,
-        administratorer = emptyList(),
         antallDeltakere = 0,
         status = GjennomforingStatusType.GJENNOMFORES,
     )
@@ -628,15 +627,6 @@ class GjennomforingValidatorTest : FunSpec({
                 listOf(ansatt),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/veilederinformasjon/kontaktpersoner", "Nav identer B123456 er slettet og må fjernes"),
-            )
-        }
-
-        test("Slettede admins valideres") {
-            validate(
-                request,
-                ctx.copy(administratorer = listOf(ansatt)),
-            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/administratorer", "Nav identer B123456 er slettet og må fjernes"),
             )
         }
     }

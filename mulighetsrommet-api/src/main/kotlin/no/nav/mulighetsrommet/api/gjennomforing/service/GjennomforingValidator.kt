@@ -44,7 +44,6 @@ object GjennomforingValidator {
         val previous: Gjennomforing?,
         val avtale: Avtale,
         val arrangor: ArrangorDto?,
-        val administratorer: List<NavAnsatt>,
         val antallDeltakere: Int,
         val status: GjennomforingStatusType,
     ) {
@@ -202,7 +201,6 @@ object GjennomforingValidator {
             FieldError.of("Du må velge en arrangør fra avtalen", GjennomforingDetaljerRequest::arrangorId)
         }
 
-        validateSlettetNavAnsatte(ctx.administratorer, GjennomforingDetaljerRequest::administratorer)
         requireValid(ctx.arrangor != null) {
             FieldError.of(
                 "Du må velge en arrangør",
