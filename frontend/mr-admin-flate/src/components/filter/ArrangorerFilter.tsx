@@ -1,6 +1,6 @@
 import { Box, UNSAFE_Combobox } from "@navikt/ds-react";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { ArrangorKobling } from "node_modules/@tiltaksadministrasjon/api-client/build/types.gen";
+import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { arrangorOptions } from "@/utils/filterUtils";
 import { useMemo, useCallback, memo, useState, useRef } from "react";
 
