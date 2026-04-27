@@ -43,6 +43,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         erSkjermet = false,
         adressebeskyttelse = PdlGradering.UGRADERT,
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
+        harTilgang = true,
     )
 
     val skjermetDeltaker = Personalia(
@@ -51,6 +52,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         erSkjermet = true,
         adressebeskyttelse = PdlGradering.UGRADERT,
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
+        harTilgang = false,
     )
 
     val adressebekyttetDeltaker = Personalia(
@@ -59,6 +61,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         erSkjermet = false,
         adressebeskyttelse = PdlGradering.FORTROLIG,
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
+        harTilgang = false,
     )
 
     val kontonummer = Kontonummer("12345678910")

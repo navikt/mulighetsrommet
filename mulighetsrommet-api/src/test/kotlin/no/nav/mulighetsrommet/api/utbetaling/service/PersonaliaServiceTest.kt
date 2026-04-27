@@ -144,6 +144,7 @@ class PersonaliaServiceTest : FunSpec({
                         oppfolgingEnhet = null,
                         erSkjermet = false,
                         adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND,
+                        harTilgang = false,
                     ),
             )
             service.getPersonaliaMedGeografiskEnhet(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
@@ -197,6 +198,7 @@ class PersonaliaServiceTest : FunSpec({
                         oppfolgingEnhet = null,
                         erSkjermet = true,
                         adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
+                        harTilgang = false,
                     ),
             )
             service.getPersonaliaMedGeografiskEnhet(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
@@ -263,6 +265,7 @@ class PersonaliaServiceTest : FunSpec({
                         oppfolgingEnhet = null,
                         erSkjermet = true,
                         adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
+                        harTilgang = false,
                     ),
             )
 
@@ -275,6 +278,7 @@ class PersonaliaServiceTest : FunSpec({
                         oppfolgingEnhet = oppfolgingEnhet.toDto(),
                         erSkjermet = true,
                         adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
+                        harTilgang = true,
                     ),
             )
             service.getPersonaliaMedGeografiskEnhet(listOf(), AccessType.OBO.AzureAd("token"))[deltakelseId] should {
@@ -324,6 +328,7 @@ class PersonaliaServiceTest : FunSpec({
                         oppfolgingEnhet = oppfolgingEnhet.toDto(),
                         erSkjermet = personalia.erSkjermet,
                         adressebeskyttelse = personalia.adressebeskyttelse,
+                        harTilgang = true,
                     ),
             )
 
@@ -336,6 +341,7 @@ class PersonaliaServiceTest : FunSpec({
                         oppfolgingEnhet = null,
                         erSkjermet = personalia.erSkjermet,
                         adressebeskyttelse = personalia.adressebeskyttelse,
+                        harTilgang = false,
                     ),
             )
             service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {

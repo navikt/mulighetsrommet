@@ -290,6 +290,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             erSkjermet = true,
             oppfolgingEnhet = null,
             adressebeskyttelse = PdlGradering.UGRADERT,
+            harTilgang = true,
         ),
         deltaker2Id to Personalia(
             navn = "Ola Nordmann",
@@ -297,6 +298,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             erSkjermet = false,
             oppfolgingEnhet = null,
             adressebeskyttelse = PdlGradering.UGRADERT,
+            harTilgang = true,
         ),
         deltaker3Id to Personalia(
             navn = "Kari Nordmann",
@@ -304,6 +306,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             erSkjermet = false,
             oppfolgingEnhet = null,
             adressebeskyttelse = PdlGradering.FORTROLIG,
+            harTilgang = true,
         ),
         deltaker4Id to Personalia(
             navn = "Kari Nordmann",
@@ -311,6 +314,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             erSkjermet = false,
             oppfolgingEnhet = null,
             adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
+            harTilgang = true,
         ),
         deltaker5Id to Personalia(
             navn = "Carrie Northfolk",
@@ -318,6 +322,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             erSkjermet = false,
             oppfolgingEnhet = null,
             adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND,
+            harTilgang = true,
         ),
     )
 
