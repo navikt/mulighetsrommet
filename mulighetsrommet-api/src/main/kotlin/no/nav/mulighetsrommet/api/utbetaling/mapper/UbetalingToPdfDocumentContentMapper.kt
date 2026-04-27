@@ -354,23 +354,23 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     }
 }
 
-private fun deltakerNavnOgIdent(person: Personalia?): Array<TableBlock.Table.Cell> {
-    val erSkjermet = person?.erSkjermet == true
-    val erAdressebeskyttet = person?.adressebeskyttelse != PdlGradering.UGRADERT
+private fun deltakerNavnOgIdent(personalia: Personalia?): Array<TableBlock.Table.Cell> {
+    require(personalia is Personalia.MedTilgang)
+    val erAdressebeskyttet = personalia.adressebeskyttelse != PdlGradering.UGRADERT
     return arrayOf(
         TableBlock.Table.Cell(
             when {
-                erSkjermet -> "Skjermet"
+                personalia.erSkjermet -> "Skjermet"
                 erAdressebeskyttet -> "Adressebeskyttet"
-                else -> person.navn
+                else -> personalia.navn
             },
 
         ),
         TableBlock.Table.Cell(
             when {
-                erSkjermet -> null
+                personalia.erSkjermet -> null
                 erAdressebeskyttet -> null
-                else -> person.norskIdent?.value
+                else -> personalia.norskIdent.value
             },
         ),
     )

@@ -6,6 +6,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKombinasjon
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -15,6 +16,7 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.PortableTextTypedObject
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
+import no.nav.mulighetsrommet.model.TiltakstypeSystem
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -58,6 +60,7 @@ data class VeilederflateTiltakGruppe(
     val status: VeilederflateTiltakGruppeStatus,
     val tiltaksnummer: String?,
     val apentForPamelding: Boolean,
+    val lopenummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val oppstartsdato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -91,21 +94,6 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
 ) : VeilederflateTiltak()
 
 @Serializable
-data class VeilederflateTiltakEgenRegi(
-    override val tiltakstype: VeilederflateTiltakstype,
-    override val navn: String,
-    override val beskrivelse: String?,
-    override val faneinnhold: Faneinnhold?,
-    override val kontaktinfo: VeilederflateKontaktinfo,
-    override val oppstart: GjennomforingOppstartstype,
-    override val oppmoteSted: String?,
-    override val fylker: List<NavEnhetNummer>,
-    override val enheter: List<NavEnhetNummer>,
-    val sanityId: String,
-    val tiltaksnummer: String?,
-) : VeilederflateTiltak()
-
-@Serializable
 data class VeilederflateTiltakEnkeltplass(
     override val tiltakstype: VeilederflateTiltakstype,
     override val navn: String,
@@ -117,6 +105,7 @@ data class VeilederflateTiltakEnkeltplass(
     override val fylker: List<NavEnhetNummer>,
     override val enheter: List<NavEnhetNummer>,
     val sanityId: String,
+    val tiltaksnummer: String?,
 ) : VeilederflateTiltak()
 
 @Serializable
@@ -143,19 +132,19 @@ data class VeilederflateKontaktinfo(
 data class VeilederflateTiltakstype(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val sanityId: String,
+    @kotlinx.serialization.Transient
+    val sanityId: String? = null,
     val navn: String,
+    val tiltakskode: Tiltakskode,
+    val system: TiltakstypeSystem,
     val features: Set<TiltakstypeFeature>,
     val egenskaper: Set<TiltakstypeEgenskap>,
-    val beskrivelse: String?,
     val innsatsgrupper: Set<Innsatsgruppe>?,
-    val regelverkLenker: List<RedaksjoneltInnholdLenke>?,
-    val faneinnhold: Faneinnhold?,
-    val delingMedBruker: String?,
-    val arenakode: String?,
-    val tiltakskode: Tiltakskode?,
     val tiltaksgruppe: String?,
-    val kanKombineresMed: List<String>,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+    val faglenker: List<RedaksjoneltInnholdLenke>?,
+    val kanKombineresMed: List<TiltakstypeKombinasjon>,
 )
 
 @Serializable

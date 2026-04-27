@@ -1,10 +1,12 @@
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
-import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
+import { useGjennomforing, useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { usePollTiltaksnummer } from "@/api/gjennomforing/usePollTiltaksnummer";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { NokkeltallDeltakere } from "@/components/gjennomforing/NokkeltallDeltakere";
 import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
 import { TiltakTilgjengeligForArrangor } from "@/components/gjennomforing/TilgjengeligTiltakForArrangor";
+import { GodkjennOkonomiModal } from "@/components/gjennomforing/GodkjennOkonomiModal";
+import { SettPaVentOkonomiModal } from "@/components/gjennomforing/SettPaVentOkonomiModal";
 import { Laster } from "@/components/laster/Laster";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
@@ -13,6 +15,7 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import {
   BodyShort,
+  Button,
   Heading,
   HelpText,
   HStack,
@@ -40,19 +43,30 @@ import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import {
   Besluttelse,
   GjennomforingAvtaleDto,
+  GjennomforingHandling,
   TotrinnskontrollDto,
 } from "@tiltaksadministrasjon/api-client";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
+import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
+import { ReactNode, useState } from "react";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const detaljer = useGjennomforing(gjennomforingId);
-  const { gjennomforing, veilederinfo, utdanningslop, amoKategorisering, prismodell, okonomi } =
-    detaljer;
+  const {
+    gjennomforing,
+    veilederinfo,
+    utdanningslop,
+    amoKategorisering,
+    prismodell,
+    okonomi,
+    enkeltplassDeltaker,
+  } = detaljer;
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
+  const handlinger = useGjennomforingHandlinger(gjennomforing.id);
   const { data: avtale } = usePotentialAvtale(
     isGruppetiltak(gjennomforing) ? gjennomforing.avtaleId : null,
   );
@@ -166,7 +180,16 @@ export function GjennomforingDetaljer() {
           {isGruppetiltak(gjennomforing) && !harStartet(gjennomforing) && (
             <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
           )}
-          {isEnkeltplass(gjennomforing) && okonomi && <OkonomiStatus okonomi={okonomi} />}
+          {isEnkeltplass(gjennomforing) && okonomi && (
+            <OkonomiStatus
+              okonomi={okonomi}
+              gjennomforingId={gjennomforing.id}
+              handlinger={handlinger}
+            />
+          )}
+          {isEnkeltplass(gjennomforing) && enkeltplassDeltaker && (
+            <DeltakerinformasjonOgBetalingsbetingelser deltaker={enkeltplassDeltaker} />
+          )}
         </DetaljerLayout>
       </TwoColumnGrid>
       <Separator />
@@ -195,56 +218,113 @@ function harStartet(gjennomforing: GjennomforingAvtaleDto) {
   return new Date() > new Date(gjennomforing.startDato);
 }
 
-function OkonomiStatus({ okonomi }: { okonomi: TotrinnskontrollDto }) {
-  if (isBesluttet(okonomi) && okonomi.besluttelse === Besluttelse.GODKJENT) {
-    return (
-      <InfoCard data-color="success">
+function OkonomiStatus({
+  okonomi,
+  gjennomforingId,
+  handlinger,
+}: {
+  okonomi: TotrinnskontrollDto;
+  gjennomforingId: string;
+  handlinger: GjennomforingHandling[];
+}) {
+  const [godkjennOpen, setGodkjennOpen] = useState(false);
+  const [settPaVentOpen, setSettPaVentOpen] = useState(false);
+
+  const kanGodkjenne = handlinger.includes(GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI);
+  const kanSettePaVent = handlinger.includes(
+    GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
+  );
+
+  const card = resolveCard(okonomi);
+
+  return (
+    <>
+      <InfoCard data-color={card.color}>
         <InfoCard.Header>
-          <InfoCard.Title>Økonomi godkjent</InfoCard.Title>
+          <InfoCard.Title>{card.title}</InfoCard.Title>
         </InfoCard.Header>
         <InfoCard.Content>
-          <BodyShort>
-            {okonomi.besluttetAv.navn} godkjente økonomi den{" "}
-            {formaterDato(okonomi.besluttetTidspunkt)}.
-          </BodyShort>
+          {card.body}
+          {(kanSettePaVent || kanGodkjenne) && (
+            <HStack gap="space-4">
+              {kanSettePaVent && (
+                <Button size="small" variant="secondary" onClick={() => setSettPaVentOpen(true)}>
+                  Sett på vent
+                </Button>
+              )}
+              {kanGodkjenne && (
+                <Button size="small" onClick={() => setGodkjennOpen(true)}>
+                  Godkjenn enkeltplass
+                </Button>
+              )}
+            </HStack>
+          )}
         </InfoCard.Content>
       </InfoCard>
-    );
+      <GodkjennOkonomiModal
+        open={godkjennOpen}
+        setOpen={setGodkjennOpen}
+        gjennomforingId={gjennomforingId}
+      />
+      <SettPaVentOkonomiModal
+        open={settPaVentOpen}
+        setOpen={setSettPaVentOpen}
+        gjennomforingId={gjennomforingId}
+      />
+    </>
+  );
+}
+
+interface CardData {
+  color: "success" | "warning" | "info";
+  title: string;
+  body: ReactNode;
+}
+
+function resolveCard(okonomi: TotrinnskontrollDto): CardData {
+  if (isBesluttet(okonomi) && okonomi.besluttelse === Besluttelse.GODKJENT) {
+    return {
+      color: "success",
+      title: "Økonomi godkjent",
+      body: (
+        <BodyShort>
+          {okonomi.besluttetAv.navn} godkjente økonomi den{" "}
+          {formaterDato(okonomi.besluttetTidspunkt)}.
+        </BodyShort>
+      ),
+    };
   }
 
   if (isBesluttet(okonomi) && okonomi.besluttelse === Besluttelse.AVVIST) {
-    return (
-      <InfoCard data-color="danger">
-        <InfoCard.Header>
-          <InfoCard.Title>Økonomi avslått</InfoCard.Title>
-        </InfoCard.Header>
-        <InfoCard.Content>
-          <BodyShort>
-            {okonomi.besluttetAv.navn} avslo økonomi den {formaterDato(okonomi.besluttetTidspunkt)}.
+    return {
+      color: "warning",
+      title: "Enkeltplass satt på vent",
+      body: (
+        <>
+          <BodyShort spacing>
+            {okonomi.besluttetAv.navn} satte godkjenning av enkeltplass på vent den{" "}
+            {formaterDato(okonomi.besluttetTidspunkt)}.
           </BodyShort>
           {okonomi.forklaring && (
             <MetadataFritekstfelt label="Forklaring" value={okonomi.forklaring} />
           )}
-        </InfoCard.Content>
-      </InfoCard>
-    );
+        </>
+      ),
+    };
   }
 
   if (isTilBeslutning(okonomi)) {
-    return (
-      <InfoCard data-color="info">
-        <InfoCard.Header>
-          <InfoCard.Title>Økonomi venter på godkjenning</InfoCard.Title>
-        </InfoCard.Header>
-        <InfoCard.Content>
-          <BodyShort>
-            {okonomi.behandletAv.navn} sendte gjennomføringen til godkjenning den{" "}
-            {formaterDato(okonomi.behandletTidspunkt)}.
-          </BodyShort>
-        </InfoCard.Content>
-      </InfoCard>
-    );
+    return {
+      color: "info",
+      title: "Enkeltplass venter på godkjenning",
+      body: (
+        <BodyShort spacing>
+          {okonomi.behandletAv.navn} sendte gjennomføringen til godkjenning den{" "}
+          {formaterDato(okonomi.behandletTidspunkt)}.
+        </BodyShort>
+      ),
+    };
   }
 
-  throw Error("Unhåndtert status");
+  throw Error("Uhåndtert status");
 }

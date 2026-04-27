@@ -100,7 +100,7 @@ class UtbetalingQueriesTest : FunSpec({
                 utbetaling.id shouldBe utbetaling.id
                 utbetaling.tiltakstype shouldBe Utbetaling.Tiltakstype(
                     navn = TiltakstypeFixtures.AFT.navn,
-                    tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
+                    tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
                 )
                 utbetaling.gjennomforing.id shouldBe AFT1.id
                 utbetaling.gjennomforing.lopenummer.shouldNotBeNull()

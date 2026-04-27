@@ -76,7 +76,7 @@ data class TilgangsmaskinRequest(
 )
 
 @Serializable
-private data class TilgangsmaskinResponse(
+data class TilgangsmaskinResponse(
     val resultater: List<Resultat>,
 ) {
     @Serializable

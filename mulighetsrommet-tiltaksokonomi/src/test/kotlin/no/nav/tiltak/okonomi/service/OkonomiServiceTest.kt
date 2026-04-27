@@ -38,7 +38,6 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.BestillingStatus
 import no.nav.tiltak.okonomi.BestillingStatusType
-import no.nav.tiltak.okonomi.FakturaConfig
 import no.nav.tiltak.okonomi.FakturaStatus
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.GjorOppBestilling
@@ -98,11 +97,9 @@ class OkonomiServiceTest : FunSpec({
 
     fun createOkonomiService(
         oebsTiltakApiClient: OebsPoApClient,
-        getTidligstTidspunktForUtbetaling: (Bestilling, Faktura) -> LocalDateTime? = { _, _ -> null },
     ) = OkonomiService(
         config = OkonomiService.Config(
             topics = KafkaTopics("bestilling-status", "faktura-status"),
-            faktura = FakturaConfig(getTidligstTidspunktForUtbetaling),
         ),
         db = db,
         oebs = oebsTiltakApiClient,
@@ -497,23 +494,6 @@ class OkonomiServiceTest : FunSpec({
             val opprettFaktura = createOpprettFaktura(bestilling.bestillingsnummer, "876-F1")
             service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
                 it.message shouldBe "Faktura 876-F1 kan ikke opprettes fordi bestilling 876 har status SENDT"
-            }
-        }
-
-        test("feiler når tidligste tidspunkt for faktura enda ikke er passert") {
-            val bestilling = createBestilling("B32", status = BestillingStatusType.AKTIV)
-            db.session {
-                queries.bestilling.insertBestilling(bestilling)
-            }
-
-            val now = LocalDate.of(2025, 2, 1).atStartOfDay()
-            val getTidspunktForUtbetaling = { _: Bestilling, _: Faktura -> LocalDate.of(2025, 2, 2).atStartOfDay() }
-
-            val service = createOkonomiService(oebsClient(oebsRespondError()), getTidspunktForUtbetaling)
-
-            val opprettFaktura = createOpprettFaktura(bestilling.bestillingsnummer, "B32-F1")
-            service.opprettFaktura(opprettFaktura, now).shouldBeLeft().should {
-                it.message shouldBe "Faktura B32-F1 kan ikke opprettes før 2025-02-02T00:00"
             }
         }
 

@@ -25,7 +25,8 @@ select gjennomforing.id,
        arrangor.id                  as arrangor_id,
        arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
        arrangor.navn                as arrangor_navn,
-       arrangor_kontaktpersoner_json
+       arrangor_kontaktpersoner_json,
+       gjennomforing.lopenummer
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id

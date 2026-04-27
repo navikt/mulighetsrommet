@@ -31,7 +31,7 @@ export function RedigerTilsagnFormPage() {
 
   return (
     <>
-      <ToTrinnsOpprettelsesForklaring opprettelse={opprettelse} />
+      <ToTrinnsOpprettelsesForklaring heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
       <TilsagnFormContainer
         gjennomforing={gjennomforing}
         prismodell={prismodell}

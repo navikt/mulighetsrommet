@@ -32,7 +32,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
@@ -45,6 +44,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -65,6 +65,8 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
@@ -101,10 +103,11 @@ fun Route.gjennomforingRoutes() {
             }) {
                 val request = call.receive<GjennomforingRequest>()
                 val navIdent = getNavIdent()
+                val accessType = call.getAccessType().requireAzureAd()
 
                 val result = avtaleGjennomforinger.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
-                    .flatMap { gjennomforinger.getOrInternalServerError(it.id) }
+                    .flatMap { gjennomforinger.getOrInternalServerError(it.id, accessType) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -264,13 +267,14 @@ fun Route.gjennomforingRoutes() {
                 val id: UUID by call.pathParameters
                 val navIdent = getNavIdent()
                 val request = call.receive<SetStengtHosArrangorRequest>()
+                val accessType = call.getAccessType().requireAzureAd()
 
                 val result = request.validate()
                     .flatMap { (periode, beskrivelse) ->
                         avtaleGjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
-                    .flatMap { gjennomforinger.getOrInternalServerError(it.id) }
+                    .flatMap { gjennomforinger.getOrInternalServerError(it.id, accessType) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -359,16 +363,16 @@ fun Route.gjennomforingRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
-            post("{id}/avsla-okonomi", {
+            post("{id}/sett-pa-vent-okonomi", {
                 tags = setOf("Gjennomforing")
-                operationId = "avslaaGjennomforingOkonomi"
+                operationId = "settPaVentGjennomforingOkonomi"
                 request {
                     pathParameterUuid("id")
-                    body<AvslaaOkonomiRequest>()
+                    body<SettPaVentOkonomiRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Økonomi ble avslått"
+                        description = "Økonomi ble satt på vent"
                     }
                     default {
                         description = "Problem details"
@@ -378,9 +382,9 @@ fun Route.gjennomforingRoutes() {
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<AvslaaOkonomiRequest>()
+                val request = call.receive<SettPaVentOkonomiRequest>()
 
-                val result = enkeltplasser.avvisOkonomi(id, navIdent, request.forklaring)
+                val result = enkeltplasser.settPaVentOkonomi(id, navIdent, request.forklaring)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -471,8 +475,9 @@ fun Route.gjennomforingRoutes() {
             }
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
+            val accessType = call.getAccessType().requireAzureAd()
 
-            gjennomforinger.getGjennomforingDetaljerDto(id)
+            gjennomforinger.getGjennomforingDetaljerDto(id, accessType)
                 ?.let { call.respond(it) }
                 ?: call.respondUkjentGjennomforing(id)
         }
@@ -496,7 +501,8 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            gjennomforinger.getGjennomforingDetaljerDto(id)
+            val accessType = call.getAccessType().requireAzureAd()
+            gjennomforinger.getGjennomforingDetaljerDto(id, accessType)
                 ?.let { detaljer ->
                     val tiltaksnummer = when (detaljer.gjennomforing) {
                         is GjennomforingAvtaleDto -> detaljer.gjennomforing.tiltaksnummer
@@ -507,28 +513,6 @@ fun Route.gjennomforingRoutes() {
                         ?: call.respond(HttpStatusCode.NoContent)
                 }
                 ?: call.respondUkjentGjennomforing(id)
-        }
-
-        get("{id}/historikk", {
-            tags = setOf("Gjennomforing")
-            operationId = "getGjennomforingEndringshistorikk"
-            request {
-                pathParameterUuid("id")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Gjennomføringens endringshistorikk"
-                    body<EndringshistorikkDto>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-            val historikk = avtaleGjennomforinger.getEndringshistorikk(id)
-            call.respond(historikk)
         }
 
         get("{id}/deltaker-summary", {
@@ -595,8 +579,11 @@ fun Route.gjennomforingRoutes() {
     }
 }
 
-private fun GjennomforingDetaljerService.getOrInternalServerError(id: UUID): Either<InternalServerError, GjennomforingDetaljerDto> {
-    return getGjennomforingDetaljerDto(id)?.right()
+private suspend fun GjennomforingDetaljerService.getOrInternalServerError(
+    id: UUID,
+    accessType: AccessType.OBO.AzureAd,
+): Either<InternalServerError, GjennomforingDetaljerDto> {
+    return getGjennomforingDetaljerDto(id, accessType)?.right()
         ?: InternalServerError("Klarte ikke hente detaljer om gjennomforing=$id").left()
 }
 
@@ -738,7 +725,7 @@ data class PublisertRequest(
 )
 
 @Serializable
-data class AvslaaOkonomiRequest(
+data class SettPaVentOkonomiRequest(
     val forklaring: String? = null,
 )
 
@@ -817,4 +804,5 @@ enum class GjennomforingHandling {
     OPPRETT_TILSAGN_FOR_INVESTERINGER,
     OPPRETT_UTBETALING,
     GODKJENN_ENKELTPLASS_OKONOMI,
+    SETT_PA_VENT_ENKELTPLASS_OKONOMI,
 }

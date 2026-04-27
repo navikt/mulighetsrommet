@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.ContentType
@@ -75,11 +76,11 @@ class TilgangsmaskinClientTest : FunSpec({
 
         result.resultater shouldHaveSize 3
         result.resultater[0].brukerId shouldBe "08526835671"
-        result.resultater[0].status shouldBe 204
+        result.resultater[0].shouldBeTypeOf<TilgangsmaskinResult.Resultat.Innvilget>()
         result.resultater[1].brukerId shouldBe "03508331575"
-        result.resultater[1].status shouldBe 403
+        result.resultater[1].shouldBeTypeOf<TilgangsmaskinResult.Resultat.Avvist>()
         result.resultater[2].brukerId shouldBe "01011111111"
-        result.resultater[2].status shouldBe 204
+        result.resultater[2].shouldBeTypeOf<TilgangsmaskinResult.Resultat.Innvilget>()
     }
 
     test("bulk - 404 kaster exception") {

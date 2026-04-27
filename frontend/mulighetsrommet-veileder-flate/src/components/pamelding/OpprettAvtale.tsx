@@ -1,4 +1,4 @@
-import { VeilederflateTiltakstype } from "@api-client";
+import { TiltakstypeSystem, VeilederflateTiltakstype } from "@api-client";
 import { Button } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
@@ -30,16 +30,5 @@ export function OpprettAvtale({ tiltakstype, harRettPaaTiltak }: Props): ReactNo
 }
 
 function kanOppretteAvtaleOmTiltaksplass(tiltakstype: VeilederflateTiltakstype): boolean {
-  return !!tiltakstype.arenakode && whiteListOpprettAvtaleKnapp.includes(tiltakstype.arenakode);
+  return tiltakstype.system === TiltakstypeSystem.TILTAK_ARBEIDSGIVER;
 }
-
-// TODO: styredata på tiltakstype i stedet for å utlede om avtale kan opprettes basert på arenakoder
-const whiteListOpprettAvtaleKnapp: string[] = [
-  "MIDLONTIL",
-  "ARBTREN",
-  "VARLONTIL",
-  "MENTOR",
-  "INKLUTILS",
-  "TILSJOBB",
-  "VATIAROR",
-];

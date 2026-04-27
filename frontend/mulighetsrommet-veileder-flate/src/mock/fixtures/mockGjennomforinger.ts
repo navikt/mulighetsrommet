@@ -8,6 +8,7 @@ import {
 import { mockTiltakstyper } from "./mockTiltakstyper";
 
 export const tiltakAvklaring: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  lopenummer: "2025/13145",
   type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   tiltaksnummer: "123123",
   id: "f4cea25b-c372-4d4c-8106-535ab10cd586",
@@ -145,9 +146,11 @@ export const tiltakMentor: VeilederflateTiltak & VeilederflateTiltakEnkeltplass 
   enheter: [],
   beskrivelse: null,
   faneinnhold: null,
+  tiltaksnummer: null,
 };
 
 export const tiltakAmoGruppe: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  lopenummer: "2025/13145",
   type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   id: "00097090-1ba8-47a4-a82f-6aaad488994e",
   status: {
@@ -267,6 +270,7 @@ export const tiltakAmoGruppe: VeilederflateTiltak & VeilederflateTiltakGruppe = 
 };
 
 export const tiltakVta: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  lopenummer: "2025/13145",
   type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   id: "3b597090-1ba8-47a4-a82f-6aaad488994e",
   navn: "VTA hos Fretex",
@@ -373,6 +377,7 @@ export const tiltakVta: VeilederflateTiltak & VeilederflateTiltakGruppe = {
 };
 
 export const tiltakJobbklubb: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  lopenummer: "2025/13145",
   type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   id: "ff887090-1ba8-47a4-a82f-6aaad488994e",
   navn: "Jobbklubb (med Lars Monsen)",
@@ -439,6 +444,7 @@ export const tiltakJobbklubb: VeilederflateTiltak & VeilederflateTiltakGruppe = 
 };
 
 export const tiltakAft: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  lopenummer: "2025/13145",
   type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   id: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
   navn: "AFT",
@@ -490,6 +496,7 @@ export const tiltakAft: VeilederflateTiltak & VeilederflateTiltakGruppe = {
 };
 
 export const tiltakOppfolging: VeilederflateTiltak & VeilederflateTiltakGruppe = {
+  lopenummer: "2025/13145",
   type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   id: "3c110e8c-5867-4ece-b343-e9b1c547f548",
   navn: "Oppfølging",
@@ -551,6 +558,7 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltak & VeilederflateTilta
   enheter: [],
   beskrivelse: null,
   faneinnhold: null,
+  tiltaksnummer: null,
 };
 
 export const mockGjennomforinger: VeilederflateTiltak[] = [

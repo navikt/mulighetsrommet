@@ -51,7 +51,9 @@ data class ArenaMigreringTiltaksgjennomforingDto(
 
             return ArenaMigreringTiltaksgjennomforingDto(
                 id = gjennomforing.id,
-                tiltakskode = gjennomforing.tiltakstype.tiltakskode.arenakode,
+                tiltakskode = checkNotNull(gjennomforing.tiltakstype.tiltakskode.arenakode) {
+                    "${gjennomforing.tiltakstype.tiltakskode} har ingen mapping til Arena"
+                },
                 startDato = gjennomforing.startDato,
                 sluttDato = gjennomforing.sluttDato,
                 opprettetTidspunkt = gjennomforing.opprettetTidspunkt.tilNorskLocalDateTime(),

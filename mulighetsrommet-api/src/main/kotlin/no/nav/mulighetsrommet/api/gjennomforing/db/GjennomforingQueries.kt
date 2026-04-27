@@ -645,6 +645,14 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun aquireLock(id: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            select id from gjennomforing where id = ?::uuid for update
+        """.trimIndent()
+        session.execute(queryOf(query, id))
+    }
+
     fun deleteKoordinatorForGjennomforing(
         id: UUID,
     ) {
@@ -862,6 +870,8 @@ private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),
         prismodell = toPrismodell(),
+        oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
+        pameldingType = GjennomforingPameldingType.valueOf(string("pamelding_type")),
         ansvarligEnhet = GjennomforingEnkeltplass.AnsvarligEnhet(
             enhetsnummer = NavEnhetNummer(string("ansvarlig_enhet_enhetsnummer")),
             navn = string("ansvarlig_enhet_navn"),

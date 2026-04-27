@@ -142,38 +142,47 @@ components:
         id:
           type: string
           format: uuid
-          default: null
         opprettetTidspunkt:
           type: string
           format: date-time
-          default: null
         oppdatertTidspunkt:
           type: string
           format: date-time
-          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
         arrangor:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
         status:
           $ref: "#/components/schemas/GjennomforingStatusType"
+        oppstart:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
+        prisinformasjon:
+          type:
+          - "null"
+          - string
       required:
       - arrangor
       - id
       - oppdatertTidspunkt
       - opprettetTidspunkt
+      - oppstart
+      - pameldingType
+      - prisinformasjon
       - status
       - tiltakskode
     Tiltakskode:
       type: string
       enum:
-      - ARBEIDSFORBEREDENDE_TRENING
       - ARBEIDSRETTET_REHABILITERING
       - AVKLARING
       - DIGITALT_OPPFOLGINGSTILTAK
       - JOBBKLUBB
       - OPPFOLGING
+      - ARBEIDSFORBEREDENDE_TRENING
       - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - TILPASSET_JOBBSTOTTE
       - ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
@@ -184,12 +193,22 @@ components:
       - HOYERE_YRKESFAGLIG_UTDANNING
       - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
       - STUDIESPESIALISERING
+      - INDIVIDUELL_JOBBSTOTTE
+      - INDIVIDUELL_JOBBSTOTTE_UNG
+      - ARBEID_MED_STOTTE
+      - ARBEIDSTRENING
+      - MIDLERTIDIG_LONNSTLSKUDD
+      - VARIG_LONNSTILSKUD
+      - MENTOR
+      - INKLUDERINGSTILSKUD
+      - SOMMERJOBB
+      - VTAO
+      - FIREARIG_LONNSTILSUDD
     TiltaksgjennomforingV2Dto.Arrangor:
       type: object
       properties:
         organisasjonsnummer:
           type: string
-          default: null
       required:
       - organisasjonsnummer
     GjennomforingStatusType:
@@ -199,66 +218,66 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
+    GjennomforingOppstartstype:
+      type: string
+      enum:
+      - LOPENDE
+      - FELLES
+      - ENKELTPLASS
+    GjennomforingPameldingType:
+      type: string
+      enum:
+      - DIREKTE_VEDTAK
+      - TRENGER_GODKJENNING
     TiltaksgjennomforingV2.Gruppe:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          default: null
         opprettetTidspunkt:
           type: string
           format: date-time
-          default: null
         oppdatertTidspunkt:
           type: string
           format: date-time
-          default: null
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
         arrangor:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
         status:
           $ref: "#/components/schemas/GjennomforingStatusType"
+        oppstart:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
         navn:
           type: string
-          default: null
         startDato:
           type: string
           format: date
-          default: null
         sluttDato:
           type:
           - "null"
           - string
           format: date
-          default: null
-        oppstart:
-          $ref: "#/components/schemas/GjennomforingOppstartstype"
-        pameldingType:
-          $ref: "#/components/schemas/GjennomforingPameldingType"
         tilgjengeligForArrangorFraOgMedDato:
           type:
           - "null"
           - string
           format: date
-          default: null
         apentForPamelding:
           type: boolean
-          default: null
         antallPlasser:
           type: integer
           format: int32
-          default: null
         deltidsprosent:
           type: number
           format: double
-          default: null
         oppmoteSted:
           type:
           - "null"
           - string
-          default: null
       required:
       - antallPlasser
       - apentForPamelding
@@ -276,17 +295,6 @@ components:
       - status
       - tilgjengeligForArrangorFraOgMedDato
       - tiltakskode
-    GjennomforingOppstartstype:
-      type: string
-      enum:
-      - LOPENDE
-      - FELLES
-      - ENKELTPLASS
-    GjennomforingPameldingType:
-      type: string
-      enum:
-      - DIREKTE_VEDTAK
-      - TRENGER_GODKJENNING
     TiltaksgjennomforingV2Dto:
       anyOf:
       - $ref: "#/components/schemas/TiltaksgjennomforingV2.Enkeltplass"
@@ -302,7 +310,6 @@ components:
         id:
           type: string
           format: uuid
-          default: null
       required:
       - id
     TiltaksgjennomforingArenaDataDto:
@@ -311,11 +318,9 @@ components:
         opprettetAar:
           type: integer
           format: int32
-          default: null
         lopenr:
           type: integer
           format: int32
-          default: null
       required:
       - lopenr
       - opprettetAar
@@ -324,16 +329,12 @@ components:
       properties:
         organisasjonsnummer:
           type: string
-          default: null
         organisasjonsform:
           type: string
-          default: null
         navn:
           type: string
-          default: null
         overordnetEnhet:
           type: string
-          default: null
       required:
       - navn
       - organisasjonsform

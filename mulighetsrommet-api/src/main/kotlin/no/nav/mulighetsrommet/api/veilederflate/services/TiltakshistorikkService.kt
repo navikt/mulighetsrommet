@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.veilederflate.services
 
 import arrow.core.getOrElse
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
@@ -75,8 +74,7 @@ class TiltakshistorikkService(
                     .toSet()
 
                 val (aktive, historiske) = response.historikk
-                    .map { async { toDeltakelse(it) } }
-                    .awaitAll()
+                    .map { toDeltakelse(it) }
                     .partition { erAktiv(it.tilstand) }
 
                 Deltakelser(

@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.database.createArrayOfValue
-import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
@@ -35,7 +34,6 @@ class ArrangorflateTiltakQueries(private val session: Session) {
     }
 
     fun getAll(
-        tiltakstyper: List<UUID>,
         organisasjonsnummer: Set<Organisasjonsnummer>,
         prismodeller: List<PrismodellType>,
         filter: ArrangorflateTiltakFilter,
@@ -65,7 +63,6 @@ class ArrangorflateTiltakQueries(private val session: Session) {
                 or to_char(slutt_dato, 'DD.MM.YYYY') ilike :sok
               )
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
-              and tiltakstype_id = any(:tiltakstype_ids)
               and arrangor_organisasjonsnummer = any(:arrangor_orgnrs)
               and status = any(:statuser)
               and prismodell_type = any(:prismodeller::prismodell_type[])
@@ -78,7 +75,6 @@ class ArrangorflateTiltakQueries(private val session: Session) {
             "fts" to filter.sok?.toFTSPrefixQuery(),
             "sok" to filter.sok?.let { "%$it%" },
             "slutt_dato_cutoff" to filter.sluttDatoGreaterThanOrEqualTo,
-            "tiltakstype_ids" to createUuidArray(tiltakstyper),
             "arrangor_orgnrs" to createArrayOfValue(organisasjonsnummer) { it.value },
             "statuser" to createArrayOf("gjennomforing_status", filter.type.toGjennomforingStatuses()),
             "prismodeller" to createArrayOf("prismodell_type", prismodeller),

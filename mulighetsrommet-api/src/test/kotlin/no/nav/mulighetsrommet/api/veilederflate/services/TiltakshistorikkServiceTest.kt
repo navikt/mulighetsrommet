@@ -68,7 +68,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.TeamKometDeltakelse(
         id = UUID.randomUUID(),
         tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
+            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
             navn = TiltakstypeFixtures.Oppfolging.navn,
         ),
         gjennomforing = Gjennomforing(
@@ -438,7 +438,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             sluttDato = LocalDate.of(2019, 12, 3),
             tittel = "Enkel AMO hos Underenhet 1 AS",
             tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
-                tiltakskode = TiltakstypeFixtures.EnkelAmo.arenaKode,
+                tiltakskode = "ENKELAMO",
                 navn = TiltakstypeFixtures.EnkelAmo.navn,
             ),
             gjennomforing = Gjennomforing(

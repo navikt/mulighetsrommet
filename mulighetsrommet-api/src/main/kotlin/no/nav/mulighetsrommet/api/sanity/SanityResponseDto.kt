@@ -9,7 +9,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.model.Faneinnhold
-import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
@@ -17,23 +16,9 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
 @Serializable
-data class RegelverkLenke(
-    val _id: String? = null,
-    val beskrivelse: String? = null,
-    val regelverkUrl: String? = null,
-    val regelverkLenkeNavn: String? = null,
-)
-
-@Serializable
 data class SanityTiltakstype(
     val _id: String,
     val tiltakstypeNavn: String? = null,
-    val beskrivelse: String? = null,
-    val innsatsgrupper: Set<Innsatsgruppe>? = null,
-    val regelverkLenker: List<RegelverkLenke>? = null,
-    val faneinnhold: Faneinnhold? = null,
-    val delingMedBruker: String? = null,
-    val kanKombineresMed: List<String> = emptyList(),
 )
 
 @Serializable

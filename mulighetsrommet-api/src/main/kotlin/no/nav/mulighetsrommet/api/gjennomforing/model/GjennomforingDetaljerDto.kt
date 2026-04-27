@@ -8,7 +8,9 @@ import no.nav.mulighetsrommet.api.avtale.model.AmoKategoriseringDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -16,6 +18,7 @@ import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -32,6 +35,7 @@ data class GjennomforingDetaljerDto(
     val amoKategorisering: AmoKategoriseringDto?,
     val utdanningslop: UtdanningslopDto?,
     val okonomi: TotrinnskontrollDto?,
+    val enkeltplassDeltaker: DeltakerDto?,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -164,4 +168,16 @@ data class GjennomforingKontaktpersonDto(
 data class AvbrytelseDto(
     val aarsaker: List<AvbrytGjennomforingAarsak>,
     val forklaring: String?,
+)
+
+@Serializable
+data class DeltakerDto(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val navn: String?,
+    val norskIdent: NorskIdent?,
+    val oppfolgingEnhet: NavEnhetDto?,
+    val status: DataElement.Status,
+    val innholdAnnet: String?,
+    val avvistGrunn: AvvistGrunn?,
 )

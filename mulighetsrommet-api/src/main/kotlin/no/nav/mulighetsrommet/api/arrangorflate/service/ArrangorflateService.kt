@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.map
@@ -212,17 +213,15 @@ class ArrangorflateService(
 
     suspend fun getPersonalia(deltakerIds: List<UUID>, accessType: AccessType.OBO.TokenX): Map<UUID, ArrangorflatePersonalia> {
         return personaliaService.getPersonalia(deltakerIds, accessType)
-            .mapValues {
-                it.value.fold({
-                    ArrangorflatePersonalia.Avvist(
-                        grunn = it,
+            .mapValues { (_, p) ->
+                when (p) {
+                    is Personalia.Avvist -> ArrangorflatePersonalia.Avvist(p.grunn)
+
+                    is Personalia.MedTilgang -> ArrangorflatePersonalia.Innvilget(
+                        norskIdent = p.norskIdent,
+                        navn = p.navn,
                     )
-                }, {
-                    ArrangorflatePersonalia.Innvilget(
-                        norskIdent = it.norskIdent,
-                        navn = it.navn,
-                    )
-                })
+                }
             }
     }
 

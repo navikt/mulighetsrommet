@@ -4,13 +4,13 @@ import { useKontorstruktur } from "@/api/enhet/useKontorstruktur";
 
 interface Props {
   navEnheter: string[];
-  onClose: () => void;
+  onClick: () => void;
 }
 
-export function KontorstrukturFilterTag({ navEnheter, onClose }: Props) {
+export function KontorstrukturFilterTag({ navEnheter, onClick }: Props) {
   const { data: regioner } = useKontorstruktur();
   const labels = getSelectedNavEnheter(regioner, navEnheter);
-  return <Chips.Removable onClick={onClose}>{tagLabel(labels)}</Chips.Removable>;
+  return <Chips.Removable onClick={onClick}>{tagLabel(labels)}</Chips.Removable>;
 }
 
 function getSelectedNavEnheter(regioner: Kontorstruktur[], enheter: string[]): string[] {

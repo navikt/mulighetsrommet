@@ -62,7 +62,7 @@ class JournalforUtbetaling(
 
         val utbetaling = queries.utbetaling.getOrError(id)
         val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
-        val fagsakId = gjennomforing.arena?.tiltaksnummer?.value ?: gjennomforing.lopenummer.value
+        val fagsakId = gjennomforing.lopenummer.value
 
         generatePdf(utbetaling, gjennomforing)
             .flatMap { pdf ->

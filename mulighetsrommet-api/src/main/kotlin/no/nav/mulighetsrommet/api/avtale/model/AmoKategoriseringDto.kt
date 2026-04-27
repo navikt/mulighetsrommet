@@ -19,21 +19,6 @@ data class AmoKategoriseringDto(
 
 fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
     return when (tiltakskode) {
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-        Tiltakskode.AVKLARING,
-        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-        Tiltakskode.JOBBKLUBB,
-        Tiltakskode.OPPFOLGING,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.HOYERE_UTDANNING,
-        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-        -> null
-
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> when (this) {
             is AmoKategorisering.BransjeOgYrkesrettet -> AmoKategoriseringDto(
                 kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
@@ -98,5 +83,7 @@ fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
         }
 
         Tiltakskode.STUDIESPESIALISERING -> AmoKategoriseringDto(kurstype = AmoKurstype.STUDIESPESIALISERING)
+
+        else -> null
     }
 }

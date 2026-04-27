@@ -1,20 +1,17 @@
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterTagsContainer } from "@mr/frontend-common";
 import { InnsendingFilterType } from "./filter";
 import { KostnadsstedFilterTag } from "@/components/filter/KostnadsstedFilterTag";
 import { Chips } from "@navikt/ds-react";
+import { TiltakstypeFilterTags } from "@/components/filter/TiltakstypeFilterTags";
 
 interface Props {
   filter: InnsendingFilterType;
   updateFilter: (values: Partial<InnsendingFilterType>) => void;
-  tiltakstypeId?: string;
   filterOpen: boolean;
 }
 
-export function InnsendingFilterTags({ filter, updateFilter, tiltakstypeId, filterOpen }: Props) {
-  const tiltakstyper = useTiltakstyper();
-
+export function InnsendingFilterTags({ filter, updateFilter, filterOpen }: Props) {
   const removeArrayItem = (key: keyof InnsendingFilterType, value: any) => {
     updateFilter({
       [key]: addOrRemove(filter[key] as any[], value),
@@ -30,15 +27,10 @@ export function InnsendingFilterTags({ filter, updateFilter, tiltakstypeId, filt
             onClose={() => updateFilter({ kostnadssteder: [] })}
           />
         )}
-        {!tiltakstypeId &&
-          filter.tiltakstyper.map((tiltakstype) => (
-            <Chips.Removable
-              key={tiltakstype}
-              onClick={() => removeArrayItem("tiltakstyper", tiltakstype)}
-            >
-              {tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
-            </Chips.Removable>
-          ))}
+        <TiltakstypeFilterTags
+          ids={filter.tiltakstyper}
+          onRemove={(tiltakstype) => removeArrayItem("tiltakstyper", tiltakstype)}
+        />
       </Chips>
     </FilterTagsContainer>
   );

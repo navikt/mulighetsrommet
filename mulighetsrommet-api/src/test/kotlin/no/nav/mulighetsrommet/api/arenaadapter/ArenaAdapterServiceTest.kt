@@ -77,7 +77,7 @@ class ArenaAdapterServiceTest : FunSpec({
             id = UUID.randomUUID(),
             sanityId = null,
             navn = "IPS",
-            arenaKode = TiltakstypeFixtures.IPS.arenaKode,
+            arenaKode = TiltakstypeFixtures.IPS.arenaKode!!,
             tiltaksnummer = "2020#12345",
             arrangorOrganisasjonsnummer = "976663934",
             startDato = LocalDate.now(),
@@ -172,7 +172,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 navn = "Oppfølging",
                 sanityId = null,
-                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode!!,
                 tiltaksnummer = "2020#12345",
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
@@ -218,7 +218,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = gjennomforing1.id,
                 sanityId = null,
                 navn = "Endet navn",
-                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode!!,
                 tiltaksnummer = "2024#2024",
                 arrangorOrganisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer.value,
                 startDato = LocalDate.of(2024, 1, 1),
@@ -273,7 +273,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = gjennomforing1.id,
                 navn = "Oppfølging",
                 sanityId = null,
-                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode!!,
                 tiltaksnummer = "2021#12345",
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
@@ -322,7 +322,7 @@ class ArenaAdapterServiceTest : FunSpec({
             id = UUID.randomUUID(),
             navn = "En enkeltplass",
             sanityId = null,
-            arenaKode = TiltakstypeFixtures.EnkelAmo.arenaKode,
+            arenaKode = TiltakstypeFixtures.EnkelAmo.arenaKode!!,
             tiltaksnummer = "2025#1",
             arrangorOrganisasjonsnummer = "976663934",
             startDato = LocalDate.now(),
@@ -362,6 +362,39 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
                     it.arena?.ansvarligNavEnhet shouldBe "0300"
                     it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0300")
+                }
+            }
+        }
+
+        test("konverterer Arena-gjennomføring til enkeltplass når sluttdato endres til etter EnkeltplassSluttDatoCutoffDate") {
+            val service = createArenaAdapterService()
+
+            service.upsertTiltaksgjennomforing(
+                arenaGjennomforing.copy(
+                    startDato = LocalDate.of(2023, 1, 1),
+                    sluttDato = LocalDate.of(2024, 1, 1),
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                ),
+            )
+
+            database.run {
+                queries.gjennomforing.getGjennomforingArenaOrError(arenaGjennomforing.id).should {
+                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
+                }
+            }
+
+            service.upsertTiltaksgjennomforing(
+                arenaGjennomforing.copy(
+                    startDato = LocalDate.of(2023, 1, 1),
+                    sluttDato = LocalDate.of(2026, 6, 1),
+                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                ),
+            )
+
+            database.run {
+                queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.sluttDato shouldBe LocalDate.of(2026, 6, 1)
                 }
             }
         }

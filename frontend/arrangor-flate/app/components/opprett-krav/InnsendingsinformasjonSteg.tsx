@@ -28,7 +28,10 @@ import { LabeledDataElementList } from "../common/Definisjonsliste";
 import { Link as ReactRouterLink } from "react-router";
 import { errorAt } from "~/utils/validering";
 import {
+  addDuration,
+  formaterDato,
   formaterPeriode,
+  isLaterOrSameDay,
   parseDate,
   subDuration,
   yyyyMMddFormatting,
@@ -42,12 +45,19 @@ interface InnsendingsinformasjonStepProps {
   errors: FieldError[];
 }
 
+interface DatoVelgerPeriodeChange {
+  periodeStart?: string;
+  periodeSlutt?: string;
+  periodeType: PeriodeType;
+}
+
 export default function InnsendingsinformasjonSteg({
   data,
   formState,
   updateFormState,
   errors,
 }: InnsendingsinformasjonStepProps) {
+  const [fieldErrors, setFieldErrors] = useState(errors);
   const [valgtPeriode, setValgtPeriode] = useState<Periode | undefined>(() => {
     if (formState.periodeStart && formState.periodeSlutt) {
       return { start: formState.periodeStart, slutt: formState.periodeSlutt };
@@ -61,19 +71,28 @@ export default function InnsendingsinformasjonSteg({
   }, [data.tilsagn, valgtPeriode]);
 
   const handlePeriodeSelected = useCallback(
-    (periode?: Periode) => {
-      setValgtPeriode(periode);
-      if (periode) {
-        updateFormState({
-          periodeStart: periode.start,
-          periodeSlutt: periode.slutt,
-          tilsagnId: undefined,
-        });
-      } else {
-        updateFormState({ periodeStart: undefined, periodeSlutt: undefined, tilsagnId: undefined });
+    ({ periodeStart, periodeSlutt, periodeType }: DatoVelgerPeriodeChange) => {
+      setFieldErrors([]);
+      const state = { periodeType, periodeStart, periodeSlutt };
+      updateFormState(state);
+
+      if (periodeStart && periodeSlutt) {
+        const errors = validateDatoVelger(state, data.datoVelger);
+        if (errors.length > 0) {
+          setFieldErrors(errors);
+        } else {
+          setValgtPeriode({
+            start: yyyyMMddFormatting(periodeStart)!,
+            slutt: yyyyMMddFormatting(
+              periodeType === PeriodeType.INKLUSIV
+                ? addDuration(periodeSlutt, { days: 1 })!
+                : periodeSlutt,
+            )!,
+          });
+        }
       }
     },
-    [updateFormState],
+    [updateFormState, setFieldErrors, data.datoVelger],
   );
 
   useEffect(() => {
@@ -96,11 +115,11 @@ export default function InnsendingsinformasjonSteg({
             Hvilken periode gjelder kravet for?
           </BodyShort>
           <PeriodeVelgerVarianter
-            onPeriodeSelected={handlePeriodeSelected}
+            onChange={handlePeriodeSelected}
             type={data.datoVelger}
             sessionPeriodeStart={formState.periodeStart}
             sessionPeriodeSlutt={formState.periodeSlutt}
-            errors={errors}
+            errors={fieldErrors}
             updateFormState={updateFormState}
           />
         </VStack>
@@ -170,7 +189,7 @@ function GuidePanelInformation({ type }: GuidePanelInformationProps) {
 }
 
 interface PeriodeVelgerVarianterProps {
-  onPeriodeSelected: (periode?: Periode) => void;
+  onChange: (data: DatoVelgerPeriodeChange) => void;
   type: DatoVelger;
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
@@ -179,33 +198,30 @@ interface PeriodeVelgerVarianterProps {
 }
 
 function PeriodeVelgerVarianter({
-  onPeriodeSelected,
+  onChange,
   type,
   sessionPeriodeStart,
   sessionPeriodeSlutt,
   errors,
-  updateFormState,
 }: PeriodeVelgerVarianterProps) {
   switch (type.type) {
     case "DatoVelgerSelect":
       return (
         <PeriodeSelect
           periodeForslag={type.periodeForslag}
-          onPeriodeSelected={onPeriodeSelected}
+          onChange={onChange}
           sessionPeriodeStart={sessionPeriodeStart}
           sessionPeriodeSlutt={sessionPeriodeSlutt}
-          updateFormState={updateFormState}
         />
       );
     case "DatoVelgerRange":
       return (
         <PeriodeVelger
           maksSluttdato={type.maksSluttdato}
-          onPeriodeSelected={onPeriodeSelected}
+          onChange={onChange}
           sessionPeriodeStart={sessionPeriodeStart}
           sessionPeriodeSlutt={sessionPeriodeSlutt}
           errors={errors}
-          updateFormState={updateFormState}
         />
       );
     case undefined:
@@ -214,29 +230,30 @@ function PeriodeVelgerVarianter({
 }
 
 interface PeriodeSelectProps {
-  onPeriodeSelected: (periode?: Periode) => void;
+  onChange: (data: DatoVelgerPeriodeChange) => void;
   periodeForslag: Array<Periode>;
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
-  updateFormState: (updates: Partial<OpprettKravFormState>) => void;
 }
 
 function PeriodeSelect({
-  onPeriodeSelected,
+  onChange: onPeriodeSelected,
   periodeForslag,
   sessionPeriodeStart,
   sessionPeriodeSlutt,
-  updateFormState,
 }: PeriodeSelectProps) {
   function onChange(e: SyntheticEvent<HTMLSelectElement, Event>) {
     const selectedValue = (e.target as HTMLSelectElement).value;
     if (!selectedValue) {
-      onPeriodeSelected();
+      onPeriodeSelected({ periodeType: PeriodeType.EKSKLUSIV });
       return;
     }
     const selectedPeriode = periodeForslag[Number(selectedValue)];
-    updateFormState({ periodeType: PeriodeType.EKSKLUSIV });
-    onPeriodeSelected(selectedPeriode);
+    onPeriodeSelected({
+      periodeType: PeriodeType.EKSKLUSIV,
+      periodeStart: selectedPeriode.start,
+      periodeSlutt: selectedPeriode.slutt,
+    });
   }
 
   return (
@@ -265,49 +282,45 @@ function PeriodeSelect({
 
 interface PeriodeVelgerProps {
   maksSluttdato: string;
-  onPeriodeSelected: (periode?: Periode) => void;
+  onChange: (data: DatoVelgerPeriodeChange) => void;
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
   errors?: FieldError[];
-  updateFormState: (updates: Partial<OpprettKravFormState>) => void;
 }
 
 function PeriodeVelger({
   maksSluttdato,
-  onPeriodeSelected,
+  onChange: onPeriodeSelected,
   sessionPeriodeStart,
   sessionPeriodeSlutt,
   errors,
-  updateFormState,
 }: PeriodeVelgerProps) {
+  // Datepickeren returnerer bare gyldig Date objekter, og bare hhvis før `toDate`
+  // Lagrer tilstanden seperat for å kunne gi valideringsmeldiner
+  const [selectedStartDato, setSelectedStartDato] = useState(sessionPeriodeStart);
+  const [selectedSluttDato, setSelectedSluttDato] = useState(sessionPeriodeSlutt);
+
   const sisteDato = subDuration(maksSluttdato, { days: 1 });
-  const {
-    datepickerProps: periodeStartPickerProps,
-    inputProps: periodeStartInputProps,
-    selectedDay: selectedStartDato,
-  } = useDatepicker({
-    defaultSelected: parseDate(sessionPeriodeStart),
-    toDate: sisteDato,
-  });
-  const {
-    datepickerProps: periodeSluttPickerProps,
-    inputProps: periodeSluttInputProps,
-    selectedDay: selectedSluttDato,
-  } = useDatepicker({
-    defaultSelected: parseDate(sessionPeriodeSlutt),
-    toDate: sisteDato,
-  });
+  const { datepickerProps: periodeStartPickerProps, inputProps: periodeStartInputProps } =
+    useDatepicker({
+      defaultSelected: parseDate(sessionPeriodeStart),
+      toDate: sisteDato,
+      onDateChange: (date) => setSelectedStartDato(yyyyMMddFormatting(date)),
+    });
+  const { datepickerProps: periodeSluttPickerProps, inputProps: periodeSluttInputProps } =
+    useDatepicker({
+      defaultSelected: parseDate(sessionPeriodeSlutt),
+      toDate: sisteDato,
+      onDateChange: (date) => setSelectedSluttDato(yyyyMMddFormatting(date)),
+    });
 
   useEffect(() => {
-    if (selectedStartDato && selectedSluttDato) {
-      const start = yyyyMMddFormatting(selectedStartDato)!;
-      const slutt = yyyyMMddFormatting(selectedSluttDato)!;
-      updateFormState({ periodeType: PeriodeType.INKLUSIV });
-      onPeriodeSelected({ start, slutt });
-    } else {
-      onPeriodeSelected();
-    }
-  }, [selectedStartDato, selectedSluttDato, onPeriodeSelected, updateFormState]);
+    onPeriodeSelected({
+      periodeType: PeriodeType.INKLUSIV,
+      periodeStart: selectedStartDato,
+      periodeSlutt: selectedSluttDato,
+    });
+  }, [selectedStartDato, selectedSluttDato, onPeriodeSelected, maksSluttdato]);
 
   return (
     <HStack wrap gap="space-4">
@@ -318,12 +331,13 @@ function PeriodeVelger({
         id="periodeStartDatepicker"
       >
         <DatePicker.Input
+          {...periodeStartInputProps}
           label="Fra dato"
           size="small"
           error={errorAt("/periodeStart", errors)}
           name="periodeStart"
           id="periodeStart"
-          {...periodeStartInputProps}
+          onBlur={(e) => setSelectedStartDato(yyyyMMddFormatting(e.target.value))}
         />
       </DatePicker>
       <DatePicker
@@ -333,14 +347,86 @@ function PeriodeVelger({
         id="periodeSluttDatepicker"
       >
         <DatePicker.Input
+          {...periodeSluttInputProps}
           label="Til dato"
           size="small"
           error={errorAt("/periodeSlutt", errors)}
           name="periodeSlutt"
           id="periodeSlutt"
-          {...periodeSluttInputProps}
+          onBlur={(e) => {
+            setSelectedSluttDato(yyyyMMddFormatting(e.target.value));
+          }}
         />
       </DatePicker>
     </HStack>
   );
+}
+
+interface InnsendingsinformasjonValidationContext {
+  data: OpprettKravInnsendingSteg;
+  formState: Partial<OpprettKravFormState>;
+}
+export const validateInnsendingsinformasjon = ({
+  formState,
+  data,
+}: InnsendingsinformasjonValidationContext): FieldError[] => {
+  const newErrors: FieldError[] = validateDatoVelger(formState, data.datoVelger);
+
+  if (newErrors.length === 0 && !formState.tilsagnId) {
+    newErrors.push({
+      pointer: "/tilsagnId",
+      detail: "Kan ikke opprette utbetalingskrav uten gyldig tilsagn",
+    });
+  }
+
+  return newErrors;
+};
+
+function validateDatoVelger(
+  formState: Partial<OpprettKravFormState>,
+  datoVelger: DatoVelger,
+): FieldError[] {
+  const newErrors: FieldError[] = [];
+
+  switch (datoVelger.type) {
+    case "DatoVelgerRange": {
+      newErrors.push(...validatePeriodeVelger(formState, datoVelger.maksSluttdato));
+      break;
+    }
+    case "DatoVelgerSelect": {
+      if (!formState.periodeStart) {
+        newErrors.push({ pointer: "/periodeStart", detail: "Du må velge en periode" });
+      }
+      break;
+    }
+    case undefined:
+      throw Error("undefined datoVelgerType");
+  }
+  return newErrors;
+}
+
+function validatePeriodeVelger(
+  formState: Partial<OpprettKravFormState>,
+  maksSluttdato: string,
+): FieldError[] {
+  const newErrors: FieldError[] = [];
+  if (!formState.periodeStart) {
+    newErrors.push({ pointer: "/periodeStart", detail: "Du må fylle ut fra dato" });
+  }
+  if (!formState.periodeSlutt) {
+    newErrors.push({ pointer: "/periodeSlutt", detail: "Du må fylle ut til dato" });
+  }
+  if (isLaterOrSameDay(parseDate(formState.periodeStart), parseDate(formState.periodeSlutt))) {
+    newErrors.push({
+      pointer: "/periodeSlutt",
+      detail: "Periodeslutt må være etter periodestart",
+    });
+  }
+  if (isLaterOrSameDay(formState.periodeSlutt, maksSluttdato)) {
+    newErrors.push({
+      pointer: "/periodeSlutt",
+      detail: `Periodeslutt må være før ${formaterDato(maksSluttdato)}`,
+    });
+  }
+  return newErrors;
 }

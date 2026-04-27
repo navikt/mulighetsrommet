@@ -35,6 +35,7 @@ object TilsagnToPdfDocumentContentMapper {
             ),
         )
 
+        require(personalia is Personalia.MedTilgang)
         mainSection("Bekreftelse på bestilling") {
             paragraph { regular("Nav og dere har blitt enige om dette:") }
             descriptionList {

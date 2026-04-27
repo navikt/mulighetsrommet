@@ -147,7 +147,14 @@ object GjennomforingValidator {
         }
 
         when (request.oppstart) {
-            GjennomforingOppstartstype.LOPENDE -> Unit
+            GjennomforingOppstartstype.LOPENDE -> if (ctx.harEgenskap(TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART)) {
+                validate(request.pameldingType == GjennomforingPameldingType.DIREKTE_VEDTAK) {
+                    FieldError.of(
+                        "Påmeldingstype må være “direkte vedtak” når tiltaket har løpende oppstart (gjelder ${ctx.avtale.tiltakstype.navn})",
+                        GjennomforingRequest::pameldingType,
+                    )
+                }
+            }
 
             GjennomforingOppstartstype.FELLES -> validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
                 FieldError.of(
@@ -258,26 +265,11 @@ object GjennomforingValidator {
         utdanningslop: UtdanningslopDbo?,
     ): Validated<UtdanningslopDbo?> = validation {
         when (avtale.tiltakstype.tiltakskode) {
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-            Tiltakskode.AVKLARING,
-            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.HOYERE_UTDANNING,
-            Tiltakskode.JOBBKLUBB,
-            Tiltakskode.OPPFOLGING,
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
-            Tiltakskode.STUDIESPESIALISERING,
-            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-            -> return@validation null
-
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
             -> Unit
+
+            else -> return@validation null
         }
 
         requireValid(utdanningslop != null) {
@@ -453,51 +445,18 @@ object GjennomforingValidator {
         amoKategorisering: AmoKategoriseringRequest?,
     ): Either<List<FieldError>, AmoKategorisering?> = validation {
         when (avtale.tiltakstype.tiltakskode) {
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-            Tiltakskode.AVKLARING,
-            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.HOYERE_UTDANNING,
-            Tiltakskode.JOBBKLUBB,
-            Tiltakskode.OPPFOLGING,
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-            Tiltakskode.FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            -> Unit
-
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
             Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
             Tiltakskode.STUDIESPESIALISERING,
-            -> {
-                validate(avtale.amoKategorisering != null) {
-                    FieldError(
-                        "/avtale.amoKategorisering",
-                        "Du må velge en kurstype for avtalen",
-                    )
-                }
+            -> validate(avtale.amoKategorisering != null) {
+                FieldError.of("Du må velge en kurstype for avtalen", GjennomforingRequest::avtaleId)
             }
+
+            else -> Unit
         }
 
         when (avtale.tiltakstype.tiltakskode) {
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-            Tiltakskode.AVKLARING,
-            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.HOYERE_UTDANNING,
-            Tiltakskode.JOBBKLUBB,
-            Tiltakskode.OPPFOLGING,
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-            Tiltakskode.FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            -> null
-
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
                 requireValid(amoKategorisering?.kurstype != null) {
                     FieldError.of(
@@ -542,6 +501,8 @@ object GjennomforingValidator {
 
             Tiltakskode.STUDIESPESIALISERING,
             -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
+
+            else -> null
         }?.toDbo()
     }
 }

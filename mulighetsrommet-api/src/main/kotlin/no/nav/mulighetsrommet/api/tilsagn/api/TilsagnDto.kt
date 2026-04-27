@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
-import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaMedGeografiskEnhet
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -60,7 +60,7 @@ data class TilsagnDeltakerDto(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
     val norskIdent: NorskIdent?,
-    val navn: String,
+    val navn: String?,
     val oppfolgingEnhet: NavEnhetDto?,
     val geografiskEnhet: NavEnhetDto?,
     val innholdAnnet: String?,
@@ -69,24 +69,24 @@ data class TilsagnDeltakerDto(
     companion object {
         fun from(
             deltaker: Tilsagn.Deltaker,
-            personalia: PersonaliaMedGeografiskEnhet?,
+            personalia: Personalia?,
         ) = TilsagnDeltakerDto(
             deltakerId = deltaker.deltakerId,
             norskIdent = personalia?.norskIdent,
-            navn = personalia?.navn ?: "Ukjent",
+            navn = personalia?.navn,
             oppfolgingEnhet = personalia?.oppfolgingEnhet,
             geografiskEnhet = personalia?.geografiskEnhet,
-            innholdAnnet = deltaker.innholdAnnet,
+            innholdAnnet = if (personalia is Personalia.MedTilgang) deltaker.innholdAnnet else null,
             status = deltaker.status.toDataElement(),
         )
 
-        fun from(deltaker: Deltaker, personalia: PersonaliaMedGeografiskEnhet?) = TilsagnDeltakerDto(
+        fun from(deltaker: Deltaker, personalia: Personalia?) = TilsagnDeltakerDto(
             deltakerId = deltaker.id,
             norskIdent = personalia?.norskIdent,
-            navn = personalia?.navn ?: "Ukjent",
+            navn = personalia?.navn,
             oppfolgingEnhet = personalia?.oppfolgingEnhet,
             geografiskEnhet = personalia?.geografiskEnhet,
-            innholdAnnet = deltaker.innholdAnnet,
+            innholdAnnet = if (personalia is Personalia.MedTilgang) deltaker.innholdAnnet else null,
             status = deltaker.status.type.toDataElement(),
         )
     }

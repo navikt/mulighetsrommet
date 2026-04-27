@@ -26,6 +26,7 @@ class DelMedBrukerService(
     private val navEnhetService: NavEnhetService,
 ) {
     private val logger = LoggerFactory.getLogger(DelMedBrukerService::class.java)
+
     fun insertDelMedBruker(dbo: DelMedBrukerDbo): Unit = db.session {
         logger.teamLogsInfo(
             "Veileder (${dbo.navIdent}) deler tiltak med id: '${dbo.sanityId ?: dbo.gjennomforingId}' med bruker (${dbo.norskIdent.value})",
@@ -122,7 +123,7 @@ class DelMedBrukerService(
         val historikk = session.list(queryOf(query, fnr.value)) { row ->
             val tiltakstype = TiltakstypeDeltMedBruker(
                 tiltakskode = row.stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
-                arenakode = row.string("tiltakstype_arena_kode"),
+                arenakode = row.stringOrNull("tiltakstype_arena_kode"),
                 navn = row.string("tiltakstype_navn"),
             )
             val deling = DelingMedBruker(

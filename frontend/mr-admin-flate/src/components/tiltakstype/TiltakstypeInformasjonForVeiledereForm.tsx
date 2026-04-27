@@ -40,9 +40,7 @@ export function TiltakstypeInformasjonForVeiledereForm({
       beskrivelse: tiltakstype.veilederinfo.beskrivelse || null,
       faneinnhold: tiltakstype.veilederinfo.faneinnhold,
       faglenker: tiltakstype.veilederinfo.faglenker.map((l) => ({ id: l.id })),
-      kanKombineresMed: tiltakstyper
-        .filter((t) => tiltakstype.veilederinfo.kanKombineresMed.includes(t.navn))
-        .map((t) => t.id),
+      kanKombineresMed: tiltakstype.veilederinfo.kanKombineresMed.map((k) => k.id),
     },
   });
 

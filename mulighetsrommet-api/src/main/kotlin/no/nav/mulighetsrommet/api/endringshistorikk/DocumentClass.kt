@@ -5,4 +5,5 @@ enum class DocumentClass {
     GJENNOMFORING,
     TILSAGN,
     UTBETALING,
+    TILSKUDD_BEHANDLING,
 }

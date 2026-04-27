@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
@@ -283,10 +282,6 @@ class GjennomforingAvtaleService(
         queries.gjennomforing.deleteStengtHosArrangor(periodeId)
 
         logEndring("Fjernet periode med stengt hos arrangør", id, navIdent).also { publishToKafka(it) }
-    }
-
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
-        return queries.endringshistorikk.getEndringshistorikk(DocumentClass.GJENNOMFORING, id)
     }
 
     fun frikobleKontaktpersonFraGjennomforing(

@@ -1,10 +1,8 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { useGjennomforingEndringshistorikk } from "@/api/gjennomforing/useGjennomforingEndringshistorikk";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
-import { GodkjennOkonomiModal } from "@/components/gjennomforing/GodkjennOkonomiModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { ExternalLinkIcon, LayersPlusIcon } from "@navikt/aksel-icons";
@@ -14,6 +12,7 @@ import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import {
+  DocumentClass,
   GjennomforingAvtaleDto,
   GjennomforingDetaljerDto,
   GjennomforingDto,
@@ -27,6 +26,7 @@ import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { previewArbeidsmarkedstiltakUrl } from "@/constants";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { AdministratorGuard } from "@/components/handlinger/AdministratorGuard";
+import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 interface Props {
   ansatt: NavAnsattDto;
@@ -39,7 +39,6 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
-  const [godkjennOkonomiModalOpen, setGodkjennOkonomiModalOpen] = useState<boolean>(false);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
@@ -129,14 +128,6 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
             Dupliser
           </ActionMenu.Item>
         )}
-        {handlinger.includes(GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI) && (
-          <ActionMenu.Item
-            onClick={() => setGodkjennOkonomiModalOpen(true)}
-            icon={<LayersPlusIcon aria-hidden />}
-          >
-            Godkjenn økonomi
-          </ActionMenu.Item>
-        )}
       </Handlinger>
       <VarselModal
         modalRef={advarselModal}
@@ -164,17 +155,12 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
         setOpen={setAvbrytModalOpen}
         gjennomforingId={gjennomforing.id}
       />
-      <GodkjennOkonomiModal
-        open={godkjennOkonomiModalOpen}
-        setOpen={setGodkjennOkonomiModalOpen}
-        gjennomforingId={gjennomforing.id}
-      />
     </KnapperadContainer>
   );
 }
 
 function GjennomforingEndringshistorikk({ id }: { id: string }) {
-  const historikk = useGjennomforingEndringshistorikk(id);
+  const historikk = useEndringshistorikk(id, DocumentClass.GJENNOMFORING);
 
   return <ViewEndringshistorikk historikk={historikk.data} />;
 }

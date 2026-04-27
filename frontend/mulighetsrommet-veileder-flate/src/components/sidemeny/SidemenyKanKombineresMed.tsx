@@ -11,9 +11,11 @@ export function SidemenyKanKombineresMed({ tiltak }: Props) {
   return (
     <Box padding="space-20" background="neutral-soft" id="sidemeny">
       <ul className="list-disc list-inside">
-        {tiltakstype.kanKombineresMed.sort().map((tiltakstypen) => (
-          <li key={tiltakstypen}>{tiltakstypen}</li>
-        ))}
+        {tiltakstype.kanKombineresMed
+          .sort((a, b) => a.navn.localeCompare(b.navn))
+          .map(({ id, navn }) => (
+            <li key={id}>{navn}</li>
+          ))}
       </ul>
     </Box>
   );

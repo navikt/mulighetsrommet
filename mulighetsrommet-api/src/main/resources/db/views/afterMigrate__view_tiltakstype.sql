@@ -3,18 +3,12 @@ select tiltakstype.id,
        tiltakstype.navn,
        tiltakstype.tiltakskode,
        tiltakstype.arena_kode,
-       tiltakstype.start_dato,
-       tiltakstype.slutt_dato,
        tiltakstype.sanity_id,
        tiltakstype.innsatsgrupper,
        tiltakstype.beskrivelse,
        tiltakstype.faneinnhold,
        coalesce(faglenker.lenker, '[]'::jsonb)                as faglenker,
-       coalesce(kan_kombineres_med.tiltakstyper, '[]'::jsonb) as kan_kombineres_med,
-       case
-           when slutt_dato is not null and date(now()) > slutt_dato then 'AVSLUTTET'
-           else 'AKTIV'
-           end                                                as status
+       coalesce(kan_kombineres_med.tiltakstyper, '[]'::jsonb) as kan_kombineres_med
 from tiltakstype
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
@@ -28,7 +22,7 @@ from tiltakstype
                                      join redaksjonelt_innhold_lenke l on l.id = tl.lenke_id
                             where tl.tiltakstype_id = tiltakstype.id
     ) faglenker on true
-         left join lateral (select jsonb_agg(to_jsonb(t2.navn) order by t2.navn) as tiltakstyper
+         left join lateral (select jsonb_agg(jsonb_build_object('id', t2.id, 'navn', t2.navn) order by t2.navn) as tiltakstyper
                             from tiltakstype_kombinasjon k
                                      join tiltakstype t2 on t2.id = k.kombineres_med_id
                             where k.tiltakstype_id = tiltakstype.id

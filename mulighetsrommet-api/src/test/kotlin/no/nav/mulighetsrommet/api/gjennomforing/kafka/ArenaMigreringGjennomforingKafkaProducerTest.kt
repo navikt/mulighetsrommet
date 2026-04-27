@@ -71,6 +71,9 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
             arrangor = TiltaksgjennomforingV2Dto.Arrangor(ArrangorFixtures.underenhet1.organisasjonsnummer),
             status = GjennomforingStatusType.GJENNOMFORES,
+            oppstart = GjennomforingOppstartstype.ENKELTPLASS,
+            pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
+            prisinformasjon = null,
         )
 
         val migrert = TiltakstypeService.Config(

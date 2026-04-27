@@ -26,13 +26,14 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.Tiltakskode
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
 internal data class ArbeidsmarkedstiltakFilter(
     val enheter: NonEmptyList<NavEnhetNummer>,
     val innsatsgruppe: Innsatsgruppe,
-    val tiltakstyper: List<String>?,
+    val tiltakstyper: List<Tiltakskode>?,
     val search: String?,
     val apentForPamelding: ApentForPamelding,
     val erSykmeldtMedArbeidsgiver: Boolean,
@@ -51,19 +52,23 @@ internal fun RoutingContext.getArbeidsmarkedstiltakFilter(): Arbeidsmarkedstilta
         ?.toNonEmptyListOrNull()
         ?.map { NavEnhetNummer(it) }
         ?: throw StatusException(HttpStatusCode.BadRequest, "Nav-enheter er påkrevd")
+
     val innsatsgruppe = queryParameters["innsatsgruppe"]
         ?.let { Innsatsgruppe.valueOf(it) }
         ?: throw StatusException(HttpStatusCode.BadRequest, "Innsatsgruppe er påkrevd")
+
     val erSykmeldtMedArbeidsgiver = queryParameters["erSykmeldtMedArbeidsgiver"]
         ?.toBoolean()
         ?: false
+
+    val tiltakstyper = queryParameters.getAll("tiltakstyper")?.map { Tiltakskode.valueOf(it) }
 
     val apentForPamelding: ApentForPamelding by queryParameters
 
     return ArbeidsmarkedstiltakFilter(
         enheter = enheter,
         innsatsgruppe = innsatsgruppe,
-        tiltakstyper = queryParameters.getAll("tiltakstyper"),
+        tiltakstyper = tiltakstyper,
         search = queryParameters["search"],
         apentForPamelding = apentForPamelding,
         erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
@@ -122,7 +127,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             }
             queryParameter<String>("search")
             queryParameter<ApentForPamelding>("apentForPamelding")
-            queryParameter<List<String>>("tiltakstyper") {
+            queryParameter<List<Tiltakskode>>("tiltakstyper") {
                 explode = true
             }
             queryParameter<Boolean>("erSykmeldtMedArbeidsgiver")
@@ -145,7 +150,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         val result = veilederflateService.hentTiltaksgjennomforinger(
             enheter = filter.enheter,
             innsatsgruppe = filter.innsatsgruppe,
-            tiltakstypeIds = filter.tiltakstyper,
+            tiltakskoder = filter.tiltakstyper,
             search = filter.search,
             apentForPamelding = filter.apentForPamelding,
             erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
@@ -185,11 +190,11 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         call.respond(result)
     }
 
-    get("/oppskrifter/{tiltakstypeId}", {
+    get("/oppskrifter/{tiltakskode}", {
         tags = setOf("Oppskrifter")
         operationId = "getOppskrifter"
         request {
-            pathParameter<String>("tiltakstypeId") {
+            pathParameter<Tiltakskode>("tiltakskode") {
                 required = true
             }
             queryParameter<SanityPerspective>("perspective") {
@@ -207,12 +212,12 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             }
         }
     }) {
-        val tiltakstypeId: UUID by call.parameters
+        val tiltakskode: Tiltakskode by call.parameters
         val perspective = call.request.queryParameters["perspective"]
             ?.let { SanityPerspective.valueOf(it) }
             ?: SanityPerspective.PUBLISHED
 
-        val oppskrifter = veilederflateService.hentOppskrifter(tiltakstypeId, perspective)
+        val oppskrifter = veilederflateService.hentOppskrifter(tiltakskode, perspective)
 
         call.respond(Oppskrifter(data = oppskrifter))
     }
@@ -249,7 +254,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             val result = veilederflateService.hentTiltaksgjennomforinger(
                 enheter = filter.enheter,
                 innsatsgruppe = filter.innsatsgruppe,
-                tiltakstypeIds = filter.tiltakstyper,
+                tiltakskoder = filter.tiltakstyper,
                 search = filter.search,
                 apentForPamelding = filter.apentForPamelding,
                 erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
@@ -323,7 +328,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 val result = veilederflateService.hentTiltaksgjennomforinger(
                     enheter = filter.enheter,
                     innsatsgruppe = filter.innsatsgruppe,
-                    tiltakstypeIds = filter.tiltakstyper,
+                    tiltakskoder = filter.tiltakstyper,
                     search = filter.search,
                     apentForPamelding = filter.apentForPamelding,
                     erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,

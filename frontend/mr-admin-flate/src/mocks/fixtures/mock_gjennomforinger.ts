@@ -28,6 +28,7 @@ const arrangor: GjennomforingDtoArrangorUnderenhet = {
 
 export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
   {
+    enkeltplassDeltaker: null,
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.AVKLARAG),
     gjennomforing: {
       type: "GjennomforingAvtaleDto",
@@ -186,8 +187,10 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       tilsagnPerDeltaker: false,
     },
     okonomi: null,
+    enkeltplassDeltaker: null,
   },
   {
+    enkeltplassDeltaker: null,
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.GRUFAGYRKE),
     gjennomforing: {
       type: "GjennomforingAvtaleDto",

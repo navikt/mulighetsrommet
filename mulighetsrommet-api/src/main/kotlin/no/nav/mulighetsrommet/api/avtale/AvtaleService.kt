@@ -36,7 +36,6 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -57,6 +56,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.io.File
 import java.time.Instant
@@ -83,7 +83,9 @@ class AvtaleService(
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
         if (tiltakstypeService.erUtfaset(request.detaljer.tiltakskode)) {
-            raise(FieldError.of("Nye avtaler kan ikke opprettes for denne tiltakstypen fordi den er utfaset").nel())
+            raise(FieldError.of("Avtaler kan ikke opprettes for denne tiltakstypen fordi den er utfaset").nel())
+        } else if (!request.detaljer.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_AVTALER)) {
+            raise(FieldError.of("Avtaler kan ikke opprettes for denne tiltakstypen").nel())
         }
 
         val createAvtaleContext = db.session {
@@ -425,10 +427,6 @@ class AvtaleService(
             file.outputStream().use(it::write)
             file.toFile()
         }
-    }
-
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
-        queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
     }
 
     private fun schedulePublishGjennomforingerForAvtale(dto: Avtale) {

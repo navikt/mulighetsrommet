@@ -1,7 +1,5 @@
 import { useGodkjennGjennomforingOkonomi } from "@/api/gjennomforing/useGodkjennGjennomforingOkonomi";
-import { useAvslaaGjennomforingOkonomi } from "@/api/gjennomforing/useAvslaaGjennomforingOkonomi";
-import { BodyShort, Button, Modal, Textarea } from "@navikt/ds-react";
-import { useState } from "react";
+import { BodyShort, Button, Modal } from "@navikt/ds-react";
 
 interface Props {
   open: boolean;
@@ -11,71 +9,29 @@ interface Props {
 
 export function GodkjennOkonomiModal({ open, setOpen, gjennomforingId }: Props) {
   const godkjennMutation = useGodkjennGjennomforingOkonomi();
-  const avslaaMutation = useAvslaaGjennomforingOkonomi();
 
-  const [avslaaMode, setAvslaaMode] = useState(false);
-  const [forklaring, setForklaring] = useState("");
-
-  function lukk() {
+  function close() {
     setOpen(false);
-    setAvslaaMode(false);
-    setForklaring("");
   }
 
   function godkjenn() {
-    godkjennMutation.mutate({ id: gjennomforingId }, { onSuccess: lukk });
-  }
-
-  function avsla() {
-    avslaaMutation.mutate(
-      { id: gjennomforingId, forklaring: forklaring || null },
-      { onSuccess: lukk },
-    );
+    godkjennMutation.mutate({ id: gjennomforingId }, { onSuccess: close });
   }
 
   return (
-    <Modal open={open} onClose={lukk} header={{ heading: "Godkjenn økonomi" }} width="medium">
+    <Modal open={open} onClose={close} header={{ heading: "Godkjenn enkeltplass" }} width="medium">
       <Modal.Body>
-        {avslaaMode ? (
-          <>
-            <BodyShort spacing>
-              Du er i ferd med å avslå økonomi for gjennomføringen. Du kan eventuelt legge inn en
-              forklaring nedenfor.
-            </BodyShort>
-            <Textarea
-              label="Forklaring (valgfritt)"
-              value={forklaring}
-              onChange={(e) => setForklaring(e.target.value)}
-              maxLength={500}
-            />
-          </>
-        ) : (
-          <BodyShort>
-            Bekreft at du har gjennomgått og godkjenner økonomien for gjennomføringen, eller avslå
-            dersom det er feil.
-          </BodyShort>
-        )}
+        <BodyShort>
+          Bekreft at du har gjennomgått og godkjenner økonomien for gjennomføringen.
+        </BodyShort>
       </Modal.Body>
       <Modal.Footer>
-        {avslaaMode ? (
-          <>
-            <Button variant="danger" onClick={avsla} loading={avslaaMutation.isPending}>
-              Avslå
-            </Button>
-            <Button variant="secondary" onClick={() => setAvslaaMode(false)}>
-              Tilbake
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button onClick={godkjenn} loading={godkjennMutation.isPending}>
-              Bekreft
-            </Button>
-            <Button variant="secondary" onClick={() => setAvslaaMode(true)}>
-              Avslå
-            </Button>
-          </>
-        )}
+        <Button onClick={godkjenn} loading={godkjennMutation.isPending}>
+          Godkjenn enkeltplass
+        </Button>
+        <Button variant="secondary" onClick={close}>
+          Avbryt
+        </Button>
       </Modal.Footer>
     </Modal>
   );

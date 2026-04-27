@@ -1,17 +1,17 @@
 import { Skeleton } from "@navikt/ds-react";
-import { Oppskrift } from "@api-client";
+import { Oppskrift, Tiltakskode } from "@api-client";
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { formaterDato } from "@/utils/Utils";
 import { Suspense } from "react";
 import { Melding } from "../melding/Melding";
 
 interface Props {
-  tiltakstypeId: string;
+  tiltakskode: Tiltakskode;
   setOppskriftId: (id: string) => void;
 }
 
-export function OppskriftOversikt({ tiltakstypeId, setOppskriftId }: Props) {
-  const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
+export function OppskriftOversikt({ tiltakskode, setOppskriftId }: Props) {
+  const { data: oppskrifter } = useOppskrifter(tiltakskode);
 
   if (!oppskrifter) return null;
 

@@ -9,6 +9,8 @@ export const utbetalingTekster = {
     status: "Status",
     periode: "Utbetalingsperiode",
     utbetalesTidligstDato: "Utbetales tidligst",
+    utbetalesTidligstDatoHelpText:
+      "Oppfølging, Avklaring, og Digitalt jobbsøkerkurs utbetales tidligst 37 dager etter siste dag i utbetalingsperioden",
     type: "Type",
     kommentar: "Kommentar",
     beskrivelse: "Begrunnelse for utbetaling",

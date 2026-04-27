@@ -125,16 +125,31 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 .shouldBeLeft()
                 .first().detail shouldBe "Du kan ikke godkjenne økonomi for en gjennomføring du selv har opprettet"
         }
-    }
 
-    context("avslaaOkonomi") {
-        val service = createService()
-
-        test("avslår økonomi og setter besluttelse til AVVIST") {
+        test("kan godkjenne enkeltplass etter avvisning") {
             val gjennomforing = createEnkeltplass()
             service.create(gjennomforing, opprettetAv).shouldBeRight()
 
-            service.avvisOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil").shouldBeRight()
+            service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil prisbetingelser").shouldBeRight()
+            service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
+
+            database.run {
+                queries.totrinnskontroll.getOrError(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).should {
+                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                    it.forklaring shouldBe null
+                }
+            }
+        }
+    }
+
+    context("settPaVentOkonomi") {
+        val service = createService()
+
+        test("setter økonomi på vent og setter besluttelse til AVVIST") {
+            val gjennomforing = createEnkeltplass()
+            service.create(gjennomforing, opprettetAv).shouldBeRight()
+
+            service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil").shouldBeRight()
 
             database.run {
                 queries.totrinnskontroll.getOrError(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).should {
@@ -143,6 +158,21 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     it.forklaring shouldBe "Feil"
                 }
             }
+        }
+
+        test("returnerer feil når enkeltplass allerede er behandlet") {
+            val gjennomforing = createEnkeltplass()
+            service.create(gjennomforing, opprettetAv).shouldBeRight()
+
+            service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
+
+            service.godkjennOkonomi(gjennomforing.id, besluttetAv)
+                .shouldBeLeft()
+                .first().detail shouldBe "Kan ikke godkjenne enkeltplass som allerede er behandlet"
+
+            service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Angret")
+                .shouldBeLeft()
+                .first().detail shouldBe "Kan ikke sette enkeltplass på vent når den allerede er behandlet"
         }
     }
 

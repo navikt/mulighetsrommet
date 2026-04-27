@@ -162,7 +162,7 @@ fun Route.tilsagnRoutesBeregning() {
                     it.startDato == null || it.sluttDato == null ||
                         periode.intersects(Periode.fromInclusiveDates(it.startDato, it.sluttDato))
                 }
-            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+            val personalia = personaliaService.getPersonalia(
                 deltakelser.map { it.id },
                 call.getAccessType(),
             )

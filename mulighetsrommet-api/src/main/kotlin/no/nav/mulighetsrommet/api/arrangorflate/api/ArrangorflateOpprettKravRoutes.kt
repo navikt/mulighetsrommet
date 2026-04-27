@@ -68,7 +68,6 @@ import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -144,17 +143,12 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
 
         val filter = getArrangorflateGjennomforingFilter()
         val (totalCount, items) = db.session {
-            val gyldigeTiltakstyper = queries.tiltakstype
-                .getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
-                .map { it.id }
-
             val gyldigePrismodeller = okonomiConfig.opprettKravPrismodeller
 
-            if (gyldigePrismodeller.isEmpty() || gyldigeTiltakstyper.isEmpty()) {
+            if (gyldigePrismodeller.isEmpty()) {
                 PaginatedResult(totalCount = 0, items = emptyList())
             } else {
                 queries.arrangorflate.tiltak.getAll(
-                    tiltakstyper = gyldigeTiltakstyper,
                     organisasjonsnummer = arrangorer,
                     prismodeller = gyldigePrismodeller,
                     filter = filter,

@@ -70,6 +70,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
+import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tiltakstype.service.RedaksjoneltInnholdLenkeService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
@@ -248,7 +249,7 @@ private fun services(appConfig: AppConfig) = module {
         TilgangsmaskinClient(
             baseUrl = appConfig.tilgangsmaskin.url,
             tokenProvider = azureAdTokenProvider.withScope(appConfig.tilgangsmaskin.scope),
-            clientEngine = appConfig.engine,
+            clientEngine = appConfig.tilgangsmaskin.engine ?: appConfig.engine,
         )
     }
     single {
@@ -423,7 +424,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavAnsattPrincipalService(get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
-    single { GjennomforingDetaljerService(get(), get(), get()) }
+    single { GjennomforingDetaljerService(get(), get(), get(), get()) }
     single {
         GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
@@ -446,7 +447,14 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { TiltakstypeService(appConfig.tiltakstyper, get()) }
-    single { TiltakstypeDetaljerService(get(), get(), get(), get()) }
+    single {
+        TiltakstypeDetaljerService(
+            TiltakstypeDetaljerService.Config(appConfig.kafka.topics.sisteTiltakstyperTopic),
+            get(),
+            get(),
+            get(),
+        )
+    }
     single { RedaksjoneltInnholdLenkeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
@@ -496,8 +504,9 @@ private fun services(appConfig: AppConfig) = module {
             navAnsattService = get(),
         )
     }
+    single { TilskuddBehandlingService(get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
-    single { OppgaverService(get()) }
+    single { OppgaverService(get(), get()) }
     single { ArrangorflateService(get(), get(), get()) }
     single { ArrangorflateUtbetalingService(get(), get()) }
     single {

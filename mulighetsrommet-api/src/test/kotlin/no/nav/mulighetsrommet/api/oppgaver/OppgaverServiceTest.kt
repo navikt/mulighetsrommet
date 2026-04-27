@@ -10,23 +10,32 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
+import no.nav.mulighetsrommet.api.fixtures.TilskuddFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
+import no.nav.mulighetsrommet.api.fixtures.setAvvist
+import no.nav.mulighetsrommet.api.fixtures.setGodkjent
+import no.nav.mulighetsrommet.api.fixtures.setTilGodkjenning
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.fixtures.toNavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -45,9 +54,16 @@ class OppgaverServiceTest : FunSpec({
         database.truncateAll()
     }
 
+    fun features(enkeltplassFilterEnabled: Boolean = true) = object : FeatureToggleService {
+        override fun isEnabled(feature: FeatureToggle) = when (feature) {
+            FeatureToggle.TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER -> enkeltplassFilterEnabled
+            else -> false
+        }
+    }
+
     context("tilsagn") {
         test("Skal hente oppgaver for tilsagn med filter") {
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
 
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
@@ -75,7 +91,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal ikke se oppgaver som ansatt selv har sendt til godkjenning") {
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -121,7 +137,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn4, TilsagnStatus.TIL_OPPGJOR)
             }.initialize(database.db)
 
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
             service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
@@ -148,7 +164,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.RETURNERT)
             }.initialize(database.db)
 
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
             service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
@@ -178,7 +194,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.TIL_GODKJENNING)
             }.initialize(database.db)
 
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -194,7 +210,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal se oppgaver for returnert tilsagn når ansatt selv har sendt tilsagn til godkjenning") {
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -239,7 +255,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.TIL_GODKJENNING)
             }.initialize(database.db)
 
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -261,7 +277,7 @@ class OppgaverServiceTest : FunSpec({
 
     context("utbetalingslinjer") {
         test("Skal hente oppgaver for utbetalingslinjer med filter") {
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 navEnheter = listOf(
@@ -344,7 +360,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal ikke hente oppgaver som ansatt selv har sendt til godkjenning") {
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -377,7 +393,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal hente oppgaver selv om ansatt selv har besluttet tilsagnet") {
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -429,7 +445,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal bare se oppgaver for kostandssteder som overlapper med ansattes roller") {
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -541,7 +557,7 @@ class OppgaverServiceTest : FunSpec({
                 setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje1, UtbetalingLinjeStatus.GODKJENT)
             }.initialize(database.db)
 
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
 
             val oppgaver = service.oppgaver(
                 oppgavetyper = setOf(),
@@ -616,7 +632,7 @@ class OppgaverServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.AVTALE_MANGLER_ADMINISTRATOR),
@@ -643,6 +659,408 @@ class OppgaverServiceTest : FunSpec({
         }
     }
 
+    context("enkeltplasser") {
+        test("beslutter som ikke har opprettet enkeltplass ser oppgave for enkeltplass til godkjenning") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setTilGodkjenning(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+            )
+        }
+
+        test("beslutter som har opprettet enkeltplass ser ikke oppgave") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setTilGodkjenning(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ).shouldBeEmpty()
+        }
+
+        test("ansatt uten beslutter-rolle ser ikke oppgave") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setTilGodkjenning(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
+            ).shouldBeEmpty()
+        }
+
+        test("allerede godkjent enkeltplass gir ikke oppgave") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setGodkjent(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ).shouldBeEmpty()
+        }
+
+        test("saksbehandler ser oppgave når enkeltplass er satt på vent") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setAvvist(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_SATT_PA_VENT),
+            )
+        }
+
+        test("ansatt uten saksbehandler-rolle ser ikke satt-på-vent oppgave") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setAvvist(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.ENKELTPLASS_SATT_PA_VENT),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ).shouldBeEmpty()
+        }
+
+        test("satt-på-vent enkeltplass vises ikke som til-godkjenning oppgave") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setAvvist(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ).shouldBeEmpty()
+        }
+
+        test("enkeltplass oppgaver vises ikke når feature toggle er skrudd av") {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setTilGodkjenning(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.db)
+
+            OppgaverService(database.db, features(enkeltplassFilterEnabled = false)).oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ).shouldBeEmpty()
+        }
+
+        test("region-filter begrenser enkeltplass oppgaver til riktig region") {
+            val service = OppgaverService(database.db, features())
+
+            val enkeltplassInnlandet = GjennomforingFixtures.EnkelAmo.copy(
+                ansvarligEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
+            )
+            val enkeltplassOslo = GjennomforingFixtures.EnkelAmo.copy(
+                id = UUID.randomUUID(),
+                ansvarligEnhet = NavEnhetFixtures.Oslo.enhetsnummer,
+            )
+
+            MulighetsrommetTestDomain(
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
+                gjennomforinger = listOf(enkeltplassInnlandet, enkeltplassOslo),
+            ) {
+                setTilGodkjenning(
+                    enkeltplassInnlandet.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+                setTilGodkjenning(
+                    enkeltplassOslo.id,
+                    Totrinnskontroll.Type.OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(enkeltplassInnlandet.id, OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+            )
+        }
+    }
+
+    context("tilskuddsbehandlinger") {
+
+        test("attestant som ikke har opprettet behandling ser oppgave til attestering") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
+                setTilGodkjenning(
+                    TilskuddFixtures.Behandling.id,
+                    Totrinnskontroll.Type.OPPRETT,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
+            )
+        }
+
+        test("attestant som selv har opprettet behandling ser ikke oppgave") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
+                setTilGodkjenning(
+                    TilskuddFixtures.Behandling.id,
+                    Totrinnskontroll.Type.OPPRETT,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
+                ),
+            ).shouldBeEmpty()
+        }
+
+        test("saksbehandler ser returnert tilskuddsbehandling") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                queries.tilskuddBehandling.upsert(
+                    TilskuddFixtures.Behandling.copy(
+                        status = TilskuddBehandlingStatus.RETURNERT,
+                    ),
+                )
+                setAvvist(
+                    TilskuddFixtures.Behandling.id,
+                    Totrinnskontroll.Type.OPPRETT,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_RETURNERT),
+            )
+        }
+
+        test("ferdig behandlet tilskuddsbehandling gir ingen oppgave") {
+            val service = OppgaverService(database.db, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                queries.tilskuddBehandling.upsert(
+                    TilskuddFixtures.Behandling.copy(
+                        status = TilskuddBehandlingStatus.FERDIG_BEHANDLET,
+                        vedtak = listOf(TilskuddFixtures.Vedtak),
+                    ),
+                )
+                setGodkjent(
+                    TilskuddFixtures.Behandling.id,
+                    Totrinnskontroll.Type.OPPRETT,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(
+                        NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                        NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                    ),
+                ),
+            ).shouldBeEmpty()
+        }
+
+        test("tilskuddsbehandling oppgaver vises ikke når feature toggle er skrudd av") {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+            }.initialize(database.db)
+
+            OppgaverService(database.db, features(enkeltplassFilterEnabled = false)).oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
+                ),
+            ).shouldBeEmpty()
+        }
+
+        test("region-filter begrenser tilskuddsbehandling oppgaver") {
+            val service = OppgaverService(database.db, features())
+
+            val behandlingOslo = TilskuddFixtures.Behandling.copy(
+                id = UUID.randomUUID(),
+                kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer,
+            )
+
+            MulighetsrommetTestDomain(
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
+                setTilGodkjenning(
+                    TilskuddFixtures.Behandling.id,
+                    Totrinnskontroll.Type.OPPRETT,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+                queries.tilskuddBehandling.upsert(behandlingOslo)
+                setTilGodkjenning(
+                    behandlingOslo.id,
+                    Totrinnskontroll.Type.OPPRETT,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.db)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                regioner = setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
+            )
+        }
+    }
+
     context("gjennomføringer") {
         test("oppgaver når aktive gjennomføringer mangler administrator") {
             MulighetsrommetTestDomain(
@@ -660,7 +1078,7 @@ class OppgaverServiceTest : FunSpec({
                 )
             }.initialize(database.db)
 
-            val service = OppgaverService(database.db)
+            val service = OppgaverService(database.db, features())
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR),

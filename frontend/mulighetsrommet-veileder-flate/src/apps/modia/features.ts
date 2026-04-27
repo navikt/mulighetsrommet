@@ -41,7 +41,7 @@ export function isOppskrifterEnabled(tiltak: VeilederflateTiltak): boolean {
 export function kanOppretteEnkeltplass(tiltakstype: VeilederflateTiltakstype) {
   return (
     harFeature(tiltakstype, TiltakstypeFeature.MIGRERT) &&
-    harEgenskap(tiltakstype, TiltakstypeEgenskap.KAN_OPPRETTE_ENKELTPLASS)
+    harEgenskap(tiltakstype, TiltakstypeEgenskap.STOTTER_ENKELTPLASSER)
   );
 }
 

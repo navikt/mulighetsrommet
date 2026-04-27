@@ -51,7 +51,4 @@ val ApplicationConfigDev = AppConfig(
             ),
         ),
     ),
-    faktura = FakturaConfig(
-        tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
-    ),
 )

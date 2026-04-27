@@ -4,16 +4,17 @@ import { useEffect, useRef } from "react";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { Melding } from "../melding/Melding";
 import { PortableText } from "@mr/frontend-common";
+import { Tiltakskode } from "@api-client";
 
 interface Props {
   oppskriftId: string;
-  tiltakstypeId: string;
+  tiltakskode: Tiltakskode;
   setOppskriftId: (id: string | undefined) => void;
 }
 
-export function Oppskrift({ oppskriftId, tiltakstypeId, setOppskriftId }: Props) {
+export function Oppskrift({ oppskriftId, tiltakskode, setOppskriftId }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
+  const { data: oppskrifter } = useOppskrifter(tiltakskode);
 
   useEffect(() => {
     if (ref.current) {

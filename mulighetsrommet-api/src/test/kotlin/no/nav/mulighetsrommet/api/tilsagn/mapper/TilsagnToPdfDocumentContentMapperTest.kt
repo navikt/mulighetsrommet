@@ -37,28 +37,34 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         prettyPrintIndent = "  "
     }
 
-    val deltaker = Personalia(
+    val deltaker = Personalia.MedTilgang(
         norskIdent = NorskIdent("01010199999"),
         navn = "Normann, Ola",
         erSkjermet = false,
         adressebeskyttelse = PdlGradering.UGRADERT,
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
+        geografiskEnhet = null,
+        region = null,
     )
 
-    val skjermetDeltaker = Personalia(
+    val skjermetDeltaker = Personalia.MedTilgang(
         norskIdent = NorskIdent("01010199998"),
         navn = "Normann, Olve",
         erSkjermet = true,
         adressebeskyttelse = PdlGradering.UGRADERT,
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
+        geografiskEnhet = null,
+        region = null,
     )
 
-    val adressebekyttetDeltaker = Personalia(
+    val adressebekyttetDeltaker = Personalia.MedTilgang(
         norskIdent = NorskIdent("01010199997"),
         navn = "Normann, Olivia",
         erSkjermet = false,
         adressebeskyttelse = PdlGradering.FORTROLIG,
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
+        geografiskEnhet = null,
+        region = null,
     )
 
     val kontonummer = Kontonummer("12345678910")

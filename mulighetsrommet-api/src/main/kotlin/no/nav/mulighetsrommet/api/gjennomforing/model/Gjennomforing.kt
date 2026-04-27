@@ -36,6 +36,8 @@ sealed class Gjennomforing {
     abstract val antallPlasser: Int
     abstract val opprettetTidspunkt: Instant
     abstract val oppdatertTidspunkt: Instant
+    abstract val oppstart: GjennomforingOppstartstype
+    abstract val pameldingType: GjennomforingPameldingType
 
     @Serializable
     data class Tiltakstype(
@@ -143,10 +145,10 @@ data class GjennomforingAvtale(
     @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
     override val prismodell: Prismodell,
+    override val oppstart: GjennomforingOppstartstype,
+    override val pameldingType: GjennomforingPameldingType,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
-    val oppstart: GjennomforingOppstartstype,
-    val pameldingType: GjennomforingPameldingType,
     val kontorstruktur: List<Kontorstruktur>,
     val apentForPamelding: Boolean,
     val stengt: List<StengtPeriode>,
@@ -183,8 +185,17 @@ data class GjennomforingEnkeltplass(
     @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
     override val prismodell: Prismodell,
+    override val oppstart: GjennomforingOppstartstype,
+    override val pameldingType: GjennomforingPameldingType,
     val ansvarligEnhet: AnsvarligEnhet,
 ) : GjennomforingTiltaksadministrasjon() {
+
+    init {
+        check(oppstart == GjennomforingOppstartstype.ENKELTPLASS) {
+            "oppstart må være satt til ${GjennomforingOppstartstype.ENKELTPLASS} for enkeltplasser"
+        }
+    }
+
     @Serializable
     data class AnsvarligEnhet(
         val enhetsnummer: NavEnhetNummer,
@@ -212,6 +223,6 @@ data class GjennomforingArena(
     override val opprettetTidspunkt: Instant,
     @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
-    val oppstart: GjennomforingOppstartstype,
-    val pameldingType: GjennomforingPameldingType,
+    override val oppstart: GjennomforingOppstartstype,
+    override val pameldingType: GjennomforingPameldingType,
 ) : Gjennomforing()

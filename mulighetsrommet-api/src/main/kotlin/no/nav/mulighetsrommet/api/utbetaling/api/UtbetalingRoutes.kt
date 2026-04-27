@@ -16,8 +16,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
@@ -38,7 +36,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaMedGeografiskEnhet
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
@@ -139,8 +137,9 @@ fun Route.utbetalingRoutes() {
             }) {
                 val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
+                val arrangor = db.session { queries.arrangor.getByGjennomforingId(request.gjennomforingId) }
 
-                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request, arrangor)
                     .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
                     .map { HttpStatusCode.Created }
@@ -166,8 +165,9 @@ fun Route.utbetalingRoutes() {
             }) {
                 val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
+                val arrangor = db.session { queries.arrangor.getByGjennomforingId(request.gjennomforingId) }
 
-                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request, arrangor)
                     .flatMap { utbetalingService.redigerUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke redigere utbetaling", it) }
                     .map { HttpStatusCode.OK }
@@ -301,7 +301,7 @@ fun Route.utbetalingRoutes() {
                     val utbetaling = queries.utbetaling.getOrError(id)
                     val deltakelser = utbetaling.beregning.deltakelsePerioder().associateBy { it.deltakelseId }
 
-                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                    val personalia = personaliaService.getPersonalia(
                         deltakelser.keys.toList(),
                         call.getAccessType(),
                     )
@@ -332,30 +332,6 @@ fun Route.utbetalingRoutes() {
 
                 call.respond(beregning)
             }
-        }
-
-        get("/historikk", {
-            tags = setOf("Utbetaling")
-            operationId = "getUtbetalingEndringshistorikk"
-            request {
-                pathParameterUuid("id")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Utbetalingen ble opprettet"
-                    body<EndringshistorikkDto>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-            val historikk = db.session {
-                queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, id)
-            }
-            call.respond(historikk)
         }
 
         authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
@@ -390,7 +366,7 @@ fun Route.utbetalingRoutes() {
                         val opprettelse = queries.totrinnskontroll
                             .getOrError(linje.id, Totrinnskontroll.Type.OPPRETT)
 
-                        val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                        val personalia = personaliaService.getPersonalia(
                             tilsagn.deltakere.map { it.deltakerId },
                             call.getAccessType(),
                         )
@@ -424,7 +400,7 @@ fun Route.utbetalingRoutes() {
                         .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
                         .map { tilsagn ->
                             val deltakerIds = tilsagn.deltakere.map { it.deltakerId }
-                            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                            val personalia = personaliaService.getPersonalia(
                                 deltakerIds,
                                 call.getAccessType(),
                             )
@@ -604,6 +580,6 @@ fun RoutingContext.getBeregningFilter() = BeregningFilter(
 )
 
 data class UtbetalingBeregningDeltaker(
-    val personalia: PersonaliaMedGeografiskEnhet,
+    val personalia: Personalia,
     val deltakelse: UtbetalingBeregningOutputDeltakelse,
 )

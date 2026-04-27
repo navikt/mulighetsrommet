@@ -1,9 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
-import arrow.core.Either
 import arrow.core.getOrElse
-import arrow.core.left
-import arrow.core.right
 import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
@@ -40,7 +37,7 @@ class PersonaliaService(
     suspend fun getPersonalia(
         deltakerIds: List<UUID>,
         accessType: AccessType,
-    ): Map<UUID, Either<AvvistGrunn, Personalia>> {
+    ): Map<UUID, Personalia> {
         val amtPersonalia = amtDeltakerClient.hentPersonalia(deltakerIds)
             .getOrElse {
                 throw StatusException(
@@ -48,58 +45,35 @@ class PersonaliaService(
                     detail = "Klarte ikke hente personalia fra amt-deltaker error: $it",
                 )
             }
+        val pdlData = getPersonerMedGeografiskEnhet(amtPersonalia.map { it.norskIdent })
 
         val tilgangerByDeltakerId = sjekkTilgangTilPerson(amtPersonalia, accessType)
 
         return amtPersonalia.associate { p ->
             when (val avvistGrunn = tilgangerByDeltakerId[p.deltakerId]) {
-                null ->
-                    p.deltakerId to
-                        Personalia(
-                            norskIdent = p.norskIdent,
-                            navn = p.navn,
-                            oppfolgingEnhet = p.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) },
-                            erSkjermet = p.erSkjermet,
-                            adressebeskyttelse = p.adressebeskyttelse,
-                        ).right()
-
-                else -> p.deltakerId to avvistGrunn.left()
-            }
-        }
-    }
-
-    suspend fun getPersonaliaMedGeografiskEnhet(
-        deltakerIds: List<UUID>,
-        accessType: AccessType,
-    ): Map<UUID, Either<AvvistGrunn, PersonaliaMedGeografiskEnhet>> {
-        val personalia = getPersonalia(deltakerIds, accessType)
-        val pdlData = getPersonerMedGeografiskEnhet(
-            personalia
-                .map { it.value }
-                .filter { it.getOrNull()?.norskIdent != null }
-                .map { requireNotNull(it.getOrNull()?.norskIdent) },
-        )
-
-        return personalia
-            .mapValues { (_, e) ->
-                e.map { p ->
+                null -> {
                     val norskIdent = p.norskIdent
 
                     val (_, geografiskEnhet) = norskIdent.let { pdlData[norskIdent] } ?: (null to null)
+                    val oppfolgingEnhet = p.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) }
 
-                    PersonaliaMedGeografiskEnhet(
-                        norskIdent = norskIdent,
-                        navn = p.navn,
-                        erSkjermet = p.erSkjermet,
-                        adressebeskyttelse = p.adressebeskyttelse,
-                        oppfolgingEnhet = p.oppfolgingEnhet,
-                        geografiskEnhet = geografiskEnhet?.navEnhetNummer()?.let { navEnhetService.hentEnhet(it) },
-                        region = p.oppfolgingEnhet?.overordnetEnhet?.let {
-                            navEnhetService.hentEnhet(it)
-                        },
-                    )
+                    p.deltakerId to
+                        Personalia.MedTilgang(
+                            norskIdent = p.norskIdent,
+                            navn = p.navn,
+                            oppfolgingEnhet = oppfolgingEnhet,
+                            erSkjermet = p.erSkjermet,
+                            adressebeskyttelse = p.adressebeskyttelse,
+                            geografiskEnhet = geografiskEnhet?.navEnhetNummer()?.let { navEnhetService.hentEnhet(it) },
+                            region = oppfolgingEnhet?.overordnetEnhet?.let {
+                                navEnhetService.hentEnhet(it)
+                            },
+                        )
                 }
+
+                else -> p.deltakerId to Personalia.Avvist(avvistGrunn)
             }
+        }
     }
 
     suspend fun sjekkTilgangTilPerson(amtPersonalia: Set<AmtDeltakerPersonalia>, accessType: AccessType): Map<UUID, AvvistGrunn?> {
@@ -201,23 +175,31 @@ class PersonaliaService(
     }
 }
 
-data class Personalia(
-    val norskIdent: NorskIdent,
-    val navn: String,
-    val erSkjermet: Boolean,
-    val adressebeskyttelse: PdlGradering,
-    val oppfolgingEnhet: NavEnhetDto?,
-)
+sealed class Personalia {
+    abstract val norskIdent: NorskIdent?
+    abstract val navn: String?
+    abstract val oppfolgingEnhet: NavEnhetDto?
+    abstract val geografiskEnhet: NavEnhetDto?
+    abstract val region: NavEnhetDto?
 
-data class PersonaliaMedGeografiskEnhet(
-    val norskIdent: NorskIdent?,
-    val navn: String,
-    val erSkjermet: Boolean,
-    val adressebeskyttelse: PdlGradering,
-    val oppfolgingEnhet: NavEnhetDto?,
-    val geografiskEnhet: NavEnhetDto?,
-    val region: NavEnhetDto?,
-)
+    data class MedTilgang(
+        override val norskIdent: NorskIdent,
+        override val navn: String,
+        val erSkjermet: Boolean,
+        val adressebeskyttelse: PdlGradering,
+        override val oppfolgingEnhet: NavEnhetDto?,
+        override val geografiskEnhet: NavEnhetDto?,
+        override val region: NavEnhetDto?,
+    ) : Personalia()
+
+    data class Avvist(val grunn: AvvistGrunn) : Personalia() {
+        override val norskIdent = null
+        override val navn = null
+        override val oppfolgingEnhet = null
+        override val geografiskEnhet = null
+        override val region = null
+    }
+}
 
 enum class AvvistGrunn {
     AVVIST_STRENGT_FORTROLIG_ADRESSE,

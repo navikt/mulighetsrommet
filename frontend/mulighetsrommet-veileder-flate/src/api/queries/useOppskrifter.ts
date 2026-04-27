@@ -1,20 +1,20 @@
 import { useApiQuery } from "@mr/frontend-common";
 import { QueryKeys } from "../query-keys";
 import { erPreview } from "@/utils/Utils";
-import { OppskrifterService, SanityPerspective } from "@api-client";
+import { OppskrifterService, SanityPerspective, Tiltakskode } from "@api-client";
 
-export function useOppskrifter(tiltakstypeId: string) {
+export function useOppskrifter(tiltakskode: Tiltakskode) {
   return useApiQuery({
-    queryKey: QueryKeys.oppskrifter(tiltakstypeId),
+    queryKey: QueryKeys.oppskrifter(tiltakskode),
     queryFn: () =>
       OppskrifterService.getOppskrifter({
         path: {
-          tiltakstypeId,
+          tiltakskode,
         },
         query: {
           perspective: erPreview() ? SanityPerspective.PREVIEW_DRAFTS : SanityPerspective.PUBLISHED,
         },
       }),
-    enabled: !!tiltakstypeId,
+    enabled: !!tiltakskode,
   });
 }

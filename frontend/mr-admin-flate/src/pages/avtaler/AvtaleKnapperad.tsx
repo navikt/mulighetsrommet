@@ -1,4 +1,3 @@
-import { useAvtaleEndringshistorikk } from "@/api/avtaler/useAvtaleEndringshistorikk";
 import { RegistrerOpsjonModal } from "@/components/avtaler/opsjoner/RegistrerOpsjonModal";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -9,6 +8,7 @@ import {
   AvbrytAvtaleAarsak,
   AvtaleDto,
   AvtaleHandling,
+  DocumentClass,
   FieldError,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
@@ -23,6 +23,7 @@ import { useAvtaleHandlinger } from "@/api/avtaler/useAvtale";
 import { OppdaterRammedetaljerModal } from "@/components/avtaler/OppdaterRammedetaljerModal";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { AdministratorGuard } from "@/components/handlinger/AdministratorGuard";
+import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 interface Props {
   avtale: AvtaleDto;
@@ -194,7 +195,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
 }
 
 function AvtaleEndringshistorikk({ id }: { id: string }) {
-  const historikk = useAvtaleEndringshistorikk(id);
+  const historikk = useEndringshistorikk(id, DocumentClass.AVTALE);
 
   return <ViewEndringshistorikk historikk={historikk.data} />;
 }

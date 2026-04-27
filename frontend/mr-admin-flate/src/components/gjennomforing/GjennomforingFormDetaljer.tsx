@@ -11,6 +11,7 @@ import {
   GjennomforingVeilederinfoDto,
   TiltakstypeDto,
   Rolle,
+  Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 import {
   Alert,
@@ -93,6 +94,8 @@ export function GjennomforingFormDetaljer(props: Props) {
   const maxStartdato = addDuration(new Date(), { years: 2 });
   const maxSluttdato =
     addDuration(gjennomforing?.sluttDato, { years: 6 }) ?? addDuration(maxStartdato, { years: 6 });
+
+  const visOppmotested = tiltakstype.tiltakskode !== Tiltakskode.TILPASSET_JOBBSTOTTE;
 
   return (
     <>
@@ -252,18 +255,20 @@ export function GjennomforingFormDetaljer(props: Props) {
               )}
             </HGrid>
             <EstimertVentetidForm veilederinfo={veilederinfo} />
-            <VStack gap="space-8">
-              <Textarea
-                size="small"
-                resize
-                value={watch("oppmoteSted") || ""}
-                maxLength={OPPMOTE_STED_MAX_LENGTH}
-                label="Oppmøtested"
-                description="Skriv inn adressen der bruker skal møte opp til tiltaket og eventuelt klokkeslett. For tiltak uten spesifikk adresse (for eksempel digitalt jobbsøkerkurs), kan du la feltet stå tomt."
-                {...register("oppmoteSted")}
-                error={errors.oppmoteSted ? (errors.oppmoteSted.message as string) : null}
-              />
-            </VStack>
+            {visOppmotested && (
+              <VStack gap="space-8">
+                <Textarea
+                  size="small"
+                  resize
+                  value={watch("oppmoteSted") || ""}
+                  maxLength={OPPMOTE_STED_MAX_LENGTH}
+                  label="Oppmøtested"
+                  description="Skriv inn adressen der bruker skal møte opp til tiltaket og eventuelt klokkeslett. For tiltak uten spesifikk adresse (for eksempel digitalt jobbsøkerkurs), kan du la feltet stå tomt."
+                  {...register("oppmoteSted")}
+                  error={errors.oppmoteSted ? (errors.oppmoteSted.message as string) : null}
+                />
+              </VStack>
+            )}
           </FormGroup>
         </SkjemaKolonne>
         <SkjemaKolonne>

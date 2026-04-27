@@ -9,19 +9,20 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { isBesluttet } from "@/utils/totrinnskontroll";
 
 type Props = {
+  heading: string;
   opprettelse: TotrinnskontrollDto;
 };
 
-export function ToTrinnsOpprettelsesForklaring({ opprettelse }: Props) {
+export function ToTrinnsOpprettelsesForklaring({ heading, opprettelse }: Props) {
   if (!isBesluttet(opprettelse) || opprettelse.besluttelse !== Besluttelse.AVVIST) {
     return null;
   }
 
   return (
     <AarsakerOgForklaring
-      heading="Tilsagnet ble returnert"
+      heading={heading}
       tekster={[
-        `${opprettelse.besluttetAv.navn} returnerte tilsagnet den ${formaterDato(
+        `${opprettelse.besluttetAv.navn} returnerte den ${formaterDato(
           opprettelse.besluttetTidspunkt,
         )}.`,
       ]}

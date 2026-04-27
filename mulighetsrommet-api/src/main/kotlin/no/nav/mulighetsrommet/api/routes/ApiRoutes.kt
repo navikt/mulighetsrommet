@@ -11,9 +11,11 @@ import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
 import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorFeatureToggleRoutes
 import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorflateRoutes
 import no.nav.mulighetsrommet.api.avtale.api.avtaleRoutes
+import no.nav.mulighetsrommet.api.avtale.api.avtaletypeRoutes
 import no.nav.mulighetsrommet.api.avtale.api.personopplysningRoutes
 import no.nav.mulighetsrommet.api.avtale.api.prismodellRoutes
 import no.nav.mulighetsrommet.api.avtale.api.rammedetaljerRoutes
+import no.nav.mulighetsrommet.api.endringshistorikk.api.endringshistorikkRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingPublicRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingRoutes
 import no.nav.mulighetsrommet.api.janzz.api.janzzRoutes
@@ -27,6 +29,7 @@ import no.nav.mulighetsrommet.api.plugins.OpenApiVersionHeader
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
+import no.nav.mulighetsrommet.api.tilskuddbehandling.api.tilskuddBehandlingRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.api.redaksjoneltInnholdRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.api.tiltakstypeRoutes
 import no.nav.mulighetsrommet.api.utbetaling.api.utbetalingRoutes
@@ -121,6 +124,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     avtaleRoutes()
     gjennomforingRoutes()
     prismodellRoutes()
+    avtaletypeRoutes()
     rammedetaljerRoutes()
     personopplysningRoutes()
     tilsagnRoutes()
@@ -135,6 +139,8 @@ fun Route.tiltaksadministrasjonRoutes() {
     utdanningRoutes()
     notificationRoutes()
     opplaeringtilskuddRoutes()
+    tilskuddBehandlingRoutes()
+    endringshistorikkRoutes()
 }
 
 fun Route.veilederflateRoutes() {

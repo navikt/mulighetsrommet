@@ -32,4 +32,5 @@ data class Tiltaksgjennomforing(
     val estimertVentetid: EstimertVentetid?,
     val personvernBekreftet: Boolean,
     val personopplysningerSomKanBehandles: List<Personopplysning>,
+    val lopenummer: String,
 )

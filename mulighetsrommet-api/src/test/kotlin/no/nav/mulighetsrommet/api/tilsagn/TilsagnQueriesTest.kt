@@ -111,7 +111,7 @@ class TilsagnQueriesTest : FunSpec({
                 queries.tilsagn.getOrError(tilsagn.id) should {
                     it.id shouldBe tilsagn.id
                     it.tiltakstype shouldBe Tilsagn.Tiltakstype(
-                        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
+                        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
                         navn = TiltakstypeFixtures.AFT.navn,
                     )
                     it.gjennomforing.id shouldBe GjennomforingFixtures.AFT1.id

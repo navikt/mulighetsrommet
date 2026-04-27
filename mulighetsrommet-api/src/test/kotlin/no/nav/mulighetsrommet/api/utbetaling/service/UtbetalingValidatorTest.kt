@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -135,6 +136,36 @@ class UtbetalingValidatorTest : FunSpec({
             result.shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
                 FieldError.of("Periodeslutt må være etter periodestart", UtbetalingRequest::periodeSlutt),
             )
+        }
+
+        test("Journalpostid er påkrevd for arrangør med norsk orgnummer") {
+            val request = UtbetalingRequest(
+                id = UUID.randomUUID(),
+                gjennomforingId = UUID.randomUUID(),
+                periodeStart = periodeStart,
+                periodeSlutt = periodeSlutt,
+                journalpostId = null,
+                pris = ValutaBelopRequest(150, Valuta.NOK),
+            )
+
+            val result = UtbetalingValidator.validateUpsertUtbetaling(request, ArrangorFixtures.underenhet1)
+            result.shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
+                FieldError.of(detail = "Journalpost-ID er på ugyldig format", UtbetalingRequest::journalpostId),
+            )
+        }
+
+        test("Journalpostid er ikke påkrevd for utenlandsk arrangør") {
+            val request = UtbetalingRequest(
+                id = UUID.randomUUID(),
+                gjennomforingId = UUID.randomUUID(),
+                periodeStart = periodeStart,
+                periodeSlutt = periodeSlutt,
+                journalpostId = null,
+                pris = ValutaBelopRequest(150, Valuta.SEK),
+            )
+
+            val result = UtbetalingValidator.validateUpsertUtbetaling(request, ArrangorFixtures.Utenlandsk.hovedenhet)
+            result.shouldBeRight()
         }
     }
 

@@ -7,7 +7,9 @@ export function useGodkjennGjennomforingOkonomi() {
   const queryClient = useQueryClient();
 
   return useApiMutation<unknown, ProblemDetail, { id: string }>({
-    mutationFn: ({ id }) => GjennomforingService.godkjennGjennomforingOkonomi({ path: { id } }),
+    mutationFn: ({ id }) => {
+      return GjennomforingService.godkjennGjennomforingOkonomi({ path: { id } });
+    },
     async onSuccess(_, { id }) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: QueryKeys.gjennomforing(id) }),

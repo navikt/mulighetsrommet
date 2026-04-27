@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltaksansva
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
 class VeilederflateTiltakQueriesTest : FunSpec({
@@ -148,19 +149,19 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             }
         }
 
-        test("skal filtrere basert på tiltakstype sanity Id") {
+        test("skal filtrere basert på tiltakskode") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
                 queries.veilderTiltak.getAll(
-                    sanityTiltakstypeIds = null,
+                    tiltakskoder = null,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 2
 
                 queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                    sanityTiltakstypeIds = listOf(oppfolgingSanityId),
+                    tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
@@ -168,7 +169,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                    sanityTiltakstypeIds = listOf(aftSanityId),
+                    tiltakskoder = listOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)

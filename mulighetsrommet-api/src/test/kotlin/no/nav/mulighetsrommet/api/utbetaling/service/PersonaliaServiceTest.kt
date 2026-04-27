@@ -10,19 +10,19 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
-import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResult
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.UUID
@@ -46,6 +46,9 @@ class PersonaliaServiceTest : FunSpec({
     val tilgansmaskinClient = mockk<TilgangsmaskinClient>()
 
     context("skjermet og adressebeskyttet") {
+        coEvery { navEnhetService.hentEnhet(oppfolgingEnhet.enhetsnummer) } returns oppfolgingEnhet.toDto()
+        coEvery { navEnhetService.hentEnhet(oppfolgingEnhet.overordnetEnhet!!) } returns oppfolgingEnhet.toDto()
+
         test("skjermet skjules") {
             val service = PersonaliaService(
                 hentPersonOgGeografiskTilknytningQuery,
@@ -57,48 +60,53 @@ class PersonaliaServiceTest : FunSpec({
             coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(
                 personalia.copy(erSkjermet = true),
             ).right()
-            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResult(
                 resultater = listOf(
-                    TilgangsmaskinResponse.Resultat(
+                    TilgangsmaskinResult.Resultat.Avvist(
                         brukerId = personalia.norskIdent.value,
-                        status = 403,
+                        grunn = TilgangsmaskinResult.AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE,
                     ),
                 ),
             )
+
+            coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
+                enhetId = 1,
+                navn = "navn",
+                enhetNr = oppfolgingEnhet.enhetsnummer,
+                status = Norg2EnhetStatus.AKTIV,
+                type = Norg2Type.LOKAL,
+            ).right()
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
-            } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
-            coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0517")) } returns NavEnhetDto(
-                navn = "Nav Innlandet",
-                enhetsnummer = NavEnhetNummer("0400"),
-                type = NavEnhetType.FYLKE,
-                overordnetEnhet = null,
-            )
-            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token")) shouldBe mapOf(
-                deltakelseId to
-                    Personalia(
-                        norskIdent = null,
-                        navn = "Skjermet",
-                        oppfolgingEnhet = null,
-                        erSkjermet = true,
-                        adressebeskyttelse = PdlGradering.UGRADERT,
+            } returns mapOf(
+                PdlIdent(personalia.norskIdent.value) to Pair(
+                    PdlPerson(
+                        navn = "hans",
+                        gradering = PdlGradering.UGRADERT,
                     ),
-            )
+                    GeografiskTilknytning.GtKommune("asdf"),
+                ),
+            ).right()
+            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
+                it shouldNotBe null
+                it!!.norskIdent shouldBe personalia.norskIdent
+                it.navn shouldBe personalia.navn
+            }
             service.getPersonalia(listOf(), AccessType.OBO.AzureAd("azure"))[deltakelseId] should {
                 it shouldNotBe null
                 it!!.norskIdent shouldBe null
-                it.navn shouldBe "Skjermet"
+                it.navn shouldBe null
             }
             service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
                 it shouldNotBe null
                 it!!.norskIdent shouldBe personalia.norskIdent
                 it.navn shouldBe personalia.navn
             }
-            service.getPersonaliaMedGeografiskEnhet(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
+            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
                 it shouldNotBe null
-                it!!.norskIdent shouldBe null
-                it.navn shouldBe "Skjermet"
-                it.geografiskEnhet shouldBe null
+                it!!.norskIdent shouldBe personalia.norskIdent
+                it.navn shouldBe personalia.navn
+                it.geografiskEnhet shouldBe oppfolgingEnhet.toDto()
             }
         }
 
@@ -113,38 +121,25 @@ class PersonaliaServiceTest : FunSpec({
             coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(
                 personalia.copy(adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND),
             ).right()
-            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResult(
                 resultater = listOf(
-                    TilgangsmaskinResponse.Resultat(
+                    TilgangsmaskinResult.Resultat.Avvist(
                         brukerId = personalia.norskIdent.value,
-                        status = 403,
+                        grunn = TilgangsmaskinResult.AvvistGrunn.AVVIST_HABILITET,
                     ),
                 ),
             )
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
-            coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0517")) } returns NavEnhetDto(
-                navn = "Nav Innlandet",
-                enhetsnummer = NavEnhetNummer("0400"),
-                type = NavEnhetType.FYLKE,
-                overordnetEnhet = null,
-            )
 
-            service.getPersonalia(emptyList(), AccessType.OBO.TokenX("token")) shouldBe mapOf(
-                deltakelseId to
-                    Personalia(
-                        norskIdent = null,
-                        navn = "Adressebeskyttet",
-                        oppfolgingEnhet = null,
-                        erSkjermet = false,
-                        adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND,
-                    ),
+            service.getPersonalia(emptyList(), AccessType.OBO.AzureAd("token")) shouldBe mapOf(
+                deltakelseId to Personalia.Avvist(grunn = AvvistGrunn.AVVIST_HABILITET),
             )
-            service.getPersonaliaMedGeografiskEnhet(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
+            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
                 it shouldNotBe null
                 it!!.norskIdent shouldBe null
-                it.navn shouldBe "Adressebeskyttet"
+                it.navn shouldBe null
             }
             service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
                 it shouldNotBe null
@@ -167,37 +162,24 @@ class PersonaliaServiceTest : FunSpec({
                     adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
                 ),
             ).right()
-            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResult(
                 resultater = listOf(
-                    TilgangsmaskinResponse.Resultat(
+                    TilgangsmaskinResult.Resultat.Avvist(
                         brukerId = personalia.norskIdent.value,
-                        status = 403,
+                        grunn = TilgangsmaskinResult.AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE,
                     ),
                 ),
             )
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
-            coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0517")) } returns NavEnhetDto(
-                navn = "Nav Innlandet",
-                enhetsnummer = NavEnhetNummer("0400"),
-                type = NavEnhetType.FYLKE,
-                overordnetEnhet = null,
-            )
             service.getPersonalia(listOf(), AccessType.OBO.TokenX("token")) shouldBe mapOf(
-                deltakelseId to
-                    Personalia(
-                        norskIdent = null,
-                        navn = "Adressebeskyttet",
-                        oppfolgingEnhet = null,
-                        erSkjermet = true,
-                        adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
-                    ),
+                deltakelseId to Personalia.Avvist(grunn = AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE),
             )
-            service.getPersonaliaMedGeografiskEnhet(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
+            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
                 it shouldNotBe null
                 it!!.norskIdent shouldBe null
-                it.navn shouldBe "Adressebeskyttet"
+                it.navn shouldBe null
             }
             service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
                 it shouldNotBe null
@@ -220,46 +202,61 @@ class PersonaliaServiceTest : FunSpec({
                     adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
                 ),
             ).right()
-            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResult(
                 resultater = listOf(
-                    TilgangsmaskinResponse.Resultat(
+                    TilgangsmaskinResult.Resultat.Innvilget(
                         brukerId = personalia.norskIdent.value,
-                        status = 204,
                     ),
                 ),
             )
+            coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
+                enhetId = 1,
+                navn = "navn",
+                enhetNr = oppfolgingEnhet.enhetsnummer,
+                status = Norg2EnhetStatus.AKTIV,
+                type = Norg2Type.LOKAL,
+            ).right()
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
-            } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
-            coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0517")) } returns oppfolgingEnhet.toDto()
+            } returns mapOf(
+                PdlIdent(personalia.norskIdent.value) to Pair(
+                    PdlPerson(
+                        navn = "hans",
+                        gradering = PdlGradering.UGRADERT,
+                    ),
+                    GeografiskTilknytning.GtKommune("asdf"),
+                ),
+            ).right()
 
             // tokenX gir ikke tilgang
             service.getPersonalia(listOf(), AccessType.OBO.TokenX("token")) shouldBe mapOf(
-                deltakelseId to
-                    Personalia(
-                        norskIdent = null,
-                        navn = "Adressebeskyttet",
-                        oppfolgingEnhet = null,
-                        erSkjermet = true,
-                        adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
-                    ),
+                deltakelseId to Personalia.Avvist(AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE),
             )
 
             // AzureAd gir tilgang
             service.getPersonalia(listOf(), AccessType.OBO.AzureAd("token")) shouldBe mapOf(
                 deltakelseId to
-                    Personalia(
+                    Personalia.MedTilgang(
                         norskIdent = personalia.norskIdent,
                         navn = personalia.navn,
                         oppfolgingEnhet = oppfolgingEnhet.toDto(),
                         erSkjermet = true,
                         adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
+                        geografiskEnhet = oppfolgingEnhet.toDto(),
+                        region = oppfolgingEnhet.toDto(),
                     ),
             )
-            service.getPersonaliaMedGeografiskEnhet(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
+            service.getPersonalia(listOf(), AccessType.OBO.AzureAd("token"))[deltakelseId] should {
+                it shouldNotBe null
+                it!!.norskIdent shouldBe personalia.norskIdent
+                it.navn shouldBe personalia.navn
+                it.geografiskEnhet shouldBe oppfolgingEnhet.toDto()
+            }
+            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
                 it shouldNotBe null
                 it!!.norskIdent shouldBe null
-                it.navn shouldBe "Adressebeskyttet"
+                it.navn shouldBe null
+                it.geografiskEnhet shouldBe null
             }
             service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
                 it shouldNotBe null
@@ -277,38 +274,32 @@ class PersonaliaServiceTest : FunSpec({
                 navEnhetService,
             )
             coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(personalia).right()
-            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResponse(
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResult(
                 resultater = listOf(
-                    TilgangsmaskinResponse.Resultat(
+                    TilgangsmaskinResult.Resultat.Avvist(
                         brukerId = personalia.norskIdent.value,
-                        status = 403,
+                        grunn = TilgangsmaskinResult.AvvistGrunn.AVVIST_SKJERMING,
                     ),
                 ),
             )
-            coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0517")) } returns oppfolgingEnhet.toDto()
 
             // tokenX gir tilgang
             service.getPersonalia(listOf(), AccessType.OBO.TokenX("token")) shouldBe mapOf(
                 deltakelseId to
-                    Personalia(
+                    Personalia.MedTilgang(
                         norskIdent = personalia.norskIdent,
                         navn = personalia.navn,
                         oppfolgingEnhet = oppfolgingEnhet.toDto(),
                         erSkjermet = personalia.erSkjermet,
                         adressebeskyttelse = personalia.adressebeskyttelse,
+                        geografiskEnhet = oppfolgingEnhet.toDto(),
+                        region = oppfolgingEnhet.toDto(),
                     ),
             )
 
             // AzureAd gir ikke tilgang
             service.getPersonalia(listOf(), AccessType.OBO.AzureAd("token")) shouldBe mapOf(
-                deltakelseId to
-                    Personalia(
-                        norskIdent = null,
-                        navn = "Skjermet",
-                        oppfolgingEnhet = null,
-                        erSkjermet = personalia.erSkjermet,
-                        adressebeskyttelse = personalia.adressebeskyttelse,
-                    ),
+                deltakelseId to Personalia.Avvist(AvvistGrunn.AVVIST_SKJERMING),
             )
             service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
                 it shouldNotBe null

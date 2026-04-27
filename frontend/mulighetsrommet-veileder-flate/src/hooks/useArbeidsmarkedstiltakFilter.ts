@@ -1,4 +1,4 @@
-import { ApentForPamelding, Innsatsgruppe, LagretFilterType } from "@api-client";
+import { ApentForPamelding, Innsatsgruppe, LagretFilterType, Tiltakskode } from "@api-client";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
@@ -26,7 +26,7 @@ export const ArbeidsmarkedstiltakFilterSchema = z.object({
     .optional(),
   tiltakstyper: z
     .object({
-      id: z.string(),
+      id: z.custom<Tiltakskode>(),
       tittel: z.string(),
     })
     .array(),

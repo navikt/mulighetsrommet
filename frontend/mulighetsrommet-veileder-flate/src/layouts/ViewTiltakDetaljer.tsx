@@ -80,7 +80,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
               <div className="border border-border-subtle">
                 <Oppskrift
                   oppskriftId={oppskriftId}
-                  tiltakstypeId={tiltak.tiltakstype.sanityId}
+                  tiltakskode={tiltak.tiltakstype.tiltakskode}
                   setOppskriftId={setOppskriftId}
                 />
               </div>

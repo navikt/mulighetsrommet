@@ -1,4 +1,4 @@
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { TiltakskodeFilterTags } from "@/components/filter/TiltakskodeFilterTags";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterTagsContainer } from "@mr/frontend-common";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
@@ -9,21 +9,13 @@ import { Chips } from "@navikt/ds-react";
 interface Props {
   filter: OppgaverFilterType;
   updateFilter: (values: Partial<OppgaverFilterType>) => void;
-  tiltakstypeId?: string;
   filterOpen: boolean;
   setTagsHeight: (height: number) => void;
 }
 
-export function OppgaveFilterTags({
-  filter,
-  updateFilter,
-  tiltakstypeId,
-  filterOpen,
-  setTagsHeight,
-}: Props) {
+export function OppgaveFilterTags({ filter, updateFilter, filterOpen, setTagsHeight }: Props) {
   const { data: oppgavetyper } = useGetOppgavetyper();
   const { data: regioner } = useKontorstruktur();
-  const tiltakstyper = useTiltakstyper();
 
   const removeArrayItem = (key: keyof OppgaverFilterType, value: any) => {
     updateFilter({
@@ -48,15 +40,10 @@ export function OppgaveFilterTags({
               enhetsnummer}
           </Chips.Removable>
         ))}
-        {!tiltakstypeId &&
-          filter.tiltakstyper.map((tiltakstype) => (
-            <Chips.Removable
-              key={tiltakstype}
-              onClick={() => removeArrayItem("tiltakstyper", tiltakstype)}
-            >
-              {tiltakstyper.find((t) => tiltakstype === t.tiltakskode)?.navn || tiltakstype}
-            </Chips.Removable>
-          ))}
+        <TiltakskodeFilterTags
+          tiltakskoder={filter.tiltakstyper}
+          onRemove={(tiltakstype) => removeArrayItem("tiltakstyper", tiltakstype)}
+        />
       </Chips>
     </FilterTagsContainer>
   );

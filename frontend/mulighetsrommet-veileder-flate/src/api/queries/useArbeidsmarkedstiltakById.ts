@@ -3,7 +3,6 @@ import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import {
   GjennomforingStatusType,
   VeilederflateTiltak,
-  VeilederflateTiltakEgenRegi,
   VeilederflateTiltakEnkeltplass,
   VeilederflateTiltakEnkeltplassAnskaffet,
   VeilederflateTiltakGruppe,
@@ -19,14 +18,6 @@ export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is Veilederf
 
 export function isTiltakAktivt(tiltak: VeilederflateTiltak): boolean {
   return !isTiltakGruppe(tiltak) || tiltak.status.type === GjennomforingStatusType.GJENNOMFORES;
-}
-
-export function isTiltakEgenRegi(
-  tiltak: VeilederflateTiltak,
-): tiltak is VeilederflateTiltakEgenRegi {
-  return (
-    tiltak.type === "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEgenRegi"
-  );
 }
 
 export function isTiltakEnkeltplass(
