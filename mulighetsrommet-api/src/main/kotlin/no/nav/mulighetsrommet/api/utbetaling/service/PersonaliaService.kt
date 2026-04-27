@@ -91,7 +91,8 @@ class PersonaliaService(
             }
         }
         return amtPersonalia.associate { p ->
-            if (requireNotNull(tilgangerByDeltakerId[p.deltakerId])) {
+            val harTilgang = requireNotNull(tilgangerByDeltakerId[p.deltakerId])
+            if (harTilgang) {
                 p.deltakerId to
                     Personalia(
                         norskIdent = p.norskIdent,
@@ -99,6 +100,7 @@ class PersonaliaService(
                         oppfolgingEnhet = p.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) },
                         erSkjermet = p.erSkjermet,
                         adressebeskyttelse = p.adressebeskyttelse,
+                        harTilgang = true,
                     )
             } else {
                 val navn = when {
@@ -112,6 +114,7 @@ class PersonaliaService(
                         oppfolgingEnhet = null,
                         erSkjermet = p.erSkjermet,
                         adressebeskyttelse = p.adressebeskyttelse,
+                        harTilgang = false,
                     )
             }
         }
@@ -144,6 +147,7 @@ class PersonaliaService(
                 region = p.oppfolgingEnhet?.overordnetEnhet?.let {
                     navEnhetService.hentEnhet(it)
                 },
+                harTilgang = p.harTilgang,
             )
         }
     }
@@ -200,6 +204,7 @@ data class Personalia(
     val erSkjermet: Boolean,
     val adressebeskyttelse: PdlGradering,
     val oppfolgingEnhet: NavEnhetDto?,
+    val harTilgang: Boolean,
 )
 
 data class PersonaliaMedGeografiskEnhet(
@@ -210,4 +215,5 @@ data class PersonaliaMedGeografiskEnhet(
     val oppfolgingEnhet: NavEnhetDto?,
     val geografiskEnhet: NavEnhetDto?,
     val region: NavEnhetDto?,
+    val harTilgang: Boolean,
 )

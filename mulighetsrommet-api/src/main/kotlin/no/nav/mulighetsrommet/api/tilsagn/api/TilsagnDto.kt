@@ -76,7 +76,7 @@ data class TilsagnDeltakerDto(
             navn = personalia?.navn ?: "Ukjent",
             oppfolgingEnhet = personalia?.oppfolgingEnhet,
             geografiskEnhet = personalia?.geografiskEnhet,
-            innholdAnnet = deltaker.innholdAnnet,
+            innholdAnnet = if (personalia?.harTilgang ?: false) deltaker.innholdAnnet else null,
             status = deltaker.status.toDataElement(),
         )
 
@@ -86,7 +86,7 @@ data class TilsagnDeltakerDto(
             navn = personalia?.navn ?: "Ukjent",
             oppfolgingEnhet = personalia?.oppfolgingEnhet,
             geografiskEnhet = personalia?.geografiskEnhet,
-            innholdAnnet = deltaker.innholdAnnet,
+            innholdAnnet = if (personalia?.harTilgang ?: false) deltaker.innholdAnnet else null,
             status = deltaker.status.type.toDataElement(),
         )
     }
