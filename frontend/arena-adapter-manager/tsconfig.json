@@ -23,12 +23,11 @@
     "forceConsistentCasingInFileNames": true,
 
     /* Overrides */
-    "baseUrl": ".",
+    "rootDir": "./src",
     "paths": {
-      // Fordi bl.a. sanity drar med seg vite@v4
-      "vite": ["node_modules/vite"]
-    }
+      "src/*": ["./src/*"],
+    },
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
