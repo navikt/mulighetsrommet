@@ -39,6 +39,8 @@ data class TilskuddBehandlingKompakt(
     val id: UUID,
     @Serializable(with = LocalDateSerializer::class)
     val soknadDato: LocalDate,
+    val journalpostId: String,
+    val tilskuddtyper: Set<String>,
     val periode: Periode,
     val kostnadssted: NavEnhetNummer,
     val status: TilskuddBehandlingStatusDto,

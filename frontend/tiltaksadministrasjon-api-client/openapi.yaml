@@ -3252,7 +3252,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TilskuddBehandlingDto"
+                  $ref: "#/components/schemas/TilskuddBehandlingKompakt"
         default:
           description: Problem details
           headers: {}
@@ -7799,7 +7799,37 @@ components:
       - behandling
       - handlinger
       - opprettelse
-    TilskuddBehandlingRequest.TilskuddVedtakRequest:
+    TilskuddBehandlingKompakt:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        soknadDato:
+          type: string
+          format: date
+        journalpostId:
+          type: string
+        tilskuddtyper:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssted:
+          type: string
+        status:
+          $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+      required:
+      - id
+      - journalpostId
+      - kostnadssted
+      - periode
+      - soknadDato
+      - status
+      - tilskuddtyper
+    TilskuddBehandlingRequest.TilskuddRequest:
       type: object
       properties:
         id:
@@ -7862,10 +7892,10 @@ components:
           type:
           - "null"
           - string
-        vedtak:
+        tilskudd:
           type: array
           items:
-            $ref: "#/components/schemas/TilskuddBehandlingRequest.TilskuddVedtakRequest"
+            $ref: "#/components/schemas/TilskuddBehandlingRequest.TilskuddRequest"
       required:
       - gjennomforingId
       - id
@@ -7874,7 +7904,7 @@ components:
       - periodeStart
       - soknadDato
       - soknadJournalpostId
-      - vedtak
+      - tilskudd
     AarsakerOgForklaringRequest_String:
       type: object
       properties:
