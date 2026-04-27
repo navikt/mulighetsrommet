@@ -57,4 +57,5 @@ export const gjennomforingWizardSchema = gjennomforingDetaljerSchema.extend(
   gjennomforingVeilederinfoSchema.shape,
 );
 
+export type GjennomforingFormInput = z.input<typeof gjennomforingWizardSchema>;
 export type GjennomforingFormValues = z.infer<typeof gjennomforingWizardSchema>;

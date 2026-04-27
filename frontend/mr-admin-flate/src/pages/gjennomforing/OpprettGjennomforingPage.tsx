@@ -11,9 +11,9 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import {
+  gjennomforingDetaljerSchema,
   GjennomforingFormValues,
   gjennomforingVeilederinfoSchema,
-  gjennomforingWizardSchema,
 } from "@/schemas/gjennomforing";
 import { useWizardForm, WizardStep } from "@/hooks/useWizardForm";
 import { applyValidationErrors } from "@/components/skjema/helpers";
@@ -42,7 +42,7 @@ export function OpprettGjennomforingPage() {
   const steps: WizardStep[] = [
     {
       key: "Detaljer",
-      schema: gjennomforingWizardSchema,
+      schema: gjennomforingDetaljerSchema,
       Component: (
         <GjennomforingFormDetaljer
           tiltakstype={tiltakstype}
