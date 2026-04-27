@@ -4,17 +4,19 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { ActionMenu, Alert, Link, Table } from "@navikt/ds-react";
+import { ActionMenu, Alert, Table } from "@navikt/ds-react";
+import { useNavigate } from "react-router";
 
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: behandlinger } = useTilskuddBehandlinger(gjennomforingId);
+  const navigate = useNavigate();
 
   return (
     <>
       <KnapperadContainer>
         <Handlinger>
-          <ActionMenu.Item as={Link} to={`opprett`}>
+          <ActionMenu.Item onClick={() => navigate("opprett")}>
             Opprett tilskuddsbehandling
           </ActionMenu.Item>
         </Handlinger>
