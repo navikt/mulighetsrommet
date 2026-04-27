@@ -5,6 +5,8 @@ import arrow.core.NonEmptyList
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
+import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
@@ -57,17 +59,21 @@ class GjennomforingAvtaleService(
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, GjennomforingAvtale> = either {
-        db.session { queries.gjennomforing.getGjennomforing(request.id) }
-            ?.let { raise(listOf(FieldError.of("Gjennomføringen finnes allerede"))) }
+        val ctx = db.session {
+            ensure(queries.gjennomforing.getGjennomforing(request.id) == null) {
+                FieldError.of("Gjennomføringen finnes allerede").nel()
+            }
+            val avtale = queries.avtale.getOrError(request.avtaleId)
+            val arrangor = request.detaljer.arrangorId?.let { queries.arrangor.getById(it) }
+            GjennomforingValidator.Context(today, avtale, arrangor)
+        }
+        val result = GjennomforingValidator.validateCreateGjennomforing(ctx, request.id, request.detaljer).bind()
 
-        val detaljerResult = validateDetaljer(request.id, request.tiltakstypeId, request.avtaleId, request.detaljer, null, today)
-            .bind()
-        val veilederinfoResult = validateVeilederinfo(request.avtaleId, request.veilederinformasjon)
-            .bind()
+        val veilederinfoResult = validateVeilederinfo(request.avtaleId, request.veilederinformasjon).bind()
 
         db.transaction {
-            queries.gjennomforing.upsert(detaljerResult.gjennomforing)
-            persistDetaljer(request.id, detaljerResult, navIdent)
+            queries.gjennomforing.upsert(result.gjennomforing)
+            persistDetaljer(request.id, result.detaljer, navIdent)
             persistVeilederinfo(request.id, veilederinfoResult, request.veilederinformasjon)
 
             logEndring("Opprettet gjennomføring", request.id, navIdent)
@@ -82,14 +88,30 @@ class GjennomforingAvtaleService(
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, GjennomforingAvtale> = either {
-        val previous = db.session { getGjennomforingAvtale(id) }
-            ?: raise(listOf(FieldError.root("Gjennomføringen finnes ikke")))
-
-        val detaljerResult = validateDetaljer(id, previous.tiltakstype.id, previous.avtaleId, request, previous, today)
-            .bind()
+        val ctx = db.session {
+            val previous = ensureNotNull(getGjennomforingAvtale(id)) {
+                FieldError.root("Gjennomføringen finnes ikke").nel()
+            }
+            val avtale = queries.avtale.getOrError(previous.avtaleId)
+            val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
+            val antallDeltakere = queries.deltaker.getByGjennomforingId(id).size
+            GjennomforingValidator.Context(
+                today = today,
+                avtale = avtale,
+                arrangor = arrangor,
+                previous = GjennomforingValidator.Context.Gjennomforing(
+                    arrangorId = previous.arrangor.id,
+                    status = previous.status,
+                    oppstart = previous.oppstart,
+                    pameldingType = previous.pameldingType,
+                    antallDeltakere = antallDeltakere,
+                ),
+            )
+        }
+        val result = GjennomforingValidator.validateUpdateDetaljer(ctx, id, request).bind()
 
         db.transaction {
-            persistDetaljer(id, detaljerResult, navIdent)
+            persistDetaljer(id, result, navIdent)
 
             logEndring("Detaljer redigert", id, navIdent)
                 .also { updateFreeTextSearch(it) }
@@ -105,8 +127,7 @@ class GjennomforingAvtaleService(
         val previous = db.session { getGjennomforingAvtale(id) }
             ?: raise(listOf(FieldError.root("Gjennomføringen finnes ikke")))
 
-        val veilederinfoResult = validateVeilederinfo(previous.avtaleId, request)
-            .bind()
+        val veilederinfoResult = validateVeilederinfo(previous.avtaleId, request).bind()
 
         db.transaction {
             persistVeilederinfo(id, veilederinfoResult, request)
@@ -308,16 +329,9 @@ class GjennomforingAvtaleService(
         logEndring("Kontaktperson ble fjernet fra gjennomføringen", gjennomforingId, navIdent)
     }
 
-    private fun validateDetaljer(
-        id: UUID,
-        tiltakstypeId: UUID,
-        avtaleId: UUID,
-        request: GjennomforingDetaljerRequest,
-        previous: GjennomforingAvtale?,
-        today: LocalDate,
-    ): Either<List<FieldError>, GjennomforingValidator.DetaljerResult> {
-        val ctx = getValidatorCtx(id, avtaleId, request, previous, today)
-        return GjennomforingValidator.validateDetaljer(id, tiltakstypeId, avtaleId, request, ctx)
+    fun updateFreeTextSearch(id: UUID) = db.transaction {
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(id)
+        updateFreeTextSearch(gjennomforing)
     }
 
     private suspend fun validateVeilederinfo(
@@ -340,7 +354,7 @@ class GjennomforingAvtaleService(
         navIdent: NavIdent,
     ) {
         queries.gjennomforing.updateDetaljer(result.detaljer)
-        setAdministratorer(id, result.administratorer, navIdent, result.gjennomforing.navn)
+        setAdministratorer(id, result.administratorer, navIdent, result.detaljer.navn)
         queries.gjennomforing.setArrangorKontaktpersoner(id, result.arrangorKontaktpersoner)
         queries.gjennomforing.setUtdanningslop(id, result.utdanningslop)
         queries.gjennomforing.setAmoKategorisering(id, result.amoKategorisering)
@@ -354,57 +368,6 @@ class GjennomforingAvtaleService(
         queries.gjennomforing.setNavEnheter(id, result.navEnheter)
         queries.gjennomforing.setRedaksjoneltInnhold(id, request.beskrivelse, request.faneinnhold)
         queries.gjennomforing.setKontaktpersoner(id, result.kontaktpersoner)
-    }
-
-    private fun getValidatorCtx(
-        id: UUID,
-        avtaleId: UUID,
-        request: GjennomforingDetaljerRequest,
-        previous: GjennomforingAvtale?,
-        today: LocalDate,
-    ): GjennomforingValidator.Ctx = db.session {
-        val avtale = queries.avtale.getOrError(avtaleId)
-        val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
-        val antallDeltakere = queries.deltaker.getByGjennomforingId(id).size
-        val status = resolveStatus(previous?.status, request, today)
-        return GjennomforingValidator.Ctx(
-            previous = previous?.let {
-                GjennomforingValidator.Ctx.Gjennomforing(
-                    avtaleId = it.avtaleId,
-                    oppstart = it.oppstart,
-                    arrangorId = it.arrangor.id,
-                    status = it.status,
-                    sluttDato = it.sluttDato,
-                    pameldingType = it.pameldingType,
-                    arena = it.arena,
-                )
-            },
-            avtale = avtale,
-            arrangor = arrangor,
-            antallDeltakere = antallDeltakere,
-            status = status,
-        )
-    }
-
-    private fun resolveStatus(
-        previous: GjennomforingStatusType?,
-        request: GjennomforingDetaljerRequest,
-        today: LocalDate,
-    ): GjennomforingStatusType {
-        return when (previous) {
-            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> previous
-
-            else -> if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
-                GjennomforingStatusType.GJENNOMFORES
-            } else {
-                GjennomforingStatusType.AVSLUTTET
-            }
-        }
-    }
-
-    fun updateFreeTextSearch(id: UUID) = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(id)
-        updateFreeTextSearch(gjennomforing)
     }
 
     private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingAvtale) {

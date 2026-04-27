@@ -20,7 +20,6 @@ export function toCreateGjennomforingRequest(
 ): GjennomforingRequest {
   return {
     id,
-    tiltakstypeId: avtale.tiltakstype.id,
     avtaleId: avtale.id,
     detaljer: toGjennomforingDetaljerRequest(data),
     veilederinformasjon: toGjennomforingVeilederinfoRequest(data),

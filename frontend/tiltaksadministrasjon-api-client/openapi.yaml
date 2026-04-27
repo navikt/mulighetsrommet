@@ -5059,9 +5059,6 @@ components:
         id:
           type: string
           format: uuid
-        tiltakstypeId:
-          type: string
-          format: uuid
         avtaleId:
           type: string
           format: uuid
@@ -5073,7 +5070,6 @@ components:
       - avtaleId
       - detaljer
       - id
-      - tiltakstypeId
       - veilederinformasjon
     AvbrytGjennomforingAarsak:
       type: string

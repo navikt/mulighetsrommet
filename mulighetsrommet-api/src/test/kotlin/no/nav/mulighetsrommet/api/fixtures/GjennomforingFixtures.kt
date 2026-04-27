@@ -272,7 +272,6 @@ object GjennomforingFixtures {
     ): GjennomforingRequest {
         return GjennomforingRequest(
             id = id,
-            tiltakstypeId = avtale.detaljerDbo.tiltakstypeId,
             avtaleId = avtale.id,
             detaljer = GjennomforingDetaljerRequest(
                 navn = "Gjennomføring for ${avtale.detaljerDbo.navn}",

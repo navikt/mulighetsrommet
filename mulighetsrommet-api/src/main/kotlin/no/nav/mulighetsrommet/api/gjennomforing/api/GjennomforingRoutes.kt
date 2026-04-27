@@ -729,8 +729,6 @@ data class GjennomforingRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
-    val tiltakstypeId: UUID,
-    @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
     val detaljer: GjennomforingDetaljerRequest,
     val veilederinformasjon: GjennomforingVeilederinfoRequest,
