@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDelt
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -284,8 +283,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         blokkeringer = emptySet(),
     )
 
-    val personalia = mapOf(
-        deltaker1Id to Personalia.MedTilgang(
+    val personalia = listOf(
+        Personalia(
+            deltaker1Id,
             navn = "Ola Skjermet",
             norskIdent = NorskIdent("01010199999"),
             erSkjermet = true,
@@ -293,17 +293,21 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             geografiskEnhet = null,
             adressebeskyttelse = PdlGradering.UGRADERT,
             region = null,
+            avvistGrunn = null,
         ),
-        deltaker2Id to Personalia.MedTilgang(
+        Personalia(
+            deltaker2Id,
             navn = "Ola Nordmann",
             norskIdent = NorskIdent("01010199999"),
             erSkjermet = false,
             oppfolgingEnhet = null,
             adressebeskyttelse = PdlGradering.UGRADERT,
             geografiskEnhet = null,
+            avvistGrunn = null,
             region = null,
         ),
-        deltaker3Id to Personalia.MedTilgang(
+        Personalia(
+            deltaker3Id,
             navn = "Kari Nordmann",
             norskIdent = NorskIdent("01010199998"),
             erSkjermet = false,
@@ -311,9 +315,30 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             adressebeskyttelse = PdlGradering.FORTROLIG,
             geografiskEnhet = null,
             region = null,
+            avvistGrunn = null,
         ),
-        deltaker4Id to Personalia.Avvist(grunn = AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE),
-        deltaker5Id to Personalia.Avvist(grunn = AvvistGrunn.AVVIST_STRENGT_FORTROLIG_UTLAND),
+        Personalia(
+            deltaker4Id,
+            navn = "Kari Nordmann",
+            norskIdent = NorskIdent("01010199998"),
+            erSkjermet = false,
+            oppfolgingEnhet = null,
+            adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
+            geografiskEnhet = null,
+            region = null,
+            avvistGrunn = null,
+        ),
+        Personalia(
+            deltaker5Id,
+            navn = "Kari Nordmann",
+            norskIdent = NorskIdent("01010199998"),
+            erSkjermet = false,
+            oppfolgingEnhet = null,
+            adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND,
+            geografiskEnhet = null,
+            region = null,
+            avvistGrunn = null,
+        ),
     )
 
     val linjer = listOf(

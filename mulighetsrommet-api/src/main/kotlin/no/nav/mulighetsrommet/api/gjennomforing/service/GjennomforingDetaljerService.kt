@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
+import no.nav.mulighetsrommet.api.gjennomforing.model.DeltakerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
@@ -29,7 +30,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -75,9 +75,11 @@ class GjennomforingDetaljerService(
 
             is GjennomforingEnkeltplass -> db.session {
                 val okonomi = queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI)
-                val deltakerOgPersonalia = getDeltakerOgPersonalia(gjennomforing.id, accessType)
+                val deltakerDto = getDeltaker(gjennomforing.id)?.let {
+                    DeltakerDto.from(it, personaliaService.getPersonalia(it.id, accessType))
+                }
 
-                GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerOgPersonalia)
+                GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerDto)
             }
         }
     }
@@ -118,21 +120,12 @@ class GjennomforingDetaljerService(
         }
     }
 
-    private suspend fun QueryContext.getDeltakerOgPersonalia(
-        gjennomforingId: UUID,
-        accessType: AccessType,
-    ): Pair<Deltaker, Personalia>? {
+    private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker? {
         val deltakelser = queries.deltaker.getByGjennomforingId(gjennomforingId)
         if (deltakelser.size > 1) {
             error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet kun én)")
         }
-        return deltakelser.firstOrNull()?.let {
-            it to personaliaService
-                .getPersonalia(listOf(it.id), accessType)
-                .getOrElse(it.id) {
-                    throw IllegalArgumentException("fant ikke personalia for deltakerId: ${it.id}")
-                }
-        }
+        return deltakelser.firstOrNull()
     }
 
     fun exportToExcel(

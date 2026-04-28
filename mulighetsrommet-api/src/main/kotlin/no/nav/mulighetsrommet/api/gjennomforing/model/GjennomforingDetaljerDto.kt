@@ -10,7 +10,9 @@ import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -180,4 +182,20 @@ data class DeltakerDto(
     val status: DataElement.Status,
     val innholdAnnet: String?,
     val avvistGrunn: AvvistGrunn?,
-)
+) {
+    companion object {
+        fun from(deltaker: Deltaker, personalia: Personalia) = DeltakerDto(
+            id = deltaker.id,
+            status = deltaker.status.type.toDataElement(),
+            innholdAnnet = if (personalia.harTilgang()) {
+                deltaker.innholdAnnet
+            } else {
+                null
+            },
+            navn = personalia.navn(),
+            norskIdent = personalia.norskIdent(),
+            oppfolgingEnhet = personalia.oppfolgingEnhet(),
+            avvistGrunn = personalia.avvistGrunn,
+        )
+    }
+}

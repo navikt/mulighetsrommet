@@ -69,24 +69,24 @@ data class TilsagnDeltakerDto(
     companion object {
         fun from(
             deltaker: Tilsagn.Deltaker,
-            personalia: Personalia?,
+            personalia: Personalia,
         ) = TilsagnDeltakerDto(
             deltakerId = deltaker.deltakerId,
-            norskIdent = personalia?.norskIdent,
-            navn = personalia?.navn,
-            oppfolgingEnhet = personalia?.oppfolgingEnhet,
-            geografiskEnhet = personalia?.geografiskEnhet,
-            innholdAnnet = if (personalia is Personalia.MedTilgang) deltaker.innholdAnnet else null,
+            norskIdent = personalia.norskIdent(),
+            navn = personalia.navn(),
+            oppfolgingEnhet = personalia.oppfolgingEnhet(),
+            geografiskEnhet = personalia.geografiskEnhet(),
+            innholdAnnet = if (personalia.harTilgang()) deltaker.innholdAnnet else null,
             status = deltaker.status.toDataElement(),
         )
 
-        fun from(deltaker: Deltaker, personalia: Personalia?) = TilsagnDeltakerDto(
+        fun from(deltaker: Deltaker, personalia: Personalia) = TilsagnDeltakerDto(
             deltakerId = deltaker.id,
-            norskIdent = personalia?.norskIdent,
-            navn = personalia?.navn,
-            oppfolgingEnhet = personalia?.oppfolgingEnhet,
-            geografiskEnhet = personalia?.geografiskEnhet,
-            innholdAnnet = if (personalia is Personalia.MedTilgang) deltaker.innholdAnnet else null,
+            norskIdent = personalia.norskIdent(),
+            navn = personalia.navn(),
+            oppfolgingEnhet = personalia.oppfolgingEnhet(),
+            geografiskEnhet = personalia.geografiskEnhet(),
+            innholdAnnet = if (personalia.harTilgang()) deltaker.innholdAnnet else null,
             status = deltaker.status.type.toDataElement(),
         )
     }

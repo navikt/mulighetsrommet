@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKom
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
@@ -26,7 +25,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.map
@@ -59,7 +57,7 @@ class ArrangorflateService(
     suspend fun getTilsagn(id: UUID, obo: AccessType.OBO.TokenX): ArrangorflateTilsagnDto? = db.session {
         queries.tilsagn.get(id)
             ?.takeIf { it.status in TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR }
-            ?.let { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere, obo)) }
+            ?.let { ArrangorflateTilsagnDto.from(it, getPersonalia(it.deltakere.map { it.deltakerId }, obo)) }
     }
 
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
@@ -74,7 +72,7 @@ class ArrangorflateService(
                 typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
                 statuser = listOf(TilsagnStatus.GODKJENT),
             )
-            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere, accessType)) }
+            .map { ArrangorflateTilsagnDto.from(it, getPersonalia(it.deltakere.map { it.deltakerId }, accessType)) }
     }
 
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
@@ -119,7 +117,8 @@ class ArrangorflateService(
                 .filter { it.id in deltakelser }
         }
 
-        val personalia = getPersonalia(deltakere.map { it.id }, accessType)
+        val personalia = personaliaService.getPersonalia(deltakere.map { it.id }, accessType)
+            .associateBy { it.deltakerId }
         val advarsler = getAdvarsler(utbetaling)
         val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
         val (kanRegenereres, regenrertId) = kanRegenereres(utbetaling)
@@ -211,22 +210,15 @@ class ArrangorflateService(
         }
     }
 
-    suspend fun getPersonalia(deltakerIds: List<UUID>, accessType: AccessType.OBO.TokenX): Map<UUID, ArrangorflatePersonalia> {
+    suspend fun getPersonalia(deltakerIds: List<UUID>, accessType: AccessType.OBO.TokenX): List<ArrangorflatePersonalia> {
         return personaliaService.getPersonalia(deltakerIds, accessType)
-            .mapValues { (_, p) ->
-                when (p) {
-                    is Personalia.Avvist -> ArrangorflatePersonalia.Avvist(p.grunn)
-
-                    is Personalia.MedTilgang -> ArrangorflatePersonalia.Innvilget(
-                        norskIdent = p.norskIdent,
-                        navn = p.navn,
-                    )
-                }
+            .map { p ->
+                ArrangorflatePersonalia(
+                    p.norskIdent(),
+                    p.navn(),
+                    p.avvistGrunn,
+                )
             }
-    }
-
-    suspend fun getTilsagnDeltakerPersonalia(deltakere: List<Tilsagn.Deltaker>, accessType: AccessType.OBO.TokenX): List<ArrangorflatePersonalia> {
-        return getPersonalia(deltakere.map { it.deltakerId }, accessType).values.toList()
     }
 }
 

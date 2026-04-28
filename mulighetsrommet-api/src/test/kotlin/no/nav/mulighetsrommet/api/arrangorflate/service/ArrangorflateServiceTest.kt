@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
+import java.util.UUID
 
 class ArrangorflateServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -44,7 +45,7 @@ class ArrangorflateServiceTest : FunSpec({
         utbetalinger = listOf(utbetaling, friUtbetaling),
     )
     val personaliaService = mockk<PersonaliaService>()
-    coEvery { personaliaService.getPersonalia(any(), any()) } returns emptyMap()
+    coEvery { personaliaService.getPersonalia(any<List<UUID>>(), any()) } returns emptyList()
 
     beforeEach {
         domain.initialize(database.db)

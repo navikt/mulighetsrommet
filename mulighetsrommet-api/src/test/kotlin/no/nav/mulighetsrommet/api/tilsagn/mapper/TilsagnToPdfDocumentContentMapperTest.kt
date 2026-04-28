@@ -37,7 +37,8 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         prettyPrintIndent = "  "
     }
 
-    val deltaker = Personalia.MedTilgang(
+    val deltaker = Personalia(
+        deltakerId = UUID.randomUUID(),
         norskIdent = NorskIdent("01010199999"),
         navn = "Normann, Ola",
         erSkjermet = false,
@@ -45,9 +46,11 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
         geografiskEnhet = null,
         region = null,
+        avvistGrunn = null,
     )
 
-    val skjermetDeltaker = Personalia.MedTilgang(
+    val skjermetDeltaker = Personalia(
+        deltakerId = UUID.randomUUID(),
         norskIdent = NorskIdent("01010199998"),
         navn = "Normann, Olve",
         erSkjermet = true,
@@ -55,9 +58,11 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
         geografiskEnhet = null,
         region = null,
+        avvistGrunn = null,
     )
 
-    val adressebekyttetDeltaker = Personalia.MedTilgang(
+    val adressebekyttetDeltaker = Personalia(
+        deltakerId = UUID.randomUUID(),
         norskIdent = NorskIdent("01010199997"),
         navn = "Normann, Olivia",
         erSkjermet = false,
@@ -65,6 +70,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
         geografiskEnhet = null,
         region = null,
+        avvistGrunn = null,
     )
 
     val kontonummer = Kontonummer("12345678910")

@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -40,6 +41,18 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         startDato = LocalDate.of(2025, 1, 1),
         sluttDato = LocalDate.of(2025, 2, 1),
         statusType = DeltakerStatusType.DELTAR,
+    )
+
+    val personalia = Personalia(
+        deltakerId = deltaker.id,
+        norskIdent = NorskIdent("12345678901"),
+        navn = "navn",
+        oppfolgingEnhet = null,
+        geografiskEnhet = null,
+        region = null,
+        erSkjermet = false,
+        adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
+        avvistGrunn = AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -78,11 +91,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
     }
 
     context("getGjennomforingDetaljerDto") {
-        coEvery { personaliaService.getPersonalia(any(), any()) } returns mapOf(
-            deltaker.id to Personalia.Avvist(
-                AvvistGrunn.AVVIST_SKJERMING,
-            ),
-        )
+        coEvery { personaliaService.getPersonalia(any<UUID>(), any()) } returns personalia
 
         test("returnerer detaljer for en gruppetiltak-gjennomføring (AVTALE)") {
             val service = createService()

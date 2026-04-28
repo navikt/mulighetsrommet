@@ -28,10 +28,10 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.UUID
 
 class PersonaliaServiceTest : FunSpec({
-    val deltakelseId = UUID.randomUUID()
+    val deltakerId = UUID.randomUUID()
     val oppfolgingEnhet = NavEnhetFixtures.Sel
     val personalia = AmtDeltakerPersonalia(
-        deltakerId = deltakelseId,
+        deltakerId = deltakerId,
         norskIdent = NorskIdent("01010199999"),
         navn = "Normann, Ola",
         erSkjermet = false,
@@ -87,26 +87,26 @@ class PersonaliaServiceTest : FunSpec({
                     GeografiskTilknytning.GtKommune("asdf"),
                 ),
             ).right()
-            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
+            service.getPersonalia(deltakerId, AccessType.OBO.TokenX("token")) should {
                 it shouldNotBe null
-                it!!.norskIdent shouldBe personalia.norskIdent
-                it.navn shouldBe personalia.navn
+                it.norskIdent() shouldBe personalia.norskIdent
+                it.navn() shouldBe personalia.navn
             }
-            service.getPersonalia(listOf(), AccessType.OBO.AzureAd("azure"))[deltakelseId] should {
+            service.getPersonalia(deltakerId, AccessType.OBO.AzureAd("azure")) should {
                 it shouldNotBe null
-                it!!.norskIdent shouldBe null
-                it.navn shouldBe null
+                it.norskIdent() shouldBe null
+                it.navn() shouldBe null
             }
-            service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
+            service.getPersonalia(deltakerId, AccessType.M2M) should {
                 it shouldNotBe null
-                it!!.norskIdent shouldBe personalia.norskIdent
-                it.navn shouldBe personalia.navn
+                it.norskIdent() shouldBe personalia.norskIdent
+                it.navn() shouldBe personalia.navn
             }
-            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
+            service.getPersonalia(deltakerId, AccessType.OBO.TokenX("token")) should {
                 it shouldNotBe null
-                it!!.norskIdent shouldBe personalia.norskIdent
-                it.navn shouldBe personalia.navn
-                it.geografiskEnhet shouldBe oppfolgingEnhet.toDto()
+                it.norskIdent() shouldBe personalia.norskIdent
+                it.navn() shouldBe personalia.navn
+                it.geografiskEnhet() shouldBe oppfolgingEnhet.toDto()
             }
         }
 
@@ -133,18 +133,20 @@ class PersonaliaServiceTest : FunSpec({
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
 
-            service.getPersonalia(emptyList(), AccessType.OBO.AzureAd("token")) shouldBe mapOf(
-                deltakelseId to Personalia.Avvist(grunn = AvvistGrunn.AVVIST_HABILITET),
-            )
-            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
-                it shouldNotBe null
-                it!!.norskIdent shouldBe null
-                it.navn shouldBe null
+            service.getPersonalia(deltakerId, AccessType.OBO.AzureAd("token")) should {
+                it.avvistGrunn shouldBe AvvistGrunn.AVVIST_HABILITET
+                it.navn() shouldBe null
+                it.norskIdent() shouldBe null
             }
-            service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
+            service.getPersonalia(deltakerId, AccessType.OBO.TokenX("token")) should {
                 it shouldNotBe null
-                it!!.norskIdent shouldBe personalia.norskIdent
-                it.navn shouldBe personalia.navn
+                it.norskIdent() shouldBe null
+                it.navn() shouldBe null
+            }
+            service.getPersonalia(deltakerId, AccessType.M2M) should {
+                it shouldNotBe null
+                it.norskIdent() shouldBe personalia.norskIdent
+                it.navn() shouldBe personalia.navn
             }
         }
 
@@ -173,18 +175,20 @@ class PersonaliaServiceTest : FunSpec({
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
-            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token")) shouldBe mapOf(
-                deltakelseId to Personalia.Avvist(grunn = AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE),
-            )
-            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
-                it shouldNotBe null
-                it!!.norskIdent shouldBe null
-                it.navn shouldBe null
+            service.getPersonalia(deltakerId, AccessType.OBO.TokenX("token")) should {
+                it.avvistGrunn shouldBe AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE
+                it.navn() shouldBe null
+                it.norskIdent() shouldBe null
             }
-            service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
+            service.getPersonalia(deltakerId, AccessType.OBO.TokenX("token")) should {
                 it shouldNotBe null
-                it!!.norskIdent shouldBe personalia.norskIdent
-                it.navn shouldBe personalia.navn
+                it.norskIdent() shouldBe null
+                it.navn() shouldBe null
+            }
+            service.getPersonalia(deltakerId, AccessType.M2M) should {
+                it shouldNotBe null
+                it.norskIdent() shouldBe personalia.norskIdent
+                it.navn() shouldBe personalia.navn
             }
         }
 
@@ -229,39 +233,42 @@ class PersonaliaServiceTest : FunSpec({
             ).right()
 
             // tokenX gir ikke tilgang
-            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token")) shouldBe mapOf(
-                deltakelseId to Personalia.Avvist(AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE),
-            )
+            service.getPersonalia(deltakerId, AccessType.OBO.TokenX("token")) should {
+                it.avvistGrunn shouldBe AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE
+                it.navn() shouldBe null
+                it.norskIdent() shouldBe null
+                it.oppfolgingEnhet() shouldBe null
+            }
 
             // AzureAd gir tilgang
-            service.getPersonalia(listOf(), AccessType.OBO.AzureAd("token")) shouldBe mapOf(
-                deltakelseId to
-                    Personalia.MedTilgang(
-                        norskIdent = personalia.norskIdent,
-                        navn = personalia.navn,
-                        oppfolgingEnhet = oppfolgingEnhet.toDto(),
-                        erSkjermet = true,
-                        adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
-                        geografiskEnhet = oppfolgingEnhet.toDto(),
-                        region = oppfolgingEnhet.toDto(),
-                    ),
-            )
-            service.getPersonalia(listOf(), AccessType.OBO.AzureAd("token"))[deltakelseId] should {
+            service.getPersonalia(deltakerId, AccessType.OBO.AzureAd("token")) shouldBe
+                Personalia(
+                    deltakerId,
+                    norskIdent = personalia.norskIdent,
+                    navn = personalia.navn,
+                    oppfolgingEnhet = oppfolgingEnhet.toDto(),
+                    erSkjermet = true,
+                    adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
+                    geografiskEnhet = oppfolgingEnhet.toDto(),
+                    region = oppfolgingEnhet.toDto(),
+                    avvistGrunn = null,
+                )
+            service.getPersonalia(deltakerId, AccessType.OBO.AzureAd("token")) should {
                 it shouldNotBe null
-                it!!.norskIdent shouldBe personalia.norskIdent
-                it.navn shouldBe personalia.navn
-                it.geografiskEnhet shouldBe oppfolgingEnhet.toDto()
+                it.norskIdent() shouldBe personalia.norskIdent
+                it.navn() shouldBe personalia.navn
+                it.geografiskEnhet() shouldBe oppfolgingEnhet.toDto()
             }
-            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token"))[deltakelseId] should {
+            service.getPersonalia(deltakerId, AccessType.OBO.TokenX("token")) should {
                 it shouldNotBe null
-                it!!.norskIdent shouldBe null
-                it.navn shouldBe null
-                it.geografiskEnhet shouldBe null
+                it.norskIdent() shouldBe null
+                it.navn() shouldBe null
+                it.geografiskEnhet() shouldBe null
             }
-            service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
+            service.getPersonalia(deltakerId, AccessType.M2M) should {
                 it shouldNotBe null
-                it!!.norskIdent shouldBe personalia.norskIdent
-                it.navn shouldBe personalia.navn
+                it.norskIdent() shouldBe personalia.norskIdent
+                it.navn() shouldBe personalia.navn
             }
         }
 
@@ -284,27 +291,29 @@ class PersonaliaServiceTest : FunSpec({
             )
 
             // tokenX gir tilgang
-            service.getPersonalia(listOf(), AccessType.OBO.TokenX("token")) shouldBe mapOf(
-                deltakelseId to
-                    Personalia.MedTilgang(
-                        norskIdent = personalia.norskIdent,
-                        navn = personalia.navn,
-                        oppfolgingEnhet = oppfolgingEnhet.toDto(),
-                        erSkjermet = personalia.erSkjermet,
-                        adressebeskyttelse = personalia.adressebeskyttelse,
-                        geografiskEnhet = oppfolgingEnhet.toDto(),
-                        region = oppfolgingEnhet.toDto(),
-                    ),
-            )
+            service.getPersonalia(deltakerId, AccessType.OBO.TokenX("token")) shouldBe
+                Personalia(
+                    deltakerId,
+                    norskIdent = personalia.norskIdent,
+                    navn = personalia.navn,
+                    oppfolgingEnhet = oppfolgingEnhet.toDto(),
+                    erSkjermet = personalia.erSkjermet,
+                    adressebeskyttelse = personalia.adressebeskyttelse,
+                    geografiskEnhet = oppfolgingEnhet.toDto(),
+                    region = oppfolgingEnhet.toDto(),
+                    avvistGrunn = null,
+                )
 
             // AzureAd gir ikke tilgang
-            service.getPersonalia(listOf(), AccessType.OBO.AzureAd("token")) shouldBe mapOf(
-                deltakelseId to Personalia.Avvist(AvvistGrunn.AVVIST_SKJERMING),
-            )
-            service.getPersonalia(listOf(), AccessType.M2M)[deltakelseId] should {
+            service.getPersonalia(deltakerId, AccessType.OBO.AzureAd("token")) should {
+                it.avvistGrunn shouldBe AvvistGrunn.AVVIST_SKJERMING
+                it.navn() shouldBe null
+                it.norskIdent() shouldBe null
+            }
+            service.getPersonalia(deltakerId, AccessType.M2M) should {
                 it shouldNotBe null
-                it!!.norskIdent shouldBe personalia.norskIdent
-                it.navn shouldBe personalia.navn
+                it.norskIdent() shouldBe personalia.norskIdent
+                it.navn() shouldBe personalia.navn
             }
         }
     }

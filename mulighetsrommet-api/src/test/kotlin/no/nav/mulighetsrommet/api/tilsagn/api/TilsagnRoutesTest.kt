@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
@@ -89,6 +90,11 @@ class TilsagnRoutesTest : FunSpec({
 
     fun appConfig() = createTestApplicationConfig().copy(
         auth = createAuthConfig(oauth, roles = setOf(okonomiLesRolle, generellRolle)),
+        engine = createMockEngine {
+            get("/norg2/norg2/api/v1/enhet/navkontor/030102") {
+                respond("", HttpStatusCode.NotFound)
+            }
+        },
         tilgangsmaskin = createTestApplicationConfig().tilgangsmaskin.copy(
             engine = MockEngine { request ->
                 if (request.url.toString().endsWith("/api/v1/bulk/obo")) {

@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataDetails
@@ -48,7 +49,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     gjennomforing: GjennomforingAvtale,
     status: ArrangorflateUtbetalingStatus,
     deltakereById: Map<UUID, Deltaker>,
-    personaliaById: Map<UUID, ArrangorflatePersonalia>,
+    personaliaById: Map<UUID, Personalia>,
     advarsler: List<DeltakerAdvarsel>,
     linjer: List<ArrangforflateUtbetalingLinje>,
     kanViseBeregning: Boolean,
@@ -101,7 +102,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         linjer = linjer,
         innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, gjennomforing, innsendtAvArrangorDato),
         advarsler = advarsler.map { advarsel ->
-            DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn())
+            DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn() ?: "-")
         },
         kanAvbrytes = kanAvbrytes,
         avbruttDato = utbetaling.avbruttTidspunkt?.tilNorskDato(),
@@ -138,31 +139,14 @@ private fun getInnsendingsDetaljer(
 }
 
 @Serializable
-sealed class ArrangorflatePersonalia {
-    @Serializable
-    data class Innvilget(
-        val norskIdent: NorskIdent,
-        val navn: String,
-    ) : ArrangorflatePersonalia()
-
-    @Serializable
-    data class Avvist(
-        val grunn: AvvistGrunn,
-    ) : ArrangorflatePersonalia()
-
-    fun navn() = when (this) {
-        is Avvist -> "Adressebeskyttet"
-        is Innvilget -> this.navn
-    }
-
-    fun norskIdent() = when (this) {
-        is Avvist -> "***********"
-        is Innvilget -> this.norskIdent.value
-    }
-}
+data class ArrangorflatePersonalia(
+    val norskIdent: NorskIdent?,
+    val navn: String?,
+    val grunn: AvvistGrunn?,
+)
 
 data class ArrangorflateBeregningDeltakelse(
-    val personalia: ArrangorflatePersonalia?,
+    val personalia: Personalia?,
     val beregningOutput: UtbetalingBeregningOutputDeltakelse,
     val deltaker: Deltaker?,
 )
@@ -182,12 +166,12 @@ private fun deltakelseCommonCells(deltaker: ArrangorflateBeregningDeltakelse) = 
 )
 
 fun deltakelseCommonCells(
-    personalia: ArrangorflatePersonalia?,
+    personalia: Personalia?,
     startDato: LocalDate?,
     periode: Periode,
 ): Map<String, DataElement?> = mapOf(
     "navn" to DataElement.text(personalia?.navn()),
-    "identitetsnummer" to DataElement.text(personalia?.norskIdent()),
+    "identitetsnummer" to DataElement.text(personalia?.norskIdent()?.value),
     "tiltakStart" to DataElement.date(startDato),
     "periodeStart" to DataElement.date(periode.start),
     "periodeSlutt" to DataElement.date(periode.getLastInclusiveDate()),
@@ -276,7 +260,7 @@ private fun deltakelseFastSatsPerTiltaksplassPerManedTable(
 private fun deltakelsePrisPerTimeOppfolgingTable(
     deltakelser: Set<DeltakelsePeriode>,
     deltakereById: Map<UUID, Deltaker>,
-    personaliaById: Map<UUID, ArrangorflatePersonalia?>,
+    personaliaById: Map<UUID, Personalia?>,
 ) = DataDrivenTableDto(
     columns = deltakelseCommonColumns(),
     rows = deltakelser.map { deltakelse ->
@@ -427,7 +411,7 @@ fun beregningSatsPeriodeDetaljerUtenFaktor(
 fun beregningDeltakerTable(
     utbetaling: Utbetaling,
     deltakereById: Map<UUID, Deltaker>,
-    personaliaById: Map<UUID, ArrangorflatePersonalia?>,
+    personaliaById: Map<UUID, Personalia?>,
 ): DataDrivenTableDto? {
     return when (val beregning = utbetaling.beregning) {
         is UtbetalingBeregningFri -> null
@@ -487,7 +471,7 @@ fun beregningDeltakerTable(
 private fun getArrangorflateBeregningDeltakelse(
     deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
     deltakereById: Map<UUID, Deltaker>,
-    personaliaById: Map<UUID, ArrangorflatePersonalia?>,
+    personaliaById: Map<UUID, Personalia?>,
 ): List<ArrangorflateBeregningDeltakelse> = deltakelser.associateBy { it.deltakelseId }
     .map { (id, beregningOutput) ->
         ArrangorflateBeregningDeltakelse(

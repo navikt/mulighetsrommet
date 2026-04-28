@@ -306,16 +306,17 @@ fun Route.utbetalingRoutes() {
                         call.getAccessType(),
                     )
 
-                    val enheter = personalia.flatMapTo(mutableSetOf()) {
+                    val enheter = personalia.flatMap {
                         listOfNotNull(
-                            it.value.oppfolgingEnhet,
-                            it.value.region,
+                            it.oppfolgingEnhet(),
+                            it.region(),
                         )
                     }
                     val kontorstruktur = Kontorstruktur.fromNavEnheter(enheter.toList())
 
                     val deltakelsePersoner = personalia
-                        .filter { filter.navEnheter.isEmpty() || it.value.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
+                        .filter { filter.navEnheter.isEmpty() || it.oppfolgingEnhet()?.enhetsnummer in filter.navEnheter }
+                        .associateBy { it.deltakerId }
 
                     val advarsler = utbetalingService.getAdvarsler(utbetaling)
 
@@ -325,7 +326,7 @@ fun Route.utbetalingRoutes() {
                         kontorstruktur,
                         utbetalingPeriode = utbetaling.periode,
                         advarsler = advarsler.map { advarsel ->
-                            DeltakerAdvarselDto.from(advarsel, deltakelsePersoner[advarsel.deltakerId]?.navn)
+                            DeltakerAdvarselDto.from(advarsel, deltakelsePersoner[advarsel.deltakerId]?.navn())
                         },
                     )
                 }
@@ -371,7 +372,7 @@ fun Route.utbetalingRoutes() {
                             call.getAccessType(),
                         )
                         val deltakere = tilsagn.deltakere.map {
-                            TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
+                            TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))
                         }
                         UtbetalingLinje(
                             id = linje.id,
@@ -405,7 +406,7 @@ fun Route.utbetalingRoutes() {
                                 call.getAccessType(),
                             )
                             val deltakere = tilsagn.deltakere.map {
-                                TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
+                                TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))
                             }
 
                             UtbetalingLinje(

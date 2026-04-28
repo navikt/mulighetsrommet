@@ -35,7 +35,6 @@ object TilsagnToPdfDocumentContentMapper {
             ),
         )
 
-        require(personalia is Personalia.MedTilgang)
         mainSection("Bekreftelse på bestilling") {
             paragraph { regular("Nav og dere har blitt enige om dette:") }
             descriptionList {
@@ -48,7 +47,7 @@ object TilsagnToPdfDocumentContentMapper {
                     when {
                         personalia.erSkjermet -> "Skjermet"
                         personalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
-                        else -> "${personalia.navn} (${requireNotNull(personalia.norskIdent).value})"
+                        else -> "${personalia.navn()} (${personalia.norskIdent()?.value})"
                     },
                 )
                 text("Utbetalingsperioden", tilsagn.periode.formatPeriode())

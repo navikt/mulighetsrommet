@@ -40,7 +40,6 @@ class ArrangorflateRoutesTest : FunSpec({
 
     val oauth = MockOAuth2Server()
     val identMedTilgang = ArrangorflateTestUtils.identMedTilgang
-    val underenhet = ArrangorflateTestUtils.underenhet
 
     beforeSpec {
         oauth.start()

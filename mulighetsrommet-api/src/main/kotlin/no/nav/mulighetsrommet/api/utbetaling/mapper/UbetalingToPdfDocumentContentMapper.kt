@@ -31,7 +31,6 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
-import java.util.UUID
 
 object UbetalingToPdfDocumentContentMapper {
     fun toUtbetalingsdetaljerPdfContent(
@@ -67,7 +66,7 @@ object UbetalingToPdfDocumentContentMapper {
 
     fun toJournalpostPdfContent(
         utbetaling: Utbetaling,
-        personalia: Map<UUID, Personalia>,
+        personalia: List<Personalia>,
         gjennomforing: GjennomforingAvtale,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Utbetaling",
@@ -269,7 +268,7 @@ private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
 
 private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
     beregning: UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-    personalia: Map<UUID, Personalia>,
+    personalia: List<Personalia>,
 ) {
     section("Deltakerperioder") {
         table {
@@ -280,11 +279,11 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
             column("Deltakelsesprosent", TableBlock.Table.Column.Align.RIGHT)
 
             beregning.input.deltakelser.forEach { deltakelse ->
-                val person = personalia[deltakelse.deltakelseId]
+                val p = personalia.find { it.deltakerId == deltakelse.deltakelseId }
 
                 deltakelse.perioder.forEach { (periode, prosent) ->
                     row(
-                        *deltakerNavnOgIdent(person),
+                        *deltakerNavnOgIdent(p),
                         TableBlock.Table.Cell(
                             periode.start.formaterDatoTilEuropeiskDatoformat(),
                         ),
@@ -304,7 +303,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
 
 private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
     deltakelser: Set<DeltakelsePeriode>,
-    personalia: Map<UUID, Personalia>,
+    personalia: List<Personalia>,
 ) {
     section("Deltakerperioder") {
         table {
@@ -314,9 +313,9 @@ private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
             column("Sluttdato i perioden", TableBlock.Table.Column.Align.RIGHT)
 
             deltakelser.forEach { deltakelse ->
-                val person = personalia[deltakelse.deltakelseId]
+                val personalia = personalia.find { it.deltakerId == deltakelse.deltakelseId }
                 row(
-                    *deltakerNavnOgIdent(person),
+                    *deltakerNavnOgIdent(personalia),
                     TableBlock.Table.Cell(
                         deltakelse.periode.start.formaterDatoTilEuropeiskDatoformat(),
                     ),
@@ -333,7 +332,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     sectionHeader: String,
     deltakelseFaktorColumnName: String,
     deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
-    personalia: Map<UUID, Personalia>,
+    personalia: List<Personalia>,
 ) {
     section(sectionHeader) {
         table {
@@ -342,9 +341,9 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
             column(deltakelseFaktorColumnName, TableBlock.Table.Column.Align.RIGHT)
 
             deltakelser.forEach { deltakelse ->
-                val person = personalia[deltakelse.deltakelseId]
+                val p = personalia.find { it.deltakerId == deltakelse.deltakelseId }
                 row(
-                    *deltakerNavnOgIdent(person),
+                    *deltakerNavnOgIdent(p),
                     TableBlock.Table.Cell(
                         deltakelse.perioder.sumOf { it.faktor }.toString(),
                     ),
@@ -355,22 +354,22 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
 }
 
 private fun deltakerNavnOgIdent(personalia: Personalia?): Array<TableBlock.Table.Cell> {
-    require(personalia is Personalia.MedTilgang)
-    val erAdressebeskyttet = personalia.adressebeskyttelse != PdlGradering.UGRADERT
+    val erAdressebeskyttet = personalia?.adressebeskyttelse != PdlGradering.UGRADERT
+    val erSkjermet = personalia?.erSkjermet ?: false
     return arrayOf(
         TableBlock.Table.Cell(
             when {
-                personalia.erSkjermet -> "Skjermet"
+                erSkjermet -> "Skjermet"
                 erAdressebeskyttet -> "Adressebeskyttet"
-                else -> personalia.navn
+                else -> personalia.navn()
             },
 
         ),
         TableBlock.Table.Cell(
             when {
-                personalia.erSkjermet -> null
+                erSkjermet -> null
                 erAdressebeskyttet -> null
-                else -> personalia.norskIdent.value
+                else -> personalia.norskIdent()?.value
             },
         ),
     )

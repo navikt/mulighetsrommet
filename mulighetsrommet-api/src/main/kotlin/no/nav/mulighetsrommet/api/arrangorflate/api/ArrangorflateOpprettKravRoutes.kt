@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateGjennomforingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
-import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflatePersonalia
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingValidator
@@ -52,6 +51,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
@@ -82,6 +83,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
     val arrangorflateUtbetalingService: ArrangorflateUtbetalingService by inject()
     val arrangorflateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
+    val personaliaService: PersonaliaService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
 
     fun requireGjennomforingTilArrangor(
@@ -201,7 +203,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
                     .map {
                         ArrangorflateTilsagnDto.from(
                             it,
-                            arrangorflateService.getTilsagnDeltakerPersonalia(it.deltakere, accessType),
+                            arrangorflateService.getPersonalia(it.deltakere.map { it.deltakerId }, accessType),
                         )
                     }
             }
@@ -262,10 +264,10 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
                 .getAvtaltPrisPerTimeOppfolgingData(tiltak.id, periode)
 
             val obo = call.getAccessType().requireTokenX()
-            val personalia = arrangorflateService.getPersonalia(
+            val personalia = personaliaService.getPersonalia(
                 avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.map { it.deltakelseId },
                 obo,
-            )
+            ).associateBy { it.deltakerId }
 
             call.respond(
                 OpprettKravDeltakere.from(
@@ -546,7 +548,7 @@ data class OpprettKravDeltakere(
             stengtHosArrangor: Set<StengtPeriode>,
             deltakere: List<Deltaker>,
             deltakelsePerioder: List<DeltakelsePeriode>,
-            personalia: Map<UUID, ArrangorflatePersonalia>,
+            personalia: Map<UUID, Personalia>,
         ): OpprettKravDeltakere {
             return OpprettKravDeltakere(
                 guidePanel = GuidePanelType.from(tiltak.prismodell.type),

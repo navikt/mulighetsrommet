@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import arrow.core.Either
-import arrow.core.getOrNone
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
@@ -139,11 +138,7 @@ class GjennomforingEnkeltplassService(
         val personalia = getDeltakerPersonalia(id, AccessType.M2M)
 
         logEndring("Endret i Arena", id, Arena)
-            .also {
-                if (personalia is Personalia.MedTilgang) {
-                    updateFreeTextSearch(it, personalia.norskIdent)
-                }
-            }
+            .also { updateFreeTextSearch(it, personalia?.norskIdent()) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
     }
 
@@ -237,11 +232,9 @@ class GjennomforingEnkeltplassService(
     }
 
     private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID, accessType: AccessType): Personalia? {
-        val deltaker = getDeltaker(gjennomforingId)
-        return deltaker
-            ?.let { personaliaService.getPersonalia(listOf(it.id), accessType) }
-            ?.getOrNone(deltaker.id)
-            ?.getOrNull()
+        return getDeltaker(gjennomforingId)?.let {
+            personaliaService.getPersonalia(it.id, accessType)
+        }
     }
 
     private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker? {

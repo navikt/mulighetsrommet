@@ -35,9 +35,15 @@ class PersonaliaService(
     private val navEnhetService: NavEnhetService,
 ) {
     suspend fun getPersonalia(
+        deltakerId: UUID,
+        accessType: AccessType,
+    ): Personalia = getPersonalia(listOf(deltakerId), accessType).find { it.deltakerId == deltakerId }
+        ?: throw IllegalArgumentException("Kunne ikke hente personalia fra amt-deltaker med id: $deltakerId")
+
+    suspend fun getPersonalia(
         deltakerIds: List<UUID>,
         accessType: AccessType,
-    ): Map<UUID, Personalia> {
+    ): List<Personalia> {
         val amtPersonalia = amtDeltakerClient.hentPersonalia(deltakerIds)
             .getOrElse {
                 throw StatusException(
@@ -49,30 +55,25 @@ class PersonaliaService(
 
         val tilgangerByDeltakerId = sjekkTilgangTilPerson(amtPersonalia, accessType)
 
-        return amtPersonalia.associate { p ->
-            when (val avvistGrunn = tilgangerByDeltakerId[p.deltakerId]) {
-                null -> {
-                    val norskIdent = p.norskIdent
+        return amtPersonalia.map { p ->
+            val norskIdent = p.norskIdent
 
-                    val (_, geografiskEnhet) = norskIdent.let { pdlData[norskIdent] } ?: (null to null)
-                    val oppfolgingEnhet = p.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) }
+            val (_, geografiskEnhet) = norskIdent.let { pdlData[norskIdent] } ?: (null to null)
+            val oppfolgingEnhet = p.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) }
 
-                    p.deltakerId to
-                        Personalia.MedTilgang(
-                            norskIdent = p.norskIdent,
-                            navn = p.navn,
-                            oppfolgingEnhet = oppfolgingEnhet,
-                            erSkjermet = p.erSkjermet,
-                            adressebeskyttelse = p.adressebeskyttelse,
-                            geografiskEnhet = geografiskEnhet?.navEnhetNummer()?.let { navEnhetService.hentEnhet(it) },
-                            region = oppfolgingEnhet?.overordnetEnhet?.let {
-                                navEnhetService.hentEnhet(it)
-                            },
-                        )
-                }
-
-                else -> p.deltakerId to Personalia.Avvist(avvistGrunn)
-            }
+            Personalia(
+                deltakerId = p.deltakerId,
+                norskIdent = p.norskIdent,
+                navn = p.navn,
+                oppfolgingEnhet = oppfolgingEnhet,
+                erSkjermet = p.erSkjermet,
+                adressebeskyttelse = p.adressebeskyttelse,
+                geografiskEnhet = geografiskEnhet?.navEnhetNummer()?.let { navEnhetService.hentEnhet(it) },
+                region = oppfolgingEnhet?.overordnetEnhet?.let {
+                    navEnhetService.hentEnhet(it)
+                },
+                avvistGrunn = tilgangerByDeltakerId[p.deltakerId],
+            )
         }
     }
 
@@ -175,29 +176,47 @@ class PersonaliaService(
     }
 }
 
-sealed class Personalia {
-    abstract val norskIdent: NorskIdent?
-    abstract val navn: String?
-    abstract val oppfolgingEnhet: NavEnhetDto?
-    abstract val geografiskEnhet: NavEnhetDto?
-    abstract val region: NavEnhetDto?
+data class Personalia(
+    val deltakerId: UUID,
+    private val norskIdent: NorskIdent,
+    private val navn: String,
+    private val oppfolgingEnhet: NavEnhetDto?,
+    private val geografiskEnhet: NavEnhetDto?,
+    private val region: NavEnhetDto?,
+    val erSkjermet: Boolean,
+    val adressebeskyttelse: PdlGradering,
+    val avvistGrunn: AvvistGrunn?,
+) {
+    fun harTilgang(): Boolean = avvistGrunn == null
 
-    data class MedTilgang(
-        override val norskIdent: NorskIdent,
-        override val navn: String,
-        val erSkjermet: Boolean,
-        val adressebeskyttelse: PdlGradering,
-        override val oppfolgingEnhet: NavEnhetDto?,
-        override val geografiskEnhet: NavEnhetDto?,
-        override val region: NavEnhetDto?,
-    ) : Personalia()
+    fun navn(): String? = if (harTilgang()) {
+        navn
+    } else {
+        null
+    }
 
-    data class Avvist(val grunn: AvvistGrunn) : Personalia() {
-        override val norskIdent = null
-        override val navn = null
-        override val oppfolgingEnhet = null
-        override val geografiskEnhet = null
-        override val region = null
+    fun norskIdent(): NorskIdent? = if (harTilgang()) {
+        norskIdent
+    } else {
+        null
+    }
+
+    fun oppfolgingEnhet(): NavEnhetDto? = if (harTilgang()) {
+        oppfolgingEnhet
+    } else {
+        null
+    }
+
+    fun geografiskEnhet(): NavEnhetDto? = if (harTilgang()) {
+        geografiskEnhet
+    } else {
+        null
+    }
+
+    fun region(): NavEnhetDto? = if (harTilgang()) {
+        region
+    } else {
+        null
     }
 }
 

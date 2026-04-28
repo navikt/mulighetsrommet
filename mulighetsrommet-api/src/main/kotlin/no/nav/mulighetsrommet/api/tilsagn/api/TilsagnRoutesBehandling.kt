@@ -60,7 +60,7 @@ fun Route.tilsagnRoutesBehandling() {
                         call.getAccessType(),
                     )
                     val tilsagnDeltakere = it.deltakere.map {
-                        TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
+                        TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))
                     }
                     TilsagnDto.from(it, tilsagnDeltakere)
                 }

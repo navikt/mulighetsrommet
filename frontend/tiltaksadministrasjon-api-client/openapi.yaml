@@ -5434,7 +5434,12 @@ components:
           type:
           - "null"
           - string
+        avvistGrunn:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/AvvistGrunn"
       required:
+      - avvistGrunn
       - id
       - innholdAnnet
       - navn
@@ -5492,6 +5497,16 @@ components:
       - TILLIT
       - UTLAND
       - YTA
+    AvvistGrunn:
+      type: string
+      enum:
+      - AVVIST_STRENGT_FORTROLIG_ADRESSE
+      - AVVIST_STRENGT_FORTROLIG_UTLAND
+      - AVVIST_FORTROLIG_ADRESSE
+      - AVVIST_SKJERMING
+      - AVVIST_HABILITET
+      - AVVIST_VERGE
+      - AVVIST_GEOGRAFISK
     GjennomforingDetaljerDto:
       type: object
       properties:
@@ -6149,7 +6164,9 @@ components:
           - "null"
           - string
         navn:
-          type: string
+          type:
+          - "null"
+          - string
         oppfolgingEnhet:
           oneOf:
           - type: "null"

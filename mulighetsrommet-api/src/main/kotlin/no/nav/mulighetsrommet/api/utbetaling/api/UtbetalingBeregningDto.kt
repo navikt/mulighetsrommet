@@ -289,11 +289,11 @@ private fun deltakelsePersonaliaColumns() = listOf(
 )
 
 private fun deltakelsePersonaliaCells(personalia: Personalia?): Map<String, DataElement?> = mapOf(
-    "navn" to personalia?.navn.let { DataElement.text(it) },
-    "geografiskEnhet" to personalia?.geografiskEnhet?.navn?.let { DataElement.text(it) },
-    "oppfolgingEnhet" to personalia?.oppfolgingEnhet?.navn?.let { DataElement.text(it) },
-    "region" to personalia?.region?.navn?.let { DataElement.text(it) },
-    "fnr" to personalia?.norskIdent?.let { DataElement.text(it.value) },
+    "navn" to personalia?.navn().let { DataElement.text(it) },
+    "geografiskEnhet" to personalia?.geografiskEnhet()?.navn?.let { DataElement.text(it) },
+    "oppfolgingEnhet" to personalia?.oppfolgingEnhet()?.navn?.let { DataElement.text(it) },
+    "region" to personalia?.region()?.navn?.let { DataElement.text(it) },
+    "fnr" to personalia?.norskIdent()?.let { DataElement.text(it.value) },
 )
 
 private fun deltakelseFaktorColumns(faktorLabel: String) = listOf(

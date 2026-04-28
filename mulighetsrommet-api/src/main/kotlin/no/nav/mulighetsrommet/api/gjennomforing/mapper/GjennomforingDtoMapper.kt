@@ -15,8 +15,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
@@ -68,7 +66,7 @@ object GjennomforingDtoMapper {
     fun fromEnkeltplass(
         gjennomforing: GjennomforingEnkeltplass,
         okonomi: Totrinnskontroll?,
-        deltakerOgPersonalia: Pair<Deltaker, Personalia>?,
+        deltakerDto: DeltakerDto?,
     ) = GjennomforingDetaljerDto(
         tiltakstype = gjennomforing.tiltakstype,
         gjennomforing = GjennomforingEnkeltplassDto(
@@ -94,7 +92,7 @@ object GjennomforingDtoMapper {
         okonomi = okonomi?.toDto(),
         amoKategorisering = null,
         utdanningslop = null,
-        enkeltplassDeltaker = deltakerOgPersonalia?.toDto(),
+        enkeltplassDeltaker = deltakerDto,
     )
 
     fun fromGjennomforingStatus(status: GjennomforingStatusType): GjennomforingDto.Status {
@@ -149,29 +147,4 @@ object GjennomforingDtoMapper {
         enhetsnummer = ansvarligEnhet.enhetsnummer,
         navn = ansvarligEnhet.navn,
     )
-}
-
-fun Pair<Deltaker, Personalia>.toDto(): DeltakerDto {
-    val deltaker = first
-    return when (val p = second) {
-        is Personalia.Avvist -> DeltakerDto(
-            id = deltaker.id,
-            status = deltaker.status.type.toDataElement(),
-            innholdAnnet = null,
-            navn = null,
-            norskIdent = null,
-            oppfolgingEnhet = null,
-            avvistGrunn = p.grunn,
-        )
-
-        is Personalia.MedTilgang -> DeltakerDto(
-            id = deltaker.id,
-            status = deltaker.status.type.toDataElement(),
-            innholdAnnet = deltaker.innholdAnnet,
-            navn = p.navn,
-            norskIdent = p.norskIdent,
-            oppfolgingEnhet = p.oppfolgingEnhet,
-            avvistGrunn = null,
-        )
-    }
 }

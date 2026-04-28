@@ -167,7 +167,7 @@ fun Route.tilsagnRoutesBeregning() {
                 call.getAccessType(),
             )
             deltakelser.map {
-                TilsagnDeltakerDto.from(it, personalia[it.id])
+                TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.id }))
             }
         } else {
             emptyList()

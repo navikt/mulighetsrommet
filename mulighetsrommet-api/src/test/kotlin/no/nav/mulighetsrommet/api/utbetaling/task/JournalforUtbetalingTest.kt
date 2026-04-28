@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kontonummer
 import java.time.Instant
+import java.util.UUID
 
 class JournalforUtbetalingTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -64,7 +65,7 @@ class JournalforUtbetalingTest : FunSpec({
     val dokarkClient = mockk<DokarkClient>()
     val personaliaService = mockk<PersonaliaService>()
 
-    coEvery { personaliaService.getPersonalia(any(), any()) } returns emptyMap()
+    coEvery { personaliaService.getPersonalia(any<List<UUID>>(), any()) } returns emptyList()
 
     fun createTask() = JournalforUtbetaling(
         db = database.db,
