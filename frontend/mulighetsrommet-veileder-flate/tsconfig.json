@@ -25,9 +25,9 @@
       // Fordi bl.a. sanity drar med seg vite@v4
       "vite": ["./node_modules/vite"],
       "@/*": ["./src/*"],
-      "@api-client": ["./api-client"]
-    },
+      "@api-client": ["./api-client"],
+    }
   },
-  "include": ["src", "tests", "tailwind.config.ts"],
-  "references": [{ "path": "./tsconfig.node.json" }],
+  "include": ["src", "tests"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
