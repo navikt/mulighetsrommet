@@ -5,7 +5,8 @@ import { GjennomforingFormDetaljer } from "@/components/gjennomforing/Gjennomfor
 import { GjennomforingInformasjonForVeiledereForm } from "@/components/gjennomforing/GjennomforingInformasjonForVeiledereForm";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
+import { applyValidationErrors } from "@/components/skjema/helpers";
+import { WizardForm } from "@/components/skjema/WizardForm";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
@@ -15,11 +16,8 @@ import {
   GjennomforingFormValues,
   gjennomforingVeilederinfoSchema,
 } from "@/schemas/gjennomforing";
-import { useWizardForm, WizardStep } from "@/hooks/useWizardForm";
-import { applyValidationErrors } from "@/components/skjema/helpers";
-import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
-import { FormProvider } from "react-hook-form";
+import { WizardStep } from "@/hooks/useWizardForm";
+import { Heading } from "@navikt/ds-react";
 import { useLocation, useNavigate } from "react-router";
 import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import { toCreateGjennomforingRequest } from "./gjennomforingFormUtils";
@@ -60,37 +58,6 @@ export function OpprettGjennomforingPage() {
     },
   ];
 
-  const {
-    activeStep,
-    currentStep,
-    isLastStep,
-    methods,
-    handleStepChange,
-    handleStepBack,
-    handleStepForward,
-  } = useWizardForm<GjennomforingFormValues>({
-    steps,
-    defaultValues: defaultGjennomforingData(
-      ansatt,
-      tiltakstype,
-      avtale,
-      location.state?.dupliserGjennomforing?.gjennomforing,
-      location.state?.dupliserGjennomforing?.veilederinfo,
-      null,
-      null,
-      null,
-    ),
-    onCancel: () => navigate(-1),
-    onSubmit: (data) => {
-      const id = uuidv4();
-      const request = toCreateGjennomforingRequest(id, data, avtale);
-      createGjennomforing.mutate(request, {
-        onSuccess: () => navigate(`/gjennomforinger/${id}`),
-        onValidationError: (error: ValidationError) => applyValidationErrors(methods, error),
-      });
-    },
-  });
-
   return (
     <>
       <title>Opprett gjennomføring</title>
@@ -101,50 +68,31 @@ export function OpprettGjennomforingPage() {
           Opprett gjennomføring
         </Heading>
       </Header>
-      <Box
-        borderRadius="4"
-        marginBlock="space-16"
-        marginInline="space-8"
-        padding="space-16"
-        background="default"
-      >
-        <Heading size="medium" spacing level="2" id="stepper-heading">
-          Steg
-        </Heading>
-        <Stepper
-          aria-labelledby="stepper-heading"
-          activeStep={activeStep}
-          onStepChange={handleStepChange}
-          orientation="horizontal"
-        >
-          {steps.map((step) => (
-            <Stepper.Step key={step.key}>{step.key}</Stepper.Step>
-          ))}
-        </Stepper>
-        <Separator />
-        <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(handleStepForward)}>
-            <VStack gap="space-8">
-              {currentStep.Component}
-              <Separator />
-              <HStack gap="space-8" justify="end">
-                <ValideringsfeilOppsummering />
-                <Button size="small" type="button" variant="tertiary" onClick={handleStepBack}>
-                  {activeStep === 1 ? "Avbryt" : "Tilbake"}
-                </Button>
-                <Button
-                  size="small"
-                  type={isLastStep ? "submit" : "button"}
-                  loading={createGjennomforing.isPending}
-                  onClick={methods.handleSubmit(handleStepForward)}
-                >
-                  {isLastStep ? "Opprett gjennomføring" : "Neste"}
-                </Button>
-              </HStack>
-            </VStack>
-          </form>
-        </FormProvider>
-      </Box>
+      <WizardForm<GjennomforingFormValues>
+        steps={steps}
+        defaultValues={defaultGjennomforingData(
+          ansatt,
+          tiltakstype,
+          avtale,
+          location.state?.dupliserGjennomforing?.gjennomforing,
+          location.state?.dupliserGjennomforing?.veilederinfo,
+          null,
+          null,
+          null,
+        )}
+        onCancel={() => navigate(-1)}
+        onSubmit={(data, form) => {
+          const id = uuidv4();
+          createGjennomforing.mutate(toCreateGjennomforingRequest(id, data, avtale), {
+            onSuccess: () => navigate(`/gjennomforinger/${id}`),
+            onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
+          });
+        }}
+        isSubmitting={createGjennomforing.isPending}
+        labels={{
+          submit: "Opprett gjennomføring",
+        }}
+      />
     </>
   );
 }

@@ -1,6 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { JSX, useState } from "react";
-import { DefaultValues, FieldValues, Resolver, SubmitHandler, useForm } from "react-hook-form";
+import {
+  DefaultValues,
+  FieldValues,
+  Resolver,
+  SubmitHandler,
+  useForm,
+  UseFormReturn,
+} from "react-hook-form";
 import { ZodObject } from "zod";
 
 export interface WizardStep {
@@ -12,7 +19,7 @@ export interface WizardStep {
 interface UseWizardOptions<TFormValues extends FieldValues> {
   steps: WizardStep[];
   defaultValues: DefaultValues<TFormValues>;
-  onSubmit: (data: TFormValues) => void | Promise<void>;
+  onSubmit: (data: TFormValues, form: UseFormReturn<TFormValues>) => void | Promise<void>;
   onCancel: () => void;
 }
 
@@ -28,14 +35,14 @@ export function useWizardForm<TFormValues extends FieldValues>({
   const currentStep = steps[activeStep - 1];
   const isLastStep = activeStep === steps.length;
 
-  const methods = useForm<TFormValues>({
+  const form = useForm<TFormValues>({
     resolver: zodResolver(currentStep.schema as ZodObject<any>) as Resolver<TFormValues>,
     defaultValues: collectedData,
   });
 
   const handleStepChange = async (val: number) => {
-    await methods.trigger();
-    if (methods.formState.isValid) {
+    await form.trigger();
+    if (form.formState.isValid) {
       setActiveStep(val);
     }
   };
@@ -55,7 +62,7 @@ export function useWizardForm<TFormValues extends FieldValues>({
     if (!isLastStep) {
       setActiveStep(activeStep + 1);
     } else {
-      await onSubmit(mergedData as TFormValues);
+      await onSubmit(mergedData as TFormValues, form);
     }
   };
 
@@ -63,7 +70,7 @@ export function useWizardForm<TFormValues extends FieldValues>({
     activeStep,
     currentStep,
     isLastStep,
-    methods,
+    form,
     handleStepChange,
     handleStepBack,
     handleStepForward,
