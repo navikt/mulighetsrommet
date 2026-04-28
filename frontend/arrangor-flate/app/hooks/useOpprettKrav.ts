@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { ArrangorflateService, FieldError } from "api-client";
+import { ArrangorflateService, FieldError, PeriodeType } from "api-client";
 import { queryClient } from "~/api/client";
 
 interface OpprettKravParams {
@@ -8,6 +8,7 @@ interface OpprettKravParams {
   belop: number;
   periodeStart: string;
   periodeSlutt: string;
+  periodeType: PeriodeType;
   kidNummer: string | null;
   vedlegg: File[];
 }
@@ -26,6 +27,7 @@ export function useOpprettKrav() {
       belop,
       periodeStart,
       periodeSlutt,
+      periodeType,
       kidNummer,
       vedlegg,
     }: OpprettKravParams): Promise<OpprettKravResult> => {
@@ -35,6 +37,7 @@ export function useOpprettKrav() {
           belop,
           periodeStart,
           periodeSlutt,
+          periodeType,
           kidNummer,
           vedlegg,
         },

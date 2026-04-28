@@ -12,17 +12,19 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaServic
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.OpprettGjennomforingArena
-import no.nav.mulighetsrommet.api.gjennomforing.service.OpprettGjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -42,7 +44,7 @@ class ArenaAdapterService(
 
     suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaGjennomforingDbo): UUID? {
         val erTiltakMigrert = tiltakstypeService.getByArenaTiltakskode(arenaGjennomforing.arenaKode).any {
-            it.tiltakskode != null && tiltakstypeService.erMigrert(it.tiltakskode)
+            tiltakstypeService.erMigrert(it.tiltakskode)
         }
         if (erTiltakMigrert) {
             updateArenadata(arenaGjennomforing)
@@ -68,20 +70,26 @@ class ArenaAdapterService(
 
         val sluttDato = arenaGjennomforing.sluttDato
         if (sluttDato == null || sluttDato >= ArenaMigrering.EnkeltplassSluttDatoCutoffDate) {
-            val upsert = OpprettGjennomforingEnkeltplass(
+            val upsert = UpsertGjennomforingEnkeltplass(
                 id = arenaGjennomforing.id,
-                tiltakstypeId = tiltakstype.id,
+                tiltakskode = checkNotNull(tiltakstype.tiltakskode),
                 arrangorId = arrangor.id,
                 navn = arenaGjennomforing.navn,
                 startDato = arenaGjennomforing.startDato,
                 sluttDato = arenaGjennomforing.sluttDato,
+                prisbetingelser = null,
                 status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
                 deltidsprosent = arenaGjennomforing.deltidsprosent,
                 antallPlasser = arenaGjennomforing.antallPlasser,
+                ansvarligEnhet = NavEnhetNummer(arenaGjennomforing.arenaAnsvarligEnhet),
                 arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
             )
-            gjennomforingEnkeltplassService.upsert(upsert)
+            val existing = db.session { queries.gjennomforing.getGjennomforing(arenaGjennomforing.id) }
+            when {
+                existing == null || existing is GjennomforingArena -> gjennomforingEnkeltplassService.create(upsert, Arena)
+                else -> gjennomforingEnkeltplassService.update(upsert)
+            }
         } else {
             val upsert = OpprettGjennomforingArena(
                 id = arenaGjennomforing.id,
@@ -126,7 +134,7 @@ class ArenaAdapterService(
         }
     }
 
-    private fun updateArenadata(arenaGjennomforing: ArenaGjennomforingDbo) {
+    private suspend fun updateArenadata(arenaGjennomforing: ArenaGjennomforingDbo) {
         val previous = db.session { queries.gjennomforing.getGjennomforing(arenaGjennomforing.id) }
             ?: throw IllegalStateException("Tiltakstype tiltakskode=${arenaGjennomforing.arenaKode} er migrert, men gjennomføring fra Arena er ukjent")
 

@@ -22,12 +22,14 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleServi
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -39,39 +41,48 @@ class ArenaAdapterServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createArenaAdapterService(
-        sanityService: SanityService = mockk(relaxed = true),
+        sanityService: SanityService = mockk(),
+        personaliaService: PersonaliaService = mockk(),
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
-    ) = ArenaAdapterService(
-        db = database.db,
-        sanityService = sanityService,
-        arrangorService = ArrangorService(database.db, mockk(relaxed = true), mockk(relaxed = true)),
-        tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), database.db),
-        gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
-            GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+    ): ArenaAdapterService {
+        val tiltakstypeService = TiltakstypeService(
+            TiltakstypeService.Config(features),
             database.db,
-        ),
-        gjennomforingAvtaleService = GjennomforingAvtaleService(
-            GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+        )
+        return ArenaAdapterService(
             db = database.db,
-            navAnsattService = mockk(),
-        ),
-        gjennomforingArenaService = GjennomforingArenaService(
-            GjennomforingArenaService.Config(TEST_GJENNOMFORING_V2_TOPIC),
-            database.db,
-        ),
-    )
+            sanityService = sanityService,
+            arrangorService = ArrangorService(database.db, mockk(), mockk()),
+            tiltakstypeService = tiltakstypeService,
+            gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
+                GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+                database.db,
+                personaliaService,
+                tiltakstypeService,
+            ),
+            gjennomforingAvtaleService = GjennomforingAvtaleService(
+                GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+                db = database.db,
+                navAnsattService = mockk(),
+            ),
+            gjennomforingArenaService = GjennomforingArenaService(
+                GjennomforingArenaService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+                database.db,
+            ),
+        )
+    }
 
     context("tiltak i egen regi") {
         val gjennomforing = ArenaGjennomforingDbo(
             id = UUID.randomUUID(),
             sanityId = null,
             navn = "IPS",
-            arenaKode = TiltakstypeFixtures.IPS.arenaKode,
+            arenaKode = TiltakstypeFixtures.IPS.arenaKode!!,
             tiltaksnummer = "2020#12345",
             arrangorOrganisasjonsnummer = "976663934",
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusYears(1),
-            arenaAnsvarligEnhet = null,
+            arenaAnsvarligEnhet = "0400",
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             apentForPamelding = true,
             antallPlasser = 10,
@@ -91,7 +102,8 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should not upsert egen regi-tiltak") {
-            val service = createArenaAdapterService()
+            val sanityService = mockk<SanityService>(relaxed = true)
+            val service = createArenaAdapterService(sanityService)
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
@@ -129,7 +141,8 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should not publish egen regi-tiltak to kafka") {
-            val service = createArenaAdapterService()
+            val sanityService = mockk<SanityService>(relaxed = true)
+            val service = createArenaAdapterService(sanityService)
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
@@ -159,12 +172,12 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 navn = "Oppfølging",
                 sanityId = null,
-                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode!!,
                 tiltaksnummer = "2020#12345",
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusYears(1),
-                arenaAnsvarligEnhet = null,
+                arenaAnsvarligEnhet = "0400",
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 apentForPamelding = true,
                 antallPlasser = 10,
@@ -205,7 +218,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = gjennomforing1.id,
                 sanityId = null,
                 navn = "Endet navn",
-                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode!!,
                 tiltaksnummer = "2024#2024",
                 arrangorOrganisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer.value,
                 startDato = LocalDate.of(2024, 1, 1),
@@ -260,12 +273,12 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = gjennomforing1.id,
                 navn = "Oppfølging",
                 sanityId = null,
-                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode!!,
                 tiltaksnummer = "2021#12345",
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusYears(1),
-                arenaAnsvarligEnhet = null,
+                arenaAnsvarligEnhet = "0400",
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
                 apentForPamelding = true,
                 antallPlasser = 10,
@@ -296,7 +309,7 @@ class ArenaAdapterServiceTest : FunSpec({
     context("enkeltplasser") {
         beforeEach {
             MulighetsrommetTestDomain(
-                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
             ).initialize(database.db)
         }
@@ -309,7 +322,7 @@ class ArenaAdapterServiceTest : FunSpec({
             id = UUID.randomUUID(),
             navn = "En enkeltplass",
             sanityId = null,
-            arenaKode = TiltakstypeFixtures.EnkelAmo.arenaKode,
+            arenaKode = TiltakstypeFixtures.EnkelAmo.arenaKode!!,
             tiltaksnummer = "2025#1",
             arrangorOrganisasjonsnummer = "976663934",
             startDato = LocalDate.now(),
@@ -333,12 +346,13 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
                     it.navn shouldBe "En enkeltplass"
                     it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
                 }
             }
 
             service.upsertTiltaksgjennomforing(
                 arenaGjennomforing.copy(
-                    arenaAnsvarligEnhet = "1000",
+                    arenaAnsvarligEnhet = "0300",
                     avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 ),
             )
@@ -346,7 +360,41 @@ class ArenaAdapterServiceTest : FunSpec({
             database.run {
                 queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
-                    it.arena?.ansvarligNavEnhet shouldBe "1000"
+                    it.arena?.ansvarligNavEnhet shouldBe "0300"
+                    it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0300")
+                }
+            }
+        }
+
+        test("konverterer Arena-gjennomføring til enkeltplass når sluttdato endres til etter EnkeltplassSluttDatoCutoffDate") {
+            val service = createArenaAdapterService()
+
+            service.upsertTiltaksgjennomforing(
+                arenaGjennomforing.copy(
+                    startDato = LocalDate.of(2023, 1, 1),
+                    sluttDato = LocalDate.of(2024, 1, 1),
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                ),
+            )
+
+            database.run {
+                queries.gjennomforing.getGjennomforingArenaOrError(arenaGjennomforing.id).should {
+                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
+                }
+            }
+
+            service.upsertTiltaksgjennomforing(
+                arenaGjennomforing.copy(
+                    startDato = LocalDate.of(2023, 1, 1),
+                    sluttDato = LocalDate.of(2026, 6, 1),
+                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                ),
+            )
+
+            database.run {
+                queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.sluttDato shouldBe LocalDate.of(2026, 6, 1)
                 }
             }
         }

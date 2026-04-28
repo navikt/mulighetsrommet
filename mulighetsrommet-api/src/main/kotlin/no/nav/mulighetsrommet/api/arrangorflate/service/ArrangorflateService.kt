@@ -1,19 +1,19 @@
 package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import arrow.core.Either
-import arrow.core.getOrElse
-import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.arrangorflate.api.toArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
@@ -26,15 +26,14 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.collections.component1
 
 val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.GODKJENT,
@@ -46,60 +45,27 @@ val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
 
 class ArrangorflateService(
     private val db: ApiDatabase,
-    private val amtDeltakerClient: AmtDeltakerClient,
+    private val personaliaService: PersonaliaService,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
-    private fun tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
-        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
-        val godkjentBelop = when (status) {
-            ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-            ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
-            ArrangorflateUtbetalingStatus.UTBETALT,
-            -> getGodkjentBelopForUtbetaling(utbetaling.id, valuta = utbetaling.beregning.output.pris.valuta)
 
-            ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-            ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
-            ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
-            ArrangorflateUtbetalingStatus.AVBRUTT,
-            -> null
-        }
-        return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
+    fun getAllUtbetalingKompakt(filter: ArrangorflateUtbetalingFilter): PaginatedResult<ArrangorflateUtbetalingKompakt> = db.session {
+        queries.utbetaling
+            .getArrangorflateFiltered(filter)
+            .map { toArrangorflateUtbetalingKompakt(it) }
     }
 
-    fun getUtbetalingerByArrangorerAndStatus(
-        arrangorer: Set<Organisasjonsnummer>,
-        statuser: Set<UtbetalingStatusType>,
-    ): List<ArrangorflateUtbetalingKompakt> = db.session {
-        queries.utbetaling.getByArrangorerAndStatus(arrangorer, statuser).map { tilArrangorflateUtbetalingKompakt(it) }
+    suspend fun getTilsagn(id: UUID, obo: AccessType.OBO.TokenX): ArrangorflateTilsagnDto? = db.session {
+        queries.tilsagn.get(id)
+            ?.takeIf { it.status in TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR }
+            ?.let { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere, obo)) }
     }
 
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
         return queries.utbetaling.get(id)
     }
 
-    suspend fun getTilsagn(id: UUID): ArrangorflateTilsagnDto? = db.session {
-        queries.tilsagn.get(id)
-            ?.takeIf { it.status in TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR }
-            ?.let { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere.toSet())) }
-    }
-
-    suspend fun getTilsagn(
-        arrangorer: Set<Organisasjonsnummer>,
-        statuser: List<TilsagnStatus>? = null,
-        typer: List<TilsagnType>? = null,
-        gjennomforingId: UUID? = null,
-    ): List<ArrangorflateTilsagnDto> = db.session {
-        queries.tilsagn
-            .getAll(
-                arrangorer = arrangorer,
-                statuser = statuser,
-                typer = typer,
-                gjennomforingId = gjennomforingId,
-            )
-            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere.toSet())) }
-    }
-
-    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> = db.session {
+    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling, accessType: AccessType.OBO.TokenX): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
                 gjennomforingId = utbetaling.gjennomforing.id,
@@ -107,7 +73,7 @@ class ArrangorflateService(
                 typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
                 statuser = listOf(TilsagnStatus.GODKJENT),
             )
-            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere.toSet())) }
+            .map { ArrangorflateTilsagnDto.from(it, getTilsagnDeltakerPersonalia(it.deltakere, accessType)) }
     }
 
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
@@ -132,17 +98,16 @@ class ArrangorflateService(
         }
     }
 
-    private fun getGodkjentBelopForUtbetaling(utbetalingId: UUID, valuta: Valuta): ValutaBelop = db.session {
-        return queries.delutbetaling.getByUtbetalingId(utbetalingId).sumOf { it.pris.belop }.withValuta(valuta)
-    }
-
     suspend fun toArrangorflateUtbetaling(
         utbetaling: Utbetaling,
+        accessType: AccessType.OBO.TokenX,
         today: LocalDate = LocalDate.now(),
     ): ArrangorflateUtbetalingDto = db.session {
         val erTolvUkerEtterInnsending = utbetaling.innsending
             ?.let { it.tidspunkt.toLocalDate().plusWeeks(12) <= today }
             ?: false
+
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
 
         val deltakere = if (erTolvUkerEtterInnsending) {
             emptyList()
@@ -153,13 +118,14 @@ class ArrangorflateService(
                 .filter { it.id in deltakelser }
         }
 
-        val personalia = getPersonalia(deltakere.map { it.id }.toSet())
+        val personalia = getPersonalia(deltakere.map { it.id }, accessType)
         val advarsler = getAdvarsler(utbetaling)
         val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
         val (kanRegenereres, regenrertId) = kanRegenereres(utbetaling)
 
         return mapUtbetalingToArrangorflateUtbetaling(
             utbetaling = utbetaling,
+            gjennomforing = gjennomforing,
             status = status,
             deltakereById = deltakere.associateBy { it.id },
             personaliaById = personalia,
@@ -173,9 +139,9 @@ class ArrangorflateService(
     }
 
     fun getLinjer(utbetalingId: UUID): List<ArrangforflateUtbetalingLinje> = db.session {
-        queries.delutbetaling.getByUtbetalingId(utbetalingId)
-            .map { delutbetaling ->
-                val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
+        queries.utbetalingLinje.getByUtbetalingId(utbetalingId)
+            .map { linje ->
+                val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId).let {
                     ArrangorflateTilsagnSummary(
                         id = it.id,
                         bestillingsnummer = it.bestilling.bestillingsnummer,
@@ -183,10 +149,10 @@ class ArrangorflateService(
                 }
 
                 ArrangforflateUtbetalingLinje(
-                    id = delutbetaling.id,
-                    pris = delutbetaling.pris,
-                    status = delutbetaling.status,
-                    statusSistOppdatert = delutbetaling.faktura.statusSistOppdatert,
+                    id = linje.id,
+                    pris = linje.pris,
+                    status = linje.status,
+                    statusSistOppdatert = linje.faktura.statusEndretTidspunkt,
                     tilsagn = tilsagn,
                 )
             }
@@ -244,22 +210,18 @@ class ArrangorflateService(
         }
     }
 
-    suspend fun getPersonalia(deltakerIds: Set<UUID>): Map<UUID, ArrangorflatePersonalia> {
-        return amtDeltakerClient.hentPersonalia(deltakerIds)
-            .getOrElse {
-                throw StatusException(
-                    status = HttpStatusCode.InternalServerError,
-                    detail = "Klarte ikke hente personalia fra amt-deltaker error: $it",
-                )
-            }
-            .associateBy { it.deltakerId }
+    suspend fun getPersonalia(deltakerIds: List<UUID>, accessType: AccessType.OBO.TokenX): Map<UUID, ArrangorflatePersonalia> {
+        return personaliaService.getPersonalia(deltakerIds, accessType)
             .mapValues {
-                ArrangorflatePersonalia.fromPersonalia(it.value)
+                ArrangorflatePersonalia(
+                    norskIdent = it.value.norskIdent,
+                    navn = it.value.navn,
+                )
             }
     }
 
-    suspend fun getTilsagnDeltakerPersonalia(deltakerIds: Set<UUID>): List<ArrangorflateTilsagnDto.DeltakerPersonalia> {
-        return getPersonalia(deltakerIds).map { (deltakerId, p) ->
+    suspend fun getTilsagnDeltakerPersonalia(deltakere: List<Tilsagn.Deltaker>, accessType: AccessType.OBO.TokenX): List<ArrangorflateTilsagnDto.DeltakerPersonalia> {
+        return getPersonalia(deltakere.map { it.deltakerId }, accessType).map { (deltakerId, p) ->
             ArrangorflateTilsagnDto.DeltakerPersonalia(
                 deltakerId = deltakerId,
                 norskIdent = p.norskIdent,

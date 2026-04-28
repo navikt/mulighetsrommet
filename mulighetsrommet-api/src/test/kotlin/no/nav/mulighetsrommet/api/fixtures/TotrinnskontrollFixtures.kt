@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
@@ -13,19 +14,17 @@ fun QueryContext.setTilGodkjenning(
     behandletAv: NavIdent,
     behandletTidspunkt: LocalDateTime = LocalDateTime.now(),
 ) = queries.totrinnskontroll.upsert(
-    Totrinnskontroll(
+    TotrinnskontrollDbo(
         id = UUID.randomUUID(),
         entityId = uuid,
-        behandletAv = behandletAv,
-        aarsaker = emptyList(),
-        forklaring = null,
         type = type,
+        behandletAv = behandletAv,
         behandletTidspunkt = behandletTidspunkt,
-        besluttelse = null,
         besluttetAv = null,
         besluttetTidspunkt = null,
-        besluttetAvNavn = null,
-        behandletAvNavn = null,
+        besluttelse = null,
+        aarsaker = emptyList(),
+        forklaring = null,
     ),
 )
 
@@ -37,19 +36,17 @@ fun QueryContext.setGodkjent(
     behandletTidspunkt: LocalDateTime = LocalDateTime.now(),
     besluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
 ) = queries.totrinnskontroll.upsert(
-    Totrinnskontroll(
+    TotrinnskontrollDbo(
         id = UUID.randomUUID(),
         entityId = uuid,
-        behandletAv = behandletAv,
-        aarsaker = emptyList(),
-        forklaring = null,
         type = type,
+        behandletAv = behandletAv,
         behandletTidspunkt = behandletTidspunkt,
-        besluttelse = Besluttelse.GODKJENT,
         besluttetAv = besluttetAv,
         besluttetTidspunkt = besluttetTidspunkt,
-        besluttetAvNavn = null,
-        behandletAvNavn = null,
+        besluttelse = Besluttelse.GODKJENT,
+        aarsaker = emptyList(),
+        forklaring = null,
     ),
 )
 
@@ -61,18 +58,16 @@ fun QueryContext.setAvvist(
     behandletTidspunkt: LocalDateTime = LocalDateTime.now(),
     besluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
 ) = queries.totrinnskontroll.upsert(
-    Totrinnskontroll(
+    TotrinnskontrollDbo(
         id = UUID.randomUUID(),
         entityId = uuid,
-        behandletAv = behandletAv,
-        aarsaker = listOf("Årsak 1"),
-        forklaring = null,
         type = type,
+        behandletAv = behandletAv,
         behandletTidspunkt = behandletTidspunkt,
-        besluttelse = Besluttelse.AVVIST,
         besluttetAv = besluttetAv,
         besluttetTidspunkt = besluttetTidspunkt,
-        besluttetAvNavn = null,
-        behandletAvNavn = null,
+        besluttelse = Besluttelse.AVVIST,
+        aarsaker = listOf("Årsak 1"),
+        forklaring = null,
     ),
 )

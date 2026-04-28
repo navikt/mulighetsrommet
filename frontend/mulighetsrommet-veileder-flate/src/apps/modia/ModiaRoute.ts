@@ -1,3 +1,4 @@
+import { Tiltakskode } from "@api-client";
 import { SyntheticEvent } from "react";
 
 type UUID = string;
@@ -5,7 +6,8 @@ type UUID = string;
 export enum ModiaRoute {
   DIALOG,
   ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-  ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
+  ARBEIDSMARKEDSTILTAK_DELTAKELSE_PAMELDING,
+  ARBEIDSMARKEDSTILTAK_DELTAKELSE_OPPRETT_ENKELTPLASS,
 }
 
 export type ModiaRouteParams =
@@ -14,12 +16,16 @@ export type ModiaRouteParams =
       dialogId: string | number;
     }
   | {
-      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE;
+      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE_PAMELDING;
       gjennomforingId: UUID;
     }
   | {
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE;
       deltakerId: UUID;
+    }
+  | {
+      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE_OPPRETT_ENKELTPLASS;
+      tiltakskode: Tiltakskode;
     };
 
 export function resolveModiaRoute(route: ModiaRouteParams) {
@@ -37,10 +43,12 @@ export function resolveRoutePath(route: ModiaRouteParams): string {
   switch (route.route) {
     case ModiaRoute.DIALOG:
       return `/dialog/${route.dialogId}`;
-    case ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE:
-      return `/arbeidsmarkedstiltak/deltakelse/${route.gjennomforingId}`;
     case ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE:
       return `/arbeidsmarkedstiltak/deltakelse/deltaker/${route.deltakerId}`;
+    case ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE_PAMELDING:
+      return `/arbeidsmarkedstiltak/deltakelse/${route.gjennomforingId}`;
+    case ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE_OPPRETT_ENKELTPLASS:
+      return `/arbeidsmarkedstiltak/deltakelse/tiltak/${route.tiltakskode}`;
   }
 }
 

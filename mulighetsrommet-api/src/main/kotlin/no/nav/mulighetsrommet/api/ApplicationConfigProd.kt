@@ -10,8 +10,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.service.tidligstTidspunktForUtbetalingProd
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
@@ -34,29 +34,46 @@ private val kontaktpersonAdGruppeId = "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472".toU
 val ApplicationConfigProd = AppConfig(
     tiltakstyper = TiltakstypeService.Config(
         features = run {
-            val utfaset = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-                TiltakstypeFeature.MIGRERT,
-                TiltakstypeFeature.UTFASET,
-            )
-            val migrert = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-                TiltakstypeFeature.MIGRERT,
-            )
+            val admin = setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)
+            val modia = setOf(TiltakstypeFeature.VISES_I_MODIA)
+            val migrert = setOf(TiltakstypeFeature.MIGRERT)
+            val utfaset = setOf(TiltakstypeFeature.UTFASET)
             mapOf(
-                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
-                Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
-                Tiltakskode.AVKLARING to migrert,
-                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
-                Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to utfaset,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to utfaset,
-                Tiltakskode.JOBBKLUBB to migrert,
-                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
-                Tiltakskode.OPPFOLGING to migrert,
-                Tiltakskode.STUDIESPESIALISERING to migrert,
-                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to admin + modia + migrert + utfaset,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to admin + modia + migrert + utfaset,
+
+                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to admin + modia + migrert,
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to admin + modia + migrert,
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING to admin + modia + migrert,
+                Tiltakskode.AVKLARING to admin + modia + migrert,
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to admin + modia + migrert,
+                Tiltakskode.FAG_OG_YRKESOPPLAERING to admin + modia + migrert,
+                Tiltakskode.JOBBKLUBB to admin + modia + migrert,
+                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to admin + modia + migrert,
+                Tiltakskode.OPPFOLGING to admin + modia + migrert,
+                Tiltakskode.STUDIESPESIALISERING to admin + modia + migrert,
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to admin + modia + migrert,
+
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to modia,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to modia,
+                Tiltakskode.HOYERE_UTDANNING to modia,
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to modia,
+                Tiltakskode.ARBEIDSTRENING to modia,
+                Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD to modia,
+                Tiltakskode.VARIG_LONNSTILSKUD to modia,
+                Tiltakskode.MENTOR to modia,
+                Tiltakskode.INKLUDERINGSTILSKUD to modia,
+                Tiltakskode.SOMMERJOBB to modia,
+                Tiltakskode.VTAO to modia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG to modia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE to modia,
+                Tiltakskode.ARBEID_MED_STOTTE to modia,
+
+                /*
+                 * Nye tiltakstyper under utvikling
+                 */
+                Tiltakskode.TILPASSET_JOBBSTOTTE to setOf(),
+                Tiltakskode.FIREARIG_LONNSTILSUDD to setOf(),
             )
         },
     ),
@@ -147,6 +164,11 @@ val ApplicationConfigProd = AppConfig(
                 rolle = Rolle.KONTAKTPERSON,
             ),
 
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "21a2d88c-05e1-4c4b-b13d-b277f848ffd5".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_tiltakstype-skriv",
+                rolle = Rolle.TILTAKSTYPER_SKRIV,
+            ),
             EntraGroupNavAnsattRolleMapping(
                 entraGroupId = "46ba8787-eb24-4f7b-830f-4c5e9256de65".toUUID(),
                 kommentar = "0000-GA-TILTAK-avtaler_skriv",
@@ -323,6 +345,10 @@ val ApplicationConfigProd = AppConfig(
         dataset = System.getenv("SANITY_DATASET"),
         projectId = System.getenv("SANITY_PROJECT_ID"),
         token = System.getenv("SANITY_AUTH_TOKEN"),
+    ),
+    tilgangsmaskin = AuthenticatedHttpClientConfig(
+        url = "http://populasjonstilgangskontroll.tilgangsmaskin",
+        scope = "api://prod-gcp.tilgangsmaskin.populasjonstilgangskontroll/.default",
     ),
     veilarboppfolgingConfig = AuthenticatedHttpClientConfig(
         url = "http://veilarboppfolging.poao/veilarboppfolging/api",

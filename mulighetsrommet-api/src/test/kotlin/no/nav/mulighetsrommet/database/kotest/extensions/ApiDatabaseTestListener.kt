@@ -71,8 +71,17 @@ class ApiDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecLi
         val excludedTables = setOf(
             "flyway_schema_history",
             "kostnadssted",
+            "nav_ansatt_rolle_type",
             "utbetaling_blokkering_type",
             "utbetaling_status_type",
+            "utbetaling_linje_status_type",
+            "tilsagn_type",
+            "tilsagn_status_type",
+            "vedtak_resultat",
+            "tilskudd_opplaering",
+            "tilskudd_behandling_status",
+            "totrinnskontroll_type",
+            "personopplysning",
         )
 
         val tableNames =

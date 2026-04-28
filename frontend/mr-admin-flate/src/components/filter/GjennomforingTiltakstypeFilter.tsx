@@ -1,5 +1,5 @@
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { TiltakstypeFilter } from "@/components/filter/TiltakstypeFilter";
+import { useTiltakstyperForGjennomforinger } from "@/api/tiltakstyper/useTiltakstyperForGjennomforinger";
 
 interface Props {
   value: string[];
@@ -7,6 +7,6 @@ interface Props {
 }
 
 export function GjennomforingTiltakstypeFilter({ value, onChange }: Props) {
-  const { data: tiltakstyper } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyperForGjennomforinger();
   return <TiltakstypeFilter tiltakstyper={tiltakstyper} value={value} onChange={onChange} />;
 }

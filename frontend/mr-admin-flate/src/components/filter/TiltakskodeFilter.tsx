@@ -1,7 +1,7 @@
 import { CheckboxGroup } from "@mr/frontend-common";
-import { Tiltakskode, TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
+import { Tiltakskode, TiltakstypeKompaktDto } from "@tiltaksadministrasjon/api-client";
 import { useMemo } from "react";
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { useTiltakstyperForGjennomforinger } from "@/api/tiltakstyper/useTiltakstyperForGjennomforinger";
 
 interface Props {
   value: string[];
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function TiltakskodeFilter({ value, onChange }: Props) {
-  const { data: tiltakstyper } = useTiltakstyper();
+  const tiltakstyper = useTiltakstyperForGjennomforinger();
   const groups = useTiltakskodeFilter(tiltakstyper);
   return (
     <CheckboxGroup
@@ -22,7 +22,7 @@ export function TiltakskodeFilter({ value, onChange }: Props) {
   );
 }
 
-function useTiltakskodeFilter(tiltakstyper: TiltakstypeDto[]) {
+function useTiltakskodeFilter(tiltakstyper: TiltakstypeKompaktDto[]) {
   return useMemo(() => {
     const tiltakstyperByGroup = Object.entries(
       Object.groupBy(tiltakstyper, (tiltakstype) => tiltakstype.gruppe || ""),

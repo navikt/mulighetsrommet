@@ -30,12 +30,14 @@ sealed class Gjennomforing {
     abstract val arena: ArenaData?
     abstract val navn: String
     abstract val status: GjennomforingStatusType
-    abstract val startDato: LocalDate
+    abstract val startDato: LocalDate?
     abstract val sluttDato: LocalDate?
     abstract val deltidsprosent: Double
     abstract val antallPlasser: Int
     abstract val opprettetTidspunkt: Instant
     abstract val oppdatertTidspunkt: Instant
+    abstract val oppstart: GjennomforingOppstartstype
+    abstract val pameldingType: GjennomforingPameldingType
 
     @Serializable
     data class Tiltakstype(
@@ -143,10 +145,10 @@ data class GjennomforingAvtale(
     @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
     override val prismodell: Prismodell,
+    override val oppstart: GjennomforingOppstartstype,
+    override val pameldingType: GjennomforingPameldingType,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
-    val oppstart: GjennomforingOppstartstype,
-    val pameldingType: GjennomforingPameldingType,
     val kontorstruktur: List<Kontorstruktur>,
     val apentForPamelding: Boolean,
     val stengt: List<StengtPeriode>,
@@ -173,7 +175,7 @@ data class GjennomforingEnkeltplass(
     override val navn: String,
     override val status: GjennomforingStatusType,
     @Serializable(with = LocalDateSerializer::class)
-    override val startDato: LocalDate,
+    override val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     override val sluttDato: LocalDate?,
     override val deltidsprosent: Double,
@@ -183,7 +185,23 @@ data class GjennomforingEnkeltplass(
     @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
     override val prismodell: Prismodell,
-) : GjennomforingTiltaksadministrasjon()
+    override val oppstart: GjennomforingOppstartstype,
+    override val pameldingType: GjennomforingPameldingType,
+    val ansvarligEnhet: AnsvarligEnhet,
+) : GjennomforingTiltaksadministrasjon() {
+
+    init {
+        check(oppstart == GjennomforingOppstartstype.ENKELTPLASS) {
+            "oppstart må være satt til ${GjennomforingOppstartstype.ENKELTPLASS} for enkeltplasser"
+        }
+    }
+
+    @Serializable
+    data class AnsvarligEnhet(
+        val enhetsnummer: NavEnhetNummer,
+        val navn: String,
+    )
+}
 
 @Serializable
 data class GjennomforingArena(
@@ -205,6 +223,6 @@ data class GjennomforingArena(
     override val opprettetTidspunkt: Instant,
     @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
-    val oppstart: GjennomforingOppstartstype,
-    val pameldingType: GjennomforingPameldingType,
+    override val oppstart: GjennomforingOppstartstype,
+    override val pameldingType: GjennomforingPameldingType,
 ) : Gjennomforing()

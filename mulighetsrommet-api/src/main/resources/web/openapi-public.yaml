@@ -84,15 +84,15 @@ paths:
           description: Gjennomføringen ble ikke funnet
           headers: {}
       deprecated: false
-  /api/v1/arrangor/hovedenhet/sok/{term}:
+  /api/v1/arrangor/underenhet:
     get:
       tags:
       - Arrangor
-      description: Søk etter hovedenhet på orgnr eller navn
-      operationId: sokHovedenhet
+      description: Søk etter unrderenhet på orgnr eller navn
+      operationId: sokUnderenhet
       parameters:
-      - name: term
-        in: path
+      - name: sok
+        in: query
         required: true
         deprecated: false
         explode: false
@@ -100,14 +100,14 @@ paths:
           type: string
       responses:
         "200":
-          description: Liste av hovedenheter
+          description: Liste med underenheter
           headers: {}
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/BrregHovedenhetDto"
+                  $ref: "#/components/schemas/BrregUnderenhetDto"
         "400":
           description: Søket er blankt
           headers: {}
@@ -122,44 +122,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/v1/arrangor/hovedenhet/{orgnr}/underenheter:
-    get:
-      tags:
-      - Arrangor
-      description: Hent underliggende enheter
-      operationId: hentUnderenheter
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Liste av underenheter
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/BrregUnderenhetDto"
-        "400":
-          description: Feil format på organisasjonsnummer
-          headers: {}
-        "500":
-          description: Feil oppstod ved henting av underenheter fra Brreg
-          headers: {}
         default:
           description: Problem details
           headers: {}
@@ -190,22 +152,37 @@ components:
           $ref: "#/components/schemas/Tiltakskode"
         arrangor:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
+        status:
+          $ref: "#/components/schemas/GjennomforingStatusType"
+        oppstart:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
+        prisinformasjon:
+          type:
+          - "null"
+          - string
       required:
       - arrangor
       - id
       - oppdatertTidspunkt
       - opprettetTidspunkt
+      - oppstart
+      - pameldingType
+      - prisinformasjon
+      - status
       - tiltakskode
     Tiltakskode:
       type: string
       enum:
-      - ARBEIDSFORBEREDENDE_TRENING
       - ARBEIDSRETTET_REHABILITERING
       - AVKLARING
       - DIGITALT_OPPFOLGINGSTILTAK
       - JOBBKLUBB
       - OPPFOLGING
+      - ARBEIDSFORBEREDENDE_TRENING
       - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - TILPASSET_JOBBSTOTTE
       - ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
@@ -216,6 +193,17 @@ components:
       - HOYERE_YRKESFAGLIG_UTDANNING
       - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
       - STUDIESPESIALISERING
+      - INDIVIDUELL_JOBBSTOTTE
+      - INDIVIDUELL_JOBBSTOTTE_UNG
+      - ARBEID_MED_STOTTE
+      - ARBEIDSTRENING
+      - MIDLERTIDIG_LONNSTLSKUDD
+      - VARIG_LONNSTILSKUD
+      - MENTOR
+      - INKLUDERINGSTILSKUD
+      - SOMMERJOBB
+      - VTAO
+      - FIREARIG_LONNSTILSUDD
     TiltaksgjennomforingV2Dto.Arrangor:
       type: object
       properties:
@@ -223,6 +211,24 @@ components:
           type: string
       required:
       - organisasjonsnummer
+    GjennomforingStatusType:
+      type: string
+      enum:
+      - GJENNOMFORES
+      - AVSLUTTET
+      - AVBRUTT
+      - AVLYST
+    GjennomforingOppstartstype:
+      type: string
+      enum:
+      - LOPENDE
+      - FELLES
+      - ENKELTPLASS
+    GjennomforingPameldingType:
+      type: string
+      enum:
+      - DIREKTE_VEDTAK
+      - TRENGER_GODKJENNING
     TiltaksgjennomforingV2.Gruppe:
       type: object
       properties:
@@ -239,6 +245,12 @@ components:
           $ref: "#/components/schemas/Tiltakskode"
         arrangor:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
+        status:
+          $ref: "#/components/schemas/GjennomforingStatusType"
+        oppstart:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
         navn:
           type: string
         startDato:
@@ -249,12 +261,6 @@ components:
           - "null"
           - string
           format: date
-        status:
-          $ref: "#/components/schemas/GjennomforingStatusType"
-        oppstart:
-          $ref: "#/components/schemas/GjennomforingOppstartstype"
-        pameldingType:
-          $ref: "#/components/schemas/GjennomforingPameldingType"
         tilgjengeligForArrangorFraOgMedDato:
           type:
           - "null"
@@ -289,24 +295,6 @@ components:
       - status
       - tilgjengeligForArrangorFraOgMedDato
       - tiltakskode
-    GjennomforingStatusType:
-      type: string
-      enum:
-      - GJENNOMFORES
-      - AVSLUTTET
-      - AVBRUTT
-      - AVLYST
-    GjennomforingOppstartstype:
-      type: string
-      enum:
-      - LOPENDE
-      - FELLES
-      - ENKELTPLASS
-    GjennomforingPameldingType:
-      type: string
-      enum:
-      - DIREKTE_VEDTAK
-      - TRENGER_GODKJENNING
     TiltaksgjennomforingV2Dto:
       anyOf:
       - $ref: "#/components/schemas/TiltaksgjennomforingV2.Enkeltplass"
@@ -336,7 +324,7 @@ components:
       required:
       - lopenr
       - opprettetAar
-    BrregHovedenhetDto:
+    BrregUnderenhetDto:
       type: object
       properties:
         organisasjonsnummer:
@@ -345,51 +333,13 @@ components:
           type: string
         navn:
           type: string
-        postadresse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/BrregAdresse"
-        forretningsadresse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/BrregAdresse"
         overordnetEnhet:
-          type:
-          - "null"
-          - string
+          type: string
       required:
-      - forretningsadresse
       - navn
       - organisasjonsform
       - organisasjonsnummer
       - overordnetEnhet
-      - postadresse
-    BrregAdresse:
-      type: object
-      properties:
-        landkode:
-          type:
-          - "null"
-          - string
-        postnummer:
-          type:
-          - "null"
-          - string
-        poststed:
-          type:
-          - "null"
-          - string
-        adresse:
-          type:
-          - "null"
-          - array
-          items:
-            type: string
-      required:
-      - adresse
-      - landkode
-      - postnummer
-      - poststed
     ProblemDetail:
       type: object
       additionalProperties: {}
@@ -409,21 +359,5 @@ components:
       - status
       - title
       - type
-    BrregUnderenhetDto:
-      type: object
-      properties:
-        organisasjonsnummer:
-          type: string
-        organisasjonsform:
-          type: string
-        navn:
-          type: string
-        overordnetEnhet:
-          type: string
-      required:
-      - navn
-      - organisasjonsform
-      - organisasjonsnummer
-      - overordnetEnhet
   examples: {}
 webhooks: {}

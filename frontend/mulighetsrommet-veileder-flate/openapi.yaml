@@ -495,7 +495,7 @@ paths:
         schema:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/Tiltakskode"
       - name: erSykmeldtMedArbeidsgiver
         in: query
         required: false
@@ -551,19 +551,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/veilederflate/oppskrifter/{tiltakstypeId}:
+  /api/veilederflate/oppskrifter/{tiltakskode}:
     get:
       tags:
       - Oppskrifter
       operationId: getOppskrifter
       parameters:
-      - name: tiltakstypeId
+      - name: tiltakskode
         in: path
         required: true
         deprecated: false
         explode: false
         schema:
-          type: string
+          $ref: "#/components/schemas/Tiltakskode"
       - name: perspective
         in: query
         description: Hvilket Sanity-perspective du vil bruke
@@ -1083,13 +1083,14 @@ components:
     Tiltakskode:
       type: string
       enum:
-      - ARBEIDSFORBEREDENDE_TRENING
       - ARBEIDSRETTET_REHABILITERING
       - AVKLARING
       - DIGITALT_OPPFOLGINGSTILTAK
       - JOBBKLUBB
       - OPPFOLGING
+      - ARBEIDSFORBEREDENDE_TRENING
       - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - TILPASSET_JOBBSTOTTE
       - ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
@@ -1100,6 +1101,17 @@ components:
       - HOYERE_YRKESFAGLIG_UTDANNING
       - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
       - STUDIESPESIALISERING
+      - INDIVIDUELL_JOBBSTOTTE
+      - INDIVIDUELL_JOBBSTOTTE_UNG
+      - ARBEID_MED_STOTTE
+      - ARBEIDSTRENING
+      - MIDLERTIDIG_LONNSTLSKUDD
+      - VARIG_LONNSTILSKUD
+      - MENTOR
+      - INKLUDERINGSTILSKUD
+      - SOMMERJOBB
+      - VTAO
+      - FIREARIG_LONNSTILSUDD
     DeltakelsePeriode:
       type: object
       properties:
@@ -1402,67 +1414,29 @@ components:
         id:
           type: string
           format: uuid
-        sanityId:
-          type: string
         navn:
           type: string
-        beskrivelse:
-          type:
-          - "null"
-          - string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        system:
+          $ref: "#/components/schemas/TiltakstypeSystem"
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeFeature"
+          uniqueItems: true
+        egenskaper:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeEgenskap"
+          uniqueItems: true
         innsatsgrupper:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/Innsatsgruppe"
-        regelverkLenker:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/RegelverkLenke"
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
-        delingMedBruker:
-          type:
-          - "null"
-          - string
-        arenakode:
-          type:
-          - "null"
-          - string
-        tiltakskode:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Tiltakskode"
         tiltaksgruppe:
-          type:
-          - "null"
-          - string
-        kanKombineresMed:
-          type: array
-          items:
-            type: string
-      required:
-      - arenakode
-      - beskrivelse
-      - delingMedBruker
-      - faneinnhold
-      - id
-      - innsatsgrupper
-      - kanKombineresMed
-      - navn
-      - regelverkLenker
-      - sanityId
-      - tiltaksgruppe
-      - tiltakskode
-    RegelverkLenke:
-      type: object
-      properties:
-        _id:
           type:
           - "null"
           - string
@@ -1470,19 +1444,55 @@ components:
           type:
           - "null"
           - string
-        regelverkUrl:
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        faglenker:
           type:
           - "null"
-          - string
-        regelverkLenkeNavn:
-          type:
-          - "null"
-          - string
+          - array
+          items:
+            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
+        kanKombineresMed:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeKombinasjon"
       required:
-      - _id
       - beskrivelse
-      - regelverkLenkeNavn
-      - regelverkUrl
+      - egenskaper
+      - faglenker
+      - faneinnhold
+      - features
+      - id
+      - innsatsgrupper
+      - kanKombineresMed
+      - navn
+      - system
+      - tiltaksgruppe
+      - tiltakskode
+    TiltakstypeSystem:
+      type: string
+      enum:
+      - TILTAKSADMINISTRASJON
+      - ARENA
+      - TILTAK_ARBEIDSGIVER
+    TiltakstypeFeature:
+      type: string
+      enum:
+      - VISES_I_TILTAKSADMINISTRASJON
+      - VISES_I_MODIA
+      - MIGRERT
+      - UTFASET
+    TiltakstypeEgenskap:
+      type: string
+      enum:
+      - STOTTER_AVTALER
+      - STOTTER_ENKELTPLASSER
+      - KREVER_DELTIDSPROSENT
+      - KREVER_DIREKTE_VEDTAK
+      - KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART
+      - STOTTER_TILSKUDD_FOR_INVESTERINGER
     Faneinnhold:
       type: object
       properties:
@@ -1580,6 +1590,38 @@ components:
       - lenke
       - lenkenavn
       - visKunForVeileder
+    RedaksjoneltInnholdLenke:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+        navn:
+          type:
+          - "null"
+          - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - id
+      - navn
+      - url
+    TiltakstypeKombinasjon:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+      - id
+      - navn
     ApentForPamelding:
       type: string
       enum:
@@ -1588,18 +1630,16 @@ components:
       - APENT_ELLER_STENGT
     VeilederflateTiltak:
       anyOf:
-      - $ref: "#/components/schemas/VeilederflateTiltakEgenRegi"
       - $ref: "#/components/schemas/VeilederflateTiltakEnkeltplass"
       - $ref: "#/components/schemas/VeilederflateTiltakEnkeltplassAnskaffet"
       - $ref: "#/components/schemas/VeilederflateTiltakGruppe"
       discriminator:
         propertyName: type
         mapping:
-          no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEgenRegi: "#/components/schemas/VeilederflateTiltakEgenRegi"
           no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass: "#/components/schemas/VeilederflateTiltakEnkeltplass"
           no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet: "#/components/schemas/VeilederflateTiltakEnkeltplassAnskaffet"
           no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe: "#/components/schemas/VeilederflateTiltakGruppe"
-    VeilederflateTiltakEgenRegi:
+    VeilederflateTiltakEnkeltplass:
       type: object
       properties:
         tiltakstype:
@@ -1702,50 +1742,6 @@ components:
       - LOPENDE
       - FELLES
       - ENKELTPLASS
-    VeilederflateTiltakEnkeltplass:
-      type: object
-      properties:
-        tiltakstype:
-          $ref: "#/components/schemas/VeilederflateTiltakstype"
-        navn:
-          type: string
-        beskrivelse:
-          type:
-          - "null"
-          - string
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
-        kontaktinfo:
-          $ref: "#/components/schemas/VeilederflateKontaktinfo"
-        oppstart:
-          $ref: "#/components/schemas/GjennomforingOppstartstype"
-        oppmoteSted:
-          type:
-          - "null"
-          - string
-        fylker:
-          type: array
-          items:
-            type: string
-        enheter:
-          type: array
-          items:
-            type: string
-        sanityId:
-          type: string
-      required:
-      - beskrivelse
-      - enheter
-      - faneinnhold
-      - fylker
-      - kontaktinfo
-      - navn
-      - oppmoteSted
-      - oppstart
-      - sanityId
-      - tiltakstype
     VeilederflateTiltakEnkeltplassAnskaffet:
       type: object
       properties:
@@ -1883,6 +1879,8 @@ components:
           - string
         apentForPamelding:
           type: boolean
+        lopenummer:
+          type: string
         oppstartsdato:
           type: string
           format: date
@@ -1902,7 +1900,7 @@ components:
         personopplysningerSomKanBehandles:
           type: array
           items:
-            $ref: "#/components/schemas/PersonopplysningData"
+            $ref: "#/components/schemas/Personopplysning"
       required:
       - apentForPamelding
       - arrangor
@@ -1913,6 +1911,7 @@ components:
       - fylker
       - id
       - kontaktinfo
+      - lopenummer
       - navn
       - oppmoteSted
       - oppstart
@@ -1951,22 +1950,26 @@ components:
       required:
       - enhet
       - verdi
-    PersonopplysningData:
+    Personopplysning:
       type: object
       properties:
-        personopplysning:
-          $ref: "#/components/schemas/Personopplysning"
-        tittel:
+        type:
+          $ref: "#/components/schemas/Personopplysning.Type"
+        title:
           type: string
-        hjelpetekst:
+        helpText:
           type:
           - "null"
           - string
+        sortKey:
+          type: integer
+          format: int32
       required:
-      - hjelpetekst
-      - personopplysning
-      - tittel
-    Personopplysning:
+      - helpText
+      - sortKey
+      - title
+      - type
+    Personopplysning.Type:
       type: string
       enum:
       - NAVN
@@ -1993,6 +1996,7 @@ components:
       - NASJONALITET
       - ADRESSESPERRE
       - VERGEMAL
+      - STEMME
     SanityPerspective:
       type: string
       enum:

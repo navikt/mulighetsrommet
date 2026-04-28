@@ -15,6 +15,7 @@ import {
   OpprettKravDeltakere,
   OpprettKravVeiviserSteg,
   OpprettKravVeiviserStegDto,
+  PeriodeType,
 } from "api-client";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link as ReactRouterLink, MetaFunction, useNavigate } from "react-router";
@@ -25,13 +26,14 @@ import {
   useOrgnrFromUrl,
 } from "~/utils/navigation";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { isLaterOrSameDay, parseDate } from "@mr/frontend-common/utils/date";
 import { getEnvironment } from "~/services/environment";
 import DeltakereSteg from "~/components/opprett-krav/DeltakereSteg";
 import UtbetalingSteg from "~/components/opprett-krav/UtbetalingSteg";
 import VedleggSteg from "~/components/opprett-krav/VedleggSteg";
 import OppsummeringSteg from "~/components/opprett-krav/OppsummeringSteg";
-import InnsendingsinformasjonSteg from "~/components/opprett-krav/InnsendingsinformasjonSteg";
+import InnsendingsinformasjonSteg, {
+  validateInnsendingsinformasjon,
+} from "~/components/opprett-krav/InnsendingsinformasjonSteg";
 import { Laster } from "~/components/common/Laster";
 import { useOpprettKravData } from "~/hooks/useOpprettKravData";
 import { useOpprettKravDeltakere } from "~/hooks/useOpprettKravDeltakere";
@@ -52,7 +54,7 @@ export const meta: MetaFunction = () => {
 export interface OpprettKravFormState {
   periodeStart?: string;
   periodeSlutt?: string;
-  periodeInklusiv: boolean;
+  periodeType: PeriodeType;
   tilsagnId?: string;
   belop?: string;
   kontonummer?: string;
@@ -98,7 +100,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [formState, setFormState] = useState<OpprettKravFormState>({
-    periodeInklusiv: false,
+    periodeType: PeriodeType.EKSKLUSIV,
     files: [],
   });
   const [clientErrors, setClientErrors] = useState<FieldError[]>([]);
@@ -119,49 +121,6 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
   const updateFormState = useCallback((updates: Partial<OpprettKravFormState>) => {
     setFormState((prev) => ({ ...prev, ...updates }));
   }, []);
-
-  const validateInnsendingsinformasjon = (): boolean => {
-    const newErrors: FieldError[] = [];
-
-    switch (innsendingSteg.datoVelger.type) {
-      case "DatoVelgerRange": {
-        if (!formState.periodeStart) {
-          newErrors.push({ pointer: "/periodeStart", detail: "Du må fylle ut fra dato" });
-        }
-        if (!formState.periodeSlutt) {
-          newErrors.push({ pointer: "/periodeSlutt", detail: "Du må fylle ut til dato" });
-        }
-        if (
-          formState.periodeStart &&
-          isLaterOrSameDay(parseDate(formState.periodeStart), parseDate(formState.periodeSlutt))
-        ) {
-          newErrors.push({
-            pointer: "/periodeSlutt",
-            detail: "Periodeslutt må være etter periodestart",
-          });
-        }
-        break;
-      }
-      case "DatoVelgerSelect": {
-        if (!formState.periodeStart) {
-          newErrors.push({ pointer: "/periodeStart", detail: "Du må velge en periode" });
-        }
-        break;
-      }
-      case undefined:
-        throw Error("undefined datoVelgerType");
-    }
-
-    if (!formState.tilsagnId) {
-      newErrors.push({
-        pointer: "/tilsagnId",
-        detail: "Kan ikke opprette utbetalingskrav uten gyldig tilsagn",
-      });
-    }
-
-    setClientErrors(newErrors);
-    return newErrors.length === 0;
-  };
 
   const validateUtbetaling = (): boolean => {
     const newErrors: FieldError[] = [];
@@ -200,7 +159,14 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
     setClientErrors([]);
 
     if (currentStep.type === OpprettKravVeiviserSteg.INFORMASJON) {
-      if (!validateInnsendingsinformasjon()) return;
+      const innsendingErrors = validateInnsendingsinformasjon({
+        data: data.innsendingSteg,
+        formState,
+      });
+      if (innsendingErrors.length > 0) {
+        setClientErrors(innsendingErrors);
+        return;
+      }
 
       try {
         const result = await fetchDeltakere.mutateAsync({
@@ -267,6 +233,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
       belop: Number(formState.belop),
       periodeStart: formState.periodeStart!,
       periodeSlutt: formState.periodeSlutt!,
+      periodeType: formState.periodeType,
       kidNummer: formState.kid || null,
       vedlegg: acceptedFiles.map((f) => f.file),
     });

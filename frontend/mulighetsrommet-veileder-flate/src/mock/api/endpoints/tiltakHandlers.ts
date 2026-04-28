@@ -87,5 +87,5 @@ function filtrerInnsatsgruppe(
 }
 
 function filtrerTiltakstyper(gjennomforing: VeilederflateTiltak, tiltakstyper: string[]): boolean {
-  return tiltakstyper.length === 0 || tiltakstyper.includes(gjennomforing.tiltakstype.sanityId);
+  return tiltakstyper.length === 0 || tiltakstyper.includes(gjennomforing.tiltakstype.tiltakskode);
 }

@@ -4,15 +4,15 @@ import {
   AmoKategoriseringInnholdElement as InnholdElement,
   AvtaleDto,
   Avtaletype,
-  DelutbetalingReturnertAarsak,
+  UtbetalingLinjeReturnertAarsak,
   TilsagnStatusAarsak,
   TilsagnType,
   ValidationError,
   AvbrytGjennomforingAarsak,
   AmoKategoriseringDto,
   AmoKurstype,
-  TilsagnDeltakerPersonalia,
   Tiltakskode,
+  TilsagnDeltakerDto,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -241,15 +241,15 @@ export function tilsagnAarsakTilTekst(aarsak: TilsagnStatusAarsak): string {
   }
 }
 
-export function delutbetalingAarsakTilTekst(aarsak: DelutbetalingReturnertAarsak): string {
+export function utbetalingLinjeAarsakTilTekst(aarsak: UtbetalingLinjeReturnertAarsak): string {
   switch (aarsak) {
-    case DelutbetalingReturnertAarsak.FEIL_BELOP:
+    case UtbetalingLinjeReturnertAarsak.FEIL_BELOP:
       return "Feil beløp";
-    case DelutbetalingReturnertAarsak.ANNET:
+    case UtbetalingLinjeReturnertAarsak.ANNET:
       return "Annet";
-    case DelutbetalingReturnertAarsak.PROPAGERT_RETUR:
+    case UtbetalingLinjeReturnertAarsak.PROPAGERT_RETUR:
       return "Automatisk returnert som følge av at en annen utbetalingslinje ble returnert";
-    case DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS:
+    case UtbetalingLinjeReturnertAarsak.TILSAGN_FEIL_STATUS:
       return "Tilsagnet har ikke lenger status godkjent og kan derfor ikke benyttes for utbetaling";
   }
 }
@@ -286,7 +286,7 @@ export function avbrytGjennomforingAarsakTilTekst(aarsak: AvbrytGjennomforingAar
   }
 }
 
-export function formatTilsagnDeltaker(deltaker: TilsagnDeltakerPersonalia): string {
+export function formatTilsagnDeltaker(deltaker: TilsagnDeltakerDto): string {
   const enhet = deltaker.oppfolgingEnhet
     ? deltaker.oppfolgingEnhet.navn
     : deltaker.geografiskEnhet?.navn;

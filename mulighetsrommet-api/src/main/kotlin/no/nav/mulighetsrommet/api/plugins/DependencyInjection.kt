@@ -37,10 +37,13 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.GjennomforingRequestKafkaConsumer
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.ReplikerDeltakerEnkeltplassKafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
@@ -48,6 +51,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
+import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
 import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
@@ -66,7 +70,10 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
+import no.nav.mulighetsrommet.api.tiltakstype.service.RedaksjoneltInnholdLenkeService
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
@@ -165,6 +172,11 @@ private fun kafka(appConfig: AppConfig) = module {
 
     single {
         val consumers = mapOf(
+            config.clients.handterGjennomforingRequest to GjennomforingRequestKafkaConsumer(
+                get(),
+                get(),
+                get(),
+            ),
             config.clients.datavarehusGjennomforingerConsumer to DatavarehusTiltakV1KafkaProducer(
                 DatavarehusTiltakV1KafkaProducer.Config(config.topics.datavarehusTiltakTopic),
                 get(),
@@ -181,6 +193,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 db = get(),
                 genererUtbetalingService = get(),
             ),
+            config.clients.replikerDeltakerEnkeltplass to ReplikerDeltakerEnkeltplassKafkaConsumer(get(), get()),
             config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
             config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get(), get()),
             config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
@@ -234,6 +247,13 @@ private fun services(appConfig: AppConfig) = module {
     val azureAdTokenProvider = AzureAdTokenProvider(texasClient)
     val maskinportenTokenProvider = MaskinportenTokenProvider(texasClient)
 
+    single {
+        TilgangsmaskinClient(
+            baseUrl = appConfig.tilgangsmaskin.url,
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.tilgangsmaskin.scope),
+            clientEngine = appConfig.tilgangsmaskin.engine ?: appConfig.engine,
+        )
+    }
     single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
@@ -392,17 +412,26 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
-    single { VeilederflateService(get(), get(), get()) }
+    single {
+        VeilederflateService(
+            get(),
+            get(),
+            get(),
+            get(),
+        )
+    }
     single { BrukerService(get(), get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get()) }
     single { NavAnsattSyncService(get(), get(), get(), get(), get()) }
     single { NavAnsattPrincipalService(get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
-    single { GjennomforingDetaljerService(get(), get(), get()) }
+    single { GjennomforingDetaljerService(get(), get(), get(), get()) }
     single {
         GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
+            get(),
+            get(),
             get(),
         )
     }
@@ -420,6 +449,15 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { TiltakstypeService(appConfig.tiltakstyper, get()) }
+    single {
+        TiltakstypeDetaljerService(
+            TiltakstypeDetaljerService.Config(appConfig.kafka.topics.sisteTiltakstyperTopic),
+            get(),
+            get(),
+            get(),
+        )
+    }
+    single { RedaksjoneltInnholdLenkeService(get()) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { KostnadsstedService(get()) }
@@ -455,7 +493,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { PersonaliaService(get(), get(), get(), get()) }
+    single { PersonaliaService(get(), get(), get(), get(), get()) }
     single<FeatureToggleService> { UnleashFeatureToggleService(appConfig.unleash) }
     single { LagretFilterService(get()) }
     single {
@@ -466,11 +504,11 @@ private fun services(appConfig: AppConfig) = module {
             ),
             db = get(),
             navAnsattService = get(),
-            personaliaService = get(),
         )
     }
+    single { TilskuddBehandlingService(get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
-    single { OppgaverService(get()) }
+    single { OppgaverService(get(), get()) }
     single { ArrangorflateService(get(), get(), get()) }
     single { ArrangorflateUtbetalingService(get(), get()) }
     single {
@@ -509,6 +547,7 @@ private fun tasks(config: AppConfig) = module {
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
     single { JournalforEnkeltplassTilsagnsbrev(get(), get(), get(), get(), get(), get()) }
     single { DistribuerTilsagnsbrev(get(), get()) }
+    single { UpdateGjennomforingAvtaleFreeTextSearch(get(), get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(
             get(),
@@ -541,6 +580,7 @@ private fun tasks(config: AppConfig) = module {
         val beregnUtbetaling: BeregnUtbetaling by inject()
         val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
         val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
+        val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
 
         val db: Database by inject()
 
@@ -555,6 +595,7 @@ private fun tasks(config: AppConfig) = module {
                 beregnUtbetaling.task,
                 journalforEnkeltplassTilsagnsbrev.task,
                 distribuerTilsagnsbrev.task,
+                updateGjennomforingAvtaleFreeTextSearch.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())

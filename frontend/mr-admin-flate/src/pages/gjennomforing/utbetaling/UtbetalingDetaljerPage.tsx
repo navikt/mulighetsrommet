@@ -1,12 +1,13 @@
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import {
+  DocumentClass,
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingStatusDtoType,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { Box, CopyButton, Heading, HGrid, HStack, Link, VStack } from "@navikt/ds-react";
+import { Box, CopyButton, Heading, HelpText, HGrid, HStack, Link, VStack } from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
@@ -15,7 +16,6 @@ import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import {
   useUtbetaling,
   useUtbetalingBeregning,
-  useUtbetalingEndringshistorikk,
   useUtbetalingsLinjer,
 } from "./utbetalingPageLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -28,12 +28,12 @@ import {
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { BetalingsinformasjonDetaljer } from "@/components/utbetaling/BetalingsinformasjonDetaljer";
-import { MetadataContainer } from "@/layouts/MetadataContainer";
+import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
 
-  const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
+  const { data: historikk } = useEndringshistorikk(utbetalingId, DocumentClass.UTBETALING);
   const { utbetaling, handlinger } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
 
@@ -52,18 +52,26 @@ export function UtbetalingDetaljerPage() {
               Detaljer
             </Heading>
             <VStack gap="space-16">
-              <MetadataContainer>
-                <MetadataVStack
-                  label={utbetalingTekster.metadata.periode}
-                  value={formaterPeriode(utbetaling.periode)}
+              <MetadataVStack
+                label={utbetalingTekster.metadata.status}
+                value={<UtbetalingStatusTag status={utbetaling.status} />}
+              />
+              {utbetaling.avbruttBegrunnelse && (
+                <MetadataFritekstfelt
+                  label={utbetalingTekster.metadata.avbruttBegrunnelse}
+                  value={utbetaling.avbruttBegrunnelse}
                 />
-                <MetadataVStack
-                  label={utbetalingTekster.metadata.status}
-                  value={<UtbetalingStatusTag status={utbetaling.status} />}
-                />
-              </MetadataContainer>
-              <MetadataContainer>
-                {utbetaling.type.tagName && (
+              )}
+              <MetadataVStack
+                label={utbetalingTekster.metadata.periode}
+                value={formaterPeriode(utbetaling.periode)}
+              />
+              <MetadataVStack
+                label={utbetalingTekster.beregning.belop.label}
+                value={formaterValutaBelop(utbetaling.beregning)}
+              />
+              {utbetaling.type.tagName && (
+                <HGrid columns="1fr 1fr" gap="space-24">
                   <MetadataVStack
                     label={utbetalingTekster.metadata.type}
                     value={
@@ -73,24 +81,38 @@ export function UtbetalingDetaljerPage() {
                       </HStack>
                     }
                   />
-                )}
-                <MetadataVStack
-                  label={utbetalingTekster.beregning.belop.label}
-                  value={formaterValutaBelop(utbetaling.beregning)}
-                />
-              </MetadataContainer>
-              {utbetaling.utbetalesTidligstDato && (
-                <MetadataContainer>
-                  <MetadataVStack
-                    label={utbetalingTekster.metadata.utbetalesTidligstDato}
-                    value={formaterDato(utbetaling.utbetalesTidligstDato)}
-                  />
-                </MetadataContainer>
+                  {utbetaling.korreksjon?.opprinneligUtbetaling && (
+                    <MetadataVStack
+                      label={utbetalingTekster.korreksjon.gjelderUtbetaling}
+                      value={
+                        <Link
+                          as={ReactRouterLink}
+                          to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
+                        >
+                          Opprinnelig utbetaling
+                        </Link>
+                      }
+                    />
+                  )}
+                </HGrid>
               )}
-              {utbetaling.avbruttBegrunnelse && (
+              {utbetaling.korreksjon && (
                 <MetadataFritekstfelt
-                  label={utbetalingTekster.metadata.avbruttBegrunnelse}
-                  value={utbetaling.avbruttBegrunnelse}
+                  label={utbetalingTekster.korreksjon.begrunnelse}
+                  value={utbetaling.korreksjon.begrunnelse}
+                />
+              )}
+              {utbetaling.utbetalesTidligstDato && (
+                <MetadataVStack
+                  label={
+                    <HStack align="center" gap="space-4">
+                      {utbetalingTekster.metadata.utbetalesTidligstDato}
+                      <HelpText>
+                        {utbetalingTekster.metadata.utbetalesTidligstDatoHelpText}
+                      </HelpText>
+                    </HStack>
+                  }
+                  value={formaterDato(utbetaling.utbetalesTidligstDato)}
                 />
               )}
             </VStack>
@@ -120,27 +142,7 @@ export function UtbetalingDetaljerPage() {
                   }
                 />
               )}
-              <MetadataContainer>
-                {utbetaling.korreksjon?.opprinneligUtbetaling && (
-                  <MetadataVStack
-                    label={utbetalingTekster.korreksjon.gjelderUtbetaling}
-                    value={
-                      <Link
-                        as={ReactRouterLink}
-                        to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
-                      >
-                        Opprinnelig utbetaling
-                      </Link>
-                    }
-                  />
-                )}
-                {utbetaling.korreksjon && (
-                  <MetadataFritekstfelt
-                    label={utbetalingTekster.korreksjon.begrunnelse}
-                    value={utbetaling.korreksjon.begrunnelse}
-                  />
-                )}
-              </MetadataContainer>
+
               {utbetaling.begrunnelseMindreBetalt && (
                 <MetadataFritekstfelt
                   label={utbetalingTekster.metadata.begrunnelseMindreBetalt}

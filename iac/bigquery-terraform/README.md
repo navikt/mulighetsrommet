@@ -129,9 +129,11 @@ terraform destroy
 ```
 
 ## Eksponere tabeller via datastream
+
 Lag migreringer som:
- - Gir lesetilgang  `datastream` til tabellen
- - Legger dem til publiseringen `ds_publication`
+
+- Gir lesetilgang  `datastream` til tabellen
+- Legger dem til publiseringen `ds_publication`
 
 ```postgresql
 do
@@ -150,37 +152,46 @@ Legg deretter til ønsket tabell under `postgresql_include_schemas` i datastream
 
 ### La brukere/service kontoer få tilgang til BigQuery datasett
 
-Eksterne utenfor teamet må gis rollen `roles/bigquery.metadataViewer` for å kunne se datasettet.\
-Dette vil gi de tilgang til metadata, som tabellnavn, hvilke kolonner som finnes og hvilke type data som er tilgjengelig.\
->***OBS!* Alle med denne rollen vil da også få tilgang til å lese ut data fra `authorized_views`**
+Eksterne utenfor teamet må gis rollen `roles/bigquery.metadataViewer` for å kunne se datasettet.
+Dette vil gi de tilgang til metadata, som tabellnavn, hvilke kolonner som finnes og hvilke type data som er
+tilgjengelig.
+> ***OBS!* Alle med denne rollen vil da også få tilgang til å lese ut data fra `authorized_views`**
 
 ### Logger - Datastream og BigQuery
 
 Loggene finner du i [GCP Observability Monitor](https://console.cloud.google.com/monitoring).\
-[#team-valp-monitoring](https://nav-it.slack.com/archives/C04QSFWJTMW) får alerts når det er noe muffins i monitor, konfiguerert via [Alert Policies](https://console.cloud.google.com/monitoring/alerting/policies).
+[#team-valp-monitoring](https://nav-it.slack.com/archives/C04QSFWJTMW) får alerts når det er noe muffins i monitor,
+konfiguerert via [Alert Policies](https://console.cloud.google.com/monitoring/alerting/policies).
 
 ### Feilsøking
 
 - **Hvorfor feiler `terraform apply` første gang det kjøres?**\
-    Første gang `terraform apply` kjøres så kan det være at
-    bigquery views ikke blir opprettet. Dette skjer fordi de er avhengig av at tabellene finnes i dataset'et, men det vil
-    typisk ta litt tid før disse tabellene blir opprettet av datastreamen. Det burde fungere å kjøre `terraform apply` på
-    nytt når tabellene har blitt replikert til BigQuery.
+  Første gang `terraform apply` kjøres så kan det være at
+  bigquery views ikke blir opprettet. Dette skjer fordi de er avhengig av at tabellene finnes i dataset'et, men det vil
+  typisk ta litt tid før disse tabellene blir opprettet av datastreamen. Det burde fungere å kjøre `terraform apply` på
+  nytt når tabellene har blitt replikert til BigQuery.
 - **Hvorfor ser jeg ikke oppdatert data i BigQuery?**\
-    Standard innstilling for `bigquery_table_freshness` er satt til
-    1t, som betyr at det kan ta like lang tid før endringer i data er tilgjengelig i BigQuery. Dette kan endres i
-    Datastream-innstillingene, men merk at dette også øker kostnadene av tjenesten.
+  Standard innstilling for `bigquery_table_freshness` er satt til
+  1t, som betyr at det kan ta like lang tid før endringer i data er tilgjengelig i BigQuery. Dette kan endres i
+  Datastream-innstillingene, men merk at dette også øker kostnadene av tjenesten.
 - **Hvorfor ser jeg endringer ved `terraform plan` i GCP som ikke er sjekket inn i kode?**\
-    Kan oppstår når andre applikasjoner har gitt roller til våre ressurser uten at vi vet om det. Vær spesielt obs på dette for prod.\
-    Eks:
-  - *En servicekonto til metabase har dukket opp i access roles for en gitt ressurs.*\
-     I dette tilfellet var grunnen at dataproduktet vårt var delt til Metabase via Datamarkedsplassen.
+  Kan oppstår når andre applikasjoner har gitt roller til våre ressurser uten at vi vet om det. Vær spesielt obs på
+  dette for prod.\
+  Eks:
+    - *En servicekonto til metabase har dukket opp i access roles for en gitt ressurs.*\
+      I dette tilfellet var grunnen at dataproduktet vårt var delt til Metabase via Datamarkedsplassen.
 - **Hvorfor får vi feilmeldingen `UNSUPPORTED_EVENTS_DISCARDED` i loggene?**
-  - Datastream talker ikke endringer av datatypen på kolonner i streamede tabeller. Har vi nylig gjort en database migrering?\
-    **Fiks**:
-    - Drop kolonnen i truffet tabell via [BigQuery](https://console.cloud.google.com/bigquery)
-    - Kjør en `Initiate Backfill` av samme tabell via [Datastream -> Objects fanen](https://console.cloud.google.com/datastream/streams)
+    - Datastream takler ikke endringer av datatypen på kolonner i streamede tabeller. Har vi nylig gjort en
+      database-migrering?
+    - **Fiks**:
+        1. Drop kolonnen i truffet tabell via [BigQuery](https://console.cloud.google.com/bigquery)
+        2. Kjør en `Initiate Backfill` av samme tabell
+           via [Datastream -> Objects fanen](https://console.cloud.google.com/datastream/streams)
 - **Hvorfor får jeg feilmedling BAD_CREDENTIALS når jeg prøver oppdatere datastreams.tf?**
-  - Autentisering secret har blitt rotert/utdatert
-    **Fiks**:
-    - Lag nye secrets med scriptet i **Opprette secret for datastream-bruker**
+    - Autentisering secret har blitt rotert/utdatert
+    - **Fiks:** Lag nye secrets med scriptet i **Opprette secret for datastream-bruker**
+- **googleapi: Error 400: View `<resouce name>` to authorize not found in location europe-north1., invalid**
+    - Denne feilen kan oppstå fordi vi forsøker å sette `<resource name>`-viewet som et `authroized_view` på en
+      datastream før selve viewet har blitt opprettet.
+    - **Fiks:** Opprett view først, deretter gi viewet leserettigheter. (Evt. fiks terraform-config til å utlede denne
+      avhengigheten selv)

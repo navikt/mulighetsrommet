@@ -53,6 +53,10 @@ class Pagination private constructor(
 
 data class PaginatedResult<T>(val totalCount: Int, val items: List<T>)
 
+inline fun <T, U> PaginatedResult<T>.map(transform: (T) -> U): PaginatedResult<U> {
+    return PaginatedResult(totalCount, items.map(transform))
+}
+
 /**
  * Utility som utvider [Query] med en accessor for paginert data.
  *

@@ -12,6 +12,7 @@ import arrow.core.raise.zipOrAccumulate
 import arrow.core.right
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
+import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.ContentDisposition
 import io.ktor.http.ContentType
@@ -31,7 +32,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
@@ -40,17 +40,18 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.services.ExcelService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
@@ -64,6 +65,8 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
@@ -73,6 +76,7 @@ fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
     val avtaleGjennomforinger: GjennomforingAvtaleService by inject()
     val gjennomforinger: GjennomforingDetaljerService by inject()
+    val enkeltplasser: GjennomforingEnkeltplassService by inject()
 
     route("gjennomforinger") {
         authorize(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) {
@@ -99,10 +103,11 @@ fun Route.gjennomforingRoutes() {
             }) {
                 val request = call.receive<GjennomforingRequest>()
                 val navIdent = getNavIdent()
+                val accessType = call.getAccessType().requireAzureAd()
 
                 val result = avtaleGjennomforinger.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
-                    .flatMap { gjennomforinger.getOrInternalServerError(it.id) }
+                    .flatMap { gjennomforinger.getOrInternalServerError(it.id, accessType) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -227,7 +232,7 @@ fun Route.gjennomforingRoutes() {
                 val response = avtaleGjennomforinger
                     .setTilgjengeligForArrangorDato(
                         id,
-                        request.tilgjengeligForArrangorDato,
+                        request.tilgjengeligForArrangorDato?.parseOrNull(),
                         navIdent,
                     )
                     .mapLeft { ValidationError(errors = it) }
@@ -262,13 +267,14 @@ fun Route.gjennomforingRoutes() {
                 val id: UUID by call.pathParameters
                 val navIdent = getNavIdent()
                 val request = call.receive<SetStengtHosArrangorRequest>()
+                val accessType = call.getAccessType().requireAzureAd()
 
                 val result = request.validate()
                     .flatMap { (periode, beskrivelse) ->
                         avtaleGjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
-                    .flatMap { gjennomforinger.getOrInternalServerError(it.id) }
+                    .flatMap { gjennomforinger.getOrInternalServerError(it.id, accessType) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -330,36 +336,73 @@ fun Route.gjennomforingRoutes() {
             }
         }
 
-        get({
+        authorize(Rolle.BESLUTTER_TILSAGN) {
+            post("{id}/godkjenn-okonomi", {
+                tags = setOf("Gjennomforing")
+                operationId = "godkjennGjennomforingOkonomi"
+                request {
+                    pathParameterUuid("id")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Økonomi ble godkjent"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+
+                val result = enkeltplasser.godkjennOkonomi(id, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            post("{id}/sett-pa-vent-okonomi", {
+                tags = setOf("Gjennomforing")
+                operationId = "settPaVentGjennomforingOkonomi"
+                request {
+                    pathParameterUuid("id")
+                    body<SettPaVentOkonomiRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Økonomi ble satt på vent"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+                val request = call.receive<SettPaVentOkonomiRequest>()
+
+                val result = enkeltplasser.settPaVentOkonomi(id, navIdent, request.forklaring)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
+            }
+        }
+
+        post({
             tags = setOf("Gjennomforing")
             operationId = "getGjennomforinger"
             request {
-                queryParameter<String>("search")
-                queryParameter<List<String>>("tiltakstyper") {
-                    explode = true
-                }
-                queryParameter<List<GjennomforingStatusType>>("statuser") {
-                    explode = true
-                }
-                queryParameter<List<NavEnhetNummer>>("navEnheter") {
-                    explode = true
-                }
-                queryParameter<List<String>>("arrangorer") {
-                    explode = true
-                }
-                queryParameterUuid("avtaleId")
-                queryParameter<Boolean>("publisert")
-                queryParameter<Boolean>("visMineGjennomforinger")
                 queryParameter<Int>("page")
                 queryParameter<Int>("size")
-                queryParameter<String>("sort")
-                queryParameter<List<GjennomforingType>>("gjennomforingTyper") {
-                    explode = true
-                }
+                body<GetGjennomforingerRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Gjennomføringer filtrert på query parameters"
+                    description = "Gjennomføringer"
                     body<PaginatedResponse<GjennomforingKompaktDto>>()
                 }
                 default {
@@ -369,40 +412,24 @@ fun Route.gjennomforingRoutes() {
             }
         }) {
             val pagination = getPaginationParams()
-            val filter = getAdminTiltaksgjennomforingsFilter()
+            val filter = getAdminTiltaksgjennomforingFilter()
 
             val result = gjennomforinger.getAllKompaktDto(pagination, filter)
 
             call.respond(result)
         }
 
-        get("/excel", {
+        post("/excel", {
             tags = setOf("Gjennomforing")
             operationId = "lastNedGjennomforingerSomExcel"
             request {
-                queryParameter<String>("search")
-                queryParameter<List<String>>("tiltakstyper") {
-                    explode = true
-                }
-                queryParameter<List<GjennomforingStatusType>>("statuser") {
-                    explode = true
-                }
-                queryParameter<List<NavEnhetNummer>>("navEnheter") {
-                    explode = true
-                }
-                queryParameter<List<String>>("arrangorer") {
-                    explode = true
-                }
-                queryParameterUuid("avtaleId")
-                queryParameter<Boolean>("publisert")
-                queryParameter<Boolean>("visMineGjennomforinger")
                 queryParameter<Int>("page")
                 queryParameter<Int>("size")
-                queryParameter<String>("sort")
+                body<GetGjennomforingerRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Gjennomføringer filtrert på query parameters"
+                    description = "Gjennomføringer eksportert til Excel"
                     body<ByteArray> {
                         mediaTypes(ContentType.Application.Xlsx)
                     }
@@ -414,10 +441,9 @@ fun Route.gjennomforingRoutes() {
             }
         }) {
             val pagination = getPaginationParams()
-            val filter = getAdminTiltaksgjennomforingsFilter()
+            val filter = getAdminTiltaksgjennomforingFilter()
 
-            val result = gjennomforinger.getAllKompaktDto(pagination, filter)
-            val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
+            val file = gjennomforinger.exportToExcel(pagination, filter)
 
             call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
             call.response.header(
@@ -449,8 +475,9 @@ fun Route.gjennomforingRoutes() {
             }
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
+            val accessType = call.getAccessType().requireAzureAd()
 
-            gjennomforinger.getGjennomforingDetaljerDto(id)
+            gjennomforinger.getGjennomforingDetaljerDto(id, accessType)
                 ?.let { call.respond(it) }
                 ?: call.respondUkjentGjennomforing(id)
         }
@@ -474,7 +501,8 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            gjennomforinger.getGjennomforingDetaljerDto(id)
+            val accessType = call.getAccessType().requireAzureAd()
+            gjennomforinger.getGjennomforingDetaljerDto(id, accessType)
                 ?.let { detaljer ->
                     val tiltaksnummer = when (detaljer.gjennomforing) {
                         is GjennomforingAvtaleDto -> detaljer.gjennomforing.tiltaksnummer
@@ -485,28 +513,6 @@ fun Route.gjennomforingRoutes() {
                         ?: call.respond(HttpStatusCode.NoContent)
                 }
                 ?: call.respondUkjentGjennomforing(id)
-        }
-
-        get("{id}/historikk", {
-            tags = setOf("Gjennomforing")
-            operationId = "getGjennomforingEndringshistorikk"
-            request {
-                pathParameterUuid("id")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Gjennomføringens endringshistorikk"
-                    body<EndringshistorikkDto>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-            val historikk = avtaleGjennomforinger.getEndringshistorikk(id)
-            call.respond(historikk)
         }
 
         get("{id}/deltaker-summary", {
@@ -573,14 +579,38 @@ fun Route.gjennomforingRoutes() {
     }
 }
 
-private fun GjennomforingDetaljerService.getOrInternalServerError(id: UUID): Either<InternalServerError, GjennomforingDetaljerDto> {
-    return getGjennomforingDetaljerDto(id)?.right()
+private suspend fun GjennomforingDetaljerService.getOrInternalServerError(
+    id: UUID,
+    accessType: AccessType.OBO.AzureAd,
+): Either<InternalServerError, GjennomforingDetaljerDto> {
+    return getGjennomforingDetaljerDto(id, accessType)?.right()
         ?: InternalServerError("Klarte ikke hente detaljer om gjennomforing=$id").left()
 }
 
 private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {
     respondWithProblemDetail(BadRequest("Ingen tiltaksgjennomføring med id=$id"))
 }
+
+@Serializable
+data class GetGjennomforingerRequest(
+    val search: String? = null,
+    val navEnheter: List<NavEnhetNummer> = emptyList(),
+    val tiltakstyper: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        > = emptyList(),
+    val statuser: List<GjennomforingStatusType> = emptyList(),
+    val sort: String? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val avtaleId: UUID? = null,
+    val arrangorer: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        > = emptyList(),
+    val publisert: Boolean? = null,
+    val visMineGjennomforinger: Boolean = false,
+    val gjennomforingTyper: List<GjennomforingType> = emptyList(),
+)
 
 data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
@@ -596,36 +626,22 @@ data class AdminTiltaksgjennomforingFilter(
     val gjennomforingTyper: List<GjennomforingType> = emptyList(),
 )
 
-fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
-    val search = call.request.queryParameters["search"]
-    val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
-    val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
-    val statuser = call.parameters.getAll("statuser")
-        ?.map { GjennomforingStatusType.valueOf(it) }
-        ?: emptyList()
-    val sortering = call.request.queryParameters["sort"]
-    val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
-    val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
-    val publisert = call.request.queryParameters["publisert"]?.toBoolean()
-    val administratorNavIdent = call.parameters["visMineGjennomforinger"]
-        ?.takeIf { it == "true" }
-        ?.let { getNavIdent() }
-    val gjennomforingTyper = call.parameters.getAll("gjennomforingTyper")
-        ?.map { GjennomforingType.valueOf(it) }
-        ?: emptyList()
+suspend fun RoutingContext.getAdminTiltaksgjennomforingFilter(): AdminTiltaksgjennomforingFilter {
+    val request = call.receive<GetGjennomforingerRequest>()
+    val administratorNavIdent = request.visMineGjennomforinger.takeIf { it }?.let { getNavIdent() }
 
     return AdminTiltaksgjennomforingFilter(
-        search = search,
-        navEnheter = navEnheter,
-        tiltakstypeIder = tiltakstypeIder,
-        statuser = statuser,
-        sortering = sortering,
-        avtaleId = avtaleId,
-        arrangorIds = arrangorIds,
-        publisert = publisert,
+        search = request.search,
+        navEnheter = request.navEnheter,
+        tiltakstypeIder = request.tiltakstyper,
+        gjennomforingTyper = request.gjennomforingTyper,
+        statuser = request.statuser,
+        sortering = request.sort,
+        avtaleId = request.avtaleId,
+        arrangorIds = request.arrangorer,
+        publisert = request.publisert,
         administratorNavIdent = administratorNavIdent,
         koordinatorNavIdent = administratorNavIdent,
-        gjennomforingTyper = gjennomforingTyper,
     )
 }
 
@@ -709,6 +725,11 @@ data class PublisertRequest(
 )
 
 @Serializable
+data class SettPaVentOkonomiRequest(
+    val forklaring: String? = null,
+)
+
+@Serializable
 data class SetApentForPameldingRequest(
     val apentForPamelding: Boolean,
 )
@@ -765,8 +786,7 @@ data class SetStengtHosArrangorRequest(
 
 @Serializable
 data class SetTilgjengligForArrangorRequest(
-    @Serializable(with = LocalDateSerializer::class)
-    val tilgjengeligForArrangorDato: LocalDate?,
+    val tilgjengeligForArrangorDato: String?,
 )
 
 @Serializable
@@ -783,4 +803,6 @@ enum class GjennomforingHandling {
     OPPRETT_EKSTRATILSAGN,
     OPPRETT_TILSAGN_FOR_INVESTERINGER,
     OPPRETT_UTBETALING,
+    GODKJENN_ENKELTPLASS_OKONOMI,
+    SETT_PA_VENT_ENKELTPLASS_OKONOMI,
 }

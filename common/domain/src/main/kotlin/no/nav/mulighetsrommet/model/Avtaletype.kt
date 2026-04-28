@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.model
 
-enum class Avtaletype(val beskrivelse: String) {
+enum class Avtaletype(val tittel: String) {
     AVTALE("Avtale"),
     RAMMEAVTALE("Rammeavtale"),
     FORHANDSGODKJENT("Forhåndsgodkjent"),
@@ -15,6 +15,7 @@ object Avtaletyper {
     fun getAvtaletyperForTiltak(tiltakskode: Tiltakskode): List<Avtaletype> = when (tiltakskode) {
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        Tiltakskode.TILPASSET_JOBBSTOTTE,
         -> listOf(
             Avtaletype.FORHANDSGODKJENT,
         )
@@ -41,10 +42,6 @@ object Avtaletyper {
             Avtaletype.OFFENTLIG_OFFENTLIG,
         )
 
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.HOYERE_UTDANNING,
-        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-        -> listOf()
+        else -> listOf()
     }
 }

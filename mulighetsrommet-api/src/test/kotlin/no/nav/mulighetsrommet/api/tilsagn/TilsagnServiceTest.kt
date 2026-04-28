@@ -124,7 +124,6 @@ class TilsagnServiceTest : FunSpec({
                 ),
             ),
             navAnsattService = navAnsattService,
-            personaliaService = mockk(relaxed = true),
         )
     }
 

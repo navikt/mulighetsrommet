@@ -37,47 +37,53 @@ object DeltakerFixtures {
             aarsak = null,
             opprettetTidspunkt = statusOpprettet,
         ),
+        innholdAnnet = null,
     )
 
     fun createDeltakerDbo(
         gjennomforingId: UUID,
-        startDato: LocalDate,
-        sluttDato: LocalDate?,
-        statusType: DeltakerStatusType,
-        statusOpprettet: LocalDateTime = LocalDateTime.now(),
+        startDato: LocalDate? = LocalDate.now(),
+        sluttDato: LocalDate? = LocalDate.now().plusMonths(1),
+        statusType: DeltakerStatusType = DeltakerStatusType.DELTAR,
+        endretTidspunkt: LocalDateTime = LocalDateTime.now(),
+        innhold: String? = null,
     ) = DeltakerDbo(
         id = UUID.randomUUID(),
         startDato = startDato,
         sluttDato = sluttDato,
         gjennomforingId = gjennomforingId,
-        registrertTidspunkt = LocalDateTime.now(),
-        endretTidspunkt = LocalDateTime.now(),
+        registrertTidspunkt = endretTidspunkt,
+        endretTidspunkt = endretTidspunkt,
         deltakelsesmengder = emptyList(),
         status = DeltakerStatus(
             type = statusType,
             aarsak = null,
-            opprettetTidspunkt = statusOpprettet,
+            opprettetTidspunkt = endretTidspunkt,
         ),
+        innholdAnnet = innhold,
     )
 
     fun createDeltaker(
+        id: UUID = UUID.randomUUID(),
         gjennomforingId: UUID = UUID.randomUUID(),
-        startDato: LocalDate?,
-        sluttDato: LocalDate?,
-        statusType: DeltakerStatusType,
+        status: DeltakerStatusType,
+        startDato: LocalDate? = LocalDate.now(),
+        sluttDato: LocalDate? = LocalDate.now().plusMonths(1),
+        endretTidspunkt: LocalDateTime = LocalDateTime.now(),
     ) = Deltaker(
-        id = UUID.randomUUID(),
+        id = id,
         startDato = startDato,
         sluttDato = sluttDato,
         gjennomforingId = gjennomforingId,
-        registrertTidspunkt = LocalDateTime.now(),
-        endretTidspunkt = LocalDateTime.now(),
+        registrertTidspunkt = endretTidspunkt,
+        endretTidspunkt = endretTidspunkt,
         status = DeltakerStatus(
-            type = statusType,
+            type = status,
             aarsak = null,
-            opprettetTidspunkt = LocalDateTime.now(),
+            opprettetTidspunkt = endretTidspunkt,
         ),
         deltakelsesmengder = listOf(),
+        innholdAnnet = null,
     )
 
     fun createAmtDeltakerDto(
@@ -85,21 +91,28 @@ object DeltakerFixtures {
         gjennomforingId: UUID,
         status: DeltakerStatusType,
         personIdent: String,
-        opprettetTidspunkt: LocalDateTime = LocalDateTime.now(),
+        endretTidspunkt: LocalDateTime = LocalDateTime.now(),
+        startDato: LocalDate? = null,
+        sluttDato: LocalDate? = null,
     ) = AmtDeltakerEksternV1Dto(
         id = id,
         gjennomforingId = gjennomforingId,
         personIdent = personIdent,
-        startDato = null,
-        sluttDato = null,
-        status = createAmtDeltakerStatusDto(status, opprettetTidspunkt),
-        registrertTidspunkt = opprettetTidspunkt,
-        endretTidspunkt = opprettetTidspunkt,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        status = createAmtDeltakerStatusDto(status, endretTidspunkt),
+        registrertTidspunkt = endretTidspunkt,
+        endretTidspunkt = endretTidspunkt,
         deltakelsesmengder = listOf(),
         kilde = AmtDeltakerEksternV1Dto.Kilde.KOMET,
         innhold = AmtDeltakerEksternV1Dto.DeltakelsesinnholdDto(
             ledetekst = null,
-            valgtInnhold = listOf(),
+            valgtInnhold = listOf(
+                AmtDeltakerEksternV1Dto.InnholdDto(
+                    innholdskode = "annet",
+                    tekst = "Prisinformasjon",
+                ),
+            ),
         ),
     )
 

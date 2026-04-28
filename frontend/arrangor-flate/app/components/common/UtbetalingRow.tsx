@@ -6,16 +6,16 @@ import { UtbetalingStatusTag } from "../utbetaling/UtbetalingStatusTag";
 import { UtbetalingTextLink } from "../utbetaling/UtbetalingTextLink";
 import { ArrangorInnsendingRadDto } from "api-client/types.gen";
 import { pathTo } from "~/utils/navigation";
+import { Kolonne } from "./Tabellvisning";
 
-export const utbetalingKolonner: Array<{ key: string; label: string }> = [
-  { key: "tiltakNavn", label: "Tiltak" },
-  { key: "arrangorNavn", label: "Arrangør" },
-  { key: "startDato", label: "Periode" },
-  { key: "belop", label: "Beløp" },
+export const utbetalingKolonner: Array<Kolonne> = [
+  { key: "tiltakNavn", label: "Tiltak", sortable: true },
+  { key: "arrangorNavn", label: "Arrangør", sortable: true },
+  { key: "startDato", label: "Periode", sortable: true },
+  { key: "belop", label: "Beløp", sortable: true },
   { key: "type", label: "Type" },
-  { key: "status", label: "Status" },
+  { key: "status", label: "Status", sortable: true },
 ];
-
 export function UtbetalingRow({ row }: { row: ArrangorInnsendingRadDto }) {
   return (
     <Table.Row>

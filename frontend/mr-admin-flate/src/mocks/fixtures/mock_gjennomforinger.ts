@@ -28,8 +28,10 @@ const arrangor: GjennomforingDtoArrangorUnderenhet = {
 
 export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
   {
+    enkeltplassDeltaker: null,
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.AVKLARAG),
     gjennomforing: {
+      type: "GjennomforingAvtaleDto",
       id: "a7d63fb0-4366-412c-84b7-7c15518ee361",
       navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",
       tiltaksnummer: "2023#123456",
@@ -54,6 +56,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
       stengt: [],
       apentForPamelding: false,
+      avbrytelse: null,
     },
     veilederinfo: {
       estimertVentetid: { verdi: 3, enhet: "maned" },
@@ -129,10 +132,12 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       prisbetingelser: "Maskert prisbetingelser",
       tilsagnPerDeltaker: false,
     },
+    okonomi: null,
   },
   {
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.ARBFORB),
     gjennomforing: {
+      type: "GjennomforingAvtaleDto",
       pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
       id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
       navn: "Spillbasert kvalifisering",
@@ -158,6 +163,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       antallPlasser: 0,
       avtaleId: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
       apentForPamelding: true,
+      avbrytelse: null,
     },
     veilederinfo: {
       kontorstruktur: [],
@@ -180,10 +186,14 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       prisbetingelser: "Maskert prisbetingelser",
       tilsagnPerDeltaker: false,
     },
+    okonomi: null,
+    enkeltplassDeltaker: null,
   },
   {
+    enkeltplassDeltaker: null,
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.GRUFAGYRKE),
     gjennomforing: {
+      type: "GjennomforingAvtaleDto",
       id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
       navn: "Tiltak hos Kulinarisk akademi",
       tiltaksnummer: "2025#123456",
@@ -208,6 +218,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       antallPlasser: 0,
       pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
       apentForPamelding: true,
+      avbrytelse: null,
     },
     veilederinfo: {
       kontorstruktur: [],
@@ -230,6 +241,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       prisbetingelser: "Maskert prisbetingelser",
       tilsagnPerDeltaker: false,
     },
+    okonomi: null,
   },
 ];
 

@@ -1,6 +1,6 @@
 import {
-  AarsakerOgForklaringRequestDelutbetalingReturnertAarsak,
-  OpprettDelutbetalingerRequest,
+  AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak,
+  OpprettUtbetalingLinjerRequest,
   ProblemDetail,
   UtbetalingRequest,
   UtbetalingService,
@@ -9,29 +9,25 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { QueryKeys } from "@/api/QueryKeys";
 
-export function useAttesterDelutbetaling() {
+export function useAttesterUtbetalingLinje() {
   const queryClient = useQueryClient();
 
   return useApiMutation<unknown, ProblemDetail, { id: string }>({
-    mutationFn: ({ id }) => UtbetalingService.attesterDelutbetaling({ path: { id } }),
+    mutationFn: ({ id }) => UtbetalingService.attesterUtbetalingLinje({ path: { id } }),
     async onSuccess() {
-      await queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
     },
   });
 }
 
-export function useOpprettDelutbetalinger(utbetalingId: string) {
+export function useOpprettUtbetalingLinjer(utbetalingId: string) {
   const queryClient = useQueryClient();
 
-  return useApiMutation<unknown, ProblemDetail, OpprettDelutbetalingerRequest>({
+  return useApiMutation<unknown, ProblemDetail, OpprettUtbetalingLinjerRequest>({
     mutationFn: (body) =>
-      UtbetalingService.opprettDelutbetalinger({ path: { id: utbetalingId }, body }),
+      UtbetalingService.opprettUtbetalingLinjer({ path: { id: utbetalingId }, body }),
     async onSuccess() {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(utbetalingId) }),
-        queryClient.invalidateQueries({ queryKey: QueryKeys.utbetalingsLinjer(utbetalingId) }),
-        queryClient.invalidateQueries({ queryKey: QueryKeys.utbetalingHistorikk(utbetalingId) }),
-      ]);
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(utbetalingId) });
     },
   });
 }
@@ -58,17 +54,17 @@ export function useRedigerUtbetaling() {
   });
 }
 
-export function useReturnerDelutbetaling() {
+export function useReturnerUtbetalingLinje() {
   const queryClient = useQueryClient();
 
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; body: AarsakerOgForklaringRequestDelutbetalingReturnertAarsak }
+    { id: string; body: AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak }
   >({
-    mutationFn: ({ id, body }) => UtbetalingService.returnerDelutbetaling({ path: { id }, body }),
-    async onSuccess(_, request) {
-      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(request.id) });
+    mutationFn: ({ id, body }) => UtbetalingService.returnerUtbetalingLinje({ path: { id }, body }),
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
     },
   });
 }

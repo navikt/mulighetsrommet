@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.UUIDListSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
@@ -24,8 +23,14 @@ data class TilsagnRequest(
     val beskrivelse: String? = null,
     val periodeStart: String? = null,
     val periodeSlutt: String? = null,
-    @Serializable(with = UUIDListSerializer::class)
-    val deltakere: List<UUID>? = null,
+    val deltakere: List<TilsagnDeltakerRequest>? = null,
+)
+
+@Serializable
+data class TilsagnDeltakerRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val deltakerId: UUID,
+    val innholdAnnet: String?,
 )
 
 @Serializable

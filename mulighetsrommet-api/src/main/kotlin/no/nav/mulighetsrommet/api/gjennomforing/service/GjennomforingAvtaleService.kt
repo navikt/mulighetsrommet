@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
@@ -37,7 +36,6 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
-import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
@@ -286,10 +284,6 @@ class GjennomforingAvtaleService(
         logEndring("Fjernet periode med stengt hos arrangør", id, navIdent).also { publishToKafka(it) }
     }
 
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
-        return queries.endringshistorikk.getEndringshistorikk(DocumentClass.GJENNOMFORING, id)
-    }
-
     fun frikobleKontaktpersonFraGjennomforing(
         kontaktpersonId: UUID,
         gjennomforingId: UUID,
@@ -351,10 +345,16 @@ class GjennomforingAvtaleService(
         }
     }
 
+    fun updateFreeTextSearch(id: UUID) = db.transaction {
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(id)
+        updateFreeTextSearch(gjennomforing)
+    }
+
     private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingAvtale) {
         val fts = listOf(gjennomforing.navn, gjennomforing.arrangor.navn) +
             gjennomforing.lopenummer.toFreeTextSearch() +
-            gjennomforing.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty()
+            gjennomforing.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty() +
+            gjennomforing.tiltakstype.navn
 
         queries.gjennomforing.setFreeTextSearch(gjennomforing.id, fts)
     }
@@ -423,9 +423,3 @@ private fun isEqual(
 ): Boolean {
     return request == GjennomforingRequestMapper.fromGjennomforing(previous, detaljer)
 }
-
-fun Tiltaksnummer.toFreeTextSearch(): List<String> = listOfNotNull(
-    value,
-    aar.toString(),
-    lopenummer.toString(),
-)

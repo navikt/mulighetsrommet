@@ -32,9 +32,9 @@ export function GjennomforingPage() {
       tittel: "Gjennomføring",
       lenke: currentTab === "detaljer" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
     },
-    currentTab === "tilskuddsbehandlinger" ? { tittel: "Tilskuddsbehandlinger" } : undefined,
+    currentTab === "tilskudd-behandling" ? { tittel: "Tilskuddsbehandlinger" } : undefined,
     currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
-    currentTab === "redaksjonelt-innhold" ? { tittel: "Informasjon til veilederene" } : undefined,
+    currentTab === "redaksjonelt-innhold" ? { tittel: "Informasjon for veilederene" } : undefined,
     currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
     currentTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
   ];
@@ -92,7 +92,7 @@ const GRUPPETILTAK_TABS: TabConfig[] = [
 const STANDARD_TABS: TabConfig[] = [
   { key: "detaljer", label: "Detaljer" },
   {
-    key: "tilskuddsbehandlinger",
+    key: "tilskudd-behandling",
     label: "Tilskuddsbehandlinger",
   },
   { key: "tilsagn", label: "Tilsagn" },
@@ -100,7 +100,7 @@ const STANDARD_TABS: TabConfig[] = [
 ];
 
 const TAB_KEYS = [
-  "tilskuddsbehandlinger",
+  "tilskudd-behandling",
   "tilsagn",
   "redaksjonelt-innhold",
   "deltakerliste",
@@ -129,7 +129,7 @@ function useTabs(
   const tabConfigs = isGruppetiltak(gjennomforing) ? GRUPPETILTAK_TABS : STANDARD_TABS;
   const filteredTabConfigs = enableTilskuddsbehandling
     ? tabConfigs
-    : tabConfigs.filter((tab) => tab.key !== "tilskuddsbehandlinger");
+    : tabConfigs.filter((tab) => tab.key !== "tilskudd-behandling");
 
   const tabs: Tab[] = filteredTabConfigs.map(({ key, label }) => ({
     key,

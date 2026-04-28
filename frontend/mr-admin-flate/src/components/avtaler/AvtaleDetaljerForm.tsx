@@ -1,23 +1,20 @@
-import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/AvtaleAmoKategoriseringForm";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { FormGroup } from "@/layouts/FormGroup";
-import { avtaletypeTilTekst } from "@/utils/Utils";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { Box, HGrid, List, Select, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 import {
   Avtaletype,
   OpsjonLoggStatus,
   OpsjonsmodellType,
   PrismodellType,
+  Rolle,
   Tiltakskode,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
@@ -25,12 +22,14 @@ import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useParams } from "react-router";
 import { useTiltakstyperForAvtaler } from "@/api/tiltakstyper/useTiltakstyperForAvtaler";
 import { erUtfaset } from "@/utils/tiltakstype";
-import { SkjemaKolonne } from "../../layouts/SkjemaKolonne";
+import { SkjemaKolonne } from "@/layouts/SkjemaKolonne";
+import { administratorOptions } from "@/components/skjema/administratorOptions";
+import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
+import { SelectAvtaletype } from "@/components/avtaler/SelectAvtaletype";
 
 export function AvtaleDetaljerForm() {
   const { avtaleId } = useParams();
-  const { data: administratorer } = useAvtaleAdministratorer();
-  const { data: ansatt } = useHentAnsatt();
+  const { data: navAnsatte } = useNavAnsatte([Rolle.AVTALER_SKRIV]);
   const tiltakstyper = useTiltakstyperForAvtaler();
   const { data: avtale } = usePotentialAvtale(avtaleId ?? null);
 
@@ -46,20 +45,11 @@ export function AvtaleDetaljerForm() {
     watch,
     control,
   } = useFormContext<AvtaleFormValues>();
-  const tiltakskode = watch("detaljer.tiltakskode");
-  const watchedAdministratorer = watch("detaljer.administratorer");
+  const tiltakskode = watch("detaljer.tiltakskode") as Tiltakskode | undefined;
 
   const antallOpsjonerUtlost = (
     avtale?.opsjonerRegistrert.filter((log) => log.status === OpsjonLoggStatus.OPSJON_UTLOST) || []
   ).length;
-
-  const avtaletypeOptions = isTiltakskode(tiltakskode)
-    ? getAvtaletypeOptions(tiltakskode).map((type) => (
-        <option key={type.value} value={type.value}>
-          {type.label}
-        </option>
-      ))
-    : [];
 
   function avtaletypeOnChange(avtaletype: Avtaletype) {
     if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
@@ -136,16 +126,9 @@ export function AvtaleDetaljerForm() {
               label={avtaletekster.tiltakstypeLabel}
               error={errors.detaljer?.tiltakskode?.message}
               {...register("detaljer.tiltakskode", {
-                onChange: (e) => {
+                onChange: () => {
                   setValue("detaljer.amoKategorisering", null);
                   setValue("detaljer.utdanningslop", null);
-                  const avtaletype = isTiltakskode(e.target.value)
-                    ? getAvtaletypeOptions(e.target.value as Tiltakskode)[0]?.value
-                    : undefined;
-                  if (avtaletype) {
-                    setValue("detaljer.avtaletype", avtaletype);
-                    avtaletypeOnChange(avtaletype);
-                  }
                 },
               })}
             >
@@ -156,20 +139,16 @@ export function AvtaleDetaljerForm() {
                 </option>
               ))}
             </Select>
-            <Select
-              size="small"
-              readOnly={antallOpsjonerUtlost > 0}
-              label={avtaletekster.avtaletypeLabel}
-              error={errors.detaljer?.avtaletype?.message}
-              {...register("detaljer.avtaletype", {
-                onChange: (e) => avtaletypeOnChange(e.target.value),
-              })}
-            >
-              {avtaletypeOptions}
-            </Select>
+            {tiltakskode && (
+              <SelectAvtaletype
+                tiltakskode={tiltakskode}
+                readOnly={antallOpsjonerUtlost > 0}
+                onChange={avtaletypeOnChange}
+              />
+            )}
           </HGrid>
-          <AvtaleAmoKategoriseringForm tiltakskode={tiltakskode} />
-          <AvtaleUtdanningslopForm tiltakskode={tiltakskode} />
+          {tiltakskode && <AvtaleAmoKategoriseringForm tiltakskode={tiltakskode} />}
+          {tiltakskode && <AvtaleUtdanningslopForm tiltakskode={tiltakskode} />}
         </FormGroup>
         <FormGroup>
           <AvtaleVarighet opsjonUtlost={antallOpsjonerUtlost > 0} />
@@ -194,14 +173,16 @@ export function AvtaleDetaljerForm() {
                 }
                 placeholder="Administratorer"
                 isMultiSelect
-                selectedOptions={AdministratorOptions(
-                  ansatt,
-                  watchedAdministratorer,
-                  administratorer,
-                ).filter((option) => field.value.includes(option.value))}
+                selectedOptions={field.value.map(
+                  (value) =>
+                    administratorOptions(navAnsatte).find((o) => o.value === value) ?? {
+                      value: value,
+                      label: value,
+                    },
+                )}
                 name={field.name}
                 error={errors.detaljer?.administratorer?.message}
-                options={AdministratorOptions(ansatt, watchedAdministratorer, administratorer)}
+                options={administratorOptions(navAnsatte)}
                 onToggleSelected={(option: string, isSelected: boolean) => {
                   if (isSelected) {
                     field.onChange([...field.value, option]);
@@ -217,54 +198,4 @@ export function AvtaleDetaljerForm() {
       </SkjemaKolonne>
     </TwoColumnGrid>
   );
-}
-
-// TODO: Hent dette fra backend, siden vi allerede har en tiltakskode -> avtaletype mapping
-function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; label: string }[] {
-  const forhandsgodkjent = {
-    value: Avtaletype.FORHANDSGODKJENT,
-    label: avtaletypeTilTekst(Avtaletype.FORHANDSGODKJENT),
-  };
-  const rammeavtale = {
-    value: Avtaletype.RAMMEAVTALE,
-    label: avtaletypeTilTekst(Avtaletype.RAMMEAVTALE),
-  };
-  const avtale = {
-    value: Avtaletype.AVTALE,
-    label: avtaletypeTilTekst(Avtaletype.AVTALE),
-  };
-  const offentligOffentlig = {
-    value: Avtaletype.OFFENTLIG_OFFENTLIG,
-    label: avtaletypeTilTekst(Avtaletype.OFFENTLIG_OFFENTLIG),
-  };
-  switch (tiltakskode) {
-    case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
-    case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
-      return [forhandsgodkjent];
-
-    case Tiltakskode.OPPFOLGING:
-    case Tiltakskode.JOBBKLUBB:
-    case Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK:
-    case Tiltakskode.AVKLARING:
-    case Tiltakskode.ARBEIDSRETTET_REHABILITERING:
-      return [avtale, rammeavtale];
-
-    case Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING:
-    case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
-    case Tiltakskode.ARBEIDSMARKEDSOPPLAERING:
-    case Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV:
-    case Tiltakskode.FAG_OG_YRKESOPPLAERING:
-    case Tiltakskode.STUDIESPESIALISERING:
-      return [avtale, offentligOffentlig, rammeavtale];
-
-    case Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING:
-    case Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING:
-    case Tiltakskode.HOYERE_UTDANNING:
-    case Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING:
-      return [];
-  }
-}
-
-function isTiltakskode(value: string): value is Tiltakskode {
-  return Object.values(Tiltakskode).includes(value as Tiltakskode);
 }

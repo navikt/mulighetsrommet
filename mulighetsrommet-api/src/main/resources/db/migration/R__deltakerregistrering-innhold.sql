@@ -47,60 +47,60 @@ on conflict(innholdskode) do update
 --- Sett innhold for AFT (ARBEIDSFORBEREDENDE_TRENING)
 insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
 select *
-from (values ('arbeidspraksis', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
-             ('karriereveiledning', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
-             ('kartlegge-helse', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
-             ('kartlegge-grunnleggende-ferdigheter', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
-             ('veiledning-sosialt', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
-             ('oppfolging-arbeidsplassen', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
-             ('tilpasse-arbeidsoppgaver', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode)) as t(innholdskode, tiltakskode)
+from (values ('arbeidspraksis', 'ARBEIDSFORBEREDENDE_TRENING'),
+             ('karriereveiledning', 'ARBEIDSFORBEREDENDE_TRENING'),
+             ('kartlegge-helse', 'ARBEIDSFORBEREDENDE_TRENING'),
+             ('kartlegge-grunnleggende-ferdigheter', 'ARBEIDSFORBEREDENDE_TRENING'),
+             ('veiledning-sosialt', 'ARBEIDSFORBEREDENDE_TRENING'),
+             ('oppfolging-arbeidsplassen', 'ARBEIDSFORBEREDENDE_TRENING'),
+             ('tilpasse-arbeidsoppgaver', 'ARBEIDSFORBEREDENDE_TRENING')) as t(innholdskode, tiltakskode)
 where exists (select 1 from tiltakstype where tiltakskode = 'ARBEIDSFORBEREDENDE_TRENING')
 on conflict (innholdskode, tiltakskode) do nothing;
 
 --- Sett innhold for ARR (ARBEIDSRETTET_REHABILITERING)
 insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
 select *
-from (values ('arbeidspraksis', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
-             ('kartlegge-helse', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
-             ('kartlegge-forventninger', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
-             ('kartlegge-arbeidsplassen', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
-             ('veiledning-livsstil', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
-             ('motivasjon', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
-             ('veiledning-sosialt', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
-             ('veiledning-trening', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
-             ('oppfolging-arbeidsplassen', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
-             ('veiledning-arbeidsgiver', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
-             ('tilpasse-arbeidsoppgaver', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode)) as t(innholdskode, tiltakskode)
+from (values ('arbeidspraksis', 'ARBEIDSRETTET_REHABILITERING'),
+             ('kartlegge-helse', 'ARBEIDSRETTET_REHABILITERING'),
+             ('kartlegge-forventninger', 'ARBEIDSRETTET_REHABILITERING'),
+             ('kartlegge-arbeidsplassen', 'ARBEIDSRETTET_REHABILITERING'),
+             ('veiledning-livsstil', 'ARBEIDSRETTET_REHABILITERING'),
+             ('motivasjon', 'ARBEIDSRETTET_REHABILITERING'),
+             ('veiledning-sosialt', 'ARBEIDSRETTET_REHABILITERING'),
+             ('veiledning-trening', 'ARBEIDSRETTET_REHABILITERING'),
+             ('oppfolging-arbeidsplassen', 'ARBEIDSRETTET_REHABILITERING'),
+             ('veiledning-arbeidsgiver', 'ARBEIDSRETTET_REHABILITERING'),
+             ('tilpasse-arbeidsoppgaver', 'ARBEIDSRETTET_REHABILITERING')) as t(innholdskode, tiltakskode)
 where exists (select 1 from tiltakstype where tiltakskode = 'ARBEIDSRETTET_REHABILITERING')
 on conflict (innholdskode, tiltakskode) do nothing;
 
 --- Sett innhold for Avklaring (AVKLARING)
 insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
 select *
-from (values ('karriereveiledning', 'AVKLARING'::tiltakskode),
-             ('kartlegge-helse', 'AVKLARING'::tiltakskode),
-             ('kartlegge-forventninger', 'AVKLARING'::tiltakskode),
-             ('kartlegge-arbeidsplassen', 'AVKLARING'::tiltakskode),
-             ('kartlegge-delta-tiltak', 'AVKLARING'::tiltakskode),
-             ('kartlegge-grunnleggende-ferdigheter', 'AVKLARING'::tiltakskode),
-             ('oppfolging-arbeidsplassen', 'AVKLARING'::tiltakskode),
-             ('veiledning-arbeidsgiver', 'AVKLARING'::tiltakskode)) as t(innholdskode, tiltakskode)
+from (values ('karriereveiledning', 'AVKLARING'),
+             ('kartlegge-helse', 'AVKLARING'),
+             ('kartlegge-forventninger', 'AVKLARING'),
+             ('kartlegge-arbeidsplassen', 'AVKLARING'),
+             ('kartlegge-delta-tiltak', 'AVKLARING'),
+             ('kartlegge-grunnleggende-ferdigheter', 'AVKLARING'),
+             ('oppfolging-arbeidsplassen', 'AVKLARING'),
+             ('veiledning-arbeidsgiver', 'AVKLARING')) as t(innholdskode, tiltakskode)
 where exists (select 1 from tiltakstype where tiltakskode = 'AVKLARING')
 on conflict (innholdskode, tiltakskode) do nothing;
 
 --- Sett innhold for Oppfølging (OPPFOLGING)
 insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
 select *
-from (values ('jobbsoking', 'OPPFOLGING'::tiltakskode),
-             ('arbeidspraksis', 'OPPFOLGING'::tiltakskode),
-             ('karriereveiledning', 'OPPFOLGING'::tiltakskode),
-             ('kartlegge-helse', 'OPPFOLGING'::tiltakskode),
-             ('kartlegge-forventninger', 'OPPFOLGING'::tiltakskode),
-             ('kartlegge-arbeidsplassen', 'OPPFOLGING'::tiltakskode),
-             ('veiledning-sosialt', 'OPPFOLGING'::tiltakskode),
-             ('oppfolging-arbeidsplassen', 'OPPFOLGING'::tiltakskode),
-             ('veiledning-arbeidsgiver', 'OPPFOLGING'::tiltakskode),
-             ('tilpasse-arbeidsoppgaver', 'OPPFOLGING'::tiltakskode)) as t(innholdskode, tiltakskode)
+from (values ('jobbsoking', 'OPPFOLGING'),
+             ('arbeidspraksis', 'OPPFOLGING'),
+             ('karriereveiledning', 'OPPFOLGING'),
+             ('kartlegge-helse', 'OPPFOLGING'),
+             ('kartlegge-forventninger', 'OPPFOLGING'),
+             ('kartlegge-arbeidsplassen', 'OPPFOLGING'),
+             ('veiledning-sosialt', 'OPPFOLGING'),
+             ('oppfolging-arbeidsplassen', 'OPPFOLGING'),
+             ('veiledning-arbeidsgiver', 'OPPFOLGING'),
+             ('tilpasse-arbeidsoppgaver', 'OPPFOLGING')) as t(innholdskode, tiltakskode)
 where exists (select 1 from tiltakstype where tiltakskode = 'OPPFOLGING')
 on conflict (innholdskode, tiltakskode) do nothing;
 

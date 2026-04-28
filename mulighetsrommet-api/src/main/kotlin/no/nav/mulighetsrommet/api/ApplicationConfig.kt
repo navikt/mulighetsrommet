@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.service.TidligstTidspunktForUtbetalingCalculator
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
@@ -39,6 +39,7 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
+    val tilgangsmaskin: AuthenticatedHttpClientConfig,
     val veilarboppfolgingConfig: AuthenticatedHttpClientConfig,
     val veilarbvedtaksstotteConfig: AuthenticatedHttpClientConfig,
     val veilarbdialogConfig: AuthenticatedHttpClientConfig,
@@ -124,6 +125,11 @@ class KafkaClients(
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.oppdater-utbetaling-for-gjennomforing.v1"),
     )
+    var handterGjennomforingRequest: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "handter-gjennomforing-request",
+        topic = "team-mulighetsrommet.gjennomforing-request-v1",
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.handter-gjennomforing-request.v1"),
+    )
     var replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "replicate-bestilling-status",
         topic = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
@@ -134,10 +140,15 @@ class KafkaClients(
         topic = "team-mulighetsrommet.tiltaksokonomi.faktura-status-v1",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.faktura-status.v2"),
     )
+    var replikerDeltakerEnkeltplass: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "repliker-deltaker-enkeltplass",
+        topic = "amt.deltaker-ekstern-v1",
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.repliker-deltaker-enkeltplass.v2"),
+    )
     var replikerDeltakerEksternV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "repliker-amt-deltaker-ekstern",
         topic = "amt.deltaker-ekstern-v1",
-        consumerProperties = getConsumerProperties("mulighetsrommet-api.deltaker-ekstern.v1"),
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.deltaker-ekstern.v3"),
     )
     var amtVirksomheterV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "amt-virksomheter",

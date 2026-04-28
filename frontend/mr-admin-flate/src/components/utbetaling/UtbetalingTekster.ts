@@ -1,4 +1,4 @@
-import { DelutbetalingReturnertAarsak, TilsagnType } from "@tiltaksadministrasjon/api-client";
+import { UtbetalingLinjeReturnertAarsak, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 export const utbetalingTekster = {
@@ -9,6 +9,8 @@ export const utbetalingTekster = {
     status: "Status",
     periode: "Utbetalingsperiode",
     utbetalesTidligstDato: "Utbetales tidligst",
+    utbetalesTidligstDatoHelpText:
+      "Oppfølging, Avklaring, og Digitalt jobbsøkerkurs utbetales tidligst 37 dager etter siste dag i utbetalingsperioden",
     type: "Type",
     kommentar: "Kommentar",
     beskrivelse: "Begrunnelse for utbetaling",
@@ -39,7 +41,7 @@ export const utbetalingTekster = {
   utbetalt: {
     label: "Utbetalt",
   },
-  delutbetaling: {
+  linje: {
     header: "Utbetalingslinjer",
     alert: {
       ingenTilsagn: "Det finnes ingen godkjente tilsagn for utbetalingsperioden",
@@ -63,15 +65,15 @@ export const utbetalingTekster = {
           label: "Send i retur",
         },
       },
-      fraRetunertAarsak: (aarsak: DelutbetalingReturnertAarsak): string => {
+      fraRetunertAarsak: (aarsak: UtbetalingLinjeReturnertAarsak): string => {
         switch (aarsak) {
-          case DelutbetalingReturnertAarsak.FEIL_BELOP:
+          case UtbetalingLinjeReturnertAarsak.FEIL_BELOP:
             return "Feil beløp";
-          case DelutbetalingReturnertAarsak.ANNET:
+          case UtbetalingLinjeReturnertAarsak.ANNET:
             return "Annet";
-          case DelutbetalingReturnertAarsak.PROPAGERT_RETUR:
+          case UtbetalingLinjeReturnertAarsak.PROPAGERT_RETUR:
             return "Automatisk returnert som følge av at en annen utbetalingslinje ble returnert";
-          case DelutbetalingReturnertAarsak.TILSAGN_FEIL_STATUS:
+          case UtbetalingLinjeReturnertAarsak.TILSAGN_FEIL_STATUS:
             return "Tilsagnet har ikke lenger status godkjent og kan derfor ikke benyttes for utbetaling";
         }
       },

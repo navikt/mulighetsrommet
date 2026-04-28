@@ -6,7 +6,7 @@ import {
 } from "@api-client";
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
-import RegelverkInfo from "./RegelverkInfo";
+import { Faglenker } from "./Faglenker";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
@@ -22,6 +22,7 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
     .reduce((prev, current) => (prev.order < current.order ? prev : current));
 
   const tiltaksnummer = "tiltaksnummer" in tiltak ? tiltak.tiltaksnummer : null;
+  const lopenummer = "lopenummer" in tiltak ? tiltak.lopenummer : null;
   const arrangor = "arrangor" in tiltak ? tiltak.arrangor : null;
 
   return (
@@ -31,10 +32,21 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
       id="sidemeny"
       className="max-w-[360px] xl:max-w-none"
     >
+      {lopenummer && (
+        <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+          <BodyShort size="small" className="font-bold text-left">
+            Løpenummer
+          </BodyShort>
+          <div className="flex items-start justify-end gap-1">
+            <BodyShort size="small">{lopenummer}</BodyShort>
+            <Kopiknapp kopitekst={lopenummer} dataTestId="knapp_kopier" />
+          </div>
+        </div>
+      )}
       {tiltaksnummer && (
         <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
           <BodyShort size="small" className="font-bold text-left">
-            Tiltaksnummer
+            Tiltaksnummer i Arena
           </BodyShort>
           <div className="flex items-start justify-end gap-1">
             <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
@@ -66,26 +78,24 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
         <BodyShort size="small">{minimumInnsatsgruppe.tittel}</BodyShort>
       </div>
       <TiltakVarighetInfo tiltak={tiltak} />
-      {tiltakstype.regelverkLenker && (
+      {tiltakstype.faglenker && (
         <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
           <BodyShort size="small" className="font-bold text-left">
             Regelverk og rutiner
           </BodyShort>
-          <RegelverkInfo
-            regelverkLenker={[
-              ...tiltakstype.regelverkLenker,
+          <Faglenker
+            faglenker={[
+              ...tiltakstype.faglenker,
               {
-                _id: "klage",
-                regelverkLenkeNavn: "Avslag og klage",
-                regelverkUrl:
-                  "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
+                id: "avslag-og-klage",
+                navn: "Avslag og klage",
+                url: "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
                 beskrivelse: null,
               },
               {
-                _id: "vurdering",
-                regelverkLenkeNavn: "Tiltak hos familie/nærstående",
-                regelverkUrl:
-                  "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
+                id: "tiltak-hos-familie",
+                navn: "Tiltak hos familie/nærstående",
+                url: "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
                 beskrivelse: null,
               },
             ]}

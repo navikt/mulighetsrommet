@@ -6,14 +6,15 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.UUID
@@ -21,6 +22,7 @@ import java.util.UUID
 fun Route.tilsagnRoutesGet() {
     val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
+    val personaliaService: PersonaliaService by inject()
 
     authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.BESLUTTER_TILSAGN)) {
         get("{id}", {
@@ -54,8 +56,15 @@ fun Route.tilsagnRoutesGet() {
                 val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.toDto()
                 val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.toDto()
 
+                val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                    tilsagn.deltakere.map { it.deltakerId },
+                    call.getAccessType(),
+                )
+                val deltakere = tilsagn.deltakere.map {
+                    TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
+                }
                 TilsagnDetaljerDto(
-                    tilsagn = TilsagnDto.from(tilsagn, service.toTilsagnDeltakerPersonalia(tilsagn.deltakere)),
+                    tilsagn = TilsagnDto.from(tilsagn, deltakere),
                     beregning = TilsagnBeregningDto.from(tilsagn.beregning),
                     opprettelse = opprettelse,
                     annullering = annullering,
@@ -66,28 +75,5 @@ fun Route.tilsagnRoutesGet() {
 
             call.respond(result)
         }
-    }
-
-    get("{id}/historikk", {
-        description = "Hent endringshistorikk for tilsagn"
-        tags = setOf("Tilsagn")
-        operationId = "getTilsagnEndringshistorikk"
-        request {
-            pathParameterUuid("id")
-        }
-        response {
-            code(HttpStatusCode.OK) {
-                description = "Endringshistorikk for tilsagn"
-                body<EndringshistorikkDto>()
-            }
-            default {
-                description = "Problem details"
-                body<ProblemDetail>()
-            }
-        }
-    }) {
-        val id = call.parameters.getOrFail<UUID>("id")
-        val historikk = service.getEndringshistorikk(id)
-        call.respond(historikk)
     }
 }

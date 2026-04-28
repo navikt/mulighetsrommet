@@ -22,20 +22,34 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeFilter
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
+import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
+import no.nav.mulighetsrommet.tokenprovider.AccessType
+import java.io.File
 import java.util.UUID
+import kotlin.io.path.createTempFile
+import kotlin.io.path.outputStream
 
 class GjennomforingDetaljerService(
     private val db: ApiDatabase,
     private val tiltakstypeService: TiltakstypeService,
     private val navAnsattService: NavAnsattService,
+    private val personaliaService: PersonaliaService,
 ) {
     fun getTiltaksgjennomforingV2Dto(id: UUID): TiltaksgjennomforingV2Dto? = db.session {
         val gjennomforing = getGjennomforing(id) ?: return null
@@ -51,17 +65,20 @@ class GjennomforingDetaljerService(
         }
     }
 
-    fun getGjennomforingDetaljerDto(id: UUID): GjennomforingDetaljerDto? {
+    suspend fun getGjennomforingDetaljerDto(id: UUID, accessType: AccessType.OBO.AzureAd): GjennomforingDetaljerDto? {
         val gjennomforing = getGjennomforingTiltaksadministrasjon(id) ?: return null
         return when (gjennomforing) {
-            is GjennomforingAvtale -> {
-                val detaljer = db.session {
-                    queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
-                }
+            is GjennomforingAvtale -> db.session {
+                val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
                 GjennomforingDtoMapper.fromGjennomforingAvtale(gjennomforing, detaljer)
             }
 
-            is GjennomforingEnkeltplass -> GjennomforingDtoMapper.fromEnkeltplass(gjennomforing)
+            is GjennomforingEnkeltplass -> db.session {
+                val okonomi = queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI)
+                val deltakerOgPersonalia = getDeltakerOgPersonalia(gjennomforing.id, accessType)
+
+                GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerOgPersonalia)
+            }
         }
     }
 
@@ -78,13 +95,11 @@ class GjennomforingDetaljerService(
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
         val tiltakstyper = filter.tiltakstypeIder.ifEmpty {
-            tiltakstypeService
-                .getAll(TiltakstypeFilter(features = setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)))
-                .map { it.id }
+            tiltakstypeService.getAllIdsByFeatures(setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON))
         }
         queries.gjennomforing.getAll(
             pagination,
-            search = filter.search,
+            search = filter.search?.let { NorskIdentHasher.hashIfNorskIdent(it) },
             navEnheter = filter.navEnheter,
             tiltakstypeIder = tiltakstyper,
             statuser = filter.statuser,
@@ -103,12 +118,46 @@ class GjennomforingDetaljerService(
         }
     }
 
+    private suspend fun QueryContext.getDeltakerOgPersonalia(
+        gjennomforingId: UUID,
+        accessType: AccessType,
+    ): Pair<Deltaker, Personalia?>? {
+        val deltakelser = queries.deltaker.getByGjennomforingId(gjennomforingId)
+        if (deltakelser.size > 1) {
+            error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet kun én)")
+        }
+        return deltakelser.firstOrNull()?.let {
+            it to personaliaService
+                .getPersonalia(listOf(it.id), accessType)
+                .getOrElse(it.id) {
+                    null
+                }
+        }
+    }
+
+    fun exportToExcel(
+        pagination: Pagination,
+        filter: AdminTiltaksgjennomforingFilter,
+    ): File {
+        val result = getAllKompaktDto(pagination, filter)
+
+        val workbook = buildExcelWorkbook {
+            createGjennomforingerSheet(result.data)
+        }
+
+        return workbook.use {
+            val file = createTempFile("gjennomforinger-", ".xlsx")
+            file.outputStream().use(it::write)
+            file.toFile()
+        }
+    }
+
     fun getHandlinger(id: UUID, navIdent: NavIdent): Set<GjennomforingHandling> {
         val ansatt = navAnsattService.getNavAnsattByNavIdent(navIdent) ?: return setOf()
         val gjennomforing = db.session { getGjennomforing(id) } ?: return setOf()
         return when (gjennomforing) {
-            is GjennomforingAvtale -> getHandlingerGruppetiltak(gjennomforing, ansatt)
-            is GjennomforingEnkeltplass -> getHandlingerEnkeltplasser(ansatt)
+            is GjennomforingAvtale -> getHandlingerAvtale(gjennomforing, ansatt)
+            is GjennomforingEnkeltplass -> getHandlingerEnkeltplass(gjennomforing, ansatt)
             is GjennomforingArena -> setOf()
         }
     }
@@ -117,8 +166,63 @@ class GjennomforingDetaljerService(
         return queries.gjennomforing.getGjennomforing(id)
     }
 
+    private fun getHandlingerAvtale(
+        gjennomforing: GjennomforingAvtale,
+        ansatt: NavAnsatt,
+    ): Set<GjennomforingHandling> {
+        val statusGjennomfores = gjennomforing.status == GjennomforingStatusType.GJENNOMFORES
+        return setOfNotNull(
+            GjennomforingHandling.DUPLISER.takeIf {
+                !tiltakstypeService.erUtfaset(gjennomforing.tiltakstype.tiltakskode)
+            },
+            GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
+            GjennomforingHandling.FORHANDSVIS_I_MODIA.takeIf { statusGjennomfores },
+            GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
+            GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
+            GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
+            GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
+            GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
+            GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
+                gjennomforing.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER)
+            },
+            // FIXME: midlertidig hack for å tillate "Opprett utbetaling" for utenlandske bedifter
+            GjennomforingHandling.OPPRETT_UTBETALING.takeIf {
+                gjennomforing.arrangor.organisasjonsnummer.value.startsWith("1")
+            },
+            GjennomforingHandling.OPPRETT_TILSAGN,
+            GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
+        )
+            .filter { tilgangTilHandling(ansatt, it) }
+            .toSet()
+    }
+
+    private fun getHandlingerEnkeltplass(
+        gjennomforing: GjennomforingEnkeltplass,
+        ansatt: NavAnsatt,
+    ): Set<GjennomforingHandling> {
+        val totrinnskontroll = db.session {
+            queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI)
+        }
+        return setOfNotNull(
+            GjennomforingHandling.OPPRETT_TILSAGN,
+            GjennomforingHandling.OPPRETT_UTBETALING,
+            GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
+                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.besluttelse == null
+            },
+            GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
+                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.besluttelse != Besluttelse.GODKJENT
+            },
+        )
+            .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
+            .toSet()
+    }
+
     companion object {
-        fun tilgangTilHandling(handling: GjennomforingHandling, ansatt: NavAnsatt): Boolean {
+        fun tilgangTilHandling(
+            ansatt: NavAnsatt,
+            handling: GjennomforingHandling,
+            enheter: Set<NavEnhetNummer> = setOf(),
+        ): Boolean {
             val skrivGjennomforing = ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
             val oppfolgerGjennomforing = ansatt.hasGenerellRolle(Rolle.OPPFOLGER_GJENNOMFORING)
             val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
@@ -142,47 +246,13 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
                 GjennomforingHandling.OPPRETT_UTBETALING,
                 -> saksbehandlerOkonomi
+
+                GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
+                GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+                -> ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, enheter)
             }
         }
     }
-}
-
-private fun getHandlingerGruppetiltak(
-    gjennomforing: GjennomforingAvtale,
-    ansatt: NavAnsatt,
-): Set<GjennomforingHandling> {
-    val statusGjennomfores = gjennomforing.status == GjennomforingStatusType.GJENNOMFORES
-    return setOfNotNull(
-        GjennomforingHandling.DUPLISER,
-        GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
-        GjennomforingHandling.FORHANDSVIS_I_MODIA.takeIf { statusGjennomfores },
-        GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
-        GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
-        GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
-        GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
-        GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
-        GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
-            gjennomforing.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER)
-        },
-        // FIXME: midlertidig hack for å tillate "Opprett utbetaling" for utenlandske bedifter
-        GjennomforingHandling.OPPRETT_UTBETALING.takeIf {
-            gjennomforing.arrangor.organisasjonsnummer.value.startsWith("1")
-        },
-        GjennomforingHandling.OPPRETT_TILSAGN,
-        GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
-    )
-        .filter { GjennomforingDetaljerService.tilgangTilHandling(it, ansatt) }
-        .toSet()
-}
-
-private fun getHandlingerEnkeltplasser(ansatt: NavAnsatt): Set<GjennomforingHandling> {
-    return setOfNotNull(
-        GjennomforingHandling.OPPRETT_TILSAGN,
-        GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
-        GjennomforingHandling.OPPRETT_UTBETALING,
-    )
-        .filter { GjennomforingDetaljerService.tilgangTilHandling(it, ansatt) }
-        .toSet()
 }
 
 private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when (this) {
@@ -215,4 +285,32 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
     )
 
     is GjennomforingArenaKompakt -> throw IllegalStateException("Visning av gamle gjennomføringer fra Arena er ikke støttet")
+}
+
+private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
+    result: List<GjennomforingKompaktDto>,
+) = sheet("Gjennomforinger") {
+    header(
+        "Tiltaksnavn",
+        "Tiltakstype",
+        "Tiltaksnummer",
+        "Tiltaksarrangør",
+        "Tiltaksarrangør orgnr",
+        "Startdato",
+        "Sluttdato",
+    )
+
+    result.forEach { tiltak ->
+        row {
+            listOf(
+                tiltak.navn,
+                tiltak.tiltakstype.navn,
+                tiltak.lopenummer.value,
+                tiltak.arrangor.navn,
+                tiltak.arrangor.organisasjonsnummer.value,
+                tiltak.startDato?.formaterDatoTilEuropeiskDatoformat(),
+                tiltak.sluttDato?.formaterDatoTilEuropeiskDatoformat(),
+            )
+        }
+    }
 }

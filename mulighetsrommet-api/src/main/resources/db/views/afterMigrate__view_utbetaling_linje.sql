@@ -1,18 +1,18 @@
 create or replace view view_utbetaling_linje as
-select delutbetaling.id,
-       delutbetaling.tilsagn_id,
-       delutbetaling.utbetaling_id,
-       delutbetaling.status,
-       delutbetaling.belop,
-       delutbetaling.valuta,
-       delutbetaling.gjor_opp_tilsagn,
-       delutbetaling.periode,
-       delutbetaling.lopenummer,
-       delutbetaling.fakturanummer,
-       delutbetaling.faktura_status,
-       delutbetaling.faktura_status_sist_oppdatert,
-       delutbetaling.sendt_til_okonomi_tidspunkt,
+select linje.id,
+       linje.tilsagn_id,
+       linje.utbetaling_id,
+       linje.status,
+       linje.belop,
+       linje.valuta,
+       linje.gjor_opp_tilsagn,
+       linje.periode,
+       linje.lopenummer,
+       linje.fakturanummer,
+       linje.faktura_status,
+       linje.faktura_status_endret_tidspunkt,
+       linje.faktura_sendt_tidspunkt,
        utbetaling.utbetales_tidligst_tidspunkt
-from delutbetaling
-         join utbetaling on delutbetaling.utbetaling_id = utbetaling.id
-order by delutbetaling.created_at
+from utbetaling_linje linje
+         join utbetaling on linje.utbetaling_id = utbetaling.id
+order by linje.created_at

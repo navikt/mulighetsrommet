@@ -16,6 +16,7 @@ data class Deltaker(
     val endretTidspunkt: LocalDateTime,
     val status: DeltakerStatus,
     val deltakelsesmengder: List<Deltakelsesmengde>,
+    val innholdAnnet: String?,
 )
 
 @Serializable

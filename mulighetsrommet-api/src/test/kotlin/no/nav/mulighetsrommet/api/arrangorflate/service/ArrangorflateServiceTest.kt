@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.arrangorflate.service
 
-import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
@@ -12,18 +11,22 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 
 class ArrangorflateServiceTest : FunSpec({
@@ -40,8 +43,8 @@ class ArrangorflateServiceTest : FunSpec({
         tilsagn = tilsagn,
         utbetalinger = listOf(utbetaling, friUtbetaling),
     )
-    val amtDeltakerClient = mockk<AmtDeltakerClient>()
-    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
+    val personaliaService = mockk<PersonaliaService>()
+    coEvery { personaliaService.getPersonalia(any(), any()) } returns emptyMap()
 
     beforeEach {
         domain.initialize(database.db)
@@ -49,7 +52,7 @@ class ArrangorflateServiceTest : FunSpec({
 
     fun createService() = ArrangorflateService(
         database.db,
-        amtDeltakerClient,
+        personaliaService,
         kontoregisterOrganisasjon,
     )
 
@@ -70,34 +73,13 @@ class ArrangorflateServiceTest : FunSpec({
         }
     }
 
-    test("getTilsagn should return arrangorflateTilsagn by ID") {
-        val arrangorflateService = createService()
-
-        val result = arrangorflateService.getTilsagn(tilsagn.id)
-
-        result.shouldNotBeNull()
-        result.id shouldBe tilsagn.id
-        result.status shouldBe TilsagnStatus.GODKJENT
-    }
-
-    test("getTilsagnByOrgnr should return list of tilsagn for arrangor") {
-        val arrangorflateService = createService()
-
-        val result = arrangorflateService.getTilsagn(
-            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
-        )
-
-        result shouldHaveSize 1
-        result[0].id shouldBe tilsagn.id
-        result[0].status shouldBe TilsagnStatus.GODKJENT
-    }
-
     test("getArrangorflateTilsagnTilUtbetaling should return tilsagn for given gjennomforing and period") {
         val arrangorflateService = createService()
 
         val u = arrangorflateService.getUtbetaling(utbetaling.id)!!
         val result = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(
             u.copy(periode = Periode(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 8, 1))),
+            AccessType.OBO.TokenX("token"),
         )
 
         result shouldHaveSize 1
@@ -114,7 +96,10 @@ class ArrangorflateServiceTest : FunSpec({
 
     test("mapUtbetalingToArrangorflateUtbetaling should have status KLAR_FOR_GODKJENNING") {
         val arrangorflateService = createService()
-        val result = arrangorflateService.toArrangorflateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
+        val result = arrangorflateService.toArrangorflateUtbetaling(
+            arrangorflateService.getUtbetaling(utbetaling.id)!!,
+            AccessType.OBO.TokenX("token"),
+        )
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
     }
@@ -122,7 +107,10 @@ class ArrangorflateServiceTest : FunSpec({
     test("mapUtbetalingToArrangorflateUtbetaling should convert a fri utbetaling") {
         val arrangorflateService = createService()
         var utbetaling = arrangorflateService.getUtbetaling(friUtbetaling.id)!!
-        val result = arrangorflateService.toArrangorflateUtbetaling(utbetaling)
+        val result = arrangorflateService.toArrangorflateUtbetaling(
+            utbetaling,
+            AccessType.OBO.TokenX("token"),
+        )
 
         result.id shouldBe friUtbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
@@ -139,7 +127,11 @@ class ArrangorflateServiceTest : FunSpec({
         val godkjentAvArrangorUtbetaling = arrangorflateService.getUtbetaling(utbetaling.id)!!.copy(
             innsending = Utbetaling.Innsending(date.atStartOfDay().minusDays(1)),
         )
-        val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, today = date)
+        val result = arrangorflateService.toArrangorflateUtbetaling(
+            godkjentAvArrangorUtbetaling,
+            AccessType.OBO.TokenX("token"),
+            today = date,
+        )
 
         result.shouldNotBeNull()
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
@@ -156,7 +148,11 @@ class ArrangorflateServiceTest : FunSpec({
         val godkjentAvArrangorUtbetaling = arrangorflateService.getUtbetaling(utbetaling.id)!!.copy(
             innsending = Utbetaling.Innsending(date.atStartOfDay().minusWeeks(12)),
         )
-        val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, today = date)
+        val result = arrangorflateService.toArrangorflateUtbetaling(
+            godkjentAvArrangorUtbetaling,
+            AccessType.OBO.TokenX("token"),
+            today = date,
+        )
 
         result.shouldNotBeNull()
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
@@ -165,5 +161,94 @@ class ArrangorflateServiceTest : FunSpec({
             it.deltakelser.rows[0].cells["fnr"].shouldBeNull()
         }
         result.kanViseBeregning shouldBe false
+    }
+
+    test("getAllUtbetalingKompakt returnerer aktive utbetalinger for gitt arrangør") {
+        val arrangorflateService = createService()
+
+        val filter = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            type = ArrangorflateFilterType.AKTIVE,
+        )
+        val (totalCount, items) = arrangorflateService.getAllUtbetalingKompakt(filter)
+
+        totalCount shouldBe 2
+        items shouldHaveSize 2
+
+        val forhandsgodkjent = items.first { it.id == utbetaling.id }
+        forhandsgodkjent.pris shouldBe 10000.withValuta(Valuta.NOK)
+
+        val fri = items.first { it.id == friUtbetaling.id }
+        fri.pris shouldBe 5000.withValuta(Valuta.NOK)
+    }
+
+    test("getAllUtbetalingKompakt returnerer tom liste for historiske når alle utbetalinger er aktive") {
+        val arrangorflateService = createService()
+
+        val filter = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            type = ArrangorflateFilterType.HISTORISKE,
+            pagination = Pagination.of(1, 50),
+        )
+        arrangorflateService.getAllUtbetalingKompakt(filter).totalCount shouldBe 0
+    }
+
+    test("getAllUtbetalingKompakt returnerer tom liste for ukjent arrangør") {
+        val arrangorflateService = createService()
+
+        val filter = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorFixtures.underenhet2.organisasjonsnummer),
+            type = ArrangorflateFilterType.AKTIVE,
+        )
+        arrangorflateService.getAllUtbetalingKompakt(filter).totalCount shouldBe 0
+    }
+
+    test("getAllUtbetalingKompakt filtrerer på søketekst") {
+        val arrangorflateService = createService()
+
+        val filterMedTreff = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            sok = "Arbeidsfor",
+        )
+        arrangorflateService.getAllUtbetalingKompakt(filterMedTreff).totalCount shouldBe 2
+
+        val filterUtenTreff = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            sok = "finnes-ikke-abc123",
+            type = ArrangorflateFilterType.AKTIVE,
+        )
+        arrangorflateService.getAllUtbetalingKompakt(filterUtenTreff).totalCount shouldBe 0
+    }
+
+    test("getAllUtbetalingKompakt sorterer på beløp stigende") {
+        val arrangorflateService = createService()
+
+        val filter = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            type = ArrangorflateFilterType.AKTIVE,
+            orderBy = ArrangorflateUtbetalingFilter.OrderBy.BELOP,
+            direction = ArrangorflateFilterDirection.ASC,
+        )
+        val (_, items) = arrangorflateService.getAllUtbetalingKompakt(filter)
+
+        items shouldHaveSize 2
+        items[0].id shouldBe friUtbetaling.id
+        items[0].pris shouldBe 5000.withValuta(Valuta.NOK)
+        items[1].id shouldBe utbetaling.id
+        items[1].pris shouldBe 10000.withValuta(Valuta.NOK)
+    }
+
+    test("getAllUtbetalingKompakt paginerer resultater riktig") {
+        val arrangorflateService = createService()
+
+        val filter = ArrangorflateUtbetalingFilter(
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
+            type = ArrangorflateFilterType.AKTIVE,
+            pagination = Pagination.of(1, 1),
+        )
+        val (totalCount, items) = arrangorflateService.getAllUtbetalingKompakt(filter)
+
+        totalCount shouldBe 2
+        items shouldHaveSize 1
     }
 })

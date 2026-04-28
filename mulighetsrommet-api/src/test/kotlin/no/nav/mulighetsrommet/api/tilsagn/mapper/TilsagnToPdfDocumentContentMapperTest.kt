@@ -4,17 +4,18 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -36,32 +37,31 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         prettyPrintIndent = "  "
     }
 
-    val deltakelseId = UUID.randomUUID()
-    val deltaker = DeltakerPersonalia(
-        deltakerId = deltakelseId,
+    val deltaker = Personalia(
         norskIdent = NorskIdent("01010199999"),
         navn = "Normann, Ola",
         erSkjermet = false,
         adressebeskyttelse = PdlGradering.UGRADERT,
-        oppfolgingEnhet = NavEnhetFixtures.Sel.enhetsnummer,
+        oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
+        harTilgang = true,
     )
 
-    val skjermetDeltaker = DeltakerPersonalia(
-        deltakerId = deltakelseId,
+    val skjermetDeltaker = Personalia(
         norskIdent = NorskIdent("01010199998"),
         navn = "Normann, Olve",
         erSkjermet = true,
         adressebeskyttelse = PdlGradering.UGRADERT,
-        oppfolgingEnhet = NavEnhetFixtures.Sel.enhetsnummer,
+        oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
+        harTilgang = false,
     )
 
-    val adressebekyttetDeltaker = DeltakerPersonalia(
-        deltakerId = deltakelseId,
+    val adressebekyttetDeltaker = Personalia(
         norskIdent = NorskIdent("01010199997"),
         navn = "Normann, Olivia",
         erSkjermet = false,
         adressebeskyttelse = PdlGradering.FORTROLIG,
-        oppfolgingEnhet = NavEnhetFixtures.Sel.enhetsnummer,
+        oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
+        harTilgang = false,
     )
 
     val kontonummer = Kontonummer("12345678910")

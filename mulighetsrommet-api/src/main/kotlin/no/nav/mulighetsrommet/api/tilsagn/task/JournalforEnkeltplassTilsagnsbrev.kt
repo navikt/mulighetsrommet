@@ -10,8 +10,6 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
@@ -20,6 +18,8 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -35,7 +35,7 @@ import java.util.UUID
 class JournalforEnkeltplassTilsagnsbrev(
     private val db: ApiDatabase,
     private val dokarkClient: DokarkClient,
-    private val amtDeltakerClient: AmtDeltakerClient,
+    private val personaliaService: PersonaliaService,
     private val pdf: PdfGenClient,
     private val distribuerTilsagnsbrev: DistribuerTilsagnsbrev,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
@@ -90,10 +90,10 @@ class JournalforEnkeltplassTilsagnsbrev(
             0 -> return@transaction Either.Left("Fant ingen deltaker for enkeltplas ${enkeltplass.id}")
             else -> return@transaction Either.Left("Fant ${deltakere.size} deltakere for enkeltplass ${enkeltplass.id}")
         }
-        val personalia = amtDeltakerClient.hentPersonalia(setOf(deltaker.id))
-            .getOrElse {
-                return@transaction Either.Left("Kunne ikke hente personalia fra amt-deltaker med id: $it")
-            }.single()
+        val personalia = personaliaService.getPersonalia(listOf(deltaker.id), AccessType.M2M)
+            .getOrElse(deltaker.id) {
+                return@transaction Either.Left("Kunne ikke hente personalia fra amt-deltaker med id: ${deltaker.id}")
+            }
         val arrangor = queries.arrangor.get(tilsagn.arrangor.organisasjonsnummer)
             ?: return@transaction Either.Left("Fant ikke arrangør med organisasjonsnummer ${tilsagn.arrangor.organisasjonsnummer}")
 
@@ -110,7 +110,7 @@ class JournalforEnkeltplassTilsagnsbrev(
                 val journalpost = tilsagnJournalpost(
                     pdf = pdf,
                     tilsagnId = tilsagn.id,
-                    deltaker = personalia.norskIdent,
+                    deltaker = requireNotNull(personalia.norskIdent),
                     arrangor = arrangor,
                     fagsakId = fagsakId,
                 )
@@ -130,14 +130,14 @@ class JournalforEnkeltplassTilsagnsbrev(
 
     private suspend fun generatePdf(
         tilsagn: Tilsagn,
-        deltaker: DeltakerPersonalia,
+        personalia: Personalia,
         kontonummer: Kontonummer,
         behandlere: List<String>,
     ): Either<String, ByteArray> {
         val content = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
             tilsagn,
             kontonummer,
-            deltaker,
+            personalia,
             behandlere,
         )
         return pdf

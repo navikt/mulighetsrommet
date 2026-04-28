@@ -6,14 +6,12 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
-import java.sql.Array
 import java.time.LocalDate
 import java.util.UUID
 
@@ -51,13 +49,13 @@ class NavAnsattQueries(private val session: Session) {
         val deleteRoles = """
             delete from nav_ansatt_rolle
             where nav_ansatt_nav_ident = ?
-              and not (rolle = any(?::rolle[]))
+              and not (rolle = any(?::text[]))
         """.trimIndent()
         session.execute(
             queryOf(
                 deleteRoles,
                 navIdent.value,
-                session.createArrayOfRolle(roller.map { it.rolle }),
+                session.createArrayOfValue(roller) { it.rolle },
             ),
         )
 
@@ -65,7 +63,7 @@ class NavAnsattQueries(private val session: Session) {
             @Language("PostgreSQL")
             val insertRolle = """
                 insert into nav_ansatt_rolle(nav_ansatt_nav_ident, generell, rolle)
-                values (:nav_ident, :generell, :rolle::rolle)
+                values (:nav_ident, :generell, :rolle)
                 on conflict (nav_ansatt_nav_ident, rolle) do update set
                     generell = excluded.generell
             """.trimIndent()
@@ -75,7 +73,7 @@ class NavAnsattQueries(private val session: Session) {
                 select id
                 from nav_ansatt_rolle
                 where nav_ansatt_nav_ident = :nav_ident
-                  and rolle = :rolle::rolle;
+                  and rolle = :rolle;
             """.trimIndent()
 
             @Language("PostgreSQL")
@@ -127,7 +125,7 @@ class NavAnsattQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "roller" to rollerContainsAll?.let { Json.encodeToString(it) },
+            "roller" to rollerContainsAll?.ifEmpty { null }?.let { Json.encodeToString(it) },
             "hovedenhet" to hovedenhetIn?.let { createArrayOfValue(it) { it.value } },
             "skal_slettes_dato" to skalSlettesDatoLte,
         )
@@ -213,7 +211,3 @@ private fun Row.toNavAnsattDbo(): NavAnsattDbo = NavAnsattDbo(
     epost = string("epost"),
     skalSlettesDato = localDateOrNull("skal_slettes_dato"),
 )
-
-fun Session.createArrayOfRolle(
-    values: Collection<Rolle>,
-): Array = createArrayOf("rolle", values)

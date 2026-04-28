@@ -8,16 +8,17 @@ export interface Props {
   utbetaling: UtbetalingDto;
   linjer: UtbetalingLinje[];
   renderRow: (linje: UtbetalingLinje, index: number) => React.ReactNode;
+  utbetalesTotal?: number;
 }
 
-export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
+export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow, utbetalesTotal }: Props) {
   const valuta = utbetaling.beregning.valuta;
-  const utbetalesTotal = linjer.reduce((acc, d) => acc + d.pris.belop, 0);
+  const utbetalesTotalBelop = utbetalesTotal ?? linjer.reduce((acc, d) => acc + d.pris.belop, 0);
   const totalGjenstaendeBelop = linjer.reduce(
     (acc, l) => acc + l.tilsagn.belopGjenstaende.belop,
     0,
   );
-  const differanse = utbetaling.beregning.belop - utbetalesTotal;
+  const differanse = utbetaling.beregning.belop - utbetalesTotalBelop;
 
   return (
     <Box className="overflow-x-auto">
@@ -62,7 +63,7 @@ export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
               {formaterValuta(totalGjenstaendeBelop, valuta)}
             </Table.DataCell>
             <Table.DataCell className="font-ax-bold">
-              {formaterValuta(utbetalesTotal, valuta)}
+              {formaterValuta(utbetalesTotalBelop, valuta)}
             </Table.DataCell>
             <Table.DataCell className="font-ax-bold" align="right" colSpan={2}>
               <HStack align="center">

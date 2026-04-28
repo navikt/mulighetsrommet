@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDate
@@ -21,7 +22,7 @@ data class GjennomforingDbo(
     val tiltakstypeId: UUID,
     val arrangorId: UUID,
     val navn: String,
-    val startDato: LocalDate,
+    val startDato: LocalDate?,
     val sluttDato: LocalDate?,
     val status: GjennomforingStatusType,
     val deltidsprosent: Double,
@@ -30,6 +31,7 @@ data class GjennomforingDbo(
     val pameldingType: GjennomforingPameldingType,
     val avtaleId: UUID?,
     val prismodellId: UUID?,
+    val ansvarligEnhet: NavEnhetNummer?,
     val oppmoteSted: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,

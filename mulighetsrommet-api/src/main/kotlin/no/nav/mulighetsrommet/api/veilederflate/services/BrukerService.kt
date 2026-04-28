@@ -34,7 +34,7 @@ class BrukerService(
     private val isoppfolgingstilfelleClient: IsoppfolgingstilfelleClient,
     private val brukerPdlQuery: HentBrukerPdlQuery,
 ) {
-    suspend fun hentBrukerdata(fnr: NorskIdent, obo: AccessType.OBO): Brukerdata = coroutineScope {
+    suspend fun hentBrukerdata(fnr: NorskIdent, obo: AccessType.OBO.AzureAd): Brukerdata = coroutineScope {
         val deferredErUnderOppfolging = async { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo) }
         val deferredOppfolgingsenhet = async { veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo) }
         val deferredManuellStatus = async { veilarboppfolgingClient.hentManuellStatus(fnr, obo) }

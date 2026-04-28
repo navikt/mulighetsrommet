@@ -61,7 +61,8 @@ For å generere dette gjør du følgende:
 4. Legg inn dette i optional claims:
    ```json
    {
-     "NAVident": "B123456"
+     "NAVident": "B123456",
+     "oid": "37ba79a1-c36d-4f45-8608-d582df321ecc"
    }
    ```
 5. Trykk `Sign in`

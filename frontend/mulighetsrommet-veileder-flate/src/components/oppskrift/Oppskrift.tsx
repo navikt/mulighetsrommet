@@ -2,18 +2,19 @@ import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { Button } from "@navikt/ds-react";
 import { useEffect, useRef } from "react";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
-import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 import { Melding } from "../melding/Melding";
+import { PortableText } from "@mr/frontend-common";
+import { Tiltakskode } from "@api-client";
 
 interface Props {
   oppskriftId: string;
-  tiltakstypeId: string;
+  tiltakskode: Tiltakskode;
   setOppskriftId: (id: string | undefined) => void;
 }
 
-export function Oppskrift({ oppskriftId, tiltakstypeId, setOppskriftId }: Props) {
+export function Oppskrift({ oppskriftId, tiltakskode, setOppskriftId }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
+  const { data: oppskrifter } = useOppskrifter(tiltakskode);
 
   useEffect(() => {
     if (ref.current) {
@@ -83,7 +84,7 @@ export function Oppskrift({ oppskriftId, tiltakstypeId, setOppskriftId }: Props)
                 className="bg-ax-bg-neutral-soft p-4 my-4 mx-0 rounded-[0.2rem] [&_img]:w-full"
               >
                 <h4 id={`steg-${index + 1}`}>{`${index + 1}. ${st.navn}`}</h4>
-                <RedaksjoneltInnhold value={st.innhold} />
+                <PortableText value={st.innhold} />
               </div>
             );
           })}

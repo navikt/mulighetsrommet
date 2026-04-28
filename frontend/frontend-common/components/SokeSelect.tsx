@@ -142,14 +142,8 @@ export function SokeSelect<T>(props: SelectProps<T> & { childRef?: Ref<Select<Se
         })}
       />
       {error && (
-        <div
-          style={{
-            marginTop: "8px",
-            color: "#c30000",
-            fontSize: size === "small" ? "16px" : "18px",
-          }}
-        >
-          <FeilmeldingMedVarselTrekant>{error.message}</FeilmeldingMedVarselTrekant>
+        <div style={{ marginTop: "8px" }}>
+          <FeilmeldingMedVarselTrekant size={size}>{error.message}</FeilmeldingMedVarselTrekant>
         </div>
       )}
     </div>

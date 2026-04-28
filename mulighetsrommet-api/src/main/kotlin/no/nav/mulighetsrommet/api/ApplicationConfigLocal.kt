@@ -19,13 +19,15 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinRequest
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.service.tidligstTidspunktForUtbetalingDev
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -48,37 +50,48 @@ private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".t
 val ApplicationConfigLocal = AppConfig(
     tiltakstyper = TiltakstypeService.Config(
         features = run {
-            val utfaset = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-                TiltakstypeFeature.MIGRERT,
-                TiltakstypeFeature.UTFASET,
-            )
-            val migrert = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-                TiltakstypeFeature.MIGRERT,
-            )
-            val vises = setOf(
-                TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
-            )
+            val admin = setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)
+            val modia = setOf(TiltakstypeFeature.VISES_I_MODIA)
+            val migrert = setOf(TiltakstypeFeature.MIGRERT)
+            val utfaset = setOf(TiltakstypeFeature.UTFASET)
             mapOf(
-                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to migrert,
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to migrert,
-                Tiltakskode.ARBEIDSRETTET_REHABILITERING to migrert,
-                Tiltakskode.AVKLARING to migrert,
-                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to migrert,
-                Tiltakskode.FAG_OG_YRKESOPPLAERING to migrert,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to utfaset,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to utfaset,
-                Tiltakskode.JOBBKLUBB to migrert,
-                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to migrert,
-                Tiltakskode.OPPFOLGING to migrert,
-                Tiltakskode.STUDIESPESIALISERING to migrert,
-                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to migrert,
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to admin + modia + migrert + utfaset,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to admin + modia + migrert + utfaset,
 
-                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to vises,
-                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to vises,
-                Tiltakskode.HOYERE_UTDANNING to vises,
-                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to vises,
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to admin + modia + migrert,
+                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to admin + modia + migrert,
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING to admin + modia + migrert,
+                Tiltakskode.AVKLARING to admin + modia + migrert,
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to admin + modia + migrert,
+                Tiltakskode.FAG_OG_YRKESOPPLAERING to admin + modia + migrert,
+                Tiltakskode.JOBBKLUBB to admin + modia + migrert,
+                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to admin + modia + migrert,
+                Tiltakskode.OPPFOLGING to admin + modia + migrert,
+                Tiltakskode.STUDIESPESIALISERING to admin + modia + migrert,
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to admin + modia + migrert,
+
+                Tiltakskode.TILPASSET_JOBBSTOTTE to admin + modia,
+
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to admin + modia,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin + modia,
+                Tiltakskode.HOYERE_UTDANNING to admin + modia,
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to admin + modia,
+
+                Tiltakskode.ARBEIDSTRENING to modia,
+                Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD to modia,
+                Tiltakskode.VARIG_LONNSTILSKUD to modia,
+                Tiltakskode.MENTOR to modia,
+                Tiltakskode.INKLUDERINGSTILSKUD to modia,
+                Tiltakskode.SOMMERJOBB to modia,
+                Tiltakskode.VTAO to modia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG to modia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE to modia,
+                Tiltakskode.ARBEID_MED_STOTTE to modia,
+
+                /*
+                 * Nye tiltakstyper under utvikling
+                 */
+                Tiltakskode.FIREARIG_LONNSTILSUDD to setOf(),
             )
         },
     ),
@@ -143,6 +156,7 @@ val ApplicationConfigLocal = AppConfig(
         ),
         roles = setOf(
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TEAM_MULIGHETSROMMET),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKSTYPER_SKRIV),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.AVTALER_SKRIV),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKADMINISTRASJON_GENERELL),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.OPPFOLGER_GJENNOMFORING),
@@ -199,6 +213,33 @@ val ApplicationConfigLocal = AppConfig(
     ),
     pdfgen = HttpClientConfig(
         url = "http://localhost:8888",
+    ),
+    tilgangsmaskin = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/tilgangsmaskin",
+        scope = "default",
+        engine = MockEngine { request ->
+            if (request.url.toString().endsWith("/api/v1/bulk/obo")) {
+                val jsonString = (request.body as TextContent).text
+                val requests = JsonIgnoreUnknownKeys.decodeFromString<List<TilgangsmaskinRequest>>(jsonString)
+
+                val payload =
+                    TilgangsmaskinResponse(
+                        requests.map { req ->
+                            TilgangsmaskinResponse.Resultat(
+                                req.brukerId,
+                                status = 204,
+                            )
+                        },
+                    )
+                respond(
+                    content = ByteReadChannel(JsonIgnoreUnknownKeys.encodeToString(payload)),
+                    status = HttpStatusCode.MultiStatus,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+            } else {
+                respondError(HttpStatusCode.NotFound, "Mangler MockEngine for Tilgangsmaskinen")
+            }
+        },
     ),
     veilarbvedtaksstotteConfig = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/veilarbvedtaksstotte/api",

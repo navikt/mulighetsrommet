@@ -1,42 +1,23 @@
-import {
-  Alert,
-  BodyLong,
-  Button,
-  Heading,
-  HelpText,
-  HStack,
-  Label,
-  Tabs,
-  Textarea,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
-import { PortableText } from "../portableText/PortableText";
+import { Heading, HelpText, HStack, Label, VStack } from "@navikt/ds-react";
 import {
   GjennomforingKontaktpersonDto,
   GjennomforingRequest,
-  VeilederflateTiltakstype,
 } from "@tiltaksadministrasjon/api-client";
-import { useFieldArray, useFormContext } from "react-hook-form";
-import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
+import { useFormContext } from "react-hook-form";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
-import { FileTextIcon, LinkIcon, PaperplaneIcon, PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Lenker } from "../lenker/Lenker";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
-import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
-import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
-import { KontaktpersonButton } from "../kontaktperson/KontaktpersonButton";
 import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
 import { ControlledSokeSelect } from "@mr/frontend-common";
-import { PortableTextFormEditor } from "../portableText/PortableTextEditor";
-import { VeilederinformasjonValues } from "@/schemas/avtale";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
+import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
+import { FormTextField } from "@/components/skjema/FormTextField";
+import { FormListInput } from "@/components/skjema/FormListInput";
 
 interface Props {
   tiltakId: string;
@@ -60,11 +41,17 @@ export function InformasjonForVeiledereForm({
   kontaktpersonForm,
   lagredeKontaktpersoner = [],
 }: Props) {
+  const tiltakstype = useTiltakstype(tiltakId);
+
   return (
     <InlineErrorBoundary>
       <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
         <TwoColumnGrid separator>
-          <RedaksjoneltInnholdForm tiltakId={tiltakId} />
+          <RedaksjoneltInnholdForm
+            path="veilederinformasjon"
+            description="Beskrivelse av formålet med tiltaksgjennomføringen."
+            tiltakstype={tiltakstype}
+          />
           <RegionerOgEnheterOgKontaktpersoner
             regionerOptions={regionerOptions}
             kontorerOptions={kontorerOptions}
@@ -77,243 +64,6 @@ export function InformasjonForVeiledereForm({
     </InlineErrorBoundary>
   );
 }
-
-export function RedaksjoneltInnholdForm({ tiltakId }: { tiltakId: string }) {
-  const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakId);
-  const { register } = useFormContext<VeilederinformasjonValues>();
-
-  return (
-    <RedaksjoneltInnholdContainer>
-      <Heading size="medium" spacing level="3">
-        Redaksjonelt innhold
-      </Heading>
-      <Alert size="small" variant="info">
-        Ikke del personopplysninger i fritekstfeltene
-      </Alert>
-      <Textarea
-        {...register("veilederinformasjon.beskrivelse")}
-        description="Beskrivelse av formålet med tiltaksgjennomføringen."
-        label="Beskrivelse"
-      />
-      {tiltakstypeSanityData.beskrivelse && (
-        <>
-          <Heading size="medium">Generell informasjon</Heading>
-          <BodyLong style={{ whiteSpace: "pre-wrap" }}>
-            {tiltakstypeSanityData.beskrivelse}
-          </BodyLong>
-        </>
-      )}
-      <Heading size="medium">Faneinnhold</Heading>
-      <Tabs size="small" defaultValue="for_hvem">
-        <Tabs.List>
-          <Tabs.Tab
-            value="for_hvem"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <FileTextIcon style={{ fontSize: "1.5rem" }} /> For hvem
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-          <Tabs.Tab
-            value="detaljer_og_innhold"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <FileTextIcon style={{ fontSize: "1.5rem" }} /> Detaljer og innhold
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-          <Tabs.Tab
-            value="pamelding_og_varighet"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <FileTextIcon style={{ fontSize: "1.5rem" }} /> Påmelding og varighet
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-          <Tabs.Tab
-            value="kontaktinfo"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <FileTextIcon style={{ fontSize: "1.5rem" }} /> Kontaktinfo
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-          <Tabs.Tab
-            value="lenker"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <LinkIcon style={{ fontSize: "1.5rem" }} /> Lenker
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-          <Tabs.Tab
-            value="del_med_bruker"
-            label={
-              <RedaksjoneltInnholdTabTittel>
-                <PaperplaneIcon style={{ fontSize: "1.5rem" }} /> Del med bruker
-              </RedaksjoneltInnholdTabTittel>
-            }
-          />
-        </Tabs.List>
-        <Tabs.Panel value="for_hvem">
-          <ForHvem tiltakstype={tiltakstypeSanityData} />
-        </Tabs.Panel>
-        <Tabs.Panel value="detaljer_og_innhold">
-          <DetaljerOgInnhold tiltakstype={tiltakstypeSanityData} />
-        </Tabs.Panel>
-        <Tabs.Panel value="pamelding_og_varighet">
-          <PameldingOgVarighet tiltakstype={tiltakstypeSanityData} />
-        </Tabs.Panel>
-        <Tabs.Panel value="kontaktinfo">
-          <Kontaktinfo />
-        </Tabs.Panel>
-        <Tabs.Panel value="lenker">
-          <Lenker />
-        </Tabs.Panel>
-        <Tabs.Panel value="del_med_bruker">
-          <DelMedBruker tiltakstype={tiltakstypeSanityData} />
-        </Tabs.Panel>
-      </Tabs>
-    </RedaksjoneltInnholdContainer>
-  );
-}
-
-const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) => {
-  const { register } = useFormContext<VeilederinformasjonValues>();
-
-  return (
-    <VStack className="mt-4">
-      {tiltakstype?.faneinnhold?.forHvemInfoboks && (
-        <Alert style={{ whiteSpace: "pre-wrap" }} variant="info">
-          {tiltakstype.faneinnhold.forHvemInfoboks}
-        </Alert>
-      )}
-      {tiltakstype?.faneinnhold?.forHvem && (
-        <PortableText value={tiltakstype.faneinnhold.forHvem} />
-      )}
-      <Separator />
-      <DescriptionRichtextContainer>
-        <Textarea
-          {...register("veilederinformasjon.faneinnhold.forHvemInfoboks")}
-          label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «For hvem»"
-          description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
-        />
-        <PortableTextFormEditor
-          name="veilederinformasjon.faneinnhold.forHvem"
-          label="For hvem"
-          description="Beskrivelse av hvem tiltakstypen passer for. Husk å bruke et kort og konsist språk."
-        />
-      </DescriptionRichtextContainer>
-    </VStack>
-  );
-};
-
-const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) => {
-  const { register } = useFormContext<VeilederinformasjonValues>();
-
-  return (
-    <VStack className="mt-4">
-      {tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks && (
-        <Alert variant="info">{tiltakstype.faneinnhold.detaljerOgInnholdInfoboks}</Alert>
-      )}
-      {tiltakstype?.faneinnhold?.detaljerOgInnhold && (
-        <PortableText value={tiltakstype.faneinnhold.detaljerOgInnhold} />
-      )}
-      <Separator />
-
-      <DescriptionRichtextContainer>
-        <Textarea
-          {...register("veilederinformasjon.faneinnhold.detaljerOgInnholdInfoboks")}
-          label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Detaljer og innhold»"
-          description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
-        />
-        <PortableTextFormEditor
-          name="veilederinformasjon.faneinnhold.detaljerOgInnhold"
-          label="Detaljer og innhold"
-          description="Beskrivelse av detaljer og innhold for tiltakstypen. Husk å bruke et kort og konsist språk."
-        />
-      </DescriptionRichtextContainer>
-    </VStack>
-  );
-};
-
-const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) => {
-  const { register } = useFormContext<VeilederinformasjonValues>();
-
-  return (
-    <VStack className="mt-4">
-      {tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks && (
-        <Alert variant="info">{tiltakstype.faneinnhold.pameldingOgVarighetInfoboks}</Alert>
-      )}
-      {tiltakstype?.faneinnhold?.pameldingOgVarighet && (
-        <PortableText value={tiltakstype.faneinnhold.pameldingOgVarighet} />
-      )}
-      <Separator />
-
-      <DescriptionRichtextContainer>
-        <Textarea
-          {...register("veilederinformasjon.faneinnhold.pameldingOgVarighetInfoboks")}
-          label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Påmelding og varighet»"
-          description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
-        />
-        <PortableTextFormEditor
-          name="veilederinformasjon.faneinnhold.pameldingOgVarighet"
-          label="Påmelding og varighet"
-          description="Beskrivelse av rutiner rundt påmelding og varighet i tiltaket. Husk å bruke et kort og konsist språk."
-        />
-      </DescriptionRichtextContainer>
-    </VStack>
-  );
-};
-
-const Kontaktinfo = () => {
-  const { register } = useFormContext<VeilederinformasjonValues>();
-
-  return (
-    <VStack className="mt-4">
-      <VStack gap="space-20">
-        <Textarea
-          {...register("veilederinformasjon.faneinnhold.kontaktinfoInfoboks")}
-          label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Kontaktinfo»"
-          description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
-        />
-        <PortableTextFormEditor
-          name="veilederinformasjon.faneinnhold.kontaktinfo"
-          label="Kontaktinfo"
-          description="Ekstra tekst om kontaktinfo."
-        />
-      </VStack>
-    </VStack>
-  );
-};
-
-const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) => {
-  const { watch, setValue } = useFormContext<VeilederinformasjonValues>();
-
-  const [tekst, setTekst] = useState<string>(
-    watch("veilederinformasjon.faneinnhold.delMedBruker") ?? tiltakstype?.delingMedBruker ?? "",
-  );
-
-  function onChange(value: string) {
-    if (value !== tiltakstype?.delingMedBruker) {
-      setValue("veilederinformasjon.faneinnhold.delMedBruker", value);
-    }
-  }
-
-  return (
-    <VStack className="mt-4">
-      <Textarea
-        onChange={(e) => {
-          onChange(e.target.value);
-          setTekst(e.target.value);
-        }}
-        value={tekst}
-        label="Del med bruker"
-        description="Bruk denne tekstboksen for å redigere teksten som sendes til bruker når man deler et tiltak. Det blir automatisk lagt til en ”Hei” og en “Hilsen”."
-      />
-    </VStack>
-  );
-};
 
 function RegionerOgEnheterOgKontaktpersoner({
   regionerOptions,
@@ -328,17 +78,6 @@ function RegionerOgEnheterOgKontaktpersoner({
   kontaktpersonForm: boolean;
   lagredeKontaktpersoner: GjennomforingKontaktpersonDto[];
 }) {
-  const { register, control } = useFormContext();
-
-  const {
-    fields: kontaktpersonFields,
-    append: appendKontaktperson,
-    remove: removeKontaktperson,
-  } = useFieldArray({
-    name: "kontaktpersoner",
-    control,
-  });
-
   return (
     <>
       <Heading size="medium" spacing level="3">
@@ -350,7 +89,6 @@ function RegionerOgEnheterOgKontaktpersoner({
           size="small"
           placeholder="Velg en"
           label={avtaletekster.navRegionerLabel}
-          {...register("veilederinformasjon.navRegioner")}
           name={"veilederinformasjon.navRegioner"}
           options={regionerOptions}
         />
@@ -361,7 +99,7 @@ function RegionerOgEnheterOgKontaktpersoner({
           placeholder="Velg en"
           label={avtaletekster.navEnheterLabel}
           helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
-          {...register("veilederinformasjon.navKontorer")}
+          name={"veilederinformasjon.navKontorer"}
           options={kontorerOptions}
         />
         <ControlledMultiSelect
@@ -371,7 +109,7 @@ function RegionerOgEnheterOgKontaktpersoner({
           placeholder="Velg en (valgfritt)"
           label={avtaletekster.navAndreEnheterLabel}
           helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
-          {...register("veilederinformasjon.navAndreEnheter")}
+          name={"veilederinformasjon.navAndreEnheter"}
           options={andreEnheterOptions}
         />
         {kontaktpersonForm && (
@@ -384,39 +122,17 @@ function RegionerOgEnheterOgKontaktpersoner({
                 gjennomføringen."
               </HelpText>
             </HStack>
-            {kontaktpersonFields.map((field, index) => {
-              return (
-                <div
-                  className="bg-ax-bg-neutral-soft mt-4 p-2 relative border border-ax-border-neutral-subtle rounded"
-                  key={field.id}
-                >
-                  <Button
-                    className="p-0 float-right"
-                    variant="tertiary"
-                    size="small"
-                    type="button"
-                    onClick={() => removeKontaktperson(index)}
-                  >
-                    <XMarkIcon fontSize="1.5rem" />
-                  </Button>
-                  <div className="flex flex-col gap-4">
-                    <SokEtterKontaktperson
-                      index={index}
-                      id={field.id}
-                      lagredeKontaktpersoner={lagredeKontaktpersoner}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-            <KontaktpersonButton
-              onClick={() => appendKontaktperson({ navIdent: "", beskrivelse: "" })}
-              knappetekst={
-                <div className="flex items-center gap-2">
-                  <PlusIcon aria-label="Legg til ny kontaktperson" />
-                  Legg til ny kontaktperson
-                </div>
-              }
+            <FormListInput
+              name="kontaktpersoner"
+              addButtonLabel="Legg til ny kontaktperson"
+              emptyItem={{ navIdent: "", beskrivelse: "" }}
+              renderItem={(index, id) => (
+                <SokEtterKontaktperson
+                  index={index}
+                  id={id}
+                  lagredeKontaktpersoner={lagredeKontaktpersoner}
+                />
+              )}
             />
           </>
         )}
@@ -436,7 +152,7 @@ function SokEtterKontaktperson({
 }) {
   const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
   const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery, id);
-  const { register, watch } = useFormContext<GjennomforingRequest>();
+  const { watch } = useFormContext<GjennomforingRequest>();
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner").map((k) => k.navIdent);
@@ -475,20 +191,15 @@ function SokEtterKontaktperson({
         size="small"
         placeholder="Søk etter kontaktperson"
         label={gjennomforingTekster.kontaktpersonNav.navnLabel}
-        {...register(`kontaktpersoner.${index}.navIdent`, {
-          shouldUnregister: true,
-        })}
+        name={`kontaktpersoner.${index}.navIdent`}
         onInputChange={setKontaktpersonerQuery}
         options={kontaktpersonerOption(index)}
       />
-      <TextField
-        size="small"
+      <FormTextField<GjennomforingRequest>
+        name={`kontaktpersoner.${index}.beskrivelse`}
         label={gjennomforingTekster.kontaktpersonNav.beskrivelseLabel}
         placeholder="Unngå personopplysninger"
         maxLength={67}
-        {...register(`kontaktpersoner.${index}.beskrivelse`, {
-          shouldUnregister: true,
-        })}
       />
     </>
   );

@@ -35,9 +35,12 @@ class VeilarbdialogClient(
     }
 
     suspend fun sendMeldingTilDialogen(
-        obo: AccessType.OBO,
+        obo: AccessType,
         requestBody: DialogRequest,
     ): Either<VeilarbdialogError, DialogResponse> {
+        require(obo is AccessType.OBO) {
+            "kun on-behalf-of flow støttet"
+        }
         val response = client.post("$baseUrl/dialog") {
             bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)

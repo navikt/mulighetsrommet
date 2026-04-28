@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -44,7 +44,7 @@ class InitialLoadGjennomforingerTest : FunSpec({
     ): InitialLoadGjennomforinger = InitialLoadGjennomforinger(
         InitialLoadGjennomforinger.Config(gjennomforinvV2Topic),
         database.db,
-        GjennomforingDetaljerService(database.db, TiltakstypeService(db = database.db), mockk()),
+        GjennomforingDetaljerService(database.db, TiltakstypeService(db = database.db), mockk(), mockk()),
         producerClient,
     )
 

@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
-import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavIdent
 import org.slf4j.LoggerFactory
 import java.util.UUID
@@ -22,12 +21,6 @@ class SanityService(
     private val sanityClient: SanityClient,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-
-    private val sanityTiltakstyperCache: Cache<String, List<SanityTiltakstype>> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
-        .maximumSize(500)
-        .recordStats()
-        .build()
 
     private val sanityTiltaksgjennomforingerCache: Cache<String, List<SanityTiltaksgjennomforing>> =
         Caffeine.newBuilder()
@@ -49,33 +42,6 @@ class SanityService(
               tiltakstype->{
                 _id,
                 tiltakstypeNavn,
-                beskrivelse,
-                nokkelinfoKomponenter,
-                innsatsgrupper,
-                "kanKombineresMed": coalesce(kombinasjon[]->{tiltakstypeNavn}.tiltakstypeNavn, []),
-                regelverkLenker[]->,
-                faneinnhold {
-                  forHvemInfoboks,
-                  forHvem,
-                  detaljerOgInnholdInfoboks,
-                  detaljerOgInnhold,
-                  pameldingOgVarighetInfoboks,
-                  pameldingOgVarighet
-                },
-                delingMedBruker,
-                "oppskrifter":  coalesce(oppskrifter[] -> {
-                  ...,
-                  steg[] {
-                    ...,
-                    innhold[] {
-                      ...,
-                      _type == "image" => {
-                        ...,
-                        asset-> // For å hente ut url til bilder
-                      }
-                    }
-                  }
-                }, [])
               },
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
@@ -200,52 +166,6 @@ class SanityService(
             }
     }
 
-    suspend fun getTiltakstyper(): List<SanityTiltakstype> {
-        sanityTiltakstyperCache.getIfPresent("tiltakstyper")?.let { return@getTiltakstyper it }
-
-        val query = """
-                    *[_type == "tiltakstype"] {
-                      _id,
-                      tiltakstypeNavn,
-                      beskrivelse,
-                      nokkelinfoKomponenter,
-                      innsatsgrupper,
-                      "kanKombineresMed": coalesce(kombinasjon[]->{tiltakstypeNavn}.tiltakstypeNavn, []),
-                      regelverkLenker[]->,
-                      faneinnhold {
-                        forHvemInfoboks,
-                        forHvem,
-                        detaljerOgInnholdInfoboks,
-                        detaljerOgInnhold,
-                        pameldingOgVarighetInfoboks,
-                        pameldingOgVarighet,
-                      },
-                      delingMedBruker,
-                      "oppskrifter":  coalesce(oppskrifter[] -> {
-                        ...,
-                        steg[] {
-                          ...,
-                          innhold[] {
-                            ...,
-                            _type == "image" => {
-                              ...,
-                              asset-> // For å hente ut url til bilder
-                            }
-                          }
-                        }
-                      }, [])
-                    }
-        """.trimIndent()
-
-        return when (val result = sanityClient.query(query)) {
-            is SanityResponse.Result -> result.decode<List<SanityTiltakstype>>()
-            is SanityResponse.Error -> throw Exception(result.error.toString())
-        }
-            .also {
-                sanityTiltakstyperCache.put("tiltakstyper", it)
-            }
-    }
-
     suspend fun getOppskrifter(
         tiltakstypeId: UUID,
         perspective: SanityPerspective,
@@ -279,11 +199,9 @@ class SanityService(
     suspend fun patchSanityTiltakstype(
         sanityId: UUID,
         navn: String,
-        innsatsgrupper: Set<Innsatsgruppe>,
     ) {
         val data = SanityTiltakstypeFields(
             tiltakstypeNavn = navn,
-            innsatsgrupper = innsatsgrupper,
         )
 
         val response = sanityClient.mutate(

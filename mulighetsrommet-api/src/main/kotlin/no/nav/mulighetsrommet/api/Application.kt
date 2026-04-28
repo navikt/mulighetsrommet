@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.monitoring.KafkaMetrics
+import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
@@ -47,21 +48,24 @@ fun main() {
         NaisEnv.Local -> ApplicationConfigLocal
     }
 
-    createServer(config).start(wait = true)
+    createServer(config.server) { configure(config) }.start(wait = true)
 }
 
-fun createServer(config: AppConfig): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
+fun createServer(
+    config: ServerConfig,
+    module: Application.() -> Unit,
+): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
     return embeddedServer(
         Netty,
         configure = {
             connector {
-                port = config.server.port
-                host = config.server.host
+                port = config.port
+                host = config.host
             }
             shutdownGracePeriod = 5.seconds.inWholeMilliseconds
             shutdownTimeout = 10.seconds.inWholeMilliseconds
         },
-        module = { configure(config) },
+        module = module,
     )
 }
 

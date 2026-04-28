@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHel
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.service.DeltakerPersonaliaMedGeografiskEnhet
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
@@ -38,7 +38,7 @@ data class UtbetalingBeregningDto(
     companion object {
         fun from(
             beregning: UtbetalingBeregning,
-            personaliaById: Map<UUID, DeltakerPersonaliaMedGeografiskEnhet>,
+            personaliaById: Map<UUID, PersonaliaMedGeografiskEnhet>,
             regioner: List<Kontorstruktur>,
             utbetalingPeriode: Periode,
             advarsler: List<DeltakerAdvarselDto>,
@@ -191,7 +191,7 @@ data class UtbetalingBeregningDto(
 
 private fun getUtbetalingBeregningDeltaker(
     deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
-    personaliaById: Map<UUID, DeltakerPersonaliaMedGeografiskEnhet>,
+    personaliaById: Map<UUID, PersonaliaMedGeografiskEnhet>,
 ): List<UtbetalingBeregningDeltaker> = personaliaById.mapNotNull { (deltakelseId, personalia) ->
     deltakelser.find { it.deltakelseId == deltakelseId }
         ?.let { deltakelse -> UtbetalingBeregningDeltaker(personalia, deltakelse) }
@@ -271,7 +271,7 @@ private fun deltakelsePrisPerUkesverkTable(
     )
 }
 
-private fun deltakelsePrisPerTimeOppfolgingTable(personalia: Map<UUID, DeltakerPersonaliaMedGeografiskEnhet>) = DataDrivenTableDto(
+private fun deltakelsePrisPerTimeOppfolgingTable(personalia: Map<UUID, PersonaliaMedGeografiskEnhet>) = DataDrivenTableDto(
     columns = deltakelsePersonaliaColumns(),
     rows = personalia.map { (_, personalia) ->
         DataDrivenTableDto.Row(
@@ -288,7 +288,7 @@ private fun deltakelsePersonaliaColumns() = listOf(
     DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet"),
 )
 
-private fun deltakelsePersonaliaCells(personalia: DeltakerPersonaliaMedGeografiskEnhet?): Map<String, DataElement?> = mapOf(
+private fun deltakelsePersonaliaCells(personalia: PersonaliaMedGeografiskEnhet?): Map<String, DataElement?> = mapOf(
     "navn" to personalia?.navn.let { DataElement.text(it) },
     "geografiskEnhet" to personalia?.geografiskEnhet?.navn?.let { DataElement.text(it) },
     "oppfolgingEnhet" to personalia?.oppfolgingEnhet?.navn?.let { DataElement.text(it) },

@@ -15,6 +15,11 @@ enum class Rolle(val visningsnavn: String) {
     TILTAKADMINISTRASJON_GENERELL("Tiltaksadministrasjon generell"),
 
     /**
+     * Gir tilgang til å redigere redaksjonelt innhold på tiltakstyper.
+     */
+    TILTAKSTYPER_SKRIV("Skrivetilgang - Tiltakstyper"),
+
+    /**
      * Gir tilgang til alle funksjoner relatert til redigering av gjennomføringer.
      */
     TILTAKSGJENNOMFORINGER_SKRIV("Skrivetilgang - Gjennomføring"),

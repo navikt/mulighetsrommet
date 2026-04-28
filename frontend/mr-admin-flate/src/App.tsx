@@ -27,6 +27,11 @@ import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/Re
 import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
+import { TiltakstypePage } from "./pages/tiltakstyper/TiltakstypePage";
+import { TiltakstypeInformasjonForVeilederePage } from "./pages/tiltakstyper/TiltakstypeInformasjonForVeilederePage";
+import { TiltakstypePageRedigerInformasjonForVeiledere } from "./pages/tiltakstyper/TiltakstypePageRedigerInformasjonForVeiledere";
+import { TiltakstypeDeltakerRegistreringPage } from "./pages/tiltakstyper/TiltakstypeDeltakerRegistreringPage";
+import { TiltakstypePageRedigerDeltakerRegistrering } from "./pages/tiltakstyper/TiltakstypePageRedigerDeltakerRegistrering";
 import { Suspense } from "react";
 import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
@@ -35,11 +40,10 @@ import { OpprettAvtaleFormPage } from "./pages/avtaler/OpprettAvtaleFormPage";
 import { OpprettGjennomforingFormPage } from "./pages/gjennomforing/OpprettGjennomforingFormPage";
 import { TilsagnPage } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnPage";
 import { GjennomforingDetaljer } from "./pages/gjennomforing/GjennomforingDetaljer";
-import { RedaksjoneltInnholdGjennomforing } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdGjennomforing";
+import { GjennomforingRedaksjoneltInnhold } from "./pages/gjennomforing/GjennomforingRedaksjoneltInnhold";
 import { AvtaleDetaljer } from "./pages/avtaler/AvtaleDetaljer";
 import { AvtalePersonvern } from "./pages/avtaler/AvtalePersonvern";
 import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
-import { RedaksjoneltInnholdPreview } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { InnsendingoversiktPage } from "./pages/innsendinger/InnsendingsoversiktPage";
@@ -51,9 +55,11 @@ import { AvtalePersonvernForm } from "./components/avtaler/AvtalePersonvernForm"
 import { AvtaleInformasjonForVeiledereForm } from "./components/avtaler/AvtaleInformasjonForVeiledereForm";
 import { OpprettUtbetalingPage } from "@/pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
 import { UtbetalingPage } from "@/pages/gjennomforing/utbetaling/UtbetalingPage";
-import { Behandlingsoversikt } from "./pages/gjennomforing/Tilskuddsbehandling/Behandlingsoversikt";
-import { BehandlingPage } from "./pages/gjennomforing/Tilskuddsbehandling/BehandlingPage";
 import { RedigerUtbetalingPage } from "@/pages/gjennomforing/utbetaling/RedigerUtbetalingPage";
+import { AvtaleRedaksjoneltInnhold } from "@/pages/avtaler/AvtaleRedaksjoneltInnhold";
+import { TilskuddBehandlingDetaljerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingDetaljerPage";
+import { TilskuddBehandlingFormPage } from "./pages/tilskudd-behandling/TilskuddBehandlingFormPage";
+import { TilskuddBehandlingerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingerPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -121,7 +127,7 @@ function route(config: Omit<NonIndexRouteObject, "errorElement">): NonIndexRoute
 const AVTALE_ROUTES: RouteObject[] = [
   { index: true, element: <AvtaleDetaljer /> },
   { path: "personvern", element: <AvtalePersonvern /> },
-  { path: "veilederinformasjon", element: <RedaksjoneltInnholdPreview /> },
+  { path: "veilederinformasjon", element: <AvtaleRedaksjoneltInnhold /> },
   { path: "gjennomforinger", element: <GjennomforingerForAvtalePage /> },
 ];
 
@@ -137,9 +143,9 @@ const AVTALE_FORM_ROUTES: RouteObject[] = [
 
 const GJENNOMFORING_ROUTES: RouteObject[] = [
   { index: true, element: <GjennomforingDetaljer /> },
-  { path: "redaksjonelt-innhold", element: <RedaksjoneltInnholdGjennomforing /> },
+  { path: "redaksjonelt-innhold", element: <GjennomforingRedaksjoneltInnhold /> },
   { path: "deltakerliste/*", element: <DeltakerlisteContainer /> },
-  { path: "tilskuddsbehandlinger", element: <Behandlingsoversikt /> },
+  { path: "tilskudd-behandling", element: <TilskuddBehandlingerPage /> },
   { path: "tilsagn", element: <TilsagnForGjennomforingPage /> },
   { path: "utbetalinger", element: <UtbetalingerForGjennomforingContainer /> },
 ];
@@ -201,7 +207,20 @@ const routes: RouteObject[] = [
       }),
       route({
         path: "tiltakstyper/:tiltakstypeId",
-        element: <DetaljerTiltakstypePage />,
+        element: <TiltakstypePage />,
+        children: [
+          { index: true, element: <DetaljerTiltakstypePage /> },
+          { path: "redaksjonelt-innhold", element: <TiltakstypeInformasjonForVeilederePage /> },
+          { path: "deltaker-registrering", element: <TiltakstypeDeltakerRegistreringPage /> },
+        ],
+      }),
+      route({
+        path: "tiltakstyper/:tiltakstypeId/redaksjonelt-innhold/rediger",
+        element: <TiltakstypePageRedigerInformasjonForVeiledere />,
+      }),
+      route({
+        path: "tiltakstyper/:tiltakstypeId/deltaker-registrering/rediger",
+        element: <TiltakstypePageRedigerDeltakerRegistrering />,
       }),
       route({
         path: "avtaler",
@@ -230,16 +249,21 @@ const routes: RouteObject[] = [
         children: TILSAGN_ROUTES,
       }),
       {
-        path: "gjennomforinger/:gjennomforingId/tilskuddsbehandlinger",
-        element: <BehandlingPage />,
-        children: [
-          {
-            path: "opprett-behandling",
-            element: <BehandlingPage />,
-          },
-        ],
+        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling",
+        element: <TilskuddBehandlingerPage />,
       },
-
+      route({
+        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling/opprett",
+        element: <TilskuddBehandlingFormPage />,
+      }),
+      route({
+        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling/:behandlingId",
+        element: <TilskuddBehandlingDetaljerPage />,
+      }),
+      route({
+        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling/:behandlingId/rediger",
+        element: <TilskuddBehandlingFormPage />,
+      }),
       route({
         path: "gjennomforinger/:gjennomforingId/skjema",
         element: <RedigerGjennomforingFormPage />,

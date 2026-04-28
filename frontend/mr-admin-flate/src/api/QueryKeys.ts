@@ -1,4 +1,5 @@
 import {
+  DocumentClass,
   GetArrangorerData,
   GetAvtalerData,
   GetGjennomforingerData,
@@ -10,28 +11,31 @@ import {
 export const QueryKeys = {
   tilsagnValgbareDeltakere: (req: string) => ["tilsagn-valgbare-deltakere", req] as const,
   beregnTilsagn: (req: string) => ["beregn-tilsagn", req] as const,
+  tiltakstypeHandlinger: (id: string) => ["tiltakstype-handlinger", id] as const,
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
   tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
+  redaksjoneltInnholdLenker: () => ["redaksjonelt-innhold", "lenker"] as const,
   oppgaver: (filter?: object) => ["oppgaver", { ...filter }] as const,
   oppgavetyper: () => ["oppgaver", "oppgavetyper"] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
-  gjennomforinger: (filter?: Pick<GetGjennomforingerData, "query">) =>
+  gjennomforinger: (filter?: Pick<GetGjennomforingerData, "body" | "query">) =>
     ["gjennomforinger", filter].filter((entry) => entry !== undefined),
   gjennomforing: (id?: string) => ["gjennomforing", id] as const,
   gjennomforingHandlinger: (id: string) => ["gjennomforing-handlinger", id] as const,
-  gjennomforingHistorikk: (id?: string) => ["gjennomforing", id, "historikk"] as const,
   gjennomforingDeltakerSummary(id: string) {
     return ["gjennomforing", id, "deltaker-summary"] as const;
   },
   ansatt: () => ["ansatt"] as const,
-  avtaler: (avtaleFilter?: Pick<GetAvtalerData, "query">) => ["avtaler", avtaleFilter] as const,
+  avtaler: (filter?: Pick<GetAvtalerData, "body" | "query">) =>
+    ["avtaler", filter].filter((part) => part !== undefined),
   avtale: (id?: string | null) => ["avtale", id] as const,
   avtaleRammedetaljer: (avtaleId?: string | null) => ["avtale", avtaleId, "rammedetaljer"] as const,
   avtaleRammedetaljerDefaults: (avtaleId?: string | null) =>
     ["avtale", avtaleId, "rammedetaljer", "defaults"] as const,
   avtalerHandlinger: () => ["avtaler-handlinger"] as const,
   avtaleHandlinger: (id?: string) => ["avtale-handlinger", id] as const,
-  avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
+  historikk: (id?: string, documentClass?: DocumentClass) =>
+    [id, documentClass, "historikk"] as const,
   navEnheter: () => ["nav-enheter"],
   kostnadssted: (regioner?: string[]) => ["kostnadssted", regioner],
   arrangorer: (filter?: Pick<GetArrangorerData, "query">) => ["arrangorer", filter] as const,
@@ -46,7 +50,7 @@ export const QueryKeys = {
   brregVirksomheter: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
   sokSertifiseringer: (q: string) => ["sokSertifiseringer", "q", q],
   brregVirksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
-  navansatt: (rolle: Rolle) => ["nav-ansatte", rolle],
+  navansatte: (roller: Rolle[]) => ["nav-ansatte", roller],
   sokNavansatt: (q: string, id: string) => ["sok-nav-ansatte", q, id],
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],
@@ -57,7 +61,6 @@ export const QueryKeys = {
     statuser,
   ],
   getTilsagn: (id?: string) => ["tilsagn", id],
-  tilsagnHistorikk: (id?: string) => ["tilsagn", id, "historikk"],
   tilsagnRequest: (id?: string) => ["tilsagn", id, "request"],
   godkjennTilsagn: () => ["tilsagn", "godkjenn"],
   returnerTilsagn: () => ["tilsagn", "returner"],
@@ -71,9 +74,9 @@ export const QueryKeys = {
     "utbetaling-for-gjennomforing",
     gjennomforingId,
   ],
-  utbetaling: (utbetalingId?: string) => ["utbetaling", utbetalingId],
-  utbetalingsLinjer: (utbetalingId?: string) => ["utbetaling", utbetalingId, "linje"],
-  utbetalingHistorikk: (utbetalingId?: string) => ["utbetaling", utbetalingId, "historikk"],
+  utbetaling: (utbetalingId?: string) =>
+    ["utbetaling", utbetalingId].filter((part) => part !== undefined),
+  utbetalingsLinjer: (utbetalingId: string) => ["utbetaling", utbetalingId, "linje"],
   utbetalingBeregning: (filter: { navEnheter: string[] }, utbetalingId: string) => [
     "utbetaling-beregning",
     utbetalingId,
@@ -82,4 +85,7 @@ export const QueryKeys = {
   ],
   innsendinger: (filter?: object) => ["innsendinger", { ...filter }] as const,
   arrangorBetalingsinfo: (orgnr: string) => ["arrangorBetalingsinfo", orgnr],
+  opplaeringtilskudd: () => ["opplaeringtilskudd"],
+  tilskuddBehandlinger: (gjennomforingId?: string) => ["tilskudd-behandling", gjennomforingId],
+  tilskuddBehandling: (behandlingId: string) => ["tilskudd-behandling", behandlingId],
 };

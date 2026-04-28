@@ -13,9 +13,9 @@ import {
   Heading,
   HGrid,
   HStack,
+  Loader,
   Textarea,
   TextField,
-  Loader,
   VStack,
 } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -83,6 +83,10 @@ export function TilsagnForm(props: Props) {
     });
   };
 
+  const fromDate = gjennomforing.startDato
+    ? subDuration(new Date(gjennomforing.startDato), { months: 1 })
+    : new Date();
+  const toDate = addDuration(new Date(), { years: 1 });
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
@@ -104,8 +108,8 @@ export function TilsagnForm(props: Props) {
                 <HGrid columns={2}>
                   <ControlledDateInput
                     label={tilsagnTekster.periode.start.label}
-                    fromDate={subDuration(new Date(gjennomforing.startDato), { months: 1 })}
-                    toDate={addDuration(new Date(), { years: 1 })}
+                    fromDate={fromDate}
+                    toDate={toDate}
                     defaultSelected={form.getValues("periodeStart")}
                     onChange={(val) => {
                       form.setValue("periodeStart", val);
@@ -115,8 +119,8 @@ export function TilsagnForm(props: Props) {
                   />
                   <ControlledDateInput
                     label={tilsagnTekster.periode.slutt.label}
-                    fromDate={subDuration(new Date(gjennomforing.startDato), { months: 1 })}
-                    toDate={addDuration(new Date(), { years: 1 })}
+                    fromDate={fromDate}
+                    toDate={toDate}
                     defaultSelected={form.getValues("periodeSlutt")}
                     clearErrors={() => clearErrors("periodeSlutt")}
                     onChange={(val) => {

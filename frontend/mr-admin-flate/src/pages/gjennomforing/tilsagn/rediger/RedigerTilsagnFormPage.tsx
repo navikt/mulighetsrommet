@@ -11,6 +11,7 @@ function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
   const { data: defaults } = useTilsagnRequest(tilsagnId);
   const kostnadssteder = useRelevanteKostnadssteder(
     tilsagnDetaljer.tilsagn.type,
+    "ansvarligEnhet" in gjennomforing ? gjennomforing.ansvarligEnhet.enhetsnummer : null,
     veilederinfo?.kontorstruktur ?? [],
   );
   return {
@@ -30,7 +31,7 @@ export function RedigerTilsagnFormPage() {
 
   return (
     <>
-      <ToTrinnsOpprettelsesForklaring opprettelse={opprettelse} />
+      <ToTrinnsOpprettelsesForklaring heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
       <TilsagnFormContainer
         gjennomforing={gjennomforing}
         prismodell={prismodell}

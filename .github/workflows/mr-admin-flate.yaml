@@ -7,9 +7,9 @@ on:
       - package.json
       - pnpm-lock.yaml
       - turbo.json
-      - frontend/mr-admin-flate/**
-      - frontend/api-client/**
       - frontend/frontend-common/**
+      - frontend/tiltaksadministrasjon-api-client/**
+      - frontend/mr-admin-flate/**
   workflow_dispatch:
     inputs:
       environment:
@@ -40,7 +40,7 @@ jobs:
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: get-version
         run: echo "version=$(cat package.json | jq -r '.devDependencies.playwright' | sed -e 's/^[\^\~]//')" >> "$GITHUB_OUTPUT"
 
@@ -51,7 +51,7 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-jammy
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
         env:
@@ -62,7 +62,7 @@ jobs:
       - name: Playwright test
         run: npx turbo run playwright --filter=mr-admin-flate
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
@@ -77,7 +77,7 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
         env:
@@ -85,12 +85,12 @@ jobs:
       - name: Build
         run: npx turbo run build --filter=mr-admin-flate
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: projects/932652929200/locations/global/workloadIdentityPools/github/providers/github-action
           service_account: dev-deploy@team-mulighetsrommet-dev-a2d7.iam.gserviceaccount.com
       - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v3
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
       - name: Upload files to GCS
         run: gsutil -m rsync -r frontend/mr-admin-flate/dist gs://mr-admin-flate-dev
 
@@ -102,7 +102,7 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
         env:
@@ -110,11 +110,11 @@ jobs:
       - name: Build
         run: npx turbo run build --filter=mr-admin-flate
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: projects/380520190028/locations/global/workloadIdentityPools/github/providers/github-action
           service_account: prod-deploy@team-mulighetsrommet-prod-5492.iam.gserviceaccount.com
       - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v3
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
       - name: Upload files to GCS
         run: gsutil -m rsync -r frontend/mr-admin-flate/dist gs://mr-admin-flate-prod

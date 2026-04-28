@@ -4,12 +4,14 @@ import arrow.core.nonEmptyListOf
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -23,6 +25,8 @@ import no.nav.mulighetsrommet.api.sanity.SanityArrangorKontaktperson
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe
@@ -31,6 +35,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.toUUID
 import java.util.UUID
 
@@ -128,22 +133,73 @@ class VeilederflateServiceTest : FunSpec({
     }
 
     val sanityService: SanityService = mockk(relaxed = true)
-    coEvery { sanityService.getTiltakstyper() } returns listOf(
-        tiltakstypeOppfolging,
-        tiltakstypeEnkelAmo,
-        tiltakstypeArbeidstrening,
-    )
     coEvery { sanityService.getAllTiltak(any(), any()) } returns listOf(
         tiltakEnkelAmo,
         tiltakArbeidstrening1,
         tiltakArbeidstrening2,
     )
+    coEvery { sanityService.getTiltak(tiltakArbeidstrening1._id.toUUID(), any(), any()) } returns tiltakArbeidstrening1
 
-    fun createService() = VeilederflateService(
-        db = database.db,
-        sanityService = sanityService,
-        navEnhetService = NavEnhetService(database.db),
-    )
+    fun createService(
+        features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(
+            Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.VISES_I_MODIA),
+            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.VISES_I_MODIA),
+            Tiltakskode.ARBEIDSTRENING to setOf(TiltakstypeFeature.VISES_I_MODIA),
+        ),
+    ): VeilederflateService {
+        val tiltakstypeService = TiltakstypeService(
+            config = TiltakstypeService.Config(features),
+            db = database.db,
+        )
+        return VeilederflateService(
+            db = database.db,
+            tiltakstypeService = tiltakstypeService,
+            sanityService = sanityService,
+            navEnhetService = NavEnhetService(database.db),
+        )
+    }
+
+    context("vises i modia") {
+        val veilederFlateService = createService(
+            features = mapOf(
+                Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.VISES_I_MODIA),
+                Tiltakskode.ARBEIDSTRENING to emptySet(),
+            ),
+        )
+
+        test("henter tiltakstyper når VISES_I_MODIA er aktivert") {
+            val tiltakstyper = veilederFlateService.hentTiltakstyper()
+
+            tiltakstyper.any { it.tiltakskode == Tiltakskode.OPPFOLGING } shouldBe true
+            tiltakstyper.any { it.tiltakskode == Tiltakskode.ARBEIDSTRENING } shouldBe false
+        }
+
+        test("hentTiltaksgjennomforinger filtrerer bort gjennomføringer for tiltakstyper uten VISES_I_MODIA") {
+            val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
+                enheter = nonEmptyListOf(NavEnhetNummer("0501")),
+                apentForPamelding = ApentForPamelding.APENT,
+                innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
+                cacheUsage = CacheUsage.NoCache,
+                erSykmeldtMedArbeidsgiver = false,
+            )
+
+            tiltak.shouldBeEmpty()
+        }
+
+        test("hentTiltaksgjennomforing henter gjennomføringer selv om tiltakstypen er uten VISES_I_MODIA") {
+            veilederFlateService.hentTiltaksgjennomforing(
+                GjennomforingFixtures.Oppfolging1.id,
+                SanityPerspective.PUBLISHED,
+                CacheUsage.NoCache,
+            ).shouldNotBeNull()
+
+            veilederFlateService.hentTiltaksgjennomforing(
+                tiltakArbeidstrening1._id.toUUID(),
+                SanityPerspective.PUBLISHED,
+                CacheUsage.NoCache,
+            ).shouldNotBeNull()
+        }
+    }
 
     test("utleder gjennomføringer som enkeltplass anskaffet tiltak når de har arrangør") {
         val veilederFlateService = createService()
@@ -172,7 +228,7 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
+            tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
             apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -185,7 +241,7 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
+            tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
             apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -200,7 +256,7 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
+            tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
             apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -211,43 +267,11 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
+            tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
             apentForPamelding = ApentForPamelding.STENGT,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldBeEmpty()
-    }
-
-    test("filtrer vekk gjennomføringer nå sanityId er ukjent") {
-        val veilederFlateService = createService()
-
-        database.run {
-            queries.tiltakstype.setSanityId(TiltakstypeFixtures.Oppfolging.id, null)
-        }
-
-        veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf(NavEnhetNummer("0400")),
-            innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
-            apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
-            cacheUsage = CacheUsage.NoCache,
-            erSykmeldtMedArbeidsgiver = false,
-        ).shouldBeEmpty()
-
-        database.run {
-            queries.tiltakstype.setSanityId(TiltakstypeFixtures.Oppfolging.id, tiltakstypeOppfolging._id.toUUID())
-        }
-
-        veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf(NavEnhetNummer("0400")),
-            innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            tiltakstypeIds = listOf(tiltakstypeOppfolging._id),
-            apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
-            cacheUsage = CacheUsage.NoCache,
-            erSykmeldtMedArbeidsgiver = false,
-        ).shouldHaveSize(1).should { (first) ->
-            first.shouldBeInstanceOf<VeilederflateTiltakGruppe>().id shouldBe GjennomforingFixtures.Oppfolging1.id
-        }
     }
 
     test("henter ikke gjennomføringer fra Sanity når filter for 'Åpent for påmelding' er STENGT") {
@@ -282,5 +306,38 @@ class VeilederflateServiceTest : FunSpec({
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldBeEmpty()
+    }
+
+    context("redaksjonelt innhold for tiltakstype hentes fra riktig kilde") {
+        val dbBeskrivelse = "Beskrivelse fra databasen"
+        val dbFaneinnhold = Faneinnhold(forHvemInfoboks = "DB faneinnhold")
+
+        beforeEach {
+            database.run {
+                queries.tiltakstype.upsertRedaksjoneltInnhold(
+                    TiltakstypeFixtures.Oppfolging.id,
+                    dbBeskrivelse,
+                    dbFaneinnhold,
+                )
+            }
+        }
+
+        afterEach {
+            database.run {
+                queries.tiltakstype.upsertRedaksjoneltInnhold(TiltakstypeFixtures.Oppfolging.id, null, null)
+            }
+        }
+
+        test("henter beskrivelse og faneinnhold fra databasen") {
+            val features = mapOf(
+                Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.VISES_I_MODIA),
+            )
+            val tiltakstyper = createService(features).hentTiltakstyper()
+
+            val oppfolging = tiltakstyper.find { it.id == TiltakstypeFixtures.Oppfolging.id }
+            oppfolging.shouldNotBeNull()
+            oppfolging.beskrivelse shouldBe dbBeskrivelse
+            oppfolging.faneinnhold shouldBe dbFaneinnhold
+        }
     }
 })

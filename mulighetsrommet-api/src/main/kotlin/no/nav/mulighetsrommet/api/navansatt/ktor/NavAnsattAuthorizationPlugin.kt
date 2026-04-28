@@ -7,7 +7,7 @@ import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipal
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattMedRollerPrincipal
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
 
@@ -33,7 +33,7 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
 
     pluginConfig.apply {
         on(AuthenticationChecked) { call ->
-            val principal = call.principal<NavAnsattPrincipal>()
+            val principal = call.principal<NavAnsattMedRollerPrincipal>()
 
             if (principal == null) {
                 return@on call.respond(HttpStatusCode.Unauthorized)

@@ -14,13 +14,50 @@ paths:
       description: Hent tiltakene for alle arrangører brukeren har tilgang til
       operationId: getArrangorTiltaksoversikt
       parameters:
+      - name: sok
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
       - name: type
         in: query
         required: false
         deprecated: false
         explode: false
         schema:
-          $ref: "#/components/schemas/TiltaksoversiktType"
+          $ref: "#/components/schemas/ArrangorflateFilterType"
+      - name: orderBy
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ArrangorflateTiltakFilter.OrderBy"
+      - name: direction
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ArrangorflateFilterDirection"
       responses:
         "200":
           description: Tiltak for arrangør
@@ -28,9 +65,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorInnsendingRadDto"
+                $ref: "#/components/schemas/PaginatedResponse_ArrangorInnsendingRadDto"
         default:
           description: Problem details
           headers: {}
@@ -170,6 +205,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/arrangorflate/orgnr-tilganger:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent ut listen over orgnr bruker har tilgang til
+      operationId: getOrganisasjonTilganger
+      parameters: []
+      responses:
+        "200":
+          description: Organisasjonsnumre som brukeren har tilgang til
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/arrangorflate/tilsagn:
     get:
       tags:
@@ -177,17 +237,52 @@ paths:
       description: Hent oversikt over tilsagn for alle arrangører brukeren har tilgang
         til
       operationId: getArrangorflateTilsagnRader
-      parameters: []
+      parameters:
+      - name: search
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: orderBy
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ArrangorflateTilsagnFilter.OrderBy"
+      - name: direction
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ArrangorflateFilterDirection"
       responses:
         "200":
-          description: Tilsagn i tabellrad format
+          description: Paginert tilsagn i tabellrad format
           headers: {}
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorflateTilsagnRadDto"
+                $ref: "#/components/schemas/PaginatedResponse_ArrangorflateTilsagnRadDto"
         default:
           description: Problem details
           headers: {}
@@ -235,13 +330,50 @@ paths:
         tilgang til
       operationId: getArrangorflateUtbetalinger
       parameters:
+      - name: sok
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
       - name: type
         in: query
         required: false
         deprecated: false
         explode: false
         schema:
-          $ref: "#/components/schemas/UtbetalingOversiktType"
+          $ref: "#/components/schemas/ArrangorflateFilterType"
+      - name: orderBy
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ArrangorflateUtbetalingFilter.OrderBy"
+      - name: direction
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ArrangorflateFilterDirection"
       responses:
         "200":
           description: Utbetalinger i tabellformat
@@ -249,9 +381,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorInnsendingRadDto"
+                $ref: "#/components/schemas/PaginatedResponse_ArrangorInnsendingRadDto"
         default:
           description: Problem details
           headers: {}
@@ -575,11 +705,40 @@ components:
       type: number
       enum:
         - 1
-    TiltaksoversiktType:
+    ArrangorflateFilterType:
       type: string
       enum:
       - AKTIVE
       - HISTORISKE
+    ArrangorflateTiltakFilter.OrderBy:
+      type: string
+      enum:
+      - TILTAK
+      - ARRANGOR
+      - START_DATO
+      - SLUTT_DATO
+      - STATUS
+    ArrangorflateFilterDirection:
+      type: string
+      enum:
+      - ASC
+      - DESC
+    PaginationSummary:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+      required:
+      - pageSize
+      - totalCount
+      - totalPages
     ArrangorInnsendingRadDto:
       type: object
       properties:
@@ -660,6 +819,18 @@ components:
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
       - AVBRUTT
+    PaginatedResponse_ArrangorInnsendingRadDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorInnsendingRadDto"
+      required:
+      - data
+      - pagination
     ProblemDetail:
       type: object
       additionalProperties: {}
@@ -951,13 +1122,14 @@ components:
     Tiltakskode:
       type: string
       enum:
-      - ARBEIDSFORBEREDENDE_TRENING
       - ARBEIDSRETTET_REHABILITERING
       - AVKLARING
       - DIGITALT_OPPFOLGINGSTILTAK
       - JOBBKLUBB
       - OPPFOLGING
+      - ARBEIDSFORBEREDENDE_TRENING
       - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - TILPASSET_JOBBSTOTTE
       - ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
@@ -968,6 +1140,17 @@ components:
       - HOYERE_YRKESFAGLIG_UTDANNING
       - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
       - STUDIESPESIALISERING
+      - INDIVIDUELL_JOBBSTOTTE
+      - INDIVIDUELL_JOBBSTOTTE_UNG
+      - ARBEID_MED_STOTTE
+      - ARBEIDSTRENING
+      - MIDLERTIDIG_LONNSTLSKUDD
+      - VARIG_LONNSTILSKUD
+      - MENTOR
+      - INKLUDERINGSTILSKUD
+      - SOMMERJOBB
+      - VTAO
+      - FIREARIG_LONNSTILSUDD
     ArrangorflateGjennomforingDto:
       type: object
       properties:
@@ -1084,7 +1267,9 @@ components:
       type: object
       properties:
         kontonummer:
-          type: string
+          type:
+          - "null"
+          - string
         valuta:
           $ref: "#/components/schemas/Valuta"
       required:
@@ -1276,6 +1461,11 @@ components:
       - stengtHosArrangor
       - tabell
       - tabellFooter
+    PeriodeType:
+      type: string
+      enum:
+      - Inklusiv
+      - Eksklusiv
     OpprettKravUtbetalingRequest:
       type: object
       properties:
@@ -1283,6 +1473,8 @@ components:
           type: string
         periodeSlutt:
           type: string
+        periodeType:
+          $ref: "#/components/schemas/PeriodeType"
         kidNummer:
           type:
           - "null"
@@ -1300,6 +1492,7 @@ components:
       - kidNummer
       - periodeSlutt
       - periodeStart
+      - periodeType
       - vedlegg
     OpprettKravUtbetalingResponse:
       type: object
@@ -1309,6 +1502,15 @@ components:
           format: uuid
       required:
       - id
+    ArrangorflateTilsagnFilter.OrderBy:
+      type: string
+      enum:
+      - TILTAK
+      - ARRANGOR
+      - START_DATO
+      - SLUTT_DATO
+      - TILSAGN
+      - STATUS
     ArrangorflateTilsagnRadDto:
       type: object
       properties:
@@ -1325,24 +1527,42 @@ components:
           type: string
         periode:
           $ref: "#/components/schemas/Periode"
-        tilsagnNavn:
+        tilsagnType:
+          type: string
+        bestillingsnummer:
           type: string
         status:
           $ref: "#/components/schemas/TilsagnStatus"
       required:
       - arrangorNavn
+      - bestillingsnummer
       - id
       - organisasjonsnummer
       - periode
       - status
-      - tilsagnNavn
+      - tilsagnType
       - tiltakNavn
       - tiltakTypeNavn
-    UtbetalingOversiktType:
+    PaginatedResponse_ArrangorflateTilsagnRadDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorflateTilsagnRadDto"
+      required:
+      - data
+      - pagination
+    ArrangorflateUtbetalingFilter.OrderBy:
       type: string
       enum:
-      - AKTIVE
-      - HISTORISKE
+      - TILTAK
+      - ARRANGOR
+      - PERIODE
+      - BELOP
+      - STATUS
     BBan:
       type: object
       properties:
@@ -1406,7 +1626,7 @@ components:
         tilsagn:
           $ref: "#/components/schemas/ArrangorflateTilsagnSummary"
         status:
-          $ref: "#/components/schemas/DelutbetalingStatus"
+          $ref: "#/components/schemas/UtbetalingLinjeStatus"
         statusSistOppdatert:
           type:
           - "null"
@@ -1431,7 +1651,7 @@ components:
       required:
       - bestillingsnummer
       - id
-    DelutbetalingStatus:
+    UtbetalingLinjeStatus:
       type: string
       enum:
       - TIL_ATTESTERING

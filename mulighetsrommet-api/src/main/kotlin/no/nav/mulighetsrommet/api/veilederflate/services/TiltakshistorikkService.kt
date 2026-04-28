@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.veilederflate.services
 
 import arrow.core.getOrElse
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
@@ -11,7 +10,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseEierskap
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePamelding
@@ -43,7 +42,7 @@ class TiltakshistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentHistorikk(norskIdent: NorskIdent, obo: AccessType.OBO): Deltakelser = coroutineScope {
+    suspend fun hentHistorikk(norskIdent: NorskIdent, obo: AccessType.OBO.AzureAd): Deltakelser = coroutineScope {
         val tiltakshistorikk = async { getTiltakshistorikk(norskIdent, obo) }
         val deltakelserFraKomet = async { getDeltakelserKomet(norskIdent, obo) }
         deltakelserFraKomet.await()
@@ -75,8 +74,7 @@ class TiltakshistorikkService(
                     .toSet()
 
                 val (aktive, historiske) = response.historikk
-                    .map { async { toDeltakelse(it) } }
-                    .awaitAll()
+                    .map { toDeltakelse(it) }
                     .partition { erAktiv(it.tilstand) }
 
                 Deltakelser(
@@ -90,7 +88,7 @@ class TiltakshistorikkService(
 
     suspend fun getDeltakelserKomet(
         norskIdent: NorskIdent,
-        obo: AccessType.OBO,
+        obo: AccessType.OBO.AzureAd,
     ): Deltakelser {
         return amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), obo).fold({ error ->
             log.warn("Klarte ikke hente deltakelser fra Komet: $error")

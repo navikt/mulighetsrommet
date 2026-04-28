@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
+import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
@@ -52,6 +53,7 @@ fun Route.maamRoutes() {
     val beregnUtbetaling: BeregnUtbetaling by inject()
     val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
     val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
+    val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
 
     route("/api/intern/maam") {
         route("/tasks") {
@@ -119,11 +121,11 @@ fun Route.maamRoutes() {
                 val params = call.receive<RepublishOpprettFakturaRequest>()
 
                 val fakturaer = params.fakturanummer.split(",").map { it.trim() }
-                val delutbetalinger = fakturaer.map { fakturanummer ->
+                val utbetalingLinjer = fakturaer.map { fakturanummer ->
                     utbetalingService.republishFaktura(fakturanummer)
                 }
 
-                val response = ExecutedTaskResponse("Republiserte ${delutbetalinger.size} fakturaer til økonomi")
+                val response = ExecutedTaskResponse("Republiserte ${utbetalingLinjer.size} fakturaer til økonomi")
                 call.respond(HttpStatusCode.OK, response)
             }
 
@@ -173,6 +175,11 @@ fun Route.maamRoutes() {
             post("distribuer-tilsagnsbrev") {
                 val request = call.receive<TilsagnIdRequest>()
                 val taskId = distribuerTilsagnsbrev.schedule(request.tilsagnId)
+                call.respond(ScheduleTaskResponse(taskId))
+            }
+
+            post("sync-gjennomforing-avtale-fts") {
+                val taskId = updateGjennomforingAvtaleFreeTextSearch.schedule()
                 call.respond(ScheduleTaskResponse(taskId))
             }
         }

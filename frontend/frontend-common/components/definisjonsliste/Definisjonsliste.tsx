@@ -28,7 +28,7 @@ export function Definisjonsliste({
         {definitions.map((definition, index) => (
           <VStack gap="space-8" key={index}>
             <Label as="dt">{definition.key}</Label>
-            <BodyShort as="dd">{definition.value}</BodyShort>
+            <BodyShort as="dd">{definition.value ?? "-"}</BodyShort>
           </VStack>
         ))}
       </HGrid>

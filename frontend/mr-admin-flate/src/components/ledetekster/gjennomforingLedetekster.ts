@@ -67,4 +67,7 @@ export const gjennomforingTekster = {
       }
     },
   },
+  ansvarligEnhet: {
+    label: "Ansvarlig enhet",
+  },
 } as const;

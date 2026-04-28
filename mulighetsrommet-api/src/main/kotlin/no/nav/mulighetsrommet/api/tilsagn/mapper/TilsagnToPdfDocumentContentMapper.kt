@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.tilsagn.mapper
 
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.Regards
 import no.nav.mulighetsrommet.api.pdfgen.SectionBuilder
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.text.NumberFormat
@@ -17,7 +17,7 @@ object TilsagnToPdfDocumentContentMapper {
     fun toTilsagnsbrev(
         tilsagn: Tilsagn,
         kontonummer: Kontonummer,
-        deltaker: DeltakerPersonalia,
+        personalia: Personalia,
         behandlere: List<String> = emptyList(),
         referanseDato: LocalDate = LocalDate.now(),
     ): PdfDocumentContent = PdfDocumentContent.create(
@@ -45,9 +45,9 @@ object TilsagnToPdfDocumentContentMapper {
                 text(
                     "Deltakeren",
                     when {
-                        deltaker.erSkjermet -> "Skjermet"
-                        deltaker.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
-                        else -> "${deltaker.navn} (${deltaker.norskIdent.value})"
+                        personalia.erSkjermet -> "Skjermet"
+                        personalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
+                        else -> "${personalia.navn} (${requireNotNull(personalia.norskIdent).value})"
                     },
                 )
                 text("Utbetalingsperioden", tilsagn.periode.formatPeriode())

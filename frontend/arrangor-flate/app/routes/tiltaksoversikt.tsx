@@ -1,16 +1,35 @@
-import { InfoCard, BodyShort, Box, Heading, Tabs, Link, VStack } from "@navikt/ds-react";
-import { ArrangorInnsendingRadDto, TiltaksoversiktType } from "api-client";
-import { Suspense } from "react";
+import {
+  Box,
+  Heading,
+  Tabs,
+  Link,
+  VStack,
+  SortState,
+  PaginationProps,
+  Search,
+} from "@navikt/ds-react";
+import {
+  ArrangorflateFilterDirection,
+  ArrangorflateFilterType,
+  ArrangorflateTiltakFilterOrderBy,
+  ArrangorInnsendingRadDto,
+} from "api-client";
+import { Suspense, useEffect, useState } from "react";
 import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { tekster } from "~/tekster";
 import { useTabState } from "~/hooks/useTabState";
-import { Tabellvisning } from "~/components/common/Tabellvisning";
-import { useSortableData } from "@mr/frontend-common";
+import { Kolonne, Tabellvisning } from "~/components/common/Tabellvisning";
 import { UtbetalingRow } from "~/components/common/UtbetalingRow";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import { pathTo } from "~/utils/navigation";
 import { Laster } from "~/components/common/Laster";
-import { useArrangorTiltaksoversikt } from "~/hooks/useArrangorflateTiltaksoversikt";
+import {
+  ArrangorflateTiltakFilter,
+  useArrangorTiltaksoversikt,
+} from "~/hooks/useArrangorflateTiltakRader";
+import { flipObject } from "~/utils/object";
+import { useDebounce } from "@mr/frontend-common";
+import { IngenTreff } from "~/components/IngenTreff";
 
 export const meta: MetaFunction = () => {
   return [
@@ -48,15 +67,13 @@ export default function OpprettKravTiltaksOversikt() {
             />
           </Tabs.List>
           <Tabs.Panel value={currentTab}>
-            <Suspense fallback={<Laster tekst="Laster tiltak..." size="xlarge" />}>
-              <TiltaksOversiktContent
-                type={
-                  currentTab === "aktive"
-                    ? TiltaksoversiktType.AKTIVE
-                    : TiltaksoversiktType.HISTORISKE
-                }
-              />
-            </Suspense>
+            <TiltaksOversiktContent
+              type={
+                currentTab === "aktive"
+                  ? ArrangorflateFilterType.AKTIVE
+                  : ArrangorflateFilterType.HISTORISKE
+              }
+            />
           </Tabs.Panel>
         </Tabs>
       </VStack>
@@ -64,40 +81,111 @@ export default function OpprettKravTiltaksOversikt() {
   );
 }
 
-function TiltaksOversiktContent({ type }: { type: TiltaksoversiktType }) {
-  const { data } = useArrangorTiltaksoversikt(type);
+function TiltaksOversiktContent({ type }: { type: ArrangorflateFilterType }) {
+  const [sok, setSok] = useState("");
+  const debouncedSok = useDebounce(sok, 300);
+  const {
+    data: paginertTiltaksRader,
+    filter,
+    setFilter,
+    oppdaterSok,
+  } = useArrangorTiltaksoversikt({ type });
 
-  const { sortedData, sort, toggleSort } = useSortableData(data);
+  useEffect(() => {
+    oppdaterSok(debouncedSok);
+  }, [debouncedSok, oppdaterSok]);
 
-  if (sortedData.length === 0) {
-    return (
-      <Box marginBlock="space-16">
-        <InfoCard data-color="warning" className="my-10">
-          <InfoCard.Header>
-            <InfoCard.Title>Fant ingen registrerte tiltak</InfoCard.Title>
-          </InfoCard.Header>
-          <InfoCard.Content>
-            <BodyShort spacing>
-              Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
-            </BodyShort>
-            <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
-          </InfoCard.Content>
-        </InfoCard>
-      </Box>
-    );
+  function clearSearch() {
+    setSok("");
+  }
+  const tiltakSortKeyToParam: Record<string, ArrangorflateTiltakFilterOrderBy> = {
+    tiltakNavn: ArrangorflateTiltakFilterOrderBy.TILTAK,
+    arrangorNavn: ArrangorflateTiltakFilterOrderBy.ARRANGOR,
+    startDato: ArrangorflateTiltakFilterOrderBy.START_DATO,
+  };
+
+  const paramToSortKey: Record<ArrangorflateTiltakFilterOrderBy, string> =
+    flipObject(tiltakSortKeyToParam);
+
+  const paramToSortDirection: Record<ArrangorflateFilterDirection, SortState["direction"]> =
+    flipObject({
+      ascending: ArrangorflateFilterDirection.ASC,
+      descending: ArrangorflateFilterDirection.DESC,
+      none: ArrangorflateFilterDirection.ASC,
+    });
+
+  function filterToSortState({ orderBy, direction }: ArrangorflateTiltakFilter): SortState {
+    const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";
+    const newDirection: SortState["direction"] =
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      (direction && paramToSortDirection[direction]) || "ascending";
+
+    return {
+      orderBy: newOrderBy,
+      direction: newDirection,
+    };
+  }
+
+  const paginationProps: PaginationProps | undefined =
+    type === ArrangorflateFilterType.HISTORISKE
+      ? {
+          hidden: !paginertTiltaksRader.pagination.totalPages,
+          page: filter.page || 1,
+          count: paginertTiltaksRader.pagination.totalPages || 1,
+          boundaryCount: 1,
+          prevNextTexts: true,
+          onPageChange: (newPage) => setFilter((filter) => ({ ...filter, page: newPage })),
+        }
+      : undefined;
+
+  function sortChange(orderBy: ArrangorflateTiltakFilterOrderBy) {
+    if (orderBy == filter.orderBy) {
+      const direction =
+        filter.direction == ArrangorflateFilterDirection.ASC
+          ? ArrangorflateFilterDirection.DESC
+          : ArrangorflateFilterDirection.ASC;
+      return setFilter((old) => ({ ...old, direction }));
+    }
+
+    setFilter((old) => ({
+      ...old,
+      orderBy,
+      direction: ArrangorflateFilterDirection.ASC,
+    }));
   }
 
   return (
-    <Tabellvisning kolonner={kolonner} sort={sort} onSortChange={toggleSort}>
-      {sortedData.map((row: ArrangorInnsendingRadDto) => (
-        <UtbetalingRow key={row.gjennomforingId} row={row} />
-      ))}
-    </Tabellvisning>
+    <>
+      <Box paddingBlock="space-16" width="30rem">
+        <Search
+          label="Søk i utbetalinger"
+          description="Tiltak, arrangør, periode"
+          hideLabel={false}
+          variant="simple"
+          width="30rem"
+          onChange={setSok}
+          onClear={clearSearch}
+        />
+      </Box>
+      <Tabellvisning
+        kolonner={kolonner}
+        sort={filterToSortState(filter)}
+        onSortChange={(key) => sortChange(tiltakSortKeyToParam[key])}
+        pagination={paginationProps}
+      >
+        <Suspense fallback={<Laster tekst="Laster tiltak..." size="xlarge" />}>
+          {paginertTiltaksRader.data.map((row: ArrangorInnsendingRadDto) => (
+            <UtbetalingRow key={row.gjennomforingId} row={row} />
+          ))}
+        </Suspense>
+      </Tabellvisning>
+      {paginertTiltaksRader.data.length === 0 && <IngenTreff type="tiltak" />}
+    </>
   );
 }
 
-const kolonner: Array<{ key: string; label: string }> = [
-  { key: "tiltakNavn", label: "Tiltak" },
-  { key: "arrangorNavn", label: "Arrangør" },
-  { key: "startDato", label: "Periode" },
+const kolonner: Array<Kolonne> = [
+  { key: "tiltakNavn", label: "Tiltak", sortable: true },
+  { key: "arrangorNavn", label: "Arrangør", sortable: true },
+  { key: "startDato", label: "Periode", sortable: true },
 ];

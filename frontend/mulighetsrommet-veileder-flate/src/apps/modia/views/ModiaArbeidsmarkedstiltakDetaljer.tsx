@@ -1,5 +1,6 @@
 import {
   isTiltakAktivt,
+  isTiltakEnkeltplass,
   isTiltakGruppe,
   useModiaArbeidsmarkedstiltakById,
 } from "@/api/queries/useArbeidsmarkedstiltakById";
@@ -11,15 +12,11 @@ import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { useVeilederdata } from "@/apps/modia/hooks/useVeilederdata";
 import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
-import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride";
 import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGruppetiltak";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
-import { LenkeListe } from "@/components/sidemeny/Lenker";
+import { SidemenyLenker } from "@/components/sidemeny/SidemenyLenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import {
-  PORTEN_URL_FOR_TILBAKEMELDING,
-  TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL,
-} from "@/constants";
+import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
 import { paginationAtom } from "@/core/atoms";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
@@ -37,8 +34,9 @@ import { Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { isTilbakemeldingerEnabled } from "@/apps/modia/features";
-
-const TEAM_TILTAK_OPPRETT_AVTALE_URL = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/opprett-avtale`;
+import { OpprettAvtale } from "@/components/pamelding/OpprettAvtale";
+import { StartRegistreringEnkeltplass } from "@/components/pamelding/StartRegistreringEnkeltplass";
+import { isProduction } from "@/environment";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -54,8 +52,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const pagination = useAtomValue(paginationAtom);
 
   const tiltakstype = tiltak.tiltakstype;
-  const kanOppretteAvtale =
-    kanOppretteAvtaleOmTiltaksplass(tiltakstype) && brukerdata.erUnderOppfolging;
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
 
   const dialogRoute = deltMedBruker
@@ -89,37 +85,34 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               tekst="Gå til oversikt over aktuelle tiltak"
             />
             <div>
-              <DetaljerJoyride opprettAvtale={kanOppretteAvtale} />
-              {kanOppretteAvtale ? (
-                <OpprettAvtaleJoyride opprettAvtale={kanOppretteAvtale} />
-              ) : null}
+              <DetaljerJoyride />
             </div>
           </>
         }
         brukerActions={
           <>
-            {kanOppretteAvtale && (
-              <Button
-                onClick={() => {
-                  window.open(TEAM_TILTAK_OPPRETT_AVTALE_URL, "_blank");
-                }}
-                variant="primary"
-                aria-label="Opprett avtale"
-                data-testid="opprettavtaleknapp"
-                disabled={!brukerHarRettPaaValgtTiltak}
-              >
-                Opprett avtale
-              </Button>
+            {isTiltakEnkeltplass(tiltak) && (
+              <OpprettAvtale
+                tiltakstype={tiltakstype}
+                harRettPaaTiltak={brukerHarRettPaaValgtTiltak}
+              />
             )}
 
-            {isTiltakGruppe(tiltak) && isTiltakAktivt(tiltak) ? (
+            {!isProduction && isTiltakEnkeltplass(tiltak) && (
+              <StartRegistreringEnkeltplass
+                tiltakstype={tiltakstype}
+                harRettPaaTiltak={brukerHarRettPaaValgtTiltak}
+              />
+            )}
+
+            {isTiltakGruppe(tiltak) && isTiltakAktivt(tiltak) && (
               <PameldingForGruppetiltak
                 brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
                 tiltak={tiltak}
               />
-            ) : null}
+            )}
 
-            {brukerdata.erUnderOppfolging && isTiltakAktivt(tiltak) ? (
+            {brukerdata.erUnderOppfolging && isTiltakAktivt(tiltak) && (
               <DelMedBruker
                 deltMedBruker={deltMedBruker ?? undefined}
                 veiledernavn={resolveName(veileder)}
@@ -127,9 +120,9 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 bruker={brukerdata}
                 veilederEnhet={enhet}
               />
-            ) : null}
+            )}
 
-            {dialogRoute && brukerdata.erUnderOppfolging && (
+            {brukerdata.erUnderOppfolging && dialogRoute && (
               <Button
                 className="flex"
                 size="small"
@@ -141,12 +134,13 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
+            {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet && (
               <ArbeidsmarkedstiltakErrorBoundary>
                 <PersonvernContainer tiltak={tiltak} />
               </ArbeidsmarkedstiltakErrorBoundary>
-            ) : null}
-            {tiltak.faneinnhold?.lenker && <LenkeListe lenker={tiltak.faneinnhold.lenker} />}
+            )}
+
+            <SidemenyLenker tiltak={tiltak} />
 
             {isTilbakemeldingerEnabled(tiltak) && (
               <TilbakemeldingsLenke
@@ -164,21 +158,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 function resolveName(ansatt: NavVeilederDto) {
   return [ansatt.fornavn, ansatt.etternavn].filter((part) => part !== "").join(" ");
 }
-
-function kanOppretteAvtaleOmTiltaksplass(tiltakstype: VeilederflateTiltakstype): boolean {
-  return !!tiltakstype.arenakode && whiteListOpprettAvtaleKnapp.includes(tiltakstype.arenakode);
-}
-
-// TODO: enten fikse enum for arena-koder, eller introdusere Team tiltak sine koder
-const whiteListOpprettAvtaleKnapp: string[] = [
-  "MIDLONTIL",
-  "ARBTREN",
-  "VARLONTIL",
-  "MENTOR",
-  "INKLUTILS",
-  "TILSJOBB",
-  "VATIAROR",
-];
 
 function harBrukerRettPaaValgtTiltak(
   bruker: Brukerdata,

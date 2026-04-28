@@ -8,7 +8,6 @@ import {
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
 import { GjennomforingList } from "./GjennomforingList";
-import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { InformasjonForVeiledereForm } from "@/components/redaksjoneltInnhold/InformasjonForVeiledereForm";
 
@@ -64,30 +63,28 @@ export function GjennomforingInformasjonForVeiledereForm({ avtale, veilederinfo 
 
   return (
     <>
-      <RedaksjoneltInnholdToppKnapperad>
-        <HStack justify="end">
-          <Button
-            size="small"
-            variant="tertiary"
-            type="button"
-            title="Gjenopprett til redaksjonelt innhold fra avtale"
-            onClick={() => {
-              kopierRedaksjoneltInnhold(avtale);
-            }}
-          >
-            Gjenopprett til redaksjonelt innhold fra avtale
-          </Button>
-          <Button
-            size="small"
-            variant="tertiary"
-            type="button"
-            title="Kopier redaksjonelt innhold fra en annen gjennomføring under den samme avtalen"
-            onClick={() => setModalOpen(true)}
-          >
-            Kopier redaksjonelt innhold fra gjennomføring
-          </Button>
-        </HStack>
-      </RedaksjoneltInnholdToppKnapperad>
+      <HStack>
+        <Button
+          size="small"
+          variant="tertiary"
+          type="button"
+          title="Gjenopprett til redaksjonelt innhold fra avtale"
+          onClick={() => {
+            kopierRedaksjoneltInnhold(avtale);
+          }}
+        >
+          Gjenopprett til redaksjonelt innhold fra avtale
+        </Button>
+        <Button
+          size="small"
+          variant="tertiary"
+          type="button"
+          title="Kopier redaksjonelt innhold fra en annen gjennomføring under den samme avtalen"
+          onClick={() => setModalOpen(true)}
+        >
+          Kopier redaksjonelt innhold fra gjennomføring
+        </Button>
+      </HStack>
 
       <InformasjonForVeiledereForm
         key={`redaksjonelt-innhold-${key}`}

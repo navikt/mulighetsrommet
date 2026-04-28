@@ -72,10 +72,7 @@ fun Route.oppgaverRoutes() {
             val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
                 ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
-            val ansattesRoller = ansatt.roller.map { it.rolle }
-            val oppgavetyper = OppgaveType.entries.filter { it.rolle in ansattesRoller }.map {
-                OppgaveTypeDto(navn = it.navn, type = it)
-            }
+            val oppgavetyper = service.getOppgavetyper(ansatt)
 
             call.respond(oppgavetyper)
         }

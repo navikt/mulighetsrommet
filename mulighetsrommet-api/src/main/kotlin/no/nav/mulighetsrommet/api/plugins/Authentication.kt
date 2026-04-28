@@ -1,8 +1,10 @@
 package no.nav.mulighetsrommet.api.plugins
 
 import com.auth0.jwk.JwkProviderBuilder
+import com.auth0.jwt.interfaces.Payload
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.install
 import io.ktor.server.application.log
 import io.ktor.server.auth.Authentication
@@ -18,10 +20,13 @@ import io.ktor.server.auth.principal
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import no.nav.mulighetsrommet.api.AuthConfig
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattMedRollerPrincipal
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.net.URI
 import java.util.UUID
@@ -78,17 +83,6 @@ fun RoutingContext.getNavAnsattEntraObjectId(): UUID {
 }
 
 /**
- * Gets a pid from the underlying [JWTPrincipal], or throws a [StatusException]
- * if the claim is not available.
- */
-fun RoutingContext.getPid(): NorskIdent {
-    return call.principal<JWTPayloadHolder>()?.get("pid")?.let { NorskIdent(it) } ?: throw StatusException(
-        HttpStatusCode.Forbidden,
-        "pid mangler i JWTPrincipal",
-    )
-}
-
-/**
  * Utility to implement a JWT [Authentication] provider with its named derived from the [authProvider] parameter.
  */
 private fun AuthenticationConfig.jwt(
@@ -126,9 +120,15 @@ fun Application.configureAuthentication(
             }
 
             validate { credentials ->
-                credentials["NAVident"] ?: return@validate null
+                val navIdent = credentials["NAVident"]?.let { NavIdent(it) } ?: run {
+                    application.log.warn("'NAVident' mangler i JWT credentials")
+                    return@validate null
+                }
 
-                JWTPrincipal(credentials.payload)
+                NavAnsattUtenRollerPrincipal(
+                    navIdent = navIdent,
+                    payload = credentials.payload,
+                )
             }
         }
 
@@ -182,3 +182,22 @@ fun Application.configureAuthentication(
 }
 
 data class ArrangorflatePrincipal(val norskIdent: NorskIdent, val principal: JWTPrincipal)
+
+class NavAnsattUtenRollerPrincipal(
+    val navIdent: NavIdent,
+    payload: Payload,
+) : JWTPayloadHolder(payload)
+
+fun ApplicationCall.getAccessType(): AccessType = when (val principal = principal<Any>()) {
+    is ArrangorflatePrincipal -> AccessType.OBO.TokenX(getAccessToken())
+
+    is NavAnsattMedRollerPrincipal,
+    is NavAnsattUtenRollerPrincipal,
+    -> AccessType.OBO.AzureAd(getAccessToken())
+
+    is JWTPrincipal -> AccessType.M2M
+
+    null -> throw IllegalStateException("No principal found, is the route authenticated?")
+
+    else -> throw IllegalStateException("Unknown principal type: ${principal::class}")
+}

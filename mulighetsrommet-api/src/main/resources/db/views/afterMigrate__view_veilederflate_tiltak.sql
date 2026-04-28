@@ -19,20 +19,31 @@ select gjennomforing.id,
        gjennomforing.faneinnhold,
        gjennomforing.publisert,
        avtale.personvern_bekreftet,
-       personopplysninger_som_kan_behandles,
+       personopplysninger_json,
        nav_enheter_json,
        nav_kontaktpersoner_json,
        arrangor.id                  as arrangor_id,
        arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
        arrangor.navn                as arrangor_navn,
-       arrangor_kontaktpersoner_json
+       arrangor_kontaktpersoner_json,
+       gjennomforing.lopenummer
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join avtale on avtale.id = gjennomforing.avtale_id
-         left join lateral (select array_agg(personopplysning) as personopplysninger_som_kan_behandles
-                            from avtale_personopplysning
-                            where avtale_id = avtale.id) on true
+         left join lateral (
+             select jsonb_agg(
+                 jsonb_build_object(
+                     'type', ap.personopplysning,
+                     'title', p.title,
+                     'helpText', p.help_text,
+                     'sortKey', p.sort_key
+                 ) order by p.sort_key
+             ) as personopplysninger_json
+             from avtale_personopplysning ap
+             join personopplysning p on p.value = ap.personopplysning
+             where ap.avtale_id = avtale.id
+         ) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'enhetsnummer', gjennomforing_nav_enhet.enhetsnummer,

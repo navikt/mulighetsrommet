@@ -6,7 +6,7 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/kafka-manager:2026.02.02-10.25-5d812a3
+  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/kafka-manager:2026.04.13-11.34-52e9b29
   port: 8080
   webproxy: true
   ingresses:
@@ -109,6 +109,12 @@ spec:
             },
             {
               "name": "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
+              "name": "team-mulighetsrommet.gjennomforing-request-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"

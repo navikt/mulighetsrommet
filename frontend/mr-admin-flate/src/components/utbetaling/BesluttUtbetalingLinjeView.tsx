@@ -1,7 +1,7 @@
-import { useAttesterDelutbetaling, useReturnerDelutbetaling } from "@/api/utbetaling/mutations";
+import { useAttesterUtbetalingLinje, useReturnerUtbetalingLinje } from "@/api/utbetaling/mutations";
 import {
-  AarsakerOgForklaringRequestDelutbetalingReturnertAarsak,
-  DelutbetalingReturnertAarsak,
+  AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak,
+  UtbetalingLinjeReturnertAarsak,
   FieldError,
   UtbetalingDto,
   UtbetalingHandling,
@@ -22,7 +22,7 @@ import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
-import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
+import AttesterUtbetalingLinjeModal from "./AttesterUtbetalingLinjeModal";
 import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
@@ -40,11 +40,11 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const [opprettKorreksjonModalOpen, setOpprettKorreksjonModalOpen] = useState<boolean>(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
-  const attesterDelutbetalingMutation = useAttesterDelutbetaling();
-  const returnerDelutbetalingMutation = useReturnerDelutbetaling();
+  const attesterUtbetalingLinjeMutation = useAttesterUtbetalingLinje();
+  const returnerUtbetalingLinjeMutation = useReturnerUtbetalingLinje();
 
-  function attesterDelutbetaling(id: string) {
-    attesterDelutbetalingMutation.mutate(
+  function attesterUtbetalingLinje(id: string) {
+    attesterUtbetalingLinjeMutation.mutate(
       { id },
       {
         onValidationError: (error: ValidationError) => {
@@ -54,27 +54,30 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
     );
   }
 
-  function returnerDelutbetaling(
+  function returnerUtbetalingLinje(
     id: string,
-    body: AarsakerOgForklaringRequestDelutbetalingReturnertAarsak,
+    body: AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak,
   ) {
-    returnerDelutbetalingMutation.mutate(
+    returnerUtbetalingLinjeMutation.mutate(
       { id, body },
       {
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
+        },
+        onSuccess: () => {
+          setAvvisModalOpen(false);
         },
       },
     );
   }
 
   const returnerAarsakValg = [
-    DelutbetalingReturnertAarsak.FEIL_BELOP,
-    DelutbetalingReturnertAarsak.ANNET,
+    UtbetalingLinjeReturnertAarsak.FEIL_BELOP,
+    UtbetalingLinjeReturnertAarsak.ANNET,
   ].map((val) => {
     return {
       value: val,
-      label: utbetalingTekster.delutbetaling.aarsak.fraRetunertAarsak(val),
+      label: utbetalingTekster.linje.aarsak.fraRetunertAarsak(val),
     };
   });
 
@@ -82,7 +85,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
     <VStack gap="space-8">
       <HStack align="end">
         <Heading spacing size="medium" level="2">
-          {utbetalingTekster.delutbetaling.header}
+          {utbetalingTekster.linje.header}
         </Heading>
         <Spacer />
         <Handlinger>
@@ -114,7 +117,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
                   style={{ maxWidth: "6rem" }}
                   hideLabel
                   type="number"
-                  label={utbetalingTekster.delutbetaling.belop.label}
+                  label={utbetalingTekster.linje.belop.label}
                 />
               }
               knappeColumn={
@@ -126,7 +129,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
                       type="button"
                       onClick={() => setAvvisModalOpen(true)}
                     >
-                      {utbetalingTekster.delutbetaling.handlinger.returner}
+                      {utbetalingTekster.linje.handlinger.returner}
                     </Button>
                   )}
                   {linje.handlinger.includes(UtbetalingLinjeHandling.ATTESTER) && (
@@ -141,16 +144,14 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
                         modal.showModal();
                       }}
                     >
-                      {utbetalingTekster.delutbetaling.handlinger.attester}
+                      {utbetalingTekster.linje.handlinger.attester}
                     </Button>
                   )}
-                  <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
-                    header={utbetalingTekster.delutbetaling.aarsak.modal.header}
-                    ingress={
-                      <BodyShort>{utbetalingTekster.delutbetaling.aarsak.modal.ingress}</BodyShort>
-                    }
+                  <AarsakerOgForklaringModal<UtbetalingLinjeReturnertAarsak>
+                    header={utbetalingTekster.linje.aarsak.modal.header}
+                    ingress={<BodyShort>{utbetalingTekster.linje.aarsak.modal.ingress}</BodyShort>}
                     open={avvisModalOpen}
-                    buttonLabel={utbetalingTekster.delutbetaling.aarsak.modal.button.label}
+                    buttonLabel={utbetalingTekster.linje.aarsak.modal.button.label}
                     errors={errors}
                     aarsaker={returnerAarsakValg}
                     onClose={() => {
@@ -158,11 +159,10 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
                       setErrors([]);
                     }}
                     onConfirm={(request) => {
-                      returnerDelutbetaling(linje.id, request);
-                      setAvvisModalOpen(false);
+                      returnerUtbetalingLinje(linje.id, request);
                     }}
                   />
-                  <AttesterDelutbetalingModal
+                  <AttesterUtbetalingLinjeModal
                     id={`godkjenn-modal-${linje.id}`}
                     handleClose={() => {
                       const modal = document.getElementById(
@@ -175,7 +175,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
                         `godkjenn-modal-${linje.id}`,
                       ) as HTMLDialogElement;
                       modal.close();
-                      attesterDelutbetaling(linje.id);
+                      attesterUtbetalingLinje(linje.id);
                     }}
                     linje={linje}
                   />

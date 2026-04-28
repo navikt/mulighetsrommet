@@ -4,7 +4,7 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorQueries
-import no.nav.mulighetsrommet.api.arrangorflate.db.ArrangorflateTiltakQueries
+import no.nav.mulighetsrommet.api.arrangorflate.db.ArrangorflateQueries
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellQueries
@@ -16,13 +16,16 @@ import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingQueries
+import no.nav.mulighetsrommet.api.tiltakstype.db.RedaksjoneltInnholdLenkeQueries
 import no.nav.mulighetsrommet.api.tilskudd.OpplaeringTilskuddQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
-import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingQueries
+import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
+import no.nav.mulighetsrommet.api.vedtak.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.veilederflate.db.VeilederJoyrideQueries
 import no.nav.mulighetsrommet.api.veilederflate.db.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.database.Database
@@ -67,6 +70,7 @@ open class QueryContext(open val session: Session) {
         val ansatt = NavAnsattQueries(session)
         val arrangor = ArrangorQueries(session)
         val tiltakstype = TiltakstypeQueries(session)
+        val regelverklenke = RedaksjoneltInnholdLenkeQueries(session)
         val avtale = AvtaleQueries(session)
         val prismodell = PrismodellQueries(session)
         val rammedetaljer = RammedetaljerQueries(session)
@@ -81,15 +85,17 @@ open class QueryContext(open val session: Session) {
         val tilsagn = TilsagnQueries(session)
         val notifications = NotificationQueries(session)
         val endringshistorikk = EndringshistorikkQueries(session)
-        val delutbetaling = DelutbetalingQueries(session)
+        val utbetalingLinje = UtbetalingLinjeQueries(session)
         val totrinnskontroll = TotrinnskontrollQueries(session)
         val veilderTiltak = VeilederflateTiltakQueries(session)
         val veilederJoyride = VeilederJoyrideQueries(session)
         val kafkaProducerRecord = KafkaProducerRecordQueries(session)
         val oppgave = OppgaveQueries(session)
-        val arrangorTiltak = ArrangorflateTiltakQueries(session)
+        val arrangorflate = ArrangorflateQueries(session)
         val scheduledTask = ScheduledTaskQueries(session)
         val kafkaConsumerRecords = KafkaConsumerRecordQueries(session)
+        val opplaeringtilskudd = OpplaeringtilskuddQueries(session)
+        val tilskuddBehandling = TilskuddBehandlingQueries(session)
         val tilskudd = OpplaeringTilskuddQueries(session)
     }
 }

@@ -1,4 +1,3 @@
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
@@ -7,6 +6,7 @@ import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { KontorstrukturFilterTag } from "@/components/filter/KontorstrukturFilterTag";
 import { Chips } from "@navikt/ds-react";
+import { TiltakstypeFilterTags } from "@/components/filter/TiltakstypeFilterTags";
 
 interface Props {
   filter: GjennomforingFilterType;
@@ -21,7 +21,6 @@ export function GjennomforingFilterTags({
   filterOpen,
   setTagsHeight,
 }: Props) {
-  const { data: tiltakstyper } = useTiltakstyper();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
   });
@@ -44,17 +43,13 @@ export function GjennomforingFilterTags({
         {filter.navEnheter.length > 0 && (
           <KontorstrukturFilterTag
             navEnheter={filter.navEnheter}
-            onClose={() => updateFilter({ navEnheter: [], page: 1 })}
+            onClick={() => updateFilter({ navEnheter: [], page: 1 })}
           />
         )}
-        {filter.tiltakstyper.map((tiltakstype) => (
-          <Chips.Removable
-            key={tiltakstype}
-            onClick={() => removeArrayItem("tiltakstyper", tiltakstype)}
-          >
-            {tiltakstyper.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
-          </Chips.Removable>
-        ))}
+        <TiltakstypeFilterTags
+          ids={filter.tiltakstyper}
+          onRemove={(tiltakstype) => removeArrayItem("tiltakstyper", tiltakstype)}
+        />
         {filter.statuser.map((status) => (
           <Chips.Removable key={status} onClick={() => removeArrayItem("statuser", status)}>
             {TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((o) => status === o.value)?.label || status}

@@ -5,6 +5,6 @@ import no.nav.mulighetsrommet.model.Valuta
 
 @Serializable
 data class ValutaBelopRequest(
-    val belop: Int?,
-    val valuta: Valuta?,
+    val belop: Int? = null,
+    val valuta: Valuta? = null,
 )

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -102,13 +103,13 @@ object BeregningTestHelpers {
         val now = Instant.now()
         return GjennomforingAvtale(
             id = id,
-            tiltakstype = no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.Tiltakstype(
+            tiltakstype = Gjennomforing.Tiltakstype(
                 id = UUID.randomUUID(),
                 navn = "Test tiltakstype",
                 tiltakskode = tiltakskode,
             ),
             lopenummer = Tiltaksnummer("2025/1"),
-            arrangor = no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.ArrangorUnderenhet(
+            arrangor = Gjennomforing.ArrangorUnderenhet(
                 id = UUID.randomUUID(),
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "Test arrangør",
@@ -150,6 +151,7 @@ object BeregningTestHelpers {
             opprettetTidspunkt = periode.start.atStartOfDay(),
         ),
         deltakelsesmengder = deltakelsesmengder,
+        innholdAnnet = null,
     )
 
     fun toStengtPeriode(periode: Periode, beskrivelse: String = "Stengt"): GjennomforingAvtale.StengtPeriode {

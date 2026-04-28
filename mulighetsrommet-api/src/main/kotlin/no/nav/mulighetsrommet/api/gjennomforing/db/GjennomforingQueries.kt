@@ -70,6 +70,7 @@ class GjennomforingQueries(private val session: Session) {
                                        estimert_ventetid_verdi,
                                        estimert_ventetid_enhet,
                                        tilgjengelig_for_arrangor_dato,
+                                       ansvarlig_enhet,
                                        arena_tiltaksnummer,
                                        arena_ansvarlig_enhet)
             values (:id::uuid,
@@ -92,6 +93,7 @@ class GjennomforingQueries(private val session: Session) {
                     :estimert_ventetid_verdi,
                     :estimert_ventetid_enhet,
                     :tilgjengelig_for_arrangor_dato,
+                    :ansvarlig_enhet,
                     :arena_tiltaksnummer,
                     :arena_ansvarlig_enhet)
             on conflict (id) do update set tiltakstype_id = excluded.tiltakstype_id,
@@ -113,6 +115,7 @@ class GjennomforingQueries(private val session: Session) {
                                            estimert_ventetid_verdi  = excluded.estimert_ventetid_verdi,
                                            estimert_ventetid_enhet  = excluded.estimert_ventetid_enhet,
                                            tilgjengelig_for_arrangor_dato  = excluded.tilgjengelig_for_arrangor_dato,
+                                           ansvarlig_enhet = excluded.ansvarlig_enhet,
                                            arena_tiltaksnummer = excluded.arena_tiltaksnummer,
                                            arena_ansvarlig_enhet = excluded.arena_ansvarlig_enhet
         """.trimIndent()
@@ -138,6 +141,7 @@ class GjennomforingQueries(private val session: Session) {
             "estimert_ventetid_verdi" to gjennomforing.estimertVentetidVerdi,
             "estimert_ventetid_enhet" to gjennomforing.estimertVentetidEnhet,
             "tilgjengelig_for_arrangor_fra_dato" to gjennomforing.tilgjengeligForArrangorDato,
+            "ansvarlig_enhet" to gjennomforing.ansvarligEnhet?.value,
             "arena_tiltaksnummer" to gjennomforing.arenaTiltaksnummer?.value,
             "arena_ansvarlig_enhet" to gjennomforing.arenaAnsvarligEnhet,
         )
@@ -641,6 +645,14 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun aquireLock(id: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            select id from gjennomforing where id = ?::uuid for update
+        """.trimIndent()
+        session.execute(queryOf(query, id))
+    }
+
     fun deleteKoordinatorForGjennomforing(
         id: UUID,
     ) {
@@ -703,7 +715,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
             GjennomforingEnkeltplassKompakt(
                 id = uuid("id"),
                 lopenummer = Tiltaksnummer(string("lopenummer")),
-                startDato = localDate("start_dato"),
+                startDato = localDateOrNull("start_dato"),
                 sluttDato = localDateOrNull("slutt_dato"),
                 status = GjennomforingStatusType.valueOf(string("status")),
                 arrangor = arrangor,
@@ -852,12 +864,18 @@ private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
             )
         },
         navn = string("navn"),
-        startDato = localDate("start_dato"),
+        startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         status = GjennomforingStatusType.valueOf(string("status")),
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),
         prismodell = toPrismodell(),
+        oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
+        pameldingType = GjennomforingPameldingType.valueOf(string("pamelding_type")),
+        ansvarligEnhet = GjennomforingEnkeltplass.AnsvarligEnhet(
+            enhetsnummer = NavEnhetNummer(string("ansvarlig_enhet_enhetsnummer")),
+            navn = string("ansvarlig_enhet_navn"),
+        ),
     )
 }
 

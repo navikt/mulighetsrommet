@@ -84,7 +84,7 @@ data class Periode(
          *  * Sluttdato mangler: 01.01.2001 - -
          */
         fun formatPeriode(start: LocalDate, slutt: LocalDate?): String {
-            return "${formatDate(start)} - ${slutt?.let {formatDate(slutt.minusDays(1))} ?: "-"}"
+            return "${formatDate(start)} - ${slutt?.let { formatDate(slutt.minusDays(1)) } ?: "-"}"
         }
 
         fun formatDate(localDate: LocalDate): String = localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
@@ -204,4 +204,6 @@ data class Periode(
     }
 
     fun formatPeriode(): String = formatPeriode(start, slutt)
+
+    fun toFreeTextSearch(): List<String> = formatPeriode(start, slutt).split("-")
 }

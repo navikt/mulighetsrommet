@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn.db
 
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
@@ -21,6 +22,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -35,7 +37,6 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
-import java.sql.Array
 import java.util.UUID
 
 class TilsagnQueries(private val session: Session) {
@@ -51,7 +52,7 @@ class TilsagnQueries(private val session: Session) {
                 bestilling_status,
                 kostnadssted,
                 status,
-                type,
+                tilsagn_type,
                 valuta,
                 belop_brukt,
                 belop_beregnet,
@@ -72,8 +73,8 @@ class TilsagnQueries(private val session: Session) {
                 :bestillingsnummer,
                 :bestilling_status,
                 :kostnadssted,
-                :status::tilsagn_status,
-                :type::tilsagn_type,
+                :status,
+                :tilsagn_type,
                 :valuta::currency,
                 :belop_brukt,
                 :belop_beregnet,
@@ -95,7 +96,7 @@ class TilsagnQueries(private val session: Session) {
                 bestilling_status                       = excluded.bestilling_status,
                 kostnadssted                            = excluded.kostnadssted,
                 status                                  = excluded.status,
-                type                                    = excluded.type,
+                tilsagn_type                            = excluded.tilsagn_type,
                 valuta                                  = excluded.valuta,
                 belop_brukt                             = excluded.belop_brukt,
                 belop_beregnet                          = excluded.belop_beregnet,
@@ -119,7 +120,7 @@ class TilsagnQueries(private val session: Session) {
             "bestillingsnummer" to dbo.bestillingsnummer,
             "bestilling_status" to dbo.bestillingStatus?.name,
             "kostnadssted" to dbo.kostnadssted.value,
-            "type" to dbo.type.name,
+            "tilsagn_type" to dbo.type.name,
             "belop_brukt" to dbo.belopBrukt.belop,
             "belop_beregnet" to dbo.beregning.output.pris.belop,
             "valuta" to dbo.belopBrukt.valuta.name,
@@ -182,31 +183,37 @@ class TilsagnQueries(private val session: Session) {
 
     private fun TransactionalSession.upsertTilsagnDeltakere(
         tilsagnId: UUID,
-        deltakere: List<UUID>,
+        deltakere: List<TilsagnDbo.Deltaker>?,
     ) {
         @Language("PostgreSQL")
         val deleteQuery = """
-            delete from tilsagn_deltaker
-            where tilsagn_id = :tilsagn_id::uuid
+        delete from tilsagn_deltaker
+        where tilsagn_id = :tilsagn_id::uuid
         """.trimIndent()
 
         execute(queryOf(deleteQuery, mapOf("tilsagn_id" to tilsagnId)))
 
+        if (deltakere.isNullOrEmpty()) return
+
         @Language("PostgreSQL")
         val insertQuery = """
-            insert into tilsagn_deltaker (tilsagn_id, deltaker_id)
-            select
-                :tilsagn_id::uuid,
-                unnest(:deltaker_ids::uuid[])
-            on conflict (tilsagn_id, deltaker_id) do nothing
+        insert into tilsagn_deltaker (tilsagn_id, deltaker_id, innhold_annet)
+        values (:tilsagn_id::uuid, :deltaker_id::uuid, :innhold_annet)
+        on conflict (tilsagn_id, deltaker_id) do update set innhold_annet = excluded.innhold_annet
         """.trimIndent()
 
-        val insertParams = mapOf(
-            "tilsagn_id" to tilsagnId,
-            "deltaker_ids" to deltakere.toTypedArray(),
-        )
-
-        execute(queryOf(insertQuery, insertParams))
+        deltakere.forEach { deltaker ->
+            execute(
+                queryOf(
+                    insertQuery,
+                    mapOf(
+                        "tilsagn_id" to tilsagnId,
+                        "deltaker_id" to deltaker.deltakerId,
+                        "innhold_annet" to deltaker.innholdAnnet,
+                    ),
+                ),
+            )
+        }
     }
 
     private fun TransactionalSession.upsertTilsagnBeregningFriLinjer(
@@ -333,20 +340,20 @@ class TilsagnQueries(private val session: Session) {
             select *
             from view_tilsagn
             where
-              (:typer::tilsagn_type[] is null or type = any(:typer::tilsagn_type[]))
+              (:typer::text[] is null or tilsagn_type = any(:typer))
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
               and (:arrangorer::text[] is null or arrangor_organisasjonsnummer = any(:arrangorer))
-              and (:statuser::tilsagn_status[] is null or status::tilsagn_status = any(:statuser))
+              and (:statuser::text[] is null or status = any(:statuser))
               and (:periode::daterange is null or periode && :periode::daterange)
               and (:valuta::currency is null or valuta = :valuta::currency)
             order by created_at desc
         """.trimIndent()
 
         val params = mapOf(
-            "typer" to typer?.let { session.createArrayOfTilsagnType(it) },
+            "typer" to typer?.let { session.createTextArray(it) },
             "gjennomforing_id" to gjennomforingId,
             "arrangorer" to arrangorer?.let { list -> session.createArrayOfValue(list) { it.value } },
-            "statuser" to statuser?.let { session.createArrayOfTilsagnStatus(it) },
+            "statuser" to statuser?.let { session.createTextArray(it) },
             "periode" to periodeIntersectsWith?.toDaterange(),
             "valuta" to valuta?.name,
         )
@@ -361,12 +368,12 @@ class TilsagnQueries(private val session: Session) {
             from view_tilsagn vt
             inner join gjennomforing g on gjennomforing_id = g.id
             where g.avtale_id = :avtale_id::uuid
-            and (:statuser::tilsagn_status[] is null or vt.status = any(:statuser::tilsagn_status[]))
+            and (:statuser::text[] is null or vt.status = any(:statuser))
         """.trimIndent()
 
         val params = mapOf(
             "avtale_id" to avtaleId,
-            "statuser" to statuser?.let { session.createArrayOfTilsagnStatus(it) },
+            "statuser" to statuser?.let { session.createTextArray(it) },
         )
 
         return session.list(queryOf(query, params)) { it.toTilsagn() }
@@ -384,7 +391,9 @@ class TilsagnQueries(private val session: Session) {
     fun setStatus(id: UUID, status: TilsagnStatus) {
         @Language("PostgreSQL")
         val query = """
-            update tilsagn set status = :status::tilsagn_status where id = :id::uuid
+            update tilsagn
+            set status = :status
+            where id = :id::uuid
         """.trimIndent()
 
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
@@ -395,7 +404,7 @@ class TilsagnQueries(private val session: Session) {
         val query = """
             update tilsagn
             set bestilling_status = ?
-             where bestillingsnummer = ?
+            where bestillingsnummer = ?
         """.trimIndent()
 
         session.execute(queryOf(query, status.name, bestillingsnummer))
@@ -433,15 +442,32 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun setFreeTextSearch(id: UUID, content: List<String>) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilsagn
+            set fts = to_tsvector('norwegian', :content)
+            where id = :id
+        """.trimIndent()
+        val params = mapOf(
+            "id" to id,
+            "content" to content.joinToString(" "),
+        )
+        session.execute(queryOf(query, params))
+    }
+
     private fun Row.toTilsagn(): Tilsagn {
         val id = uuid("id")
         val valuta = string("valuta").let { Valuta.valueOf(it) }
 
         val beregning = getBeregning(id, valuta, TilsagnBeregningType.valueOf(string("beregning_type")))
+        val deltakere = stringOrNull("deltakere")
+            ?.let { Json.decodeFromString<List<Tilsagn.Deltaker>>(it) }
+            ?: emptyList()
 
         return Tilsagn(
             id = uuid("id"),
-            type = TilsagnType.valueOf(string("type")),
+            type = TilsagnType.valueOf(string("tilsagn_type")),
             tiltakstype = Tilsagn.Tiltakstype(
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
                 navn = string("tiltakstype_navn"),
@@ -481,7 +507,7 @@ class TilsagnQueries(private val session: Session) {
                     distribueringId = stringOrNull("journalpost_distribuering_id"),
                 )
             },
-            deltakere = array<UUID>("deltakere").map { it },
+            deltakere = deltakere,
         )
     }
 
@@ -579,11 +605,3 @@ class TilsagnQueries(private val session: Session) {
         }
     }
 }
-
-fun Session.createArrayOfTilsagnType(
-    types: List<TilsagnType>,
-): Array = createArrayOf("tilsagn_type", types)
-
-fun Session.createArrayOfTilsagnStatus(
-    statuser: List<TilsagnStatus>,
-): Array = createArrayOf("tilsagn_status", statuser)

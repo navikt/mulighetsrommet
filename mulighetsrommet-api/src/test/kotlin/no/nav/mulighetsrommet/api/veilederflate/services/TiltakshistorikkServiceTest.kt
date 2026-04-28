@@ -18,8 +18,8 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseEierskap
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePamelding
@@ -68,7 +68,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.TeamKometDeltakelse(
         id = UUID.randomUUID(),
         tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
+            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
             navn = TiltakstypeFixtures.Oppfolging.navn,
         ),
         gjennomforing = Gjennomforing(
@@ -273,7 +273,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
-            AccessType.OBO("token"),
+            AccessType.OBO.AzureAd("token"),
         )
 
         historikk shouldBe Deltakelser(
@@ -300,7 +300,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
-            AccessType.OBO("token"),
+            AccessType.OBO.AzureAd("token"),
         )
 
         historikk shouldBe Deltakelser(
@@ -335,7 +335,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
-            AccessType.OBO("token"),
+            AccessType.OBO.AzureAd("token"),
         )
 
         historikk shouldBe Deltakelser(
@@ -372,7 +372,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
-            AccessType.OBO("token"),
+            AccessType.OBO.AzureAd("token"),
         )
 
         historikk shouldBe Deltakelser(
@@ -405,7 +405,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
-            AccessType.OBO("token"),
+            AccessType.OBO.AzureAd("token"),
         )
 
         val expectedDeltakelseUtenStartdato = deltakelseOppfolging.copy(
@@ -438,7 +438,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             sluttDato = LocalDate.of(2019, 12, 3),
             tittel = "Enkel AMO hos Underenhet 1 AS",
             tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
-                tiltakskode = TiltakstypeFixtures.EnkelAmo.arenaKode,
+                tiltakskode = "ENKELAMO",
                 navn = TiltakstypeFixtures.EnkelAmo.navn,
             ),
             gjennomforing = Gjennomforing(
@@ -494,7 +494,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
             val historikk = historikkService.hentHistorikk(
                 NorskIdent("12345678910"),
-                AccessType.OBO("token"),
+                AccessType.OBO.AzureAd("token"),
             )
 
             historikk shouldBe Deltakelser(
@@ -545,7 +545,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
             val historikk = historikkService.hentHistorikk(
                 NorskIdent("12345678910"),
-                AccessType.OBO("token"),
+                AccessType.OBO.AzureAd("token"),
             )
 
             historikk shouldBe Deltakelser(

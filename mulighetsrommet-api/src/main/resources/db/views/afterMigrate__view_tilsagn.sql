@@ -11,7 +11,7 @@ select tilsagn.id,
        tilsagn.kommentar,
        tilsagn.beskrivelse,
        tilsagn.status,
-       tilsagn.type,
+       tilsagn.tilsagn_type,
        tilsagn.beregning_type,
        tilsagn.beregning_sats,
        tilsagn.beregning_antall_plasser,
@@ -20,6 +20,7 @@ select tilsagn.id,
        tilsagn.created_at,
        tilsagn.journalpost_id,
        tilsagn.journalpost_distribuering_id,
+       tilsagn.fts,
        gjennomforing.id                  as gjennomforing_id,
        gjennomforing.lopenummer          as gjennomforing_lopenummer,
        gjennomforing.navn                as gjennomforing_navn,
@@ -40,7 +41,17 @@ from tilsagn
          inner join arrangor on arrangor.id = gjennomforing.arrangor_id
          inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
          left join lateral (
-             select coalesce(array_agg(deltaker_id), '{}') as deltakere
-             from tilsagn_deltaker
-             where tilsagn_id = tilsagn.id
+             select coalesce(
+                 jsonb_agg(
+                     jsonb_build_object(
+                         'deltakerId', td.deltaker_id,
+                         'innholdAnnet', td.innhold_annet,
+                         'status', d.status_type
+                     )
+                 ),
+                 '[]'::jsonb
+             ) as deltakere
+             from tilsagn_deltaker td
+             inner join deltaker d on d.id = td.deltaker_id
+             where td.tilsagn_id = tilsagn.id
          ) deltakere on true;

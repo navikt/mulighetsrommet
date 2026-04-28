@@ -1,12 +1,16 @@
-import { delutbetalingAarsakTilTekst, tilsagnTypeToString, ValidationMessage } from "@/utils/Utils";
-import { DelutbetalingReturnertAarsak, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
+import {
+  utbetalingLinjeAarsakTilTekst,
+  tilsagnTypeToString,
+  ValidationMessage,
+} from "@/utils/Utils";
+import { UtbetalingLinjeReturnertAarsak, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { Alert, Heading, HStack, List, Table, VStack, Link, InfoCard } from "@navikt/ds-react";
 import React, { useState } from "react";
 import { Link as ReactRouterLink } from "react-router";
 import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { TilsagnInformasjon } from "./TilsagnInformasjon";
-import { DelutbetalingStatusTag } from "./DelutbetalingStatusTag";
+import { UtbetalingLinjeStatusTag } from "./UtbetalingLinjeStatusTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { isBesluttet } from "@/utils/totrinnskontroll";
@@ -43,7 +47,9 @@ export function UtbetalingLinjeRow({
         <VStack gap="space-16">
           {isBesluttet(linje.opprettelse) && linje.opprettelse.besluttelse === "AVVIST" ? (
             <VStack>
-              {linje.opprettelse.aarsaker.includes(DelutbetalingReturnertAarsak.PROPAGERT_RETUR) ? (
+              {linje.opprettelse.aarsaker.includes(
+                UtbetalingLinjeReturnertAarsak.PROPAGERT_RETUR,
+              ) ? (
                 <Alert size="medium" variant="warning">
                   <Heading size="small" level="4">
                     Automatisk returnert som følge av at en annen utbetalingslinje ble returnert
@@ -53,7 +59,7 @@ export function UtbetalingLinjeRow({
                 <AarsakerOgForklaring
                   heading="Linjen ble returnert på grunn av følgende årsaker"
                   aarsaker={linje.opprettelse.aarsaker.map((aarsak) =>
-                    delutbetalingAarsakTilTekst(aarsak as DelutbetalingReturnertAarsak),
+                    utbetalingLinjeAarsakTilTekst(aarsak as UtbetalingLinjeReturnertAarsak),
                   )}
                   forklaring={linje.opprettelse.forklaring}
                 />
@@ -101,7 +107,7 @@ export function UtbetalingLinjeRow({
       <Table.DataCell>{checkboxInput}</Table.DataCell>
       <Table.DataCell>{belopInput}</Table.DataCell>
       <Table.DataCell>
-        {linje.status && <DelutbetalingStatusTag status={linje.status} />}
+        {linje.status && <UtbetalingLinjeStatusTag status={linje.status} />}
       </Table.DataCell>
       <Table.DataCell align="right">{knappeColumn}</Table.DataCell>
     </Table.ExpandableRow>

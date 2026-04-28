@@ -29,30 +29,198 @@ module "mr_api_datastream" {
     {
       schema = "public",
       tables = [
-        { table = "tiltakstype" },
-        { table = "avtale" },
-        { table = "avtale_nav_enhet" },
-        { table = "gjennomforing" },
+        {
+          table = "tiltakstype",
+          columns = [
+            "id",
+            "navn",
+            "arena_kode",
+            "created_at",
+            "updated_at",
+            "start_dato",
+            "slutt_dato",
+            "tiltakskode",
+          ]
+        },
+        {
+          table = "arrangor",
+          columns = [
+            "organisasjonsnummer",
+            "overordnet_enhet",
+            "navn",
+            "created_at",
+            "id",
+            "slettet_dato",
+            "updated_at",
+            "er_utenlandsk_virksomhet",
+          ]
+        },
+        {
+          table = "prismodell",
+          columns = [
+            "id",
+            "prismodell_type",
+            "satser",
+            "created_at",
+            "updated_at",
+            "system_id",
+            "valuta",
+            "tilsagn_per_deltaker",
+          ]
+        },
+        {
+          table = "avtale",
+          columns = [
+            "id",
+            "navn",
+            "tiltakstype_id",
+            "avtalenummer",
+            "start_dato",
+            "slutt_dato",
+            "status",
+            "avtaletype",
+            "created_at",
+            "updated_at",
+            "arrangor_hovedenhet_id",
+            "lopenummer",
+            "personvern_bekreftet",
+            "sakarkiv_nummer",
+            "avbrutt_tidspunkt",
+            "avbrutt_aarsaker",
+            "opsjon_maks_varighet",
+            "opsjonsmodell",
+            "opsjon_custom_opsjonsmodell_navn",
+          ]
+        },
+        { table = "avtale_nav_enhet", },
+        { table = "avtale_prismodell", },
+        {
+          table = "gjennomforing",
+          columns = [
+            "id",
+            "navn",
+            "tiltakstype_id",
+            "avtale_id",
+            "arrangor_id",
+            "prismodell_id",
+            "arena_tiltaksnummer",
+            "lopenummer",
+            "created_at",
+            "updated_at",
+            "start_dato",
+            "slutt_dato",
+            "status",
+            "gjennomforing_type",
+            "antall_plasser",
+            "oppstart",
+            "pamelding_type",
+            "publisert",
+            "apent_for_pamelding",
+            "deltidsprosent",
+            "estimert_ventetid_verdi",
+            "estimert_ventetid_enhet",
+            "avsluttet_tidspunkt",
+            "avbrutt_aarsaker",
+            "tilgjengelig_for_arrangor_dato",
+          ]
+        },
         { table = "gjennomforing_amo_kategorisering" },
         { table = "gjennomforing_amo_kategorisering_sertifisering" },
         { table = "gjennomforing_nav_enhet" },
         { table = "gjennomforing_utdanningsprogram" },
-        { table = "arrangor" },
         { table = "utdanningsprogram" },
         { table = "utdanning" },
-        { table = "tilsagn" },
-        { table = "delutbetaling" },
-        { table = "utbetaling" },
         {
-          table   = "del_med_bruker",
-          columns = ["id", "tiltakstype_id", "delt_fra_fylke", "delt_fra_enhet", "created_at"]
+          table = "tilsagn",
+          columns = [
+            "id",
+            "gjennomforing_id",
+            "created_at",
+            "updated_at",
+            "kostnadssted",
+            "lopenummer",
+            "tilsagn_type",
+            "status",
+            "bestillingsnummer",
+            "bestilling_status",
+            "datastream_periode_start",
+            "datastream_periode_slutt",
+            "beregning_type",
+            "beregning_antall_timer_oppfolging_per_deltaker",
+            "beregning_antall_plasser",
+            "beregning_sats",
+            "belop_beregnet",
+            "belop_brukt",
+            "valuta",
+          ]
+        },
+        { table = "tilsagn_type" },
+        { table = "tilsagn_status_type" },
+        {
+          table = "utbetaling",
+          columns = [
+            "id",
+            "gjennomforing_id",
+            "created_at",
+            "updated_at",
+            "tilskuddstype",
+            "datastream_periode_start",
+            "datastream_periode_slutt",
+            "status",
+            "avbrutt_tidspunkt",
+            "innsendt_av_arrangor_tidspunkt",
+            "utbetales_tidligst_tidspunkt",
+            "korreksjon_gjelder_utbetaling_id",
+            "beregning_type",
+            "belop_beregnet",
+            "valuta",
+          ]
+        },
+        { table = "utbetaling_status_type" },
+        {
+          table = "utbetaling_linje",
+          columns = [
+            "id",
+            "utbetaling_id",
+            "tilsagn_id",
+            "created_at",
+            "updated_at",
+            "lopenummer",
+            "gjor_opp_tilsagn",
+            "status",
+            "fakturanummer",
+            "faktura_sendt_tidspunkt",
+            "faktura_status_endret_tidspunkt",
+            "faktura_status",
+            "datastream_periode_start",
+            "datastream_periode_slutt",
+            "belop",
+            "valuta",
+          ]
+        },
+        { table = "utbetaling_linje_status_type" },
+        {
+          table = "totrinnskontroll",
+          columns = [
+            "id",
+            "entity_id",
+            "behandlet_tidspunkt",
+            "behandlet_av",
+            "besluttet_av",
+            "besluttet_tidspunkt",
+            "besluttelse",
+          ]
         },
         {
-          table   = "totrinnskontroll",
-          columns = ["id", "entity_id", "behandlet_tidspunkt", "behandlet_av", "besluttet_av", "besluttet_tidspunkt", "besluttelse"]
+          table = "del_med_bruker",
+          columns = [
+            "id",
+            "tiltakstype_id",
+            "delt_fra_fylke",
+            "delt_fra_enhet",
+            "created_at",
+          ]
         },
-        { table = "prismodell" },
-        { table = "avtale_prismodell" }
       ]
     }
   ]
@@ -155,7 +323,7 @@ module "mr_api_datastream" {
       view = {
         dataset_id = local.grafana_dataset_id
         project_id = var.gcp_project["project"]
-        table_id   = "delutbetaling_view"
+        table_id   = "utbetaling_linje_view"
       }
     },
     {

@@ -5,13 +5,14 @@ import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/ak
 import { ActionMenu, BodyShort, Button, HStack } from "@navikt/ds-react";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  DocumentClass,
   FieldError,
   TilsagnHandling,
   TilsagnStatusAarsak,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { Link, useNavigate } from "react-router";
-import { useTilsagn, useTilsagnEndringshistorikk } from "./tilsagnDetaljerLoader";
+import { useTilsagn } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useState } from "react";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
@@ -22,6 +23,7 @@ import {
   useTilsagnTilOppgjor,
 } from "@/api/tilsagn/mutations";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 const tilAnnuleringAarsaker = [
   TilsagnStatusAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
@@ -35,7 +37,7 @@ const tilAnnuleringAarsaker = [
 
 export function TilsagnHandlinger() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
-  const { data: historikk } = useTilsagnEndringshistorikk(tilsagnId);
+  const { data: historikk } = useEndringshistorikk(tilsagnId, DocumentClass.TILSAGN);
   const { data: tilsagn } = useTilsagn(tilsagnId);
 
   const navigate = useNavigate();

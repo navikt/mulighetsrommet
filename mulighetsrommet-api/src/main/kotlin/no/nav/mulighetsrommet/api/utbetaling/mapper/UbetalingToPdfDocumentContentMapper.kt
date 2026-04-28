@@ -4,8 +4,8 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsDetaljer
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningStengt
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.pdfgen.Format
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.pdfgen.TableBlock
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
@@ -23,7 +22,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHel
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataElement
@@ -36,6 +37,7 @@ object UbetalingToPdfDocumentContentMapper {
     fun toUtbetalingsdetaljerPdfContent(
         utbetaling: Utbetaling,
         linjer: List<ArrangforflateUtbetalingLinje>,
+        gjennomforing: GjennomforingAvtale,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Utbetalingsdetaljer",
         subject = "Utbetaling til ${utbetaling.arrangor.navn}",
@@ -44,7 +46,7 @@ object UbetalingToPdfDocumentContentMapper {
     ) {
         mainSection("Detaljer om utbetaling")
 
-        addInnsendingSection(utbetaling)
+        addInnsendingSection(utbetaling, gjennomforing)
         addUtbetalingSection(utbetaling)
         addBetalingsinformasjonSection(utbetaling.betalingsinformasjon)
 
@@ -65,7 +67,8 @@ object UbetalingToPdfDocumentContentMapper {
 
     fun toJournalpostPdfContent(
         utbetaling: Utbetaling,
-        personalia: Map<UUID, DeltakerPersonalia>,
+        personalia: Map<UUID, Personalia>,
+        gjennomforing: GjennomforingAvtale,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Utbetaling",
         subject = "Krav om utbetaling fra ${utbetaling.arrangor.navn}",
@@ -74,7 +77,7 @@ object UbetalingToPdfDocumentContentMapper {
     ) {
         mainSection("Innsendt krav om utbetaling")
 
-        addInnsendingSection(utbetaling)
+        addInnsendingSection(utbetaling, gjennomforing)
         addUtbetalingSection(utbetaling)
         addBetalingsinformasjonSection(utbetaling.betalingsinformasjon)
         addStengtHosArrangorSection(utbetaling.beregning)
@@ -121,7 +124,10 @@ object UbetalingToPdfDocumentContentMapper {
     }
 }
 
-private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Utbetaling) {
+private fun PdfDocumentContentBuilder.addInnsendingSection(
+    utbetaling: Utbetaling,
+    gjennomforing: GjennomforingAvtale,
+) {
     val type = UtbetalingType.from(utbetaling).toDto()
     val utbetalingHeader = type.displayNameLong ?: type.displayName
     section(utbetalingHeader) {
@@ -137,11 +143,11 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Utbetalin
             if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
                 text(
                     "Tiltaksperiode",
-                    Periode.formatPeriode(utbetaling.gjennomforing.start, utbetaling.gjennomforing.slutt),
+                    Periode.formatPeriode(gjennomforing.startDato, gjennomforing.sluttDato),
                 )
             }
 
-            text("Løpenummer", utbetaling.gjennomforing.lopenummer.value)
+            text("Løpenummer", gjennomforing.lopenummer.value)
         }
     }
 }
@@ -213,7 +219,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingsstatusSection(
 ) {
     section("Utbetalingsstatus") {
         descriptionList {
-            val status = if (linjer.all { it.status == DelutbetalingStatus.UTBETALT }) {
+            val status = if (linjer.all { it.status == UtbetalingLinjeStatus.UTBETALT }) {
                 "Utbetalt"
             } else {
                 "Overført til utbetaling"
@@ -263,7 +269,7 @@ private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
 
 private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
     beregning: UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-    personalia: Map<UUID, DeltakerPersonalia>,
+    personalia: Map<UUID, Personalia>,
 ) {
     section("Deltakerperioder") {
         table {
@@ -298,7 +304,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
 
 private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
     deltakelser: Set<DeltakelsePeriode>,
-    personalia: Map<UUID, DeltakerPersonalia>,
+    personalia: Map<UUID, Personalia>,
 ) {
     section("Deltakerperioder") {
         table {
@@ -327,7 +333,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     sectionHeader: String,
     deltakelseFaktorColumnName: String,
     deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
-    personalia: Map<UUID, DeltakerPersonalia>,
+    personalia: Map<UUID, Personalia>,
 ) {
     section(sectionHeader) {
         table {
@@ -348,7 +354,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     }
 }
 
-private fun deltakerNavnOgIdent(person: DeltakerPersonalia?): Array<TableBlock.Table.Cell> {
+private fun deltakerNavnOgIdent(person: Personalia?): Array<TableBlock.Table.Cell> {
     val erSkjermet = person?.erSkjermet == true
     val erAdressebeskyttet = person?.adressebeskyttelse != PdlGradering.UGRADERT
     return arrayOf(
@@ -364,7 +370,7 @@ private fun deltakerNavnOgIdent(person: DeltakerPersonalia?): Array<TableBlock.T
             when {
                 erSkjermet -> null
                 erAdressebeskyttet -> null
-                else -> person.norskIdent.value
+                else -> person.norskIdent?.value
             },
         ),
     )

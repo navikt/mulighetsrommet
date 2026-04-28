@@ -4,9 +4,9 @@ import {
   ArrangorflateUtbetalingStatus,
   DataDetails,
   DataElementTextFormat,
-  DelutbetalingStatus,
   LabeledDataElementType,
   Tiltakskode,
+  UtbetalingLinjeStatus,
   Valuta,
 } from "api-client";
 import { utbetalingType } from "./utbetalingTypeMocks";
@@ -129,7 +129,7 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
         id: "ad77762c-eebb-4623-be6d-0c64da79f2dd",
         bestillingsnummer: "A-2025/11073-1",
       },
-      status: DelutbetalingStatus.UTBETALT,
+      status: UtbetalingLinjeStatus.UTBETALT,
       statusSistOppdatert: "2025-05-15T11:03:22.772767",
       pris: { belop: 10149, valuta: Valuta.NOK },
     },
@@ -391,7 +391,7 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
         id: "ad77762c-eebb-4623-be6d-0c64da79f2dd",
         bestillingsnummer: "A-2025/11073-1",
       },
-      status: DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+      status: UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
       statusSistOppdatert: null,
       pris: { belop: 500, valuta: Valuta.NOK },
     },

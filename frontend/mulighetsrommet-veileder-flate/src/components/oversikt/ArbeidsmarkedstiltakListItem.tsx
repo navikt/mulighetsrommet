@@ -35,9 +35,12 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, deltMedBruker }: P
       id={`list_element_${index}`}
       data-testid={`gjennomforing_${kebabCase(tiltak.tiltakstype.navn)}`}
     >
-      <Lenke className={`text-[#000000]`} to={`../tiltak/${id}${paginationUrl}`}>
+      <Lenke
+        className="block w-full no-underline text-[#000000]"
+        to={`../tiltak/${id}${paginationUrl}`}
+      >
         {deltMedBruker && <TiltakDeltMedBrukerInfo deltMedBruker={deltMedBruker} />}
-        <div className="grid grid-cols-[0_40%_1fr_2%] [grid-template-areas:'status_navn_metadata_ikon'] lg:grid-areas-[status_navn_navn_ikon_metadata_metadata_metadata]  items-start justify-start grid-rows-[auto] lg:items-center min-h-16 gap-8 p-3">
+        <div className="w-full grid grid-cols-[0_theme(spacing.72)_1fr_theme(spacing.6)] [grid-template-areas:'status_navn_metadata_ikon'] lg:grid-areas-[status_navn_navn_ikon_metadata_metadata_metadata] items-start grid-rows-[auto] lg:items-center min-h-16 gap-8 p-3">
           {isTiltakGruppe(tiltak) && !tiltak.apentForPamelding && (
             <PadlockLockedFillIcon
               className="[grid-area:status] w-6 h-auto text-black"
@@ -67,7 +70,10 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, deltMedBruker }: P
             )}
           </div>
 
-          <ChevronRightIcon className="[grid-area:ikon] w-6 h-auto" title="Detaljer om tiltaket" />
+          <ChevronRightIcon
+            className="[grid-area:ikon] justify-self-end w-6 h-auto"
+            title="Detaljer om tiltaket"
+          />
         </div>
       </Lenke>
     </li>

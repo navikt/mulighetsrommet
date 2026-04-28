@@ -7,6 +7,9 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import kotlinx.serialization.json.Json
+import no.nav.amt.model.AmtDeltakerEksternV1Dto
+import no.nav.amt.model.AmtDeltakerEksternV1Dto.InnholdDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -44,6 +47,17 @@ class TilsagnQueriesTest : FunSpec({
         startDato = GjennomforingFixtures.AFT1.startDato,
         sluttDato = null,
         statusType = DeltakerStatusType.DELTAR,
+        innhold = Json.encodeToString(
+            AmtDeltakerEksternV1Dto.DeltakelsesinnholdDto(
+                ledetekst = null,
+                valgtInnhold = listOf(
+                    InnholdDto(
+                        tekst = "hallo",
+                        innholdskode = "annet",
+                    ),
+                ),
+            ),
+        ),
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -97,7 +111,7 @@ class TilsagnQueriesTest : FunSpec({
                 queries.tilsagn.getOrError(tilsagn.id) should {
                     it.id shouldBe tilsagn.id
                     it.tiltakstype shouldBe Tilsagn.Tiltakstype(
-                        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
+                        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
                         navn = TiltakstypeFixtures.AFT.navn,
                     )
                     it.gjennomforing.id shouldBe GjennomforingFixtures.AFT1.id
@@ -391,9 +405,15 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                queries.tilsagn.upsert(tilsagn.copy(deltakere = listOf(deltaker.id)))
+                queries.tilsagn.upsert(
+                    tilsagn.copy(
+                        deltakere = listOf(
+                            TilsagnDbo.Deltaker(deltaker.id, "hello"),
+                        ),
+                    ),
+                )
                 queries.tilsagn.getOrError(tilsagn.id) should {
-                    it.deltakere shouldBe listOf(deltaker.id)
+                    it.deltakere.map { it.deltakerId } shouldBe listOf(deltaker.id)
                 }
 
                 queries.tilsagn.upsert(tilsagn.copy(deltakere = emptyList()))

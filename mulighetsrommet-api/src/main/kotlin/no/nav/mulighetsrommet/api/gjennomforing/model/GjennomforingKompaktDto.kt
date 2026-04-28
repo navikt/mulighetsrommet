@@ -16,7 +16,7 @@ data class GjennomforingKompaktDto(
     val navn: String,
     val lopenummer: Tiltaksnummer,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
+    val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val status: GjennomforingDto.Status,

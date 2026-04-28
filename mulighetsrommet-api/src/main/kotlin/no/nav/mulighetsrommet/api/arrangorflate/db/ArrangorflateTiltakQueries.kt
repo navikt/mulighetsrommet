@@ -3,12 +3,16 @@ package no.nav.mulighetsrommet.api.arrangorflate.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.database.createArrayOfValue
-import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -30,29 +34,55 @@ class ArrangorflateTiltakQueries(private val session: Session) {
     }
 
     fun getAll(
-        tiltakstyper: List<UUID>,
-        organisasjonsnummer: List<Organisasjonsnummer>,
-        statuser: List<GjennomforingStatusType>,
+        organisasjonsnummer: Set<Organisasjonsnummer>,
         prismodeller: List<PrismodellType>,
-    ): List<ArrangorflateTiltak> = with(session) {
+        filter: ArrangorflateTiltakFilter,
+    ): PaginatedResult<ArrangorflateTiltak> = with(session) {
+        val direction = when (filter.direction) {
+            ArrangorflateFilterDirection.ASC -> "asc"
+            ArrangorflateFilterDirection.DESC -> "desc"
+        }
+
+        val order = when (filter.orderBy) {
+            ArrangorflateTiltakFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, navn $direction"
+            ArrangorflateTiltakFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
+            ArrangorflateTiltakFilter.OrderBy.START_DATO -> "start_dato $direction"
+            ArrangorflateTiltakFilter.OrderBy.SLUTT_DATO -> "slutt_dato $direction"
+            ArrangorflateTiltakFilter.OrderBy.STATUS -> "status $direction"
+        }
+
         @Language("PostgreSQL")
         val query = """
-            select *
+            select *, count(*) over() as total_count
             from view_arrangorflate_tiltak
-            where tiltakstype_id = any(:tiltakstype_ids)
+            where
+              (:sok::text is null
+                or fts @@ to_tsquery('norwegian', :fts)
+                or arrangor_organisasjonsnummer ilike :sok
+                or to_char(start_dato, 'DD.MM.YYYY') ilike :sok
+                or to_char(slutt_dato, 'DD.MM.YYYY') ilike :sok
+              )
+              and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and arrangor_organisasjonsnummer = any(:arrangor_orgnrs)
               and status = any(:statuser)
               and prismodell_type = any(:prismodeller::prismodell_type[])
+            order by $order
+            limit :limit
+            offset :offset
         """.trimIndent()
 
-        val parameters = mapOf(
-            "tiltakstype_ids" to createUuidArray(tiltakstyper),
+        val params = mapOf(
+            "fts" to filter.sok?.toFTSPrefixQuery(),
+            "sok" to filter.sok?.let { "%$it%" },
+            "slutt_dato_cutoff" to filter.sluttDatoGreaterThanOrEqualTo,
             "arrangor_orgnrs" to createArrayOfValue(organisasjonsnummer) { it.value },
-            "statuser" to createArrayOf("gjennomforing_status", statuser),
+            "statuser" to createArrayOf("gjennomforing_status", filter.type.toGjennomforingStatuses()),
             "prismodeller" to createArrayOf("prismodell_type", prismodeller),
         )
 
-        return list(queryOf(query, parameters)) { it.toArrangorflateTiltak() }
+        return queryOf(query, params + filter.pagination.parameters)
+            .mapPaginated { it.toArrangorflateTiltak() }
+            .runWithSession(session)
     }
 }
 

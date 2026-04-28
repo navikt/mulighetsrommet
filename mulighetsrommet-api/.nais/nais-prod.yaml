@@ -82,6 +82,8 @@ spec:
         groups:
           # team-mulighetsrommet
           - id: "debefa6e-1865-446d-b22b-9579fc735de3"
+          # 0000-CA-Tiltaksadministrasjon_tiltakstype-skriv
+          - id: "21a2d88c-05e1-4c4b-b13d-b277f848ffd5"
           # 0000-GA-TILTAK-ANSVARLIG
           - id: "2cf8d881-c2da-47b5-b409-fa088440a629"
           # 0000-GA-TILTAK-avtaler_skriv
@@ -178,6 +180,11 @@ spec:
           permissions:
             roles:
               - tiltaksgjennomforing-read
+        - application: amt-deltaker-bff
+          namespace: amt
+          permissions:
+            roles:
+              - tiltaksgjennomforing-read
         - application: amt-arena-acl
           namespace: amt
           permissions:
@@ -210,6 +217,8 @@ spec:
           namespace: nais-system
         - application: logging
           namespace: nais-system
+        - application: populasjonstilgangskontroll
+          namespace: tilgangsmaskin
       external:
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io

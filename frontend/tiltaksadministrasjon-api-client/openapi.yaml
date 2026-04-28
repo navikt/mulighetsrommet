@@ -7,19 +7,95 @@ externalDocs:
 servers: []
 tags: []
 paths:
+  /api/tiltaksadministrasjon/redaksjonelt-innhold/lenker:
+    get:
+      tags:
+      - RedaksjoneltInnhold
+      operationId: getLenker
+      parameters: []
+      responses:
+        "200":
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
+      deprecated: false
+  /api/tiltaksadministrasjon/redaksjonelt-innhold/lenker/{id}:
+    put:
+      tags:
+      - RedaksjoneltInnhold
+      operationId: upsertLenke
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RedaksjoneltInnholdLenkeRequest"
+        required: false
+      responses:
+        "200":
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
+      deprecated: false
+    delete:
+      tags:
+      - RedaksjoneltInnhold
+      operationId: deleteLenke
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Lenke ble slettet
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/tiltakstyper:
     get:
       tags:
       - Tiltakstype
       operationId: getTiltakstyper
       parameters:
-      - name: sort
+      - name: sortField
         in: query
         required: false
         deprecated: false
         explode: false
         schema:
-          type: string
+          $ref: "#/components/schemas/TiltakstypeSortField"
+      - name: sortDirection
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/SortDirection"
       responses:
         "200":
           description: Tiltakstyper i Tiltaksadministrasjon
@@ -29,7 +105,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TiltakstypeDto"
+                  $ref: "#/components/schemas/TiltakstypeKompaktDto"
         default:
           description: Problem details
           headers: {}
@@ -68,11 +144,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltakstyper/{id}/faneinnhold:
+  /api/tiltaksadministrasjon/tiltakstyper/{id}/handlinger:
     get:
       tags:
       - Tiltakstype
-      operationId: getTiltakstypeFaneinnhold
+      operationId: getTiltakstypeHandlinger
       parameters:
       - name: id
         in: path
@@ -84,12 +160,117 @@ paths:
           format: uuid
       responses:
         "200":
-          description: Faneinnhold for tiltakstype
+          description: Mulige handlinger på tiltakstype for innlogget bruker
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VeilederflateTiltakstype"
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltakstypeHandling"
+                uniqueItems: true
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tiltakstyper/innholdselementer:
+    get:
+      tags:
+      - Tiltakstype
+      operationId: getInnholdselementer
+      parameters: []
+      responses:
+        "200":
+          description: Tilgjengelige innholdselementer for deltakerregistrering
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Innholdselement"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tiltakstyper/{id}/veilederinfo:
+    post:
+      tags:
+      - Tiltakstype
+      operationId: updateVeilederinfo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TiltakstypeVeilederinfoRequest"
+        required: false
+      responses:
+        "200":
+          description: Oppdatert tiltakstype
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltakstypeDto"
+        "404":
+          description: Tiltakstype ikke funnet
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tiltakstyper/{id}/deltakerinfo:
+    post:
+      tags:
+      - Tiltakstype
+      operationId: updateDeltakerinfo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TiltakstypeDeltakerinfoRequest"
+        required: false
+      responses:
+        "200":
+          description: Oppdatert tiltakstype
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltakstypeDto"
+        "404":
+          description: Tiltakstype ikke funnet
+          headers: {}
         default:
           description: Problem details
           headers: {}
@@ -99,116 +280,6 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/avtaler:
-    get:
-      tags:
-      - Avtale
-      operationId: getAvtaler
-      parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaleStatusType"
-      - name: avtaletyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/Avtaletype"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: personvernBekreftet
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: visMineAvtaler
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: page
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: size
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: sort
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Avtaler filtrert på query parameters
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginatedResponse_AvtaleDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
     put:
       tags:
       - Avtale
@@ -235,6 +306,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    post:
+      tags:
+      - Avtale
+      operationId: getAvtaler
+      parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetAvtalerRequest"
+        required: false
+      responses:
+        "200":
+          description: Avtaler
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse_AvtaleDto"
         default:
           description: Problem details
           headers: {}
@@ -571,77 +685,11 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/avtaler/excel:
-    get:
+    post:
       tags:
       - Avtale
       operationId: lastNedAvtalerSomExcel
       parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaleStatusType"
-      - name: avtaletyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/Avtaletype"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: personvernBekreftet
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: visMineAvtaler
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
       - name: page
         in: query
         required: false
@@ -658,16 +706,15 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: sort
-        in: query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetAvtalerRequest"
         required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
       responses:
         "200":
-          description: Avtaler filtrert på query parameters
+          description: Avtaler eksportert til Excel
           headers: {}
           content:
             application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
@@ -762,36 +809,6 @@ paths:
                 items:
                   $ref: "#/components/schemas/AvtaleHandling"
                 uniqueItems: true
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/avtaler/{id}/historikk:
-    get:
-      tags:
-      - Avtale
-      operationId: getAvtaleEndringshistorikk
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Avtalens endringshistorikk
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EndringshistorikkDto"
         default:
           description: Problem details
           headers: {}
@@ -923,124 +940,6 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger:
-    get:
-      tags:
-      - Gjennomforing
-      operationId: getGjennomforinger
-      parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingStatusType"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: avtaleId
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      - name: publisert
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: visMineGjennomforinger
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
-      - name: page
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: size
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: sort
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: gjennomforingTyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingType"
-      responses:
-        "200":
-          description: Gjennomføringer filtrert på query parameters
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginatedResponse_GjennomforingKompaktDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
     put:
       tags:
       - Gjennomforing
@@ -1067,6 +966,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    post:
+      tags:
+      - Gjennomforing
+      operationId: getGjennomforinger
+      parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetGjennomforingerRequest"
+        required: false
+      responses:
+        "200":
+          description: Gjennomføringer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse_GjennomforingKompaktDto"
         default:
           description: Problem details
           headers: {}
@@ -1328,77 +1270,70 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/gjennomforinger/excel:
-    get:
+  /api/tiltaksadministrasjon/gjennomforinger/{id}/godkjenn-okonomi:
+    post:
       tags:
       - Gjennomforing
-      operationId: lastNedGjennomforingerSomExcel
+      operationId: godkjennGjennomforingOkonomi
       parameters:
-      - name: search
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: tiltakstyper
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingStatusType"
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: arrangorer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      - name: avtaleId
-        in: query
-        required: false
+      - name: id
+        in: path
+        required: true
         deprecated: false
         explode: false
         schema:
           type: string
           format: uuid
-      - name: publisert
-        in: query
-        required: false
+      responses:
+        "200":
+          description: Økonomi ble godkjent
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/gjennomforinger/{id}/sett-pa-vent-okonomi:
+    post:
+      tags:
+      - Gjennomforing
+      operationId: settPaVentGjennomforingOkonomi
+      parameters:
+      - name: id
+        in: path
+        required: true
         deprecated: false
         explode: false
         schema:
-          type: boolean
-      - name: visMineGjennomforinger
-        in: query
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettPaVentOkonomiRequest"
         required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: boolean
+      responses:
+        "200":
+          description: Økonomi ble satt på vent
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/gjennomforinger/excel:
+    post:
+      tags:
+      - Gjennomforing
+      operationId: lastNedGjennomforingerSomExcel
+      parameters:
       - name: page
         in: query
         required: false
@@ -1415,16 +1350,15 @@ paths:
         schema:
           type: integer
           format: int32
-      - name: sort
-        in: query
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetGjennomforingerRequest"
         required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
       responses:
         "200":
-          description: Gjennomføringer filtrert på query parameters
+          description: Gjennomføringer eksportert til Excel
           headers: {}
           content:
             application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
@@ -1491,36 +1425,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TiltaksnummerResponse"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/gjennomforinger/{id}/historikk:
-    get:
-      tags:
-      - Gjennomforing
-      operationId: getGjennomforingEndringshistorikk
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Gjennomføringens endringshistorikk
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EndringshistorikkDto"
         default:
           description: Problem details
           headers: {}
@@ -1623,6 +1527,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/avtaletyper:
+    get:
+      tags:
+      - Avtaletype
+      operationId: getAvtaletyper
+      parameters:
+      - name: tiltakstype
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/Tiltakskode"
+      responses:
+        "200":
+          description: Avtaletyper for tiltakstype
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaletypeInfo"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/personopplysninger:
     get:
       tags:
@@ -1639,7 +1574,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/PersonopplysningData"
+                  $ref: "#/components/schemas/Personopplysning"
         default:
           description: Problem details
           headers: {}
@@ -1765,37 +1700,6 @@ paths:
         "200":
           description: Tilsagn ble slettet
           headers: {}
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/tilsagn/{id}/historikk:
-    get:
-      tags:
-      - Tilsagn
-      description: Hent endringshistorikk for tilsagn
-      operationId: getTilsagnEndringshistorikk
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Endringshistorikk for tilsagn
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EndringshistorikkDto"
         default:
           description: Problem details
           headers: {}
@@ -2220,36 +2124,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/utbetaling/{id}/historikk:
-    get:
-      tags:
-      - Utbetaling
-      operationId: getUtbetalingEndringshistorikk
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Utbetalingen ble opprettet
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/EndringshistorikkDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/utbetaling/{id}/linjer:
     get:
       tags:
@@ -2332,11 +2206,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/delutbetalinger:
+  /api/tiltaksadministrasjon/utbetalingslinjer:
     put:
       tags:
       - Utbetaling
-      operationId: opprettDelutbetalinger
+      operationId: opprettUtbetalingLinjer
       parameters:
       - name: id
         in: path
@@ -2350,7 +2224,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpprettDelutbetalingerRequest"
+              $ref: "#/components/schemas/OpprettUtbetalingLinjerRequest"
         required: false
       responses:
         "200":
@@ -2364,11 +2238,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/delutbetalinger/{id}/attester:
+  /api/tiltaksadministrasjon/utbetalingslinjer/{id}/attester:
     post:
       tags:
       - Utbetaling
-      operationId: attesterDelutbetaling
+      operationId: attesterUtbetalingLinje
       parameters:
       - name: id
         in: path
@@ -2380,7 +2254,7 @@ paths:
           format: uuid
       responses:
         "200":
-          description: Delutbetaling ble attestert
+          description: UtbetalingLinje ble attestert
           headers: {}
         default:
           description: Problem details
@@ -2390,11 +2264,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/delutbetalinger/{id}/returner:
+  /api/tiltaksadministrasjon/utbetalingslinjer/{id}/returner:
     post:
       tags:
       - Utbetaling
-      operationId: returnerDelutbetaling
+      operationId: returnerUtbetalingLinje
       parameters:
       - name: id
         in: path
@@ -2408,11 +2282,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_DelutbetalingReturnertAarsak"
+              $ref: "#/components/schemas/AarsakerOgForklaringRequest_UtbetalingLinjeReturnertAarsak"
         required: false
       responses:
         "200":
-          description: Delutbetaling ble besluttet
+          description: UtbetalingLinje ble besluttet
           headers: {}
         default:
           description: Problem details
@@ -3228,100 +3102,269 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/opplaeringtilskudd:
+    get:
+      tags:
+      - Opplaeringtilskudd
+      description: Hent alle opplaeringtilskudd
+      operationId: getAll
+      parameters: []
+      responses:
+        "200":
+          description: Alle tilskudd for opplaering
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Opplaeringtilskudd"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling/{tilskuddBehandlingId}:
+    get:
+      tags:
+      - TilskuddBehandling
+      description: Hent tilskuddsbehandling gitt id
+      operationId: getTilskuddBehandling
+      parameters:
+      - name: tilskuddBehandlingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Tilskuddsbehandling
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilskuddBehandlingDetaljerDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling:
+    get:
+      tags:
+      - TilskuddBehandling
+      description: Hent alle tilskuddsbehandlinger for en gjennomføring
+      operationId: getTilskuddBehandlingerByGjennomforingId
+      parameters:
+      - name: gjennomforingId
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Tilskuddsbehandlinger
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TilskuddBehandlingDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    post:
+      tags:
+      - TilskuddBehandling
+      description: Opprett tilskudd behandling
+      operationId: opprettTilskuddBehandling
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilskuddBehandlingRequest"
+        required: false
+      responses:
+        "200":
+          description: Tilskudd behandling opprettet
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilskuddBehandlingDto"
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling/{id}/godkjenn:
+    post:
+      tags:
+      - TilskuddBehandling
+      operationId: godkjennTilskuddBehandling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Tilskuddsbehandling ble godkjent
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling/{id}/returner:
+    post:
+      tags:
+      - TilskuddBehandling
+      operationId: returnerTilskuddBehandling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AarsakerOgForklaringRequest_String"
+        required: false
+      responses:
+        "200":
+          description: Tilskuddsbehandling ble returnert
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/historikk/{id}:
+    get:
+      tags:
+      - Endringshistorikk
+      operationId: getEndringshistorikk
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: documentClass
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/DocumentClass"
+      responses:
+        "200":
+          description: Endringshistorikk
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EndringshistorikkDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
 components:
   schemas:
     OpenApiVersion:
       type: number
       enum:
-        - 4
-    TiltakstypeDto:
+        - 13
+    RedaksjoneltInnholdLenke:
       type: object
       properties:
         id:
           type: string
           format: uuid
+        url:
+          type: string
         navn:
-          type: string
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        gruppe:
           type:
           - "null"
           - string
-        startDato:
-          type: string
-          format: date
-        sluttDato:
+        beskrivelse:
           type:
           - "null"
           - string
-          format: date
-        status:
-          $ref: "#/components/schemas/TiltakstypeStatus"
-        sanityId:
-          type:
-          - "null"
-          - string
-          format: uuid
-        features:
-          type: array
-          items:
-            $ref: "#/components/schemas/TiltakstypeFeature"
-          uniqueItems: true
-        egenskaper:
-          type: array
-          items:
-            $ref: "#/components/schemas/TiltakstypeEgenskap"
-          uniqueItems: true
       required:
-      - egenskaper
-      - features
-      - gruppe
+      - beskrivelse
       - id
       - navn
-      - sanityId
-      - sluttDato
-      - startDato
-      - status
-      - tiltakskode
-    Tiltakskode:
-      type: string
-      enum:
-      - ARBEIDSFORBEREDENDE_TRENING
-      - ARBEIDSRETTET_REHABILITERING
-      - AVKLARING
-      - DIGITALT_OPPFOLGINGSTILTAK
-      - JOBBKLUBB
-      - OPPFOLGING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-      - ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
-      - FAG_OG_YRKESOPPLAERING
-      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-      - GRUPPE_FAG_OG_YRKESOPPLAERING
-      - HOYERE_UTDANNING
-      - HOYERE_YRKESFAGLIG_UTDANNING
-      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
-      - STUDIESPESIALISERING
-    TiltakstypeStatus:
-      type: string
-      enum:
-      - AKTIV
-      - AVSLUTTET
-    TiltakstypeFeature:
-      type: string
-      enum:
-      - VISES_I_TILTAKSADMINISTRASJON
-      - MIGRERT
-      - UTFASET
-    TiltakstypeEgenskap:
-      type: string
-      enum:
-      - KAN_OPPRETTE_AVTALE
-      - KREVER_DELTIDSPROSENT
-      - KREVER_DIREKTE_VEDTAK
-      - STOTTER_TILSKUDD_FOR_INVESTERINGER
+      - url
+    RedaksjoneltInnholdLenkeRequest:
+      type: object
+      properties:
+        url:
+          type: string
+        navn:
+          type:
+          - "null"
+          - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - navn
+      - url
     ProblemDetail:
       type: object
       additionalProperties: {}
@@ -3341,38 +3384,119 @@ components:
       - status
       - title
       - type
-    Innsatsgruppe:
+    TiltakstypeSortField:
       type: string
       enum:
-      - GODE_MULIGHETER
-      - TRENGER_VEILEDNING
-      - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
-      - JOBBE_DELVIS
-      - LITEN_MULIGHET_TIL_A_JOBBE
-    RegelverkLenke:
+      - NAVN
+      - TILTAKSKODE
+    SortDirection:
+      type: string
+      enum:
+      - ASC
+      - DESC
+    TiltakstypeKompaktDto:
       type: object
       properties:
-        _id:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        gruppe:
           type:
           - "null"
           - string
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeFeature"
+          uniqueItems: true
+        egenskaper:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeEgenskap"
+          uniqueItems: true
+      required:
+      - egenskaper
+      - features
+      - gruppe
+      - id
+      - navn
+      - tiltakskode
+    Tiltakskode:
+      type: string
+      enum:
+      - ARBEIDSRETTET_REHABILITERING
+      - AVKLARING
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - JOBBKLUBB
+      - OPPFOLGING
+      - ARBEIDSFORBEREDENDE_TRENING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - TILPASSET_JOBBSTOTTE
+      - ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+      - FAG_OG_YRKESOPPLAERING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - HOYERE_UTDANNING
+      - HOYERE_YRKESFAGLIG_UTDANNING
+      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+      - STUDIESPESIALISERING
+      - INDIVIDUELL_JOBBSTOTTE
+      - INDIVIDUELL_JOBBSTOTTE_UNG
+      - ARBEID_MED_STOTTE
+      - ARBEIDSTRENING
+      - MIDLERTIDIG_LONNSTLSKUDD
+      - VARIG_LONNSTILSKUD
+      - MENTOR
+      - INKLUDERINGSTILSKUD
+      - SOMMERJOBB
+      - VTAO
+      - FIREARIG_LONNSTILSUDD
+    TiltakstypeFeature:
+      type: string
+      enum:
+      - VISES_I_TILTAKSADMINISTRASJON
+      - VISES_I_MODIA
+      - MIGRERT
+      - UTFASET
+    TiltakstypeEgenskap:
+      type: string
+      enum:
+      - STOTTER_AVTALER
+      - STOTTER_ENKELTPLASSER
+      - KREVER_DELTIDSPROSENT
+      - KREVER_DIREKTE_VEDTAK
+      - KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART
+      - STOTTER_TILSKUDD_FOR_INVESTERINGER
+    TiltakstypeVeilderinfo:
+      type: object
+      properties:
         beskrivelse:
           type:
           - "null"
           - string
-        regelverkUrl:
-          type:
-          - "null"
-          - string
-        regelverkLenkeNavn:
-          type:
-          - "null"
-          - string
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        faglenker:
+          type: array
+          items:
+            $ref: "#/components/schemas/RedaksjoneltInnholdLenke"
+        kanKombineresMed:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeKombinasjon"
       required:
-      - _id
       - beskrivelse
-      - regelverkLenkeNavn
-      - regelverkUrl
+      - faglenker
+      - faneinnhold
+      - kanKombineresMed
     Faneinnhold:
       type: object
       properties:
@@ -3470,69 +3594,129 @@ components:
       - lenke
       - lenkenavn
       - visKunForVeileder
-    VeilederflateTiltakstype:
+    TiltakstypeKombinasjon:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        sanityId:
-          type: string
         navn:
           type: string
+      required:
+      - id
+      - navn
+    DeltakerRegistreringInnholdDto:
+      type: object
+      properties:
+        innholdselementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/Innholdselement"
+        ledetekst:
+          type: string
+      required:
+      - innholdselementer
+      - ledetekst
+    Innholdselement:
+      type: object
+      properties:
+        tekst:
+          type: string
+        innholdskode:
+          type: string
+      required:
+      - innholdskode
+      - tekst
+    TiltakstypeDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        gruppe:
+          type:
+          - "null"
+          - string
+        sanityId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeFeature"
+          uniqueItems: true
+        egenskaper:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeEgenskap"
+          uniqueItems: true
+        veilederinfo:
+          $ref: "#/components/schemas/TiltakstypeVeilderinfo"
+        deltakerinfo:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakerRegistreringInnholdDto"
+      required:
+      - deltakerinfo
+      - egenskaper
+      - features
+      - gruppe
+      - id
+      - navn
+      - sanityId
+      - tiltakskode
+      - veilederinfo
+    TiltakstypeHandling:
+      type: string
+      enum:
+      - REDIGER_VEILEDERINFO
+      - REDIGER_DELTAKERINFO
+    TiltakstypeVeilederinfoRequest:
+      type: object
+      properties:
         beskrivelse:
           type:
           - "null"
           - string
-        innsatsgrupper:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/Innsatsgruppe"
-        regelverkLenker:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/RegelverkLenke"
         faneinnhold:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Faneinnhold"
-        delingMedBruker:
-          type:
-          - "null"
-          - string
-        arenakode:
-          type:
-          - "null"
-          - string
-        tiltakskode:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Tiltakskode"
-        tiltaksgruppe:
-          type:
-          - "null"
-          - string
+        faglenker:
+          type: array
+          items:
+            type: string
+            format: uuid
         kanKombineresMed:
           type: array
           items:
             type: string
+            format: uuid
       required:
-      - arenakode
       - beskrivelse
-      - delingMedBruker
+      - faglenker
       - faneinnhold
-      - id
-      - innsatsgrupper
       - kanKombineresMed
-      - navn
-      - regelverkLenker
-      - sanityId
-      - tiltaksgruppe
-      - tiltakskode
+    TiltakstypeDeltakerinfoRequest:
+      type: object
+      properties:
+        ledetekst:
+          type:
+          - "null"
+          - string
+        innholdskoder:
+          type: array
+          items:
+            type: string
+      required:
+      - innholdskoder
+      - ledetekst
     DetaljerRequest:
       type: object
       properties:
@@ -3819,13 +4003,13 @@ components:
         personopplysninger:
           type: array
           items:
-            $ref: "#/components/schemas/Personopplysning"
+            $ref: "#/components/schemas/Personopplysning.Type"
         personvernBekreftet:
           type: boolean
       required:
       - personopplysninger
       - personvernBekreftet
-    Personopplysning:
+    Personopplysning.Type:
       type: string
       enum:
       - NAVN
@@ -3852,6 +4036,7 @@ components:
       - NASJONALITET
       - ADRESSESPERRE
       - VERGEMAL
+      - STEMME
     VeilederinfoRequest:
       type: object
       properties:
@@ -4070,6 +4255,25 @@ components:
       enum:
       - LOKAL
       - SPESIALENHET
+    Personopplysning:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/Personopplysning.Type"
+        title:
+          type: string
+        helpText:
+          type:
+          - "null"
+          - string
+        sortKey:
+          type: integer
+          format: int32
+      required:
+      - helpText
+      - sortKey
+      - title
+      - type
     AmoKategoriseringDto:
       type: object
       properties:
@@ -4421,6 +4625,55 @@ components:
       required:
       - aarsaker
       - forklaring
+    GetAvtalerRequest:
+      type: object
+      properties:
+        search:
+          type:
+          - "null"
+          - string
+        tiltakstyper:
+          type: array
+          items:
+            type: string
+            format: uuid
+        statuser:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaleStatusType"
+        avtaletyper:
+          type: array
+          items:
+            $ref: "#/components/schemas/Avtaletype"
+        navEnheter:
+          type: array
+          items:
+            type: string
+        arrangorer:
+          type: array
+          items:
+            type: string
+            format: uuid
+        personvernBekreftet:
+          type:
+          - "null"
+          - boolean
+        visMineAvtaler:
+          type: boolean
+        sort:
+          type:
+          - "null"
+          - string
+      required:
+      - arrangorer
+      - avtaletyper
+      - navEnheter
+      - personvernBekreftet
+      - search
+      - sort
+      - statuser
+      - tiltakstyper
+      - visMineAvtaler
     PaginationSummary:
       type: object
       properties:
@@ -4460,56 +4713,6 @@ components:
       - OPPDATER_PRIS
       - OPPDATER_RAMMEDETALJER
       - OPPRETT
-    EndringshistorikkDto.Entry:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        operation:
-          type: string
-        editedAt:
-          type: string
-          format: date-time
-        editedBy:
-          $ref: "#/components/schemas/EndringshistorikkDto.User"
-      required:
-      - editedAt
-      - editedBy
-      - id
-      - operation
-    EndringshistorikkDto.User:
-      anyOf:
-      - $ref: "#/components/schemas/EndringshistorikkDto.NavAnsatt"
-      - $ref: "#/components/schemas/EndringshistorikkDto.Systembruker"
-    EndringshistorikkDto.NavAnsatt:
-      type: object
-      properties:
-        navIdent:
-          type: string
-        navn:
-          type:
-          - "null"
-          - string
-      required:
-      - navIdent
-      - navn
-    EndringshistorikkDto.Systembruker:
-      type: object
-      properties:
-        navn:
-          type: string
-      required:
-      - navn
-    EndringshistorikkDto:
-      type: object
-      properties:
-        entries:
-          type: array
-          items:
-            $ref: "#/components/schemas/EndringshistorikkDto.Entry"
-      required:
-      - entries
     TOTAL_RAMME:
       type: object
       properties:
@@ -5027,7 +5230,9 @@ components:
         arrangor:
           $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
         startDato:
-          type: string
+          type:
+          - "null"
+          - string
           format: date
         sluttDato:
           type:
@@ -5036,7 +5241,10 @@ components:
           format: date
         status:
           $ref: "#/components/schemas/GjennomforingDto.Status"
+        ansvarligEnhet:
+          $ref: "#/components/schemas/GjennomforingDto.AnsvarligEnhet"
       required:
+      - ansvarligEnhet
       - arrangor
       - id
       - lopenummer
@@ -5045,6 +5253,16 @@ components:
       - startDato
       - status
       - tiltaksnummer
+    GjennomforingDto.AnsvarligEnhet:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
     GjennomforingVeilederinfoDto:
       type: object
       properties:
@@ -5119,6 +5337,161 @@ components:
       required:
       - enhet
       - verdi
+    TotrinnskontrollDto:
+      anyOf:
+      - $ref: "#/components/schemas/TotrinnskontrollDto.Besluttet"
+      - $ref: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
+      discriminator:
+        propertyName: type
+        mapping:
+          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet: "#/components/schemas/TotrinnskontrollDto.Besluttet"
+          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
+    TotrinnskontrollDto.Besluttet:
+      type: object
+      properties:
+        behandletAv:
+          $ref: "#/components/schemas/AgentDto"
+        behandletTidspunkt:
+          type: string
+          format: date-time
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type:
+          - "null"
+          - string
+        besluttetAv:
+          $ref: "#/components/schemas/AgentDto"
+        besluttetTidspunkt:
+          type: string
+          format: date-time
+        besluttelse:
+          $ref: "#/components/schemas/Besluttelse"
+      required:
+      - aarsaker
+      - behandletAv
+      - behandletTidspunkt
+      - besluttelse
+      - besluttetAv
+      - besluttetTidspunkt
+      - forklaring
+    AgentDto:
+      type: object
+      properties:
+        navn:
+          type: string
+      required:
+      - navn
+    Besluttelse:
+      type: string
+      enum:
+      - GODKJENT
+      - AVVIST
+    TotrinnskontrollDto.TilBeslutning:
+      type: object
+      properties:
+        behandletAv:
+          $ref: "#/components/schemas/AgentDto"
+        behandletTidspunkt:
+          type: string
+          format: date-time
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - behandletAv
+      - behandletTidspunkt
+      - forklaring
+    DeltakerDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type:
+          - "null"
+          - string
+        norskIdent:
+          type:
+          - "null"
+          - string
+        oppfolgingEnhet:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/NavEnhetDto"
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+        innholdAnnet:
+          type:
+          - "null"
+          - string
+      required:
+      - id
+      - innholdAnnet
+      - navn
+      - norskIdent
+      - oppfolgingEnhet
+      - status
+    NavEnhetDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+        type:
+          $ref: "#/components/schemas/NavEnhetType"
+        overordnetEnhet:
+          type:
+          - "null"
+          - string
+      required:
+      - enhetsnummer
+      - navn
+      - overordnetEnhet
+      - type
+    NavEnhetType:
+      type: string
+      enum:
+      - KO
+      - FYLKE
+      - TILTAK
+      - AAREG
+      - ALS
+      - ARK
+      - DIR
+      - DOKSENTER
+      - EKSTERN
+      - FORVALTNING
+      - FPY
+      - HELFO
+      - HMS
+      - INNKREV
+      - INTRO
+      - IT
+      - KLAGE
+      - KONTAKT
+      - KONTROLL
+      - LOKAL
+      - OKONOMI
+      - OTENESTE
+      - OPPFUTLAND
+      - OTENESE
+      - RIKSREV
+      - ROBOT
+      - ROL
+      - TILLIT
+      - UTLAND
+      - YTA
     GjennomforingDetaljerDto:
       type: object
       properties:
@@ -5140,9 +5513,19 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/UtdanningslopDto"
+        okonomi:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
+        enkeltplassDeltaker:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakerDto"
       required:
       - amoKategorisering
+      - enkeltplassDeltaker
       - gjennomforing
+      - okonomi
       - prismodell
       - tiltakstype
       - utdanningslop
@@ -5182,7 +5565,6 @@ components:
           type:
           - "null"
           - string
-          format: date
       required:
       - tilgjengeligForArrangorDato
     SetStengtHosArrangorRequest:
@@ -5206,12 +5588,76 @@ components:
       - beskrivelse
       - periodeSlutt
       - periodeStart
+    SettPaVentOkonomiRequest:
+      type: object
+      properties:
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - forklaring
     GjennomforingType:
       type: string
       enum:
       - ARENA
       - AVTALE
       - ENKELTPLASS
+    GetGjennomforingerRequest:
+      type: object
+      properties:
+        search:
+          type:
+          - "null"
+          - string
+        navEnheter:
+          type: array
+          items:
+            type: string
+        tiltakstyper:
+          type: array
+          items:
+            type: string
+            format: uuid
+        statuser:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingStatusType"
+        sort:
+          type:
+          - "null"
+          - string
+        avtaleId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        arrangorer:
+          type: array
+          items:
+            type: string
+            format: uuid
+        publisert:
+          type:
+          - "null"
+          - boolean
+        visMineGjennomforinger:
+          type: boolean
+        gjennomforingTyper:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingType"
+      required:
+      - arrangorer
+      - avtaleId
+      - gjennomforingTyper
+      - navEnheter
+      - publisert
+      - search
+      - sort
+      - statuser
+      - tiltakstyper
+      - visMineGjennomforinger
     GjennomforingKompaktDto:
       type: object
       properties:
@@ -5223,7 +5669,9 @@ components:
         lopenummer:
           type: string
         startDato:
-          type: string
+          type:
+          - "null"
+          - string
           format: date
         sluttDato:
           type:
@@ -5342,6 +5790,8 @@ components:
       - OPPRETT_EKSTRATILSAGN
       - OPPRETT_TILSAGN_FOR_INVESTERINGER
       - OPPRETT_UTBETALING
+      - GODKJENN_ENKELTPLASS_OKONOMI
+      - SETT_PA_VENT_ENKELTPLASS_OKONOMI
     PrismodellInfo:
       type: object
       properties:
@@ -5357,21 +5807,16 @@ components:
       - beskrivelse
       - navn
       - type
-    PersonopplysningData:
+    AvtaletypeInfo:
       type: object
       properties:
-        personopplysning:
-          $ref: "#/components/schemas/Personopplysning"
+        type:
+          $ref: "#/components/schemas/Avtaletype"
         tittel:
           type: string
-        hjelpetekst:
-          type:
-          - "null"
-          - string
       required:
-      - hjelpetekst
-      - personopplysning
       - tittel
+      - type
     TilsagnStatus:
       type: string
       enum:
@@ -5641,7 +6086,7 @@ components:
         deltakere:
           type: array
           items:
-            $ref: "#/components/schemas/TilsagnDeltakerPersonalia"
+            $ref: "#/components/schemas/TilsagnDeltakerDto"
       required:
       - belopBrukt
       - belopGjenstaende
@@ -5693,7 +6138,7 @@ components:
       required:
       - status
       - type
-    TilsagnDeltakerPersonalia:
+    TilsagnDeltakerDto:
       type: object
       properties:
         deltakerId:
@@ -5713,63 +6158,20 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/NavEnhetDto"
-      required:
-      - deltakerId
-      - geografiskEnhet
-      - navn
-      - norskIdent
-      - oppfolgingEnhet
-    NavEnhetDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        type:
-          $ref: "#/components/schemas/NavEnhetType"
-        overordnetEnhet:
+        innholdAnnet:
           type:
           - "null"
           - string
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
       required:
-      - enhetsnummer
+      - deltakerId
+      - geografiskEnhet
+      - innholdAnnet
       - navn
-      - overordnetEnhet
-      - type
-    NavEnhetType:
-      type: string
-      enum:
-      - KO
-      - FYLKE
-      - TILTAK
-      - AAREG
-      - ALS
-      - ARK
-      - DIR
-      - DOKSENTER
-      - EKSTERN
-      - FORVALTNING
-      - FPY
-      - HELFO
-      - HMS
-      - INNKREV
-      - INTRO
-      - IT
-      - KLAGE
-      - KONTAKT
-      - KONTROLL
-      - LOKAL
-      - OKONOMI
-      - OTENESTE
-      - OPPFUTLAND
-      - OTENESE
-      - RIKSREV
-      - ROBOT
-      - ROL
-      - TILLIT
-      - UTLAND
-      - YTA
+      - norskIdent
+      - oppfolgingEnhet
+      - status
     TilsagnBeregningDto:
       type: object
       properties:
@@ -5833,79 +6235,6 @@ components:
       required:
       - breakdown
       - expression
-    TotrinnskontrollDto:
-      anyOf:
-      - $ref: "#/components/schemas/TotrinnskontrollDto.Besluttet"
-      - $ref: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
-      discriminator:
-        propertyName: type
-        mapping:
-          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet: "#/components/schemas/TotrinnskontrollDto.Besluttet"
-          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
-    TotrinnskontrollDto.Besluttet:
-      type: object
-      properties:
-        behandletAv:
-          $ref: "#/components/schemas/AgentDto"
-        behandletTidspunkt:
-          type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type:
-          - "null"
-          - string
-        besluttetAv:
-          $ref: "#/components/schemas/AgentDto"
-        besluttetTidspunkt:
-          type: string
-          format: date-time
-        besluttelse:
-          $ref: "#/components/schemas/Besluttelse"
-      required:
-      - aarsaker
-      - behandletAv
-      - behandletTidspunkt
-      - besluttelse
-      - besluttetAv
-      - besluttetTidspunkt
-      - forklaring
-    AgentDto:
-      type: object
-      properties:
-        navn:
-          type: string
-      required:
-      - navn
-    Besluttelse:
-      type: string
-      enum:
-      - GODKJENT
-      - AVVIST
-    TotrinnskontrollDto.TilBeslutning:
-      type: object
-      properties:
-        behandletAv:
-          $ref: "#/components/schemas/AgentDto"
-        behandletTidspunkt:
-          type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type:
-          - "null"
-          - string
-      required:
-      - aarsaker
-      - behandletAv
-      - behandletTidspunkt
-      - forklaring
     TilsagnHandling:
       type: string
       enum:
@@ -6017,6 +6346,19 @@ components:
       - beskrivelse
       - id
       - pris
+    TilsagnDeltakerRequest:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+        innholdAnnet:
+          type:
+          - "null"
+          - string
+      required:
+      - deltakerId
+      - innholdAnnet
     TilsagnRequest:
       type: object
       properties:
@@ -6057,8 +6399,7 @@ components:
           - "null"
           - array
           items:
-            type: string
-            format: uuid
+            $ref: "#/components/schemas/TilsagnDeltakerRequest"
       required:
       - beregning
       - beskrivelse
@@ -6121,7 +6462,7 @@ components:
         deltakere:
           type: array
           items:
-            $ref: "#/components/schemas/TilsagnDeltakerPersonalia"
+            $ref: "#/components/schemas/TilsagnDeltakerDto"
       required:
       - deltakere
       - tilsagnPerDeltaker
@@ -6500,7 +6841,7 @@ components:
         status:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/DelutbetalingStatusDto"
+          - $ref: "#/components/schemas/UtbetalingLinjeStatusDto"
         pris:
           $ref: "#/components/schemas/ValutaBelop"
         gjorOppTilsagn:
@@ -6522,17 +6863,17 @@ components:
       - pris
       - status
       - tilsagn
-    DelutbetalingStatusDto:
+    UtbetalingLinjeStatusDto:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/DelutbetalingStatus"
+          $ref: "#/components/schemas/UtbetalingLinjeStatus"
         status:
           $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
       required:
       - status
       - type
-    DelutbetalingStatus:
+    UtbetalingLinjeStatus:
       type: string
       enum:
       - TIL_ATTESTERING
@@ -6590,7 +6931,7 @@ components:
       required:
       - navn
       - tiltakskode
-    DelutbetalingRequest:
+    UtbetalingLinjeRequest:
       type: object
       properties:
         id:
@@ -6602,46 +6943,48 @@ components:
         pris:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/ValutaBelop"
+          - $ref: "#/components/schemas/ValutaBelopRequest"
         gjorOppTilsagn:
-          type: boolean
+          type:
+          - "null"
+          - boolean
       required:
       - gjorOppTilsagn
       - id
       - pris
       - tilsagnId
-    OpprettDelutbetalingerRequest:
+    OpprettUtbetalingLinjerRequest:
       type: object
       properties:
         utbetalingId:
           type: string
           format: uuid
-        delutbetalinger:
+        utbetalingLinjer:
           type: array
           items:
-            $ref: "#/components/schemas/DelutbetalingRequest"
+            $ref: "#/components/schemas/UtbetalingLinjeRequest"
         begrunnelseMindreBetalt:
           type:
           - "null"
           - string
       required:
       - begrunnelseMindreBetalt
-      - delutbetalinger
       - utbetalingId
-    DelutbetalingReturnertAarsak:
+      - utbetalingLinjer
+    UtbetalingLinjeReturnertAarsak:
       type: string
       enum:
       - FEIL_BELOP
       - ANNET
-      - TILSAGN_FEIL_STATUS
       - PROPAGERT_RETUR
-    AarsakerOgForklaringRequest_DelutbetalingReturnertAarsak:
+      - TILSAGN_FEIL_STATUS
+    AarsakerOgForklaringRequest_UtbetalingLinjeReturnertAarsak:
       type: object
       properties:
         aarsaker:
           type: array
           items:
-            $ref: "#/components/schemas/DelutbetalingReturnertAarsak"
+            $ref: "#/components/schemas/UtbetalingLinjeReturnertAarsak"
         forklaring:
           type:
           - "null"
@@ -6661,6 +7004,10 @@ components:
       - UTBETALING_RETURNERT
       - AVTALE_MANGLER_ADMINISTRATOR
       - GJENNOMFORING_MANGLER_ADMINISTRATOR
+      - ENKELTPLASS_TIL_GODKJENNING
+      - ENKELTPLASS_SATT_PA_VENT
+      - TILSKUDDBEHANDLING_TIL_ATTESTERING
+      - TILSKUDDBEHANDLING_RETURNERT
     OppgaverFilter:
       type: object
       properties:
@@ -6835,6 +7182,7 @@ components:
       enum:
       - TEAM_MULIGHETSROMMET
       - TILTAKADMINISTRASJON_GENERELL
+      - TILTAKSTYPER_SKRIV
       - TILTAKSGJENNOMFORINGER_SKRIV
       - OPPFOLGER_GJENNOMFORING
       - AVTALER_SKRIV
@@ -7243,5 +7591,288 @@ components:
             $ref: "#/components/schemas/SetNotificationStatusRequest.StatusRequest"
       required:
       - notifikasjoner
+    Opplaeringtilskudd:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        kode:
+          $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
+      required:
+      - id
+      - kode
+      - navn
+    Opplaeringtilskudd.Kode:
+      type: string
+      enum:
+      - SKOLEPENGER
+      - STUDIEREISE
+      - EKSAMENSAVGIFT
+      - SEMESTERAVGIFT
+      - INTEGRERT_BOTILBUD
+    TilskuddBehandlingDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        gjennomforingId:
+          type: string
+          format: uuid
+        soknadJournalpostId:
+          type: string
+        soknadDato:
+          type: string
+          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssted:
+          type: string
+        vedtak:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddVedtakDto"
+        status:
+          $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+      required:
+      - gjennomforingId
+      - id
+      - kostnadssted
+      - periode
+      - soknadDato
+      - soknadJournalpostId
+      - status
+      - vedtak
+    TilskuddVedtakDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tilskuddOpplaeringType:
+          $ref: "#/components/schemas/TilskuddOpplaeringType"
+        soknadBelop:
+          type: integer
+          format: int32
+        soknadValuta:
+          $ref: "#/components/schemas/Valuta"
+        vedtakResultat:
+          $ref: "#/components/schemas/VedtakResultat"
+        kommentarVedtaksbrev:
+          type:
+          - "null"
+          - string
+        utbetalingMottaker:
+          type: string
+      required:
+      - id
+      - kommentarVedtaksbrev
+      - soknadBelop
+      - soknadValuta
+      - tilskuddOpplaeringType
+      - utbetalingMottaker
+      - vedtakResultat
+    TilskuddOpplaeringType:
+      type: string
+      enum:
+      - SKOLEPENGER
+      - STUDIEREISE
+      - EKSAMENSAVGIFT
+      - SEMESTERAVGIFT
+      - INTEGRERT_BOTILBUD
+    VedtakResultat:
+      type: string
+      enum:
+      - INNVILGELSE
+      - AVSLAG
+    TilskuddBehandlingStatusDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/TilskuddBehandlingStatus"
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+      required:
+      - status
+      - type
+    TilskuddBehandlingStatus:
+      type: string
+      enum:
+      - TIL_ATTESTERING
+      - FERDIG_BEHANDLET
+      - RETURNERT
+    TilskuddBehandlingHandling:
+      type: string
+      enum:
+      - REDIGER
+      - ATTESTER
+      - RETURNER
+    TilskuddBehandlingDetaljerDto:
+      type: object
+      properties:
+        behandling:
+          $ref: "#/components/schemas/TilskuddBehandlingDto"
+        opprettelse:
+          $ref: "#/components/schemas/TotrinnskontrollDto"
+        handlinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddBehandlingHandling"
+          uniqueItems: true
+      required:
+      - behandling
+      - handlinger
+      - opprettelse
+    TilskuddBehandlingRequest.TilskuddVedtakRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tilskuddOpplaeringType:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TilskuddOpplaeringType"
+        soknadBelop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelopRequest"
+        vedtakResultat:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/VedtakResultat"
+        kommentarVedtaksbrev:
+          type:
+          - "null"
+          - string
+        utbetalingMottaker:
+          type:
+          - "null"
+          - string
+      required:
+      - id
+      - kommentarVedtaksbrev
+      - soknadBelop
+      - tilskuddOpplaeringType
+      - utbetalingMottaker
+      - vedtakResultat
+    TilskuddBehandlingRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        gjennomforingId:
+          type: string
+          format: uuid
+        soknadJournalpostId:
+          type:
+          - "null"
+          - string
+        soknadDato:
+          type:
+          - "null"
+          - string
+          format: date
+        periodeStart:
+          type:
+          - "null"
+          - string
+        periodeSlutt:
+          type:
+          - "null"
+          - string
+        kostnadssted:
+          type:
+          - "null"
+          - string
+        vedtak:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddBehandlingRequest.TilskuddVedtakRequest"
+      required:
+      - gjennomforingId
+      - id
+      - kostnadssted
+      - periodeSlutt
+      - periodeStart
+      - soknadDato
+      - soknadJournalpostId
+      - vedtak
+    AarsakerOgForklaringRequest_String:
+      type: object
+      properties:
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - forklaring
+    DocumentClass:
+      type: string
+      enum:
+      - AVTALE
+      - GJENNOMFORING
+      - TILSAGN
+      - UTBETALING
+      - TILSKUDD_BEHANDLING
+    EndringshistorikkDto.Entry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        operation:
+          type: string
+        editedAt:
+          type: string
+          format: date-time
+        editedBy:
+          $ref: "#/components/schemas/EndringshistorikkDto.User"
+      required:
+      - editedAt
+      - editedBy
+      - id
+      - operation
+    EndringshistorikkDto.User:
+      anyOf:
+      - $ref: "#/components/schemas/EndringshistorikkDto.NavAnsatt"
+      - $ref: "#/components/schemas/EndringshistorikkDto.Systembruker"
+    EndringshistorikkDto.NavAnsatt:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type:
+          - "null"
+          - string
+      required:
+      - navIdent
+      - navn
+    EndringshistorikkDto.Systembruker:
+      type: object
+      properties:
+        navn:
+          type: string
+      required:
+      - navn
+    EndringshistorikkDto:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/EndringshistorikkDto.Entry"
+      required:
+      - entries
   examples: {}
 webhooks: {}

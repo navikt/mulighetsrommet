@@ -33,6 +33,7 @@ import { DataDrivenTable } from "./components/datadriven/DataDrivenTable";
 import { DataElementStatusTag } from "./components/datadriven/DataElementStatusTag";
 import { DataDetails } from "./components/datadriven/DataDetails";
 import { getDataElement } from "./components/datadriven/DataElement";
+import { PortableText } from "./components/portabletext/PortableText";
 
 export {
   useDebounce,
@@ -67,4 +68,5 @@ export {
   DataElementStatusTag,
   getDataElement,
   DataDetails,
+  PortableText,
 };

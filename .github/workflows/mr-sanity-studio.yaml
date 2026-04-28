@@ -26,7 +26,7 @@ jobs:
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
         env:
@@ -35,7 +35,7 @@ jobs:
         run: npx turbo run build --filter=mulighetsrommet-cms
       - name: Push docker image to GAR and sign image
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-        uses: nais/docker-build-push@v0
+        uses: nais/docker-build-push@cd5ec5663feb0e05c3fa374d1fb442605b046c6b # v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
@@ -50,8 +50,8 @@ jobs:
     permissions:
       id-token: write # Needed for `nais/deploy/actions/deploy`
     steps:
-      - uses: actions/checkout@v6
-      - uses: nais/deploy/actions/deploy@v2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # v2
         env:
           CLUSTER: prod-gcp
           RESOURCE: frontend/mulighetsrommet-cms/.nais/nais-prod.yaml

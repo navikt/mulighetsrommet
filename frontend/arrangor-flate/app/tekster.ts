@@ -69,6 +69,20 @@ export const tekster = {
       },
       pdfNavn: (tidspunkt: Date | string) => `utbetaling-${formaterDato(tidspunkt)}.pdf`,
     },
+    ingenTreff: {
+      tiltak: {
+        header: "Fant ingen registrerte tiltak",
+        description: "Vi fant ingen registrerte tiltak du kan sende inn utbetalingskrav for.",
+      },
+      utbetaling: {
+        header: "Fant ingen utbetalingskrav",
+        description: "Vi fant ingen tilgjengelige utbetalingskrav.",
+      },
+      tilsagn: {
+        header: "Fant ingen registrerte tilsagn",
+        description: "Vi fant ingen registrerte tilsagn.",
+      },
+    },
     tilbakeTilOversikt: "Tilbake til oversikten",
   },
 };

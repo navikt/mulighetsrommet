@@ -13,8 +13,10 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
@@ -28,9 +30,11 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -47,6 +51,7 @@ fun Route.tilsagnRoutesBeregning() {
     val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
     val gjennomforinger: GjennomforingDetaljerService by inject()
+    val personaliaService: PersonaliaService by inject()
 
     get("/{id}/defaults", {
         description = "Hent standardverdier for tilsagn utledet fra gitt tilsagn"
@@ -157,7 +162,13 @@ fun Route.tilsagnRoutesBeregning() {
                     it.startDato == null || it.sluttDato == null ||
                         periode.intersects(Periode.fromInclusiveDates(it.startDato, it.sluttDato))
                 }
-            service.toTilsagnDeltakerPersonalia(deltakelser.map { it.id })
+            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                deltakelser.map { it.id },
+                call.getAccessType(),
+            )
+            deltakelser.map {
+                TilsagnDeltakerDto.from(it, personalia[it.id])
+            }
         } else {
             emptyList()
         }
@@ -243,7 +254,12 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
         beskrivelse = tilsagn.beskrivelse,
         periodeStart = tilsagn.periode.start.toString(),
         periodeSlutt = tilsagn.periode.getLastInclusiveDate().toString(),
-        deltakere = tilsagn.deltakere,
+        deltakere = tilsagn.deltakere.map {
+            TilsagnDeltakerRequest(
+                deltakerId = it.deltakerId,
+                innholdAnnet = it.innholdAnnet,
+            )
+        },
     )
 }
 
@@ -287,13 +303,16 @@ fun resolveTilsagnDefaults(
         },
     )
 
+    val kostnadssted = tilsagn?.kostnadssted?.enhetsnummer
+        ?: (gjennomforing as? GjennomforingEnkeltplass)?.ansvarligEnhet?.enhetsnummer
+
     return TilsagnRequest(
         id = UUID.randomUUID(),
         gjennomforingId = gjennomforing.id,
         type = TilsagnType.TILSAGN,
         periodeStart = periode?.start?.toString(),
         periodeSlutt = periode?.getLastInclusiveDate()?.toString(),
-        kostnadssted = tilsagn?.kostnadssted?.enhetsnummer,
+        kostnadssted = kostnadssted,
         beregning = beregning,
         deltakere = emptyList(),
     )
@@ -394,5 +413,5 @@ data class TilsagnDeltakereRequest(
 @Serializable
 data class TilsagnDeltakereResponse(
     val tilsagnPerDeltaker: Boolean,
-    val deltakere: List<TilsagnDeltakerPersonalia>,
+    val deltakere: List<TilsagnDeltakerDto>,
 )

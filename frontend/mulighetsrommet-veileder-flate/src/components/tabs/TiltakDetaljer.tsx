@@ -6,8 +6,8 @@ import styles from "./TiltakDetaljer.module.scss";
 import { KontaktinfoFane } from "./kontaktinfofane/KontaktinfoFane";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@/utils/ErrorFallback";
-import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 import { isOppskrifterEnabled } from "@/apps/modia/features";
+import { PortableText } from "@mr/frontend-common";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -81,11 +81,11 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
           </Tabs.Panel>
           <Tabs.Panel value="tab5">
             {tiltak.faneinnhold?.oppskrift ? (
-              <RedaksjoneltInnhold value={tiltak.faneinnhold.oppskrift} />
+              <PortableText value={tiltak.faneinnhold.oppskrift} />
             ) : null}
             {oppskrifterEnabled && (
               <OppskriftOversikt
-                tiltakstypeId={tiltakstype.sanityId}
+                tiltakskode={tiltakstype.tiltakskode}
                 setOppskriftId={setOppskriftId}
               />
             )}

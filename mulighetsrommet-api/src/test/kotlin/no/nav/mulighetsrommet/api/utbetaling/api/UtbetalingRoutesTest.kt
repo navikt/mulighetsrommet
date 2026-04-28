@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
@@ -48,7 +48,7 @@ class UtbetalingRoutesTest : FunSpec({
         gjennomforinger = listOf(AFT1),
         tilsagn = listOf(TilsagnFixtures.Tilsagn1),
         utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
-        delutbetalinger = listOf(UtbetalingFixtures.delutbetaling1),
+        utbetalingLinjer = listOf(UtbetalingFixtures.utbetalingLinje1),
     )
 
     val oauth = MockOAuth2Server()
@@ -164,10 +164,10 @@ class UtbetalingRoutesTest : FunSpec({
     context("attester utbetaling") {
         test("403 Forbidden uten attestant-tilgang") {
             withTestApplication(appConfig()) {
-                val id = UtbetalingFixtures.delutbetaling1.id
+                val id = UtbetalingFixtures.utbetalingLinje1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
-                val response = client.post("/api/tiltaksadministrasjon/delutbetalinger/$id/attester") {
+                val response = client.post("/api/tiltaksadministrasjon/utbetalingslinjer/$id/attester") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
 
@@ -180,12 +180,12 @@ class UtbetalingRoutesTest : FunSpec({
     context("returner utbetaling") {
         test("403 Forbidden uten attestant-tilgang") {
             withTestApplication(appConfig()) {
-                val id = UtbetalingFixtures.delutbetaling1.id
+                val id = UtbetalingFixtures.utbetalingLinje1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
-                val response = client.post("/api/tiltaksadministrasjon/delutbetalinger/$id/returner") {
+                val response = client.post("/api/tiltaksadministrasjon/utbetalingslinjer/$id/returner") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                    setBody(AarsakerOgForklaringRequest(listOf(DelutbetalingReturnertAarsak.FEIL_BELOP), null))
+                    setBody(AarsakerOgForklaringRequest(listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP), null))
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden

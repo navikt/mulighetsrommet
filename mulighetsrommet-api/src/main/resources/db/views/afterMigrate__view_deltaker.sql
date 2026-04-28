@@ -8,7 +8,8 @@ select deltaker.id,
        deltaker.status_type,
        deltaker.status_aarsak,
        deltaker.status_opprettet_tidspunkt,
-       deltakelsesmengder_json
+       deltakelsesmengder_json,
+       deltaker.innhold_annet
 from deltaker
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(

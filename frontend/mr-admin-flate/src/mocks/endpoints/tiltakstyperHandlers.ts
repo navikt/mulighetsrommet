@@ -1,11 +1,15 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { TiltakstypeDto, VeilederflateTiltakstype } from "@tiltaksadministrasjon/api-client";
-import {
-  mockVeilederflateTiltakstypeAFT,
-  paginertMockTiltakstyper,
-} from "@/mocks/fixtures/mock_tiltakstyper";
+import { TiltakstypeDto, TiltakstypeHandling } from "@tiltaksadministrasjon/api-client";
+import { paginertMockTiltakstyper } from "@/mocks/fixtures/mock_tiltakstyper";
 
 export const tiltakstypeHandlers = [
+  http.get<{ id: string }, undefined, TiltakstypeHandling[]>(
+    "/api/tiltaksadministrasjon/tiltakstyper/:id/handlinger",
+    () => {
+      return HttpResponse.json([TiltakstypeHandling.REDIGER_VEILEDERINFO]);
+    },
+  ),
+
   http.get<PathParams, TiltakstypeDto[]>("*/api/tiltaksadministrasjon/tiltakstyper", () => {
     return HttpResponse.json(paginertMockTiltakstyper);
   }),
@@ -18,10 +22,10 @@ export const tiltakstypeHandlers = [
     },
   ),
 
-  http.get<{ id: string }, VeilederflateTiltakstype | undefined>(
-    "*/api/tiltaksadministrasjon/tiltakstyper/:id/faneinnhold",
+  http.post<{ id: string }>(
+    "*/api/tiltaksadministrasjon/tiltakstyper/:id/redaksjonelt-innhold",
     () => {
-      return HttpResponse.json(mockVeilederflateTiltakstypeAFT);
+      return new HttpResponse(null, { status: 200 });
     },
   ),
 ];

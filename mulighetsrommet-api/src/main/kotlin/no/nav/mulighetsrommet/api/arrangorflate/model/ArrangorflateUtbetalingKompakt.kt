@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.model
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
@@ -23,7 +24,12 @@ data class ArrangorflateUtbetalingKompakt(
     val godkjentBelop: ValutaBelop?,
 ) {
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling, status: ArrangorflateUtbetalingStatus, godkjentBelop: ValutaBelop?) = ArrangorflateUtbetalingKompakt(
+        fun fromUtbetaling(
+            utbetaling: Utbetaling,
+            gjennomforing: GjennomforingAvtale,
+            status: ArrangorflateUtbetalingStatus,
+            godkjentBelop: ValutaBelop?,
+        ) = ArrangorflateUtbetalingKompakt(
             id = utbetaling.id,
             status = status,
             tiltakstype = ArrangorflateTiltakstypeDto(
@@ -31,9 +37,9 @@ data class ArrangorflateUtbetalingKompakt(
                 tiltakskode = utbetaling.tiltakstype.tiltakskode,
             ),
             gjennomforing = ArrangorflateGjennomforingDto(
-                id = utbetaling.gjennomforing.id,
-                lopenummer = utbetaling.gjennomforing.lopenummer,
-                navn = utbetaling.gjennomforing.navn,
+                id = gjennomforing.id,
+                lopenummer = gjennomforing.lopenummer,
+                navn = gjennomforing.navn,
             ),
             arrangor = ArrangorflateArrangorDto(
                 id = utbetaling.arrangor.id,

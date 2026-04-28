@@ -28,7 +28,7 @@ class NavAnsattPrincipalService(
         .recordStats()
         .build()
 
-    suspend fun resolveNavAnsattPrincipal(credentials: JWTCredential): NavAnsattPrincipal? {
+    suspend fun resolveNavAnsattPrincipal(credentials: JWTCredential): NavAnsattMedRollerPrincipal? {
         val oid = credentials["oid"]?.let { UUID.fromString(it) } ?: run {
             log.warn("'oid' mangler i JWT credentials")
             return null
@@ -47,7 +47,7 @@ class NavAnsattPrincipalService(
         val groups = credentials.getListClaim("groups", UUID::class)
         val roller = getRoles(tokenId, oid, groups)
 
-        return NavAnsattPrincipal(
+        return NavAnsattMedRollerPrincipal(
             navAnsattObjectId = oid,
             navIdent = navIdent,
             roller = roller,
@@ -85,7 +85,7 @@ class NavAnsattPrincipalService(
     }
 }
 
-class NavAnsattPrincipal(
+class NavAnsattMedRollerPrincipal(
     val navAnsattObjectId: UUID,
     val navIdent: NavIdent,
     val roller: Set<NavAnsattRolle>,

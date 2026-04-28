@@ -31,12 +31,12 @@ enum class OppgaveType(val navn: String, val rolle: Rolle, val kategori: Kategor
     UTBETALING_TIL_ATTESTERING(
         navn = "Utbetaling til attestering",
         rolle = Rolle.ATTESTANT_UTBETALING,
-        kategori = Kategori.DELUTBETALING,
+        kategori = Kategori.UTBETALING_LINJE,
     ),
     UTBETALING_RETURNERT(
         navn = "Utbetaling returnert av attestant",
         rolle = Rolle.SAKSBEHANDLER_OKONOMI,
-        kategori = Kategori.DELUTBETALING,
+        kategori = Kategori.UTBETALING_LINJE,
     ),
     AVTALE_MANGLER_ADMINISTRATOR(
         navn = "Avtale mangler administrator",
@@ -48,12 +48,34 @@ enum class OppgaveType(val navn: String, val rolle: Rolle, val kategori: Kategor
         rolle = Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
         kategori = Kategori.GJENNOMFORING,
     ),
+    ENKELTPLASS_TIL_GODKJENNING(
+        navn = "Enkeltplass til godkjenning",
+        rolle = Rolle.BESLUTTER_TILSAGN,
+        kategori = Kategori.ENKELTPLASS,
+    ),
+    ENKELTPLASS_SATT_PA_VENT(
+        navn = "Enkeltplass satt på vent",
+        rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+        kategori = Kategori.ENKELTPLASS,
+    ),
+    TILSKUDDBEHANDLING_TIL_ATTESTERING(
+        navn = "Tilskuddsbehandling til attestering",
+        rolle = Rolle.ATTESTANT_UTBETALING,
+        kategori = Kategori.TILSKUDDBEHANDLING,
+    ),
+    TILSKUDDBEHANDLING_RETURNERT(
+        navn = "Tilskuddsbehandling returnert av attestant",
+        rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+        kategori = Kategori.TILSKUDDBEHANDLING,
+    ),
 }
 
 enum class Kategori {
     TILSAGN,
-    DELUTBETALING,
+    UTBETALING_LINJE,
     UTBETALING,
     AVTALE,
     GJENNOMFORING,
+    ENKELTPLASS,
+    TILSKUDDBEHANDLING,
 }
