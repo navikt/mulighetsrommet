@@ -73,8 +73,8 @@ class GjennomforingAvtaleService(
 
         db.transaction {
             queries.gjennomforing.upsert(result.gjennomforing)
-            persistDetaljer(request.id, result.detaljer, navIdent)
-            persistVeilederinfo(request.id, veilederinfoResult, request.veilederinformasjon)
+            setDetaljer(request.id, result.detaljer, navIdent)
+            setVeilederinfo(request.id, veilederinfoResult, request.veilederinformasjon)
 
             logEndring("Opprettet gjennomføring", request.id, navIdent)
                 .also { updateFreeTextSearch(it) }
@@ -111,7 +111,7 @@ class GjennomforingAvtaleService(
         val result = GjennomforingValidator.validateUpdateDetaljer(ctx, id, request).bind()
 
         db.transaction {
-            persistDetaljer(id, result, navIdent)
+            setDetaljer(id, result, navIdent)
 
             logEndring("Detaljer redigert", id, navIdent)
                 .also { updateFreeTextSearch(it) }
@@ -130,7 +130,7 @@ class GjennomforingAvtaleService(
         val veilederinfoResult = validateVeilederinfo(previous.avtaleId, request).bind()
 
         db.transaction {
-            persistVeilederinfo(id, veilederinfoResult, request)
+            setVeilederinfo(id, veilederinfoResult, request)
 
             logEndring("Informasjon for veiledere redigert", id, navIdent)
                 .also { publishToKafka(it) }
@@ -348,7 +348,7 @@ class GjennomforingAvtaleService(
         return GjennomforingValidator.validateVeilederinfo(request, avtale, kontaktpersoner)
     }
 
-    private fun QueryContext.persistDetaljer(
+    private fun QueryContext.setDetaljer(
         id: UUID,
         result: GjennomforingValidator.DetaljerResult,
         navIdent: NavIdent,
@@ -360,7 +360,7 @@ class GjennomforingAvtaleService(
         queries.gjennomforing.setAmoKategorisering(id, result.amoKategorisering)
     }
 
-    private fun QueryContext.persistVeilederinfo(
+    private fun QueryContext.setVeilederinfo(
         id: UUID,
         result: GjennomforingValidator.VeilederinfoResult,
         request: GjennomforingVeilederinfoRequest,
