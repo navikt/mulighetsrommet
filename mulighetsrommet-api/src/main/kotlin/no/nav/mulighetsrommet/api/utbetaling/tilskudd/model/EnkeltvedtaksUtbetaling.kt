@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.tilskudd.model
 
-import no.nav.mulighetsrommet.api.tilskudd.OpplaeringTilskudd
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -13,7 +13,7 @@ data class EnkeltvedtaksUtbetaling(
     val periode: Periode,
     val status: Status,
     val tiltakskode: Tiltakskode,
-    val tilskudd: OpplaeringTilskudd,
+    val tilskudd: Opplaeringtilskudd,
     val belop: Int,
     val fakturaStatus: FakturaStatus?,
     val fakturaFeilmelding: String?,
