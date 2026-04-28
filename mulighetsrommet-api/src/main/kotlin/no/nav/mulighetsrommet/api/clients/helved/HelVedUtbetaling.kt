@@ -68,6 +68,10 @@ data class HelVedUtbetaling(
     /** Se Tiltaksforskriften § 7-2 */
     @Serializable
     enum class Tiltakskode {
+        /** Arena **/
+        ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+
         /** § 7-2 a */
         ARBEIDSMARKEDSOPPLAERING,
 
@@ -92,7 +96,7 @@ data class HelVedUtbetaling(
     enum class Tilskuddstype {
         SKOLEPENGER,
         STUDIEREISE,
-        EKSAMENSAVGIFT,
+        EKSAMENSGEBYR,
         SEMESTERAVGIFT,
         INTEGRERT_BOTILBUD,
     }
