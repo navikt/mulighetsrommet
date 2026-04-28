@@ -147,39 +147,30 @@ export function GjennomforingDetaljer() {
         <DetaljerLayout>
           <Definisjonsliste title="Gjennomføring" definitions={gjennomforingMeta} />
           {avtale && <GjennomforingDetaljerAvtale avtale={avtale} />}
-          <GjennomforingDetaljerVarighet
-            tiltakstype={tiltakstype}
-            gjennomforing={gjennomforing}
-            veilederinfo={veilederinfo}
-          />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering &&
             !kursOgTiltakErStudiespesialisering(
               amoKategorisering.kurstype,
               tiltakstype.tiltakskode,
             ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
-          <PrismodellDetaljer prismodeller={[prismodell]} />
+          <GjennomforingDetaljerVarighet
+            tiltakstype={tiltakstype}
+            gjennomforing={gjennomforing}
+            veilederinfo={veilederinfo}
+          />
         </DetaljerLayout>
         <DetaljerLayout>
           {isGruppetiltak(gjennomforing) && (
             <GjennomforingDetaljerAdministratorer gjennomforing={gjennomforing} />
           )}
           <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-          {veilederinfo?.oppmoteSted && (
-            <Definisjonsliste
-              title="Sted"
-              definitions={[
-                { key: gjennomforingTekster.oppmoteStedLabel, value: veilederinfo.oppmoteSted },
-              ]}
-              columns={1}
-            />
-          )}
           {isGruppetiltak(gjennomforing) && gjennomforing.stengt.length !== 0 && (
             <StengtHosArrangorTable readOnly gjennomforing={gjennomforing} />
           )}
           {isGruppetiltak(gjennomforing) && !harStartet(gjennomforing) && (
             <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
           )}
+          <PrismodellDetaljer prismodeller={[prismodell]} />
           {isEnkeltplass(gjennomforing) && okonomi && (
             <OkonomiStatus
               okonomi={okonomi}
