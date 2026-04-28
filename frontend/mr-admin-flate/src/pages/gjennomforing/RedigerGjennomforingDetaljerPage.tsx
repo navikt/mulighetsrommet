@@ -22,6 +22,7 @@ import { FormContainer } from "@/components/skjema/FormContainer";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { applyValidationErrors } from "@/components/skjema/helpers";
+import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 
 export function RedigerGjennomforingDetaljerPage() {
   const detaljer = useGjennomforingByPathParam();
@@ -49,6 +50,7 @@ function RedigerDetaljerForm({ gjennomforingId, gjennomforing }: FormProps) {
   const { data: avtale } = useAvtale(gjennomforing.avtaleId);
   const { data: ansatt } = useHentAnsatt();
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
+  const { data: deltakere } = useGjennomforingDeltakerSummary(gjennomforingId);
 
   const mutation = useUpdateGjennomforingDetaljer(gjennomforingId);
 
@@ -87,7 +89,7 @@ function RedigerDetaljerForm({ gjennomforingId, gjennomforing }: FormProps) {
           avtale={avtale}
           gjennomforing={gjennomforing}
           veilederinfo={detaljer.veilederinfo}
-          deltakere={null}
+          deltakere={deltakere}
         />
       </FormContainer>
     </RedigerGjennomforingPageLayout>
