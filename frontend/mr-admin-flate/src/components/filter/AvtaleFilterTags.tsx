@@ -61,8 +61,8 @@ export function AvtaleFilterTags({ filter, updateFilter, filterOpen, setTagsHeig
           />
         )}
         <TiltakstypeFilterTags
-          ids={filter.tiltakstyper}
-          onRemove={(tiltakstype) => removeArrayItem("tiltakstyper", tiltakstype)}
+          tiltakskoder={filter.tiltakstyper}
+          onRemove={(tiltakskode) => removeArrayItem("tiltakstyper", tiltakskode)}
         />
         {filter.arrangorer.map((id) => (
           <Chips.Removable key={id} onClick={() => removeArrayItem("arrangorer", id)}>

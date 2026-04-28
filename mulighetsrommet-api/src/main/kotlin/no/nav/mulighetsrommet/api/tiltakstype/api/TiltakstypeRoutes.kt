@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKompaktDto
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -32,6 +33,9 @@ fun Route.tiltakstypeRoutes() {
             request {
                 queryParameter<TiltakstypeSortField>("sortField")
                 queryParameter<SortDirection>("sortDirection")
+                queryParameter<Set<TiltakstypeEgenskap>>("egenskaper") {
+                    explode = true
+                }
             }
             response {
                 code(HttpStatusCode.OK) {

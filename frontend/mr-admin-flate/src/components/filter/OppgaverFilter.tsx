@@ -6,10 +6,10 @@ import {
   oppgaverFilterAccordionAtom,
   OppgaverFilterType,
 } from "@/pages/oppgaveoversikt/oppgaver/filter";
-import { TiltakskodeFilter } from "@/components/filter/TiltakskodeFilter";
 import { OppgaveType } from "@tiltaksadministrasjon/api-client";
 import { OppgaveTypeFilter } from "@/components/filter/OppgaveTypeFilter";
 import { NavRegionFilter } from "@/components/filter/NavRegionFilter";
+import { GjennomforingTiltakstypeFilter } from "./GjennomforingTiltakstypeFilter";
 
 interface Props {
   filter: OppgaverFilterType;
@@ -64,11 +64,9 @@ export function OppgaverFilter({ filter, updateFilter }: Props) {
             />
           </Accordion.Header>
           <Accordion.Content>
-            <TiltakskodeFilter
+            <GjennomforingTiltakstypeFilter
               value={filter.tiltakstyper}
-              onChange={(tiltakstyper) => {
-                updateFilter({ tiltakstyper });
-              }}
+              onChange={(tiltakstyper) => updateFilter({ tiltakstyper })}
             />
           </Accordion.Content>
         </Accordion.Item>

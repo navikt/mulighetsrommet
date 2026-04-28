@@ -47,8 +47,8 @@ export function GjennomforingFilterTags({
           />
         )}
         <TiltakstypeFilterTags
-          ids={filter.tiltakstyper}
-          onRemove={(tiltakstype) => removeArrayItem("tiltakstyper", tiltakstype)}
+          tiltakskoder={filter.tiltakstyper}
+          onRemove={(tiltakskode) => removeArrayItem("tiltakstyper", tiltakskode)}
         />
         {filter.statuser.map((status) => (
           <Chips.Removable key={status} onClick={() => removeArrayItem("statuser", status)}>

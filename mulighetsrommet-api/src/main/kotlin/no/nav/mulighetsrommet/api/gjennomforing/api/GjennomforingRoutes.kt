@@ -65,6 +65,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -695,10 +696,7 @@ private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {
 data class GetGjennomforingerRequest(
     val search: String? = null,
     val navEnheter: List<NavEnhetNummer> = emptyList(),
-    val tiltakstyper: List<
-        @Serializable(with = UUIDSerializer::class)
-        UUID,
-        > = emptyList(),
+    val tiltakstyper: List<Tiltakskode> = emptyList(),
     val statuser: List<GjennomforingStatusType> = emptyList(),
     val sort: String? = null,
     @Serializable(with = UUIDSerializer::class)
@@ -715,7 +713,7 @@ data class GetGjennomforingerRequest(
 data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
     val navEnheter: List<NavEnhetNummer> = emptyList(),
-    val tiltakstypeIder: List<UUID> = emptyList(),
+    val tiltakskoder: List<Tiltakskode> = emptyList(),
     val statuser: List<GjennomforingStatusType> = emptyList(),
     val sortering: String? = null,
     val avtaleId: UUID? = null,
@@ -733,7 +731,7 @@ suspend fun RoutingContext.getAdminTiltaksgjennomforingFilter(): AdminTiltaksgje
     return AdminTiltaksgjennomforingFilter(
         search = request.search,
         navEnheter = request.navEnheter,
-        tiltakstypeIder = request.tiltakstyper,
+        tiltakskoder = request.tiltakstyper,
         gjennomforingTyper = request.gjennomforingTyper,
         statuser = request.statuser,
         sortering = request.sort,

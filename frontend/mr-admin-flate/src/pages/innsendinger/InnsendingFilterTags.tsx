@@ -28,7 +28,7 @@ export function InnsendingFilterTags({ filter, updateFilter, filterOpen }: Props
           />
         )}
         <TiltakstypeFilterTags
-          ids={filter.tiltakstyper}
+          tiltakskoder={filter.tiltakstyper}
           onRemove={(tiltakstype) => removeArrayItem("tiltakstyper", tiltakstype)}
         />
       </Chips>

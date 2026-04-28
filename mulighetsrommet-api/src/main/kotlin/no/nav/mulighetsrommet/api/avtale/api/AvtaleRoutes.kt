@@ -584,10 +584,7 @@ enum class AvtaleHandling {
 @Serializable
 data class GetAvtalerRequest(
     val search: String? = null,
-    val tiltakstyper: List<
-        @Serializable(with = UUIDSerializer::class)
-        UUID,
-        > = emptyList(),
+    val tiltakstyper: List<Tiltakskode> = emptyList(),
     val statuser: List<AvtaleStatusType> = emptyList(),
     val avtaletyper: List<Avtaletype> = emptyList(),
     val navEnheter: List<NavEnhetNummer> = emptyList(),
@@ -605,7 +602,7 @@ suspend fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
     val administratorNavIdent = request.visMineAvtaler.takeIf { it }?.let { getNavIdent() }
 
     return AvtaleFilter(
-        tiltakstypeIder = request.tiltakstyper,
+        tiltakskoder = request.tiltakstyper,
         search = request.search?.trim()?.takeIf { it.isNotBlank() },
         statuser = request.statuser,
         avtaletyper = request.avtaletyper,
@@ -618,7 +615,7 @@ suspend fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
 }
 
 data class AvtaleFilter(
-    val tiltakstypeIder: List<UUID> = emptyList(),
+    val tiltakskoder: List<Tiltakskode> = emptyList(),
     val search: String? = null,
     val statuser: List<AvtaleStatusType> = emptyList(),
     val avtaletyper: List<Avtaletype> = emptyList(),
