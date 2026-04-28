@@ -14,4 +14,5 @@ export const defaultVedtakRequest: TilskuddBehandlingRequestTilskuddVedtakReques
   kommentarVedtaksbrev: null,
   vedtakResultat: null,
   utbetalingMottaker: null,
+  kidNummer: null,
 };

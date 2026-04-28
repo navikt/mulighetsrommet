@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
+import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import kotlin.contracts.ExperimentalContracts
 
@@ -35,10 +36,10 @@ object TilskuddBehandlingValidator {
         val vedtak = request.vedtak.mapIndexed { index, v ->
             validateVedtakRequest(v, index).bind()
         }
-        validate(requireNotNull(periodeStart) < requireNotNull(periodeSlutt)) {
-            FieldError.of("Periodestart må være før periodeslutt", TilskuddBehandlingRequest::periodeStart)
+        requireValid(request.soknadDato != null && request.soknadJournalpostId != null && request.kostnadssted != null && periodeStart != null && periodeSlutt != null)
+        requireValid(periodeStart.isBefore(periodeSlutt)) {
+            FieldError.of("Periodestart må være før slutt", TilsagnRequest::periodeStart)
         }
-        requireValid(request.soknadDato != null && request.soknadJournalpostId != null && request.kostnadssted != null)
 
         TilskuddBehandlingDbo(
             id = request.id,
@@ -77,6 +78,14 @@ object TilskuddBehandlingValidator {
                 "Kommentar kan ikke inneholde mer enn 500 tegn",
             )
         }
+        val kid = req.kidNummer?.let { value ->
+            validateNotNull(Kid.parse(value)) {
+                FieldError(
+                    "/vedtak/$index/kidNummer",
+                    "Ugyldig kid",
+                )
+            }
+        }
         requireValid(req.soknadBelop?.belop != null && req.soknadBelop.belop > 0 && req.soknadBelop.valuta != null) {
             FieldError(
                 "/vedtak/$index/soknadBelop/belop",
@@ -93,6 +102,7 @@ object TilskuddBehandlingValidator {
             vedtakResultat = req.vedtakResultat,
             kommentarVedtaksbrev = req.kommentarVedtaksbrev,
             utbetalingMottaker = req.utbetalingMottaker,
+            kid = kid,
         )
     }
 }

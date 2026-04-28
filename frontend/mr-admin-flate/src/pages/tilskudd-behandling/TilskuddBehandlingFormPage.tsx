@@ -18,6 +18,7 @@ import {
 } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
 import { usePotentialTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
 import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
 
 interface Tab {
   key: TilskuddBehandlingTab;
@@ -31,6 +32,7 @@ const tabs: Tab[] = [
 
 export function TilskuddBehandlingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { gjennomforing } = useEnkeltplassGjennomforingOrError(gjennomforingId);
   const { behandlingId } = useParams();
   const { data } = usePotentialTilskuddBehandling(behandlingId ?? null);
   const behandling = data?.behandling;
@@ -147,7 +149,7 @@ export function TilskuddBehandlingFormPage() {
               hasError={tabHasErrors(tab)}
             />
           ))}
-          saksopplysningerContent={<SaksopplysningerForm />}
+          saksopplysningerContent={<SaksopplysningerForm arrangorId={gjennomforing.arrangor.id} />}
           vedtakContent={<VedtakForm />}
           actions={
             <HStack gap="space-8" marginBlock="space-16" justify="end">

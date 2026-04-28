@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
@@ -15,4 +16,5 @@ data class TilskuddVedtakDto(
     val vedtakResultat: VedtakResultat,
     val kommentarVedtaksbrev: String?,
     val utbetalingMottaker: String,
+    val kid: Kid?,
 )

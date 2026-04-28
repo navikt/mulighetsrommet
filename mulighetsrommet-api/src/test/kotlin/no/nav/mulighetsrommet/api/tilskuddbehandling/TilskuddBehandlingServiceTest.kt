@@ -56,6 +56,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,
                 utbetalingMottaker = "Universitetet i Oslo",
+                kidNummer = "116",
             ),
         ),
     )

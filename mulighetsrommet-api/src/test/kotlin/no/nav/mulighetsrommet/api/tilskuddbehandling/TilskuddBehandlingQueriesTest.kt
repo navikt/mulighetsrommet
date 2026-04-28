@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
@@ -43,6 +44,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = "Innvilget fullt beløp",
                 utbetalingMottaker = "Universitetet i Oslo",
+                kid = Kid.parse("116"),
             ),
         ),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
@@ -73,6 +75,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.vedtakResultat shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "Innvilget fullt beløp"
                         v.utbetalingMottaker shouldBe "Universitetet i Oslo"
+                        v.kid
                     }
                 }
             }

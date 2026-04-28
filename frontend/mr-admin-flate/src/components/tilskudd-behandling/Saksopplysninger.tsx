@@ -1,12 +1,13 @@
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Radio, Spacer, TextField, VStack } from "@navikt/ds-react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { Path, useFieldArray, useFormContext } from "react-hook-form";
 import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormGroup } from "@/layouts/FormGroup";
 import {
   TilskuddBehandlingRequest,
+  TilskuddBehandlingRequestTilskuddVedtakRequest,
   TilskuddOpplaeringType,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
@@ -16,8 +17,13 @@ import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { defaultVedtakRequest } from "./defaultVedtakRequest";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
+import { BetalingsinformasjonFields } from "../utbetaling/form/BetalingsinformasjonFields";
 
-export function SaksopplysningerForm() {
+interface Props {
+  arrangorId: string;
+}
+
+export function SaksopplysningerForm({ arrangorId }: Props) {
   const {
     control,
     register,
@@ -35,6 +41,7 @@ export function SaksopplysningerForm() {
   function totaltBelop(): number {
     return watch("vedtak").reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0);
   }
+
   return (
     <>
       <Heading size="small" level="3" spacing>
@@ -86,12 +93,20 @@ export function SaksopplysningerForm() {
                 <ControlledRadioGroup
                   size="small"
                   name={`vedtak.${index}.utbetalingMottaker`}
-                  legend="Vedtaksresultat"
+                  legend="Hvem skal motta utbetalingen"
                   horisontal
                 >
                   <Radio value="bruker">Utbetales til brukeren</Radio>
                   <Radio value="arrangor">Utbetales til arrangøren</Radio>
                 </ControlledRadioGroup>
+                {watch("vedtak")[index].utbetalingMottaker === "arrangor" && (
+                  <BetalingsinformasjonFields<TilskuddBehandlingRequestTilskuddVedtakRequest>
+                    arrangorId={arrangorId}
+                    kidNummerName={
+                      `vedtak.${index}.kidNummer` as Path<TilskuddBehandlingRequestTilskuddVedtakRequest>
+                    }
+                  />
+                )}
               </VStack>
               {fields.length > 1 && (
                 <Button
@@ -109,6 +124,7 @@ export function SaksopplysningerForm() {
         ))}
         <Button
           size="small"
+          type="button"
           variant="secondary"
           icon={<PlusIcon aria-hidden />}
           onClick={() => append(defaultVedtakRequest)}

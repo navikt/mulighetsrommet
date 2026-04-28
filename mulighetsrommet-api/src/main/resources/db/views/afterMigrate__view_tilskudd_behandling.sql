@@ -18,7 +18,8 @@ from tilskudd_behandling tb
                 'soknadValuta', v.soknad_valuta,
                 'vedtakResultat', v.vedtak_resultat,
                 'kommentarVedtaksbrev', v.kommentar_vedtaksbrev,
-                'utbetalingMottaker', v.utbetaling_mottaker
+                'utbetalingMottaker', v.utbetaling_mottaker,
+                'kid', v.kid
             )
         ), '[]') as vedtak_json from tilskudd_vedtak v
             inner join tilskudd_opplaering on tilskudd_opplaering.id = v.tilskudd_opplaering_id

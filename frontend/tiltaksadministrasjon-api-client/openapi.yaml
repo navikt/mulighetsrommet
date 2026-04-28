@@ -7740,8 +7740,13 @@ components:
           - string
         utbetalingMottaker:
           type: string
+        kid:
+          type:
+          - "null"
+          - string
       required:
       - id
+      - kid
       - kommentarVedtaksbrev
       - soknadBelop
       - soknadValuta
@@ -7825,8 +7830,13 @@ components:
           type:
           - "null"
           - string
+        kidNummer:
+          type:
+          - "null"
+          - string
       required:
       - id
+      - kidNummer
       - kommentarVedtaksbrev
       - soknadBelop
       - tilskuddOpplaeringType

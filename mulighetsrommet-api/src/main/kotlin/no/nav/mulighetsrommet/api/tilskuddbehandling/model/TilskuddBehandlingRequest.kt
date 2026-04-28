@@ -31,5 +31,6 @@ data class TilskuddBehandlingRequest(
         val vedtakResultat: VedtakResultat?,
         val kommentarVedtaksbrev: String?,
         val utbetalingMottaker: String?,
+        val kidNummer: String?,
     )
 }

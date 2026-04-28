@@ -70,7 +70,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 soknad_valuta,
                 vedtak_resultat,
                 kommentar_vedtaksbrev,
-                utbetaling_mottaker
+                utbetaling_mottaker,
+                kid
             ) values (
                 :id::uuid,
                 :tilskudd_behandling_id::uuid,
@@ -79,7 +80,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 :soknad_valuta::currency,
                 :vedtak_resultat,
                 :kommentar_vedtaksbrev,
-                :utbetaling_mottaker
+                :utbetaling_mottaker,
+                :kid
             ) on conflict (id) do update set
                 tilskudd_behandling_id = excluded.tilskudd_behandling_id,
                 tilskudd_opplaering_id = excluded.tilskudd_opplaering_id,
@@ -87,7 +89,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 soknad_valuta = excluded.soknad_valuta,
                 vedtak_resultat = excluded.vedtak_resultat,
                 kommentar_vedtaksbrev = excluded.kommentar_vedtaksbrev,
-                utbetaling_mottaker = excluded.utbetaling_mottaker
+                utbetaling_mottaker = excluded.utbetaling_mottaker,
+                kid = excluded.kid
         """.trimIndent()
 
         val params = mapOf(
@@ -99,6 +102,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "vedtak_resultat" to vedtak.vedtakResultat.name,
             "kommentar_vedtaksbrev" to vedtak.kommentarVedtaksbrev,
             "utbetaling_mottaker" to vedtak.utbetalingMottaker,
+            "kid" to vedtak.kid?.value,
         )
 
         execute(queryOf(query, params))
