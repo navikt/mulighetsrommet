@@ -48,8 +48,6 @@ data class GjennomforingDetaljerDbo(
     val antallPlasser: Int,
     val prismodellId: UUID?,
     val oppmoteSted: String?,
-    val estimertVentetidVerdi: Int?,
-    val estimertVentetidEnhet: String?,
     val tilgjengeligForArrangorDato: LocalDate?,
 )
 

@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -30,6 +31,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -263,6 +265,37 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 .shouldBeLeft().shouldContainAll(
                     listOf(FieldError.root("Gjennomføringen finnes ikke")),
                 )
+        }
+    }
+
+    context("estimert ventetid") {
+        val service = createService()
+
+        val createRequest = GjennomforingFixtures.createGjennomforingRequest(AvtaleFixtures.oppfolging)
+
+        test("legge til og fjerne estimert ventetid ") {
+            service.create(createRequest, bertilNavIdent).shouldBeRight()
+
+            service.setEstimertVentetid(
+                createRequest.id,
+                GjennomforingAvtaleDetaljer.EstimertVentetid(3, "maned"),
+                bertilNavIdent,
+            )
+
+            database.run {
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(createRequest.id).should {
+                    it.estimertVentetid shouldBe GjennomforingAvtaleDetaljer.EstimertVentetid(3, "maned")
+                    service.setEstimertVentetid(createRequest.id, null, bertilNavIdent)
+                }
+            }
+
+            service.setEstimertVentetid(createRequest.id, null, bertilNavIdent)
+
+            database.run {
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(createRequest.id).should {
+                    it.estimertVentetid.shouldBeNull()
+                }
+            }
         }
     }
 

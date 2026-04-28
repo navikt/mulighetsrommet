@@ -46,7 +46,6 @@ export function OpprettGjennomforingPage() {
           tiltakstype={tiltakstype}
           avtale={avtale}
           gjennomforing={null}
-          veilederinfo={null}
           deltakere={null}
         />
       ),
