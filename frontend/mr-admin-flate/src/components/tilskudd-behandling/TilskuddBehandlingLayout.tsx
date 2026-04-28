@@ -35,7 +35,7 @@ export function TilskuddBehandlingLayout({
   vedtakContent,
   actions,
 }: Props) {
-  const { gjennomforing, enkeltplassDeltaker } =
+  const { gjennomforing, prismodell, enkeltplassDeltaker } =
     useEnkeltplassGjennomforingOrError(gjennomforingId);
 
   return (
@@ -79,7 +79,10 @@ export function TilskuddBehandlingLayout({
                 <Tabs.Panel value="saksopplysninger">{saksopplysningerContent}</Tabs.Panel>
                 <Tabs.Panel value="vedtak">{vedtakContent}</Tabs.Panel>
               </Box>
-              <DeltakerinformasjonOgBetalingsbetingelser deltaker={enkeltplassDeltaker} />
+              <DeltakerinformasjonOgBetalingsbetingelser
+                deltaker={enkeltplassDeltaker}
+                prisbetingelser={prismodell.prisbetingelser}
+              />
             </TwoColumnGrid>
           </Box>
         </Tabs>

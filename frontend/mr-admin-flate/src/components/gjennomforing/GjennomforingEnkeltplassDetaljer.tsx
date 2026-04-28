@@ -36,7 +36,6 @@ import {
   TiltakstypeDto,
   TotrinnskontrollDto,
 } from "@tiltaksadministrasjon/api-client";
-import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
@@ -58,10 +57,13 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
   const handlinger = useGjennomforingHandlinger(gjennomforing.id);
 
   const gjennomforingMeta: Definition[] = [
-    { key: gjennomforingTekster.tiltaksnavnLabel, value: gjennomforing.navn },
     {
       key: gjennomforingTekster.tiltakstypeLabel,
       value: tiltakstype.navn,
+    },
+    {
+      key: gjennomforingTekster.innholdAnnet.label,
+      value: enkeltplassDeltaker?.innholdAnnet,
     },
     {
       key: gjennomforingTekster.tiltaksnummerLabel,
@@ -124,7 +126,6 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
         </DetaljerLayout>
         <DetaljerLayout>
           <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-          <PrismodellDetaljer prismodeller={[prismodell]} />
           {okonomi && (
             <OkonomiStatus
               okonomi={okonomi}
@@ -133,7 +134,10 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
             />
           )}
           {enkeltplassDeltaker && (
-            <DeltakerinformasjonOgBetalingsbetingelser deltaker={enkeltplassDeltaker} />
+            <DeltakerinformasjonOgBetalingsbetingelser
+              deltaker={enkeltplassDeltaker}
+              prisbetingelser={prismodell.prisbetingelser}
+            />
           )}
         </DetaljerLayout>
       </TwoColumnGrid>
