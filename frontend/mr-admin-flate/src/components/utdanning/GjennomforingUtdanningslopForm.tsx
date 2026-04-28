@@ -2,15 +2,16 @@ import { Alert, Select } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
-import { AvtaleDto, GjennomforingRequest } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 import { kreverUtdanningslop } from "@/utils/tiltakstype";
+import { GjennomforingFormValues } from "@/schemas/gjennomforing";
 
 interface Props {
   avtale: AvtaleDto;
 }
 
 export function GjennomforingUtdanningslopForm({ avtale }: Props) {
-  const { register } = useFormContext<GjennomforingRequest>();
+  const { register } = useFormContext<GjennomforingFormValues>();
 
   if (!kreverUtdanningslop(avtale.tiltakstype.tiltakskode)) {
     return null;

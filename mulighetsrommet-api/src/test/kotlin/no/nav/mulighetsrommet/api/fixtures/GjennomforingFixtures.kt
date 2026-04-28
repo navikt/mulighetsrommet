@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
@@ -36,13 +37,7 @@ object GjennomforingFixtures {
         avtaleId = AvtaleFixtures.oppfolging.id,
         oppstart = GjennomforingOppstartstype.LOPENDE,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        oppmoteSted = "Munch museet",
-        faneinnhold = null,
-        beskrivelse = null,
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id,
         ansvarligEnhet = null,
         arenaTiltaksnummer = null,
@@ -62,13 +57,8 @@ object GjennomforingFixtures {
         avtaleId = AvtaleFixtures.VTA.id,
         oppstart = GjennomforingOppstartstype.LOPENDE,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        oppmoteSted = "Oslo",
-        faneinnhold = null,
-        beskrivelse = null,
+
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.ForhandsgodkjentVta.id,
         ansvarligEnhet = null,
         arenaTiltaksnummer = null,
@@ -88,13 +78,8 @@ object GjennomforingFixtures {
         avtaleId = AvtaleFixtures.AFT.id,
         oppstart = GjennomforingOppstartstype.LOPENDE,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        oppmoteSted = "Oslo",
-        faneinnhold = null,
-        beskrivelse = null,
+
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.ForhandsgodkjentAft.id,
         ansvarligEnhet = null,
         arenaTiltaksnummer = null,
@@ -114,13 +99,8 @@ object GjennomforingFixtures {
         avtaleId = AvtaleFixtures.gruppeAmo.id,
         oppstart = GjennomforingOppstartstype.FELLES,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        oppmoteSted = "Oslo",
-        faneinnhold = null,
-        beskrivelse = null,
+
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
         ansvarligEnhet = null,
         arenaTiltaksnummer = null,
@@ -140,13 +120,8 @@ object GjennomforingFixtures {
         avtaleId = AvtaleFixtures.gruppeFagYrke.id,
         oppstart = GjennomforingOppstartstype.FELLES,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        oppmoteSted = "Oslo",
-        faneinnhold = null,
-        beskrivelse = null,
+
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
         ansvarligEnhet = null,
         arenaTiltaksnummer = null,
@@ -166,13 +141,8 @@ object GjennomforingFixtures {
         avtaleId = AvtaleFixtures.ARR.id,
         oppstart = GjennomforingOppstartstype.FELLES,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        oppmoteSted = "Oslo",
-        faneinnhold = null,
-        beskrivelse = null,
+
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
         ansvarligEnhet = null,
         arenaTiltaksnummer = null,
@@ -195,12 +165,7 @@ object GjennomforingFixtures {
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
         ansvarligEnhet = NavEnhetNummer("0400"),
         avtaleId = null,
-        oppmoteSted = null,
-        faneinnhold = null,
-        beskrivelse = null,
-        estimertVentetidVerdi = null,
-        estimertVentetidEnhet = null,
-        tilgjengeligForArrangorDato = null,
+
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -223,12 +188,7 @@ object GjennomforingFixtures {
         avtaleId = null,
         ansvarligEnhet = null,
         prismodellId = null,
-        oppmoteSted = null,
-        faneinnhold = null,
-        beskrivelse = null,
-        estimertVentetidVerdi = null,
-        estimertVentetidEnhet = null,
-        tilgjengeligForArrangorDato = null,
+
     )
 
     val ArenaArbeidsrettetRehabilitering = GjennomforingDbo(
@@ -249,12 +209,7 @@ object GjennomforingFixtures {
         ansvarligEnhet = null,
         avtaleId = null,
         prismodellId = null,
-        oppmoteSted = null,
-        faneinnhold = null,
-        beskrivelse = null,
-        estimertVentetidVerdi = null,
-        estimertVentetidEnhet = null,
-        tilgjengeligForArrangorDato = null,
+
     )
 
     fun createGjennomforingAvtale(
@@ -317,31 +272,32 @@ object GjennomforingFixtures {
     ): GjennomforingRequest {
         return GjennomforingRequest(
             id = id,
-            tiltakstypeId = avtale.detaljerDbo.tiltakstypeId,
             avtaleId = avtale.id,
-            navn = "Gjennomføring for ${avtale.detaljerDbo.navn}",
-            startDato = startDato,
-            sluttDato = sluttDato,
-            oppstart = oppstart,
-            pameldingType = pamelding,
-            prismodellId = prismodellId,
-            arrangorId = arrangorId,
-            arrangorKontaktpersoner = setOf(),
+            detaljer = GjennomforingDetaljerRequest(
+                navn = "Gjennomføring for ${avtale.detaljerDbo.navn}",
+                startDato = startDato,
+                sluttDato = sluttDato,
+                oppstart = oppstart,
+                pameldingType = pamelding,
+                prismodellId = prismodellId,
+                arrangorId = arrangorId,
+                arrangorKontaktpersoner = setOf(),
+                administratorer = administratorer,
+                antallPlasser = 1,
+                deltidsprosent = 100.0,
+                oppmoteSted = null,
+                estimertVentetid = null,
+                tilgjengeligForArrangorDato = null,
+                amoKategorisering = null,
+            ),
             veilederinformasjon = GjennomforingVeilederinfoRequest(
                 navRegioner = navRegioner,
                 navKontorer = navKontorer,
                 navAndreEnheter = setOf(),
                 faneinnhold = null,
                 beskrivelse = null,
+                kontaktpersoner = emptySet(),
             ),
-            kontaktpersoner = setOf(),
-            administratorer = administratorer,
-            antallPlasser = 1,
-            deltidsprosent = 100.0,
-            oppmoteSted = null,
-            estimertVentetid = null,
-            tilgjengeligForArrangorDato = null,
-            amoKategorisering = null,
         )
     }
 }

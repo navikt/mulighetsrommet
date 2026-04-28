@@ -1,9 +1,10 @@
 import { ReactNode } from "react";
-import { VStack, Heading, HeadingProps, Label, BodyShort, HGrid } from "@navikt/ds-react";
+import { BodyShort, Heading, HeadingProps, HGrid, Label, VStack } from "@navikt/ds-react";
 
 export interface Definition {
   key: string;
   value: string | ReactNode;
+  spanColumns?: boolean;
 }
 
 export function Definisjonsliste({
@@ -26,7 +27,11 @@ export function Definisjonsliste({
       )}
       <HGrid as="dl" columns={columns} gap="space-24">
         {definitions.map((definition, index) => (
-          <VStack gap="space-8" key={index}>
+          <VStack
+            gap="space-8"
+            key={index}
+            style={definition.spanColumns ? { gridColumn: "span 2" } : undefined}
+          >
             <Label as="dt">{definition.key}</Label>
             <BodyShort as="dd">{definition.value ?? "-"}</BodyShort>
           </VStack>

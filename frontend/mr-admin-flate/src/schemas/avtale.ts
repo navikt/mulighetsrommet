@@ -66,7 +66,9 @@ export const VeilederinformasjonStepSchema = z.object({
   veilederinformasjon: VeilederinformasjonSchema,
 });
 
-export type VeilederinformasjonValues = z.infer<typeof VeilederinformasjonStepSchema>;
+export type VeilederinfoInputValues = z.input<typeof VeilederinformasjonStepSchema>;
+
+export type VeilederinfoOutputValues = z.infer<typeof VeilederinformasjonStepSchema>;
 
 export const PersonopplysningerSchema = z.object({
   personvern: z.object({
@@ -75,7 +77,8 @@ export const PersonopplysningerSchema = z.object({
   }),
 });
 
-export type PersonvernValues = z.infer<typeof PersonopplysningerSchema>;
+export type PersonopplysningerInputValues = z.input<typeof PersonopplysningerSchema>;
+export type PersonopplysningerOutputValues = z.infer<typeof PersonopplysningerSchema>;
 
 export const avtaleFormSchema = avtaleDetaljerSchema
   .extend(PrismodellSchema.shape)

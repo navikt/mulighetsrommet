@@ -64,12 +64,6 @@ class GjennomforingQueries(private val session: Session) {
                                        antall_plasser,
                                        avtale_id,
                                        prismodell_id,
-                                       oppmote_sted,
-                                       faneinnhold,
-                                       beskrivelse,
-                                       estimert_ventetid_verdi,
-                                       estimert_ventetid_enhet,
-                                       tilgjengelig_for_arrangor_dato,
                                        ansvarlig_enhet,
                                        arena_tiltaksnummer,
                                        arena_ansvarlig_enhet)
@@ -87,12 +81,6 @@ class GjennomforingQueries(private val session: Session) {
                     :antall_plasser,
                     :avtale_id::uuid,
                     :prismodell_id::uuid,
-                    :oppmote_sted,
-                    :faneinnhold::jsonb,
-                    :beskrivelse,
-                    :estimert_ventetid_verdi,
-                    :estimert_ventetid_enhet,
-                    :tilgjengelig_for_arrangor_dato,
                     :ansvarlig_enhet,
                     :arena_tiltaksnummer,
                     :arena_ansvarlig_enhet)
@@ -109,12 +97,6 @@ class GjennomforingQueries(private val session: Session) {
                                            antall_plasser = excluded.antall_plasser,
                                            avtale_id  = excluded.avtale_id,
                                            prismodell_id  = excluded.prismodell_id,
-                                           oppmote_sted  = excluded.oppmote_sted,
-                                           faneinnhold  = excluded.faneinnhold,
-                                           beskrivelse  = excluded.beskrivelse,
-                                           estimert_ventetid_verdi  = excluded.estimert_ventetid_verdi,
-                                           estimert_ventetid_enhet  = excluded.estimert_ventetid_enhet,
-                                           tilgjengelig_for_arrangor_dato  = excluded.tilgjengelig_for_arrangor_dato,
                                            ansvarlig_enhet = excluded.ansvarlig_enhet,
                                            arena_tiltaksnummer = excluded.arena_tiltaksnummer,
                                            arena_ansvarlig_enhet = excluded.arena_ansvarlig_enhet
@@ -135,18 +117,75 @@ class GjennomforingQueries(private val session: Session) {
             "antall_plasser" to gjennomforing.antallPlasser,
             "avtale_id" to gjennomforing.avtaleId,
             "prismodell_id" to gjennomforing.prismodellId,
-            "oppmote_sted" to gjennomforing.oppmoteSted,
-            "faneinnhold" to gjennomforing.faneinnhold?.let { Json.encodeToString<Faneinnhold>(it) },
-            "beskrivelse" to gjennomforing.beskrivelse,
-            "estimert_ventetid_verdi" to gjennomforing.estimertVentetidVerdi,
-            "estimert_ventetid_enhet" to gjennomforing.estimertVentetidEnhet,
-            "tilgjengelig_for_arrangor_fra_dato" to gjennomforing.tilgjengeligForArrangorDato,
             "ansvarlig_enhet" to gjennomforing.ansvarligEnhet?.value,
             "arena_tiltaksnummer" to gjennomforing.arenaTiltaksnummer?.value,
             "arena_ansvarlig_enhet" to gjennomforing.arenaAnsvarligEnhet,
         )
 
         session.execute(queryOf(query, params))
+    }
+
+    fun updateDetaljer(detaljer: GjennomforingDetaljerDbo) {
+        @Language("PostgreSQL")
+        val query = """
+            update gjennomforing
+            set arrangor_id                     = :arrangor_id::uuid,
+                oppstart                        = :oppstart::gjennomforing_oppstartstype,
+                pamelding_type                  = :pamelding_type::pamelding_type,
+                navn                            = :navn,
+                start_dato                      = :start_dato,
+                slutt_dato                      = :slutt_dato,
+                status                          = :status::gjennomforing_status,
+                deltidsprosent                  = :deltidsprosent,
+                antall_plasser                  = :antall_plasser,
+                prismodell_id                   = :prismodell_id::uuid,
+                oppmote_sted                    = :oppmote_sted,
+                estimert_ventetid_verdi         = :estimert_ventetid_verdi,
+                estimert_ventetid_enhet         = :estimert_ventetid_enhet,
+                tilgjengelig_for_arrangor_dato  = :tilgjengelig_for_arrangor_dato
+            where id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to detaljer.id,
+            "arrangor_id" to detaljer.arrangorId,
+            "oppstart" to detaljer.oppstart.name,
+            "pamelding_type" to detaljer.pameldingType.name,
+            "navn" to detaljer.navn,
+            "start_dato" to detaljer.startDato,
+            "slutt_dato" to detaljer.sluttDato,
+            "status" to detaljer.status.name,
+            "deltidsprosent" to detaljer.deltidsprosent,
+            "antall_plasser" to detaljer.antallPlasser,
+            "prismodell_id" to detaljer.prismodellId,
+            "oppmote_sted" to detaljer.oppmoteSted,
+            "estimert_ventetid_verdi" to detaljer.estimertVentetidVerdi,
+            "estimert_ventetid_enhet" to detaljer.estimertVentetidEnhet,
+            "tilgjengelig_for_arrangor_dato" to detaljer.tilgjengeligForArrangorDato,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
+    fun setRedaksjoneltInnhold(id: UUID, beskrivelse: String?, faneinnhold: Faneinnhold?) {
+        @Language("PostgreSQL")
+        val query = """
+            update gjennomforing
+            set beskrivelse = :beskrivelse,
+                faneinnhold = :faneinnhold::jsonb
+            where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to id,
+                    "beskrivelse" to beskrivelse,
+                    "faneinnhold" to faneinnhold?.let { Json.encodeToString<Faneinnhold>(it) },
+                ),
+            ),
+        )
     }
 
     fun setNavEnheter(id: UUID, navEnheter: Set<NavEnhetNummer>) = with(session) {

@@ -3,15 +3,14 @@ import { FormGroup } from "@/layouts/FormGroup";
 import { SkjemaKolonne } from "@/layouts/SkjemaKolonne";
 import {
   AvtaleDto,
-  GjennomforingDeltakerSummary,
   GjennomforingAvtaleDto,
+  GjennomforingDeltakerSummary,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
-  GjennomforingRequest,
   GjennomforingVeilederinfoDto,
-  TiltakstypeDto,
   Rolle,
   Tiltakskode,
+  TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
 import {
   Alert,
@@ -30,7 +29,6 @@ import { Controller, useFormContext } from "react-hook-form";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModal";
 import { administratorOptions } from "@/components/skjema/administratorOptions";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { GjennomforingUtdanningslopForm } from "@/components/utdanning/GjennomforingUtdanningslopForm";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -40,8 +38,10 @@ import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWit
 import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
-import { kreverDirekteVedtak, kreverDeltidsprosent } from "@/utils/tiltakstype";
+import { kreverDeltidsprosent, kreverDirekteVedtak } from "@/utils/tiltakstype";
 import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
+import { GjennomforingFormValues } from "@/schemas/gjennomforing";
+import { FormDateInput } from "@/components/skjema/FormDateInput";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -62,10 +62,9 @@ export function GjennomforingFormDetaljer(props: Props) {
     register,
     control,
     formState: { errors },
-    getValues,
     setValue,
     watch,
-  } = useFormContext<GjennomforingRequest>();
+  } = useFormContext<GjennomforingFormValues>();
 
   const watchStartDato = watch("startDato");
 
@@ -127,9 +126,6 @@ export function GjennomforingFormDetaljer(props: Props) {
               label={gjennomforingTekster.avtaleMedTiltakstype(avtale.tiltakstype.navn)}
               value={avtale.navn || ""}
             />
-            {errors.avtaleId?.message ? (
-              <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
-            ) : null}
             <GjennomforingAmoKategoriseringForm avtale={avtale} />
             <GjennomforingUtdanningslopForm avtale={avtale} />
           </FormGroup>
@@ -206,25 +202,19 @@ export function GjennomforingFormDetaljer(props: Props) {
               )}
             </HGrid>
             <HGrid columns={2}>
-              <ControlledDateInput
+              <FormDateInput
                 label={gjennomforingTekster.startdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxStartdato}
-                defaultSelected={getValues("startDato")}
-                onChange={(val) => setValue("startDato", val)}
-                error={errors.startDato?.message}
+                name={"startDato"}
               />
-              <ControlledDateInput
+              <FormDateInput
                 key={watchSluttDato}
                 label={gjennomforingTekster.sluttdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
-                defaultSelected={getValues("sluttDato")}
-                onChange={(val) => {
-                  setValue("sluttDato", val);
-                  visAdvarselForSluttDato();
-                }}
-                error={errors.sluttDato?.message}
+                name={"sluttDato"}
+                rules={{ onChange: visAdvarselForSluttDato }}
               />
             </HGrid>
             <HGrid align="start" columns={2}>
@@ -362,7 +352,7 @@ export function EstimertVentetidForm(props: EstimertVentetidFormProps) {
     formState: { errors },
     setValue,
     watch,
-  } = useFormContext<GjennomforingRequest>();
+  } = useFormContext<GjennomforingFormValues>();
 
   useEffect(() => {
     const resetEstimertVentetid = () => {

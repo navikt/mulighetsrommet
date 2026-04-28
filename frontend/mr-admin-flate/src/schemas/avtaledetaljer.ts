@@ -106,15 +106,5 @@ export function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {
   };
 }
 
-/**
- * Så lenge det mangler validering av utdanningsløp i frontend så trenger vi litt ekstra sanitering av data
- */
-export function getUtdanningslop(data: AvtaleDetaljerValues): UtdanningslopDbo | null {
-  if (!data.detaljer.utdanningslop?.utdanningsprogram) {
-    return null;
-  }
-
-  return data.detaljer.utdanningslop;
-}
-
-export type AvtaleDetaljerValues = z.infer<typeof avtaleDetaljerFormSchema>;
+export type AvtaleDetaljerInputValues = z.infer<typeof avtaleDetaljerFormSchema>;
+export type AvtaleDetaljerOutputValues = z.infer<typeof avtaleDetaljerFormSchema>;

@@ -145,15 +145,14 @@ export function AvtaleDetaljer() {
         <DetaljerLayout>
           <Definisjonsliste title="Avtaleinformasjon" definitions={avtaleMeta} />
           <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
-          <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
-          {avtale.opsjonerRegistrert.length > 0 && <RegistrerteOpsjoner readOnly />}
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering &&
             !kursOgTiltakErStudiespesialisering(
               amoKategorisering.kurstype,
               tiltakstype.tiltakskode,
             ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
-          <PrismodellDetaljer prismodeller={avtale.prismodeller} />
+          {avtale.opsjonerRegistrert.length > 0 && <RegistrerteOpsjoner readOnly />}
+          <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
           <AvtaleRammedetaljer rammedetaljer={rammedetaljer} />
         </DetaljerLayout>
         <DetaljerLayout>
@@ -163,6 +162,7 @@ export function AvtaleDetaljer() {
           ) : (
             <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
           )}
+          <PrismodellDetaljer prismodeller={avtale.prismodeller} />
         </DetaljerLayout>
       </TwoColumnGrid>
     </AvtalePageLayout>
