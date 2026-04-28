@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.api.clients.tilgangsmaskin
 import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.cache.HttpCache
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -33,6 +35,14 @@ class TilgangsmaskinClient(
     private val logger = LoggerFactory.getLogger(TilgangsmaskinClient::class.java)
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
+        install(Logging) {
+            logger = object : io.ktor.client.plugins.logging.Logger {
+                override fun log(message: String) {
+                    this@TilgangsmaskinClient.logger.debug(message)
+                }
+            }
+            level = LogLevel.BODY
+        }
     }
 
     suspend fun bulk(identer: List<NorskIdent>, obo: AccessType.OBO.AzureAd): TilgangsmaskinResponse {
@@ -44,8 +54,6 @@ class TilgangsmaskinClient(
         val response = client.post("$baseUrl/api/v1/bulk/obo") {
             bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            val body = identer.map { TilgangsmaskinRequest(brukerId = it.value) }
-            logger.debug("tilgangsmaskin request: {}", body)
             setBody(identer.map { TilgangsmaskinRequest(brukerId = it.value) })
         }
 
