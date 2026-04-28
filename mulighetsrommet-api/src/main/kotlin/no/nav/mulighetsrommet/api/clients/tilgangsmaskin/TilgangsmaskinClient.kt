@@ -44,6 +44,8 @@ class TilgangsmaskinClient(
         val response = client.post("$baseUrl/api/v1/bulk/obo") {
             bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
+            val body = identer.map { TilgangsmaskinRequest(brukerId = it.value) }
+            logger.debug("tilgangsmaskin request: {}", body)
             setBody(identer.map { TilgangsmaskinRequest(brukerId = it.value) })
         }
 
