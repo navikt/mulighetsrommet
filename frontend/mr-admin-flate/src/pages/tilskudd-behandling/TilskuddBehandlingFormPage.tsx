@@ -5,7 +5,6 @@ import { defaultTilskuddRequest } from "@/components/tilskudd-behandling/default
 import { SaksopplysningerForm } from "@/components/tilskudd-behandling/SaksopplysningerForm";
 import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { TilskuddBehandlingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { Box, Button, HStack, Tabs } from "@navikt/ds-react";
 import { useState } from "react";
@@ -23,6 +22,7 @@ import { ToTrinnsOpprettelsesForklaring } from "../gjennomforing/tilsagn/ToTrinn
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 interface Tab {
   key: TilskuddBehandlingTab;
@@ -84,7 +84,6 @@ export function TilskuddBehandlingFormPage() {
 
   const {
     handleSubmit,
-    setError,
     formState: { errors },
   } = form;
 
@@ -109,14 +108,7 @@ export function TilskuddBehandlingFormPage() {
   const onSubmit = handleSubmit((data) => {
     mutation.mutate(data, {
       onSuccess: () => navigate(listUrl),
-      onValidationError: (error: ValidationError) => {
-        error.errors.forEach((fieldError) => {
-          const name = jsonPointerToFieldPath(
-            fieldError.pointer,
-          ) as keyof TilskuddBehandlingRequest;
-          setError(name, { type: "custom", message: fieldError.detail });
-        });
-      },
+      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
     });
   });
 
