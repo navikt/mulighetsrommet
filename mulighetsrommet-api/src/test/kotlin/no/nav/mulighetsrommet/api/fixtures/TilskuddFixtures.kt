@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
@@ -21,6 +22,7 @@ object TilskuddFixtures {
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         tilskudd = emptyList(),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+        kommentarIntern = "kommentarIntern",
     )
     val Tilskudd = TilskuddDbo(
         id = UUID.randomUUID(),
@@ -30,5 +32,7 @@ object TilskuddFixtures {
         vedtakResultat = VedtakResultat.INNVILGELSE,
         kommentarVedtaksbrev = null,
         utbetalingMottaker = "Universitetet i Oslo",
+        kid = Kid.parse("116"),
+        belop = 100,
     )
 }

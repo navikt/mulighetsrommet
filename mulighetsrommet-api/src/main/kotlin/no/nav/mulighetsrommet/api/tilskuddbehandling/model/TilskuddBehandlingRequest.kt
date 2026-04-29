@@ -20,6 +20,7 @@ data class TilskuddBehandlingRequest(
     val periodeStart: String?,
     val periodeSlutt: String?,
     val kostnadssted: NavEnhetNummer?,
+    val kommentarIntern: String?,
     val tilskudd: List<TilskuddRequest>,
 ) {
     @Serializable
@@ -31,5 +32,7 @@ data class TilskuddBehandlingRequest(
         val vedtakResultat: VedtakResultat?,
         val kommentarVedtaksbrev: String?,
         val utbetalingMottaker: String?,
+        val kidNummer: String?,
+        val belop: Int?,
     )
 }

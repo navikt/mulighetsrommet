@@ -7,7 +7,8 @@ select
     tb.periode,
     tb.kostnadssted,
     vedtak_json,
-    tb.status
+    tb.status,
+    tb.kommentar_intern
 from tilskudd_behandling tb
     left join lateral (
         select coalesce(jsonb_agg(
@@ -18,7 +19,9 @@ from tilskudd_behandling tb
                 'soknadValuta', v.soknad_valuta,
                 'vedtakResultat', v.vedtak_resultat,
                 'kommentarVedtaksbrev', v.kommentar_vedtaksbrev,
-                'utbetalingMottaker', v.utbetaling_mottaker
+                'utbetalingMottaker', v.utbetaling_mottaker,
+                'kid', v.kid,
+                'belop', v.belop
             )
         ), '[]') as vedtak_json from tilskudd v
             inner join tilskudd_opplaering on tilskudd_opplaering.id = v.tilskudd_opplaering_id

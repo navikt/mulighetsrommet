@@ -7745,9 +7745,14 @@ components:
             $ref: "#/components/schemas/TilskuddOpplaeringDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+        kommentarIntern:
+          type:
+          - "null"
+          - string
       required:
       - gjennomforingId
       - id
+      - kommentarIntern
       - kostnadssted
       - periode
       - soknadDato
@@ -7775,8 +7780,17 @@ components:
           - string
         utbetalingMottaker:
           type: string
+        kid:
+          type:
+          - "null"
+          - string
+        belop:
+          type: integer
+          format: int32
       required:
+      - belop
       - id
+      - kid
       - kommentarVedtaksbrev
       - soknadBelop
       - soknadValuta
@@ -7890,8 +7904,19 @@ components:
           type:
           - "null"
           - string
+        kidNummer:
+          type:
+          - "null"
+          - string
+        belop:
+          type:
+          - "null"
+          - integer
+          format: int32
       required:
+      - belop
       - id
+      - kidNummer
       - kommentarVedtaksbrev
       - soknadBelop
       - tilskuddOpplaeringType
@@ -7927,6 +7952,10 @@ components:
           type:
           - "null"
           - string
+        kommentarIntern:
+          type:
+          - "null"
+          - string
         tilskudd:
           type: array
           items:
@@ -7934,6 +7963,7 @@ components:
       required:
       - gjennomforingId
       - id
+      - kommentarIntern
       - kostnadssted
       - periodeSlutt
       - periodeStart

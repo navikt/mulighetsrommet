@@ -24,6 +24,7 @@ data class TilskuddBehandlingDto(
     val kostnadssted: NavEnhetNummer,
     val tilskudd: List<TilskuddOpplaeringDto>,
     val status: TilskuddBehandlingStatusDto,
+    val kommentarIntern: String?,
 )
 
 @Serializable

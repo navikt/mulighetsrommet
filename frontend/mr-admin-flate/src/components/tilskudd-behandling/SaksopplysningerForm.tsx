@@ -1,26 +1,34 @@
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Radio, Spacer, TextField, VStack } from "@navikt/ds-react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { Path, useFieldArray, useFormContext } from "react-hook-form";
 import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormGroup } from "@/layouts/FormGroup";
 import {
   TilskuddBehandlingRequest,
+  TilskuddBehandlingRequestTilskuddRequest,
   TilskuddOpplaeringType,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { VelgKostnadssted } from "../tilsagn/form/VelgKostnadssted";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
-import { defaultVedtakRequest } from "./defaultVedtakRequest";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
+import { BetalingsinformasjonFields } from "../utbetaling/form/BetalingsinformasjonFields";
+import { FormTextarea } from "../skjema/FormTextarea";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
+import { defaultTilskuddRequest } from "./defaultTilskuddRequest";
 
-export function SaksopplysningerForm() {
+interface Props {
+  arrangorId: string;
+}
+
+export function SaksopplysningerForm({ arrangorId }: Props) {
   const {
     control,
+    watch,
     register,
     formState: { errors },
   } = useFormContext<TilskuddBehandlingRequest>();
@@ -35,6 +43,7 @@ export function SaksopplysningerForm() {
   function totaltBelop(): number {
     return fields.reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0);
   }
+
   return (
     <>
       <Heading size="small" level="3" spacing>
@@ -97,6 +106,14 @@ export function SaksopplysningerForm() {
                   <Radio value="bruker">Utbetales til brukeren</Radio>
                   <Radio value="arrangor">Utbetales til arrangøren</Radio>
                 </ControlledRadioGroup>
+                {watch("tilskudd")[index].utbetalingMottaker === "arrangor" && (
+                  <BetalingsinformasjonFields<TilskuddBehandlingRequestTilskuddRequest>
+                    arrangorId={arrangorId}
+                    kidNummerName={
+                      `tilskudd.${index}.kidNummer` as Path<TilskuddBehandlingRequestTilskuddRequest>
+                    }
+                  />
+                )}
               </VStack>
               {fields.length > 1 && (
                 <Button
@@ -114,9 +131,10 @@ export function SaksopplysningerForm() {
         ))}
         <Button
           size="small"
+          type="button"
           variant="secondary"
           icon={<PlusIcon aria-hidden />}
-          onClick={() => append(defaultVedtakRequest)}
+          onClick={() => append(defaultTilskuddRequest())}
         >
           Legg til tilskudd
         </Button>
@@ -129,6 +147,7 @@ export function SaksopplysningerForm() {
             valuta: Valuta.NOK,
           })}
         />
+        <FormTextarea className="w-full" label="Kommentar (internt i Nav)" name="kommentarIntern" />
       </VStack>
     </>
   );

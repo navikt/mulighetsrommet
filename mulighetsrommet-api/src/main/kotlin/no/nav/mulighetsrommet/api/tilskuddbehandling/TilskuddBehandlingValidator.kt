@@ -6,9 +6,11 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
+import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import kotlin.contracts.ExperimentalContracts
 
@@ -35,10 +37,10 @@ object TilskuddBehandlingValidator {
         val tilskudd = request.tilskudd.mapIndexed { index, v ->
             validateTilskuddRequest(v, index).bind()
         }
-        validate(requireNotNull(periodeStart) < requireNotNull(periodeSlutt)) {
-            FieldError.of("Periodestart må være før periodeslutt", TilskuddBehandlingRequest::periodeStart)
+        requireValid(request.soknadDato != null && request.soknadJournalpostId != null && request.kostnadssted != null && periodeStart != null && periodeSlutt != null)
+        requireValid(periodeStart.isBefore(periodeSlutt)) {
+            FieldError.of("Periodestart må være før slutt", TilsagnRequest::periodeStart)
         }
-        requireValid(request.soknadDato != null && request.soknadJournalpostId != null && request.kostnadssted != null)
 
         TilskuddBehandlingDbo(
             id = request.id,
@@ -49,6 +51,7 @@ object TilskuddBehandlingValidator {
             kostnadssted = request.kostnadssted,
             tilskudd = tilskudd,
             status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+            kommentarIntern = request.kommentarIntern,
         )
     }
 
@@ -77,12 +80,29 @@ object TilskuddBehandlingValidator {
                 "Kommentar kan ikke inneholde mer enn 500 tegn",
             )
         }
-        requireValid(req.soknadBelop?.belop != null && req.soknadBelop.belop > 0 && req.soknadBelop.valuta != null) {
+        val kid = req.kidNummer?.let { value ->
+            validateNotNull(Kid.parse(value)) {
+                FieldError(
+                    "/tilskudd/$index/kidNummer",
+                    "Ugyldig kid",
+                )
+            }
+        }
+        validate(req.soknadBelop?.belop != null && req.soknadBelop.belop > 0 && req.soknadBelop.valuta != null) {
             FieldError(
                 "/tilskudd/$index/soknadBelop/belop",
-                "Beløp må være positivt",
+                "Søknadsbeløp må være positivt",
             )
         }
+        if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
+            validate(req.belop != null && req.belop > 0) {
+                FieldError(
+                    "/tilskudd/$index/belop",
+                    "Beløp må være positivt",
+                )
+            }
+        }
+        requireValid(req.soknadBelop?.belop != null && req.soknadBelop.valuta != null)
         requireValid(req.vedtakResultat != null && req.utbetalingMottaker != null && req.tilskuddOpplaeringType != null)
 
         TilskuddDbo(
@@ -93,6 +113,8 @@ object TilskuddBehandlingValidator {
             vedtakResultat = req.vedtakResultat,
             kommentarVedtaksbrev = req.kommentarVedtaksbrev,
             utbetalingMottaker = req.utbetalingMottaker,
+            kid = kid,
+            belop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) req.belop else null,
         )
     }
 }
