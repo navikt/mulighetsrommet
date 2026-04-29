@@ -13,6 +13,6 @@ data class TilskuddBehandlingDbo(
     val soknadDato: LocalDate,
     val periode: Periode,
     val kostnadssted: NavEnhetNummer,
-    val vedtak: List<TilskuddVedtakDbo>,
+    val tilskudd: List<TilskuddDbo>,
     val status: TilskuddBehandlingStatus,
 )
