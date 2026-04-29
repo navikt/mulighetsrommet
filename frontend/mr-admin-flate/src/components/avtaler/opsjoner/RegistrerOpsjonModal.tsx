@@ -1,9 +1,9 @@
 import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
 import {
   AvtaleDto,
-  OpsjonLoggStatus,
   OpprettOpsjonLoggRequest,
   OpprettOpsjonLoggRequestType,
+  OpsjonLoggStatus,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
@@ -12,7 +12,7 @@ import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { RegistrerteOpsjoner } from "./RegistrerteOpsjoner";
 import { RegistrerOpsjonForm } from "./RegistrerOpsjonForm";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
@@ -27,19 +27,11 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
       type: OpprettOpsjonLoggRequestType.ETT_AAR,
     },
   });
-  const { setError } = form;
 
   const postData: SubmitHandler<OpprettOpsjonLoggRequest> = async (data): Promise<void> => {
     mutation.mutate(data, {
-      onSuccess: () => {
-        closeAndResetForm();
-      },
-      onValidationError: (error: ValidationError) => {
-        error.errors.forEach((error: { pointer: string; detail: string }) => {
-          const name = jsonPointerToFieldPath(error.pointer) as keyof OpprettOpsjonLoggRequest;
-          setError(name, { type: "custom", message: error.detail });
-        });
-      },
+      onSuccess: closeAndResetForm,
+      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
     });
   };
 

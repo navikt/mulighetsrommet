@@ -25,15 +25,15 @@ import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import MindreBelopModal from "./MindreBelopModal";
-import { FieldPath, FormProvider, useForm, useWatch } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useOpprettUtbetalingLinjer, useSlettKorreksjon } from "@/api/utbetaling/mutations";
 import { Handlinger } from "@/components/handlinger/Handlinger";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { extractValidationErrors } from "@/utils/Utils";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -48,7 +48,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
 
   const opprettMutation = useOpprettUtbetalingLinjer(utbetaling.id);
 
-  const methods = useForm<OpprettUtbetalingLinjerRequest>({
+  const form = useForm<OpprettUtbetalingLinjerRequest>({
     defaultValues: {
       utbetalingId: utbetaling.id,
       utbetalingLinjer: utbetalingLinjer.map((linje) => ({
@@ -62,7 +62,6 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
 
   const {
     handleSubmit,
-    setError,
     register,
     clearErrors,
     getValues,
@@ -70,7 +69,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
     setValue,
     reset,
     formState: { errors },
-  } = methods;
+  } = form;
 
   useEffect(() => {
     reset({
@@ -105,13 +104,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
     clearErrors();
 
     opprettMutation.mutate(payload, {
-      onValidationError: (error: ValidationError) => {
-        error.errors.forEach((error) => {
-          const fieldPath = jsonPointerToFieldPath(error.pointer);
-          const name = (fieldPath || "root") as FieldPath<OpprettUtbetalingLinjerRequest>;
-          setError(name, { type: "custom", message: error.detail });
-        });
-      },
+      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
     });
   }
 
@@ -141,7 +134,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
   );
 
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...form}>
       <form
         onSubmit={(e) => {
           clearErrors();

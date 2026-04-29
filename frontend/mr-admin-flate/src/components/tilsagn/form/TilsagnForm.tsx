@@ -5,7 +5,6 @@ import {
   TilsagnType,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
   Box,
@@ -30,6 +29,7 @@ import { ValideringsfeilOppsummering } from "@/components/skjema/Valideringsfeil
 import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 import { useOpprettTilsagn } from "@/api/tilsagn/mutations";
 import { VelgDeltakere } from "./VelgDeltakere";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 interface Props {
   onSuccess: () => void;
@@ -58,7 +58,6 @@ export function TilsagnForm(props: Props) {
   });
   const {
     handleSubmit,
-    setError,
     register,
     clearErrors,
     formState: { errors },
@@ -74,12 +73,7 @@ export function TilsagnForm(props: Props) {
 
     mutation.mutate(request, {
       onSuccess: onSuccess,
-      onValidationError: (error: ValidationError) => {
-        error.errors.forEach((error) => {
-          const name = jsonPointerToFieldPath(error.pointer) as keyof TilsagnRequest;
-          setError(name, { type: "custom", message: error.detail });
-        });
-      },
+      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
     });
   };
 
