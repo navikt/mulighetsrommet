@@ -27,7 +27,7 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
   });
 
   const postData: SubmitHandler<PrismodellValues> = async (data): Promise<void> => {
-    const request = toPrismodellRequest({ data });
+    const request = toPrismodellRequest(data);
 
     mutation.mutate(request, {
       onSuccess: closeAndResetForm,
