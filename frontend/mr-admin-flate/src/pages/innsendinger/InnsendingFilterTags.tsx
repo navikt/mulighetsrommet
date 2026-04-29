@@ -3,7 +3,7 @@ import { FilterTagsContainer } from "@mr/frontend-common";
 import { InnsendingFilterType } from "./filter";
 import { KostnadsstedFilterTag } from "@/components/filter/KostnadsstedFilterTag";
 import { Chips } from "@navikt/ds-react";
-import { TiltakstypeFilterTags } from "@/components/filter/TiltakstypeFilterTags";
+import { TiltakskodeFilterTags } from "@/components/filter/TiltakskodeFilterTags";
 
 interface Props {
   filter: InnsendingFilterType;
@@ -27,7 +27,7 @@ export function InnsendingFilterTags({ filter, updateFilter, filterOpen }: Props
             onClose={() => updateFilter({ kostnadssteder: [] })}
           />
         )}
-        <TiltakstypeFilterTags
+        <TiltakskodeFilterTags
           tiltakskoder={filter.tiltakstyper}
           onRemove={(tiltakstype) => removeArrayItem("tiltakstyper", tiltakstype)}
         />

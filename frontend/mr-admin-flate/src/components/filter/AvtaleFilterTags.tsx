@@ -1,5 +1,4 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { TiltakstypeFilterTags } from "@/components/filter/TiltakstypeFilterTags";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
@@ -8,6 +7,7 @@ import { AvtaleFilterType } from "@/pages/avtaler/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { KontorstrukturFilterTag } from "@/components/filter/KontorstrukturFilterTag";
 import { Chips } from "@navikt/ds-react";
+import { TiltakskodeFilterTags } from "@/components/filter/TiltakskodeFilterTags";
 
 interface Props {
   filter: AvtaleFilterType;
@@ -60,7 +60,7 @@ export function AvtaleFilterTags({ filter, updateFilter, filterOpen, setTagsHeig
             onClick={() => updateFilter({ navEnheter: [], page: 1 })}
           />
         )}
-        <TiltakstypeFilterTags
+        <TiltakskodeFilterTags
           tiltakskoder={filter.tiltakstyper}
           onRemove={(tiltakskode) => removeArrayItem("tiltakstyper", tiltakskode)}
         />
