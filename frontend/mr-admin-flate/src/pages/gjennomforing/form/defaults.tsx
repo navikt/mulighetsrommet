@@ -15,24 +15,9 @@ import {
   UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
-import { amoKategoriseringRequest } from "@/schemas/avtale";
 import { kreverDirekteVedtak } from "@/utils/tiltakstype";
-import { GjennomforingFormValues } from "@/schemas/gjennomforing";
-
-function defaultArrangor(
-  avtale: AvtaleDto,
-  gjennomforing?: Partial<GjennomforingDto> | null,
-): string | undefined {
-  if (gjennomforing?.arrangor?.id) {
-    return gjennomforing.arrangor.id;
-  }
-
-  if (avtale.arrangor?.underenheter.length === 1) {
-    return avtale.arrangor.underenheter[0].id;
-  }
-
-  return undefined;
-}
+import { GjennomforingFormValues } from "@/pages/gjennomforing/form/validation";
+import { toAmoKategoriseringRequest } from "@/pages/avtaler/form/mappers";
 
 export function defaultGjennomforingData(
   ansatt: NavAnsattDto,
@@ -78,8 +63,8 @@ export function defaultGjennomforingData(
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
     tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
     amoKategorisering: amoKategorisering
-      ? amoKategoriseringRequest(amoKategorisering)
-      : amoKategoriseringRequest(avtale.amoKategorisering),
+      ? toAmoKategoriseringRequest(amoKategorisering)
+      : toAmoKategoriseringRequest(avtale.amoKategorisering),
     utdanningslop: utdanningslop
       ? toUtdanningslopDbo(utdanningslop)
       : avtale.utdanningslop
@@ -89,6 +74,21 @@ export function defaultGjennomforingData(
     pameldingType: gjennomforing?.pameldingType || getDefaultPameldingType(oppstart),
     prismodellId: prismodell?.id ?? avtale.prismodeller[0]?.id,
   };
+}
+
+function defaultArrangor(
+  avtale: AvtaleDto,
+  gjennomforing?: Partial<GjennomforingDto> | null,
+): string | undefined {
+  if (gjennomforing?.arrangor?.id) {
+    return gjennomforing.arrangor.id;
+  }
+
+  if (avtale.arrangor?.underenheter.length === 1) {
+    return avtale.arrangor.underenheter[0].id;
+  }
+
+  return undefined;
 }
 
 function oppmoteSted(

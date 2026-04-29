@@ -3,7 +3,7 @@ import {
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
 } from "@tiltaksadministrasjon/api-client";
-import { VeilederinformasjonSchema } from "@/schemas/avtale";
+import { VeilederinformasjonSchema } from "@/pages/avtaler/form/validation";
 
 export const gjennomforingDetaljerSchema = z
   .object({

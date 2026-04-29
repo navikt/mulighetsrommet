@@ -15,7 +15,7 @@ import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/Redaks
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormListInput } from "@/components/skjema/FormListInput";
-import { GjennomforingFormValues } from "@/schemas/gjennomforing";
+import { GjennomforingFormValues } from "@/pages/gjennomforing/form/validation";
 
 interface Props {
   tiltakId: string;

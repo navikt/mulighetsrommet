@@ -1,5 +1,5 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { Button, HStack, Spacer, TextField, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";

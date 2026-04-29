@@ -1,11 +1,14 @@
 import {
+  AvtaleDetaljerOutputValues,
   AvtaleFormValues,
   PersonopplysningerOutputValues,
   PrismodellValues,
   VeilederinfoOutputValues,
-} from "@/schemas/avtale";
-import { AvtaleDetaljerOutputValues } from "@/schemas/avtaledetaljer";
+} from "@/pages/avtaler/form/validation";
 import {
+  AmoKategoriseringDto,
+  AmoKategoriseringRequest,
+  AmoKurstype,
   DetaljerRequest,
   OpprettAvtaleRequest,
   PersonvernRequest,
@@ -85,4 +88,60 @@ export function toVeilederinfoRequest(data: VeilederinfoOutputValues): Veilederi
       .concat(veilederinformasjon.navKontorer)
       .concat(veilederinformasjon.navAndreEnheter),
   };
+}
+
+export function toAmoKategoriseringRequest(
+  amoKategorisering: AmoKategoriseringDto | null,
+): AmoKategoriseringRequest | null {
+  switch (amoKategorisering?.kurstype) {
+    case AmoKurstype.BRANSJE_OG_YRKESRETTET:
+      return {
+        kurstype: AmoKurstype.BRANSJE_OG_YRKESRETTET,
+        bransje: amoKategorisering.bransje,
+        sertifiseringer: amoKategorisering.sertifiseringer,
+        forerkort: amoKategorisering.forerkort,
+        innholdElementer: amoKategorisering.innholdElementer,
+        norskprove: null,
+      };
+    case AmoKurstype.NORSKOPPLAERING:
+      return {
+        kurstype: AmoKurstype.NORSKOPPLAERING,
+        innholdElementer: amoKategorisering.innholdElementer,
+        norskprove: amoKategorisering.norskprove,
+        bransje: null,
+        sertifiseringer: null,
+        forerkort: null,
+      };
+    case AmoKurstype.GRUNNLEGGENDE_FERDIGHETER:
+      return {
+        kurstype: AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+        innholdElementer: amoKategorisering.innholdElementer,
+        norskprove: null,
+        bransje: null,
+        sertifiseringer: null,
+        forerkort: null,
+      };
+    case AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
+      return {
+        kurstype: AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+        innholdElementer: amoKategorisering.innholdElementer,
+        norskprove: null,
+        bransje: null,
+        sertifiseringer: null,
+        forerkort: null,
+      };
+    case AmoKurstype.STUDIESPESIALISERING:
+      return {
+        kurstype: AmoKurstype.STUDIESPESIALISERING,
+        innholdElementer: null,
+        norskprove: null,
+        bransje: null,
+        sertifiseringer: null,
+        forerkort: null,
+      };
+
+    case null:
+    case undefined:
+      return null;
+  }
 }
