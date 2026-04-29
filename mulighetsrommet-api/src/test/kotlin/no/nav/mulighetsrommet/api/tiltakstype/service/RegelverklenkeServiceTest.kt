@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.tiltakstype.service
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
@@ -8,6 +10,8 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import java.util.UUID
@@ -104,21 +108,40 @@ class RegelverklenkeServiceTest : FunSpec({
     }
 
     context("delete") {
-        test("returnerer false når lenken ikke finnes") {
+        test("returnerer ok selv når lenken ikke finnes") {
             val service = createService()
 
-            service.delete(UUID.randomUUID()) shouldBe false
+            service.delete(UUID.randomUUID()).shouldBeRight()
         }
 
-        test("sletter lenken og returnerer true") {
+        test("sletter lenken når den ikke er i bruk") {
             val service = createService()
 
-            val saved = service.upsert(create("https://slett.example.com"))
+            val link = service.upsert(create("https://slett.example.com"))
 
-            service.delete(saved.id) shouldBe true
-            service.getById(saved.id).shouldBeNull()
+            service.delete(link.id).shouldBeRight()
+
+            service.getById(link.id).shouldBeNull()
 
             service.getAll().shouldBeEmpty()
+        }
+
+        test("returnerer valideringsfeil når lenken er i bruk") {
+            val service = createService()
+
+            val link = service.upsert(create("https://bruk.example.com"))
+
+            database.db.transaction {
+                queries.tiltakstype.upsert(TiltakstypeFixtures.AFT)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.VTA)
+                queries.tiltakstype.setFaglenker(TiltakstypeFixtures.AFT.id, listOf(link.id))
+                queries.tiltakstype.setFaglenker(TiltakstypeFixtures.VTA.id, listOf(link.id))
+            }
+
+            service.delete(link.id) shouldBeLeft listOf(
+                FieldError.of("Lenken er i bruk av tiltakstypen «Arbeidsforberedende trening»"),
+                FieldError.of("Lenken er i bruk av tiltakstypen «Varig tilrettelagt arbeid i skjermet virksomhet»"),
+            )
         }
     }
 })
