@@ -9,6 +9,6 @@ set filter = jsonb_set(
         '[]'::jsonb
     )
 )
-where type in ('GJENNOMFORING', 'AVTALE')
+where type in ('GJENNOMFORING', 'AVTALE', 'INNSENDING')
   and filter ? 'tiltakstyper'
   and jsonb_array_length(filter -> 'tiltakstyper') > 0;

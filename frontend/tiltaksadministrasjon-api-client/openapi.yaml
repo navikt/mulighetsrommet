@@ -2290,7 +2290,7 @@ paths:
         schema:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/Tiltakskode"
       - name: navEnheter
         in: query
         required: false

@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningType
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
-import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -622,7 +621,7 @@ class UtbetalingQueries(private val session: Session) {
     ): List<InnsendingKompaktDto> = with(session) {
         val parameters = mapOf(
             "nav_enheter" to filter.navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
-            "tiltakstyper" to filter.tiltakstyper.ifEmpty { null }?.let { createUuidArray(it) },
+            "tiltakskoder" to filter.tiltakskoder.ifEmpty { null }?.let { createTextArray(it) },
         )
 
         val order = when (filter.sortering) {
@@ -667,7 +666,7 @@ class UtbetalingQueries(private val session: Session) {
                                                  join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
                                         where utbetaling.gjennomforing_id = tilsagn.gjennomforing_id and utbetaling.periode && tilsagn.periode) on true
             where (utbetaling.status = 'GENERERT')
-              and (:tiltakstyper::uuid[] is null or gjennomforing.tiltakstype_id = any (:tiltakstyper))
+              and (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any (:tiltakskoder))
               and (:nav_enheter::text[] is null or (
                        exists(select true
                               from jsonb_array_elements(kostnadssteder_json) as nav_enhet

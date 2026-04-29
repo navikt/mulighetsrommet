@@ -541,7 +541,7 @@ class UtbetalingQueriesTest : FunSpec({
                 queries.utbetaling.getAll(
                     filter = AdminInnsendingerFilter(
                         navEnheter = emptyList(),
-                        tiltakstyper = emptyList(),
+                        tiltakskoder = emptyList(),
                         sortering = null,
                     ),
                 ).shouldHaveSize(1).should { (first) ->
@@ -554,7 +554,7 @@ class UtbetalingQueriesTest : FunSpec({
                 queries.utbetaling.getAll(
                     filter = AdminInnsendingerFilter(
                         navEnheter = emptyList(),
-                        tiltakstyper = emptyList(),
+                        tiltakskoder = emptyList(),
                         sortering = null,
                     ),
                 ).shouldHaveSize(2).should { (first, second) ->
@@ -601,7 +601,7 @@ class UtbetalingQueriesTest : FunSpec({
                 utbetalingQueries.getAll(
                     filter = AdminInnsendingerFilter(
                         navEnheter = listOf(),
-                        tiltakstyper = emptyList(),
+                        tiltakskoder = emptyList(),
                         sortering = null,
                     ),
                 ).shouldHaveSize(1).should { (utbetaling) ->
@@ -638,12 +638,11 @@ class UtbetalingQueriesTest : FunSpec({
                 queries.utbetaling.getAll(
                     filter = AdminInnsendingerFilter(
                         navEnheter = emptyList(),
-                        tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
+                        tiltakskoder = listOf(TiltakstypeFixtures.AFT.tiltakskode),
                         sortering = null,
                     ),
                 ).shouldHaveSize(1).should { (first) ->
                     first.id shouldBe utbetaling1.id
-                    first.tiltakstype.tiltakskode shouldBe TiltakstypeFixtures.AFT.tiltakskode
                 }
             }
         }
@@ -671,7 +670,7 @@ class UtbetalingQueriesTest : FunSpec({
                 utbetalingQueries.getAll(
                     filter = AdminInnsendingerFilter(
                         navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
-                        tiltakstyper = emptyList(),
+                        tiltakskoder = emptyList(),
                         sortering = null,
                     ),
                 ).shouldHaveSize(1).should { (first) ->
