@@ -1,6 +1,7 @@
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
+import { SetEstimertVentetidModal } from "@/components/gjennomforing/SetEstimertVentetidModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
@@ -44,6 +45,7 @@ export function GjennomforingHandlinger({
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
+  const [estimertVentetidModalOpen, setEstimertVentetidModalOpen] = useState(false);
 
   const { mutate: setPublisert } = useSetPublisert(gjennomforing.id);
 
@@ -96,6 +98,13 @@ export function GjennomforingHandlinger({
               </ActionMenu.Item>
             </AdministratorGuard>
           )}
+        {handlinger.includes(GjennomforingHandling.REGISTRER_ESTIMERT_VENTETID) && (
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => setEstimertVentetidModalOpen(true)}>
+              Registrer estimert ventetid
+            </ActionMenu.Item>
+          </AdministratorGuard>
+        )}
         {handlinger.includes(GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR) && (
           <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
             <ActionMenu.Item onClick={() => registrerStengtModalRef.current?.showModal()}>
@@ -149,6 +158,11 @@ export function GjennomforingHandlinger({
       />
       <SetApentForPameldingModal
         modalRef={apentForPameldingModalRef}
+        gjennomforingId={gjennomforing.id}
+      />
+      <SetEstimertVentetidModal
+        open={estimertVentetidModalOpen}
+        setOpen={setEstimertVentetidModalOpen}
         gjennomforingId={gjennomforing.id}
       />
       <AvbrytGjennomforingModal

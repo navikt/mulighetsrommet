@@ -25,12 +25,6 @@ export const gjennomforingDetaljerSchema = z
     oppmoteSted: z.string().nullable(),
     deltidsprosent: z.number(),
     tilgjengeligForArrangorDato: z.string().nullable(),
-    estimertVentetid: z
-      .object({
-        verdi: z.number().nullable(),
-        enhet: z.string().nullable(),
-      })
-      .nullable(),
   })
   .loose();
 

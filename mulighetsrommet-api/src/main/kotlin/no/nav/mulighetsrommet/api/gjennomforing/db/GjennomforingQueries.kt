@@ -140,8 +140,6 @@ class GjennomforingQueries(private val session: Session) {
                 antall_plasser                  = :antall_plasser,
                 prismodell_id                   = :prismodell_id::uuid,
                 oppmote_sted                    = :oppmote_sted,
-                estimert_ventetid_verdi         = :estimert_ventetid_verdi,
-                estimert_ventetid_enhet         = :estimert_ventetid_enhet,
                 tilgjengelig_for_arrangor_dato  = :tilgjengelig_for_arrangor_dato
             where id = :id::uuid
         """.trimIndent()
@@ -159,12 +157,22 @@ class GjennomforingQueries(private val session: Session) {
             "antall_plasser" to detaljer.antallPlasser,
             "prismodell_id" to detaljer.prismodellId,
             "oppmote_sted" to detaljer.oppmoteSted,
-            "estimert_ventetid_verdi" to detaljer.estimertVentetidVerdi,
-            "estimert_ventetid_enhet" to detaljer.estimertVentetidEnhet,
             "tilgjengelig_for_arrangor_dato" to detaljer.tilgjengeligForArrangorDato,
         )
 
         session.execute(queryOf(query, params))
+    }
+
+    fun setEstimertVentetid(id: UUID, verdi: Int?, enhet: String?) {
+        @Language("PostgreSQL")
+        val query = """
+            update gjennomforing
+            set estimert_ventetid_verdi = :verdi,
+                estimert_ventetid_enhet = :enhet
+            where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, mapOf("id" to id, "verdi" to verdi, "enhet" to enhet)))
     }
 
     fun setRedaksjoneltInnhold(id: UUID, beskrivelse: String?, faneinnhold: Faneinnhold?) {
