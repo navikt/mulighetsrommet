@@ -1,7 +1,13 @@
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { erTilgjengeligForGjennomforinger } from "@/utils/tiltakstype";
+import {
+  SortDirection,
+  TiltakstypeEgenskap,
+  TiltakstypeSortField,
+} from "@tiltaksadministrasjon/api-client";
 
 export function useTiltakstyperForGjennomforinger() {
-  const tiltakstyper = useTiltakstyper();
-  return tiltakstyper.filter(erTilgjengeligForGjennomforinger);
+  return useTiltakstyper({
+    sort: { field: TiltakstypeSortField.NAVN, direction: SortDirection.ASC },
+    egenskaper: [TiltakstypeEgenskap.STOTTER_AVTALER, TiltakstypeEgenskap.STOTTER_ENKELTPLASSER],
+  });
 }

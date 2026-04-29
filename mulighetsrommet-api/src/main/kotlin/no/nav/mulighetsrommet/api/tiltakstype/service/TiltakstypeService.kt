@@ -53,7 +53,7 @@ class TiltakstypeService(
             .mapTo(mutableSetOf()) { it.key }
     }
 
-    fun getAllIdsByFeatures(features: Set<TiltakstypeFeature>): List<UUID> {
+    fun getIdsByFeatures(features: Set<TiltakstypeFeature>): List<UUID> {
         val tiltakskoder = getTiltakskodeByFeatures(features)
         return db.session {
             queries.tiltakstype.getAll(tiltakskoder = tiltakskoder).map { it.id }
@@ -63,6 +63,16 @@ class TiltakstypeService(
     fun getByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype {
         return CacheUtils.tryCacheFirstNotNull(cacheByTiltakskode, tiltakskode.name) {
             db.session { queries.tiltakstype.getByTiltakskode(tiltakskode) }
+        }
+    }
+
+    fun getIdsByTiltakskoder(tiltakskoder: List<Tiltakskode>): List<UUID> {
+        if (tiltakskoder.isEmpty()) {
+            return emptyList()
+        }
+
+        return db.session {
+            queries.tiltakstype.getAll(tiltakskoder = tiltakskoder.toSet()).map { it.id }
         }
     }
 

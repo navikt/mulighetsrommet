@@ -10,9 +10,9 @@ const TiltakstypeFilterSchema = z.object({
   }),
 });
 
-export type TiltakstypeFilterType = z.infer<typeof TiltakstypeFilterSchema>;
+type TiltakstypeFilterType = z.infer<typeof TiltakstypeFilterSchema>;
 
-export const defaultTiltakstypeFilter: TiltakstypeFilterType = {
+const defaultTiltakstypeFilter: TiltakstypeFilterType = {
   sort: {
     field: TiltakstypeSortField.NAVN,
     direction: SortDirection.ASC,

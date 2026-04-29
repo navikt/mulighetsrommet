@@ -736,14 +736,14 @@ class GjennomforingQueriesTest : FunSpec({
                     gjennomforinger = listOf(Oppfolging1, VTA1, AFT1),
                 ).setup(session)
 
-                queries.gjennomforing.getAll(tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id))
+                queries.gjennomforing.getAll(tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.id))
                     .should { (totalCount, gjennomforinger) ->
                         totalCount shouldBe 1
                         gjennomforinger shouldContainExactlyIds listOf(Oppfolging1.id)
                     }
 
                 queries.gjennomforing.getAll(
-                    tiltakstypeIder = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.VTA.id),
+                    tiltakstyper = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.VTA.id),
                 ).should { (totalCount, gjennomforinger) ->
                     totalCount shouldBe 2
                     gjennomforinger shouldContainExactlyIds listOf(VTA1.id, AFT1.id)

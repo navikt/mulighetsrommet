@@ -396,9 +396,10 @@ class AvtaleService(
     }
 
     fun getAll(pagination: Pagination, filter: AvtaleFilter): PaginatedResponse<AvtaleDto> = db.session {
+        val tiltakstyper = tiltakstypeService.getIdsByTiltakskoder(filter.tiltakskoder)
         val (totalCount, items) = queries.avtale.getAll(
             pagination = pagination,
-            tiltakstypeIder = filter.tiltakstypeIder,
+            tiltakstyper = tiltakstyper,
             search = filter.search,
             statuser = filter.statuser,
             avtaletyper = filter.avtaletyper,

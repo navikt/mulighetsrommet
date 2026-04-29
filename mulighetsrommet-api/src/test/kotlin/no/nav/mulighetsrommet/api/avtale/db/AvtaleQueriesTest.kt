@@ -851,14 +851,14 @@ class AvtaleQueriesTest : FunSpec({
                 domain.setup(session)
 
                 queries.avtale.getAll(
-                    tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
+                    tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.id),
                 ).should { (totalCount, items) ->
                     totalCount shouldBe 2
                     items shouldContainExactlyIds listOf(domain.avtaler[0].id, domain.avtaler[1].id)
                 }
 
                 queries.avtale.getAll(
-                    tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id, TiltakstypeFixtures.AFT.id),
+                    tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.id, TiltakstypeFixtures.AFT.id),
                 ).should { (totalCount) ->
                     totalCount shouldBe 3
                 }
