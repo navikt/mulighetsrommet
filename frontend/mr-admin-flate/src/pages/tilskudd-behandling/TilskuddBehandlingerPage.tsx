@@ -7,6 +7,7 @@ import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ActionMenu, Alert, Table } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
 import { formaterDato } from "@mr/frontend-common/utils/date";
+import { opplaeringTilskuddToString } from "@/utils/Utils";
 
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -47,7 +48,9 @@ export function TilskuddBehandlingerPage() {
                 <Table.DataCell>{b.journalpostId}</Table.DataCell>
                 <Table.DataCell>{formaterDato(b.periode.start)}</Table.DataCell>
                 <Table.DataCell>{formaterDato(b.periode.slutt)}</Table.DataCell>
-                <Table.DataCell>{b.tilskuddtyper.join(", ")}</Table.DataCell>
+                <Table.DataCell>
+                  {b.tilskuddtyper.map((t) => opplaeringTilskuddToString(t)).join(", ")}
+                </Table.DataCell>
                 <Table.DataCell>
                   <DataElementStatusTag {...b.status.status} />
                 </Table.DataCell>

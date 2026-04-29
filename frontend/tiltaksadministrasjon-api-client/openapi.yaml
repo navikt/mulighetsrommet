@@ -7704,10 +7704,10 @@ components:
           $ref: "#/components/schemas/Periode"
         kostnadssted:
           type: string
-        vedtak:
+        tilskudd:
           type: array
           items:
-            $ref: "#/components/schemas/TilskuddVedtakDto"
+            $ref: "#/components/schemas/TilskuddOpplaeringDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
       required:
@@ -7718,8 +7718,8 @@ components:
       - soknadDato
       - soknadJournalpostId
       - status
-      - vedtak
-    TilskuddVedtakDto:
+      - tilskudd
+    TilskuddOpplaeringDto:
       type: object
       properties:
         id:
@@ -7813,7 +7813,7 @@ components:
         tilskuddtyper:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/TilskuddOpplaeringType"
           uniqueItems: true
         periode:
           $ref: "#/components/schemas/Periode"

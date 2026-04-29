@@ -145,7 +145,7 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
                         soknadDato = it.soknadDato,
                         periode = it.periode,
                         journalpostId = it.soknadJournalpostId,
-                        tilskuddtyper = it.vedtak.map { vedtak -> vedtak.tilskuddOpplaeringType.name }
+                        tilskuddtyper = it.tilskudd.map { vedtak -> vedtak.tilskuddOpplaeringType}
                             .toSet(),
                         kostnadssted = it.kostnadssted,
                         status = it.status,

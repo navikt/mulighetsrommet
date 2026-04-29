@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
 @Serializable
-data class TilskuddVedtakDto(
+data class TilskuddOpplaeringDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tilskuddOpplaeringType: TilskuddOpplaeringType,
