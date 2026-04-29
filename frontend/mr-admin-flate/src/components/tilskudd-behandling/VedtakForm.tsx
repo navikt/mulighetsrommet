@@ -5,11 +5,12 @@ import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { FormGroup } from "@/layouts/FormGroup";
 import { TilskuddBehandlingRequest, VedtakResultat } from "@tiltaksadministrasjon/api-client";
+import { opplaeringTilskuddToString } from "@/utils/Utils";
 
 export function VedtakForm() {
   const { watch } = useFormContext<TilskuddBehandlingRequest>();
 
-  const vedtak = watch("vedtak");
+  const tilskudd = watch("tilskudd");
 
   return (
     <>
@@ -17,12 +18,19 @@ export function VedtakForm() {
         Vedtak
       </Heading>
       <VStack gap="space-20" align="start">
-        {vedtak.map((v, index) => (
+        {tilskudd.map((t, index) => (
           <FormGroup key={index}>
             <VStack gap="space-4">
-              <MetadataVStack label="Tilskuddstype" value={v.tilskuddOpplaeringType} />
-              <MetadataVStack label="Hvem skal motta utbetalingen?" value={v.utbetalingMottaker} />
-              <MetadataVStack label="Beløp fra søknad" value={v.soknadBelop?.belop} />
+              <MetadataVStack
+                label="Tilskuddstype"
+                value={
+                  t.tilskuddOpplaeringType
+                    ? opplaeringTilskuddToString(t.tilskuddOpplaeringType)
+                    : "-"
+                }
+              />
+              <MetadataVStack label="Hvem skal motta utbetalingen?" value={t.utbetalingMottaker} />
+              <MetadataVStack label="Beløp fra søknad" value={t.soknadBelop?.belop} />
             </VStack>
             <Separator />
             <HStack gap="space-24" align="start" justify="space-between">
