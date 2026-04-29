@@ -24,7 +24,7 @@ import {
   UNSAFE_Combobox,
   VStack,
 } from "@navikt/ds-react";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModal";
@@ -78,13 +78,13 @@ export function GjennomforingFormDetaljer(props: Props) {
   const valgtPrismodell = avtale.prismodeller.find((p) => p.id === watch("prismodellId"));
   const antallDeltakere = deltakere?.antallDeltakere ?? 0;
 
-  function visAdvarselForSluttDato() {
-    if (
-      gjennomforing &&
-      antallDeltakere > 0 &&
-      watchSluttDato &&
-      gjennomforing.sluttDato !== watchSluttDato
-    ) {
+  function visAdvarselForSluttDato(sluttDato: string | null) {
+    if (!gjennomforing || antallDeltakere === 0 || !sluttDato) {
+      return;
+    }
+
+    const shouldDisplayWarning = !gjennomforing.sluttDato || sluttDato < gjennomforing.sluttDato;
+    if (shouldDisplayWarning) {
       endreSluttDatoModalRef.current?.showModal();
     }
   }
@@ -214,7 +214,11 @@ export function GjennomforingFormDetaljer(props: Props) {
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
                 name={"sluttDato"}
-                rules={{ onChange: visAdvarselForSluttDato }}
+                rules={{
+                  onChange: (event: ChangeEvent<HTMLInputElement>) => {
+                    visAdvarselForSluttDato(event.target.value);
+                  },
+                }}
               />
             </HGrid>
             <HGrid align="start" columns={2}>
