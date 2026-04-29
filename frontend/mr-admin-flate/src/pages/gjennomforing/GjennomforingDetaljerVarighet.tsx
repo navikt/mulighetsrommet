@@ -83,6 +83,11 @@ function getVarighetOgPameldingGruppe(
       key: gjennomforingTekster.pamelding.label,
       value: gjennomforingTekster.pamelding.beskrivelse(gjennomforing.pameldingType),
     },
+    {
+      key: gjennomforingTekster.oppmoteStedLabel,
+      value: veilederinfo?.oppmoteSted,
+      spanColumns: true,
+    },
   ].filter((definition) => !!definition);
 }
 

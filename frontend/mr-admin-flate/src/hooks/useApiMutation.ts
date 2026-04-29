@@ -56,11 +56,17 @@ export function useApiMutation<
     ) => {
       const currentOptions = latestOptionsRef.current;
       baseMutate(variables, {
-        onSuccess: (data, variables, onMutateResult, context) => {
+        onSuccess: async (data, variables, onMutateResult, context) => {
+          if (currentOptions.onSuccess) {
+            await currentOptions.onSuccess(
+              data,
+              variables,
+              onMutateResult as TOnMutateResult,
+              context,
+            );
+          }
           if (mutateOptions?.onSuccess) {
-            mutateOptions.onSuccess(data, variables, onMutateResult, context);
-          } else if (currentOptions.onSuccess && onMutateResult) {
-            currentOptions.onSuccess(data, variables, onMutateResult, context);
+            mutateOptions.onSuccess(data, variables, onMutateResult as TOnMutateResult, context);
           }
         },
         onError: (error, variables, onMutateResult, context) => {

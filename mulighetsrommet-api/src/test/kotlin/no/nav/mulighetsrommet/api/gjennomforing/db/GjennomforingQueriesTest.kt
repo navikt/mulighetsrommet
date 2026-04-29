@@ -105,7 +105,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.administratorer shouldBe listOf()
                     it.kontorstruktur.shouldNotBeNull()
                     it.kontaktpersoner shouldBe listOf()
-                    it.oppmoteSted shouldBe "Munch museet"
+                    it.oppmoteSted.shouldBeNull()
                     it.faneinnhold shouldBe null
                     it.beskrivelse shouldBe null
                 }
@@ -384,7 +384,8 @@ class GjennomforingQueriesTest : FunSpec({
             )
 
             database.runAndRollback {
-                queries.gjennomforing.upsert(Oppfolging1.copy(faneinnhold = faneinnhold))
+                queries.gjennomforing.upsert(Oppfolging1)
+                queries.gjennomforing.setRedaksjoneltInnhold(Oppfolging1.id, null, faneinnhold)
 
                 queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
                     it.faneinnhold.shouldNotBeNull().forHvem shouldBe faneinnhold.forHvem

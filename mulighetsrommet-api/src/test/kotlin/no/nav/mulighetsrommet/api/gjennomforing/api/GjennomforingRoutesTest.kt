@@ -210,7 +210,7 @@ class GjennomforingRoutesTest : FunSpec({
                 response.body<ValidationError>().errors shouldBe listOf(
                     FieldError.of(
                         "Du må velge minst én administrator",
-                        GjennomforingRequest::administratorer,
+                        GjennomforingDetaljerRequest::administratorer,
                     ),
                 )
             }

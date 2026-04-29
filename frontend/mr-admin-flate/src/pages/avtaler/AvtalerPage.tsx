@@ -77,7 +77,7 @@ export function AvtalerPage() {
             }
             buttons={
               handlinger.includes(AvtaleHandling.OPPRETT) ? (
-                <Button as={Link} to="/avtaler/opprett-avtale" size="small" variant="primary">
+                <Button as={Link} to="/avtaler/opprett" size="small" variant="primary">
                   Opprett ny avtale
                 </Button>
               ) : null
