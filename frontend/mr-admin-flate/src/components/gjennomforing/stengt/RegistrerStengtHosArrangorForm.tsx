@@ -1,13 +1,11 @@
 import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArrangor";
-import { QueryKeys } from "@/api/QueryKeys";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { SetStengtHosArrangorRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { FloppydiskIcon } from "@navikt/aksel-icons";
 import { Alert, Box, Button, HStack, TextField, VStack } from "@navikt/ds-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 interface RegistrerStengtHosArrangorFormProps {
   gjennomforingId: string;
@@ -17,27 +15,17 @@ export function RegistrerStengtHosArrangorForm({
   gjennomforingId,
 }: RegistrerStengtHosArrangorFormProps) {
   const setStengtHosArrangor = useSetStengtHosArrangor(gjennomforingId);
-  const queryClient = useQueryClient();
 
   const form = useForm<SetStengtHosArrangorRequest>({});
 
-  const { register, handleSubmit, formState, setError, getValues, setValue } = form;
+  const { register, handleSubmit, formState, getValues, setValue } = form;
 
   function onSubmit(data: SetStengtHosArrangorRequest) {
     setStengtHosArrangor.mutate(data, {
-      onSuccess: async () => {
+      onSuccess: () => {
         form.reset();
-        await queryClient.invalidateQueries({
-          queryKey: QueryKeys.gjennomforing(gjennomforingId),
-          refetchType: "all",
-        });
       },
-      onValidationError: (error: ValidationError) => {
-        error.errors.forEach((error) => {
-          const name = jsonPointerToFieldPath(error.pointer) as keyof SetStengtHosArrangorRequest;
-          setError(name, { type: "custom", message: error.detail });
-        });
-      },
+      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
     });
   }
 

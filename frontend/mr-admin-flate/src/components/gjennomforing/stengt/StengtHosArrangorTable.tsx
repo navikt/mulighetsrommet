@@ -1,9 +1,7 @@
 import { useDeleteStengtHosArrangor } from "@/api/gjennomforing/useDeleteStengtHosArrangor";
-import { QueryKeys } from "@/api/QueryKeys";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Table } from "@navikt/ds-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { GjennomforingAvtaleDto } from "@tiltaksadministrasjon/api-client";
 
 interface StengtHosArrangorTableProps {
@@ -13,21 +11,13 @@ interface StengtHosArrangorTableProps {
 
 export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArrangorTableProps) {
   const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforing.id);
-  const queryClient = useQueryClient();
 
   if (gjennomforing.stengt.length === 0) {
     return null;
   }
 
   function deleteStengtPeriode(periodeId: number) {
-    deleteStengtHosArrangor.mutate(periodeId, {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: QueryKeys.gjennomforing(gjennomforing.id),
-          refetchType: "all",
-        });
-      },
-    });
+    deleteStengtHosArrangor.mutate(periodeId);
   }
 
   return (
