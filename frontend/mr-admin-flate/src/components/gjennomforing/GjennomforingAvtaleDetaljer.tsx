@@ -1,4 +1,4 @@
-import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
+import { useAvtale } from "@/api/avtaler/useAvtale";
 import { usePollTiltaksnummer } from "@/api/gjennomforing/usePollTiltaksnummer";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { NokkeltallDeltakere } from "@/components/gjennomforing/NokkeltallDeltakere";
@@ -44,7 +44,7 @@ interface Props {
 export function GjennomforingAvtaleDetaljer(props: Props) {
   const { tiltakstype, gjennomforing, veilederinfo, utdanningslop, amoKategorisering, prismodell } =
     props;
-  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
+  const { data: avtale } = useAvtale(gjennomforing.avtaleId);
 
   const gjennomforingMeta: Definition[] = [
     { key: gjennomforingTekster.tiltaksnavnLabel, value: gjennomforing.navn },
@@ -81,7 +81,7 @@ export function GjennomforingAvtaleDetaljer(props: Props) {
 
   const { arrangor } = gjennomforing;
   const arrangorMeta: Definition[] = [
-    ...(avtale?.arrangor
+    ...(avtale.arrangor
       ? [
           {
             key: gjennomforingTekster.tiltaksarrangorHovedenhetLabel,
@@ -113,7 +113,7 @@ export function GjennomforingAvtaleDetaljer(props: Props) {
       <TwoColumnGrid separator>
         <DetaljerLayout>
           <Definisjonsliste title="Gjennomføring" definitions={gjennomforingMeta} />
-          {avtale && <GjennomforingDetaljerAvtale avtale={avtale} />}
+          <GjennomforingDetaljerAvtale avtale={avtale} />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering &&
             !kursOgTiltakErStudiespesialisering(

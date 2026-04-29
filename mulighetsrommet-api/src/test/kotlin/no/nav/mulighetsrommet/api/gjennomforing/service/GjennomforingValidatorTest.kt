@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.TiltakOslo
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
@@ -128,23 +127,6 @@ class GjennomforingValidatorTest : FunSpec({
         c: GjennomforingValidator.Context,
     ): Validated<GjennomforingValidator.DetaljerResult> {
         return GjennomforingValidator.validateUpdateDetaljer(c, r.id, r.detaljer)
-    }
-
-    test("validerer estimertVentetid") {
-        validateCreate(
-            request.copy(
-                detaljer = request.detaljer.copy(
-                    estimertVentetid = GjennomforingDetaljerRequest.EstimertVentetid(
-                        verdi = null,
-                        enhet = null,
-                    ),
-                ),
-            ),
-            ctx,
-        ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            FieldError("/estimertVentetid/enhet", "Du må velge en enhet"),
-            FieldError("/estimertVentetid/verdi", "Du må velge en verdi større enn 0"),
-        )
     }
 
     test("skal ikke kunne sette felles oppstart når tiltaket krever løpende oppstart") {

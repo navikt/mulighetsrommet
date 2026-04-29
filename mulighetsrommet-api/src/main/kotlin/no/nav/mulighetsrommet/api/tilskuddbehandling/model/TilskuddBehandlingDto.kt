@@ -22,7 +22,7 @@ data class TilskuddBehandlingDto(
     val soknadDato: LocalDate,
     val periode: Periode,
     val kostnadssted: NavEnhetNummer,
-    val vedtak: List<TilskuddVedtakDto>,
+    val tilskudd: List<TilskuddOpplaeringDto>,
     val status: TilskuddBehandlingStatusDto,
     val kommentarIntern: String?,
 )
@@ -40,6 +40,8 @@ data class TilskuddBehandlingKompakt(
     val id: UUID,
     @Serializable(with = LocalDateSerializer::class)
     val soknadDato: LocalDate,
+    val journalpostId: String,
+    val tilskuddtyper: Set<TilskuddOpplaeringType>,
     val periode: Periode,
     val kostnadssted: NavEnhetNummer,
     val status: TilskuddBehandlingStatusDto,

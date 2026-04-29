@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -269,6 +270,21 @@ class GjennomforingAvtaleService(
         logEndring("Gjennomføringen ble avbrutt", id, avbruttAv)
             .also { publishToKafka(it) }
             .right()
+    }
+
+    fun setEstimertVentetid(
+        id: UUID,
+        ventetid: GjennomforingAvtaleDetaljer.EstimertVentetid?,
+        navIdent: NavIdent,
+    ): Unit = db.transaction {
+        queries.gjennomforing.setEstimertVentetid(id, ventetid?.verdi, ventetid?.enhet)
+
+        val operation = if (ventetid != null) {
+            "Satte estimert ventetid"
+        } else {
+            "Fjernet estimert ventetid"
+        }
+        logEndring(operation, id, navIdent)
     }
 
     fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, agent: Agent): Unit = db.transaction {

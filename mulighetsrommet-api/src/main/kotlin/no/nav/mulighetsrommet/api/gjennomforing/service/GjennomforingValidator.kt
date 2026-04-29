@@ -207,20 +207,6 @@ object GjennomforingValidator {
                 GjennomforingDetaljerRequest::antallPlasser,
             )
         }
-        validate(detaljer.estimertVentetid == null || detaljer.estimertVentetid.enhet != null) {
-            FieldError.of(
-                "Du må velge en enhet",
-                GjennomforingDetaljerRequest::estimertVentetid,
-                GjennomforingDetaljerRequest.EstimertVentetid::enhet,
-            )
-        }
-        validate(detaljer.estimertVentetid == null || (detaljer.estimertVentetid.verdi != null && detaljer.estimertVentetid.verdi > 0)) {
-            FieldError.of(
-                "Du må velge en verdi større enn 0",
-                GjennomforingDetaljerRequest::estimertVentetid,
-                GjennomforingDetaljerRequest.EstimertVentetid::verdi,
-            )
-        }
         if (ctx.harEgenskap(TiltakstypeEgenskap.KREVER_DELTIDSPROSENT)) {
             validate(detaljer.deltidsprosent > 0 && detaljer.deltidsprosent <= 100) {
                 FieldError.of(
@@ -314,8 +300,6 @@ object GjennomforingValidator {
                 antallPlasser = requireNotNull(detaljer.antallPlasser),
                 prismodellId = detaljer.prismodellId,
                 oppmoteSted = detaljer.oppmoteSted?.ifBlank { null },
-                estimertVentetidVerdi = detaljer.estimertVentetid?.verdi,
-                estimertVentetidEnhet = detaljer.estimertVentetid?.enhet,
                 tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
             ),
             administratorer = detaljer.administratorer,

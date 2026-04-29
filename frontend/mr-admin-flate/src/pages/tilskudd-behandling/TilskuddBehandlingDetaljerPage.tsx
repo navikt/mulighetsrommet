@@ -122,23 +122,23 @@ export function TilskuddBehandlingDetaljerPage() {
                   ]}
                 />
                 <VStack gap="space-20" align="start">
-                  {behandling.vedtak.map((v) => (
+                  {behandling.tilskudd.map((t) => (
                     <Box
                       className="w-full"
                       borderWidth="2"
                       borderRadius="8"
                       borderColor="neutral-subtle"
                       padding="space-8"
-                      key={v.id}
+                      key={t.id}
                     >
                       <VStack gap="space-8">
                         <Definisjonsliste
                           definitions={[
-                            { key: "Tilskuddstype", value: v.tilskuddOpplaeringType },
-                            { key: "Hvem skal motta utbetalingen?", value: v.utbetalingMottaker },
+                            { key: "Tilskuddstype", value: t.tilskuddOpplaeringType },
+                            { key: "Hvem skal motta utbetalingen?", value: t.utbetalingMottaker },
                             {
                               key: "Beløp fra søknad",
-                              value: formaterValuta(v.soknadBelop, v.soknadValuta),
+                              value: formaterValuta(t.soknadBelop, t.soknadValuta),
                             },
                           ]}
                         />
@@ -146,12 +146,12 @@ export function TilskuddBehandlingDetaljerPage() {
                         <Definisjonsliste
                           columns={1}
                           definitions={[
-                            { key: "Vedtaksresultat", value: v.vedtakResultat },
+                            { key: "Vedtaksresultat", value: t.vedtakResultat },
                             {
                               key: "Beløp til utbetaling",
-                              value: formaterValuta(v.belop, Valuta.NOK),
+                              value: formaterValuta(t.belop, Valuta.NOK),
                             },
-                            { key: "Kommentar til brukeren", value: v.kommentarVedtaksbrev },
+                            { key: "Kommentar til brukeren", value: t.kommentarVedtaksbrev },
                           ]}
                         />
                       </VStack>
@@ -172,7 +172,7 @@ export function TilskuddBehandlingDetaljerPage() {
                     </HStack>
                     <BodyShort size="large">
                       {formaterValuta(
-                        behandling.vedtak.reduce((sum, v) => sum + v.soknadBelop, 0),
+                        behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop, 0),
                         Valuta.NOK,
                       )}
                     </BodyShort>

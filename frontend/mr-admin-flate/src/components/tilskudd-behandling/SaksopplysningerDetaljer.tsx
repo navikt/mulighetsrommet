@@ -4,13 +4,14 @@ import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { TilskuddBehandlingDto } from "@tiltaksadministrasjon/api-client";
 import { Heading, VStack } from "@navikt/ds-react";
 import { FormGroup } from "@/layouts/FormGroup";
+import { opplaeringTilskuddToString } from "@/utils/Utils";
 
 interface Props {
   behandling: TilskuddBehandlingDto;
 }
 
 export function SaksopplysningerDetaljer({ behandling }: Props) {
-  const { soknadJournalpostId, soknadDato, periode, kostnadssted, vedtak } = behandling;
+  const { soknadJournalpostId, soknadDato, periode, kostnadssted, tilskudd } = behandling;
 
   return (
     <>
@@ -22,15 +23,18 @@ export function SaksopplysningerDetaljer({ behandling }: Props) {
         <MetadataVStack label="Søknadsdato" value={formaterDato(soknadDato)} />
         <MetadataVStack label="Periode" value={formaterPeriode(periode)} />
         <MetadataVStack label="Kostnadssted" value={kostnadssted} />
-        {vedtak.map((v) => (
-          <FormGroup key={v.id}>
+        {tilskudd.map((t) => (
+          <FormGroup key={t.id}>
             <VStack gap="space-8">
-              <MetadataVStack label="Tilskuddstype" value={v.tilskuddOpplaeringType} />
+              <MetadataVStack
+                label="Tilskuddstype"
+                value={opplaeringTilskuddToString(t.tilskuddOpplaeringType)}
+              />
               <MetadataVStack
                 label="Beløp fra søknad"
-                value={formaterValuta(v.soknadBelop, v.soknadValuta)}
+                value={formaterValuta(t.soknadBelop, t.soknadValuta)}
               />
-              <MetadataVStack label="Utbetalingsmottaker" value={v.utbetalingMottaker} />
+              <MetadataVStack label="Utbetalingsmottaker" value={t.utbetalingMottaker} />
             </VStack>
           </FormGroup>
         ))}

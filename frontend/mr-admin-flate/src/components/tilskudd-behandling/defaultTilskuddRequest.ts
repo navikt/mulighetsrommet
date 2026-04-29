@@ -1,10 +1,10 @@
 import {
-  TilskuddBehandlingRequestTilskuddVedtakRequest,
+  TilskuddBehandlingRequestTilskuddRequest,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
-export function defaultVedtakRequest(): TilskuddBehandlingRequestTilskuddVedtakRequest {
+export function defaultTilskuddRequest(): TilskuddBehandlingRequestTilskuddRequest {
   return {
     id: v4(),
     tilskuddOpplaeringType: null,

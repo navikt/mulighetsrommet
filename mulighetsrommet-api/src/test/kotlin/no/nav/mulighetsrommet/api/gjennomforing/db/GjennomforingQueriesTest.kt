@@ -327,6 +327,23 @@ class GjennomforingQueriesTest : FunSpec({
             }
         }
 
+        test("skal sette estimert ventetid") {
+            database.runAndRollback {
+                queries.gjennomforing.upsert(Oppfolging1)
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).estimertVentetid.shouldBeNull()
+
+                queries.gjennomforing.setEstimertVentetid(Oppfolging1.id, 3, "maned")
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).estimertVentetid should {
+                    it.shouldNotBeNull()
+                    it.verdi shouldBe 3
+                    it.enhet shouldBe "maned"
+                }
+
+                queries.gjennomforing.setEstimertVentetid(Oppfolging1.id, null, null)
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).estimertVentetid.shouldBeNull()
+            }
+        }
+
         test("oppdater status") {
             database.runAndRollback {
                 val id = Oppfolging1.id

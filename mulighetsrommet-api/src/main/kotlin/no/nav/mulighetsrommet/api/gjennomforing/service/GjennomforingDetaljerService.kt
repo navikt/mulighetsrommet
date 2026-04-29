@@ -181,6 +181,7 @@ class GjennomforingDetaljerService(
             GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
             GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
             GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
+            GjennomforingHandling.REGISTRER_ESTIMERT_VENTETID.takeIf { statusGjennomfores },
             GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
             GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
                 gjennomforing.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER)
@@ -232,6 +233,7 @@ class GjennomforingDetaljerService(
 
                 GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING,
                 GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR,
+                GjennomforingHandling.REGISTRER_ESTIMERT_VENTETID,
                 -> skrivGjennomforing || oppfolgerGjennomforing
 
                 GjennomforingHandling.PUBLISER,

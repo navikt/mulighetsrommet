@@ -88,7 +88,6 @@ function RedigerDetaljerForm({ gjennomforingId, gjennomforing }: FormProps) {
           tiltakstype={tiltakstype}
           avtale={avtale}
           gjennomforing={gjennomforing}
-          veilederinfo={detaljer.veilederinfo}
           deltakere={deltakere}
         />
       </FormContainer>

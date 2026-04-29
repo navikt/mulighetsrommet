@@ -41,7 +41,6 @@ export function toGjennomforingDetaljerRequest(
     pameldingType: data.pameldingType,
     oppmoteSted: data.oppmoteSted || null,
     deltidsprosent: data.deltidsprosent,
-    estimertVentetid: data.estimertVentetid || null,
     tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato || null,
     amoKategorisering: data.amoKategorisering as AmoKategoriseringRequest | null,
     utdanningslop: data.utdanningslop as UtdanningslopDbo | null,

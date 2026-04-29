@@ -76,7 +76,6 @@ export function defaultGjennomforingData(
       faneinnhold: veilederinfo?.faneinnhold ?? avtale.faneinnhold,
     },
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
-    estimertVentetid: veilederinfo?.estimertVentetid || null,
     tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
     amoKategorisering: amoKategorisering
       ? amoKategoriseringRequest(amoKategorisering)

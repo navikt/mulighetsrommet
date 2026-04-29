@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
@@ -52,6 +53,7 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
@@ -71,6 +73,7 @@ import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.contracts.ExperimentalContracts
 
 fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
@@ -242,6 +245,41 @@ fun Route.gjennomforingRoutes() {
         }
 
         authorize(anyOf = setOf(Rolle.TILTAKSGJENNOMFORINGER_SKRIV, Rolle.OPPFOLGER_GJENNOMFORING)) {
+            put("{id}/estimert-ventetid", {
+                tags = setOf("Gjennomforing")
+                operationId = "setEstimertVentetid"
+                request {
+                    pathParameterUuid("id")
+                    body<SetEstimertVentetidRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Estimert ventetid ble oppdatert"
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val navIdent = getNavIdent()
+                val request = call.receive<SetEstimertVentetidRequest>()
+
+                request.validate()
+                    .onLeft {
+                        call.respondWithProblemDetail(ValidationError("Klarte ikke sette estimert ventetid", it))
+                    }
+                    .onRight { estimertVentetid ->
+                        avtaleGjennomforinger.setEstimertVentetid(id, estimertVentetid, navIdent)
+                        call.respond(HttpStatusCode.OK)
+                    }
+            }
+
             put("{id}/apent-for-pamelding", {
                 tags = setOf("Gjennomforing")
                 operationId = "setApentForPamelding"
@@ -755,6 +793,29 @@ data class SettPaVentOkonomiRequest(
 )
 
 @Serializable
+data class SetEstimertVentetidRequest(
+    val verdi: Int?,
+    val enhet: String?,
+) {
+    @OptIn(ExperimentalContracts::class)
+    fun validate(): Either<List<FieldError>, GjennomforingAvtaleDetaljer.EstimertVentetid?> = validation {
+        if (verdi == null && enhet == null) {
+            return@validation null
+        }
+
+        validate(verdi != null && verdi > 0) {
+            FieldError.of("Du må velge en verdi større enn 0", SetEstimertVentetidRequest::verdi)
+        }
+
+        requireValid(!enhet.isNullOrBlank()) {
+            FieldError.of("Du må velge en enhet", SetEstimertVentetidRequest::enhet)
+        }
+
+        GjennomforingAvtaleDetaljer.EstimertVentetid(requireNotNull(verdi), enhet)
+    }
+}
+
+@Serializable
 data class SetApentForPameldingRequest(
     val apentForPamelding: Boolean,
 )
@@ -832,7 +893,6 @@ data class GjennomforingDetaljerRequest(
     val oppstart: GjennomforingOppstartstype?,
     val oppmoteSted: String?,
     val deltidsprosent: Double,
-    val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategoriseringRequest?,
@@ -841,12 +901,6 @@ data class GjennomforingDetaljerRequest(
     val prismodellId: UUID?,
     val pameldingType: GjennomforingPameldingType?,
 ) {
-    @Serializable
-    data class EstimertVentetid(
-        val verdi: Int?,
-        val enhet: String?,
-    )
-
     @Serializable
     data class Kontaktperson(
         val navIdent: NavIdent,
@@ -864,6 +918,7 @@ enum class GjennomforingHandling {
     ENDRE_APEN_FOR_PAMELDING,
     ENDRE_TILGJENGELIG_FOR_ARRANGOR,
     REGISTRER_STENGT_HOS_ARRANGOR,
+    REGISTRER_ESTIMERT_VENTETID,
     OPPRETT_TILSAGN,
     OPPRETT_EKSTRATILSAGN,
     OPPRETT_TILSAGN_FOR_INVESTERINGER,

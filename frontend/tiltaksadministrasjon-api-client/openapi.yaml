@@ -1158,6 +1158,45 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/gjennomforinger/{id}/estimert-ventetid:
+    put:
+      tags:
+      - Gjennomforing
+      operationId: setEstimertVentetid
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetEstimertVentetidRequest"
+        required: false
+      responses:
+        "200":
+          description: Estimert ventetid ble oppdatert
+          headers: {}
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger/{id}/apent-for-pamelding:
     put:
       tags:
@@ -3252,7 +3291,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TilskuddBehandlingDto"
+                  $ref: "#/components/schemas/TilskuddBehandlingKompakt"
         default:
           description: Problem details
           headers: {}
@@ -3396,7 +3435,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 14
+        - 15
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -4934,10 +4973,6 @@ components:
         deltidsprosent:
           type: number
           format: double
-        estimertVentetid:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/GjennomforingDetaljerRequest.EstimertVentetid"
         tilgjengeligForArrangorDato:
           type:
           - "null"
@@ -4967,7 +5002,6 @@ components:
       - arrangorId
       - arrangorKontaktpersoner
       - deltidsprosent
-      - estimertVentetid
       - navn
       - oppmoteSted
       - oppstart
@@ -4983,21 +5017,6 @@ components:
       - LOPENDE
       - FELLES
       - ENKELTPLASS
-    GjennomforingDetaljerRequest.EstimertVentetid:
-      type: object
-      properties:
-        verdi:
-          type:
-          - "null"
-          - integer
-          format: int32
-        enhet:
-          type:
-          - "null"
-          - string
-      required:
-      - enhet
-      - verdi
     GjennomforingPameldingType:
       type: string
       enum:
@@ -5101,6 +5120,21 @@ components:
           type: boolean
       required:
       - publisert
+    SetEstimertVentetidRequest:
+      type: object
+      properties:
+        verdi:
+          type:
+          - "null"
+          - integer
+          format: int32
+        enhet:
+          type:
+          - "null"
+          - string
+      required:
+      - enhet
+      - verdi
     SetApentForPameldingRequest:
       type: object
       properties:
@@ -5859,6 +5893,7 @@ components:
       - ENDRE_APEN_FOR_PAMELDING
       - ENDRE_TILGJENGELIG_FOR_ARRANGOR
       - REGISTRER_STENGT_HOS_ARRANGOR
+      - REGISTRER_ESTIMERT_VENTETID
       - OPPRETT_TILSAGN
       - OPPRETT_EKSTRATILSAGN
       - OPPRETT_TILSAGN_FOR_INVESTERINGER
@@ -7704,10 +7739,10 @@ components:
           $ref: "#/components/schemas/Periode"
         kostnadssted:
           type: string
-        vedtak:
+        tilskudd:
           type: array
           items:
-            $ref: "#/components/schemas/TilskuddVedtakDto"
+            $ref: "#/components/schemas/TilskuddOpplaeringDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
         kommentarIntern:
@@ -7723,8 +7758,8 @@ components:
       - soknadDato
       - soknadJournalpostId
       - status
-      - vedtak
-    TilskuddVedtakDto:
+      - tilskudd
+    TilskuddOpplaeringDto:
       type: object
       properties:
         id:
@@ -7813,7 +7848,37 @@ components:
       - behandling
       - handlinger
       - opprettelse
-    TilskuddBehandlingRequest.TilskuddVedtakRequest:
+    TilskuddBehandlingKompakt:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        soknadDato:
+          type: string
+          format: date
+        journalpostId:
+          type: string
+        tilskuddtyper:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddOpplaeringType"
+          uniqueItems: true
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssted:
+          type: string
+        status:
+          $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+      required:
+      - id
+      - journalpostId
+      - kostnadssted
+      - periode
+      - soknadDato
+      - status
+      - tilskuddtyper
+    TilskuddBehandlingRequest.TilskuddRequest:
       type: object
       properties:
         id:
@@ -7887,14 +7952,14 @@ components:
           type:
           - "null"
           - string
-        vedtak:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilskuddBehandlingRequest.TilskuddVedtakRequest"
         kommentarIntern:
           type:
           - "null"
           - string
+        tilskudd:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddBehandlingRequest.TilskuddRequest"
       required:
       - gjennomforingId
       - id
@@ -7904,7 +7969,7 @@ components:
       - periodeStart
       - soknadDato
       - soknadJournalpostId
-      - vedtak
+      - tilskudd
     AarsakerOgForklaringRequest_String:
       type: object
       properties:

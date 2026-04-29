@@ -1,7 +1,7 @@
 import { useOpprettTilskuddBehandling } from "@/api/tilskudd-behandling/mutations";
 import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
-import { defaultVedtakRequest } from "@/components/tilskudd-behandling/defaultVedtakRequest";
+import { defaultTilskuddRequest } from "@/components/tilskudd-behandling/defaultTilskuddRequest";
 import { SaksopplysningerForm } from "@/components/tilskudd-behandling/SaksopplysningerForm";
 import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -56,16 +56,16 @@ export function TilskuddBehandlingFormPage() {
           kostnadssted: behandling.kostnadssted,
           soknadDato: behandling.soknadDato,
           kommentarIntern: behandling.kommentarIntern,
-          vedtak: behandling.vedtak.map((v) => ({
-            id: v.id,
-            tilskuddOpplaeringType: v.tilskuddOpplaeringType,
+          tilskudd: behandling.tilskudd.map((t) => ({
+            id: t.id,
+            tilskuddOpplaeringType: t.tilskuddOpplaeringType,
             soknadBelop: {
-              belop: v.soknadBelop,
-              valuta: v.soknadValuta,
+              belop: t.soknadBelop,
+              valuta: t.soknadValuta,
             },
-            vedtakResultat: v.vedtakResultat,
-            kommentarVedtaksbrev: v.kommentarVedtaksbrev,
-            utbetalingMottaker: v.utbetalingMottaker,
+            vedtakResultat: t.vedtakResultat,
+            kommentarVedtaksbrev: t.kommentarVedtaksbrev,
+            utbetalingMottaker: t.utbetalingMottaker,
           })),
         }
       : {
@@ -77,7 +77,7 @@ export function TilskuddBehandlingFormPage() {
           kostnadssted: null,
           soknadDato: null,
           kommentarIntern: null,
-          vedtak: [defaultVedtakRequest()],
+          tilskudd: [defaultTilskuddRequest()],
         },
     mode: "onBlur",
   });
@@ -122,18 +122,18 @@ export function TilskuddBehandlingFormPage() {
 
   function tabHasErrors(tab: Tab): boolean {
     const vedtakFields = ["vedtakResultat", "kommentarVedtaksbrev"];
-    const allVedtakErrors = Array.isArray(errors.vedtak)
-      ? errors.vedtak.flatMap((v) => Object.keys(v ?? {}))
+    const allVedtakErrors = Array.isArray(errors.tilskudd)
+      ? errors.tilskudd.flatMap((v) => Object.keys(v ?? {}))
       : [];
 
     switch (tab.key) {
       case "vedtak":
-        return Array.isArray(errors.vedtak)
-          ? errors.vedtak.some((v) => vedtakFields.some((field) => field in (v ?? {})))
+        return Array.isArray(errors.tilskudd)
+          ? errors.tilskudd.some((v) => vedtakFields.some((field) => field in (v ?? {})))
           : false;
       case "saksopplysninger":
         return (
-          Object.keys(errors).some((field) => field !== "vedtak") ||
+          Object.keys(errors).some((field) => field !== "tilskudd") ||
           allVedtakErrors.some((field) => !vedtakFields.includes(field))
         );
     }

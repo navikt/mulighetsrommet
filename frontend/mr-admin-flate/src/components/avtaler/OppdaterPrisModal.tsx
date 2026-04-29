@@ -1,14 +1,14 @@
 import { PrismodellSchema, PrismodellValues } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleDto, PrismodellDto, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { Button, HStack, InfoCard, Modal, VStack } from "@navikt/ds-react";
+import { Button, InfoCard, Modal, VStack } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import AvtalePrismodellForm from "./AvtalePrismodellForm";
 import { useUpsertPrismodell } from "@/api/avtaler/useUpsertPrismodell";
-import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { safeParseDate } from "@mr/frontend-common/utils/date";
 import { toPrismodellRequest } from "@/pages/avtaler/avtaleFormUtils";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 interface Props {
   open: boolean;
@@ -16,8 +16,11 @@ interface Props {
   onClose: () => void;
 }
 
+const formId = "oppdater-pris-form";
+
 export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
   const mutation = useUpsertPrismodell(avtale.id);
+
   const form = useForm<PrismodellValues>({
     resolver: zodResolver(PrismodellSchema),
     defaultValues: defaultValues(avtale.prismodeller),
@@ -27,18 +30,8 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
     const request = toPrismodellRequest({ data });
 
     mutation.mutate(request, {
-      onSuccess: () => {
-        closeAndResetForm();
-      },
-      onValidationError: (validation: ValidationError) => {
-        validation.errors.forEach((error) => {
-          const name = jsonPointerToFieldPath(error.pointer);
-          form.setError(name as keyof PrismodellValues, {
-            type: "custom",
-            message: error.detail,
-          });
-        });
-      },
+      onSuccess: closeAndResetForm,
+      onValidationError: (validation: ValidationError) => applyValidationErrors(form, validation),
     });
   };
 
@@ -57,8 +50,8 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
       header={{ heading: "Oppdater pris" }}
     >
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(postData)}>
-          <Modal.Body className="max-h-[70vh] overflow-y-auto">
+        <Modal.Body className="max-h-[70vh] overflow-y-auto">
+          <form id={formId} onSubmit={form.handleSubmit(postData)}>
             <VStack gap="space-16">
               <InfoCard data-color="warning">
                 <InfoCard.Header>
@@ -74,19 +67,17 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
                 avtaleStartDato={safeParseDate(avtale.startDato)}
               />
             </VStack>
-          </Modal.Body>
-          <Modal.Footer>
-            <HStack gap="space-4" className="flex-row-reverse">
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Lagrer..." : "Bekreft"}
-              </Button>
-              <Button type="button" variant="tertiary" onClick={closeAndResetForm}>
-                Avbryt
-              </Button>
-              <ValideringsfeilOppsummering />
-            </HStack>
-          </Modal.Footer>
-        </form>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button form={formId} disabled={mutation.isPending}>
+            {mutation.isPending ? "Lagrer..." : "Bekreft"}
+          </Button>
+          <Button type="button" variant="tertiary" onClick={closeAndResetForm}>
+            Avbryt
+          </Button>
+          <ValideringsfeilOppsummering />
+        </Modal.Footer>
       </FormProvider>
     </Modal>
   );

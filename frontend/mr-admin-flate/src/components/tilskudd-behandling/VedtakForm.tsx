@@ -5,6 +5,7 @@ import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { FormGroup } from "@/layouts/FormGroup";
 import { TilskuddBehandlingRequest, VedtakResultat } from "@tiltaksadministrasjon/api-client";
+import { opplaeringTilskuddToString } from "@/utils/Utils";
 
 export function VedtakForm() {
   const {
@@ -13,7 +14,7 @@ export function VedtakForm() {
     formState: { errors },
   } = useFormContext<TilskuddBehandlingRequest>();
 
-  const vedtak = watch("vedtak");
+  const tilskudd = watch("tilskudd");
 
   return (
     <>
@@ -21,19 +22,26 @@ export function VedtakForm() {
         Vedtak
       </Heading>
       <VStack gap="space-20" align="start">
-        {vedtak.map((v, index) => (
+        {tilskudd.map((t, index) => (
           <FormGroup key={index}>
             <VStack gap="space-4">
-              <MetadataVStack label="Tilskuddstype" value={v.tilskuddOpplaeringType} />
-              <MetadataVStack label="Hvem skal motta utbetalingen?" value={v.utbetalingMottaker} />
-              <MetadataVStack label="Beløp fra søknad" value={v.soknadBelop?.belop} />
+              <MetadataVStack
+                label="Tilskuddstype"
+                value={
+                  t.tilskuddOpplaeringType
+                    ? opplaeringTilskuddToString(t.tilskuddOpplaeringType)
+                    : "-"
+                }
+              />
+              <MetadataVStack label="Hvem skal motta utbetalingen?" value={t.utbetalingMottaker} />
+              <MetadataVStack label="Beløp fra søknad" value={t.soknadBelop?.belop} />
             </VStack>
             <Separator />
             <VStack gap="space-8">
               <HStack gap="space-24" align="start" justify="space-between">
                 <ControlledRadioGroup
                   size="small"
-                  name={`vedtak.${index}.vedtakResultat`}
+                  name={`tilskudd.${index}.vedtakResultat`}
                   legend="Vedtaksresultat"
                   horisontal
                 >
@@ -41,14 +49,14 @@ export function VedtakForm() {
                   <Radio value={VedtakResultat.AVSLAG}>Avslag</Radio>
                 </ControlledRadioGroup>
               </HStack>
-              {watch("vedtak")[index].vedtakResultat === VedtakResultat.INNVILGELSE && (
+              {watch("tilskudd")[index].vedtakResultat === VedtakResultat.INNVILGELSE && (
                 <TextField
                   className="w-[10rem]"
                   size="small"
                   type="text"
                   label="Beløp til utbetaling"
-                  error={errors.vedtak?.[index]?.belop?.message}
-                  {...register(`vedtak.${index}.belop`, {
+                  error={errors.tilskudd?.[index]?.belop?.message}
+                  {...register(`tilskudd.${index}.belop`, {
                     setValueAs: (v: string) => (v === "" ? null : Number(v)),
                     validate: (value: number | null) => {
                       if (!Number.isInteger(value)) return "Beløp må være et heltall";
@@ -61,7 +69,7 @@ export function VedtakForm() {
             <Box width="100%">
               <FormTextarea
                 label="Kommentarer til deltaker (vil vises i vedtaksbrev)"
-                name={`vedtak.${index}.kommentarVedtaksbrev`}
+                name={`tilskudd.${index}.kommentarVedtaksbrev`}
               />
             </Box>
           </FormGroup>

@@ -286,7 +286,6 @@ object GjennomforingFixtures {
                 antallPlasser = 1,
                 deltidsprosent = 100.0,
                 oppmoteSted = null,
-                estimertVentetid = null,
                 tilgjengeligForArrangorDato = null,
                 amoKategorisering = null,
             ),

@@ -7,7 +7,6 @@ import {
   GjennomforingDeltakerSummary,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
-  GjennomforingVeilederinfoDto,
   Rolle,
   Tiltakskode,
   TiltakstypeDto,
@@ -16,15 +15,13 @@ import {
   Alert,
   DatePicker,
   HGrid,
-  HStack,
   Select,
-  Switch,
   Textarea,
   TextField,
   UNSAFE_Combobox,
   VStack,
 } from "@navikt/ds-react";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModal";
@@ -47,12 +44,11 @@ interface Props {
   tiltakstype: TiltakstypeDto;
   avtale: AvtaleDto;
   gjennomforing: GjennomforingAvtaleDto | null;
-  veilederinfo: GjennomforingVeilederinfoDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
 }
 
 export function GjennomforingFormDetaljer(props: Props) {
-  const { tiltakstype, avtale, gjennomforing, veilederinfo, deltakere } = props;
+  const { tiltakstype, avtale, gjennomforing, deltakere } = props;
 
   const { data: navAnsatte } = useNavAnsatte([Rolle.TILTAKSGJENNOMFORINGER_SKRIV]);
 
@@ -78,13 +74,13 @@ export function GjennomforingFormDetaljer(props: Props) {
   const valgtPrismodell = avtale.prismodeller.find((p) => p.id === watch("prismodellId"));
   const antallDeltakere = deltakere?.antallDeltakere ?? 0;
 
-  function visAdvarselForSluttDato() {
-    if (
-      gjennomforing &&
-      antallDeltakere > 0 &&
-      watchSluttDato &&
-      gjennomforing.sluttDato !== watchSluttDato
-    ) {
+  function visAdvarselForSluttDato(sluttDato: string | null) {
+    if (!gjennomforing || antallDeltakere === 0 || !sluttDato) {
+      return;
+    }
+
+    const shouldDisplayWarning = !gjennomforing.sluttDato || sluttDato < gjennomforing.sluttDato;
+    if (shouldDisplayWarning) {
       endreSluttDatoModalRef.current?.showModal();
     }
   }
@@ -214,7 +210,11 @@ export function GjennomforingFormDetaljer(props: Props) {
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
                 name={"sluttDato"}
-                rules={{ onChange: visAdvarselForSluttDato }}
+                rules={{
+                  onChange: (event: ChangeEvent<HTMLInputElement>) => {
+                    visAdvarselForSluttDato(event.target.value);
+                  },
+                }}
               />
             </HGrid>
             <HGrid align="start" columns={2}>
@@ -244,7 +244,6 @@ export function GjennomforingFormDetaljer(props: Props) {
                 />
               )}
             </HGrid>
-            <EstimertVentetidForm veilederinfo={veilederinfo} />
             {visOppmotested && (
               <VStack gap="space-8">
                 <Textarea
@@ -335,77 +334,5 @@ export function GjennomforingFormDetaljer(props: Props) {
         />
       )}
     </>
-  );
-}
-
-interface EstimertVentetidFormProps {
-  veilederinfo: GjennomforingVeilederinfoDto | null;
-}
-
-export function EstimertVentetidForm(props: EstimertVentetidFormProps) {
-  const [visEstimertVentetid, setVisEstimertVentetid] = useState<boolean>(
-    !!props.veilederinfo?.estimertVentetid?.enhet,
-  );
-
-  const {
-    register,
-    formState: { errors },
-    setValue,
-    watch,
-  } = useFormContext<GjennomforingFormValues>();
-
-  useEffect(() => {
-    const resetEstimertVentetid = () => {
-      if (!visEstimertVentetid) {
-        setValue("estimertVentetid", null);
-      }
-    };
-
-    resetEstimertVentetid();
-  }, [setValue, visEstimertVentetid]);
-
-  if (watch("oppstart") === GjennomforingOppstartstype.FELLES) {
-    return null;
-  }
-
-  return (
-    <fieldset className="border-none p-0 [&>legend]:font-ax-bold [&>legend]:mb-2">
-      <HStack gap="space-4">
-        <LabelWithHelpText label="Estimert ventetid" helpTextTitle="Hva er estimert ventetid?">
-          Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om estimert
-          ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir det synlig for
-          alle ansatte i Nav.
-        </LabelWithHelpText>
-      </HStack>
-      <Switch
-        checked={visEstimertVentetid}
-        onClick={() => setVisEstimertVentetid(!visEstimertVentetid)}
-      >
-        Registrer estimert ventetid
-      </Switch>
-      {visEstimertVentetid && (
-        <HStack align="start" justify="start" gap="space-40">
-          <TextField
-            size="small"
-            type="number"
-            min={0}
-            label="Antall"
-            error={errors.estimertVentetid?.verdi?.message as string}
-            {...register("estimertVentetid.verdi", {
-              valueAsNumber: true,
-            })}
-          />
-          <Select
-            size="small"
-            label="Måleenhet"
-            error={errors.estimertVentetid?.enhet?.message as string}
-            {...register("estimertVentetid.enhet")}
-          >
-            <option value="uke">Uker</option>
-            <option value="maned">Måneder</option>
-          </Select>
-        </HStack>
-      )}
-    </fieldset>
   );
 }
