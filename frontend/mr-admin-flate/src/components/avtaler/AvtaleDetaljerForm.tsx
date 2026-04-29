@@ -1,5 +1,5 @@
 import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/AvtaleAmoKategoriseringForm";
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { FormGroup } from "@/layouts/FormGroup";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { Box, HGrid, List, Select, TextField, UNSAFE_Combobox } from "@navikt/ds-react";

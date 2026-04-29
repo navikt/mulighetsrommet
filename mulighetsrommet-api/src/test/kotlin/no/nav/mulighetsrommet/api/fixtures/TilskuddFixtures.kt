@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtakDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
@@ -20,11 +20,11 @@ object TilskuddFixtures {
         soknadDato = LocalDate.of(2024, 1, 15),
         periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
-        vedtak = emptyList(),
+        tilskudd = emptyList(),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
         kommentarIntern = "kommentarIntern",
     )
-    val Vedtak = TilskuddVedtakDbo(
+    val Tilskudd = TilskuddDbo(
         id = UUID.randomUUID(),
         tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
         soknadBelop = 50000,

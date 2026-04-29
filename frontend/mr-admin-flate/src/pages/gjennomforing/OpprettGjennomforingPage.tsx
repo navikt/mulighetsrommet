@@ -1,6 +1,6 @@
 import { useCreateGjennomforing } from "@/api/gjennomforing/useCreateGjennomforing";
 import { Header } from "@/components/detaljside/Header";
-import { defaultGjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
+import { defaultGjennomforingData } from "@/pages/gjennomforing/form/defaults";
 import { GjennomforingFormDetaljer } from "@/components/gjennomforing/GjennomforingFormDetaljer";
 import { GjennomforingInformasjonForVeiledereForm } from "@/components/gjennomforing/GjennomforingInformasjonForVeiledereForm";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
@@ -15,12 +15,12 @@ import {
   gjennomforingDetaljerSchema,
   GjennomforingFormValues,
   gjennomforingVeilederinfoSchema,
-} from "@/schemas/gjennomforing";
+} from "@/pages/gjennomforing/form/validation";
 import { WizardStep } from "@/hooks/useWizardForm";
 import { Heading } from "@navikt/ds-react";
 import { useLocation, useNavigate } from "react-router";
 import { ValidationError } from "@tiltaksadministrasjon/api-client";
-import { toCreateGjennomforingRequest } from "./gjennomforingFormUtils";
+import { toCreateGjennomforingRequest } from "./form/mappers";
 import { v4 as uuidv4 } from "uuid";
 
 const brodsmuler: Array<Brodsmule | undefined> = [

@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtakDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
@@ -35,8 +35,8 @@ class TilskuddBehandlingQueriesTest : FunSpec({
         soknadDato = LocalDate.of(2024, 1, 15),
         periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
         kostnadssted = NavEnhetNummer("0502"),
-        vedtak = listOf(
-            TilskuddVedtakDbo(
+        tilskudd = listOf(
+            TilskuddDbo(
                 id = UUID.randomUUID(),
                 tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
                 soknadBelop = 50000,
@@ -47,7 +47,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kid = null,
                 belop = 100,
             ),
-            TilskuddVedtakDbo(
+            TilskuddDbo(
                 id = UUID.randomUUID(),
                 tilskuddOpplaeringType = TilskuddOpplaeringType.EKSAMENSAVGIFT,
                 soknadBelop = 1000,
@@ -64,7 +64,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
     )
 
     context("insert and get") {
-        test("insert og get returnerer behandling med vedtak") {
+        test("insert og get returnerer behandling med tilskudd") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
@@ -82,7 +82,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
 
                     it.tilskudd.size shouldBe 2
                     it.tilskudd[0] should { v ->
-                        v.id shouldBe behandling.vedtak.first().id
+                        v.id shouldBe behandling.tilskudd[0].id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.SKOLEPENGER
                         v.soknadBelop shouldBe 50000
                         v.soknadValuta shouldBe Valuta.NOK
@@ -93,7 +93,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.belop shouldBe 100
                     }
                     it.tilskudd[1] should { v ->
-                        v.id shouldBe behandling.vedtak[1].id
+                        v.id shouldBe behandling.tilskudd[1].id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.EKSAMENSAVGIFT
                         v.soknadBelop shouldBe 1000
                         v.soknadValuta shouldBe Valuta.NOK

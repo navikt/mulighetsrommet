@@ -1,4 +1,4 @@
-import { PrismodellSchema, PrismodellValues } from "@/schemas/avtale";
+import { PrismodellSchema, PrismodellValues } from "@/pages/avtaler/form/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleDto, PrismodellDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { Button, InfoCard, Modal, VStack } from "@navikt/ds-react";
@@ -6,7 +6,7 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import AvtalePrismodellForm from "./AvtalePrismodellForm";
 import { useUpsertPrismodell } from "@/api/avtaler/useUpsertPrismodell";
 import { safeParseDate } from "@mr/frontend-common/utils/date";
-import { toPrismodellRequest } from "@/pages/avtaler/avtaleFormUtils";
+import { toPrismodellRequest } from "@/pages/avtaler/form/mappers";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 

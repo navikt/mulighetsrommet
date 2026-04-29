@@ -10,7 +10,7 @@ import { useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
-import { GjennomforingFormInput } from "@/schemas/gjennomforing";
+import { GjennomforingFormInput } from "@/pages/gjennomforing/form/validation";
 import { FormCombobox } from "@/components/skjema/FormCombobox";
 
 interface Props {

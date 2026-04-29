@@ -60,13 +60,13 @@ class TilskuddBehandlingQueries(private val session: Session) {
 
         execute(queryOf(query, params))
 
-        dbo.vedtak.forEach { upsertVedtak(dbo.id, it) }
+        dbo.tilskudd.forEach { upsertTilskudd(dbo.id, it) }
     }
 
-    private fun upsertVedtak(tilskuddsbehandlingId: UUID, vedtak: TilskuddVedtakDbo): Unit = withTransaction(session) {
+    private fun upsertTilskudd(tilskuddsbehandlingId: UUID, tilskudd: TilskuddDbo): Unit = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
-            insert into tilskudd_vedtak (
+            insert into tilskudd (
                 id,
                 tilskudd_behandling_id,
                 tilskudd_opplaering_id,
@@ -101,16 +101,16 @@ class TilskuddBehandlingQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "id" to vedtak.id,
+            "id" to tilskudd.id,
             "tilskudd_behandling_id" to tilskuddsbehandlingId,
-            "tilskudd_opplaering_kode" to vedtak.tilskuddOpplaeringType.name,
-            "soknad_belop" to vedtak.soknadBelop,
-            "soknad_valuta" to vedtak.soknadValuta.name,
-            "vedtak_resultat" to vedtak.vedtakResultat.name,
-            "kommentar_vedtaksbrev" to vedtak.kommentarVedtaksbrev,
-            "utbetaling_mottaker" to vedtak.utbetalingMottaker,
-            "kid" to vedtak.kid?.value,
-            "belop" to vedtak.belop,
+            "tilskudd_opplaering_kode" to tilskudd.tilskuddOpplaeringType.name,
+            "soknad_belop" to tilskudd.soknadBelop,
+            "soknad_valuta" to tilskudd.soknadValuta.name,
+            "vedtak_resultat" to tilskudd.vedtakResultat.name,
+            "kommentar_vedtaksbrev" to tilskudd.kommentarVedtaksbrev,
+            "utbetaling_mottaker" to tilskudd.utbetalingMottaker,
+            "kid" to tilskudd.kid?.value,
+            "belop" to tilskudd.belop,
         )
 
         execute(queryOf(query, params))

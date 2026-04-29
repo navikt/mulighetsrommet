@@ -37,7 +37,7 @@ import { ControlledSokeSelect } from "@mr/frontend-common";
 import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
 import { kreverDeltidsprosent, kreverDirekteVedtak } from "@/utils/tiltakstype";
 import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
-import { GjennomforingFormValues } from "@/schemas/gjennomforing";
+import { GjennomforingFormValues } from "@/pages/gjennomforing/form/validation";
 import { FormDateInput } from "@/components/skjema/FormDateInput";
 
 interface Props {

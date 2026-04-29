@@ -1,11 +1,11 @@
 drop view if exists view_tilskudd_behandling;
 
-alter table tilskudd_vedtak
+alter table tilskudd
     add column belop int;
 
-update tilskudd_vedtak set belop = 100 where vedtak_resultat = 'INNVILGELSE';
+update tilskudd set belop = 100 where vedtak_resultat = 'INNVILGELSE';
 
-alter table tilskudd_vedtak
+alter table tilskudd
     alter column belop set not null;
 
 

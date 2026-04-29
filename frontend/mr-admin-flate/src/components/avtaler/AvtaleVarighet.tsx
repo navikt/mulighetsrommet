@@ -8,7 +8,7 @@ import {
   hentGjeldendeOpsjonsmodeller,
   hentOpsjonsmodell,
 } from "@/components/avtaler/opsjoner/opsjonsmodeller";
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { addDuration, SafeSubDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { Avtaletype, OpsjonsmodellType } from "@tiltaksadministrasjon/api-client";
 import { FormSelect } from "@/components/skjema/FormSelect";

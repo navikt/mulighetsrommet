@@ -11,7 +11,7 @@ import {
   GjennomforingDetaljerOutputValues,
   GjennomforingFormValues,
   GjennomforingVeilederinfoOutputValues,
-} from "@/schemas/gjennomforing";
+} from "@/pages/gjennomforing/form/validation";
 
 export function toCreateGjennomforingRequest(
   id: string,

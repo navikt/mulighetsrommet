@@ -7,17 +7,17 @@ import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { useUpdateGjennomforingVeilederinformasjon } from "@/api/gjennomforing/useUpdateGjennomforingVeilederinformasjon";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
-import { defaultGjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
+import { defaultGjennomforingData } from "@/pages/gjennomforing/form/defaults";
 import { GjennomforingInformasjonForVeiledereForm } from "@/components/gjennomforing/GjennomforingInformasjonForVeiledereForm";
 import {
   GjennomforingVeilederinfoInputValues,
   GjennomforingVeilederinfoOutputValues,
   gjennomforingVeilederinfoSchema,
-} from "@/schemas/gjennomforing";
+} from "@/pages/gjennomforing/form/validation";
 import { GjennomforingAvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { RedigerGjennomforingPageLayout } from "@/pages/gjennomforing/RedigerGjennomforingPageLayout";
-import { toGjennomforingVeilederinfoRequest } from "./gjennomforingFormUtils";
+import { toGjennomforingVeilederinfoRequest } from "./form/mappers";
 import { FormContainer } from "@/components/skjema/FormContainer";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";

@@ -23,6 +23,6 @@ from tilskudd_behandling tb
                 'kid', v.kid,
                 'belop', v.belop
             )
-        ), '[]') as vedtak_json from tilskudd_vedtak v
+        ), '[]') as vedtak_json from tilskudd v
             inner join tilskudd_opplaering on tilskudd_opplaering.id = v.tilskudd_opplaering_id
         where v.tilskudd_behandling_id = tb.id) on true;

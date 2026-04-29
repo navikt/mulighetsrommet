@@ -8,21 +8,21 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { WizardForm } from "@/components/skjema/WizardForm";
 import {
+  avtaleDetaljerFormSchema,
   AvtaleFormValues,
-  defaultAvtaleData,
   PersonopplysningerSchema,
   PrismodellSchema,
   VeilederinformasjonStepSchema,
-} from "@/schemas/avtale";
-import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
+} from "@/pages/avtaler/form/validation";
 import { WizardStep } from "@/hooks/useWizardForm";
 import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import { Heading } from "@navikt/ds-react";
 import { useLocation, useNavigate } from "react-router";
-import { toOpprettAvtaleRequest } from "./avtaleFormUtils";
+import { toOpprettAvtaleRequest } from "./form/mappers";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
 import { v4 as uuidv4 } from "uuid";
+import { defaultAvtaleData } from "@/pages/avtaler/form/defaults";
 
 const steps: WizardStep[] = [
   {
