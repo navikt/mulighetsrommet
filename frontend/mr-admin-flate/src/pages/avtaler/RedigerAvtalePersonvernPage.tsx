@@ -3,13 +3,13 @@ import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm"
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
+import { defaultAvtaleData } from "@/pages/avtaler/form/defaults";
 import {
-  defaultAvtaleData,
   PersonopplysningerInputValues,
   PersonopplysningerOutputValues,
   PersonopplysningerSchema,
-} from "@/schemas/avtale";
-import { toPersonvernRequest } from "./avtaleFormUtils";
+} from "@/pages/avtaler/form/validation";
+import { toPersonvernRequest } from "./form/mappers";
 import { RedigerAvtalePageLayout } from "./RedigerAvtalePageLayout";
 import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";

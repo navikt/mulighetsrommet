@@ -3,13 +3,13 @@ import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleIn
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvtale } from "@/api/avtaler/useAvtale";
+import { defaultAvtaleData } from "@/pages/avtaler/form/defaults";
 import {
-  defaultAvtaleData,
   VeilederinfoInputValues,
   VeilederinfoOutputValues,
   VeilederinformasjonStepSchema,
-} from "@/schemas/avtale";
-import { toVeilederinfoRequest } from "./avtaleFormUtils";
+} from "@/pages/avtaler/form/validation";
+import { toVeilederinfoRequest } from "./form/mappers";
 import { RedigerAvtalePageLayout } from "./RedigerAvtalePageLayout";
 import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";

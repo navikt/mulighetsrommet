@@ -12,7 +12,7 @@ import {
 } from "@navikt/ds-react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { PrismodellValues } from "@/schemas/avtale";
+import { PrismodellValues } from "@/pages/avtaler/form/validation";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import { AvtalteSatserForm } from "./AvtalteSatserForm";
 import { PrismodellType, Tiltakskode, Valuta } from "@tiltaksadministrasjon/api-client";

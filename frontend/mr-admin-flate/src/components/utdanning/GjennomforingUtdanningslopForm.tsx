@@ -4,7 +4,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 import { kreverUtdanningslop } from "@/utils/tiltakstype";
-import { GjennomforingFormValues } from "@/schemas/gjennomforing";
+import { GjennomforingFormValues } from "@/pages/gjennomforing/form/validation";
 
 interface Props {
   avtale: AvtaleDto;
