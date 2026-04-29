@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
-import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
@@ -40,6 +39,7 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -617,14 +617,16 @@ class UtbetalingQueries(private val session: Session) {
     }
 
     fun getAll(
-        filter: AdminInnsendingerFilter,
+        tiltakskoder: List<Tiltakskode> = emptyList(),
+        navEnheter: List<NavEnhetNummer> = emptyList(),
+        sortering: String? = null,
     ): List<InnsendingKompaktDto> = with(session) {
         val parameters = mapOf(
-            "nav_enheter" to filter.navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
-            "tiltakskoder" to filter.tiltakskoder.ifEmpty { null }?.let { createTextArray(it) },
+            "nav_enheter" to navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
+            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { createTextArray(it) },
         )
 
-        val order = when (filter.sortering) {
+        val order = when (sortering) {
             "arrangor-ascending" -> "arrangor_navn asc"
             "arrangor-descending" -> "arrangor_navn desc"
             "periode-ascending" -> "periode asc"

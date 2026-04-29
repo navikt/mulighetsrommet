@@ -205,7 +205,7 @@ fun Route.utbetalingRoutes() {
         val filter = getAdminInnsendingerFilter()
 
         val innsendinger = db.session {
-            queries.utbetaling.getAll(filter)
+            queries.utbetaling.getAll(filter.tiltakskoder, filter.navEnheter, filter.sortering)
         }
 
         call.respond(innsendinger)

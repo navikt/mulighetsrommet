@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
-import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto.Type
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
@@ -538,26 +537,14 @@ class UtbetalingQueriesTest : FunSpec({
                 queries.utbetaling.upsert(utbetaling1)
                 queries.utbetaling.upsert(utbetaling2)
 
-                queries.utbetaling.getAll(
-                    filter = AdminInnsendingerFilter(
-                        navEnheter = emptyList(),
-                        tiltakskoder = emptyList(),
-                        sortering = null,
-                    ),
-                ).shouldHaveSize(1).should { (first) ->
+                queries.utbetaling.getAll().shouldHaveSize(1).should { (first) ->
                     first.id shouldBe utbetaling1.id
                     first.status.type shouldBe Type.VENTER_PA_ARRANGOR
                 }
 
                 queries.utbetaling.upsert(utbetaling3)
 
-                queries.utbetaling.getAll(
-                    filter = AdminInnsendingerFilter(
-                        navEnheter = emptyList(),
-                        tiltakskoder = emptyList(),
-                        sortering = null,
-                    ),
-                ).shouldHaveSize(2).should { (first, second) ->
+                queries.utbetaling.getAll().shouldHaveSize(2).should { (first, second) ->
                     first.id shouldBe utbetaling1.id
                     first.status.type shouldBe Type.VENTER_PA_ARRANGOR
 
@@ -598,13 +585,7 @@ class UtbetalingQueriesTest : FunSpec({
 
                 utbetalingQueries.upsert(utbetaling1)
 
-                utbetalingQueries.getAll(
-                    filter = AdminInnsendingerFilter(
-                        navEnheter = listOf(),
-                        tiltakskoder = emptyList(),
-                        sortering = null,
-                    ),
-                ).shouldHaveSize(1).should { (utbetaling) ->
+                utbetalingQueries.getAll().shouldHaveSize(1).should { (utbetaling) ->
                     utbetaling.kostnadssteder shouldContainExactlyInAnyOrder listOf(
                         KostnadsstedDto(
                             NavEnhetFixtures.Innlandet.navn,
@@ -636,11 +617,7 @@ class UtbetalingQueriesTest : FunSpec({
                 queries.utbetaling.upsert(utbetaling2)
 
                 queries.utbetaling.getAll(
-                    filter = AdminInnsendingerFilter(
-                        navEnheter = emptyList(),
-                        tiltakskoder = listOf(TiltakstypeFixtures.AFT.tiltakskode),
-                        sortering = null,
-                    ),
+                    tiltakskoder = listOf(TiltakstypeFixtures.AFT.tiltakskode),
                 ).shouldHaveSize(1).should { (first) ->
                     first.id shouldBe utbetaling1.id
                 }
@@ -668,11 +645,7 @@ class UtbetalingQueriesTest : FunSpec({
                 utbetalingQueries.upsert(utbetaling2)
 
                 utbetalingQueries.getAll(
-                    filter = AdminInnsendingerFilter(
-                        navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
-                        tiltakskoder = emptyList(),
-                        sortering = null,
-                    ),
+                    navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
                 ).shouldHaveSize(1).should { (first) ->
                     first.id shouldBe utbetaling2.id
                     first.kostnadssteder shouldBe listOf(
