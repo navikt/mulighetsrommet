@@ -2,41 +2,20 @@ import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjenn
 import { Header } from "@/components/detaljside/Header";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
-import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { ToTrinnsOpprettelsesForklaring } from "@/pages/gjennomforing/tilsagn/ToTrinnsOpprettelseForklaring";
-import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { GavelSoundBlockFillIcon } from "@navikt/aksel-icons";
-import { Box, Heading, Tabs } from "@navikt/ds-react";
-import { TotrinnskontrollDto } from "@tiltaksadministrasjon/api-client";
+import { Heading } from "@navikt/ds-react";
 import React from "react";
 
 export type TilskuddBehandlingTab = "saksopplysninger" | "vedtak";
 
 interface Props {
   gjennomforingId: string;
-  currentTab: TilskuddBehandlingTab;
-  onTabChange: (tab: TilskuddBehandlingTab) => void;
-  tabList: React.ReactNode;
-  opprettelse?: TotrinnskontrollDto;
-  saksopplysningerContent: React.ReactNode;
-  vedtakContent: React.ReactNode;
-  actions: React.ReactNode;
+  children: React.ReactNode;
 }
 
-export function TilskuddBehandlingLayout({
-  gjennomforingId,
-  currentTab,
-  opprettelse,
-  onTabChange,
-  tabList,
-  saksopplysningerContent,
-  vedtakContent,
-  actions,
-}: Props) {
-  const { gjennomforing, prismodell, enkeltplassDeltaker } =
-    useEnkeltplassGjennomforingOrError(gjennomforingId);
+export function TilskuddBehandlingLayout({ gjennomforingId, children }: Props) {
+  const { gjennomforing } = useEnkeltplassGjennomforingOrError(gjennomforingId);
 
   return (
     <>
@@ -65,29 +44,7 @@ export function TilskuddBehandlingLayout({
       </Header>
       <WhitePaddedBox>
         <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-        {opprettelse && (
-          <ToTrinnsOpprettelsesForklaring
-            heading="Behandlingen ble returnert"
-            opprettelse={opprettelse}
-          />
-        )}
-        <Tabs value={currentTab} onChange={(value) => onTabChange(value as TilskuddBehandlingTab)}>
-          <Tabs.List>{tabList}</Tabs.List>
-          <Box marginBlock="space-16">
-            <TwoColumnGrid separator>
-              <Box>
-                <Tabs.Panel value="saksopplysninger">{saksopplysningerContent}</Tabs.Panel>
-                <Tabs.Panel value="vedtak">{vedtakContent}</Tabs.Panel>
-              </Box>
-              <DeltakerinformasjonOgBetalingsbetingelser
-                deltaker={enkeltplassDeltaker}
-                prisbetingelser={prismodell.prisbetingelser}
-              />
-            </TwoColumnGrid>
-          </Box>
-        </Tabs>
-        <Separator />
-        {actions}
+        {children}
       </WhitePaddedBox>
     </>
   );

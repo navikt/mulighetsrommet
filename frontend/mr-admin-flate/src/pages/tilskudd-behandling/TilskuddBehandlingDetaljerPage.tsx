@@ -4,27 +4,48 @@ import {
 } from "@/api/tilskudd-behandling/mutations";
 import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { SaksopplysningerDetaljer } from "@/components/tilskudd-behandling/SaksopplysningerDetaljer";
-import { VedtakDetaljer } from "@/components/tilskudd-behandling/VedtakDetaljer";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import {
+  Besluttelse,
   DocumentClass,
   FieldError,
   TilskuddBehandlingHandling,
   TilskuddBehandlingStatus,
   ValidationError,
+  Valuta,
 } from "@tiltaksadministrasjon/api-client";
-import { ActionMenu, Alert, Button, HStack, Tabs } from "@navikt/ds-react";
+import {
+  ActionMenu,
+  Alert,
+  BodyShort,
+  Box,
+  Button,
+  Heading,
+  HStack,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
-import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
-import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { Handlinger } from "@/components/handlinger/Handlinger";
 import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
+import { ToTrinnsOpprettelsesForklaring } from "../gjennomforing/tilsagn/ToTrinnsOpprettelseForklaring";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
+import { formaterValuta } from "@mr/frontend-common/utils/utils";
+import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
+import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
+import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { Handlinger } from "@/components/handlinger/Handlinger";
+import { PadlockLockedIcon } from "@navikt/aksel-icons";
+import { isBesluttet } from "@/utils/totrinnskontroll";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
+  const { prismodell, enkeltplassDeltaker } = useEnkeltplassGjennomforingOrError(gjennomforingId);
+
   const {
     data: { behandling, handlinger, opprettelse },
   } = useTilskuddBehandling(behandlingId);
@@ -32,7 +53,6 @@ export function TilskuddBehandlingDetaljerPage() {
     behandling.id,
     DocumentClass.TILSKUDD_BEHANDLING,
   );
-  const [currentTab, setCurrentTab] = useState<"saksopplysninger" | "vedtak">("saksopplysninger");
   const [returModalOpen, setReturModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
   const navigate = useNavigate();
@@ -65,18 +85,16 @@ export function TilskuddBehandlingDetaljerPage() {
   const erTilAttestering = behandling.status.type === TilskuddBehandlingStatus.TIL_ATTESTERING;
 
   return (
-    <TilskuddBehandlingLayout
-      opprettelse={opprettelse}
-      gjennomforingId={gjennomforingId}
-      currentTab={currentTab}
-      onTabChange={setCurrentTab}
-      tabList={
-        <HStack align="center" className="w-full" justify="space-between">
-          <HStack>
-            <Tabs.Tab value="saksopplysninger" label="Saksopplysninger" />
-            <Tabs.Tab value="vedtak" label="Vedtak" />
-          </HStack>
-          <HStack gap="space-8">
+    <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
+      <>
+        {isBesluttet(opprettelse) && opprettelse.besluttelse === Besluttelse.AVVIST && (
+          <ToTrinnsOpprettelsesForklaring
+            heading="Behandlingen ble returnert"
+            opprettelse={opprettelse}
+          />
+        )}
+        <Box marginBlock="space-16">
+          <HStack gap="space-8" justify="end">
             <EndringshistorikkPopover>
               <ViewEndringshistorikk historikk={historikk} />
             </EndringshistorikkPopover>
@@ -86,11 +104,82 @@ export function TilskuddBehandlingDetaljerPage() {
               )}
             </Handlinger>
           </HStack>
-        </HStack>
-      }
-      saksopplysningerContent={<SaksopplysningerDetaljer behandling={behandling} />}
-      vedtakContent={<VedtakDetaljer behandling={behandling} />}
-      actions={
+          <TwoColumnGrid separator>
+            <>
+              <Heading size="small" level="3" spacing>
+                Informasjon fra søknad
+              </Heading>
+              <VStack gap="space-16">
+                <Definisjonsliste
+                  definitions={[
+                    { key: "JournalpostID", value: behandling.soknadJournalpostId },
+                    { key: "Søknadsdato", value: formaterDato(behandling.soknadDato) },
+                    { key: "Periode", value: formaterPeriode(behandling.periode) },
+                    { key: "Kostnadssted", value: behandling.kostnadssted },
+                  ]}
+                />
+                <VStack gap="space-20" align="start">
+                  {behandling.vedtak.map((v) => (
+                    <Box
+                      className="w-full"
+                      borderWidth="2"
+                      borderRadius="8"
+                      borderColor="neutral-subtle"
+                      padding="space-8"
+                      key={v.id}
+                    >
+                      <VStack gap="space-8">
+                        <Definisjonsliste
+                          definitions={[
+                            { key: "Tilskuddstype", value: v.tilskuddOpplaeringType },
+                            { key: "Hvem skal motta utbetalingen?", value: v.utbetalingMottaker },
+                            {
+                              key: "Beløp fra søknad",
+                              value: formaterValuta(v.soknadBelop, v.soknadValuta),
+                            },
+                          ]}
+                        />
+                        <Separator />
+                        <Definisjonsliste
+                          columns={1}
+                          definitions={[
+                            { key: "Vedtaksresultat", value: v.vedtakResultat },
+                            { key: "Kommentar til brukeren", value: v.kommentarVedtaksbrev },
+                          ]}
+                        />
+                      </VStack>
+                    </Box>
+                  ))}
+                </VStack>
+                <Box
+                  className="w-full"
+                  borderWidth="2"
+                  borderRadius="8"
+                  borderColor="neutral-subtle"
+                  padding="space-8"
+                >
+                  <HStack justify="space-between">
+                    <HStack align="center" gap="space-8">
+                      <PadlockLockedIcon title="a11y-title" fontSize="1.5rem" />
+                      <BodyShort size="large">Totalt beløp fra søknad</BodyShort>
+                    </HStack>
+                    <BodyShort size="large">
+                      {formaterValuta(
+                        behandling.vedtak.reduce((sum, v) => sum + v.soknadBelop, 0),
+                        Valuta.NOK,
+                      )}
+                    </BodyShort>
+                  </HStack>
+                </Box>
+              </VStack>
+            </>
+            <DeltakerinformasjonOgBetalingsbetingelser
+              deltaker={enkeltplassDeltaker}
+              prisbetingelser={prismodell.prisbetingelser}
+            />
+          </TwoColumnGrid>
+        </Box>
+        <Separator />
         <>
           {erTilAttestering && (
             <HStack gap="space-8" marginBlock="space-16" justify="end">
@@ -126,7 +215,7 @@ export function TilskuddBehandlingDetaljerPage() {
             onConfirm={sendIRetur}
           />
         </>
-      }
-    />
+      </>
+    </TilskuddBehandlingLayout>
   );
 }
