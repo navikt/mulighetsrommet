@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
-import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -32,14 +31,24 @@ data class GjennomforingDbo(
     val avtaleId: UUID?,
     val prismodellId: UUID?,
     val ansvarligEnhet: NavEnhetNummer?,
-    val oppmoteSted: String?,
-    val faneinnhold: Faneinnhold?,
-    val beskrivelse: String?,
-    val estimertVentetidVerdi: Int?,
-    val estimertVentetidEnhet: String?,
-    val tilgjengeligForArrangorDato: LocalDate?,
     val arenaTiltaksnummer: Tiltaksnummer?,
     val arenaAnsvarligEnhet: String?,
+)
+
+data class GjennomforingDetaljerDbo(
+    val id: UUID,
+    val arrangorId: UUID,
+    val oppstart: GjennomforingOppstartstype,
+    val pameldingType: GjennomforingPameldingType,
+    val navn: String,
+    val startDato: LocalDate?,
+    val sluttDato: LocalDate?,
+    val status: GjennomforingStatusType,
+    val deltidsprosent: Double,
+    val antallPlasser: Int,
+    val prismodellId: UUID?,
+    val oppmoteSted: String?,
+    val tilgjengeligForArrangorDato: LocalDate?,
 )
 
 data class GjennomforingArenaDataDbo(

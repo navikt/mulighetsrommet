@@ -150,6 +150,7 @@ object AvtaleValidator {
                 FieldError.of(
                     "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
                     DetaljerRequest::opsjonsmodell,
+                    Opsjonsmodell::type,
                 )
             }
         }
@@ -389,6 +390,7 @@ object AvtaleValidator {
                 FieldError.of(
                     "Du må velge opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent",
                     DetaljerRequest::opsjonsmodell,
+                    Opsjonsmodell::type,
                 )
             }
         } else {

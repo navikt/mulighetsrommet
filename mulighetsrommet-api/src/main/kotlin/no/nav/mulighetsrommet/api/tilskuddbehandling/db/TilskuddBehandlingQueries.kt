@@ -7,7 +7,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.withTransaction
@@ -147,6 +147,6 @@ private fun Row.toTilskuddBehandlingDto() = TilskuddBehandlingDto(
     soknadDato = localDate("soknad_dato"),
     periode = periode("periode"),
     kostnadssted = NavEnhetNummer(string("kostnadssted")),
-    vedtak = Json.decodeFromString<List<TilskuddVedtakDto>>(string("vedtak_json")),
+    tilskudd = Json.decodeFromString<List<TilskuddOpplaeringDto>>(string("vedtak_json")),
     status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(string("status"))),
 )

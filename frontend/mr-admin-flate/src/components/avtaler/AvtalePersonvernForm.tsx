@@ -11,7 +11,7 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";

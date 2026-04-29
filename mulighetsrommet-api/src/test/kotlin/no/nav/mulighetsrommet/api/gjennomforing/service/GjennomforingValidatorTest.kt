@@ -24,10 +24,10 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.TiltakOslo
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -36,7 +36,6 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.SakarkivNummer
-import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -109,58 +108,52 @@ class GjennomforingValidatorTest : FunSpec({
         administratorer = setOf(NavAnsattFixture.DonaldDuck.navIdent),
     )
 
-    val ctx = GjennomforingValidator.Ctx(
-        previous = null,
+    val ctx = GjennomforingValidator.Context(
+        today = LocalDate.now(),
         avtale = avtale,
         arrangor = ArrangorFixtures.underenhet1,
-        kontaktpersoner = emptyList(),
-        administratorer = emptyList(),
-        antallDeltakere = 0,
-        status = GjennomforingStatusType.GJENNOMFORES,
+        previous = null,
     )
 
-    test("validerer estimertVentetid") {
-        GjennomforingValidator.validate(
-            request.copy(
-                estimertVentetid = GjennomforingRequest.EstimertVentetid(
-                    verdi = null,
-                    enhet = null,
-                ),
-            ),
-            ctx,
-        ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            FieldError("/estimertVentetid/enhet", "Du må velge en enhet"),
-            FieldError("/estimertVentetid/verdi", "Du må velge en verdi større enn 0"),
-        )
+    fun validateCreate(
+        r: GjennomforingRequest,
+        c: GjennomforingValidator.Context,
+    ): Validated<GjennomforingValidator.CreateGjennomforingResult> {
+        return GjennomforingValidator.validateCreateGjennomforing(c, r.id, r.detaljer)
     }
 
-    test("skal feile når tiltakstypen ikke overlapper med avtalen") {
-        GjennomforingValidator.validate(
-            request.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id),
-            ctx,
-        ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            FieldError("/tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
-        )
+    fun validateUpdate(
+        r: GjennomforingRequest,
+        c: GjennomforingValidator.Context,
+    ): Validated<GjennomforingValidator.DetaljerResult> {
+        return GjennomforingValidator.validateUpdateDetaljer(c, r.id, r.detaljer)
     }
 
     test("skal ikke kunne sette felles oppstart når tiltaket krever løpende oppstart") {
-        GjennomforingValidator.validate(request.copy(oppstart = GjennomforingOppstartstype.FELLES), ctx)
+        validateCreate(
+            request.copy(detaljer = request.detaljer.copy(oppstart = GjennomforingOppstartstype.FELLES)),
+            ctx,
+        )
             .shouldBeLeft()
             .shouldContain(FieldError("/oppstart", "Tiltaket må ha løpende oppstart"))
     }
 
     test("skal ikke kunne sette oppstartstype til enkeltplass") {
-        GjennomforingValidator.validate(request.copy(oppstart = GjennomforingOppstartstype.ENKELTPLASS), ctx)
+        validateCreate(
+            request.copy(detaljer = request.detaljer.copy(oppstart = GjennomforingOppstartstype.ENKELTPLASS)),
+            ctx,
+        )
             .shouldBeLeft()
             .shouldContain(FieldError("/oppstart", "Tiltaket må ha løpende oppstart"))
     }
 
     test("skal ikke kunne sette direkte vedtak når tiltaket har felles oppstart") {
-        GjennomforingValidator.validate(
+        validateCreate(
             request.copy(
-                tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-                oppstart = GjennomforingOppstartstype.FELLES,
-                pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+                detaljer = request.detaljer.copy(
+                    oppstart = GjennomforingOppstartstype.FELLES,
+                    pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+                ),
             ),
             ctx.copy(
                 avtale = ctx.avtale.copy(
@@ -182,7 +175,7 @@ class GjennomforingValidatorTest : FunSpec({
     }
 
     test("avtalen må være aktiv") {
-        GjennomforingValidator.validate(
+        validateCreate(
             request,
             ctx.copy(avtale = ctx.avtale.copy(status = AvtaleStatus.Avsluttet)),
         ).shouldBeLeft(
@@ -191,69 +184,66 @@ class GjennomforingValidatorTest : FunSpec({
     }
 
     test("kan ikke opprette før Avtale startDato") {
-        GjennomforingValidator.validate(request.copy(startDato = avtale.startDato.minusDays(1)), ctx).shouldBeLeft(
+        validateCreate(
+            request.copy(detaljer = request.detaljer.copy(startDato = avtale.startDato.minusDays(1))),
+            ctx,
+        ).shouldBeLeft(
             listOf(FieldError("/startDato", "Du må legge inn en startdato som er etter avtalens startdato")),
         )
     }
 
     test("kan ikke bare opprettes med status GJENNOMFORES") {
-        GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.GJENNOMFORES))
-            .shouldBeRight()
-        GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.AVSLUTTET)).shouldBeLeft(
+        validateCreate(request, ctx.copy(today = request.detaljer.startDato!!)).shouldBeRight()
+
+        validateCreate(request, ctx.copy(today = request.detaljer.sluttDato!!.plusDays(1))).shouldBeLeft(
             listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avsluttet")),
-        )
-        GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.AVBRUTT)).shouldBeLeft(
-            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avbrutt")),
-        )
-        GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.AVLYST)).shouldBeLeft(
-            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avlyst")),
         )
     }
 
     test("skal returnere en ny verdi for 'tilgjengelig for arrangør'-dato når datoen er utenfor gyldig tidsrom") {
-        val req = request.copy(startDato = LocalDate.now().plusMonths(1))
-        GjennomforingValidator.validate(
-            req.copy(tilgjengeligForArrangorDato = avtale.startDato.minusMonths(3)),
+        val req = request.copy(detaljer = request.detaljer.copy(startDato = LocalDate.now().plusMonths(1)))
+        validateCreate(
+            req.copy(detaljer = req.detaljer.copy(tilgjengeligForArrangorDato = avtale.startDato.minusMonths(3))),
             ctx,
         ).shouldBeRight().should {
-            it.gjennomforing.tilgjengeligForArrangorDato.shouldBeNull()
+            it.detaljer.detaljer.tilgjengeligForArrangorDato.shouldBeNull()
         }
 
-        GjennomforingValidator.validate(
-            req.copy(tilgjengeligForArrangorDato = req.startDato!!.plusDays(1)),
+        validateCreate(
+            req.copy(detaljer = req.detaljer.copy(tilgjengeligForArrangorDato = req.detaljer.startDato!!.plusDays(1))),
             ctx,
         ).shouldBeRight().should {
-            it.gjennomforing.tilgjengeligForArrangorDato.shouldBeNull()
+            it.detaljer.detaljer.tilgjengeligForArrangorDato.shouldBeNull()
         }
 
-        GjennomforingValidator.validate(
-            req.copy(tilgjengeligForArrangorDato = req.startDato.minusDays(1)),
+        validateCreate(
+            req.copy(detaljer = req.detaljer.copy(tilgjengeligForArrangorDato = req.detaljer.startDato.minusDays(1))),
             ctx,
         ).shouldBeRight().should {
-            it.gjennomforing.tilgjengeligForArrangorDato shouldBe req.startDato.minusDays(1)
+            it.detaljer.detaljer.tilgjengeligForArrangorDato shouldBe req.detaljer.startDato.minusDays(1)
         }
     }
 
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent avtale") {
-        val utenSluttDato = request.copy(sluttDato = null)
+        val utenSluttDato = request.copy(detaljer = request.detaljer.copy(sluttDato = null))
 
-        GjennomforingValidator.validate(
+        validateCreate(
             utenSluttDato,
             ctx.copy(avtale = ctx.avtale.copy(avtaletype = Avtaletype.FORHANDSGODKJENT)),
         ).shouldBeRight()
-        GjennomforingValidator.validate(
+        validateCreate(
             utenSluttDato,
             ctx.copy(avtale = ctx.avtale.copy(avtaletype = Avtaletype.AVTALE)),
         ).shouldBeLeft(
             listOf(FieldError("/sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
         )
-        GjennomforingValidator.validate(
+        validateCreate(
             utenSluttDato,
             ctx.copy(avtale = ctx.avtale.copy(avtaletype = Avtaletype.RAMMEAVTALE)),
         ).shouldBeLeft(
             listOf(FieldError("/sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
         )
-        GjennomforingValidator.validate(
+        validateCreate(
             utenSluttDato,
             ctx.copy(avtale = ctx.avtale.copy(avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG)),
         ).shouldBeLeft(
@@ -273,7 +263,7 @@ class GjennomforingValidatorTest : FunSpec({
 
         GjennomforingValidator.validateAmoKategorisering(
             avtaleUtenAmokategorisering,
-            request.amoKategorisering,
+            request.detaljer.amoKategorisering,
         ).shouldBeLeft(
             listOf(
                 FieldError("/avtaleId", "Du må velge en kurstype for avtalen"),
@@ -294,7 +284,7 @@ class GjennomforingValidatorTest : FunSpec({
 
         GjennomforingValidator.validateAmoKategorisering(
             avtaleUtenAmokategorisering,
-            request.amoKategorisering,
+            request.detaljer.amoKategorisering,
         ).shouldBeLeft(
             listOf(
                 FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype"),
@@ -313,14 +303,14 @@ class GjennomforingValidatorTest : FunSpec({
 
         GjennomforingValidator.validateUtdanningslop(
             avtaleGruFag,
-            request.utdanningslop,
+            request.detaljer.utdanningslop,
         ).shouldBeLeft(
             listOf(FieldError("/utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
         )
     }
 
     test("arrangøren må være aktiv i Brreg") {
-        GjennomforingValidator.validate(
+        validateCreate(
             request,
             ctx.copy(arrangor = ArrangorFixtures.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1))),
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -332,55 +322,66 @@ class GjennomforingValidatorTest : FunSpec({
     }
 
     test("validerer at datafelter i gjennomføring i henhold til data i avtalen") {
-        GjennomforingValidator.validate(
+        validateCreate(
             request.copy(
-                startDato = avtale.startDato.minusDays(1),
-                sluttDato = avtale.startDato,
+                detaljer = request.detaljer.copy(
+                    startDato = avtale.startDato.minusDays(1),
+                    sluttDato = avtale.startDato,
+                ),
             ),
             ctx,
         ).shouldBeLeft(
             listOf(FieldError("/startDato", "Du må legge inn en startdato som er etter avtalens startdato")),
         )
-        GjennomforingValidator.validate(
+        validateCreate(
             request.copy(
-                startDato = avtale.sluttDato!!,
-                sluttDato = avtale.startDato,
+                detaljer = request.detaljer.copy(
+                    startDato = avtale.sluttDato!!,
+                    sluttDato = avtale.startDato,
+                ),
             ),
             ctx,
         ).shouldBeLeft(
             listOf(FieldError("/startDato", "Startdato må være før sluttdato")),
         )
-        GjennomforingValidator.validate(
-            request.copy(antallPlasser = 0),
+        validateCreate(
+            request.copy(detaljer = request.detaljer.copy(antallPlasser = 0)),
             ctx,
         ).shouldBeLeft(
             listOf(FieldError("/antallPlasser", "Du må legge inn antall plasser større enn 0")),
         )
-        GjennomforingValidator.validate(
-            request.copy(arrangorId = ArrangorFixtures.underenhet2.id),
+        validateCreate(
+            request.copy(detaljer = request.detaljer.copy(arrangorId = ArrangorFixtures.underenhet2.id)),
             ctx,
         ).shouldBeLeft(
             listOf(FieldError("/arrangorId", "Du må velge en arrangør fra avtalen")),
         )
     }
 
-    context("oppmotested") {
-        test("oppmotested er ikke påkrevd") {
-            GjennomforingValidator.validate(request.copy(oppmoteSted = null), ctx).shouldBeRight()
+    context("oppmøtested") {
+        test("oppmøtested er ikke påkrevd") {
+            validateCreate(
+                request.copy(detaljer = request.detaljer.copy(oppmoteSted = null)),
+                ctx,
+            ).shouldBeRight()
         }
 
-        test("oppmotested må være innenfor maks tegn grense") {
-            GjennomforingValidator.validate(request.copy(oppmoteSted = ":)".repeat(251)), ctx).shouldBeLeft()
+        test("oppmøtested må være innenfor maks tegn grense") {
+            validateCreate(
+                request.copy(detaljer = request.detaljer.copy(oppmoteSted = ":)".repeat(251))),
+                ctx,
+            ).shouldBeLeft(listOf(FieldError("/oppmoteSted", "Du kan bare skrive 500 tegn i \"Oppmøtested\"")))
         }
     }
 
     test("Nav-regioner og Nav-enheter er påkrevd") {
-        GjennomforingValidator.validateNavEnheter(
-            ctx.avtale,
+        GjennomforingValidator.validateVeilederinfo(
             request.veilederinformasjon.copy(
                 navRegioner = setOf(),
                 navKontorer = setOf(),
             ),
+            ctx.avtale,
+            emptyList(),
         ).shouldBeLeft(
             listOf(
                 FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region fra avtalen"),
@@ -390,36 +391,35 @@ class GjennomforingValidatorTest : FunSpec({
     }
 
     test("fjerner nav-enheter som ikke er en del av avtalen") {
-        GjennomforingValidator.validateNavEnheter(
-            ctx.avtale,
+        GjennomforingValidator.validateVeilederinfo(
             request.veilederinformasjon.copy(
                 navRegioner = setOf(Innlandet.enhetsnummer, Oslo.enhetsnummer),
                 navKontorer = setOf(Gjovik.enhetsnummer, Sel.enhetsnummer),
                 navAndreEnheter = setOf(TiltakOslo.enhetsnummer),
             ),
+            ctx.avtale,
+            emptyList(),
         ).shouldBeRight().should {
-            it.shouldBe(setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer))
+            it.navEnheter.shouldBe(setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer))
         }
     }
     context("når gjennonmføring allerede eksisterer") {
-        val gjennomforing = GjennomforingValidator.Ctx.Gjennomforing(
+        val gjennomforing = GjennomforingValidator.Context.Gjennomforing(
             arrangorId = ArrangorFixtures.underenhet1.id,
-            sluttDato = AvtaleFixtures.oppfolging.detaljerDbo.sluttDato,
             status = GjennomforingStatusType.GJENNOMFORES,
             oppstart = GjennomforingOppstartstype.LOPENDE,
-            avtaleId = avtale.id,
             pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-            arena = Gjennomforing.ArenaData(Tiltaksnummer("2020#1"), "1234"),
+            antallDeltakere = 0,
         )
 
         test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
-            GjennomforingValidator.validate(
-                request.copy(startDato = avtale.startDato.plusDays(5)),
+            validateUpdate(
+                request.copy(detaljer = request.detaljer.copy(startDato = avtale.startDato.plusDays(5))),
                 ctx.copy(previous = gjennomforing),
             )
                 .shouldBeRight()
-            GjennomforingValidator.validate(
-                request.copy(startDato = avtale.startDato.minusDays(1)),
+            validateUpdate(
+                request.copy(detaljer = request.detaljer.copy(startDato = avtale.startDato.minusDays(1))),
                 ctx.copy(previous = gjennomforing),
             )
                 .shouldBeLeft(
@@ -429,29 +429,13 @@ class GjennomforingValidatorTest : FunSpec({
                 )
         }
 
-        test("inkluderer arena-felter i validert modell") {
-            GjennomforingValidator.validate(
-                request,
-                ctx.copy(previous = gjennomforing),
-            ).shouldBeRight().gjennomforing.should {
-                it.arenaTiltaksnummer shouldBe Tiltaksnummer("2020#1")
-                it.arenaAnsvarligEnhet shouldBe "1234"
-            }
-        }
-
-        test("Skal godta endringer for sluttdato frem i tid selv om gjennomføringen er aktiv") {
-            GjennomforingValidator.validate(
-                request.copy(sluttDato = avtale.sluttDato),
-                ctx.copy(previous = gjennomforing.copy(sluttDato = avtale.sluttDato!!.minusDays(1))),
-            )
-                .shouldBeRight()
-        }
-
         test("godtar ikke endringer for sluttdato tilbake i tid når gjennomføringen er aktiv") {
-            GjennomforingValidator.validate(
+            validateUpdate(
                 request.copy(
-                    startDato = LocalDate.now().minusDays(2),
-                    sluttDato = LocalDate.now().minusDays(1),
+                    detaljer = request.detaljer.copy(
+                        startDato = LocalDate.now().minusDays(2),
+                        sluttDato = LocalDate.now().minusDays(1),
+                    ),
                 ),
                 ctx.copy(previous = gjennomforing, avtale = ctx.avtale.copy(startDato = LocalDate.now().minusDays(2))),
             ).shouldBeLeft(
@@ -462,13 +446,15 @@ class GjennomforingValidatorTest : FunSpec({
                     ),
                 ),
             )
-            GjennomforingValidator.validate(
+            validateUpdate(
                 request.copy(
-                    startDato = LocalDate.now().minusDays(2),
-                    sluttDato = LocalDate.now().minusDays(1),
+                    detaljer = request.detaljer.copy(
+                        startDato = LocalDate.now().minusDays(2),
+                        sluttDato = LocalDate.now().minusDays(1),
+                    ),
                 ),
                 ctx.copy(
-                    previous = gjennomforing.copy(sluttDato = null),
+                    previous = gjennomforing,
                     avtale = ctx.avtale.copy(startDato = LocalDate.now().minusDays(2)),
                 ),
             ).shouldBeLeft(
@@ -482,7 +468,7 @@ class GjennomforingValidatorTest : FunSpec({
         }
 
         test("skal godta endringer selv om avtale er avbrutt") {
-            GjennomforingValidator.validate(
+            validateUpdate(
                 request,
                 ctx.copy(
                     previous = gjennomforing,
@@ -498,7 +484,7 @@ class GjennomforingValidatorTest : FunSpec({
         }
 
         test("skal feile når gjennomføring er avbrutt") {
-            GjennomforingValidator.validate(
+            validateUpdate(
                 request,
                 ctx.copy(previous = gjennomforing.copy(status = GjennomforingStatusType.AVBRUTT)),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -507,7 +493,7 @@ class GjennomforingValidatorTest : FunSpec({
         }
 
         test("skal feile når gjennomføring er avsluttet") {
-            GjennomforingValidator.validate(
+            validateUpdate(
                 request,
                 ctx.copy(previous = gjennomforing.copy(status = GjennomforingStatusType.AVSLUTTET)),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -517,25 +503,21 @@ class GjennomforingValidatorTest : FunSpec({
     }
 
     context("når gjennomføring har deltakere") {
-        val gjennomforing = GjennomforingValidator.Ctx.Gjennomforing(
+        val gjennomforing = GjennomforingValidator.Context.Gjennomforing(
             arrangorId = ArrangorFixtures.underenhet1.id,
-            sluttDato = AvtaleFixtures.oppfolging.detaljerDbo.sluttDato,
             status = GjennomforingStatusType.GJENNOMFORES,
             oppstart = GjennomforingOppstartstype.FELLES,
-            avtaleId = avtale.id,
             pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-            arena = null,
+            antallDeltakere = 4,
         )
 
         test("skal ikke kunne endre oppstartstype") {
-            GjennomforingValidator.validate(
+            validateUpdate(
                 request.copy(
-                    tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-                    oppstart = GjennomforingOppstartstype.LOPENDE,
+                    detaljer = request.detaljer.copy(oppstart = GjennomforingOppstartstype.LOPENDE),
                 ),
                 ctx.copy(
                     previous = gjennomforing,
-                    antallDeltakere = 4,
                     avtale = ctx.avtale.copy(
                         tiltakstype = Avtale.Tiltakstype(
                             navn = TiltakstypeFixtures.Jobbklubb.navn,
@@ -553,15 +535,15 @@ class GjennomforingValidatorTest : FunSpec({
         }
 
         test("skal ikke kunne endre påmeldingstype") {
-            GjennomforingValidator.validate(
+            validateUpdate(
                 request.copy(
-                    tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-                    pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
-                    oppstart = GjennomforingOppstartstype.FELLES,
+                    detaljer = request.detaljer.copy(
+                        pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
+                        oppstart = GjennomforingOppstartstype.FELLES,
+                    ),
                 ),
                 ctx.copy(
                     previous = gjennomforing,
-                    antallDeltakere = 4,
                     avtale = ctx.avtale.copy(
                         tiltakstype = Avtale.Tiltakstype(
                             navn = TiltakstypeFixtures.Jobbklubb.navn,
@@ -596,20 +578,12 @@ class GjennomforingValidatorTest : FunSpec({
         )
 
         test("Slettede kontaktpersoner valideres") {
-            GjennomforingValidator.validate(
-                request,
-                ctx.copy(kontaktpersoner = listOf(ansatt)),
+            GjennomforingValidator.validateVeilederinfo(
+                request.veilederinformasjon,
+                ctx.avtale,
+                listOf(ansatt),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/kontaktpersoner", "Nav identer B123456 er slettet og må fjernes"),
-            )
-        }
-
-        test("Slettede admins valideres") {
-            GjennomforingValidator.validate(
-                request,
-                ctx.copy(administratorer = listOf(ansatt)),
-            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/administratorer", "Nav identer B123456 er slettet og må fjernes"),
+                FieldError("/veilederinformasjon/kontaktpersoner", "Nav identer B123456 er slettet og må fjernes"),
             )
         }
     }

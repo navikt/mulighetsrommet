@@ -6,7 +6,7 @@ import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { Laster } from "../laster/Laster";
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { kreverUtdanningslop } from "@/utils/tiltakstype";
 

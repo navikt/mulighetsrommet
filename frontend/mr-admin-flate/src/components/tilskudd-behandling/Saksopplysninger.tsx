@@ -16,24 +16,24 @@ import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { defaultVedtakRequest } from "./defaultVedtakRequest";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
+import { opplaeringTilskuddToString } from "@/utils/Utils";
 
 export function SaksopplysningerForm() {
   const {
     control,
     register,
-    watch,
     formState: { errors },
   } = useFormContext<TilskuddBehandlingRequest>();
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "vedtak",
+    name: "tilskudd",
   });
 
   const { data: kostnadssteder } = useKostnadssteder();
 
   function totaltBelop(): number {
-    return watch("vedtak").reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0);
+    return fields.reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0);
   }
   return (
     <>
@@ -55,28 +55,33 @@ export function SaksopplysningerForm() {
             <HStack align="center" justify="space-between">
               <VStack gap="space-8">
                 <HStack gap="space-24" align="start">
-                  <FormSelect label="Tilskuddstype" name={`vedtak.${index}.tilskuddOpplaeringType`}>
+                  <FormSelect
+                    label="Tilskuddstype"
+                    name={`tilskudd.${index}.tilskuddOpplaeringType`}
+                  >
                     <option value="">-- Velg tilskuddstype --</option>
-                    {Object.keys(TilskuddOpplaeringType).map((tilskudd) => (
-                      <option key={tilskudd} value={tilskudd}>
-                        {tilskudd}
-                      </option>
-                    ))}
+                    {(Object.keys(TilskuddOpplaeringType) as TilskuddOpplaeringType[]).map(
+                      (tilskudd) => (
+                        <option key={tilskudd} value={tilskudd}>
+                          {opplaeringTilskuddToString(tilskudd)}
+                        </option>
+                      ),
+                    )}
                   </FormSelect>
                   <TextField
                     size="small"
                     type="text"
                     label="Beløp fra søknad"
-                    error={errors.vedtak?.[index]?.soknadBelop?.belop?.message}
-                    {...register(`vedtak.${index}.soknadBelop.belop`, {
-                      setValueAs: (v: string) => (v === "" ? null : Number(v)),
+                    error={errors.tilskudd?.[index]?.soknadBelop?.belop?.message}
+                    {...register(`tilskudd.${index}.soknadBelop.belop`, {
+                      setValueAs: (t: string) => (t === "" ? null : Number(t)),
                       validate: (value: number | null) => {
                         if (!Number.isInteger(value)) return "Beløp må være et heltall";
                         return true;
                       },
                     })}
                   />
-                  <FormSelect label="Valuta" name={`vedtak.${index}.soknadBelop.valuta`}>
+                  <FormSelect label="Valuta" name={`tilskudd.${index}.soknadBelop.valuta`}>
                     <option value={Valuta.NOK}>NOK</option>
                     <option value={Valuta.SEK}>SEK</option>
                   </FormSelect>
@@ -85,8 +90,8 @@ export function SaksopplysningerForm() {
                 <Separator />
                 <ControlledRadioGroup
                   size="small"
-                  name={`vedtak.${index}.utbetalingMottaker`}
-                  legend="Vedtaksresultat"
+                  name={`tilskudd.${index}.utbetalingMottaker`}
+                  legend="Hvem skal motta utbetalingen?"
                   horisontal
                 >
                   <Radio value="bruker">Utbetales til brukeren</Radio>

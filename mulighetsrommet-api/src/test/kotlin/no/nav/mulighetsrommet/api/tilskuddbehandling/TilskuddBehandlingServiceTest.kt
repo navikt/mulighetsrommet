@@ -48,8 +48,8 @@ class TilskuddBehandlingServiceTest : FunSpec({
         periodeStart = "2024-01-01",
         periodeSlutt = "2024-07-01",
         kostnadssted = NavEnhetNummer("0502"),
-        vedtak = listOf(
-            TilskuddBehandlingRequest.TilskuddVedtakRequest(
+        tilskudd = listOf(
+            TilskuddBehandlingRequest.TilskuddRequest(
                 id = UUID.randomUUID(),
                 tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
                 soknadBelop = ValutaBelopRequest(belop = 50000, valuta = Valuta.NOK),

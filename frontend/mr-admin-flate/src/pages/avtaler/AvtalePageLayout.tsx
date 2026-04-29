@@ -1,6 +1,6 @@
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { VStack } from "@navikt/ds-react";
-import { AvtaleKnapperad } from "./AvtaleKnapperad";
+import { AvtaleHandlinger } from "./AvtaleHandlinger";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 import { ReactNode } from "react";
@@ -11,7 +11,7 @@ export function AvtalePageLayout({ avtale, children }: { avtale: AvtaleDto; chil
     <WhitePaddedBox>
       <InlineErrorBoundary>
         <VStack className="pb-6">
-          <AvtaleKnapperad avtale={avtale} />
+          <AvtaleHandlinger avtale={avtale} />
           <Separator />
           {children}
         </VStack>

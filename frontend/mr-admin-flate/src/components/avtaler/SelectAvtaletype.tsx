@@ -1,4 +1,4 @@
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { Avtaletype, Tiltakskode } from "@tiltaksadministrasjon/api-client";

@@ -5,7 +5,7 @@ import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLede
 import { AvtaleBransjeForm } from "./AvtaleBransjeForm";
 import { NorksopplaeringForm } from "./NorskopplaeringForm";
 import { InnholdElementerForm } from "./InnholdElementerForm";
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { AmoKurstype, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 interface Props {

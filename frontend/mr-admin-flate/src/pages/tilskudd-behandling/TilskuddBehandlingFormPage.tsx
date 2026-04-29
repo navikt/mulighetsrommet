@@ -48,16 +48,16 @@ export function TilskuddBehandlingFormPage() {
           soknadJournalpostId: behandling.soknadJournalpostId,
           kostnadssted: behandling.kostnadssted,
           soknadDato: behandling.soknadDato,
-          vedtak: behandling.vedtak.map((v) => ({
-            id: v.id,
-            tilskuddOpplaeringType: v.tilskuddOpplaeringType,
+          tilskudd: behandling.tilskudd.map((t) => ({
+            id: t.id,
+            tilskuddOpplaeringType: t.tilskuddOpplaeringType,
             soknadBelop: {
-              belop: v.soknadBelop,
-              valuta: v.soknadValuta,
+              belop: t.soknadBelop,
+              valuta: t.soknadValuta,
             },
-            vedtakResultat: v.vedtakResultat,
-            kommentarVedtaksbrev: v.kommentarVedtaksbrev,
-            utbetalingMottaker: v.utbetalingMottaker,
+            vedtakResultat: t.vedtakResultat,
+            kommentarVedtaksbrev: t.kommentarVedtaksbrev,
+            utbetalingMottaker: t.utbetalingMottaker,
           })),
         }
       : {
@@ -68,7 +68,7 @@ export function TilskuddBehandlingFormPage() {
           soknadJournalpostId: null,
           kostnadssted: null,
           soknadDato: null,
-          vedtak: [defaultVedtakRequest],
+          tilskudd: [defaultVedtakRequest],
         },
     mode: "onBlur",
   });
@@ -113,18 +113,18 @@ export function TilskuddBehandlingFormPage() {
 
   function tabHasErrors(tab: Tab): boolean {
     const vedtakFields = ["vedtakResultat", "kommentarVedtaksbrev"];
-    const allVedtakErrors = Array.isArray(errors.vedtak)
-      ? errors.vedtak.flatMap((v) => Object.keys(v ?? {}))
+    const allVedtakErrors = Array.isArray(errors.tilskudd)
+      ? errors.tilskudd.flatMap((v) => Object.keys(v ?? {}))
       : [];
 
     switch (tab.key) {
       case "vedtak":
-        return Array.isArray(errors.vedtak)
-          ? errors.vedtak.some((v) => vedtakFields.some((field) => field in (v ?? {})))
+        return Array.isArray(errors.tilskudd)
+          ? errors.tilskudd.some((v) => vedtakFields.some((field) => field in (v ?? {})))
           : false;
       case "saksopplysninger":
         return (
-          Object.keys(errors).some((field) => field !== "vedtak") ||
+          Object.keys(errors).some((field) => field !== "tilskudd") ||
           allVedtakErrors.some((field) => !vedtakFields.includes(field))
         );
     }

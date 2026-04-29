@@ -1,30 +1,26 @@
-import { HGrid, Select, TextField, VStack } from "@navikt/ds-react";
+import { HGrid, VStack } from "@navikt/ds-react";
 import { useEffect, useMemo, useRef } from "react";
-import { FieldError, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "@/constants";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { RegistrerteOpsjoner } from "./opsjoner/RegistrerteOpsjoner";
 import {
   hentGjeldendeOpsjonsmodeller,
   hentOpsjonsmodell,
 } from "@/components/avtaler/opsjoner/opsjonsmodeller";
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { addDuration, SafeSubDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { Avtaletype, OpsjonsmodellType } from "@tiltaksadministrasjon/api-client";
+import { FormSelect } from "@/components/skjema/FormSelect";
+import { FormTextField } from "@/components/skjema/FormTextField";
+import { FormDateInput } from "@/components/skjema/FormDateInput";
 
 interface Props {
   opsjonUtlost: boolean;
 }
 
 export function AvtaleVarighet({ opsjonUtlost }: Props) {
-  const {
-    register,
-    setValue,
-    watch,
-    getValues,
-    formState: { errors },
-  } = useFormContext<AvtaleFormValues>();
+  const { setValue, watch, getValues } = useFormContext<AvtaleFormValues>();
   const initialStartDato = useRef(getValues("detaljer.startDato"));
   const startDato = watch("detaljer.startDato");
   const sluttDato = watch("detaljer.sluttDato");
@@ -75,21 +71,21 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
     <VStack gap="space-16">
       {!forhandsgodkjent && (
         <HGrid columns={2}>
-          <Select
+          <FormSelect
             readOnly={opsjonUtlost}
             label="Avtalt mulighet for forlengelse"
             size="small"
-            value={opsjonsmodell?.type}
-            error={(errors.detaljer?.opsjonsmodell?.type as FieldError | undefined)?.message}
-            onChange={(e) => {
-              const opsjonsmodell = gjeldendeOpsjonsmodeller.find(
-                (modell) => modell.type === e.target.value,
-              );
-              if (opsjonsmodell) {
-                setValue("detaljer.opsjonsmodell.type", opsjonsmodell.type);
-                setValue("detaljer.opsjonsmodell.customOpsjonsmodellNavn", undefined);
-                setValue("detaljer.opsjonsmodell.opsjonMaksVarighet", undefined);
-              }
+            name={"detaljer.opsjonsmodell.type"}
+            rules={{
+              onChange: (e) => {
+                const opsjonsmodell = gjeldendeOpsjonsmodeller.find(
+                  (modell) => modell.type === e.target.value,
+                );
+                if (opsjonsmodell) {
+                  setValue("detaljer.opsjonsmodell.customOpsjonsmodellNavn", undefined);
+                  setValue("detaljer.opsjonsmodell.opsjonMaksVarighet", undefined);
+                }
+              },
             }}
           >
             <option value={undefined}>Velg avtalt mulighet for forlengelse</option>
@@ -98,46 +94,40 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
                 {modell.label}
               </option>
             ))}
-          </Select>
+          </FormSelect>
         </HGrid>
       )}
       {opsjonsmodell?.type === "ANNET" && (
-        <TextField
+        <FormTextField
           label="Opsjonsnavn"
           readOnly={opsjonUtlost}
           hideLabel
-          error={errors.detaljer?.opsjonsmodell?.customOpsjonsmodellNavn?.message}
           placeholder="Beskriv opsjonsmodellen"
           size="small"
-          {...register("detaljer.opsjonsmodell.customOpsjonsmodellNavn")}
+          name={"detaljer.opsjonsmodell.customOpsjonsmodellNavn"}
         />
       )}
       {opsjonsmodell?.kreverMaksVarighet ? (
         <HGrid columns={3} gap="space-20" align="end">
-          <ControlledDateInput
+          <FormDateInput
             label={avtaletekster.startdatoLabel}
             readOnly={opsjonUtlost}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            onChange={(val) => setValue("detaljer.startDato", val)}
-            defaultSelected={startDato}
-            error={errors.detaljer?.startDato?.message}
+            name={"detaljer.startDato"}
           />
-          <ControlledDateInput
+          <FormDateInput
             key={sluttDato}
+            name={"detaljer.sluttDato"}
             label={avtaletekster.sluttdatoLabel(watchedAvtaletype, opsjonUtlost)}
             readOnly={opsjonUtlost || opsjonsmodell.type !== OpsjonsmodellType.ANNET}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            onChange={(val) => setValue("detaljer.sluttDato", val)}
-            defaultSelected={getValues("detaljer.sluttDato")}
             invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
-            error={errors.detaljer?.sluttDato?.message}
           />
-          <ControlledDateInput
+          <FormDateInput
             key={watchedOpsjonsmodell.opsjonMaksVarighet}
-            onChange={(val) => setValue("detaljer.opsjonsmodell.opsjonMaksVarighet", val)}
-            defaultSelected={getValues("detaljer.opsjonsmodell.opsjonMaksVarighet")}
+            name="detaljer.opsjonsmodell.opsjonMaksVarighet"
             label={avtaletekster.maksVarighetLabel}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
@@ -147,22 +137,18 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
         </HGrid>
       ) : (
         <HGrid columns={3} gap="space-40">
-          <ControlledDateInput
+          <FormDateInput
+            name={"detaljer.startDato"}
             label={avtaletekster.startdatoLabel}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            onChange={(val) => setValue("detaljer.startDato", val)}
-            defaultSelected={startDato}
-            error={errors.detaljer?.startDato?.message}
           />
-          <ControlledDateInput
+          <FormDateInput
+            name={"detaljer.sluttDato"}
             label={avtaletekster.sluttdatoLabel(watchedAvtaletype, opsjonUtlost)}
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
-            onChange={(val) => setValue("detaljer.sluttDato", val)}
-            defaultSelected={getValues("detaljer.sluttDato")}
             invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
-            error={errors.detaljer?.sluttDato?.message}
           />
         </HGrid>
       )}

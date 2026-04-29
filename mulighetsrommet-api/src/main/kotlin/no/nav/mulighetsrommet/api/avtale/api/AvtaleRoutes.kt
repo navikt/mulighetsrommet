@@ -134,7 +134,6 @@ fun Route.avtaleRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Avtalen ble opprettet"
-                        body<AvtaleDto>()
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
@@ -151,7 +150,7 @@ fun Route.avtaleRoutes() {
 
                 val result = avtaleService.create(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
-                    .map { AvtaleDtoMapper.fromAvtale(it) }
+                    .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
             }

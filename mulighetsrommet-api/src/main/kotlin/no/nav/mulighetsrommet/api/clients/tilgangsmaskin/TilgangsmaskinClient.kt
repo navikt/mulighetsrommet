@@ -44,7 +44,7 @@ class TilgangsmaskinClient(
         val response = client.post("$baseUrl/api/v1/bulk/obo") {
             bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(identer.map { TilgangsmaskinRequest(brukerId = it.value) })
+            setBody(identer.map { TilgangsmaskinRequest(brukerId = it.value, type = TilgangsmaskinRequest.Type.KJERNE_REGELTYPE) })
         }
 
         return when (response.status) {
@@ -75,7 +75,7 @@ class TilgangsmaskinClient(
 @Serializable
 data class TilgangsmaskinRequest(
     val brukerId: String,
-    val type: Type = Type.KJERNE_REGELTYPE,
+    val type: Type,
 ) {
     /* Komplett sjekk er med geografisk tilgangsjekk, kjerne er uten. */
     enum class Type {

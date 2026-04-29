@@ -13,6 +13,7 @@ import {
   AmoKurstype,
   Tiltakskode,
   TilsagnDeltakerDto,
+  TilskuddOpplaeringType,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -163,6 +164,21 @@ export function kurstypeToString(kurstype: AmoKategoriseringDto["kurstype"]): st
       return "Grunnleggende ferdigheter";
     case null:
       throw new Error("Kurstype is missing");
+  }
+}
+
+export function opplaeringTilskuddToString(tilskuddType: TilskuddOpplaeringType): string {
+  switch (tilskuddType) {
+    case TilskuddOpplaeringType.EKSAMENSAVGIFT:
+      return "Eksamensavgift";
+    case TilskuddOpplaeringType.INTEGRERT_BOTILBUD:
+      return "Integrert botilbud";
+    case TilskuddOpplaeringType.SEMESTERAVGIFT:
+      return "Semesteravgift";
+    case TilskuddOpplaeringType.SKOLEPENGER:
+      return "Skolepenger";
+    case TilskuddOpplaeringType.STUDIEREISE:
+      return "Studiereise";
   }
 }
 

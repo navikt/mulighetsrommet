@@ -1,13 +1,12 @@
-import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
+import { SetEstimertVentetidModal } from "@/components/gjennomforing/SetEstimertVentetidModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { ExternalLinkIcon, LayersPlusIcon } from "@navikt/aksel-icons";
 import { ActionMenu, BodyShort, Button, Switch } from "@navikt/ds-react";
-import { useSetAtom } from "jotai";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
@@ -35,13 +34,18 @@ interface Props {
   handlinger: GjennomforingHandling[];
 }
 
-export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, handlinger }: Props) {
+export function GjennomforingHandlinger({
+  ansatt,
+  gjennomforing,
+  veilederinfo,
+  handlinger,
+}: Props) {
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
-  const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
+  const [estimertVentetidModalOpen, setEstimertVentetidModalOpen] = useState(false);
 
   const { mutate: setPublisert } = useSetPublisert(gjennomforing.id);
 
@@ -60,8 +64,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
       },
     };
 
-    setGjennomforingDetaljerTab("detaljer");
-    navigate(`/avtaler/${gjennomforing.avtaleId}/gjennomforinger/skjema`, {
+    navigate(`/avtaler/${gjennomforing.avtaleId}/opprett-gjennomforing`, {
       state: { dupliserGjennomforing: duplisert },
     });
   }
@@ -82,7 +85,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
       <Handlinger>
         {isGruppetiltak(gjennomforing) && handlinger.includes(GjennomforingHandling.REDIGER) && (
           <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
-            <ActionMenu.Item onClick={() => navigate("skjema")}>
+            <ActionMenu.Item onClick={() => navigate("rediger")}>
               Rediger gjennomføring
             </ActionMenu.Item>
           </AdministratorGuard>
@@ -95,6 +98,13 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
               </ActionMenu.Item>
             </AdministratorGuard>
           )}
+        {handlinger.includes(GjennomforingHandling.REGISTRER_ESTIMERT_VENTETID) && (
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => setEstimertVentetidModalOpen(true)}>
+              Registrer estimert ventetid
+            </ActionMenu.Item>
+          </AdministratorGuard>
+        )}
         {handlinger.includes(GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR) && (
           <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
             <ActionMenu.Item onClick={() => registrerStengtModalRef.current?.showModal()}>
@@ -137,7 +147,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
         body={<BodyShort>Vil du fortsette til redigeringen?</BodyShort>}
         secondaryButton
         primaryButton={
-          <Button variant="primary" onClick={() => navigate("skjema")}>
+          <Button variant="primary" onClick={() => navigate("rediger")}>
             Ja, jeg vil redigere
           </Button>
         }
@@ -148,6 +158,11 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing, veilederinfo, ha
       />
       <SetApentForPameldingModal
         modalRef={apentForPameldingModalRef}
+        gjennomforingId={gjennomforing.id}
+      />
+      <SetEstimertVentetidModal
+        open={estimertVentetidModalOpen}
+        setOpen={setEstimertVentetidModalOpen}
         gjennomforingId={gjennomforing.id}
       />
       <AvbrytGjennomforingModal

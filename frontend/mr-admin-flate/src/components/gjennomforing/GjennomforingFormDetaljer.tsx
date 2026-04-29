@@ -3,34 +3,29 @@ import { FormGroup } from "@/layouts/FormGroup";
 import { SkjemaKolonne } from "@/layouts/SkjemaKolonne";
 import {
   AvtaleDto,
-  GjennomforingDeltakerSummary,
   GjennomforingAvtaleDto,
+  GjennomforingDeltakerSummary,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
-  GjennomforingRequest,
-  GjennomforingVeilederinfoDto,
-  TiltakstypeDto,
   Rolle,
   Tiltakskode,
+  TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
 import {
   Alert,
   DatePicker,
   HGrid,
-  HStack,
   Select,
-  Switch,
   Textarea,
   TextField,
   UNSAFE_Combobox,
   VStack,
 } from "@navikt/ds-react";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModal";
 import { administratorOptions } from "@/components/skjema/administratorOptions";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { GjennomforingUtdanningslopForm } from "@/components/utdanning/GjennomforingUtdanningslopForm";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -40,19 +35,20 @@ import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWit
 import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
-import { kreverDirekteVedtak, kreverDeltidsprosent } from "@/utils/tiltakstype";
+import { kreverDeltidsprosent, kreverDirekteVedtak } from "@/utils/tiltakstype";
 import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
+import { GjennomforingFormValues } from "@/pages/gjennomforing/form/validation";
+import { FormDateInput } from "@/components/skjema/FormDateInput";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
   avtale: AvtaleDto;
   gjennomforing: GjennomforingAvtaleDto | null;
-  veilederinfo: GjennomforingVeilederinfoDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
 }
 
 export function GjennomforingFormDetaljer(props: Props) {
-  const { tiltakstype, avtale, gjennomforing, veilederinfo, deltakere } = props;
+  const { tiltakstype, avtale, gjennomforing, deltakere } = props;
 
   const { data: navAnsatte } = useNavAnsatte([Rolle.TILTAKSGJENNOMFORINGER_SKRIV]);
 
@@ -62,10 +58,9 @@ export function GjennomforingFormDetaljer(props: Props) {
     register,
     control,
     formState: { errors },
-    getValues,
     setValue,
     watch,
-  } = useFormContext<GjennomforingRequest>();
+  } = useFormContext<GjennomforingFormValues>();
 
   const watchStartDato = watch("startDato");
 
@@ -79,13 +74,13 @@ export function GjennomforingFormDetaljer(props: Props) {
   const valgtPrismodell = avtale.prismodeller.find((p) => p.id === watch("prismodellId"));
   const antallDeltakere = deltakere?.antallDeltakere ?? 0;
 
-  function visAdvarselForSluttDato() {
-    if (
-      gjennomforing &&
-      antallDeltakere > 0 &&
-      watchSluttDato &&
-      gjennomforing.sluttDato !== watchSluttDato
-    ) {
+  function visAdvarselForSluttDato(sluttDato: string | null) {
+    if (!gjennomforing || antallDeltakere === 0 || !sluttDato) {
+      return;
+    }
+
+    const shouldDisplayWarning = !gjennomforing.sluttDato || sluttDato < gjennomforing.sluttDato;
+    if (shouldDisplayWarning) {
       endreSluttDatoModalRef.current?.showModal();
     }
   }
@@ -127,9 +122,6 @@ export function GjennomforingFormDetaljer(props: Props) {
               label={gjennomforingTekster.avtaleMedTiltakstype(avtale.tiltakstype.navn)}
               value={avtale.navn || ""}
             />
-            {errors.avtaleId?.message ? (
-              <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
-            ) : null}
             <GjennomforingAmoKategoriseringForm avtale={avtale} />
             <GjennomforingUtdanningslopForm avtale={avtale} />
           </FormGroup>
@@ -206,25 +198,23 @@ export function GjennomforingFormDetaljer(props: Props) {
               )}
             </HGrid>
             <HGrid columns={2}>
-              <ControlledDateInput
+              <FormDateInput
                 label={gjennomforingTekster.startdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxStartdato}
-                defaultSelected={getValues("startDato")}
-                onChange={(val) => setValue("startDato", val)}
-                error={errors.startDato?.message}
+                name={"startDato"}
               />
-              <ControlledDateInput
+              <FormDateInput
                 key={watchSluttDato}
                 label={gjennomforingTekster.sluttdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
-                defaultSelected={getValues("sluttDato")}
-                onChange={(val) => {
-                  setValue("sluttDato", val);
-                  visAdvarselForSluttDato();
+                name={"sluttDato"}
+                rules={{
+                  onChange: (event: ChangeEvent<HTMLInputElement>) => {
+                    visAdvarselForSluttDato(event.target.value);
+                  },
                 }}
-                error={errors.sluttDato?.message}
               />
             </HGrid>
             <HGrid align="start" columns={2}>
@@ -254,7 +244,6 @@ export function GjennomforingFormDetaljer(props: Props) {
                 />
               )}
             </HGrid>
-            <EstimertVentetidForm veilederinfo={veilederinfo} />
             {visOppmotested && (
               <VStack gap="space-8">
                 <Textarea
@@ -345,77 +334,5 @@ export function GjennomforingFormDetaljer(props: Props) {
         />
       )}
     </>
-  );
-}
-
-interface EstimertVentetidFormProps {
-  veilederinfo: GjennomforingVeilederinfoDto | null;
-}
-
-export function EstimertVentetidForm(props: EstimertVentetidFormProps) {
-  const [visEstimertVentetid, setVisEstimertVentetid] = useState<boolean>(
-    !!props.veilederinfo?.estimertVentetid?.enhet,
-  );
-
-  const {
-    register,
-    formState: { errors },
-    setValue,
-    watch,
-  } = useFormContext<GjennomforingRequest>();
-
-  useEffect(() => {
-    const resetEstimertVentetid = () => {
-      if (!visEstimertVentetid) {
-        setValue("estimertVentetid", null);
-      }
-    };
-
-    resetEstimertVentetid();
-  }, [setValue, visEstimertVentetid]);
-
-  if (watch("oppstart") === GjennomforingOppstartstype.FELLES) {
-    return null;
-  }
-
-  return (
-    <fieldset className="border-none p-0 [&>legend]:font-ax-bold [&>legend]:mb-2">
-      <HStack gap="space-4">
-        <LabelWithHelpText label="Estimert ventetid" helpTextTitle="Hva er estimert ventetid?">
-          Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om estimert
-          ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir det synlig for
-          alle ansatte i Nav.
-        </LabelWithHelpText>
-      </HStack>
-      <Switch
-        checked={visEstimertVentetid}
-        onClick={() => setVisEstimertVentetid(!visEstimertVentetid)}
-      >
-        Registrer estimert ventetid
-      </Switch>
-      {visEstimertVentetid && (
-        <HStack align="start" justify="start" gap="space-40">
-          <TextField
-            size="small"
-            type="number"
-            min={0}
-            label="Antall"
-            error={errors.estimertVentetid?.verdi?.message as string}
-            {...register("estimertVentetid.verdi", {
-              valueAsNumber: true,
-            })}
-          />
-          <Select
-            size="small"
-            label="Måleenhet"
-            error={errors.estimertVentetid?.enhet?.message as string}
-            {...register("estimertVentetid.enhet")}
-          >
-            <option value="uke">Uker</option>
-            <option value="maned">Måneder</option>
-          </Select>
-        </HStack>
-      )}
-    </fieldset>
   );
 }

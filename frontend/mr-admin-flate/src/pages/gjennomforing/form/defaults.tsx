@@ -6,7 +6,6 @@ import {
   GjennomforingDto,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
-  GjennomforingRequest,
   GjennomforingVeilederinfoDto,
   NavAnsattDto,
   PrismodellDto,
@@ -16,23 +15,9 @@ import {
   UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
-import { amoKategoriseringRequest } from "@/schemas/avtale";
 import { kreverDirekteVedtak } from "@/utils/tiltakstype";
-
-function defaultArrangor(
-  avtale: AvtaleDto,
-  gjennomforing?: Partial<GjennomforingDto> | null,
-): string | null {
-  if (gjennomforing?.arrangor?.id) {
-    return gjennomforing.arrangor.id;
-  }
-
-  if (avtale.arrangor?.underenheter.length === 1) {
-    return avtale.arrangor.underenheter[0].id;
-  }
-
-  return null;
-}
+import { GjennomforingFormValues } from "@/pages/gjennomforing/form/validation";
+import { toAmoKategoriseringRequest } from "@/pages/avtaler/form/mappers";
 
 export function defaultGjennomforingData(
   ansatt: NavAnsattDto,
@@ -43,23 +28,22 @@ export function defaultGjennomforingData(
   prismodell: PrismodellDto | null,
   amoKategorisering: AmoKategoriseringDto | null,
   utdanningslop: UtdanningslopDto | null,
-): DeepPartial<GjennomforingRequest> {
+): DeepPartial<GjennomforingFormValues> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, veilederinfo);
 
   const defaultOppstart = getDefaultOppstart(tiltakstype);
   const oppstart = gjennomforing?.oppstart || defaultOppstart;
   return {
     navn: gjennomforing?.navn || avtale.navn,
-    avtaleId: avtale.id,
     administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
       ansatt.navIdent,
     ],
-    antallPlasser: gjennomforing?.antallPlasser ?? null,
+    antallPlasser: gjennomforing?.antallPlasser,
     startDato: gjennomforing
       ? gjennomforing.startDato
       : defaultOppstart === GjennomforingOppstartstype.LOPENDE
         ? avtale.startDato
-        : null,
+        : undefined,
     sluttDato: gjennomforing
       ? gjennomforing.sluttDato
       : defaultOppstart === GjennomforingOppstartstype.LOPENDE
@@ -77,11 +61,10 @@ export function defaultGjennomforingData(
       faneinnhold: veilederinfo?.faneinnhold ?? avtale.faneinnhold,
     },
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
-    estimertVentetid: veilederinfo?.estimertVentetid || null,
     tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
     amoKategorisering: amoKategorisering
-      ? amoKategoriseringRequest(amoKategorisering)
-      : amoKategoriseringRequest(avtale.amoKategorisering),
+      ? toAmoKategoriseringRequest(amoKategorisering)
+      : toAmoKategoriseringRequest(avtale.amoKategorisering),
     utdanningslop: utdanningslop
       ? toUtdanningslopDbo(utdanningslop)
       : avtale.utdanningslop
@@ -91,6 +74,21 @@ export function defaultGjennomforingData(
     pameldingType: gjennomforing?.pameldingType || getDefaultPameldingType(oppstart),
     prismodellId: prismodell?.id ?? avtale.prismodeller[0]?.id,
   };
+}
+
+function defaultArrangor(
+  avtale: AvtaleDto,
+  gjennomforing?: Partial<GjennomforingDto> | null,
+): string | undefined {
+  if (gjennomforing?.arrangor?.id) {
+    return gjennomforing.arrangor.id;
+  }
+
+  if (avtale.arrangor?.underenheter.length === 1) {
+    return avtale.arrangor.underenheter[0].id;
+  }
+
+  return undefined;
 }
 
 function oppmoteSted(

@@ -32,7 +32,7 @@ object TilskuddBehandlingValidator {
         validateNotNull(request.soknadJournalpostId) {
             FieldError.of("JournalpostId må være satt", TilskuddBehandlingRequest::soknadJournalpostId)
         }
-        val vedtak = request.vedtak.mapIndexed { index, v ->
+        val vedtak = request.tilskudd.mapIndexed { index, v ->
             validateVedtakRequest(v, index).bind()
         }
         validate(requireNotNull(periodeStart) < requireNotNull(periodeSlutt)) {
@@ -52,7 +52,7 @@ object TilskuddBehandlingValidator {
         )
     }
 
-    fun validateVedtakRequest(req: TilskuddBehandlingRequest.TilskuddVedtakRequest, index: Int): Validated<TilskuddVedtakDbo> = validation {
+    fun validateVedtakRequest(req: TilskuddBehandlingRequest.TilskuddRequest, index: Int): Validated<TilskuddVedtakDbo> = validation {
         validateNotNull(req.tilskuddOpplaeringType) {
             FieldError(
                 "/vedtak/$index/tilskuddOpplaeringType",

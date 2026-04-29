@@ -105,7 +105,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.administratorer shouldBe listOf()
                     it.kontorstruktur.shouldNotBeNull()
                     it.kontaktpersoner shouldBe listOf()
-                    it.oppmoteSted shouldBe "Munch museet"
+                    it.oppmoteSted.shouldBeNull()
                     it.faneinnhold shouldBe null
                     it.beskrivelse shouldBe null
                 }
@@ -327,6 +327,23 @@ class GjennomforingQueriesTest : FunSpec({
             }
         }
 
+        test("skal sette estimert ventetid") {
+            database.runAndRollback {
+                queries.gjennomforing.upsert(Oppfolging1)
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).estimertVentetid.shouldBeNull()
+
+                queries.gjennomforing.setEstimertVentetid(Oppfolging1.id, 3, "maned")
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).estimertVentetid should {
+                    it.shouldNotBeNull()
+                    it.verdi shouldBe 3
+                    it.enhet shouldBe "maned"
+                }
+
+                queries.gjennomforing.setEstimertVentetid(Oppfolging1.id, null, null)
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).estimertVentetid.shouldBeNull()
+            }
+        }
+
         test("oppdater status") {
             database.runAndRollback {
                 val id = Oppfolging1.id
@@ -384,7 +401,8 @@ class GjennomforingQueriesTest : FunSpec({
             )
 
             database.runAndRollback {
-                queries.gjennomforing.upsert(Oppfolging1.copy(faneinnhold = faneinnhold))
+                queries.gjennomforing.upsert(Oppfolging1)
+                queries.gjennomforing.setRedaksjoneltInnhold(Oppfolging1.id, null, faneinnhold)
 
                 queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
                     it.faneinnhold.shouldNotBeNull().forHvem shouldBe faneinnhold.forHvem

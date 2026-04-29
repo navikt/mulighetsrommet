@@ -64,8 +64,8 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     it.periode shouldBe behandling.periode
                     it.kostnadssted shouldBe behandling.kostnadssted
 
-                    it.vedtak.size shouldBe 1
-                    it.vedtak.first() should { v ->
+                    it.tilskudd.size shouldBe 1
+                    it.tilskudd.first() should { v ->
                         v.id shouldBe behandling.vedtak.first().id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.SKOLEPENGER
                         v.soknadBelop shouldBe 50000

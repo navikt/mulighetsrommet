@@ -1,7 +1,7 @@
 import { Alert, Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { AvtaleListe } from "./AvtaleListe";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { InformasjonForVeiledereForm } from "../redaksjoneltInnhold/InformasjonForVeiledereForm";

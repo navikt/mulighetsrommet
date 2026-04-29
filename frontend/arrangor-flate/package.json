@@ -58,7 +58,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.11.2",
     "@eslint/js": "10.0.1",
-    "@hey-api/openapi-ts": "0.95.0",
+    "@hey-api/openapi-ts": "0.96.1",
     "@playwright/test": "1.59.1",
     "@react-router/dev": "7.14.1",
     "@react-router/fs-routes": "7.14.1",
@@ -84,7 +84,7 @@
     "postcss": "8.5.10",
     "postcss-import": "16.1.1",
     "tailwindcss": "4.2.2",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "typescript-eslint": "8.58.2",
     "vite": "8.0.9",
     "vitest": "4.1.4"
