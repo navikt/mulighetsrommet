@@ -42,8 +42,18 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 soknadBelop = 50000,
                 soknadValuta = Valuta.NOK,
                 vedtakResultat = VedtakResultat.INNVILGELSE,
-                kommentarVedtaksbrev = "Innvilget fullt beløp",
-                utbetalingMottaker = "Universitetet i Oslo",
+                kommentarVedtaksbrev = "k1",
+                utbetalingMottaker = "bruker",
+                kid = null,
+            ),
+            TilskuddVedtakDbo(
+                id = UUID.randomUUID(),
+                tilskuddOpplaeringType = TilskuddOpplaeringType.EKSAMENSAVGIFT,
+                soknadBelop = 1000,
+                soknadValuta = Valuta.NOK,
+                vedtakResultat = VedtakResultat.INNVILGELSE,
+                kommentarVedtaksbrev = "k2",
+                utbetalingMottaker = "arrangor",
                 kid = Kid.parse("116"),
             ),
         ),
@@ -66,16 +76,26 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     it.periode shouldBe behandling.periode
                     it.kostnadssted shouldBe behandling.kostnadssted
 
-                    it.vedtak.size shouldBe 1
-                    it.vedtak.first() should { v ->
+                    it.vedtak.size shouldBe 2
+                    it.vedtak[0] should { v ->
                         v.id shouldBe behandling.vedtak.first().id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.SKOLEPENGER
                         v.soknadBelop shouldBe 50000
                         v.soknadValuta shouldBe Valuta.NOK
                         v.vedtakResultat shouldBe VedtakResultat.INNVILGELSE
-                        v.kommentarVedtaksbrev shouldBe "Innvilget fullt beløp"
-                        v.utbetalingMottaker shouldBe "Universitetet i Oslo"
-                        v.kid
+                        v.kommentarVedtaksbrev shouldBe "k1"
+                        v.utbetalingMottaker shouldBe "bruker"
+                        v.kid shouldBe null
+                    }
+                    it.vedtak[1] should { v ->
+                        v.id shouldBe behandling.vedtak[1].id
+                        v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.EKSAMENSAVGIFT
+                        v.soknadBelop shouldBe 1000
+                        v.soknadValuta shouldBe Valuta.NOK
+                        v.vedtakResultat shouldBe VedtakResultat.INNVILGELSE
+                        v.kommentarVedtaksbrev shouldBe "k2"
+                        v.utbetalingMottaker shouldBe "arrangor"
+                        v.kid shouldBe Kid.parse("116")
                     }
                 }
             }

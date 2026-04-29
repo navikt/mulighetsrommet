@@ -2,7 +2,7 @@ import { useOpprettTilskuddBehandling } from "@/api/tilskudd-behandling/mutation
 import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { defaultVedtakRequest } from "@/components/tilskudd-behandling/defaultVedtakRequest";
-import { SaksopplysningerForm } from "@/components/tilskudd-behandling/Saksopplysninger";
+import { SaksopplysningerForm } from "@/components/tilskudd-behandling/SaksopplysningerForm";
 import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
@@ -70,7 +70,7 @@ export function TilskuddBehandlingFormPage() {
           soknadJournalpostId: null,
           kostnadssted: null,
           soknadDato: null,
-          vedtak: [defaultVedtakRequest],
+          vedtak: [defaultVedtakRequest()],
         },
     mode: "onBlur",
   });

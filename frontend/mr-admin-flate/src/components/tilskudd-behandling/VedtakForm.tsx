@@ -36,14 +36,14 @@ export function VedtakForm() {
                 <Radio value={VedtakResultat.AVSLAG}>Avslag</Radio>
               </ControlledRadioGroup>
             </HStack>
+            <Box width="100%">
+              <FormTextarea
+                label="Kommentarer til deltaker (vil vises i vedtaksbrev)"
+                name={`vedtak.${index}.kommentarVedtaksbrev`}
+              />
+            </Box>
           </FormGroup>
         ))}
-        <Box width="100%">
-          <FormTextarea
-            label="Kommentarer til deltaker (vil vises i vedtaksbrev)"
-            name="kommentarerTilDeltaker"
-          />
-        </Box>
       </VStack>
     </>
   );

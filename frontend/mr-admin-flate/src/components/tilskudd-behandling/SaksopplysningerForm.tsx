@@ -127,7 +127,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
           type="button"
           variant="secondary"
           icon={<PlusIcon aria-hidden />}
-          onClick={() => append(defaultVedtakRequest)}
+          onClick={() => append(defaultVedtakRequest())}
         >
           Legg til tilskudd
         </Button>
