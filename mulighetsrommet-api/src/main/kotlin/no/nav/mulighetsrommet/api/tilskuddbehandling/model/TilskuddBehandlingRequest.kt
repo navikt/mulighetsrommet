@@ -21,6 +21,7 @@ data class TilskuddBehandlingRequest(
     val periodeSlutt: String?,
     val kostnadssted: NavEnhetNummer?,
     val vedtak: List<TilskuddVedtakRequest>,
+    val kommentarIntern: String?,
 ) {
     @Serializable
     data class TilskuddVedtakRequest(
@@ -32,5 +33,6 @@ data class TilskuddBehandlingRequest(
         val kommentarVedtaksbrev: String?,
         val utbetalingMottaker: String?,
         val kidNummer: String?,
+        val belop: Int?,
     )
 }

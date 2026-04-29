@@ -16,5 +16,6 @@ export function defaultVedtakRequest(): TilskuddBehandlingRequestTilskuddVedtakR
     vedtakResultat: null,
     utbetalingMottaker: null,
     kidNummer: null,
+    belop: null,
   };
 }

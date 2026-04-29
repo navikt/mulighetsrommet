@@ -15,4 +15,5 @@ data class TilskuddBehandlingDbo(
     val kostnadssted: NavEnhetNummer,
     val vedtak: List<TilskuddVedtakDbo>,
     val status: TilskuddBehandlingStatus,
+    val kommentarIntern: String?,
 )

@@ -45,6 +45,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k1",
                 utbetalingMottaker = "bruker",
                 kid = null,
+                belop = 100,
             ),
             TilskuddVedtakDbo(
                 id = UUID.randomUUID(),
@@ -55,9 +56,11 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k2",
                 utbetalingMottaker = "arrangor",
                 kid = Kid.parse("116"),
+                belop = 200,
             ),
         ),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+        kommentarIntern = "kommentar intern",
     )
 
     context("insert and get") {
@@ -75,6 +78,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     it.soknadDato shouldBe behandling.soknadDato
                     it.periode shouldBe behandling.periode
                     it.kostnadssted shouldBe behandling.kostnadssted
+                    it.kommentarIntern shouldBe behandling.kommentarIntern
 
                     it.vedtak.size shouldBe 2
                     it.vedtak[0] should { v ->
@@ -86,6 +90,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.kommentarVedtaksbrev shouldBe "k1"
                         v.utbetalingMottaker shouldBe "bruker"
                         v.kid shouldBe null
+                        v.belop shouldBe 100
                     }
                     it.vedtak[1] should { v ->
                         v.id shouldBe behandling.vedtak[1].id
@@ -96,6 +101,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.kommentarVedtaksbrev shouldBe "k2"
                         v.utbetalingMottaker shouldBe "arrangor"
                         v.kid shouldBe Kid.parse("116")
+                        v.belop shouldBe 200
                     }
                 }
             }

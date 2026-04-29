@@ -48,6 +48,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
         periodeStart = "2024-01-01",
         periodeSlutt = "2024-07-01",
         kostnadssted = NavEnhetNummer("0502"),
+        kommentarIntern = "kommentar intern",
         vedtak = listOf(
             TilskuddBehandlingRequest.TilskuddVedtakRequest(
                 id = UUID.randomUUID(),
@@ -57,6 +58,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
                 kommentarVedtaksbrev = null,
                 utbetalingMottaker = "Universitetet i Oslo",
                 kidNummer = "116",
+                belop = 100,
             ),
         ),
     )

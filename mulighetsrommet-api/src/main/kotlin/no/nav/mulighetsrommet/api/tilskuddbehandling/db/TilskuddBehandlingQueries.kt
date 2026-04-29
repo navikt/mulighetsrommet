@@ -26,7 +26,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 soknad_dato,
                 periode,
                 kostnadssted,
-                status
+                status,
+                kommentar_intern
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -34,14 +35,16 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 :soknad_dato,
                 :periode::daterange,
                 :kostnadssted,
-                :status
+                :status,
+                :kommentar_intern
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 soknad_journalpost_id = excluded.soknad_journalpost_id,
                 soknad_dato = excluded.soknad_dato,
                 periode = excluded.periode,
                 kostnadssted = excluded.kostnadssted,
-                status = excluded.status
+                status = excluded.status,
+                kommentar_intern = excluded.kommentar_intern
         """.trimIndent()
 
         val params = mapOf(
@@ -52,6 +55,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "periode" to dbo.periode.toDaterange(),
             "kostnadssted" to dbo.kostnadssted.value,
             "status" to dbo.status.name,
+            "kommentar_intern" to dbo.kommentarIntern,
         )
 
         execute(queryOf(query, params))
@@ -71,7 +75,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 vedtak_resultat,
                 kommentar_vedtaksbrev,
                 utbetaling_mottaker,
-                kid
+                kid,
+                belop
             ) values (
                 :id::uuid,
                 :tilskudd_behandling_id::uuid,
@@ -81,7 +86,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 :vedtak_resultat,
                 :kommentar_vedtaksbrev,
                 :utbetaling_mottaker,
-                :kid
+                :kid,
+                :belop
             ) on conflict (id) do update set
                 tilskudd_behandling_id = excluded.tilskudd_behandling_id,
                 tilskudd_opplaering_id = excluded.tilskudd_opplaering_id,
@@ -90,7 +96,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 vedtak_resultat = excluded.vedtak_resultat,
                 kommentar_vedtaksbrev = excluded.kommentar_vedtaksbrev,
                 utbetaling_mottaker = excluded.utbetaling_mottaker,
-                kid = excluded.kid
+                kid = excluded.kid,
+                belop = excluded.belop
         """.trimIndent()
 
         val params = mapOf(
@@ -103,6 +110,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "kommentar_vedtaksbrev" to vedtak.kommentarVedtaksbrev,
             "utbetaling_mottaker" to vedtak.utbetalingMottaker,
             "kid" to vedtak.kid?.value,
+            "belop" to vedtak.belop,
         )
 
         execute(queryOf(query, params))
@@ -153,4 +161,5 @@ private fun Row.toTilskuddBehandlingDto() = TilskuddBehandlingDto(
     kostnadssted = NavEnhetNummer(string("kostnadssted")),
     vedtak = Json.decodeFromString<List<TilskuddVedtakDto>>(string("vedtak_json")),
     status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(string("status"))),
+    kommentarIntern = stringOrNull("kommentar_intern"),
 )

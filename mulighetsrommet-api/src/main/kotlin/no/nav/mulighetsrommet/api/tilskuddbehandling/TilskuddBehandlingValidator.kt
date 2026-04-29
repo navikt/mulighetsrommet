@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtakDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
@@ -50,6 +51,7 @@ object TilskuddBehandlingValidator {
             kostnadssted = request.kostnadssted,
             vedtak = vedtak,
             status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+            kommentarIntern = request.kommentarIntern,
         )
     }
 
@@ -86,12 +88,21 @@ object TilskuddBehandlingValidator {
                 )
             }
         }
-        requireValid(req.soknadBelop?.belop != null && req.soknadBelop.belop > 0 && req.soknadBelop.valuta != null) {
+        validate(req.soknadBelop?.belop != null && req.soknadBelop.belop > 0 && req.soknadBelop.valuta != null) {
             FieldError(
                 "/vedtak/$index/soknadBelop/belop",
-                "Beløp må være positivt",
+                "Søknadsbeløp må være positivt",
             )
         }
+        if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
+            validate(req.belop != null && req.belop > 0) {
+                FieldError(
+                    "/vedtak/$index/belop",
+                    "Beløp må være positivt",
+                )
+            }
+        }
+        requireValid(req.soknadBelop?.belop != null && req.soknadBelop.valuta != null)
         requireValid(req.vedtakResultat != null && req.utbetalingMottaker != null && req.tilskuddOpplaeringType != null)
 
         TilskuddVedtakDbo(
@@ -103,6 +114,7 @@ object TilskuddBehandlingValidator {
             kommentarVedtaksbrev = req.kommentarVedtaksbrev,
             utbetalingMottaker = req.utbetalingMottaker,
             kid = kid,
+            belop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) req.belop else null,
         )
     }
 }

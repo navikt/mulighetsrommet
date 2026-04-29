@@ -55,6 +55,7 @@ export function TilskuddBehandlingFormPage() {
           soknadJournalpostId: behandling.soknadJournalpostId,
           kostnadssted: behandling.kostnadssted,
           soknadDato: behandling.soknadDato,
+          kommentarIntern: behandling.kommentarIntern,
           vedtak: behandling.vedtak.map((v) => ({
             id: v.id,
             tilskuddOpplaeringType: v.tilskuddOpplaeringType,
@@ -75,6 +76,7 @@ export function TilskuddBehandlingFormPage() {
           soknadJournalpostId: null,
           kostnadssted: null,
           soknadDato: null,
+          kommentarIntern: null,
           vedtak: [defaultVedtakRequest()],
         },
     mode: "onBlur",
@@ -180,6 +182,7 @@ export function TilskuddBehandlingFormPage() {
                 </TwoColumnGrid>
               </Box>
             </Tabs>
+
             <Separator />
             <HStack gap="space-8" marginBlock="space-16" justify="end">
               {isFirstTab ? (

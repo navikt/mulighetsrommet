@@ -31,7 +31,10 @@ import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistori
 import { ToTrinnsOpprettelsesForklaring } from "../gjennomforing/tilsagn/ToTrinnsOpprettelseForklaring";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
-import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import {
+  MetadataFritekstfelt,
+  Separator,
+} from "@mr/frontend-common/components/datadriven/Metadata";
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
@@ -144,6 +147,10 @@ export function TilskuddBehandlingDetaljerPage() {
                           columns={1}
                           definitions={[
                             { key: "Vedtaksresultat", value: v.vedtakResultat },
+                            {
+                              key: "Beløp til utbetaling",
+                              value: formaterValuta(v.belop, Valuta.NOK),
+                            },
                             { key: "Kommentar til brukeren", value: v.kommentarVedtaksbrev },
                           ]}
                         />
@@ -171,6 +178,10 @@ export function TilskuddBehandlingDetaljerPage() {
                     </BodyShort>
                   </HStack>
                 </Box>
+                <MetadataFritekstfelt
+                  label="Kommentar (internt i Nav)"
+                  value={behandling.kommentarIntern}
+                />
               </VStack>
             </>
             <DeltakerinformasjonOgBetalingsbetingelser

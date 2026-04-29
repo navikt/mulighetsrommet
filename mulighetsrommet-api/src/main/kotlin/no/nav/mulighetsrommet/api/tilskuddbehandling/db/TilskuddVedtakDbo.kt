@@ -15,4 +15,5 @@ data class TilskuddVedtakDbo(
     val kommentarVedtaksbrev: String?,
     val utbetalingMottaker: String,
     val kid: Kid?,
+    val belop: Int?,
 )

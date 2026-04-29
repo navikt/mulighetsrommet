@@ -22,6 +22,7 @@ object TilskuddFixtures {
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         vedtak = emptyList(),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+        kommentarIntern = "kommentarIntern",
     )
     val Vedtak = TilskuddVedtakDbo(
         id = UUID.randomUUID(),
@@ -32,5 +33,6 @@ object TilskuddFixtures {
         kommentarVedtaksbrev = null,
         utbetalingMottaker = "Universitetet i Oslo",
         kid = Kid.parse("116"),
+        belop = 100,
     )
 }
