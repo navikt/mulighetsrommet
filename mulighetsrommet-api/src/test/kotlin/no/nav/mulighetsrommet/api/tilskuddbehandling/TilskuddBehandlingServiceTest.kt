@@ -53,7 +53,10 @@ class TilskuddBehandlingServiceTest : FunSpec({
             TilskuddBehandlingRequest.TilskuddRequest(
                 id = UUID.randomUUID(),
                 tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
-                soknadBelop = ValutaBelopRequest(belop = 50000, valuta = Valuta.NOK),
+                soknadBelop = ValutaBelopRequest(
+                    belop = 12,
+                    valuta = Valuta.SEK,
+                ),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,
                 utbetalingMottaker = "Universitetet i Oslo",

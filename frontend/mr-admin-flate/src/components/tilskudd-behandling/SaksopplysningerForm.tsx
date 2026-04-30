@@ -81,7 +81,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                     size="small"
                     type="text"
                     label="Beløp fra søknad"
-                    error={errors.tilskudd?.[index]?.soknadBelop?.belop?.message}
+                    error={errors.tilskudd?.[index]?.soknadBelop?.message}
                     {...register(`tilskudd.${index}.soknadBelop.belop`, {
                       setValueAs: (t: string) => (t === "" ? null : Number(t)),
                       validate: (value: number | null) => {
@@ -90,7 +90,11 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                       },
                     })}
                   />
-                  <FormSelect label="Valuta" name={`tilskudd.${index}.soknadBelop.valuta`}>
+                  <FormSelect
+                    size="small"
+                    label="Valuta"
+                    name={`tilskudd.${index}.soknadBelop.valuta`}
+                  >
                     <option value={Valuta.NOK}>NOK</option>
                     <option value={Valuta.SEK}>SEK</option>
                   </FormSelect>

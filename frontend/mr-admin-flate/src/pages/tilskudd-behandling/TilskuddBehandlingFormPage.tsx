@@ -31,7 +31,7 @@ interface Tab {
 
 const tabs: Tab[] = [
   { key: "saksopplysninger", label: "Saksopplysninger" },
-  { key: "vedtak", label: "Vedtak" },
+  { key: "vedtak", label: "Vedtak og beregning" },
 ];
 
 export function TilskuddBehandlingFormPage() {
@@ -59,13 +59,11 @@ export function TilskuddBehandlingFormPage() {
           tilskudd: behandling.tilskudd.map((t) => ({
             id: t.id,
             tilskuddOpplaeringType: t.tilskuddOpplaeringType,
-            soknadBelop: {
-              belop: t.soknadBelop,
-              valuta: t.soknadValuta,
-            },
-            vedtakResultat: t.vedtakResultat,
+            soknadBelop: t.soknadBelop,
+            vedtakResultat: t.vedtakResultat.type,
             kommentarVedtaksbrev: t.kommentarVedtaksbrev,
             utbetalingMottaker: t.utbetalingMottaker,
+            belop: t.utbetalingBelop?.belop,
           })),
         }
       : {

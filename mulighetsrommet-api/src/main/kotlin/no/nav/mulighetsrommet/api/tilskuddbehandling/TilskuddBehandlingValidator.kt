@@ -12,6 +12,8 @@ import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
@@ -102,19 +104,25 @@ object TilskuddBehandlingValidator {
                 )
             }
         }
-        requireValid(req.soknadBelop?.belop != null && req.soknadBelop.valuta != null)
-        requireValid(req.vedtakResultat != null && req.utbetalingMottaker != null && req.tilskuddOpplaeringType != null)
+        requireValid(req.soknadBelop?.belop != null && req.soknadBelop.valuta != null && req.vedtakResultat != null && req.utbetalingMottaker != null && req.tilskuddOpplaeringType != null)
+        requireValid(req.vedtakResultat != VedtakResultat.INNVILGELSE || req.belop != null)
 
         TilskuddDbo(
             id = req.id,
             tilskuddOpplaeringType = req.tilskuddOpplaeringType,
-            soknadBelop = req.soknadBelop.belop,
-            soknadValuta = req.soknadBelop.valuta,
+            soknadBelop = ValutaBelop(req.soknadBelop.belop, req.soknadBelop.valuta),
             vedtakResultat = req.vedtakResultat,
             kommentarVedtaksbrev = req.kommentarVedtaksbrev,
             utbetalingMottaker = req.utbetalingMottaker,
             kid = kid,
-            belop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) req.belop else null,
+            utbetalingBelop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
+                ValutaBelop(
+                    requireNotNull(req.belop),
+                    Valuta.NOK,
+                )
+            } else {
+                null
+            },
         )
     }
 }

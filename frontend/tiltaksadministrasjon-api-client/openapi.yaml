@@ -7766,12 +7766,9 @@ components:
         tilskuddOpplaeringType:
           $ref: "#/components/schemas/TilskuddOpplaeringType"
         soknadBelop:
-          type: integer
-          format: int32
-        soknadValuta:
-          $ref: "#/components/schemas/Valuta"
+          $ref: "#/components/schemas/ValutaBelop"
         vedtakResultat:
-          $ref: "#/components/schemas/VedtakResultat"
+          $ref: "#/components/schemas/VedtakResultatDto"
         kommentarVedtaksbrev:
           type:
           - "null"
@@ -7782,17 +7779,17 @@ components:
           type:
           - "null"
           - string
-        belop:
-          type: integer
-          format: int32
+        utbetalingBelop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
       required:
-      - belop
       - id
       - kid
       - kommentarVedtaksbrev
       - soknadBelop
-      - soknadValuta
       - tilskuddOpplaeringType
+      - utbetalingBelop
       - utbetalingMottaker
       - vedtakResultat
     TilskuddOpplaeringType:
@@ -7803,6 +7800,16 @@ components:
       - EKSAMENSAVGIFT
       - SEMESTERAVGIFT
       - INTEGRERT_BOTILBUD
+    VedtakResultatDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/VedtakResultat"
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+      required:
+      - status
+      - type
     VedtakResultat:
       type: string
       enum:

@@ -17,6 +17,7 @@ import {
 import {
   ActionMenu,
   Alert,
+  BodyLong,
   BodyShort,
   Box,
   Button,
@@ -36,7 +37,7 @@ import {
   Separator,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
-import { formaterValuta } from "@mr/frontend-common/utils/utils";
+import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -44,6 +45,8 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { PadlockLockedIcon } from "@navikt/aksel-icons";
 import { isBesluttet } from "@/utils/totrinnskontroll";
+import { DataElementStatusTag } from "@mr/frontend-common";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -57,6 +60,7 @@ export function TilskuddBehandlingDetaljerPage() {
     DocumentClass.TILSKUDD_BEHANDLING,
   );
   const [returModalOpen, setReturModalOpen] = useState(false);
+  const [attesterModalOpen, setAttesterModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
   const navigate = useNavigate();
 
@@ -138,7 +142,7 @@ export function TilskuddBehandlingDetaljerPage() {
                             { key: "Hvem skal motta utbetalingen?", value: t.utbetalingMottaker },
                             {
                               key: "Beløp fra søknad",
-                              value: formaterValuta(t.soknadBelop, t.soknadValuta),
+                              value: formaterValutaBelop(t.soknadBelop),
                             },
                           ]}
                         />
@@ -146,10 +150,15 @@ export function TilskuddBehandlingDetaljerPage() {
                         <Definisjonsliste
                           columns={1}
                           definitions={[
-                            { key: "Vedtaksresultat", value: t.vedtakResultat },
+                            {
+                              key: "Vedtaksresultat",
+                              value: <DataElementStatusTag {...t.vedtakResultat.status} />,
+                            },
                             {
                               key: "Beløp til utbetaling",
-                              value: formaterValuta(t.belop, Valuta.NOK),
+                              value: t.utbetalingBelop
+                                ? formaterValutaBelop(t.utbetalingBelop)
+                                : "-",
                             },
                             { key: "Kommentar til brukeren", value: t.kommentarVedtaksbrev },
                           ]}
@@ -172,7 +181,30 @@ export function TilskuddBehandlingDetaljerPage() {
                     </HStack>
                     <BodyShort size="large">
                       {formaterValuta(
-                        behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop, 0),
+                        behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
+                        behandling.tilskudd.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
+                      )}
+                    </BodyShort>
+                  </HStack>
+                </Box>
+                <Box
+                  className="w-full"
+                  borderWidth="2"
+                  borderRadius="8"
+                  borderColor="neutral-subtle"
+                  padding="space-8"
+                >
+                  <HStack justify="space-between">
+                    <HStack align="center" gap="space-8">
+                      <PadlockLockedIcon title="a11y-title" fontSize="1.5rem" />
+                      <BodyShort size="large">Totalt beløp til utbetaling</BodyShort>
+                    </HStack>
+                    <BodyShort size="large">
+                      {formaterValuta(
+                        behandling.tilskudd.reduce(
+                          (sum, t) => sum + (t.utbetalingBelop?.belop ?? 0),
+                          0,
+                        ),
                         Valuta.NOK,
                       )}
                     </BodyShort>
@@ -205,7 +237,12 @@ export function TilskuddBehandlingDetaljerPage() {
                 </Button>
               )}
               {handlinger.includes(TilskuddBehandlingHandling.ATTESTER) && (
-                <Button variant="primary" size="small" type="button" onClick={attester}>
+                <Button
+                  variant="primary"
+                  size="small"
+                  type="button"
+                  onClick={() => setAttesterModalOpen(true)}
+                >
                   Attester
                 </Button>
               )}
@@ -224,6 +261,27 @@ export function TilskuddBehandlingDetaljerPage() {
             onClose={() => setReturModalOpen(false)}
             errors={errors}
             onConfirm={sendIRetur}
+          />
+          <VarselModal
+            open={attesterModalOpen}
+            handleClose={() => setAttesterModalOpen(false)}
+            headingText="Attester tilskuddsbehandling"
+            headingIconType="info"
+            body={
+              <BodyLong>
+                <p>Du er i ferd med å attestere en innvilgelse om tilskudd til utdanning.</p>
+                <p>
+                  Utbetaling direkte til brukeren vil skje automatisk og krever ikke videre
+                  behandling. Vedtaksbrev vil sendes til brukeren og arkiveres i GoSys.
+                </p>
+              </BodyLong>
+            }
+            secondaryButton
+            primaryButton={
+              <Button variant="primary" onClick={attester}>
+                Ja, attester behandling
+              </Button>
+            }
           />
         </>
       </>

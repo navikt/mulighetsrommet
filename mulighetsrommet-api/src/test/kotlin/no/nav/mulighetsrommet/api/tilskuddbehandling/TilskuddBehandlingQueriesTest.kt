@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 import java.time.LocalDate
 import java.util.UUID
 
@@ -39,24 +40,47 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             TilskuddDbo(
                 id = UUID.randomUUID(),
                 tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
-                soknadBelop = 50000,
-                soknadValuta = Valuta.NOK,
+                soknadBelop = ValutaBelop(
+                    belop = 100,
+                    valuta = Valuta.SEK,
+                ),
+                utbetalingBelop = ValutaBelop(
+                    belop = 100,
+                    valuta = Valuta.NOK,
+                ),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = "k1",
                 utbetalingMottaker = "bruker",
                 kid = null,
-                belop = 100,
             ),
             TilskuddDbo(
                 id = UUID.randomUUID(),
                 tilskuddOpplaeringType = TilskuddOpplaeringType.EKSAMENSAVGIFT,
-                soknadBelop = 1000,
-                soknadValuta = Valuta.NOK,
+                soknadBelop = ValutaBelop(
+                    belop = 1000,
+                    valuta = Valuta.NOK,
+                ),
+                utbetalingBelop = ValutaBelop(
+                    belop = 200,
+                    valuta = Valuta.NOK,
+                ),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = "k2",
                 utbetalingMottaker = "arrangor",
                 kid = Kid.parse("116"),
-                belop = 200,
+            ),
+            TilskuddDbo(
+                id = UUID.randomUUID(),
+                tilskuddOpplaeringType = TilskuddOpplaeringType.INTEGRERT_BOTILBUD,
+                soknadBelop = ValutaBelop(
+                    belop = 1000,
+                    valuta = Valuta.NOK,
+                ),
+                utbetalingBelop = null,
+                vedtakResultat = VedtakResultat.AVSLAG,
+                kommentarVedtaksbrev = "k2",
+                utbetalingMottaker = "arrangor",
+                kid = null,
             ),
         ),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
@@ -80,28 +104,36 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     it.kostnadssted shouldBe behandling.kostnadssted
                     it.kommentarIntern shouldBe behandling.kommentarIntern
 
-                    it.tilskudd.size shouldBe 2
+                    it.tilskudd.size shouldBe 3
                     it.tilskudd[0] should { v ->
                         v.id shouldBe behandling.tilskudd[0].id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.SKOLEPENGER
-                        v.soknadBelop shouldBe 50000
-                        v.soknadValuta shouldBe Valuta.NOK
-                        v.vedtakResultat shouldBe VedtakResultat.INNVILGELSE
+                        v.soknadBelop.belop shouldBe 100
+                        v.soknadBelop.valuta shouldBe Valuta.SEK
+                        v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k1"
                         v.utbetalingMottaker shouldBe "bruker"
                         v.kid shouldBe null
-                        v.belop shouldBe 100
+                        v.utbetalingBelop?.valuta shouldBe Valuta.NOK
+                        v.utbetalingBelop?.belop shouldBe 100
                     }
                     it.tilskudd[1] should { v ->
                         v.id shouldBe behandling.tilskudd[1].id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.EKSAMENSAVGIFT
-                        v.soknadBelop shouldBe 1000
-                        v.soknadValuta shouldBe Valuta.NOK
-                        v.vedtakResultat shouldBe VedtakResultat.INNVILGELSE
+                        v.soknadBelop.belop shouldBe 1000
+                        v.soknadBelop.valuta shouldBe Valuta.NOK
+                        v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k2"
                         v.utbetalingMottaker shouldBe "arrangor"
                         v.kid shouldBe Kid.parse("116")
-                        v.belop shouldBe 200
+                        v.utbetalingBelop?.belop shouldBe 200
+                        v.utbetalingBelop?.valuta shouldBe Valuta.NOK
+                    }
+                    it.tilskudd[2] should { v ->
+                        v.id shouldBe behandling.tilskudd[2].id
+                        v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.INTEGRERT_BOTILBUD
+                        v.utbetalingBelop shouldBe null
+                        v.vedtakResultat.type shouldBe VedtakResultat.AVSLAG
                     }
                 }
             }
