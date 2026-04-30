@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.clients.helved
 
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
-import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Periode
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Tilskuddstype
