@@ -81,7 +81,7 @@ export function AvtaleInformasjonForVeiledereForm() {
           />
 
           <AvtaleListe
-            filter={{ sok: search, tiltakstyper: [tiltakId] }}
+            filter={{ sok: search, tiltakstyper: [tiltakskode] }}
             action={(avtale) => (
               <Button
                 size="small"

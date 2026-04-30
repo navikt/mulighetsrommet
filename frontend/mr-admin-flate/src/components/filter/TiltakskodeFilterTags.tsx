@@ -1,9 +1,10 @@
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { Chips } from "@navikt/ds-react";
 
 interface Props {
-  tiltakskoder: string[];
-  onRemove: (tiltakstype: string) => void;
+  tiltakskoder: Tiltakskode[];
+  onRemove: (tiltakskode: Tiltakskode) => void;
 }
 
 export function TiltakskodeFilterTags({ tiltakskoder, onRemove }: Props) {

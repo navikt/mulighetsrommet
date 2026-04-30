@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tiltakstype.api
 
 import io.ktor.server.routing.RoutingContext
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 
 enum class TiltakstypeSortField {
     NAVN,
@@ -15,6 +16,7 @@ enum class SortDirection {
 data class TiltakstypeFilter(
     val sortField: TiltakstypeSortField = TiltakstypeSortField.NAVN,
     val sortDirection: SortDirection = SortDirection.ASC,
+    val egenskaper: Set<TiltakstypeEgenskap> = setOf(),
 )
 
 fun RoutingContext.getTiltakstypeFilter(): TiltakstypeFilter {
@@ -24,5 +26,9 @@ fun RoutingContext.getTiltakstypeFilter(): TiltakstypeFilter {
     val sortDirection = call.request.queryParameters["sortDirection"]
         ?.let { runCatching { SortDirection.valueOf(it) }.getOrNull() }
         ?: SortDirection.ASC
-    return TiltakstypeFilter(sortField = sortField, sortDirection = sortDirection)
+    val egenskaper = call.request.queryParameters.getAll("egenskaper")
+        ?.mapNotNull { runCatching { TiltakstypeEgenskap.valueOf(it) }.getOrNull() }
+        ?.toSet()
+        ?: setOf()
+    return TiltakstypeFilter(sortField = sortField, sortDirection = sortDirection, egenskaper = egenskaper)
 }

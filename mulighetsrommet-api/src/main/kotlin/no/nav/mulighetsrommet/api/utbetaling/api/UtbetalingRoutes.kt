@@ -43,6 +43,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -182,7 +183,7 @@ fun Route.utbetalingRoutes() {
         tags = setOf("Utbetaling")
         operationId = "getInnsendinger"
         request {
-            queryParameter<List<String>>("tiltakstyper") {
+            queryParameter<List<Tiltakskode>>("tiltakstyper") {
                 explode = true
             }
             queryParameter<List<NavEnhetNummer>>("navEnheter") {
@@ -204,7 +205,7 @@ fun Route.utbetalingRoutes() {
         val filter = getAdminInnsendingerFilter()
 
         val innsendinger = db.session {
-            queries.utbetaling.getAll(filter)
+            queries.utbetaling.getAll(filter.tiltakskoder, filter.navEnheter, filter.sortering)
         }
 
         call.respond(innsendinger)
@@ -518,18 +519,20 @@ fun Route.utbetalingRoutes() {
 
 data class AdminInnsendingerFilter(
     val navEnheter: List<NavEnhetNummer> = emptyList(),
-    val tiltakstyper: List<UUID> = emptyList(),
+    val tiltakskoder: List<Tiltakskode> = emptyList(),
     val sortering: String? = null,
 )
 
 fun RoutingContext.getAdminInnsendingerFilter(): AdminInnsendingerFilter {
     val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
-    val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
+    val tiltakskoder = call.parameters.getAll("tiltakstyper")
+        ?.mapNotNull { runCatching { Tiltakskode.valueOf(it) }.getOrNull() }
+        ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
 
     return AdminInnsendingerFilter(
         navEnheter = navEnheter,
-        tiltakstyper = tiltakstypeIder,
+        tiltakskoder = tiltakskoder,
         sortering = sortering,
     )
 }

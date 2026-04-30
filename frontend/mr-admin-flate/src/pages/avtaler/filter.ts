@@ -4,14 +4,14 @@ import { createSorteringProps } from "@/api/atoms";
 import { createFilterValidator, createGracefulParser } from "@/filter/filter-validator";
 import { createFilterStateAtom } from "@/filter/filter-state";
 import { atom } from "jotai";
-import { AvtaleStatusType, Avtaletype } from "@tiltaksadministrasjon/api-client";
+import { AvtaleStatusType, Avtaletype, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 export const AvtaleFilterSchema = z.object({
   sok: z.string(),
   statuser: z.custom<AvtaleStatusType>().array(),
   avtaletyper: z.custom<Avtaletype>().array(),
   navEnheter: z.string().array(),
-  tiltakstyper: z.string().array(),
+  tiltakstyper: z.custom<Tiltakskode>().array(),
   sortering: createSorteringProps(z.string()),
   arrangorer: z.string().array(),
   visMineAvtaler: z.boolean(),

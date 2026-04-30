@@ -96,6 +96,16 @@ paths:
         explode: false
         schema:
           $ref: "#/components/schemas/SortDirection"
+      - name: egenskaper
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakstypeEgenskap"
+          uniqueItems: true
       responses:
         "200":
           description: Tiltakstyper i Tiltaksadministrasjon
@@ -2280,7 +2290,7 @@ paths:
         schema:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/Tiltakskode"
       - name: navEnheter
         in: query
         required: false
@@ -3435,7 +3445,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 15
+        - 16
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -3503,6 +3513,15 @@ components:
       enum:
       - ASC
       - DESC
+    TiltakstypeEgenskap:
+      type: string
+      enum:
+      - STOTTER_AVTALER
+      - STOTTER_ENKELTPLASSER
+      - KREVER_DELTIDSPROSENT
+      - KREVER_DIREKTE_VEDTAK
+      - KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART
+      - STOTTER_TILSKUDD_FOR_INVESTERINGER
     TiltakstypeKompaktDto:
       type: object
       properties:
@@ -3573,15 +3592,6 @@ components:
       - VISES_I_MODIA
       - MIGRERT
       - UTFASET
-    TiltakstypeEgenskap:
-      type: string
-      enum:
-      - STOTTER_AVTALER
-      - STOTTER_ENKELTPLASSER
-      - KREVER_DELTIDSPROSENT
-      - KREVER_DIREKTE_VEDTAK
-      - KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART
-      - STOTTER_TILSKUDD_FOR_INVESTERINGER
     TiltakstypeVeilderinfo:
       type: object
       properties:
@@ -4744,8 +4754,7 @@ components:
         tiltakstyper:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: "#/components/schemas/Tiltakskode"
         statuser:
           type: array
           items:
@@ -5724,8 +5733,7 @@ components:
         tiltakstyper:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: "#/components/schemas/Tiltakskode"
         statuser:
           type: array
           items:
@@ -7745,9 +7753,14 @@ components:
             $ref: "#/components/schemas/TilskuddOpplaeringDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+        kommentarIntern:
+          type:
+          - "null"
+          - string
       required:
       - gjennomforingId
       - id
+      - kommentarIntern
       - kostnadssted
       - periode
       - soknadDato
@@ -7775,8 +7788,17 @@ components:
           - string
         utbetalingMottaker:
           type: string
+        kid:
+          type:
+          - "null"
+          - string
+        belop:
+          type: integer
+          format: int32
       required:
+      - belop
       - id
+      - kid
       - kommentarVedtaksbrev
       - soknadBelop
       - soknadValuta
@@ -7890,8 +7912,19 @@ components:
           type:
           - "null"
           - string
+        kidNummer:
+          type:
+          - "null"
+          - string
+        belop:
+          type:
+          - "null"
+          - integer
+          format: int32
       required:
+      - belop
       - id
+      - kidNummer
       - kommentarVedtaksbrev
       - soknadBelop
       - tilskuddOpplaeringType
@@ -7927,6 +7960,10 @@ components:
           type:
           - "null"
           - string
+        kommentarIntern:
+          type:
+          - "null"
+          - string
         tilskudd:
           type: array
           items:
@@ -7934,6 +7971,7 @@ components:
       required:
       - gjennomforingId
       - id
+      - kommentarIntern
       - kostnadssted
       - periodeSlutt
       - periodeStart

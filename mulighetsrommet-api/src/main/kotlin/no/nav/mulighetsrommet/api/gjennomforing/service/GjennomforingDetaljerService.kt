@@ -94,14 +94,14 @@ class GjennomforingDetaljerService(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
-        val tiltakstyper = filter.tiltakstypeIder.ifEmpty {
-            tiltakstypeService.getAllIdsByFeatures(setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON))
+        val tiltakstyper = tiltakstypeService.getIdsByTiltakskoder(filter.tiltakskoder).ifEmpty {
+            tiltakstypeService.getIdsByFeatures(setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON))
         }
         queries.gjennomforing.getAll(
             pagination,
             search = filter.search?.let { NorskIdentHasher.hashIfNorskIdent(it) },
             navEnheter = filter.navEnheter,
-            tiltakstypeIder = tiltakstyper,
+            tiltakstyper = tiltakstyper,
             statuser = filter.statuser,
             sortering = filter.sortering,
             avtaleId = filter.avtaleId,
