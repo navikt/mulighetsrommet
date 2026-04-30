@@ -12,6 +12,7 @@ import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.clients.helved.HelVedService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
@@ -54,6 +55,7 @@ fun Route.maamRoutes() {
     val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
     val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
     val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
+    val helVedService: HelVedService by inject()
 
     route("/api/intern/maam") {
         route("/tasks") {
@@ -181,6 +183,15 @@ fun Route.maamRoutes() {
             post("sync-gjennomforing-avtale-fts") {
                 val taskId = updateGjennomforingAvtaleFreeTextSearch.schedule()
                 call.respond(ScheduleTaskResponse(taskId))
+            }
+
+            post("hel-ved-utbetaling") {
+                val utbetalingId = helVedService.produceTilskuddUtbetalingTest()
+                if (utbetalingId == null) {
+                    call.respond(HttpStatusCode.InternalServerError)
+                } else {
+                    call.respond(ExecutedTaskResponse("Produserte hel ved utbetaling med id=$utbetalingId"))
+                }
             }
         }
 
