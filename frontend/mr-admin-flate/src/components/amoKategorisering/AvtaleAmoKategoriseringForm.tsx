@@ -1,4 +1,4 @@
-import { HGrid, Select } from "@navikt/ds-react";
+import { HGrid } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { kurstypeToString } from "@/utils/Utils";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
@@ -7,6 +7,7 @@ import { NorksopplaeringForm } from "./NorskopplaeringForm";
 import { InnholdElementerForm } from "./InnholdElementerForm";
 import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { AmoKurstype, Tiltakskode } from "@tiltaksadministrasjon/api-client";
+import { FormSelect } from "@/components/skjema/FormSelect";
 
 interface Props {
   tiltakskode: Tiltakskode;
@@ -25,27 +26,15 @@ export function AvtaleAmoKategoriseringForm({ tiltakskode }: Props) {
 }
 
 function NorskopplaeringGrunnleggendeGerdigheterFOVForm() {
-  const {
-    setValue,
-    watch,
-    formState: { errors },
-  } = useFormContext<AvtaleFormValues>();
+  const { watch } = useFormContext<AvtaleFormValues>();
 
   const amoKategorisering = watch("detaljer.amoKategorisering");
 
   return (
     <HGrid gap="space-16" columns={1}>
-      <Select
-        size="small"
+      <FormSelect<AvtaleFormValues>
+        name="detaljer.amoKategorisering.kurstype"
         label={gjennomforingTekster.kurstypeLabel}
-        value={amoKategorisering?.kurstype ?? undefined}
-        error={errors.detaljer?.amoKategorisering?.kurstype?.message}
-        onChange={(type) => {
-          setValue(
-            "detaljer.amoKategorisering.kurstype",
-            (type.target.value || null) as AmoKurstype | null,
-          );
-        }}
       >
         <option value="">Velg kurstype</option>
         <option value={AmoKurstype.NORSKOPPLAERING}>
@@ -57,7 +46,7 @@ function NorskopplaeringGrunnleggendeGerdigheterFOVForm() {
         <option value={AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE}>
           {kurstypeToString(AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE)}
         </option>
-      </Select>
+      </FormSelect>
       {amoKategorisering?.kurstype === AmoKurstype.NORSKOPPLAERING && (
         <NorksopplaeringForm<AvtaleFormValues>
           norskprovePath="detaljer.amoKategorisering.norskprove"
@@ -77,27 +66,15 @@ function NorskopplaeringGrunnleggendeGerdigheterFOVForm() {
 }
 
 function GruppeAmoForm() {
-  const {
-    setValue,
-    watch,
-    formState: { errors },
-  } = useFormContext<AvtaleFormValues>();
+  const { watch } = useFormContext<AvtaleFormValues>();
 
   const amoKategorisering = watch("detaljer.amoKategorisering");
 
   return (
     <HGrid gap="space-16" columns={1}>
-      <Select
-        size="small"
+      <FormSelect<AvtaleFormValues>
+        name="detaljer.amoKategorisering.kurstype"
         label={gjennomforingTekster.kurstypeLabel}
-        value={amoKategorisering?.kurstype ?? undefined}
-        error={errors.detaljer?.amoKategorisering?.kurstype?.message}
-        onChange={(type) => {
-          setValue(
-            "detaljer.amoKategorisering.kurstype",
-            (type.target.value || null) as AmoKurstype | null,
-          );
-        }}
       >
         <option value="">Velg kurstype</option>
         <option value={AmoKurstype.BRANSJE_OG_YRKESRETTET}>
@@ -115,7 +92,7 @@ function GruppeAmoForm() {
         <option value={AmoKurstype.STUDIESPESIALISERING}>
           {kurstypeToString(AmoKurstype.STUDIESPESIALISERING)}
         </option>
-      </Select>
+      </FormSelect>
       {amoKategorisering?.kurstype === AmoKurstype.BRANSJE_OG_YRKESRETTET && (
         <AvtaleBransjeForm tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING} />
       )}

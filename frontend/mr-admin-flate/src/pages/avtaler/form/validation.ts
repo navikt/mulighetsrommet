@@ -14,7 +14,9 @@ import {
 
 export const avtaleDetaljerSchema = z.object({
   detaljer: z.object({
-    navn: z.string().min(5, "Avtalenavn må være minst 5 tegn langt"),
+    navn: z
+      .string({ error: "Du må skrive inn navn" })
+      .min(5, "Avtalenavn må være minst 5 tegn langt"),
     tiltakskode: z.enum(Tiltakskode, { error: "Du må velge en tiltakstype" }),
     avtaletype: z.enum(Avtaletype, {
       error: "Du må velge en avtaletype",

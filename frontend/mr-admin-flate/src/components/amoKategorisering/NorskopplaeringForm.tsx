@@ -1,7 +1,7 @@
-import { Checkbox } from "@navikt/ds-react";
-import { FieldValues, Path, PathValue, useFormContext } from "react-hook-form";
+import { FieldValues, Path } from "react-hook-form";
 import { InnholdElementerForm } from "./InnholdElementerForm";
 import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
+import { FormCheckbox } from "@/components/skjema/FormCheckbox";
 
 export function NorksopplaeringForm<T extends FieldValues>(props: {
   norskprovePath: Path<T>;
@@ -9,18 +9,10 @@ export function NorksopplaeringForm<T extends FieldValues>(props: {
   tiltakskode: Tiltakskode;
 }) {
   const { norskprovePath, innholdElementerPath, tiltakskode } = props;
-  const { watch, setValue } = useFormContext<T>();
 
-  const norskprove = watch(norskprovePath);
   return (
     <>
-      <Checkbox
-        checked={norskprove ?? false}
-        onChange={() => setValue(norskprovePath, !(norskprove ?? false) as PathValue<T, Path<T>>)}
-        size="small"
-      >
-        Gir mulighet for norskprøve
-      </Checkbox>
+      <FormCheckbox<T> name={norskprovePath}>Gir mulighet for norskprøve</FormCheckbox>
       <InnholdElementerForm<T> path={innholdElementerPath} tiltakskode={tiltakskode} />
     </>
   );

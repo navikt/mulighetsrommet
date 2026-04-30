@@ -1,7 +1,6 @@
 import {
   BodyShort,
   Checkbox,
-  CheckboxGroup,
   GuidePanel,
   HelpText,
   HStack,
@@ -10,14 +9,15 @@ import {
   Radio,
   VStack,
 } from "@navikt/ds-react";
-import { Controller, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
-import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
+import { FormRadioGroup } from "@/components/skjema/FormRadioGroup";
+import { FormCheckboxGroup } from "@/components/skjema/FormCheckboxGroup";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function AvtalePersonvernForm() {
-  const { register, control, setValue, watch } = useFormContext<AvtaleFormValues>();
+  const { setValue, watch } = useFormContext<AvtaleFormValues>();
   const { data: personopplysninger } = usePersonopplysninger();
 
   const watchedPersonopplysninger = watch("personvern.personopplysninger");
@@ -29,27 +29,20 @@ export function AvtalePersonvernForm() {
         Huk av de personopplysningene som er avtalt i databehandleravtalen. Nav tiltaksenhet/fylke
         er ansvarlig for at listen er i samsvar med gjeldende databehandleravtale.
       </GuidePanel>
-      <Controller
-        control={control}
+      <FormCheckboxGroup<AvtaleFormValues>
         name="personvern.personopplysninger"
-        render={({ field: { onChange, value } }) => (
-          <CheckboxGroup
-            legend="Personopplysninger om deltaker"
-            description="Huk av de personopplysningene som kan behandles i denne avtalen."
-            onChange={onChange}
-            value={value}
-          >
-            {personopplysninger.map((p) => (
-              <Checkbox key={p.type} value={p.type} size="small">
-                <HStack gap="space-8" align="center">
-                  {p.title}
-                  {p.helpText && <HelpText>{p.helpText}</HelpText>}
-                </HStack>
-              </Checkbox>
-            ))}
-          </CheckboxGroup>
-        )}
-      />
+        legend="Personopplysninger om deltaker"
+        description="Huk av de personopplysningene som kan behandles i denne avtalen."
+      >
+        {personopplysninger.map((p) => (
+          <Checkbox key={p.type} value={p.type} size="small">
+            <HStack gap="space-8" align="center">
+              {p.title}
+              {p.helpText && <HelpText>{p.helpText}</HelpText>}
+            </HStack>
+          </Checkbox>
+        ))}
+      </FormCheckboxGroup>
       <Checkbox
         checked={watchedPersonopplysninger.length === personopplysninger.length}
         indeterminate={
@@ -81,10 +74,10 @@ export function AvtalePersonvernForm() {
         pkt. 4.3.
       </BodyShort>
       <Separator />
-      <ControlledRadioGroup
+      <FormRadioGroup<AvtaleFormValues>
         size="small"
+        name="personvern.personvernBekreftet"
         legend="Kan personopplysningene som kan behandles vises til veileder?"
-        {...register("personvern.personvernBekreftet")}
       >
         <VStack align="start" justify="start" gap="space-8">
           <Radio size="small" value={false}>
@@ -94,7 +87,7 @@ export function AvtalePersonvernForm() {
             Bekreft og vis hvilke personopplysninger som kan behandles til veileder
           </Radio>
         </VStack>
-      </ControlledRadioGroup>
+      </FormRadioGroup>
     </VStack>
   );
 }

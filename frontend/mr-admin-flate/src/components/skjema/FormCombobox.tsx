@@ -12,7 +12,7 @@ type Option = { label: string; value: string };
 
 type FormComboboxProps<TFieldValues extends FieldValues> = Omit<
   ComboboxProps,
-  "value" | "onChange" | "error" | "name" | "options" | "selectedOptions" | "onToggleSelected"
+  "value" | "error" | "name" | "options" | "selectedOptions"
 > & {
   name: FieldPath<TFieldValues>;
   options: Option[];
@@ -25,6 +25,7 @@ export function FormCombobox<TFieldValues extends FieldValues>({
   rules,
   size = "small",
   isMultiSelect = false,
+  onToggleSelected: onToggleSelectedProp,
   ...props
 }: FormComboboxProps<TFieldValues>) {
   const { control } = useFormContext<TFieldValues>();
@@ -33,6 +34,11 @@ export function FormCombobox<TFieldValues extends FieldValues>({
   const { resolvedOptions, selectedOptions, onToggleSelected } = isMultiSelect
     ? resolveMultiSelect(field, options)
     : resolveSingleSelect(field, options);
+
+  function handleToggleSelected(option: string, isSelected: boolean, isCustomOption: boolean) {
+    onToggleSelected(option, isSelected);
+    onToggleSelectedProp?.(option, isSelected, isCustomOption);
+  }
 
   return (
     <UNSAFE_Combobox
@@ -43,7 +49,7 @@ export function FormCombobox<TFieldValues extends FieldValues>({
       selectedOptions={selectedOptions}
       error={fieldState.error?.message}
       isMultiSelect={isMultiSelect}
-      onToggleSelected={onToggleSelected}
+      onToggleSelected={handleToggleSelected}
     />
   );
 }
