@@ -96,7 +96,7 @@ class GjennomforingEnkeltplassService(
 
                     is NavIdent -> {
                         createTotrinnskontroll(it.id, Totrinnskontroll.Type.OKONOMI, agent)
-                        logEndring("Søkt inn deltaker", it.id, agent)
+                        logEndring("Deltaker søkt inn", it.id, agent)
                     }
                 }
             }
@@ -139,7 +139,7 @@ class GjennomforingEnkeltplassService(
 
         val personalia = getDeltakerPersonalia(id, AccessType.M2M)
 
-        logEndring("Endret i Arena", id, Arena)
+        getAndAquireLock(id)
             .also { updateFreeTextSearch(it, personalia?.norskIdent) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
     }
@@ -230,7 +230,7 @@ class GjennomforingEnkeltplassService(
         )
         queries.totrinnskontroll.upsert(paVentOpprettelse.toDbo())
 
-        logEndring("Økonomi ble satt på vent", id, navIdent).right()
+        logEndring("Godkjenning ble satt på vent", id, navIdent).right()
     }
 
     private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID, accessType: AccessType): Personalia? {
