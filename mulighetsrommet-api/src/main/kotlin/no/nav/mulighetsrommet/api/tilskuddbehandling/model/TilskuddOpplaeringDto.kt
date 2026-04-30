@@ -12,12 +12,12 @@ data class TilskuddOpplaeringDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tilskuddOpplaeringType: TilskuddOpplaeringType,
-    val soknadBelop: Int,
+    val soknadBelop: ValutaBelop,
     val vedtakResultat: VedtakResultatDto,
     val kommentarVedtaksbrev: String?,
     val utbetalingMottaker: String,
     val kid: Kid?,
-    val valutaBelop: ValutaBelop?,
+    val utbetalingBelop: ValutaBelop?,
 )
 
 @Serializable

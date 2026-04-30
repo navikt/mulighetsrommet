@@ -142,7 +142,7 @@ export function TilskuddBehandlingDetaljerPage() {
                             { key: "Hvem skal motta utbetalingen?", value: t.utbetalingMottaker },
                             {
                               key: "Beløp fra søknad",
-                              value: formaterValuta(t.soknadBelop, Valuta.NOK),
+                              value: formaterValutaBelop(t.soknadBelop),
                             },
                           ]}
                         />
@@ -156,7 +156,9 @@ export function TilskuddBehandlingDetaljerPage() {
                             },
                             {
                               key: "Beløp til utbetaling",
-                              value: t.valutaBelop ? formaterValutaBelop(t.valutaBelop) : "-",
+                              value: t.utbetalingBelop
+                                ? formaterValutaBelop(t.utbetalingBelop)
+                                : "-",
                             },
                             { key: "Kommentar til brukeren", value: t.kommentarVedtaksbrev },
                           ]}
@@ -179,8 +181,8 @@ export function TilskuddBehandlingDetaljerPage() {
                     </HStack>
                     <BodyShort size="large">
                       {formaterValuta(
-                        behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop, 0),
-                        Valuta.NOK,
+                        behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
+                        behandling.tilskudd.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
                       )}
                     </BodyShort>
                   </HStack>
@@ -200,7 +202,7 @@ export function TilskuddBehandlingDetaljerPage() {
                     <BodyShort size="large">
                       {formaterValuta(
                         behandling.tilskudd.reduce(
-                          (sum, t) => sum + (t.valutaBelop?.belop ?? 0),
+                          (sum, t) => sum + (t.utbetalingBelop?.belop ?? 0),
                           0,
                         ),
                         Valuta.NOK,

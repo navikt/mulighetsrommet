@@ -90,9 +90,9 @@ object TilskuddBehandlingValidator {
                 )
             }
         }
-        validate(req.soknadBelop != null && req.soknadBelop > 0) {
+        validate(req.soknadBelop?.belop != null && req.soknadBelop.belop > 0 && req.soknadBelop.valuta != null) {
             FieldError(
-                "/tilskudd/$index/soknadBelop",
+                "/tilskudd/$index/soknadBelop/belop",
                 "Søknadsbeløp må være positivt",
             )
         }
@@ -104,18 +104,18 @@ object TilskuddBehandlingValidator {
                 )
             }
         }
-        requireValid(req.soknadBelop != null && req.vedtakResultat != null && req.utbetalingMottaker != null && req.tilskuddOpplaeringType != null)
+        requireValid(req.soknadBelop?.belop != null && req.soknadBelop.valuta != null && req.vedtakResultat != null && req.utbetalingMottaker != null && req.tilskuddOpplaeringType != null)
         requireValid(req.vedtakResultat != VedtakResultat.INNVILGELSE || req.belop != null)
 
         TilskuddDbo(
             id = req.id,
             tilskuddOpplaeringType = req.tilskuddOpplaeringType,
-            soknadBelop = req.soknadBelop,
+            soknadBelop = ValutaBelop(req.soknadBelop.belop, req.soknadBelop.valuta),
             vedtakResultat = req.vedtakResultat,
             kommentarVedtaksbrev = req.kommentarVedtaksbrev,
             utbetalingMottaker = req.utbetalingMottaker,
             kid = kid,
-            valutaBelop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
+            utbetalingBelop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
                 ValutaBelop(
                     requireNotNull(req.belop),
                     Valuta.NOK,

@@ -1,7 +1,7 @@
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
-import { formaterValuta } from "@mr/frontend-common/utils/utils";
-import { TilskuddBehandlingDto, Valuta } from "@tiltaksadministrasjon/api-client";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
+import { TilskuddBehandlingDto } from "@tiltaksadministrasjon/api-client";
 import { Heading, VStack } from "@navikt/ds-react";
 import { FormGroup } from "@/layouts/FormGroup";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
@@ -30,10 +30,7 @@ export function SaksopplysningerDetaljer({ behandling }: Props) {
                 label="Tilskuddstype"
                 value={opplaeringTilskuddToString(t.tilskuddOpplaeringType)}
               />
-              <MetadataVStack
-                label="Beløp fra søknad"
-                value={formaterValuta(t.soknadBelop, Valuta.NOK)}
-              />
+              <MetadataVStack label="Beløp fra søknad" value={formaterValutaBelop(t.soknadBelop)} />
               <MetadataVStack label="Utbetalingsmottaker" value={t.utbetalingMottaker} />
             </VStack>
           </FormGroup>

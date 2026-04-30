@@ -15,8 +15,11 @@ from tilskudd_behandling tb
             jsonb_build_object(
                 'id', v.id,
                 'tilskuddOpplaeringType', tilskudd_opplaering.kode,
-                'soknadBelop', v.soknad_belop,
-                'valutaBelop', CASE
+                'soknadBelop', jsonb_build_object(
+                    'valuta', v.soknad_valuta,
+                    'belop', v.soknad_belop
+                ),
+                'utbetalingBelop', CASE
                     WHEN v.belop IS NULL THEN NULL
                     ELSE jsonb_build_object(
                         'valuta', v.valuta,

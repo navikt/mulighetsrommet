@@ -7776,8 +7776,7 @@ components:
         tilskuddOpplaeringType:
           $ref: "#/components/schemas/TilskuddOpplaeringType"
         soknadBelop:
-          type: integer
-          format: int32
+          $ref: "#/components/schemas/ValutaBelop"
         vedtakResultat:
           $ref: "#/components/schemas/VedtakResultatDto"
         kommentarVedtaksbrev:
@@ -7790,7 +7789,7 @@ components:
           type:
           - "null"
           - string
-        valutaBelop:
+        utbetalingBelop:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/ValutaBelop"
@@ -7800,8 +7799,8 @@ components:
       - kommentarVedtaksbrev
       - soknadBelop
       - tilskuddOpplaeringType
+      - utbetalingBelop
       - utbetalingMottaker
-      - valutaBelop
       - vedtakResultat
     TilskuddOpplaeringType:
       type: string
@@ -7905,10 +7904,9 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/TilskuddOpplaeringType"
         soknadBelop:
-          type:
-          - "null"
-          - integer
-          format: int32
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelopRequest"
         vedtakResultat:
           oneOf:
           - type: "null"

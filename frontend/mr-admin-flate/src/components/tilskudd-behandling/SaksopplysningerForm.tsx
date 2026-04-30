@@ -41,7 +41,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
   const { data: kostnadssteder } = useKostnadssteder();
 
   function totaltBelop(): number {
-    return fields.reduce((sum, v) => sum + (v.soknadBelop ?? 0), 0);
+    return fields.reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0);
   }
 
   return (
@@ -82,7 +82,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                     type="text"
                     label="Beløp fra søknad"
                     error={errors.tilskudd?.[index]?.soknadBelop?.message}
-                    {...register(`tilskudd.${index}.soknadBelop`, {
+                    {...register(`tilskudd.${index}.soknadBelop.belop`, {
                       setValueAs: (t: string) => (t === "" ? null : Number(t)),
                       validate: (value: number | null) => {
                         if (!Number.isInteger(value)) return "Beløp må være et heltall";
@@ -90,6 +90,14 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                       },
                     })}
                   />
+                  <FormSelect
+                    size="small"
+                    label="Valuta"
+                    name={`tilskudd.${index}.soknadBelop.valuta`}
+                  >
+                    <option value={Valuta.NOK}>NOK</option>
+                    <option value={Valuta.SEK}>SEK</option>
+                  </FormSelect>
                   <Spacer />
                 </HStack>
                 <Separator />

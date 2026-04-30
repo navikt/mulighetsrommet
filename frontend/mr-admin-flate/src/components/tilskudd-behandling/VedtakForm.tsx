@@ -10,6 +10,7 @@ import {
   VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
+import { formaterValuta } from "@mr/frontend-common/utils/utils";
 
 export function VedtakForm() {
   const {
@@ -38,7 +39,13 @@ export function VedtakForm() {
                 }
               />
               <MetadataVStack label="Hvem skal motta utbetalingen?" value={t.utbetalingMottaker} />
-              <MetadataVStack label="Beløp fra søknad" value={t.soknadBelop} />
+              <MetadataVStack
+                label="Beløp fra søknad"
+                value={formaterValuta(
+                  t.soknadBelop?.belop ?? 0,
+                  t.soknadBelop?.valuta ?? Valuta.NOK,
+                )}
+              />
             </VStack>
             <Separator />
             <VStack gap="space-8">

@@ -28,8 +28,11 @@ object TilskuddFixtures {
     val Tilskudd = TilskuddDbo(
         id = UUID.randomUUID(),
         tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
-        soknadBelop = 50000,
-        valutaBelop = ValutaBelop(
+        soknadBelop = ValutaBelop(
+            belop = 100,
+            valuta = Valuta.NOK,
+        ),
+        utbetalingBelop = ValutaBelop(
             belop = 100,
             valuta = Valuta.NOK,
         ),

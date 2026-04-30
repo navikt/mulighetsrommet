@@ -9,10 +9,10 @@ import java.util.UUID
 data class TilskuddDbo(
     val id: UUID,
     val tilskuddOpplaeringType: TilskuddOpplaeringType,
-    val soknadBelop: Int,
+    val soknadBelop: ValutaBelop,
     val vedtakResultat: VedtakResultat,
     val kommentarVedtaksbrev: String?,
     val utbetalingMottaker: String,
     val kid: Kid?,
-    val valutaBelop: ValutaBelop?,
+    val utbetalingBelop: ValutaBelop?,
 )

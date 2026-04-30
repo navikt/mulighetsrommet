@@ -40,8 +40,11 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             TilskuddDbo(
                 id = UUID.randomUUID(),
                 tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
-                soknadBelop = 50000,
-                valutaBelop = ValutaBelop(
+                soknadBelop = ValutaBelop(
+                    belop = 100,
+                    valuta = Valuta.SEK,
+                ),
+                utbetalingBelop = ValutaBelop(
                     belop = 100,
                     valuta = Valuta.NOK,
                 ),
@@ -53,8 +56,11 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             TilskuddDbo(
                 id = UUID.randomUUID(),
                 tilskuddOpplaeringType = TilskuddOpplaeringType.EKSAMENSAVGIFT,
-                soknadBelop = 1000,
-                valutaBelop = ValutaBelop(
+                soknadBelop = ValutaBelop(
+                    belop = 1000,
+                    valuta = Valuta.NOK,
+                ),
+                utbetalingBelop = ValutaBelop(
                     belop = 200,
                     valuta = Valuta.NOK,
                 ),
@@ -66,8 +72,11 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             TilskuddDbo(
                 id = UUID.randomUUID(),
                 tilskuddOpplaeringType = TilskuddOpplaeringType.INTEGRERT_BOTILBUD,
-                soknadBelop = 1000,
-                valutaBelop = null,
+                soknadBelop = ValutaBelop(
+                    belop = 1000,
+                    valuta = Valuta.NOK,
+                ),
+                utbetalingBelop = null,
                 vedtakResultat = VedtakResultat.AVSLAG,
                 kommentarVedtaksbrev = "k2",
                 utbetalingMottaker = "arrangor",
@@ -99,29 +108,31 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     it.tilskudd[0] should { v ->
                         v.id shouldBe behandling.tilskudd[0].id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.SKOLEPENGER
-                        v.soknadBelop shouldBe 50000
+                        v.soknadBelop.belop shouldBe 100
+                        v.soknadBelop.valuta shouldBe Valuta.SEK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k1"
                         v.utbetalingMottaker shouldBe "bruker"
                         v.kid shouldBe null
-                        v.valutaBelop?.valuta shouldBe Valuta.NOK
-                        v.valutaBelop?.belop shouldBe 100
+                        v.utbetalingBelop?.valuta shouldBe Valuta.NOK
+                        v.utbetalingBelop?.belop shouldBe 100
                     }
                     it.tilskudd[1] should { v ->
                         v.id shouldBe behandling.tilskudd[1].id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.EKSAMENSAVGIFT
-                        v.soknadBelop shouldBe 1000
+                        v.soknadBelop.belop shouldBe 1000
+                        v.soknadBelop.valuta shouldBe Valuta.NOK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k2"
                         v.utbetalingMottaker shouldBe "arrangor"
                         v.kid shouldBe Kid.parse("116")
-                        v.valutaBelop?.belop shouldBe 200
-                        v.valutaBelop?.valuta shouldBe Valuta.NOK
+                        v.utbetalingBelop?.belop shouldBe 200
+                        v.utbetalingBelop?.valuta shouldBe Valuta.NOK
                     }
                     it.tilskudd[2] should { v ->
                         v.id shouldBe behandling.tilskudd[2].id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.INTEGRERT_BOTILBUD
-                        v.valutaBelop shouldBe null
+                        v.utbetalingBelop shouldBe null
                         v.vedtakResultat.type shouldBe VedtakResultat.AVSLAG
                     }
                 }
