@@ -494,7 +494,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { HelVedService(HelVedService.Config(appConfig.kafka.topics.helvedUtbetalingTopic), get()) }
+    single { HelVedService(HelVedService.Config(appConfig.kafka.topics.helvedUtbetalingTopic), get(), get()) }
     single { PersonaliaService(get(), get(), get(), get(), get()) }
     single<FeatureToggleService> { UnleashFeatureToggleService(appConfig.unleash) }
     single { LagretFilterService(get()) }
