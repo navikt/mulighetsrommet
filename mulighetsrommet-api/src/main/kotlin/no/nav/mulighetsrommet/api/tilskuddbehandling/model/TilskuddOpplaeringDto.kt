@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -12,9 +13,23 @@ data class TilskuddOpplaeringDto(
     val id: UUID,
     val tilskuddOpplaeringType: TilskuddOpplaeringType,
     val soknadBelop: Int,
-    val vedtakResultat: VedtakResultat,
+    val vedtakResultat: VedtakResultatDto,
     val kommentarVedtaksbrev: String?,
     val utbetalingMottaker: String,
     val kid: Kid?,
     val valutaBelop: ValutaBelop?,
 )
+
+@Serializable
+data class VedtakResultatDto(
+    val type: VedtakResultat,
+) {
+    val status: DataElement.Status = toVedtakResultatStatus(type)
+}
+
+fun toVedtakResultatStatus(vedtakResultat: VedtakResultat): DataElement.Status {
+    return when (vedtakResultat) {
+        VedtakResultat.INNVILGELSE -> DataElement.Status(vedtakResultat.beskrivelse, DataElement.Status.Variant.SUCCESS)
+        VedtakResultat.AVSLAG -> DataElement.Status(vedtakResultat.beskrivelse, DataElement.Status.Variant.ERROR)
+    }
+}

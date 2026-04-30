@@ -7779,7 +7779,7 @@ components:
           type: integer
           format: int32
         vedtakResultat:
-          $ref: "#/components/schemas/VedtakResultat"
+          $ref: "#/components/schemas/VedtakResultatDto"
         kommentarVedtaksbrev:
           type:
           - "null"
@@ -7811,6 +7811,16 @@ components:
       - EKSAMENSAVGIFT
       - SEMESTERAVGIFT
       - INTEGRERT_BOTILBUD
+    VedtakResultatDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/VedtakResultat"
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+      required:
+      - status
+      - type
     VedtakResultat:
       type: string
       enum:

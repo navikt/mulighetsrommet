@@ -23,7 +23,7 @@ from tilskudd_behandling tb
                         'belop', v.belop
                     )
                 END,
-                'vedtakResultat', v.vedtak_resultat,
+                'vedtakResultat', jsonb_build_object('type', v.vedtak_resultat),
                 'kommentarVedtaksbrev', v.kommentar_vedtaksbrev,
                 'utbetalingMottaker', v.utbetaling_mottaker,
                 'kid', v.kid

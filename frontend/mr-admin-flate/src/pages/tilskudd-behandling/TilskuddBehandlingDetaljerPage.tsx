@@ -44,6 +44,7 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { PadlockLockedIcon } from "@navikt/aksel-icons";
 import { isBesluttet } from "@/utils/totrinnskontroll";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -146,7 +147,10 @@ export function TilskuddBehandlingDetaljerPage() {
                         <Definisjonsliste
                           columns={1}
                           definitions={[
-                            { key: "Vedtaksresultat", value: t.vedtakResultat },
+                            {
+                              key: "Vedtaksresultat",
+                              value: <DataElementStatusTag {...t.vedtakResultat.status} />,
+                            },
                             {
                               key: "Beløp til utbetaling",
                               value: t.valutaBelop ? formaterValutaBelop(t.valutaBelop) : "-",

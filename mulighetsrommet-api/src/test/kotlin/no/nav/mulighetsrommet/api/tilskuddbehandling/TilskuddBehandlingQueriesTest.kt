@@ -100,7 +100,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.id shouldBe behandling.tilskudd[0].id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.SKOLEPENGER
                         v.soknadBelop shouldBe 50000
-                        v.vedtakResultat shouldBe VedtakResultat.INNVILGELSE
+                        v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k1"
                         v.utbetalingMottaker shouldBe "bruker"
                         v.kid shouldBe null
@@ -111,7 +111,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.id shouldBe behandling.tilskudd[1].id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.EKSAMENSAVGIFT
                         v.soknadBelop shouldBe 1000
-                        v.vedtakResultat shouldBe VedtakResultat.INNVILGELSE
+                        v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k2"
                         v.utbetalingMottaker shouldBe "arrangor"
                         v.kid shouldBe Kid.parse("116")
@@ -122,7 +122,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.id shouldBe behandling.tilskudd[2].id
                         v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.INTEGRERT_BOTILBUD
                         v.valutaBelop shouldBe null
-                        v.vedtakResultat shouldBe VedtakResultat.AVSLAG
+                        v.vedtakResultat.type shouldBe VedtakResultat.AVSLAG
                     }
                 }
             }
