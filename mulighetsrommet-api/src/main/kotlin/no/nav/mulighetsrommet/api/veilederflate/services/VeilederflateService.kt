@@ -227,6 +227,7 @@ class VeilederflateService(
             personvernBekreftet = gjennomforing.personvernBekreftet,
             personopplysningerSomKanBehandles = gjennomforing.personopplysningerSomKanBehandles,
             lopenummer = gjennomforing.lopenummer,
+            stengtPerioder = gjennomforing.stengt,
         )
     }
 

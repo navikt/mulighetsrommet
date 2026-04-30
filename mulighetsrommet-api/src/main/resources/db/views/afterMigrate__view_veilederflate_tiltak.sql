@@ -26,7 +26,8 @@ select gjennomforing.id,
        arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
        arrangor.navn                as arrangor_navn,
        arrangor_kontaktpersoner_json,
-       gjennomforing.lopenummer
+       gjennomforing.lopenummer,
+       stengt_perioder_json
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
@@ -82,5 +83,15 @@ from gjennomforing
                                    ) as arrangor_kontaktpersoner_json
                             from gjennomforing_arrangor_kontaktperson
                                      left join arrangor_kontaktperson on id = arrangor_kontaktperson_id
+                            where gjennomforing_id = gjennomforing.id) on true
+         left join lateral (select json_agg(
+                                           json_build_object(
+                                                   'id', id,
+                                                   'start', lower(periode),
+                                                   'slutt', date(upper(periode) - interval '1 day'),
+                                                   'beskrivelse', beskrivelse
+                                           ) order by periode
+                                   ) as stengt_perioder_json
+                            from gjennomforing_stengt_hos_arrangor
                             where gjennomforing_id = gjennomforing.id) on true
 where gjennomforing_type = 'AVTALE'
