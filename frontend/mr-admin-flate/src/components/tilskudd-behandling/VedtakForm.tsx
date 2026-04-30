@@ -1,10 +1,14 @@
 import { MetadataVStack, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import { Box, Heading, VStack, HStack, Radio, TextField } from "@navikt/ds-react";
+import { Box, Heading, VStack, HStack, Radio, TextField, Select } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { FormGroup } from "@/layouts/FormGroup";
-import { TilskuddBehandlingRequest, VedtakResultat } from "@tiltaksadministrasjon/api-client";
+import {
+  TilskuddBehandlingRequest,
+  Valuta,
+  VedtakResultat,
+} from "@tiltaksadministrasjon/api-client";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 
 export function VedtakForm() {
@@ -34,7 +38,7 @@ export function VedtakForm() {
                 }
               />
               <MetadataVStack label="Hvem skal motta utbetalingen?" value={t.utbetalingMottaker} />
-              <MetadataVStack label="Beløp fra søknad" value={t.soknadBelop?.belop} />
+              <MetadataVStack label="Beløp fra søknad" value={t.soknadBelop} />
             </VStack>
             <Separator />
             <VStack gap="space-8">
@@ -50,20 +54,26 @@ export function VedtakForm() {
                 </ControlledRadioGroup>
               </HStack>
               {watch("tilskudd")[index].vedtakResultat === VedtakResultat.INNVILGELSE && (
-                <TextField
-                  className="w-[10rem]"
-                  size="small"
-                  type="text"
-                  label="Beløp til utbetaling"
-                  error={errors.tilskudd?.[index]?.belop?.message}
-                  {...register(`tilskudd.${index}.belop`, {
-                    setValueAs: (v: string) => (v === "" ? null : Number(v)),
-                    validate: (value: number | null) => {
-                      if (!Number.isInteger(value)) return "Beløp må være et heltall";
-                      return true;
-                    },
-                  })}
-                />
+                <HStack align="start" gap="space-8">
+                  <TextField
+                    className="w-[10rem]"
+                    size="small"
+                    type="text"
+                    label="Beløp til utbetaling"
+                    error={errors.tilskudd?.[index]?.belop?.message}
+                    {...register(`tilskudd.${index}.belop`, {
+                      setValueAs: (v: string) => (v === "" ? null : Number(v)),
+                      validate: (value: number | null) => {
+                        if (!Number.isInteger(value)) return "Beløp må være et heltall";
+                        return true;
+                      },
+                    })}
+                  />
+                  <Select size="small" readOnly value={Valuta.NOK} label="Valuta">
+                    <option value={Valuta.NOK}>NOK</option>
+                    <option value={Valuta.SEK}>SEK</option>
+                  </Select>
+                </HStack>
               )}
             </VStack>
             <Box width="100%">

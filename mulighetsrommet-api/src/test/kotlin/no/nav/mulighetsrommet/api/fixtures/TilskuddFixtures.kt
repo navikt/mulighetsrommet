@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 import java.time.LocalDate
 import java.util.UUID
 
@@ -28,11 +29,13 @@ object TilskuddFixtures {
         id = UUID.randomUUID(),
         tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
         soknadBelop = 50000,
-        soknadValuta = Valuta.NOK,
+        valutaBelop = ValutaBelop(
+            belop = 100,
+            valuta = Valuta.NOK,
+        ),
         vedtakResultat = VedtakResultat.INNVILGELSE,
         kommentarVedtaksbrev = null,
         utbetalingMottaker = "Universitetet i Oslo",
         kid = Kid.parse("116"),
-        belop = 100,
     )
 }

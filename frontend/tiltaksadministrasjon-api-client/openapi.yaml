@@ -7778,8 +7778,6 @@ components:
         soknadBelop:
           type: integer
           format: int32
-        soknadValuta:
-          $ref: "#/components/schemas/Valuta"
         vedtakResultat:
           $ref: "#/components/schemas/VedtakResultat"
         kommentarVedtaksbrev:
@@ -7792,18 +7790,18 @@ components:
           type:
           - "null"
           - string
-        belop:
-          type: integer
-          format: int32
+        valutaBelop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
       required:
-      - belop
       - id
       - kid
       - kommentarVedtaksbrev
       - soknadBelop
-      - soknadValuta
       - tilskuddOpplaeringType
       - utbetalingMottaker
+      - valutaBelop
       - vedtakResultat
     TilskuddOpplaeringType:
       type: string
@@ -7897,9 +7895,10 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/TilskuddOpplaeringType"
         soknadBelop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ValutaBelopRequest"
+          type:
+          - "null"
+          - integer
+          format: int32
         vedtakResultat:
           oneOf:
           - type: "null"

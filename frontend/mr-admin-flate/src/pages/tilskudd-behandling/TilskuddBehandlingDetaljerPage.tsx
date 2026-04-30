@@ -36,7 +36,7 @@ import {
   Separator,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
-import { formaterValuta } from "@mr/frontend-common/utils/utils";
+import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -138,7 +138,7 @@ export function TilskuddBehandlingDetaljerPage() {
                             { key: "Hvem skal motta utbetalingen?", value: t.utbetalingMottaker },
                             {
                               key: "Beløp fra søknad",
-                              value: formaterValuta(t.soknadBelop, t.soknadValuta),
+                              value: formaterValuta(t.soknadBelop, Valuta.NOK),
                             },
                           ]}
                         />
@@ -149,7 +149,7 @@ export function TilskuddBehandlingDetaljerPage() {
                             { key: "Vedtaksresultat", value: t.vedtakResultat },
                             {
                               key: "Beløp til utbetaling",
-                              value: formaterValuta(t.belop, Valuta.NOK),
+                              value: t.valutaBelop ? formaterValutaBelop(t.valutaBelop) : "-",
                             },
                             { key: "Kommentar til brukeren", value: t.kommentarVedtaksbrev },
                           ]}

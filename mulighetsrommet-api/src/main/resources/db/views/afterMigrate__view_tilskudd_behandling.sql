@@ -16,12 +16,17 @@ from tilskudd_behandling tb
                 'id', v.id,
                 'tilskuddOpplaeringType', tilskudd_opplaering.kode,
                 'soknadBelop', v.soknad_belop,
-                'soknadValuta', v.soknad_valuta,
+                'valutaBelop', CASE
+                    WHEN v.belop IS NULL THEN NULL
+                    ELSE jsonb_build_object(
+                        'valuta', v.valuta,
+                        'belop', v.belop
+                    )
+                END,
                 'vedtakResultat', v.vedtak_resultat,
                 'kommentarVedtaksbrev', v.kommentar_vedtaksbrev,
                 'utbetalingMottaker', v.utbetaling_mottaker,
-                'kid', v.kid,
-                'belop', v.belop
+                'kid', v.kid
             )
         ), '[]') as vedtak_json from tilskudd v
             inner join tilskudd_opplaering on tilskudd_opplaering.id = v.tilskudd_opplaering_id

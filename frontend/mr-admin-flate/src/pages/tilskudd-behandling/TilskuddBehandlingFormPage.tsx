@@ -59,13 +59,11 @@ export function TilskuddBehandlingFormPage() {
           tilskudd: behandling.tilskudd.map((t) => ({
             id: t.id,
             tilskuddOpplaeringType: t.tilskuddOpplaeringType,
-            soknadBelop: {
-              belop: t.soknadBelop,
-              valuta: t.soknadValuta,
-            },
+            soknadBelop: t.soknadBelop,
             vedtakResultat: t.vedtakResultat,
             kommentarVedtaksbrev: t.kommentarVedtaksbrev,
             utbetalingMottaker: t.utbetalingMottaker,
+            belop: t.valutaBelop?.belop,
           })),
         }
       : {

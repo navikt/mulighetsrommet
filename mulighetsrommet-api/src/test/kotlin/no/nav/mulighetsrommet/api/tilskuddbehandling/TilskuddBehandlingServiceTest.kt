@@ -15,10 +15,8 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingReq
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
-import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -53,7 +51,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
             TilskuddBehandlingRequest.TilskuddRequest(
                 id = UUID.randomUUID(),
                 tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
-                soknadBelop = ValutaBelopRequest(belop = 50000, valuta = Valuta.NOK),
+                soknadBelop = 50000,
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,
                 utbetalingMottaker = "Universitetet i Oslo",
