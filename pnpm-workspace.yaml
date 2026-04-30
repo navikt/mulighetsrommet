@@ -8,14 +8,7 @@ minimumReleaseAge: 10080 # 24 x 60 x 7
 
 # Unntak for manuelt oppdaterte pakker innenfor minimumReleaseAge
 minimumReleaseAgeExclude:
-  - vite@8.0.5
-  # CVE-2026-41242
-  - "@grafana/faro-react@2.4.0"
-  - "@grafana/faro-web-tracing@2.4.0"
-  - "@grafana/faro-web-sdk@2.4.0"
-  - "@grafana/faro-core@2.4.0"
-  # GHSA-w5hq-g745-h8pq
-  - uuid@14.0.0
+  - vite@8.0.9
 
 # Gjør at peer dependencies ikke blir installert automatisk og at vi i stedet må ta aktiv stilling
 # til hvilke peer dependencies vi ønsker å støtte
