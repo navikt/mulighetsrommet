@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import kotlin.String
 
 val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-api")
 

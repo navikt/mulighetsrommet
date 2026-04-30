@@ -29,10 +29,14 @@ class HelVedService(
             logger.info("Ignorerer HelVedUtbetaling task for Prod")
             return null
         }
+        val vedtakId = UUID.randomUUID()
+        val id = UUID.randomUUID()
+        val sakId = "2026/test"
+        val behandlingId = "$sakId-${vedtakId.mostSignificantBits.toHexString()}" // uuid har 32 karakterer, så får finne på noe annet
         val utbetaling = HelVedUtbetaling(
-            id = UUID.randomUUID(),
-            sakId = "2026/test",
-            behandlingId = UUID.randomUUID().toString(),
+            id = id,
+            sakId = sakId,
+            behandlingId = behandlingId, // Maks 30 karakterer, uuid er ellers 32
             personident = NorskIdent("21528416400"), // Gjørme, Proaktiv
             periode = Periode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30)),
             belop = 1234,
