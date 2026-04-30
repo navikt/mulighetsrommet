@@ -11,9 +11,8 @@ import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
 import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorFeatureToggleRoutes
 import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorflateRoutes
 import no.nav.mulighetsrommet.api.avtale.api.avtaleRoutes
-import no.nav.mulighetsrommet.api.avtale.api.avtaletypeRoutes
+import no.nav.mulighetsrommet.api.avtale.api.kodeverkRoutes
 import no.nav.mulighetsrommet.api.avtale.api.personopplysningRoutes
-import no.nav.mulighetsrommet.api.avtale.api.prismodellRoutes
 import no.nav.mulighetsrommet.api.avtale.api.rammedetaljerRoutes
 import no.nav.mulighetsrommet.api.endringshistorikk.api.endringshistorikkRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingPublicRoutes
@@ -123,8 +122,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     tiltakstypeRoutes()
     avtaleRoutes()
     gjennomforingRoutes()
-    prismodellRoutes()
-    avtaletypeRoutes()
+    kodeverkRoutes()
     rammedetaljerRoutes()
     personopplysningRoutes()
     tilsagnRoutes()

@@ -1,9 +1,14 @@
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { PrismodellService, Tiltakskode } from "@tiltaksadministrasjon/api-client";
+import { KodeverkService, PrismodellInfo, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
-export function usePrismodeller(tiltakstype: Tiltakskode) {
-  return useApiSuspenseQuery({
-    queryFn: () => PrismodellService.getPrismodeller({ query: { tiltakstype } }),
-    queryKey: ["prismodeller", tiltakstype],
+export function usePrismodeller(tiltakskode: Tiltakskode) {
+  const { data: prismodeller } = useApiSuspenseQuery<
+    Record<string, PrismodellInfo[]>,
+    PrismodellInfo[]
+  >({
+    queryFn: () => KodeverkService.getPrismodeller(),
+    queryKey: ["kodeverk", "prismodeller"],
+    select: (data) => data[tiltakskode] ?? [],
   });
+  return prismodeller;
 }
