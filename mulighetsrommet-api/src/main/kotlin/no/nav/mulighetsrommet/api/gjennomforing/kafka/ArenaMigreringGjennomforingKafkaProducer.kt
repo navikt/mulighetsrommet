@@ -49,7 +49,7 @@ class ArenaMigreringGjennomforingKafkaProducer(
             arenaGjennomforing?.arenaId,
         )
 
-        publish(migrertGjennomforing)
+        migrertGjennomforing?.also { publish(it) }
     }
 
     private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingV2Dto): Boolean {

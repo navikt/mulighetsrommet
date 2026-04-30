@@ -17,7 +17,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val arenaId: Int?,
     val tiltakskode: String,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate?,
+    val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -36,7 +36,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
         fun from(
             gjennomforing: Gjennomforing,
             arenaId: Int?,
-        ): ArenaMigreringTiltaksgjennomforingDto {
+        ): ArenaMigreringTiltaksgjennomforingDto? {
             val enhetsnummer = gjennomforing.arena?.ansvarligNavEnhet
                 ?: (gjennomforing as? GjennomforingAvtale)?.kontorstruktur?.firstOrNull()?.region?.enhetsnummer?.value
                 ?: (gjennomforing as? GjennomforingEnkeltplass)?.ansvarligEnhet?.enhetsnummer?.value
@@ -49,12 +49,14 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 GjennomforingStatusType.AVLYST -> ArenaTiltaksgjennomforingStatus.AVLYST
             }
 
+            val startDato = gjennomforing.startDato ?: return null
+
             return ArenaMigreringTiltaksgjennomforingDto(
                 id = gjennomforing.id,
                 tiltakskode = checkNotNull(gjennomforing.tiltakstype.tiltakskode.arenakode) {
                     "${gjennomforing.tiltakstype.tiltakskode} har ingen mapping til Arena"
                 },
-                startDato = gjennomforing.startDato,
+                startDato = startDato,
                 sluttDato = gjennomforing.sluttDato,
                 opprettetTidspunkt = gjennomforing.opprettetTidspunkt.tilNorskLocalDateTime(),
                 endretTidspunkt = gjennomforing.oppdatertTidspunkt.tilNorskLocalDateTime(),
