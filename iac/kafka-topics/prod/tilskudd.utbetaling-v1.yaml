@@ -1,19 +1,19 @@
 apiVersion: kafka.nais.io/v1
 kind: Topic
 metadata:
-  name: mulighetsrommet-api.utbetaling-v1
+  name: tilskudd.utbetaling-v1
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
 spec:
-  pool: nav-dev
+  pool: nav-prod
   config:
-    cleanupPolicy: compact
+    cleanupPolicy: delete
     minimumInSyncReplicas: 2
     partitions: 2
     replication: 3
-    retentionHours: 1
-    segmentHours: 1
+    # 90 days retention (24 h * 90 d)
+    retentionHours: 2160
   acl:
     - team: team-mulighetsrommet
       application: mulighetsrommet-api
