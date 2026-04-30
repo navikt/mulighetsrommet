@@ -1,9 +1,15 @@
 import { useApiQuery } from "@mr/frontend-common";
-import { AvtaletypeService, Tiltakskode } from "@tiltaksadministrasjon/api-client";
+import { AvtaletypeInfo, KodeverkService, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
-export function useAvtaletyper(tiltakstype: Tiltakskode) {
-  return useApiQuery({
-    queryFn: () => AvtaletypeService.getAvtaletyper({ query: { tiltakstype } }),
-    queryKey: ["avtaletyper", tiltakstype],
+export function useAvtaletyper(tiltakskode: Tiltakskode) {
+  const { data: avtaletyper } = useApiQuery<
+    Record<string, AvtaletypeInfo[]>,
+    unknown,
+    AvtaletypeInfo[]
+  >({
+    queryFn: () => KodeverkService.getAvtaletyper(),
+    queryKey: ["kodeverk", "avtaletyper"],
+    select: (data) => data[tiltakskode] ?? [],
   });
+  return avtaletyper ?? [];
 }

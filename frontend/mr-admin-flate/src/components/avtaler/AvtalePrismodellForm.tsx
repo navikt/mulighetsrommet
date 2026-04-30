@@ -2,15 +2,15 @@ import {
   BodyShort,
   Box,
   Button,
-  Select,
-  VStack,
-  HStack,
-  Textarea,
-  InlineMessage,
   Checkbox,
   HelpText,
+  HStack,
+  InlineMessage,
+  Select,
+  Textarea,
+  VStack,
 } from "@navikt/ds-react";
-import { useFormContext, useFieldArray } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/pages/avtaler/form/validation";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
@@ -32,7 +32,8 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     watch,
     register,
   } = useFormContext<PrismodellValues>();
-  const { data: prismodellTyper = [] } = usePrismodeller(tiltakskode);
+  const prismodeller = usePrismodeller(tiltakskode);
+
   const valutaOptions = [Valuta.NOK, Valuta.SEK];
 
   const prismodellerMedSatser = [
@@ -66,7 +67,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
         const selectedValuta = watch(`prismodeller.${index}.valuta`);
         const selectedType = watch(`prismodeller.${index}.type`);
         const tilsagnPerDeltaker = watch(`prismodeller.${index}.tilsagnPerDeltaker`);
-        const beskrivelse = prismodellTyper.find((p) => p.type === type)?.beskrivelse;
+        const beskrivelse = prismodeller.find((p) => p.type === type)?.beskrivelse;
         return (
           <Box
             key={field.id}
@@ -92,7 +93,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                     <option key={undefined} value={undefined}>
                       -- Velg prismodell --
                     </option>
-                    {prismodellTyper.map(({ type, navn }) => (
+                    {prismodeller.map(({ type, navn }) => (
                       <option key={type} value={type}>
                         {navn}
                       </option>

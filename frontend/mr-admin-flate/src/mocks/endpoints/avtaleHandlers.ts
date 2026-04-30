@@ -2,51 +2,67 @@ import { http, HttpResponse, PathParams } from "msw";
 import {
   AvtaleDto,
   AvtaleHandling,
-  Avtaletype,
   AvtaletypeInfo,
+  Avtaletype,
   EndringshistorikkDto,
   PaginatedResponseAvtaleDto,
   PrismodellInfo,
   PrismodellType,
+  Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
 
 export const avtaleHandlers = [
-  http.get<PathParams, undefined, AvtaletypeInfo[]>(
-    "*/api/tiltaksadministrasjon/avtaletyper",
+  http.get<PathParams, undefined, Record<string, AvtaletypeInfo[]>>(
+    "*/api/tiltaksadministrasjon/kodeverk/avtaletyper",
     () => {
-      return HttpResponse.json([
-        {
-          type: Avtaletype.FORHANDSGODKJENT,
-          tittel: "Forhåndsgodkjent",
-        },
-        {
-          type: Avtaletype.RAMMEAVTALE,
-          tittel: "Rammeavtale",
-        },
-        {
-          type: Avtaletype.AVTALE,
-          tittel: "Avtale",
-        },
-        {
-          type: Avtaletype.OFFENTLIG_OFFENTLIG,
-          tittel: "Offentlig-offentlig samarbeid",
-        },
-      ]);
+      const avtaletyper: AvtaletypeInfo[] = [
+        { type: Avtaletype.FORHANDSGODKJENT, tittel: "Forhåndsgodkjent" },
+        { type: Avtaletype.RAMMEAVTALE, tittel: "Rammeavtale" },
+        { type: Avtaletype.AVTALE, tittel: "Avtale" },
+        { type: Avtaletype.OFFENTLIG_OFFENTLIG, tittel: "Offentlig-offentlig samarbeid" },
+      ];
+      return HttpResponse.json(
+        Object.fromEntries(Object.values(Tiltakskode).map((k) => [k, avtaletyper])),
+      );
     },
   ),
 
-  http.get<PathParams, undefined, PrismodellInfo[]>(
-    "*/api/tiltaksadministrasjon/prismodeller",
+  http.get<PathParams, undefined, Record<string, PrismodellInfo[]>>(
+    "*/api/tiltaksadministrasjon/kodeverk/prismodeller",
     () => {
-      return HttpResponse.json([
+      const prismodeller: PrismodellInfo[] = [
         {
           type: PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
           navn: "Fast sats per tiltaksplass per måned",
           beskrivelse: [],
         },
-      ]);
+        {
+          type: PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+          navn: "Avtalt månedspris per tiltaksplass",
+          beskrivelse: [],
+        },
+        {
+          type: PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+          navn: "Avtalt ukespris per tiltaksplass",
+          beskrivelse: [],
+        },
+        {
+          type: PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+          navn: "Avtalt pris per uke med påbegynt oppfølging per deltaker",
+          beskrivelse: [],
+        },
+        {
+          type: PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+          navn: "Avtalt pris per time oppfølging per deltaker",
+          beskrivelse: [],
+        },
+        { type: PrismodellType.ANNEN_AVTALT_PRIS, navn: "Annen avtalt pris", beskrivelse: [] },
+      ];
+      return HttpResponse.json(
+        Object.fromEntries(Object.values(Tiltakskode).map((k) => [k, prismodeller])),
+      );
     },
   ),
 
