@@ -135,6 +135,9 @@ export function MrApi() {
           for tilsagnet (kjør journalføring av tilsagnsbrev først)
         </BodyShort>
       </RunTask>
+      <RunTask base={ApiBase.MR_API} task={"hel-ved-utbetaling"}>
+        <BodyShort>Produser fiktiv utbetaling record mot Hel Ved i Dev</BodyShort>
+      </RunTask>
     </>
   );
 }
