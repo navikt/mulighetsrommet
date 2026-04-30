@@ -5,6 +5,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.ConsumeStatus
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.clients.helved.HelVedService
 import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -13,7 +14,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
-class HelvedStatusV1KafkaConsumer(private val db: ApiDatabase) : KafkaTopicConsumer<UUID, JsonElement>(
+class HelvedStatusV1KafkaConsumer(private val db: ApiDatabase, val helVedService: HelVedService) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {
@@ -38,11 +39,6 @@ class HelvedStatusV1KafkaConsumer(private val db: ApiDatabase) : KafkaTopicConsu
     override suspend fun consume(key: UUID, message: JsonElement) {
         logger.info("Konsumerer utbetaling status-melding med id=$key")
         val helvedStatus = JsonIgnoreUnknownKeys.decodeFromJsonElement<HelVedStatus>(message)
-        when (helvedStatus.status) {
-            HelVedStatus.Status.MOTTATT -> TODO()
-            HelVedStatus.Status.FEILET -> TODO()
-            HelVedStatus.Status.HOS_OPPDRAG -> TODO()
-            HelVedStatus.Status.OK -> TODO()
-        }
+        helVedService.handleHelvedStatus(helvedStatus)
     }
 }

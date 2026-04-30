@@ -201,7 +201,7 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.replicateBestillingStatus to ReplikerBestillingStatusConsumer(get()),
             config.clients.replicateFakturaStatus to ReplikerFakturaStatusConsumer(get()),
             config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(get()),
-            config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get()),
+            config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get(), get()),
         )
         KafkaConsumerOrchestrator(
             db = get(),

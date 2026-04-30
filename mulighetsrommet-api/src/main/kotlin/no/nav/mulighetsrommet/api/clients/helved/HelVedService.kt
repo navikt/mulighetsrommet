@@ -61,4 +61,8 @@ class HelVedService(
 
         return utbetaling.id
     }
+
+    fun handleHelvedStatus(statusMelding: HelVedStatus) {
+        logger.info("Melding fra hel ved: {}", Json.encodeToString(statusMelding))
+    }
 }
