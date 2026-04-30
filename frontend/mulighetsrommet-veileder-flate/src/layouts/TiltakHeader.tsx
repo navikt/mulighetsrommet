@@ -10,35 +10,31 @@ interface Props {
 export function TiltakHeader({ tiltak }: Props) {
   const { beskrivelse, tiltakstype } = tiltak;
   return (
-    <>
-      <VStack gap="space-8">
-        <Heading level="2" size="xlarge">
-          <BodyShort spacing size="small">
-            {tiltak.tiltakstype.navn}
-          </BodyShort>
+    <VStack gap="space-4">
+      <BodyShort spacing size="small">
+        {tiltak.tiltakstype.navn}
+      </BodyShort>
+      <HStack gap="space-16" align="center">
+        <Heading size="large" spacing>
+          {tiltak.navn}
         </Heading>
-        <HStack gap={"space-8"} align="center">
-          <Heading size="large">{tiltak.navn}</Heading>
-          {isTiltakGruppe(tiltak) && !isTiltakAktivt(tiltak) && (
-            <StatusTag dataColor="neutral">{tiltak.status.beskrivelse}</StatusTag>
-          )}
-        </HStack>
-      </VStack>
+        {isTiltakGruppe(tiltak) && !isTiltakAktivt(tiltak) && (
+          <StatusTag dataColor="neutral">{tiltak.status.beskrivelse}</StatusTag>
+        )}
+      </HStack>
       {beskrivelse && (
-        <BodyLong size="large" spacing style={{ whiteSpace: "pre-wrap", marginTop: "1rem" }}>
+        <BodyLong size="large" spacing>
           {beskrivelse}
         </BodyLong>
       )}
       {tiltakstype.beskrivelse && (
-        <VStack gap={"space-0"} style={{ marginTop: "1rem" }}>
+        <>
           <Heading level="2" size="small">
             Generell informasjon
           </Heading>
-          <BodyLong size="large" style={{ whiteSpace: "pre-wrap" }}>
-            {tiltakstype.beskrivelse}
-          </BodyLong>
-        </VStack>
+          <BodyLong size="large">{tiltakstype.beskrivelse}</BodyLong>
+        </>
       )}
-    </>
+    </VStack>
   );
 }

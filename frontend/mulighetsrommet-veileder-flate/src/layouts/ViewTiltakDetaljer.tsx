@@ -30,11 +30,18 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
     <Page.Block gutters>
       <HStack justify="space-between">{knapperad}</HStack>
       <Suspense fallback={<DetaljerSkeleton />}>
-        <Box padding="space-24" background="default">
-          <HGrid gap="space-128" columns="1fr 0.5fr" id="gjennomforing_detaljer">
+        <Box padding="space-16" background="default">
+          <HGrid gap="space-64" columns="1fr 0.5fr" id="gjennomforing_detaljer">
             <VStack gap="space-16">
               <TiltakHeader tiltak={tiltak} />
               <TiltakDetaljer tiltak={tiltak} setOppskriftId={setOppskriftId} />
+              {oppskriftId && (
+                <Oppskrift
+                  oppskriftId={oppskriftId}
+                  tiltakskode={tiltak.tiltakstype.tiltakskode}
+                  setOppskriftId={setOppskriftId}
+                />
+              )}
             </VStack>
             <VStack gap="space-16">
               {isTiltakGruppe(tiltak) && tiltak.apentForPamelding && (
@@ -71,14 +78,14 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
               <VStack gap="space-16">{brukerActions}</VStack>
             </VStack>
           </HGrid>
-          {oppskriftId && (
-            <Oppskrift
-              oppskriftId={oppskriftId}
-              tiltakskode={tiltak.tiltakstype.tiltakskode}
-              setOppskriftId={setOppskriftId}
-            />
-          )}
         </Box>
+        {oppskriftId && (
+          <Oppskrift
+            oppskriftId={oppskriftId}
+            tiltakskode={tiltak.tiltakstype.tiltakskode}
+            setOppskriftId={setOppskriftId}
+          />
+        )}
       </Suspense>
     </Page.Block>
   );
