@@ -20,14 +20,14 @@ import { v4 } from "uuid";
 export function toOpprettAvtaleRequest(id: string, data: AvtaleFormValues): OpprettAvtaleRequest {
   return {
     id,
-    detaljer: toDetaljerRequest({ data: data }),
+    detaljer: toDetaljerRequest(data),
     veilederinformasjon: toVeilederinfoRequest(data),
-    personvern: toPersonvernRequest({ data: data }),
-    prismodeller: toPrismodellRequest({ data: data }),
+    personvern: toPersonvernRequest(data),
+    prismodeller: toPrismodellRequest(data),
   };
 }
 
-export function toPrismodellRequest({ data }: { data: PrismodellValues }): PrismodellRequest[] {
+export function toPrismodellRequest(data: PrismodellValues): PrismodellRequest[] {
   return data.prismodeller.map((prismodell) => ({
     ...prismodell,
     id: prismodell.id ?? v4(),
@@ -36,17 +36,11 @@ export function toPrismodellRequest({ data }: { data: PrismodellValues }): Prism
   }));
 }
 
-export function toPersonvernRequest({
-  data,
-}: {
-  data: PersonopplysningerOutputValues;
-}): PersonvernRequest {
-  return {
-    ...data.personvern,
-  };
+export function toPersonvernRequest(data: PersonopplysningerOutputValues): PersonvernRequest {
+  return { ...data.personvern };
 }
 
-export function toDetaljerRequest({ data }: { data: AvtaleDetaljerOutputValues }): DetaljerRequest {
+export function toDetaljerRequest(data: AvtaleDetaljerOutputValues): DetaljerRequest {
   const detaljer = data.detaljer;
   return {
     ...detaljer,

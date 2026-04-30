@@ -31,7 +31,7 @@ export function RedigerAvtaleDetaljerPage() {
   });
 
   const onSubmit = methods.handleSubmit((data) => {
-    mutation.mutate(toDetaljerRequest({ data }), {
+    mutation.mutate(toDetaljerRequest(data), {
       onSuccess: () => navigate(`/avtaler/${avtaleId}`),
       onValidationError: (validation: ValidationError) => {
         applyValidationErrors(methods, validation);

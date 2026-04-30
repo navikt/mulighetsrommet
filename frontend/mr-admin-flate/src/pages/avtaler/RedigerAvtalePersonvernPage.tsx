@@ -31,7 +31,7 @@ export function RedigerAvtalePersonvernPage() {
   });
 
   const onSubmit = methods.handleSubmit((data) => {
-    mutation.mutate(toPersonvernRequest({ data }), {
+    mutation.mutate(toPersonvernRequest(data), {
       onSuccess: () => navigate(`/avtaler/${avtaleId}/personvern`),
       onValidationError: (validation: ValidationError) => {
         applyValidationErrors(methods, validation);
