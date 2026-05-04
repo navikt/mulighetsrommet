@@ -27,11 +27,15 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
   const harKombinasjon = tiltak.tiltakstype.kanKombineresMed.length > 0;
 
   return (
-    <Page.Block gutters>
+    <Page.Block gutters width="2xl">
       <HStack justify="space-between">{knapperad}</HStack>
       <Suspense fallback={<DetaljerSkeleton />}>
         <Box padding="space-16" background="default">
-          <HGrid gap="space-64" columns="1fr 0.5fr" id="gjennomforing_detaljer">
+          <HGrid
+            gap={{ xs: "space-0", sm: "space-64" }}
+            columns={{ xs: "1fr", sm: "1fr 0.5fr" }}
+            id="gjennomforing_detaljer"
+          >
             <VStack gap="space-16">
               <TiltakHeader tiltak={tiltak} />
               <TiltakDetaljer tiltak={tiltak} setOppskriftId={setOppskriftId} />
@@ -43,7 +47,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                 />
               )}
             </VStack>
-            <VStack gap="space-16">
+            <VStack gap="space-16" width="100%">
               {isTiltakGruppe(tiltak) && tiltak.apentForPamelding && (
                 <PadlockLockedFillIcon
                   title="Tiltaket er stengt for påmelding"
@@ -75,17 +79,10 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                   {tiltak.oppmoteSted}
                 </Melding>
               )}
-              <VStack gap="space-16">{brukerActions}</VStack>
+              {brukerActions}
             </VStack>
           </HGrid>
         </Box>
-        {oppskriftId && (
-          <Oppskrift
-            oppskriftId={oppskriftId}
-            tiltakskode={tiltak.tiltakstype.tiltakskode}
-            setOppskriftId={setOppskriftId}
-          />
-        )}
       </Suspense>
     </Page.Block>
   );
