@@ -1,12 +1,11 @@
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
-import { Tabs } from "@navikt/ds-react";
+import { Box, HGrid, HStack, Page, Tabs, VStack } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@api-client";
 import { ReactNode, Suspense, useState } from "react";
 import SidemenyInfo from "@/components/sidemeny/SidemenyInfo";
 import { TiltakDetaljer } from "@/components/tabs/TiltakDetaljer";
 import { TiltakHeader } from "./TiltakHeader";
-import styles from "./ViewTiltakDetaljer.module.scss";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { EstimertVentetid } from "@/components/sidemeny/EstimertVentetid";
 import { SidemenyKanKombineresMed } from "@/components/sidemeny/SidemenyKanKombineresMed";
@@ -28,25 +27,23 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
   const harKombinasjon = tiltak.tiltakstype.kanKombineresMed.length > 0;
 
   return (
-    <div className="max-w-313 mx-auto my-0">
-      <div className="items-baseline flex justify-between">{knapperad}</div>
+    <Page.Block gutters>
+      <HStack justify="space-between">{knapperad}</HStack>
       <Suspense fallback={<DetaljerSkeleton />}>
-        <>
-          <div
-            className="grid grid-rows-[auto_1fr] grid-cols-[auto] xl:grid-cols-[65%_35%] gap-8 p-8 bg-ax-bg-default"
-            id="gjennomforing_detaljer"
-          >
-            <div className="max-w-none xl:max-w-190">
+        <Box padding="space-24" background="default">
+          <HGrid gap="space-128" columns="1fr 0.5fr" id="gjennomforing_detaljer">
+            <VStack gap="space-16">
               <TiltakHeader tiltak={tiltak} />
-            </div>
-            {isTiltakGruppe(tiltak) && !tiltak.apentForPamelding && (
-              <div className="col-start-2 row-start-auto xl:row-start-1 text-2xl flex justify-end mr-8 text-[2rem]">
-                <PadlockLockedFillIcon title="Tiltaket er stengt for påmelding" />
-              </div>
-            )}
-            <div
-              className={`${styles.sidemeny} mt-0 row-start max-w-none px-12 row-start-[initial] row-end-[initial] col-[initial] xl:h-fit xl:row-start-1 xl:row-end-3 xl:col-start-2 xl:col-span-1 xl:px-0 xl:max-w-95 text-text-default flex flex-col gap-4`}
-            >
+              <TiltakDetaljer tiltak={tiltak} setOppskriftId={setOppskriftId} />
+            </VStack>
+            <VStack gap="space-16">
+              {isTiltakGruppe(tiltak) && tiltak.apentForPamelding && (
+                <PadlockLockedFillIcon
+                  title="Tiltaket er stengt for påmelding"
+                  width="2rem"
+                  height="2rem"
+                />
+              )}
               {isTiltakGruppe(tiltak) && tiltak.estimertVentetid && (
                 <EstimertVentetid estimertVentetid={tiltak.estimertVentetid} />
               )}
@@ -71,23 +68,18 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                   {tiltak.oppmoteSted}
                 </Melding>
               )}
-              <div className="flex flex-col gap-4 mt-4">{brukerActions}</div>
-            </div>
-            <TiltakDetaljer tiltak={tiltak} setOppskriftId={setOppskriftId} />
-          </div>
-          <div className="bg-ax-bg-default px-4 xl:px-8">
-            {oppskriftId && (
-              <div className="border border-border-subtle">
-                <Oppskrift
-                  oppskriftId={oppskriftId}
-                  tiltakskode={tiltak.tiltakstype.tiltakskode}
-                  setOppskriftId={setOppskriftId}
-                />
-              </div>
-            )}
-          </div>
-        </>
+              <VStack gap="space-16">{brukerActions}</VStack>
+            </VStack>
+          </HGrid>
+          {oppskriftId && (
+            <Oppskrift
+              oppskriftId={oppskriftId}
+              tiltakskode={tiltak.tiltakstype.tiltakskode}
+              setOppskriftId={setOppskriftId}
+            />
+          )}
+        </Box>
       </Suspense>
-    </div>
+    </Page.Block>
   );
 }
