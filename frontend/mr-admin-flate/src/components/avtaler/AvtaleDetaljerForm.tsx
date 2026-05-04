@@ -152,10 +152,7 @@ export function AvtaleDetaljerForm() {
             name="detaljer.administratorer"
             id="administratorer"
             label={
-              <LabelWithHelpText
-                label={avtaletekster.administratorerForAvtalenLabel}
-                helpTextTitle="Mer informasjon"
-              >
+              <LabelWithHelpText label={avtaletekster.administratorerForAvtalenLabel}>
                 Bestemmer hvem som eier avtalen. Notifikasjoner sendes til administratorene.
               </LabelWithHelpText>
             }

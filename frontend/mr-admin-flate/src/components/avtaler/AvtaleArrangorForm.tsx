@@ -73,10 +73,7 @@ export function AvtaleArrangorForm() {
           id="arrangorUnderenheter"
           name="detaljer.arrangor.underenheter"
           label={
-            <LabelWithHelpText
-              label={avtaletekster.tiltaksarrangorUnderenheterLabel}
-              helpTextTitle="Mer informasjon"
-            >
+            <LabelWithHelpText label={avtaletekster.tiltaksarrangorUnderenheterLabel}>
               Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen.
             </LabelWithHelpText>
           }

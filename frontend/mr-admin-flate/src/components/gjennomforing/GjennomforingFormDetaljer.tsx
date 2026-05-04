@@ -241,7 +241,6 @@ export function GjennomforingFormDetaljer(props: Props) {
               label={
                 <LabelWithHelpText
                   label={gjennomforingTekster.administratorerForGjennomforingenLabel}
-                  helpTextTitle="Mer informasjon"
                 >
                   Bestemmer hvem som eier gjennomføringen. Notifikasjoner sendes til
                   administratorene.
