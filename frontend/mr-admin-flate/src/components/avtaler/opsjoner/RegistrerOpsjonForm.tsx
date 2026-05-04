@@ -1,7 +1,7 @@
 import { Alert, Radio } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
-import { ControlledDateInput } from "../../skjema/ControlledDateInput";
-import { ControlledRadioGroup } from "../../skjema/ControlledRadioGroup";
+import { FormDateInput } from "@/components/skjema/FormDateInput";
+import { FormRadioGroup } from "@/components/skjema/FormRadioGroup";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import {
   AvtaleDto,
@@ -17,12 +17,7 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
   const maksVarighetForOpsjon = avtale.opsjonsmodell.opsjonMaksVarighet;
   const sluttDatoSisteOpsjon = avtale.opsjonerRegistrert.at(-1)?.sluttDato;
   const sluttdato = avtale.sluttDato;
-  const {
-    watch,
-    register,
-    setValue,
-    formState: { errors },
-  } = useFormContext<OpprettOpsjonLoggRequest>();
+  const { watch } = useFormContext<OpprettOpsjonLoggRequest>();
 
   if (!maksVarighetForOpsjon || !sluttdato) {
     return (
@@ -34,7 +29,7 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
 
   return (
     <div className="bg-ax-bg-neutral-soft p-4 rounded-lg">
-      <ControlledRadioGroup legend="Registrer opsjon" hideLegend {...register("type")}>
+      <FormRadioGroup<OpprettOpsjonLoggRequest> legend="Registrer opsjon" hideLegend name="type">
         <Radio value={OpprettOpsjonLoggRequestType.SKAL_IKKE_UTLOSE_OPSJON}>
           Avklart at opsjon ikke skal utløses
         </Radio>
@@ -44,20 +39,17 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
         <Radio value={OpprettOpsjonLoggRequestType.CUSTOM_LENGDE}>
           Annen lengde (maks dato: {formaterDato(maksVarighetForOpsjon)})
         </Radio>
-      </ControlledRadioGroup>
+      </FormRadioGroup>
       {watch("type") === OpprettOpsjonLoggRequestType.CUSTOM_LENGDE && (
-        <ControlledDateInput
-          size="small"
-          label={"Velg ny sluttdato"}
+        <FormDateInput<OpprettOpsjonLoggRequest>
+          name="nySluttDato"
+          label="Velg ny sluttdato"
           fromDate={
             sluttDatoSisteOpsjon
               ? addDuration(new Date(sluttDatoSisteOpsjon), { days: 1 })
               : new Date()
           }
           toDate={new Date(maksVarighetForOpsjon)}
-          {...register("nySluttDato")}
-          error={errors.nySluttDato?.message}
-          onChange={(val) => setValue("nySluttDato", val)}
         />
       )}
     </div>

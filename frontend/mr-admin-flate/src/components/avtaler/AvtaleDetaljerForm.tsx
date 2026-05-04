@@ -2,8 +2,8 @@ import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/Avta
 import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { FormGroup } from "@/layouts/FormGroup";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import { Box, HGrid, List, Select, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Box, HGrid, List } from "@navikt/ds-react";
+import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
@@ -26,6 +26,9 @@ import { SkjemaKolonne } from "@/layouts/SkjemaKolonne";
 import { administratorOptions } from "@/components/skjema/administratorOptions";
 import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
 import { SelectAvtaletype } from "@/components/avtaler/SelectAvtaletype";
+import { FormTextField } from "@/components/skjema/FormTextField";
+import { FormSelect } from "@/components/skjema/FormSelect";
+import { FormCombobox } from "@/components/skjema/FormCombobox";
 
 export function AvtaleDetaljerForm() {
   const { avtaleId } = useParams();
@@ -38,13 +41,8 @@ export function AvtaleDetaljerForm() {
     ? tiltakstyper
     : tiltakstyper.filter((tiltakstype) => !erUtfaset(tiltakstype));
 
-  const {
-    register,
-    formState: { errors },
-    setValue,
-    watch,
-    control,
-  } = useFormContext<AvtaleFormValues>();
+  const { setValue, watch } = useFormContext<AvtaleFormValues>();
+
   const tiltakskode = watch("detaljer.tiltakskode") as Tiltakskode | undefined;
 
   const antallOpsjonerUtlost = (
@@ -81,20 +79,16 @@ export function AvtaleDetaljerForm() {
     <TwoColumnGrid separator>
       <SkjemaKolonne>
         <FormGroup>
-          <TextField
-            size="small"
-            error={errors.detaljer?.navn?.message}
+          <FormTextField<AvtaleFormValues>
+            name="detaljer.navn"
             label={avtaletekster.avtalenavnLabel}
-            autoFocus
-            {...register("detaljer.navn")}
           />
         </FormGroup>
         <FormGroup>
           <HGrid align="start" gap="space-16" columns={2}>
-            <TextField
-              size="small"
+            <FormTextField<AvtaleFormValues>
+              name="detaljer.sakarkivNummer"
               placeholder="åå/12345"
-              error={errors.detaljer?.sakarkivNummer?.message}
               label={
                 <LabelWithHelpText
                   label={avtaletekster.sakarkivNummerLabel}
@@ -115,22 +109,20 @@ export function AvtaleDetaljerForm() {
                   Det er <b>2. Saksnummeret til Avtalesaken</b> som skal refereres til herfra.
                 </LabelWithHelpText>
               }
-              {...register("detaljer.sakarkivNummer")}
             />
           </HGrid>
         </FormGroup>
         <FormGroup>
           <HGrid gap="space-16" columns={2} align="start">
-            <Select
-              size="small"
+            <FormSelect<AvtaleFormValues>
+              name="detaljer.tiltakskode"
               label={avtaletekster.tiltakstypeLabel}
-              error={errors.detaljer?.tiltakskode?.message}
-              {...register("detaljer.tiltakskode", {
+              rules={{
                 onChange: () => {
                   setValue("detaljer.amoKategorisering", null);
                   setValue("detaljer.utdanningslop", null);
                 },
-              })}
+              }}
             >
               <option value="">-- Velg en --</option>
               {relevanteTiltakstyper.map((type) => (
@@ -138,7 +130,7 @@ export function AvtaleDetaljerForm() {
                   {type.navn}
                 </option>
               ))}
-            </Select>
+            </FormSelect>
             {tiltakskode && (
               <SelectAvtaletype
                 tiltakskode={tiltakskode}
@@ -156,42 +148,20 @@ export function AvtaleDetaljerForm() {
       </SkjemaKolonne>
       <SkjemaKolonne>
         <FormGroup>
-          <Controller
-            control={control}
+          <FormCombobox<AvtaleFormValues>
             name="detaljer.administratorer"
-            render={({ field }) => (
-              <UNSAFE_Combobox
-                size="small"
-                id="administratorer"
-                label={
-                  <LabelWithHelpText
-                    label={avtaletekster.administratorerForAvtalenLabel}
-                    helpTextTitle="Mer informasjon"
-                  >
-                    Bestemmer hvem som eier avtalen. Notifikasjoner sendes til administratorene.
-                  </LabelWithHelpText>
-                }
-                placeholder="Administratorer"
-                isMultiSelect
-                selectedOptions={field.value.map(
-                  (value) =>
-                    administratorOptions(navAnsatte).find((o) => o.value === value) ?? {
-                      value: value,
-                      label: value,
-                    },
-                )}
-                name={field.name}
-                error={errors.detaljer?.administratorer?.message}
-                options={administratorOptions(navAnsatte)}
-                onToggleSelected={(option: string, isSelected: boolean) => {
-                  if (isSelected) {
-                    field.onChange([...field.value, option]);
-                  } else {
-                    field.onChange(field.value.filter((v) => v !== option));
-                  }
-                }}
-              />
-            )}
+            id="administratorer"
+            label={
+              <LabelWithHelpText
+                label={avtaletekster.administratorerForAvtalenLabel}
+                helpTextTitle="Mer informasjon"
+              >
+                Bestemmer hvem som eier avtalen. Notifikasjoner sendes til administratorene.
+              </LabelWithHelpText>
+            }
+            placeholder="Administratorer"
+            isMultiSelect
+            options={administratorOptions(navAnsatte)}
           />
         </FormGroup>
         <AvtaleArrangorForm />

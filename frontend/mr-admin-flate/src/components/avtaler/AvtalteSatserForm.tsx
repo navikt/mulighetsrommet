@@ -1,10 +1,11 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { Button, HStack, Spacer, TextField, VStack } from "@navikt/ds-react";
+import { Button, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
+import { FormDateInput } from "@/components/skjema/FormDateInput";
+import { NumberInput } from "@/components/skjema/NumberInput";
 
 export function AvtalteSatserForm({
   avtaleStartDato,
@@ -13,14 +14,7 @@ export function AvtalteSatserForm({
   avtaleStartDato: Date;
   field: `prismodeller.${number}`;
 }) {
-  const {
-    control,
-    register,
-    setValue,
-    getValues,
-    watch,
-    formState: { errors },
-  } = useFormContext<AvtaleFormValues>();
+  const { control, watch } = useFormContext<AvtaleFormValues>();
 
   const { fields, append, remove } = useFieldArray({
     name: `${field}.satser` as const,
@@ -48,28 +42,16 @@ export function AvtalteSatserForm({
           className="border-ax-border-neutral-subtle border rounded-lg"
         >
           <HStack key={satsField.id} gap="space-16" align="start">
-            <TextField
-              label={avtaletekster.prismodell.pris.label + " (" + valuta + ")"}
-              size="small"
-              type="number"
-              error={
-                errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.pris?.message
-              }
-              {...register(`${field}.satser.${index}.pris` as const, {
-                setValueAs: (v) => (v === "" ? null : Number(v)),
-              })}
+            <NumberInput<AvtaleFormValues>
+              name={`${field}.satser.${index}.pris`}
+              label={`${avtaletekster.prismodell.pris.label} (${valuta})`}
             />
-            <ControlledDateInput
+            <FormDateInput<AvtaleFormValues>
+              name={`${field}.satser.${index}.gjelderFra`}
               label={avtaletekster.prismodell.periodeStart.label}
               fromDate={fromDate}
               toDate={toDate}
-              onChange={(val) => setValue(`${field}.satser.${index}.gjelderFra` as const, val)}
               required
-              error={
-                errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.gjelderFra
-                  ?.message
-              }
-              defaultSelected={getValues(`${field}.satser.${index}.gjelderFra` as const)}
             />
           </HStack>
           <Spacer />
