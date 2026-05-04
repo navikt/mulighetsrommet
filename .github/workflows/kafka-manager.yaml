@@ -32,7 +32,7 @@ jobs:
       - name: List resource files
         run: echo "RESOURCE_FILES=$(find iac/kafka-manager/dev -type f | tr '\n' ',' | sed 's/,$/\n/')" >> $GITHUB_ENV
       - name: Deploy
-        uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # v2
+        uses: nais/deploy/actions/deploy@2f28259ff29ea37915f5a0c9e2a8e3542c429df7 # v2
         env:
           CLUSTER: dev-gcp
           RESOURCE: ${{ env.RESOURCE_FILES }}
@@ -51,7 +51,7 @@ jobs:
       - name: List resource files
         run: echo "RESOURCE_FILES=$(find iac/kafka-manager/prod -type f | tr '\n' ',' | sed 's/,$/\n/')" >> $GITHUB_ENV
       - name: Deploy
-        uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # v2
+        uses: nais/deploy/actions/deploy@2f28259ff29ea37915f5a0c9e2a8e3542c429df7 # v2
         env:
           CLUSTER: prod-gcp
           RESOURCE: ${{ env.RESOURCE_FILES }}
