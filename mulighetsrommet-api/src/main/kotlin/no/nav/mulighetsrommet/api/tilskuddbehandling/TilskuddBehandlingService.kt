@@ -166,7 +166,7 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
                 tilgangTilHandling(
                     handling = it,
                     navIdent = navIdent,
-                    kostnadssted = behandling.kostnadssted,
+                    kostnadssted = behandling.kostnadssted.enhetsnummer,
                     opprettelse = opprettelse,
                 )
             }

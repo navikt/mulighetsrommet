@@ -122,7 +122,10 @@ export function TilskuddBehandlingDetaljerPage() {
                     { key: "JournalpostID", value: behandling.soknadJournalpostId },
                     { key: "Søknadsdato", value: formaterDato(behandling.soknadDato) },
                     { key: "Periode", value: formaterPeriode(behandling.periode) },
-                    { key: "Kostnadssted", value: behandling.kostnadssted },
+                    {
+                      key: "Kostnadssted",
+                      value: `${behandling.kostnadssted.enhetsnummer} ${behandling.kostnadssted.navn}`,
+                    },
                   ]}
                 />
                 <VStack gap="space-20" align="start">

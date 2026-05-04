@@ -7736,7 +7736,7 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         kostnadssted:
-          type: string
+          $ref: "#/components/schemas/KostnadsstedDto"
         tilskudd:
           type: array
           items:
@@ -7872,7 +7872,7 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         kostnadssted:
-          type: string
+          $ref: "#/components/schemas/KostnadsstedDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
       required:
