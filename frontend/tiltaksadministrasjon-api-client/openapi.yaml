@@ -3414,6 +3414,13 @@ paths:
         explode: false
         schema:
           $ref: "#/components/schemas/EndringshistorikkType"
+      - name: type
+        in: query
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/EndringshistorikkType"
       responses:
         "200":
           description: Endringshistorikk

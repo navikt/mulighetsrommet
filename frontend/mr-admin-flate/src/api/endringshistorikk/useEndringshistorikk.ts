@@ -8,7 +8,7 @@ export function useEndringshistorikk(id: string, type: EndringshistorikkType) {
     queryFn() {
       return EndringshistorikkService.getEndringshistorikk({
         path: { id },
-        query: { documentClass: type },
+        query: { type },
       });
     },
   });
