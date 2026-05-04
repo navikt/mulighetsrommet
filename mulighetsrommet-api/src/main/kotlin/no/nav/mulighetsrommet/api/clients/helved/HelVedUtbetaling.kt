@@ -30,12 +30,15 @@ data class HelVedUtbetaling(
      */
     val behandlingId: String,
     /** Fødselsnummer eller D-nummer til personen som skal motta utbetalingen */
-    val personident: NorskIdent,
+    val personIdent: NorskIdent,
     /** Utbetalingsperiode */
     val periode: Periode,
-    /** Utbetalingslinjer som inngår i utbetalingen */
+    /** NOK beløp til utbetaling */
     val belop: Int,
+    /** Type tilskudd som utbetalingen gjelder for */
     val tilskuddstype: Tilskuddstype,
+    /** Type tiltak som utbetalingen gjelder for */
+    val tiltakskode: Tiltakskode,
     /** Saksbehandleren som har opprettet utbetalingen */
     val saksbehandler: NavIdent,
     /** Beslutteren som har attestert utbetalingen */
@@ -43,13 +46,10 @@ data class HelVedUtbetaling(
     /** Tidspunkt for besluttelse. Bruker ISO 8601-format. */
     @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant,
-    /** Tiltakstypen som utbetalingen gjelder for */
-    val tiltaksType: Tiltakskode,
     /** Bestemmer om utbetalingen er en simulering */
     val dryrun: Boolean,
 ) {
     init {
-        // Kan kanskje flytte dette inn i en validator
         require(1 <= sakId.length && sakId.length <= 25) { "På grunn av begrensninger i OS/UR kan ikke sakId være lengre enn 25 tegn" }
         require(1 <= behandlingId.length && behandlingId.length <= 30) { "På grunn av begrensninger i OS/UR kan ikke denne være lengre enn 30 tegn" }
         require(belop > 0) { "Beløp kan ikke være negativt eller 0" }

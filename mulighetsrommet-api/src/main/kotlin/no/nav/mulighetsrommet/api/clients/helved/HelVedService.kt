@@ -35,14 +35,14 @@ class HelVedService(
             id = UUID.randomUUID(),
             sakId = "2026/test",
             behandlingId = "1",
-            personident = NorskIdent("21528416400"), // Gjørme, Proaktiv
+            personIdent = NorskIdent("21528416400"), // Gjørme, Proaktiv
             periode = Periode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30)),
             belop = 1234,
             tilskuddstype = Tilskuddstype.EKSAMENSGEBYR,
             saksbehandler = NavIdent("Z990279"), // Test NavIdent
             beslutter = NavIdent("Z993433"), // Test NavIdent
             besluttetTidspunkt = Instant.now(),
-            tiltaksType = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+            tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
             dryrun = false,
         )
         val record = ProducerRecord(
