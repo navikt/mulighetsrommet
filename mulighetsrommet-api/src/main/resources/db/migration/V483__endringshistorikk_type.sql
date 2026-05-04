@@ -1,3 +1,19 @@
+drop function if exists version_history(
+    versioning_table text,
+    operation text,
+    document_id uuid,
+    value jsonb,
+    user_id text,
+    ts timestamptz);
+
+drop function if exists version_history(
+    operation text,
+    document_id uuid,
+    document_class document_class,
+    value jsonb,
+    user_id text,
+    ts timestamp with time zone);
+
 alter table endringshistorikk
     alter document_class type text;
 
