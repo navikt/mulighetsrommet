@@ -5,11 +5,13 @@ select
     tb.soknad_journalpost_id,
     tb.soknad_dato,
     tb.periode,
-    tb.kostnadssted,
+    tb.kostnadssted as kostnadssted_enhetsnummer,
+    k.navn as kostnadssted_navn,
     vedtak_json,
     tb.status,
     tb.kommentar_intern
 from tilskudd_behandling tb
+    inner join nav_enhet k on k.enhetsnummer = tb.kostnadssted
     left join lateral (
         select coalesce(jsonb_agg(
             jsonb_build_object(

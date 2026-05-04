@@ -53,7 +53,7 @@ export function TilskuddBehandlingFormPage() {
           periodeStart: yyyyMMddFormatting(behandling.periode.start),
           periodeSlutt: yyyyMMddFormatting(addDuration(behandling.periode.slutt, { days: 1 })),
           soknadJournalpostId: behandling.soknadJournalpostId,
-          kostnadssted: behandling.kostnadssted,
+          kostnadssted: behandling.kostnadssted.enhetsnummer,
           soknadDato: behandling.soknadDato,
           kommentarIntern: behandling.kommentarIntern,
           tilskudd: behandling.tilskudd.map((t) => ({

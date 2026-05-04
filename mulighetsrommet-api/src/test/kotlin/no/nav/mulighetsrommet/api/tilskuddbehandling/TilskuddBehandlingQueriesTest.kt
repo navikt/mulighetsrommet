@@ -101,7 +101,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     it.soknadJournalpostId shouldBe behandling.soknadJournalpostId
                     it.soknadDato shouldBe behandling.soknadDato
                     it.periode shouldBe behandling.periode
-                    it.kostnadssted shouldBe behandling.kostnadssted
+                    it.kostnadssted.enhetsnummer shouldBe behandling.kostnadssted
                     it.kommentarIntern shouldBe behandling.kommentarIntern
 
                     it.tilskudd.size shouldBe 3

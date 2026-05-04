@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -21,7 +21,7 @@ data class TilskuddBehandlingDto(
     @Serializable(with = LocalDateSerializer::class)
     val soknadDato: LocalDate,
     val periode: Periode,
-    val kostnadssted: NavEnhetNummer,
+    val kostnadssted: KostnadsstedDto,
     val tilskudd: List<TilskuddOpplaeringDto>,
     val status: TilskuddBehandlingStatusDto,
     val kommentarIntern: String?,
@@ -43,7 +43,7 @@ data class TilskuddBehandlingKompakt(
     val journalpostId: String,
     val tilskuddtyper: Set<TilskuddOpplaeringType>,
     val periode: Periode,
-    val kostnadssted: NavEnhetNummer,
+    val kostnadssted: KostnadsstedDto,
     val status: TilskuddBehandlingStatusDto,
 )
 

@@ -4,6 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
@@ -162,7 +163,10 @@ private fun Row.toTilskuddBehandlingDto() = TilskuddBehandlingDto(
     soknadJournalpostId = string("soknad_journalpost_id"),
     soknadDato = localDate("soknad_dato"),
     periode = periode("periode"),
-    kostnadssted = NavEnhetNummer(string("kostnadssted")),
+    kostnadssted = KostnadsstedDto(
+        navn = string("kostnadssted_navn"),
+        enhetsnummer = NavEnhetNummer(string("kostnadssted_enhetsnummer")),
+    ),
     tilskudd = Json.decodeFromString<List<TilskuddOpplaeringDto>>(string("vedtak_json")),
     status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(string("status"))),
     kommentarIntern = stringOrNull("kommentar_intern"),
