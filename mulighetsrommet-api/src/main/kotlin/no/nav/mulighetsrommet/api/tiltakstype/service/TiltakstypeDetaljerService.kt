@@ -65,7 +65,7 @@ class TiltakstypeDetaljerService(
         val ansatt = navAnsattService.getNavAnsattByNavIdent(navIdent) ?: return setOf()
         return setOfNotNull(
             TiltakstypeHandling.REDIGER_VEILEDERINFO.takeIf { ansatt.hasGenerellRolle(Rolle.TILTAKSTYPER_SKRIV) },
-            TiltakstypeHandling.REDIGER_DELTAKERINFO.takeIf { ansatt.hasGenerellRolle(Rolle.TILTAKSTYPER_SKRIV) },
+            TiltakstypeHandling.REDIGER_DELTAKERINFO.takeIf { ansatt.hasGenerellRolle(Rolle.TILTAKSTYPER_REDIGER_DELTAKERINFO) },
         )
     }
 

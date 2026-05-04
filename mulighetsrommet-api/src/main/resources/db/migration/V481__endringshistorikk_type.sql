@@ -18,3 +18,6 @@ values ('TILTAKSTYPE'),
 
 alter table endringshistorikk
     add foreign key (document_class) references endringshistorikk_type (value) on update cascade;
+
+insert into nav_ansatt_rolle_type
+values ('TILTAKSTYPER_REDIGER_DELTAKERINFO');

@@ -158,7 +158,9 @@ fun Route.tiltakstypeRoutes() {
 
                 call.respond(result)
             }
+        }
 
+        authorize(Rolle.TILTAKSTYPER_REDIGER_DELTAKERINFO) {
             post("{id}/deltakerinfo", {
                 tags = setOf("Tiltakstype")
                 operationId = "updateDeltakerinfo"

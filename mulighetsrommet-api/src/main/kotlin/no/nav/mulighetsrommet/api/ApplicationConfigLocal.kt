@@ -157,6 +157,7 @@ val ApplicationConfigLocal = AppConfig(
         roles = setOf(
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TEAM_MULIGHETSROMMET),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKSTYPER_SKRIV),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKSTYPER_REDIGER_DELTAKERINFO),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.AVTALER_SKRIV),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKADMINISTRASJON_GENERELL),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.OPPFOLGER_GJENNOMFORING),
