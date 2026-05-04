@@ -20,6 +20,11 @@ enum class Rolle(val visningsnavn: String) {
     TILTAKSTYPER_SKRIV("Skrivetilgang - Tiltakstyper"),
 
     /**
+     * Gir tilgang til å redigere tiltakstypens "innhold for deltakere".
+     */
+    TILTAKSTYPER_REDIGER_DELTAKERINFO("Rediger innhold for deltakere - Tiltakstyper"),
+
+    /**
      * Gir tilgang til alle funksjoner relatert til redigering av gjennomføringer.
      */
     TILTAKSGJENNOMFORINGER_SKRIV("Skrivetilgang - Gjennomføring"),

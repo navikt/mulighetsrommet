@@ -3413,7 +3413,14 @@ paths:
         deprecated: false
         explode: false
         schema:
-          $ref: "#/components/schemas/DocumentClass"
+          $ref: "#/components/schemas/EndringshistorikkType"
+      - name: type
+        in: query
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/EndringshistorikkType"
       responses:
         "200":
           description: Endringshistorikk
@@ -7289,6 +7296,7 @@ components:
       - TEAM_MULIGHETSROMMET
       - TILTAKADMINISTRASJON_GENERELL
       - TILTAKSTYPER_SKRIV
+      - TILTAKSTYPER_REDIGER_DELTAKERINFO
       - TILTAKSGJENNOMFORINGER_SKRIV
       - OPPFOLGER_GJENNOMFORING
       - AVTALER_SKRIV
@@ -7989,9 +7997,10 @@ components:
       required:
       - aarsaker
       - forklaring
-    DocumentClass:
+    EndringshistorikkType:
       type: string
       enum:
+      - TILTAKSTYPE
       - AVTALE
       - GJENNOMFORING
       - TILSAGN

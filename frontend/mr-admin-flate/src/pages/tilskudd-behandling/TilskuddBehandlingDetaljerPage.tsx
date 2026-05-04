@@ -7,7 +7,7 @@ import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklari
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import {
   Besluttelse,
-  DocumentClass,
+  EndringshistorikkType,
   FieldError,
   TilskuddBehandlingHandling,
   TilskuddBehandlingStatus,
@@ -57,7 +57,7 @@ export function TilskuddBehandlingDetaljerPage() {
   } = useTilskuddBehandling(behandlingId);
   const { data: historikk } = useEndringshistorikk(
     behandling.id,
-    DocumentClass.TILSKUDD_BEHANDLING,
+    EndringshistorikkType.TILSKUDD_BEHANDLING,
   );
   const [returModalOpen, setReturModalOpen] = useState(false);
   const [attesterModalOpen, setAttesterModalOpen] = useState(false);

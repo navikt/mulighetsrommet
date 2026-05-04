@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
@@ -318,7 +318,7 @@ class GjennomforingEnkeltplassService(
     ): GjennomforingEnkeltplass {
         val gjennomforing = getAndAquireLock(gjennomforingId)
         queries.endringshistorikk.logEndring(
-            DocumentClass.GJENNOMFORING,
+            EndringshistorikkType.GJENNOMFORING,
             operation,
             endretAv,
             gjennomforingId,

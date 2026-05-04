@@ -99,7 +99,7 @@ val ApplicationConfigDev = AppConfig(
         micrometerRegistry = Metrics.micrometerRegistry,
     ),
     flyway = FlywayMigrationManager.MigrationConfig(
-        strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
+        strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
     ),
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenByteProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
@@ -157,6 +157,11 @@ val ApplicationConfigDev = AppConfig(
                 entraGroupId = "6918b584-8d32-4bd4-a4f2-96f47ae6dd63".toUUID(),
                 kommentar = "0000-CA-Tiltaksadministrasjon_tiltakstype-skriv",
                 rolle = Rolle.TILTAKSTYPER_SKRIV,
+            ),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "12259f4b-f723-4efd-b292-46d48175d0f3".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_tiltakstype-rediger-deltakerinfo",
+                rolle = Rolle.TILTAKSTYPER_REDIGER_DELTAKERINFO,
             ),
             EntraGroupNavAnsattRolleMapping(
                 entraGroupId = "48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(),

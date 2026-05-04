@@ -18,7 +18,7 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -381,7 +381,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                     gruppe.apentForPamelding shouldBe false
                 }
 
-                queries.endringshistorikk.getEndringshistorikk(DocumentClass.GJENNOMFORING, gjennomforing.id)
+                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
                     .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
                         it.operation shouldBe "Gjennomføringen ble avbrutt"
                     }
@@ -449,7 +449,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                     gruppe.status shouldBe GjennomforingStatusType.AVSLUTTET
                 }
 
-                queries.endringshistorikk.getEndringshistorikk(DocumentClass.GJENNOMFORING, gjennomforing.id)
+                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
                     .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
                         it.operation shouldBe "Gjennomføringen ble avsluttet"
                     }

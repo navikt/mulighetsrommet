@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
@@ -377,7 +377,7 @@ class GenererUtbetalingService(
     ): Utbetaling {
         val utbetaling = getOrError(id)
         queries.endringshistorikk.logEndring(
-            DocumentClass.UTBETALING,
+            EndringshistorikkType.UTBETALING,
             operation,
             endretAv,
             id,

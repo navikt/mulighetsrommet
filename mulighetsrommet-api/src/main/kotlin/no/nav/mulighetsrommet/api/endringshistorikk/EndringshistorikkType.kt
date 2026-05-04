@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.endringshistorikk
 
-enum class DocumentClass {
+enum class EndringshistorikkType {
+    TILTAKSTYPE,
     AVTALE,
     GJENNOMFORING,
     TILSAGN,

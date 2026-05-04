@@ -15,7 +15,7 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
@@ -435,7 +435,7 @@ class GjennomforingAvtaleService(
     ): GjennomforingAvtale {
         val gjennomforing = getOrError(gjennomforingId)
         queries.endringshistorikk.logEndring(
-            DocumentClass.GJENNOMFORING,
+            EndringshistorikkType.GJENNOMFORING,
             operation,
             endretAv,
             gjennomforingId,

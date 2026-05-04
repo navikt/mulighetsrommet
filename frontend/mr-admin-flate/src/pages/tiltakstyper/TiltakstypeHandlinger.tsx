@@ -1,10 +1,13 @@
+import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { ActionMenu } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "@/hooks/useGetTiltakstypeIdFromUrl";
 import { useTiltakstypeHandlinger } from "@/api/tiltakstyper/useTiltakstypeHandlinger";
-import { TiltakstypeHandling } from "@tiltaksadministrasjon/api-client";
+import { EndringshistorikkType, TiltakstypeHandling } from "@tiltaksadministrasjon/api-client";
+import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 export function TiltakstypeHandlinger() {
   const navigate = useNavigate();
@@ -13,6 +16,9 @@ export function TiltakstypeHandlinger() {
 
   return (
     <KnapperadContainer>
+      <EndringshistorikkPopover>
+        <TiltakstypeEndringshistorikk id={tiltakstypeId} />
+      </EndringshistorikkPopover>
       <Handlinger>
         {handlinger.includes(TiltakstypeHandling.REDIGER_VEILEDERINFO) && (
           <ActionMenu.Item
@@ -31,4 +37,10 @@ export function TiltakstypeHandlinger() {
       </Handlinger>
     </KnapperadContainer>
   );
+}
+
+function TiltakstypeEndringshistorikk({ id }: { id: string }) {
+  const historikk = useEndringshistorikk(id, EndringshistorikkType.TILTAKSTYPE);
+
+  return <ViewEndringshistorikk historikk={historikk.data} />;
 }

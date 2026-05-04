@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import java.util.UUID
@@ -41,6 +42,8 @@ class TiltakstypeDetaljerServiceTest : FunSpec({
     ) {
         queries.tiltakstype.setSanityId(TiltakstypeFixtures.AFT.id, sanityId)
     }
+
+    val navIdent = NavIdent("Z999999")
 
     beforeSpec {
         domain.initialize(database.db)
@@ -73,6 +76,7 @@ class TiltakstypeDetaljerServiceTest : FunSpec({
                     faglenker = listOf(domain.regelverklenke[0].id),
                     kanKombineresMed = emptyList(),
                 ),
+                navIdent,
             )
 
             val dto = service.getById(TiltakstypeFixtures.AFT.id).shouldNotBeNull()
@@ -98,7 +102,7 @@ class TiltakstypeDetaljerServiceTest : FunSpec({
                 kanKombineresMed = listOf(),
             )
 
-            val dto = service.upsertVeilederinfo(TiltakstypeFixtures.AFT.id, request).shouldNotBeNull()
+            val dto = service.upsertVeilederinfo(TiltakstypeFixtures.AFT.id, request, navIdent).shouldNotBeNull()
 
             dto.veilederinfo shouldBe TiltakstypeVeilderinfo(
                 beskrivelse = "Oppdatert beskrivelse",
@@ -123,7 +127,7 @@ class TiltakstypeDetaljerServiceTest : FunSpec({
         test("publiserer til kafka for tiltakstyper med system TILTAKSADMINISTRASJON") {
             val service = createService()
 
-            service.upsertDeltakerinfo(TiltakstypeFixtures.AFT.id, request)
+            service.upsertDeltakerinfo(TiltakstypeFixtures.AFT.id, request, navIdent)
 
             database.run {
                 val records = queries.kafkaProducerRecord.getRecords(10, listOf(TEST_TILTAKSTYPE_TOPIC))
@@ -138,7 +142,7 @@ class TiltakstypeDetaljerServiceTest : FunSpec({
         test("publiserer ikke til kafka for tiltakstyper med system ARENA") {
             val service = createService()
 
-            service.upsertDeltakerinfo(TiltakstypeFixtures.IPS.id, request)
+            service.upsertDeltakerinfo(TiltakstypeFixtures.IPS.id, request, navIdent)
 
             database.run {
                 queries.kafkaProducerRecord.getRecords(10, listOf(TEST_TILTAKSTYPE_TOPIC)).shouldBeEmpty()
