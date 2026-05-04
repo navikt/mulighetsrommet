@@ -6,14 +6,14 @@ import {
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import {
-  Alert,
   Box,
   Button,
   Heading,
   HGrid,
   HStack,
+  InfoCard,
+  Link,
   Loader,
-  Textarea,
   TextField,
   VStack,
 } from "@navikt/ds-react";
@@ -22,14 +22,16 @@ import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement, Suspense } from "react";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 import { useOpprettTilsagn } from "@/api/tilsagn/mutations";
 import { VelgDeltakere } from "./VelgDeltakere";
+import { FormDateInput } from "@/components/skjema/FormDateInput";
+import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { applyValidationErrors } from "@/components/skjema/helpers";
+import { InformationSquareIcon } from "@navikt/aksel-icons";
 
 interface Props {
   onSuccess: () => void;
@@ -56,12 +58,6 @@ export function TilsagnForm(props: Props) {
       kostnadssted: forhandsvalgKostnadssted,
     } as TilsagnRequest,
   });
-  const {
-    handleSubmit,
-    register,
-    clearErrors,
-    formState: { errors },
-  } = form;
 
   const postData: SubmitHandler<TilsagnRequest> = async (data): Promise<void> => {
     const request: TilsagnRequest = {
@@ -83,7 +79,7 @@ export function TilsagnForm(props: Props) {
   const toDate = addDuration(new Date(), { years: 1 });
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit(postData)}>
+      <form onSubmit={form.handleSubmit(postData)}>
         <VStack gap="space-8">
           <Box borderColor="neutral-subtle" padding="space-16" borderWidth="1" borderRadius="8">
             <Heading className="my-3" size="medium" level="3">
@@ -96,31 +92,20 @@ export function TilsagnForm(props: Props) {
                   label="Tilsagnstype"
                   readOnly
                   value={avtaletekster.tilsagn.type(tilsagnstype)}
-                  className="max-w-fit"
                 />
                 {tilsagnstype === TilsagnType.INVESTERING && <InfomeldingOmInvesteringsTilsagn />}
-                <HGrid columns={2}>
-                  <ControlledDateInput
+                <HGrid gap="space-16" align="start" columns={2}>
+                  <FormDateInput<TilsagnRequest>
+                    name="periodeStart"
                     label={tilsagnTekster.periode.start.label}
                     fromDate={fromDate}
                     toDate={toDate}
-                    defaultSelected={form.getValues("periodeStart")}
-                    onChange={(val) => {
-                      form.setValue("periodeStart", val);
-                    }}
-                    clearErrors={() => clearErrors("periodeStart")}
-                    error={errors.periodeStart?.message}
                   />
-                  <ControlledDateInput
+                  <FormDateInput<TilsagnRequest>
+                    name="periodeSlutt"
                     label={tilsagnTekster.periode.slutt.label}
                     fromDate={fromDate}
                     toDate={toDate}
-                    defaultSelected={form.getValues("periodeSlutt")}
-                    clearErrors={() => clearErrors("periodeSlutt")}
-                    onChange={(val) => {
-                      form.setValue("periodeSlutt", val);
-                    }}
-                    error={errors.periodeSlutt?.message}
                   />
                 </HGrid>
                 <VelgKostnadssted kostnadssteder={kostnadssteder} />
@@ -128,19 +113,15 @@ export function TilsagnForm(props: Props) {
                 <Suspense fallback={<Loader size="small" />}>
                   <VelgDeltakere gjennomforingId={gjennomforing.id} />
                 </Suspense>
-                <Textarea
-                  size="small"
-                  error={errors.kommentar?.message}
+                <FormTextarea<TilsagnRequest>
+                  name="kommentar"
                   label={tilsagnTekster.kommentar.label}
                   maxLength={500}
-                  {...register("kommentar")}
                 />
-                <Textarea
-                  size="small"
-                  error={errors.beskrivelse?.message}
+                <FormTextarea<TilsagnRequest>
+                  name="beskrivelse"
                   label={tilsagnTekster.beskrivelse.label}
                   maxLength={250}
-                  {...register("beskrivelse")}
                 />
               </VStack>
               <TilsagnBeregningPreview />
@@ -156,11 +137,6 @@ export function TilsagnForm(props: Props) {
                 {mutation.isPending ? "Sender til godkjenning" : "Send til godkjenning"}
               </Button>
             </HStack>
-            {errors.id?.message && (
-              <Alert className="self-end" variant="error" size="small">
-                {errors.id.message}
-              </Alert>
-            )}
           </VStack>
         </VStack>
       </form>
@@ -170,28 +146,30 @@ export function TilsagnForm(props: Props) {
 
 function InfomeldingOmInvesteringsTilsagn() {
   return (
-    <Alert size="small" variant="info" className="my-3">
-      <Heading size="xsmall" spacing>
-        Tilsagn for investeringer
-      </Heading>
-      Tilsagn for investeringer skal brukes ved opprettelse av nye tiltaksplasser, jfr.
-      tiltaksforskriften §§{" "}
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://lovdata.no/forskrift/2015-12-11-1598/§13-8"
-      >
-        13-8
-      </a>{" "}
-      og{" "}
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://lovdata.no/forskrift/2015-12-11-1598/§14-9"
-      >
-        14-9
-      </a>
-      . Det kan ikke brukes til å utbetale ordinære driftsmidler til tiltaksarrangør.
-    </Alert>
+    <InfoCard>
+      <InfoCard.Header icon={<InformationSquareIcon aria-hidden />}>
+        <InfoCard.Title>Tilsagn for investeringer</InfoCard.Title>
+      </InfoCard.Header>
+      <InfoCard.Content>
+        Tilsagn for investeringer skal brukes ved opprettelse av nye tiltaksplasser, jfr.
+        tiltaksforskriften §§{" "}
+        <Link
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://lovdata.no/forskrift/2015-12-11-1598/§13-8"
+        >
+          13-8
+        </Link>{" "}
+        og{" "}
+        <Link
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://lovdata.no/forskrift/2015-12-11-1598/§14-9"
+        >
+          14-9
+        </Link>
+        . Det kan ikke brukes til å utbetale ordinære driftsmidler til tiltaksarrangør.
+      </InfoCard.Content>
+    </InfoCard>
   );
 }

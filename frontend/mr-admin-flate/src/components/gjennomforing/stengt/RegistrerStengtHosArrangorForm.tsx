@@ -1,10 +1,11 @@
 import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArrangor";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { SetStengtHosArrangorRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 import { FloppydiskIcon } from "@navikt/aksel-icons";
-import { Alert, Box, Button, HStack, TextField, VStack } from "@navikt/ds-react";
+import { Alert, Box, Button, HStack, VStack } from "@navikt/ds-react";
 import { FormProvider, useForm } from "react-hook-form";
+import { FormDateInput } from "@/components/skjema/FormDateInput";
+import { FormTextField } from "@/components/skjema/FormTextField";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 
 interface RegistrerStengtHosArrangorFormProps {
@@ -17,8 +18,6 @@ export function RegistrerStengtHosArrangorForm({
   const setStengtHosArrangor = useSetStengtHosArrangor(gjennomforingId);
 
   const form = useForm<SetStengtHosArrangorRequest>({});
-
-  const { register, handleSubmit, formState, getValues, setValue } = form;
 
   function onSubmit(data: SetStengtHosArrangorRequest) {
     setStengtHosArrangor.mutate(data, {
@@ -35,7 +34,7 @@ export function RegistrerStengtHosArrangorForm({
   return (
     <FormProvider {...form}>
       <form
-        onSubmit={handleSubmit((values) => {
+        onSubmit={form.handleSubmit((values) => {
           onSubmit(values);
         })}
       >
@@ -49,29 +48,20 @@ export function RegistrerStengtHosArrangorForm({
           >
             <VStack gap="space-8">
               <HStack gap="space-16">
-                <ControlledDateInput
+                <FormDateInput<SetStengtHosArrangorRequest>
+                  name="periodeStart"
                   label="Periode start"
-                  defaultSelected={getValues("periodeStart")}
-                  onChange={(val) => setValue("periodeStart", val)}
-                  error={formState.errors.periodeStart?.message}
                   fromDate={minDate}
                   toDate={maxDate}
                 />
-                <ControlledDateInput
+                <FormDateInput<SetStengtHosArrangorRequest>
+                  name="periodeSlutt"
                   label="Periode slutt"
-                  defaultSelected={getValues("periodeSlutt")}
-                  onChange={(val) => setValue("periodeSlutt", val)}
-                  error={formState.errors.periodeSlutt?.message}
                   fromDate={minDate}
                   toDate={maxDate}
                 />
               </HStack>
-              <TextField
-                size="small"
-                label="Beskrivelse"
-                error={formState.errors.beskrivelse?.message as string}
-                {...register("beskrivelse")}
-              />
+              <FormTextField<SetStengtHosArrangorRequest> name="beskrivelse" label="Beskrivelse" />
             </VStack>
           </Box>
           {setStengtHosArrangor.error && (

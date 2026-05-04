@@ -70,32 +70,30 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
   return (
     <VStack gap="space-16">
       {!forhandsgodkjent && (
-        <HGrid columns={2}>
-          <FormSelect
-            readOnly={opsjonUtlost}
-            label="Avtalt mulighet for forlengelse"
-            size="small"
-            name={"detaljer.opsjonsmodell.type"}
-            rules={{
-              onChange: (e) => {
-                const opsjonsmodell = gjeldendeOpsjonsmodeller.find(
-                  (modell) => modell.type === e.target.value,
-                );
-                if (opsjonsmodell) {
-                  setValue("detaljer.opsjonsmodell.customOpsjonsmodellNavn", undefined);
-                  setValue("detaljer.opsjonsmodell.opsjonMaksVarighet", undefined);
-                }
-              },
-            }}
-          >
-            <option value={undefined}>Velg avtalt mulighet for forlengelse</option>
-            {gjeldendeOpsjonsmodeller.map((modell) => (
-              <option key={modell.type} value={modell.type}>
-                {modell.label}
-              </option>
-            ))}
-          </FormSelect>
-        </HGrid>
+        <FormSelect
+          readOnly={opsjonUtlost}
+          label="Avtalt mulighet for forlengelse"
+          size="small"
+          name={"detaljer.opsjonsmodell.type"}
+          rules={{
+            onChange: (e) => {
+              const opsjonsmodell = gjeldendeOpsjonsmodeller.find(
+                (modell) => modell.type === e.target.value,
+              );
+              if (opsjonsmodell) {
+                setValue("detaljer.opsjonsmodell.customOpsjonsmodellNavn", undefined);
+                setValue("detaljer.opsjonsmodell.opsjonMaksVarighet", undefined);
+              }
+            },
+          }}
+        >
+          <option value={undefined}>Velg avtalt mulighet for forlengelse</option>
+          {gjeldendeOpsjonsmodeller.map((modell) => (
+            <option key={modell.type} value={modell.type}>
+              {modell.label}
+            </option>
+          ))}
+        </FormSelect>
       )}
       {opsjonsmodell?.type === "ANNET" && (
         <FormTextField
@@ -108,7 +106,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
         />
       )}
       {opsjonsmodell?.kreverMaksVarighet ? (
-        <HGrid columns={3} gap="space-20" align="end">
+        <HGrid columns={3} gap="space-16" align="start">
           <FormDateInput
             label={avtaletekster.startdatoLabel}
             readOnly={opsjonUtlost}
@@ -136,7 +134,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
           />
         </HGrid>
       ) : (
-        <HGrid columns={3} gap="space-40">
+        <HGrid columns={3} gap="space-16" align="start">
           <FormDateInput
             name={"detaljer.startDato"}
             label={avtaletekster.startdatoLabel}

@@ -113,7 +113,7 @@ export function AvtaleDetaljerForm() {
           </HGrid>
         </FormGroup>
         <FormGroup>
-          <HGrid gap="space-16" columns={2} align="start">
+          <HGrid gap="space-16" align="start" columns={2}>
             <FormSelect<AvtaleFormValues>
               name="detaljer.tiltakskode"
               label={avtaletekster.tiltakstypeLabel}
@@ -152,10 +152,7 @@ export function AvtaleDetaljerForm() {
             name="detaljer.administratorer"
             id="administratorer"
             label={
-              <LabelWithHelpText
-                label={avtaletekster.administratorerForAvtalenLabel}
-                helpTextTitle="Mer informasjon"
-              >
+              <LabelWithHelpText label={avtaletekster.administratorerForAvtalenLabel}>
                 Bestemmer hvem som eier avtalen. Notifikasjoner sendes til administratorene.
               </LabelWithHelpText>
             }
