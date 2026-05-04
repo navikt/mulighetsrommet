@@ -13,7 +13,6 @@ import {
   HGrid,
   HStack,
   Loader,
-  Textarea,
   TextField,
   VStack,
 } from "@navikt/ds-react";
@@ -22,13 +21,14 @@ import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement, Suspense } from "react";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 import { useOpprettTilsagn } from "@/api/tilsagn/mutations";
 import { VelgDeltakere } from "./VelgDeltakere";
+import { FormDateInput } from "@/components/skjema/FormDateInput";
+import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 
 interface Props {
@@ -58,8 +58,6 @@ export function TilsagnForm(props: Props) {
   });
   const {
     handleSubmit,
-    register,
-    clearErrors,
     formState: { errors },
   } = form;
 
@@ -96,31 +94,20 @@ export function TilsagnForm(props: Props) {
                   label="Tilsagnstype"
                   readOnly
                   value={avtaletekster.tilsagn.type(tilsagnstype)}
-                  className="max-w-fit"
                 />
                 {tilsagnstype === TilsagnType.INVESTERING && <InfomeldingOmInvesteringsTilsagn />}
-                <HGrid columns={2}>
-                  <ControlledDateInput
+                <HGrid gap="space-16" align="start" columns={2}>
+                  <FormDateInput<TilsagnRequest>
+                    name="periodeStart"
                     label={tilsagnTekster.periode.start.label}
                     fromDate={fromDate}
                     toDate={toDate}
-                    defaultSelected={form.getValues("periodeStart")}
-                    onChange={(val) => {
-                      form.setValue("periodeStart", val);
-                    }}
-                    clearErrors={() => clearErrors("periodeStart")}
-                    error={errors.periodeStart?.message}
                   />
-                  <ControlledDateInput
+                  <FormDateInput<TilsagnRequest>
+                    name="periodeSlutt"
                     label={tilsagnTekster.periode.slutt.label}
                     fromDate={fromDate}
                     toDate={toDate}
-                    defaultSelected={form.getValues("periodeSlutt")}
-                    clearErrors={() => clearErrors("periodeSlutt")}
-                    onChange={(val) => {
-                      form.setValue("periodeSlutt", val);
-                    }}
-                    error={errors.periodeSlutt?.message}
                   />
                 </HGrid>
                 <VelgKostnadssted kostnadssteder={kostnadssteder} />
@@ -128,19 +115,15 @@ export function TilsagnForm(props: Props) {
                 <Suspense fallback={<Loader size="small" />}>
                   <VelgDeltakere gjennomforingId={gjennomforing.id} />
                 </Suspense>
-                <Textarea
-                  size="small"
-                  error={errors.kommentar?.message}
+                <FormTextarea<TilsagnRequest>
+                  name="kommentar"
                   label={tilsagnTekster.kommentar.label}
                   maxLength={500}
-                  {...register("kommentar")}
                 />
-                <Textarea
-                  size="small"
-                  error={errors.beskrivelse?.message}
+                <FormTextarea<TilsagnRequest>
+                  name="beskrivelse"
                   label={tilsagnTekster.beskrivelse.label}
                   maxLength={250}
-                  {...register("beskrivelse")}
                 />
               </VStack>
               <TilsagnBeregningPreview />
