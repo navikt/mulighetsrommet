@@ -56,10 +56,6 @@ export function TilsagnForm(props: Props) {
       kostnadssted: forhandsvalgKostnadssted,
     } as TilsagnRequest,
   });
-  const {
-    handleSubmit,
-    formState: { errors },
-  } = form;
 
   const postData: SubmitHandler<TilsagnRequest> = async (data): Promise<void> => {
     const request: TilsagnRequest = {
@@ -81,7 +77,7 @@ export function TilsagnForm(props: Props) {
   const toDate = addDuration(new Date(), { years: 1 });
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit(postData)}>
+      <form onSubmit={form.handleSubmit(postData)}>
         <VStack gap="space-8">
           <Box borderColor="neutral-subtle" padding="space-16" borderWidth="1" borderRadius="8">
             <Heading className="my-3" size="medium" level="3">
@@ -139,11 +135,6 @@ export function TilsagnForm(props: Props) {
                 {mutation.isPending ? "Sender til godkjenning" : "Send til godkjenning"}
               </Button>
             </HStack>
-            {errors.id?.message && (
-              <Alert className="self-end" variant="error" size="small">
-                {errors.id.message}
-              </Alert>
-            )}
           </VStack>
         </VStack>
       </form>
