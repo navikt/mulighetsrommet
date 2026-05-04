@@ -147,9 +147,10 @@ fun Route.tiltakstypeRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
+                val navIdent = getNavIdent()
                 val request = call.receive<TiltakstypeVeilederinfoRequest>()
 
-                val result = tiltakstypeDetaljerService.upsertVeilederinfo(id, request)
+                val result = tiltakstypeDetaljerService.upsertVeilederinfo(id, request, navIdent)
                     ?: return@post call.respondText(
                         "Det finnes ikke noe tiltakstype med id $id",
                         status = HttpStatusCode.NotFound,
@@ -180,9 +181,10 @@ fun Route.tiltakstypeRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
+                val navIdent = getNavIdent()
                 val request = call.receive<TiltakstypeDeltakerinfoRequest>()
 
-                val result = tiltakstypeDetaljerService.upsertDeltakerinfo(id, request)
+                val result = tiltakstypeDetaljerService.upsertDeltakerinfo(id, request, navIdent)
                     ?: return@post call.respondText(
                         "Det finnes ikke noe tiltakstype med id $id",
                         status = HttpStatusCode.NotFound,

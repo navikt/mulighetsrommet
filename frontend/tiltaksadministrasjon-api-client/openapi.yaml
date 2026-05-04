@@ -7992,6 +7992,7 @@ components:
     EndringshistorikkType:
       type: string
       enum:
+      - TILTAKSTYPE
       - AVTALE
       - GJENNOMFORING
       - TILSAGN

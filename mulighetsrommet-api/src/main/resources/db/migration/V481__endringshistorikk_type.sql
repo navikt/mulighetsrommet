@@ -9,7 +9,8 @@ create table endringshistorikk_type
 );
 
 insert into endringshistorikk_type(value)
-values ('AVTALE'),
+values ('TILTAKSTYPE'),
+       ('AVTALE'),
        ('GJENNOMFORING'),
        ('TILSAGN'),
        ('UTBETALING'),
