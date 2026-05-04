@@ -3407,13 +3407,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - name: documentClass
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          $ref: "#/components/schemas/EndringshistorikkType"
       - name: type
         in: query
         required: true
@@ -3442,7 +3435,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 17
+        - 18
     RedaksjoneltInnholdLenke:
       type: object
       properties:

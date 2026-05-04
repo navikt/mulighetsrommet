@@ -4,7 +4,6 @@ import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
-import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
@@ -22,7 +21,6 @@ fun Route.endringshistorikkRoutes() {
         operationId = "getEndringshistorikk"
         request {
             pathParameterUuid("id")
-            queryParameter<EndringshistorikkType>("documentClass")
             queryParameter<EndringshistorikkType>("type") {
                 required = true
             }
@@ -39,9 +37,7 @@ fun Route.endringshistorikkRoutes() {
         }
     }) {
         val id: UUID by call.parameters
-        val type: EndringshistorikkType =
-            call.parameters["type"]?.let { EndringshistorikkType.valueOf(it) }
-                ?: call.parameters.getOrFail("documentClass").let { EndringshistorikkType.valueOf(it) }
+        val type: EndringshistorikkType by call.parameters
 
         val historikk = db.session { queries.endringshistorikk.getEndringshistorikk(type, id) }
 
