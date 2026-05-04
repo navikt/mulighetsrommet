@@ -1,5 +1,14 @@
-import { Skeleton } from "@navikt/ds-react";
-import { Oppskrift, Tiltakskode } from "@api-client";
+import {
+  BodyLong,
+  BodyShort,
+  Box,
+  Heading,
+  HGrid,
+  Skeleton,
+  Spacer,
+  VStack,
+} from "@navikt/ds-react";
+import { Tiltakskode } from "@api-client";
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { formaterDato } from "@/utils/Utils";
 import { Suspense } from "react";
@@ -25,36 +34,35 @@ export function OppskriftOversikt({ tiltakskode, setOppskriftId }: Props) {
 
   return (
     <Suspense fallback={<Skeleton variant="rectangle" width="15rem" height={200} />}>
-      <ul className="list-none m-0 p-0 flex gap-4 flex-1">
-        {oppskrifter.data.map((oppskrift) => {
+      <HGrid columns={{ xs: "repeat(auto-fit, minmax(1rem, 1fr))" }} gap="space-16">
+        {oppskrifter.data.map((o) => {
           return (
-            <li
-              className="bg-gray-50 rounded-[0.2rem] transition-all ease-in-out duration-350 hover:drop-shadow-[0_2px_2px_rgba(0,0,0,0.25)]"
-              key={oppskrift._id}
+            <Box
+              as="button"
+              type="button"
+              key={o._id}
+              background="info-moderate"
+              padding="space-16"
+              borderColor="info"
+              borderWidth="1"
+              borderRadius="2"
+              onClick={() => setOppskriftId(o._id)}
+              className="hover:bg-ax-info-100 cursor-pointer text-left"
             >
-              <span role="button" onClick={() => setOppskriftId(oppskrift._id)}>
-                <Oppskriftskort oppskrift={oppskrift} />
-              </span>
-            </li>
+              <VStack height="100%" align="start">
+                <Heading level="4" size="xsmall" spacing>
+                  {o.navn}
+                </Heading>
+                <BodyLong spacing>{o.beskrivelse}</BodyLong>
+                <Spacer />
+                <BodyShort size="small">
+                  Oppdatert: {formaterDato(new Date(o._updatedAt))}
+                </BodyShort>
+              </VStack>
+            </Box>
           );
         })}
-      </ul>
+      </HGrid>
     </Suspense>
-  );
-}
-
-interface OppskriftKortProps {
-  oppskrift: Oppskrift;
-}
-
-function Oppskriftskort({ oppskrift: { navn, beskrivelse, _updatedAt } }: OppskriftKortProps) {
-  return (
-    <div className="w-60 p-2 flex flex-col justify-between h-full hover:cursor-pointer">
-      <div>
-        <h3 className="underline">{navn}</h3>
-        <p>{beskrivelse}</p>
-      </div>
-      <small>Oppdatert: {formaterDato(new Date(_updatedAt))}</small>
-    </div>
   );
 }

@@ -1,11 +1,10 @@
-import { BodyShort, Box } from "@navikt/ds-react";
+import { BodyShort, Box, CopyButton, HStack, VStack } from "@navikt/ds-react";
 import {
   GjennomforingOppstartstype,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltak,
 } from "@api-client";
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
-import Kopiknapp from "../kopiknapp/Kopiknapp";
 import { Faglenker } from "./Faglenker";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
@@ -26,82 +25,84 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
   const arrangor = "arrangor" in tiltak ? tiltak.arrangor : null;
 
   return (
-    <Box
-      padding="space-20"
-      background="neutral-soft"
-      id="sidemeny"
-      className="max-w-[360px] xl:max-w-none"
-    >
-      {lopenummer && (
-        <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+    <Box padding="space-20" background="neutral-soft" id="sidemeny">
+      <VStack gap="space-24">
+        {lopenummer && (
+          <HStack align="center" justify="space-between">
+            <BodyShort size="small" className="font-bold text-left">
+              Løpenummer
+            </BodyShort>
+            <HStack align="center" gap="space-4">
+              <BodyShort size="small">{lopenummer}</BodyShort>
+              <CopyButton data-color="accent" size="xsmall" copyText={lopenummer} />
+            </HStack>
+          </HStack>
+        )}
+        {tiltaksnummer && (
+          <HStack align="center" justify="space-between">
+            <BodyShort size="small" className="font-bold text-left">
+              Tiltaksnummer i Arena
+            </BodyShort>
+            <HStack align="center" gap="space-4">
+              <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
+              <CopyButton
+                data-color="accent"
+                size="xsmall"
+                copyText={utledLopenummerFraTiltaksnummer(tiltaksnummer)}
+              />
+            </HStack>
+          </HStack>
+        )}
+        <HStack align="center" justify="space-between">
           <BodyShort size="small" className="font-bold text-left">
-            Løpenummer
+            Tiltakstype
           </BodyShort>
-          <div className="flex items-start justify-end gap-1">
-            <BodyShort size="small">{lopenummer}</BodyShort>
-            <Kopiknapp kopitekst={lopenummer} dataTestId="knapp_kopier" />
-          </div>
-        </div>
-      )}
-      {tiltaksnummer && (
-        <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
-          <BodyShort size="small" className="font-bold text-left">
-            Tiltaksnummer i Arena
+          <BodyShort size="small">{tiltakstype.navn} </BodyShort>
+        </HStack>
+        {arrangor && (
+          <HStack align="center" justify="space-between">
+            <BodyShort size="small" className="font-bold text-left">
+              Arrangør
+            </BodyShort>
+            <BodyShort size="small">{arrangor.selskapsnavn}</BodyShort>
+          </HStack>
+        )}
+        <HStack align="center" justify="space-between">
+          <BodyShort
+            title="Minimum krav innsatsgruppe"
+            size="small"
+            className="font-bold text-left"
+          >
+            <abbr title="Minimum">Min</abbr>. innsatsgruppe
           </BodyShort>
-          <div className="flex items-start justify-end gap-1">
-            <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
-            <Kopiknapp
-              kopitekst={utledLopenummerFraTiltaksnummer(tiltaksnummer)}
-              dataTestId="knapp_kopier"
+          <BodyShort size="small">{minimumInnsatsgruppe.tittel}</BodyShort>
+        </HStack>
+        <TiltakVarighetInfo tiltak={tiltak} />
+        {tiltakstype.faglenker && (
+          <HStack align="start" justify="space-between">
+            <BodyShort size="small" className="font-bold text-left">
+              Regelverk og rutiner
+            </BodyShort>
+            <Faglenker
+              faglenker={[
+                ...tiltakstype.faglenker,
+                {
+                  id: "avslag-og-klage",
+                  navn: "Avslag og klage",
+                  url: "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
+                  beskrivelse: null,
+                },
+                {
+                  id: "tiltak-hos-familie",
+                  navn: "Tiltak hos familie/nærstående",
+                  url: "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
+                  beskrivelse: null,
+                },
+              ]}
             />
-          </div>
-        </div>
-      )}
-      <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
-        <BodyShort size="small" className="font-bold text-left">
-          Tiltakstype
-        </BodyShort>
-        <BodyShort size="small">{tiltakstype.navn} </BodyShort>
-      </div>
-      {arrangor && (
-        <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
-          <BodyShort size="small" className="font-bold text-left">
-            Arrangør
-          </BodyShort>
-          <BodyShort size="small">{arrangor.selskapsnavn}</BodyShort>
-        </div>
-      )}
-      <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
-        <BodyShort title="Minimum krav innsatsgruppe" size="small" className="font-bold text-left">
-          <abbr title="Minimum">Min</abbr>. innsatsgruppe
-        </BodyShort>
-        <BodyShort size="small">{minimumInnsatsgruppe.tittel}</BodyShort>
-      </div>
-      <TiltakVarighetInfo tiltak={tiltak} />
-      {tiltakstype.faglenker && (
-        <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
-          <BodyShort size="small" className="font-bold text-left">
-            Regelverk og rutiner
-          </BodyShort>
-          <Faglenker
-            faglenker={[
-              ...tiltakstype.faglenker,
-              {
-                id: "avslag-og-klage",
-                navn: "Avslag og klage",
-                url: "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
-                beskrivelse: null,
-              },
-              {
-                id: "tiltak-hos-familie",
-                navn: "Tiltak hos familie/nærstående",
-                url: "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
-                beskrivelse: null,
-              },
-            ]}
-          />
-        </div>
-      )}
+          </HStack>
+        )}
+      </VStack>
     </Box>
   );
 };
@@ -132,15 +133,12 @@ function TiltakVarighetInfo({ tiltak }: { tiltak: VeilederflateTiltak }) {
         ];
 
   return elementer.map(({ tittel, innhold }) => (
-    <div
-      key={tittel}
-      className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4"
-    >
+    <HStack align="center" justify="space-between" key={tittel}>
       <BodyShort size="small" className="font-bold text-left">
         {tittel}
       </BodyShort>
       <BodyShort size="small">{innhold}</BodyShort>
-    </div>
+    </HStack>
   ));
 }
 

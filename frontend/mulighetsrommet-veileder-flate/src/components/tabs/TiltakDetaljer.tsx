@@ -1,8 +1,7 @@
-import { Tabs } from "@navikt/ds-react";
+import { Box, Tabs } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@api-client";
 import { OppskriftOversikt } from "../oppskrift/OppskriftOversikt";
 import { TiltakDetaljerFane } from "./TiltakDetaljerFane";
-import styles from "./TiltakDetaljer.module.scss";
 import { KontaktinfoFane } from "./kontaktinfofane/KontaktinfoFane";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@/utils/ErrorFallback";
@@ -35,22 +34,18 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
       defaultValue="tab1"
       size="small"
       selectionFollowsFocus
-      className={`row-start-3 max-w-none xl:row-start-auto xl:max-w-[auto] mb-8`}
       onChange={(value) => {
         if (value !== "tab5") {
           setOppskriftId(undefined);
         }
       }}
     >
-      <Tabs.List
-        className={`${styles.fane_liste} flex flex-row border-b border-border-subtle gap-1.5 xl:justify-start justify-between`}
-        id="fane_liste"
-      >
+      <Tabs.List id="fane_liste">
         {faneoverskrifter.map((fane, index) => (
           <Tabs.Tab key={index} value={`tab${index + 1}`} label={fane} className="w-fit" />
         ))}
       </Tabs.List>
-      <div className="mt-6" data-testid="fane_panel">
+      <Box margin="space-16" data-testid="fane_panel">
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Tabs.Panel value="tab1">
             <TiltakDetaljerFane
@@ -91,7 +86,7 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
             )}
           </Tabs.Panel>
         </ErrorBoundary>
-      </div>
+      </Box>
     </Tabs>
   );
 }
