@@ -34,6 +34,7 @@ import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormCombobox } from "@/components/skjema/FormCombobox";
+import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 import { NumberInput } from "@/components/skjema/NumberInput";
 
 interface Props {
@@ -235,7 +236,7 @@ export function GjennomforingFormDetaljer(props: Props) {
         </SkjemaKolonne>
         <SkjemaKolonne>
           <FormGroup>
-            <FormCombobox<GjennomforingFormValues>
+            <FormComboboxMulti<GjennomforingFormValues>
               name="administratorer"
               id="administratorer"
               label={
@@ -247,7 +248,6 @@ export function GjennomforingFormDetaljer(props: Props) {
                 </LabelWithHelpText>
               }
               placeholder="Velg en"
-              isMultiSelect
               options={administratorOptions(navAnsatte)}
             />
           </FormGroup>

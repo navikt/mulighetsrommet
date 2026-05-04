@@ -2,7 +2,7 @@ import { AmoKategoriseringBransjeOgYrkesrettetForerkortKlasse as ForerkortKlasse
 import { FieldValues, Path } from "react-hook-form";
 import { forerkortKlasseToString } from "@/utils/Utils";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
-import { FormCombobox } from "@/components/skjema/FormCombobox";
+import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 
 interface ForerkortFormProps<T extends FieldValues> {
   path: Path<T>;
@@ -18,10 +18,9 @@ export function ForerkortForm<T extends FieldValues>(props: ForerkortFormProps<T
   }));
 
   return (
-    <FormCombobox<T>
+    <FormComboboxMulti<T>
       name={path}
       label={gjennomforingTekster.forerkortLabel}
-      isMultiSelect
       options={labeledOptions}
     />
   );

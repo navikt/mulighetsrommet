@@ -28,7 +28,7 @@ import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
 import { SelectAvtaletype } from "@/components/avtaler/SelectAvtaletype";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormSelect } from "@/components/skjema/FormSelect";
-import { FormCombobox } from "@/components/skjema/FormCombobox";
+import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 
 export function AvtaleDetaljerForm() {
   const { avtaleId } = useParams();
@@ -148,7 +148,7 @@ export function AvtaleDetaljerForm() {
       </SkjemaKolonne>
       <SkjemaKolonne>
         <FormGroup>
-          <FormCombobox<AvtaleFormValues>
+          <FormComboboxMulti<AvtaleFormValues>
             name="detaljer.administratorer"
             id="administratorer"
             label={
@@ -157,7 +157,6 @@ export function AvtaleDetaljerForm() {
               </LabelWithHelpText>
             }
             placeholder="Administratorer"
-            isMultiSelect
             options={administratorOptions(navAnsatte)}
           />
         </FormGroup>

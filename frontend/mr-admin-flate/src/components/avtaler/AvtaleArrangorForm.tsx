@@ -20,6 +20,7 @@ import { useBrregUnderenheter } from "@/api/virksomhet/useBrregUnderenheter";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 import { FormCombobox } from "@/components/skjema/FormCombobox";
+import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 
 export function AvtaleArrangorForm() {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
@@ -69,7 +70,7 @@ export function AvtaleArrangorForm() {
             ikke velges som tiltaksarrangør.
           </Alert>
         )}
-        <FormCombobox<DeepPartial<AvtaleFormValues>>
+        <FormComboboxMulti<DeepPartial<AvtaleFormValues>>
           id="arrangorUnderenheter"
           name="detaljer.arrangor.underenheter"
           label={
@@ -78,17 +79,15 @@ export function AvtaleArrangorForm() {
             </LabelWithHelpText>
           }
           placeholder="Velg underenhet for tiltaksarrangør"
-          isMultiSelect
           options={arrangorUnderenhetOptions}
           readOnly={underenheterIsEmpty}
         />
         <VStack>
-          <FormCombobox<DeepPartial<AvtaleFormValues>>
+          <FormComboboxMulti<DeepPartial<AvtaleFormValues>>
             id="arrangorKontaktpersoner"
             name="detaljer.arrangor.kontaktpersoner"
             label={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
             placeholder="Velg kontaktpersoner"
-            isMultiSelect
             options={arrangorKontaktpersonOptions}
             readOnly={!arrangor}
           />

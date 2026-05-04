@@ -9,7 +9,7 @@ import {
 
 type Option = { label: string; value: string };
 
-type FormComboboxProps<TFieldValues extends FieldValues> = Omit<
+type FormComboboxMultiProps<TFieldValues extends FieldValues> = Omit<
   ComboboxProps,
   "value" | "error" | "name" | "options" | "selectedOptions" | "isMultiSelect"
 > & {
@@ -18,23 +18,24 @@ type FormComboboxProps<TFieldValues extends FieldValues> = Omit<
   rules?: RegisterOptions<TFieldValues>;
 };
 
-export function FormCombobox<TFieldValues extends FieldValues>({
+export function FormComboboxMulti<TFieldValues extends FieldValues>({
   name,
   options,
   rules,
   size = "small",
   onToggleSelected: onToggleSelectedProp,
   ...props
-}: FormComboboxProps<TFieldValues>) {
+}: FormComboboxMultiProps<TFieldValues>) {
   const { control } = useFormContext<TFieldValues>();
   const { field, fieldState } = useController({ name, control, rules });
 
-  const value = field.value as string | undefined;
-  const resolvedOptions = getResolvedOptions(options, value);
-  const selectedOptions = resolvedOptions.filter((o) => o.value === value);
+  const values = Array.isArray(field.value) ? (field.value as string[]) : [];
+  const resolvedOptions = getResolvedOptions(options, values);
+  const selectedOptions = resolvedOptions.filter((o) => values.includes(o.value));
 
   function handleToggleSelected(option: string, isSelected: boolean, isCustomOption: boolean) {
-    field.onChange(isSelected ? option : null);
+    const selectedValues = isSelected ? [...values, option] : values.filter((v) => v !== option);
+    field.onChange(selectedValues);
     onToggleSelectedProp?.(option, isSelected, isCustomOption);
   }
 
@@ -42,6 +43,7 @@ export function FormCombobox<TFieldValues extends FieldValues>({
     <UNSAFE_Combobox
       {...props}
       size={size}
+      isMultiSelect
       name={field.name}
       options={resolvedOptions}
       selectedOptions={selectedOptions}
@@ -51,9 +53,9 @@ export function FormCombobox<TFieldValues extends FieldValues>({
   );
 }
 
-function getResolvedOptions(options: Option[], value: string | undefined) {
-  if (typeof value === "string" && value && !options.some((o) => o.value === value)) {
-    return [...options, { value: value, label: value }];
-  }
-  return options;
+function getResolvedOptions(options: Option[], values: string[]) {
+  const missing = values.filter((value) => !options.some((o) => o.value === value));
+  return missing.length > 0
+    ? [...options, ...missing.map((value) => ({ value, label: value }))]
+    : options;
 }
