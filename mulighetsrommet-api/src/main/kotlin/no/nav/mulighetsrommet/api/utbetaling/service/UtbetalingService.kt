@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -710,7 +710,7 @@ class UtbetalingService(
     ): Utbetaling {
         val utbetaling = getOrError(utbetalingId)
         queries.endringshistorikk.logEndring(
-            DocumentClass.UTBETALING,
+            EndringshistorikkType.UTBETALING,
             operation,
             endretAv,
             utbetalingId,

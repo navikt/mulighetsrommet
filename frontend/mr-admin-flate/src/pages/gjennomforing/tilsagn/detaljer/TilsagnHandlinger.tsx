@@ -5,7 +5,7 @@ import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/ak
 import { ActionMenu, BodyShort, Button, HStack } from "@navikt/ds-react";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
-  DocumentClass,
+  EndringshistorikkType,
   FieldError,
   TilsagnHandling,
   TilsagnStatusAarsak,
@@ -37,7 +37,7 @@ const tilAnnuleringAarsaker = [
 
 export function TilsagnHandlinger() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
-  const { data: historikk } = useEndringshistorikk(tilsagnId, DocumentClass.TILSAGN);
+  const { data: historikk } = useEndringshistorikk(tilsagnId, EndringshistorikkType.TILSAGN);
   const { data: tilsagn } = useTilsagn(tilsagnId);
 
   const navigate = useNavigate();

@@ -3413,7 +3413,7 @@ paths:
         deprecated: false
         explode: false
         schema:
-          $ref: "#/components/schemas/DocumentClass"
+          $ref: "#/components/schemas/EndringshistorikkType"
       responses:
         "200":
           description: Endringshistorikk
@@ -7989,7 +7989,7 @@ components:
       required:
       - aarsaker
       - forklaring
-    DocumentClass:
+    EndringshistorikkType:
       type: string
       enum:
       - AVTALE

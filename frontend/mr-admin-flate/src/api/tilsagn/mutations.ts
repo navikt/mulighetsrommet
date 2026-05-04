@@ -1,6 +1,6 @@
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
-  DocumentClass,
+  EndringshistorikkType,
   ProblemDetail,
   TilsagnRequest,
   TilsagnService,
@@ -18,7 +18,9 @@ export function useGodkjennTilsagn() {
     async onSuccess(_, { id }) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: QueryKeys.getTilsagn(id) }),
-        queryClient.invalidateQueries({ queryKey: QueryKeys.historikk(id, DocumentClass.TILSAGN) }),
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.historikk(id, EndringshistorikkType.TILSAGN),
+        }),
         queryClient.invalidateQueries({ queryKey: QueryKeys.tilsagnRequest(id) }),
         queryClient.invalidateQueries({ queryKey: QueryKeys.getAllTilsagn() }),
       ]);
@@ -52,7 +54,9 @@ export function useReturnerTilsagn() {
     async onSuccess(_, { id }) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: QueryKeys.getTilsagn(id) }),
-        queryClient.invalidateQueries({ queryKey: QueryKeys.historikk(id, DocumentClass.TILSAGN) }),
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.historikk(id, EndringshistorikkType.TILSAGN),
+        }),
         queryClient.invalidateQueries({ queryKey: QueryKeys.tilsagnRequest(id) }),
         queryClient.invalidateQueries({ queryKey: QueryKeys.getAllTilsagn() }),
       ]);
@@ -73,7 +77,9 @@ export function useTilsagnTilAnnullering() {
     async onSuccess(_, { id }) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: QueryKeys.getTilsagn(id) }),
-        queryClient.invalidateQueries({ queryKey: QueryKeys.historikk(id, DocumentClass.TILSAGN) }),
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.historikk(id, EndringshistorikkType.TILSAGN),
+        }),
         queryClient.invalidateQueries({ queryKey: QueryKeys.tilsagnRequest(id) }),
         queryClient.invalidateQueries({ queryKey: QueryKeys.getAllTilsagn() }),
       ]);
@@ -94,7 +100,9 @@ export function useTilsagnTilOppgjor() {
     async onSuccess(_, { id }) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: QueryKeys.getTilsagn(id) }),
-        queryClient.invalidateQueries({ queryKey: QueryKeys.historikk(id, DocumentClass.TILSAGN) }),
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.historikk(id, EndringshistorikkType.TILSAGN),
+        }),
         queryClient.invalidateQueries({ queryKey: QueryKeys.tilsagnRequest(id) }),
         queryClient.invalidateQueries({ queryKey: QueryKeys.getAllTilsagn() }),
       ]);
@@ -111,7 +119,9 @@ export function useSlettTilsagn() {
     async onSuccess(_, { id }) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: QueryKeys.getTilsagn(id) }),
-        queryClient.invalidateQueries({ queryKey: QueryKeys.historikk(id, DocumentClass.TILSAGN) }),
+        queryClient.invalidateQueries({
+          queryKey: QueryKeys.historikk(id, EndringshistorikkType.TILSAGN),
+        }),
         queryClient.invalidateQueries({ queryKey: QueryKeys.tilsagnRequest(id) }),
         queryClient.invalidateQueries({ queryKey: QueryKeys.getAllTilsagn() }),
       ]);

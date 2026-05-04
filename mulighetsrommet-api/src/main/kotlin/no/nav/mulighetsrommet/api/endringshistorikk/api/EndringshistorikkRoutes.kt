@@ -6,8 +6,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
@@ -20,7 +20,7 @@ fun Route.endringshistorikkRoutes() {
         operationId = "getEndringshistorikk"
         request {
             pathParameterUuid("id")
-            queryParameter<DocumentClass>("documentClass")
+            queryParameter<EndringshistorikkType>("documentClass")
         }
         response {
             code(HttpStatusCode.OK) {
@@ -34,7 +34,7 @@ fun Route.endringshistorikkRoutes() {
         }
     }) {
         val id: UUID by call.parameters
-        val documentClass: DocumentClass by call.request.queryParameters
+        val documentClass: EndringshistorikkType by call.request.queryParameters
 
         val historikk = db.session { queries.endringshistorikk.getEndringshistorikk(documentClass, id) }
         call.respond(historikk)

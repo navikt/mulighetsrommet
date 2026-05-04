@@ -11,7 +11,7 @@ import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import {
-  DocumentClass,
+  EndringshistorikkType,
   GjennomforingAvtaleDto,
   GjennomforingDetaljerDto,
   GjennomforingDto,
@@ -175,7 +175,7 @@ export function GjennomforingHandlinger({
 }
 
 function GjennomforingEndringshistorikk({ id }: { id: string }) {
-  const historikk = useEndringshistorikk(id, DocumentClass.GJENNOMFORING);
+  const historikk = useEndringshistorikk(id, EndringshistorikkType.GJENNOMFORING);
 
   return <ViewEndringshistorikk historikk={historikk.data} />;
 }

@@ -8,7 +8,7 @@ import {
   AvbrytAvtaleAarsak,
   AvtaleDto,
   AvtaleHandling,
-  DocumentClass,
+  EndringshistorikkType,
   FieldError,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
@@ -191,7 +191,7 @@ export function AvtaleHandlinger({ avtale }: Props) {
 }
 
 function AvtaleEndringshistorikk({ id }: { id: string }) {
-  const historikk = useEndringshistorikk(id, DocumentClass.AVTALE);
+  const historikk = useEndringshistorikk(id, EndringshistorikkType.AVTALE);
 
   return <ViewEndringshistorikk historikk={historikk.data} />;
 }
