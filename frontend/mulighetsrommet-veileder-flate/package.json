@@ -35,10 +35,10 @@
     "@navikt/ds-css": "8.10.2",
     "@navikt/ds-react": "8.10.2",
     "@navikt/ds-tailwind": "8.10.2",
-    "@tailwindcss/postcss": "4.2.2",
-    "@tailwindcss/vite": "4.2.2",
-    "@tanstack/react-query": "5.99.2",
-    "@tanstack/react-query-devtools": "5.99.2",
+    "@tailwindcss/postcss": "4.2.4",
+    "@tailwindcss/vite": "4.2.4",
+    "@tanstack/react-query": "5.100.5",
+    "@tanstack/react-query-devtools": "5.100.5",
     "axe-core": "4.11.3",
     "classnames": "2.5.1",
     "dequal": "2.0.3",
@@ -50,7 +50,7 @@
     "react-joyride": "2.9.3",
     "react-markdown": "10.1.0",
     "react-router": "7.14.1",
-    "tailwindcss": "4.2.2",
+    "tailwindcss": "4.2.4",
     "uuid": "14.0.0",
     "zod": "4.3.6"
   },
@@ -67,13 +67,13 @@
     "cross-env": "10.1.0",
     "dotenv": "17.4.2",
     "eslint": "10.2.1",
-    "msw": "2.13.4",
+    "msw": "2.13.6",
     "playwright": "1.59.1",
     "postcss-import": "16.1.1",
     "rollup-plugin-visualizer": "7.0.1",
     "sass-embedded": "1.99.0",
     "typescript": "6.0.3",
-    "vite": "8.0.9"
+    "vite": "8.0.10"
   },
   "msw": {
     "workerDirectory": [
