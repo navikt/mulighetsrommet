@@ -6,12 +6,13 @@ import {
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import {
-  Alert,
   Box,
   Button,
   Heading,
   HGrid,
   HStack,
+  InfoCard,
+  Link,
   Loader,
   TextField,
   VStack,
@@ -30,6 +31,7 @@ import { VelgDeltakere } from "./VelgDeltakere";
 import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { applyValidationErrors } from "@/components/skjema/helpers";
+import { InformationSquareIcon } from "@navikt/aksel-icons";
 
 interface Props {
   onSuccess: () => void;
@@ -144,28 +146,30 @@ export function TilsagnForm(props: Props) {
 
 function InfomeldingOmInvesteringsTilsagn() {
   return (
-    <Alert size="small" variant="info" className="my-3">
-      <Heading size="xsmall" spacing>
-        Tilsagn for investeringer
-      </Heading>
-      Tilsagn for investeringer skal brukes ved opprettelse av nye tiltaksplasser, jfr.
-      tiltaksforskriften §§{" "}
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://lovdata.no/forskrift/2015-12-11-1598/§13-8"
-      >
-        13-8
-      </a>{" "}
-      og{" "}
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://lovdata.no/forskrift/2015-12-11-1598/§14-9"
-      >
-        14-9
-      </a>
-      . Det kan ikke brukes til å utbetale ordinære driftsmidler til tiltaksarrangør.
-    </Alert>
+    <InfoCard>
+      <InfoCard.Header icon={<InformationSquareIcon aria-hidden />}>
+        <InfoCard.Title>Tilsagn for investeringer</InfoCard.Title>
+      </InfoCard.Header>
+      <InfoCard.Content>
+        Tilsagn for investeringer skal brukes ved opprettelse av nye tiltaksplasser, jfr.
+        tiltaksforskriften §§{" "}
+        <Link
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://lovdata.no/forskrift/2015-12-11-1598/§13-8"
+        >
+          13-8
+        </Link>{" "}
+        og{" "}
+        <Link
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://lovdata.no/forskrift/2015-12-11-1598/§14-9"
+        >
+          14-9
+        </Link>
+        . Det kan ikke brukes til å utbetale ordinære driftsmidler til tiltaksarrangør.
+      </InfoCard.Content>
+    </InfoCard>
   );
 }
