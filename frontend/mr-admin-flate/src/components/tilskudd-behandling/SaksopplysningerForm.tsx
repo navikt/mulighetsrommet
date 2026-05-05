@@ -17,7 +17,6 @@ import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { BetalingsinformasjonFields } from "../utbetaling/form/BetalingsinformasjonFields";
-import { FormTextarea } from "../skjema/FormTextarea";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { defaultTilskuddRequest } from "./defaultTilskuddRequest";
 
@@ -153,7 +152,6 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
             valuta: Valuta.NOK,
           })}
         />
-        <FormTextarea className="w-full" label="Kommentar (internt i Nav)" name="kommentarIntern" />
       </VStack>
     </>
   );

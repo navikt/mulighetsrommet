@@ -91,6 +91,7 @@ export function VedtakForm() {
             </Box>
           </FormGroup>
         ))}
+        <FormTextarea className="w-full" label="Kommentar (internt i Nav)" name="kommentarIntern" />
       </VStack>
     </>
   );
