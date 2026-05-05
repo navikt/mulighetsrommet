@@ -3,13 +3,13 @@ common-java-modules = "3.2026.04.08_08.37-229807cc181a"
 flyway = "12.4.0"
 koin-bom = "4.2.1"
 kotest = "6.1.11"
-kotlin = "2.3.20"
-ktor = "3.4.2"
+kotlin = "2.3.21"
+ktor = "3.4.3"
 logback = "1.5.32"
 metrics = "4.2.38"
 arrow = "2.2.2.1"
 micrometer = "1.16.5"
-testcontainers = "2.0.4"
+testcontainers = "2.0.5"
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -125,7 +125,7 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:7.7.0"
 
-slack-client = "com.slack.api:slack-api-client:1.48.0"
+slack-client = "com.slack.api:slack-api-client:1.48.1"
 
 slf4j = "org.slf4j:slf4j-api:2.0.17"
 
