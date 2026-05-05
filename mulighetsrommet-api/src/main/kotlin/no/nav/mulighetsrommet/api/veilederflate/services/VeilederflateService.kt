@@ -291,6 +291,7 @@ class VeilederflateService(
                 enheter = enheter,
                 arrangor = arrangor,
                 oppmoteSted = stedForGjennomforing,
+
             )
 
             else -> VeilederflateTiltakEnkeltplass(

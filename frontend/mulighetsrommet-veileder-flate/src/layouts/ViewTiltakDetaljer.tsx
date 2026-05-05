@@ -30,7 +30,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
     <Page.Block gutters width="2xl">
       <HStack justify="space-between">{knapperad}</HStack>
       <Suspense fallback={<DetaljerSkeleton />}>
-        <Box padding="space-16" background="default">
+        <Box padding="space-24" background="default">
           <HGrid
             gap={{ xs: "space-0", sm: "space-64" }}
             columns={{ xs: "1fr", sm: "1fr 0.5fr" }}

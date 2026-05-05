@@ -26,13 +26,13 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
   const arrangor = "arrangor" in tiltak ? tiltak.arrangor : null;
 
   return (
-    <Box asChild padding="space-20" background="neutral-soft" id="sidemeny">
+    <Box asChild padding="space-20" borderRadius="0 0 8 8" background="neutral-soft" id="sidemeny">
       <VStack gap="space-24">
         {lopenummer && (
           <SidemenyInfoContainer
             tittel="Løpenummer"
             innhold={
-              <HStack gap="space-2" align="center" justify="space-between">
+              <HStack gap="space-4" align="center" justify="space-between">
                 <BodyShort size="small">{lopenummer}</BodyShort>
                 <CopyButton data-color="accent" size="xsmall" copyText={lopenummer} />
               </HStack>
@@ -43,7 +43,7 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
           <SidemenyInfoContainer
             tittel="Tiltaksnummer i Arena"
             innhold={
-              <HStack gap="space-2" align="center" justify="space-between">
+              <HStack gap="space-4" align="center" justify="space-between">
                 <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
                 <CopyButton
                   data-color="accent"
