@@ -42,6 +42,23 @@ class ArenaEntityMappingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getIgnoredDeltakereMappingsForGjennomforing(gjennomforingArenaId: String): List<ArenaEntityMapping> {
+        @Language("PostgreSQL")
+        val query = """
+            select aem.arena_table, aem.arena_id, aem.entity_id, aem.status, aem.message
+            from arena_entity_mapping aem
+            join arena_events ae on ae.arena_table = aem.arena_table and ae.arena_id = aem.arena_id
+            where ae.arena_table in ('SIAMO.TILTAKDELTAKER', 'SIAMO.HIST_TILTAKDELTAKER')
+              and ae.payload -> 'after' ->> 'TILTAKGJENNOMFORING_ID' = :gjennomforing_arena_id
+              and aem.status = 'Ignored'
+        """.trimIndent()
+
+        return queryOf(query, mapOf("gjennomforing_arena_id" to gjennomforingArenaId))
+            .map { it.toMapping() }
+            .asList
+            .let { db.run(it) }
+    }
+
     private fun Row.toMapping(): ArenaEntityMapping {
         return ArenaEntityMapping(
             arenaTable = ArenaTable.fromTable(string("arena_table")),

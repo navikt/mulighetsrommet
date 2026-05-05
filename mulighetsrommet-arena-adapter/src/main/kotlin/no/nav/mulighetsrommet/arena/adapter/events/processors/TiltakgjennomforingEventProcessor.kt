@@ -124,6 +124,10 @@ class TiltakgjennomforingEventProcessor(
             .bind()
     }
 
+    override fun getDependentEntities(event: ArenaEvent): List<ArenaEntityMapping> {
+        return entities.getIgnoredDeltakereMappingsForGjennomforing(event.arenaId)
+    }
+
     private fun erTiltakRelevantForTiltaksadministrasjon(data: ArenaTiltaksgjennomforing): Boolean {
         return Tiltakskoder.isGruppetiltak(data.TILTAKSKODE) ||
             Tiltakskoder.isEgenRegiTiltak(data.TILTAKSKODE) ||

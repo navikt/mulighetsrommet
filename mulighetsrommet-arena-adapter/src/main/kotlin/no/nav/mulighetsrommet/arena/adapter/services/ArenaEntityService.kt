@@ -107,6 +107,10 @@ class ArenaEntityService(
             .left()
     }
 
+    fun getIgnoredDeltakereMappingsForGjennomforing(gjennomforingArenaId: String): List<ArenaEntityMapping> {
+        return mappings.getIgnoredDeltakereMappingsForGjennomforing(gjennomforingArenaId)
+    }
+
     fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> {
         return getMapping(arenaTable, arenaId)
             .map { it.status == ArenaEntityMapping.Status.Ignored }

@@ -139,6 +139,15 @@ class ArenaEventService(
                 result.right()
             }
         }
+        .flatMap { result ->
+            if (mapping.status == Ignored && result.status == Handled) {
+                logger.info("Gjenspiller avhengigheter til event som ikke lenger er ignorert: table=${event.arenaTable}, id=${event.arenaId}")
+                replayDependentEntities(processor, event)
+                result.right()
+            } else {
+                result.right()
+            }
+        }
 
     private suspend fun handleDeleteEntityForEvent(event: ArenaEvent) {
         processors
