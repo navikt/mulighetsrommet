@@ -982,7 +982,7 @@ class OppgaverServiceTest : FunSpec({
                 queries.tilskuddBehandling.upsert(
                     TilskuddFixtures.Behandling.copy(
                         status = TilskuddBehandlingStatus.FERDIG_BEHANDLET,
-                        vedtak = listOf(TilskuddFixtures.Vedtak),
+                        tilskudd = listOf(TilskuddFixtures.Tilskudd),
                     ),
                 )
                 setGodkjent(

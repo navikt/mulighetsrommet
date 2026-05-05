@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -1708,7 +1708,7 @@ class UtbetalingServiceTest : FunSpec({
                 }
 
                 queries.endringshistorikk.getEndringshistorikk(
-                    DocumentClass.UTBETALING,
+                    EndringshistorikkType.UTBETALING,
                     utbetaling1.id,
                 ).entries.shouldBeEmpty()
             }
@@ -1750,7 +1750,7 @@ class UtbetalingServiceTest : FunSpec({
                 }
 
                 queries.endringshistorikk.getEndringshistorikk(
-                    DocumentClass.UTBETALING,
+                    EndringshistorikkType.UTBETALING,
                     utbetaling1.id,
                 ).entries.size shouldBe 1
             }
@@ -1788,7 +1788,7 @@ class UtbetalingServiceTest : FunSpec({
                 queries.utbetalingLinje.getOrError(linje.id).status shouldBe UtbetalingLinjeStatus.UTBETALT
 
                 queries.endringshistorikk.getEndringshistorikk(
-                    DocumentClass.UTBETALING,
+                    EndringshistorikkType.UTBETALING,
                     utbetaling1.id,
                 ).entries.size shouldBe 0
             }

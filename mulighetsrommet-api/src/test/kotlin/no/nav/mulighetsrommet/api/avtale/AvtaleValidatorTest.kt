@@ -248,7 +248,7 @@ class AvtaleValidatorTest : FunSpec({
         ).shouldBeLeft(
             listOf(
                 FieldError(
-                    "/detaljer/opsjonsmodell",
+                    "/detaljer/opsjonsmodell/type",
                     "Du må velge opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent",
                 ),
             ),
@@ -831,7 +831,7 @@ class AvtaleValidatorTest : FunSpec({
                 ),
             ) shouldBeLeft listOf(
                 FieldError("/detaljer/avtaletype", "Du kan ikke endre avtaletype når opsjoner er registrert"),
-                FieldError("/detaljer/opsjonsmodell", "Du kan ikke endre opsjonsmodell når opsjoner er registrert"),
+                FieldError("/detaljer/opsjonsmodell/type", "Du kan ikke endre opsjonsmodell når opsjoner er registrert"),
             )
         }
 

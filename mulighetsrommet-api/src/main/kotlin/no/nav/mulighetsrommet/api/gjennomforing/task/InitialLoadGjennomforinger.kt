@@ -84,7 +84,7 @@ class InitialLoadGjennomforinger(
                 logger.info("Henter gjennomføringer, tiltakskode=$tiltakskode, pagination=$pagination")
                 val result = queries.gjennomforing.getAll(
                     pagination = pagination,
-                    tiltakstypeIder = listOf(tiltakstypeId),
+                    tiltakstyper = listOf(tiltakstypeId),
                 )
                 result.items
             },

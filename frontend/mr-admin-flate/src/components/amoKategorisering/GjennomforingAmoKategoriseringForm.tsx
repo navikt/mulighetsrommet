@@ -25,7 +25,7 @@ export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
 
   return (
     <HGrid gap="space-16" columns={1}>
-      {avtaleAmo.kurstype === "BRANSJE_OG_YRKESRETTET" && (
+      {avtaleAmo.kurstype === AmoKurstype.BRANSJE_OG_YRKESRETTET && (
         <>
           <Select readOnly size="small" label="Bransje">
             <option>{avtaleAmo.bransje ? bransjeToString(avtaleAmo.bransje) : "-"}</option>
@@ -45,7 +45,7 @@ export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
           />
         </>
       )}
-      {avtaleAmo.kurstype === "NORSKOPPLAERING" && (
+      {avtaleAmo.kurstype === AmoKurstype.NORSKOPPLAERING && (
         <NorksopplaeringForm
           norskprovePath="amoKategorisering.norskprove"
           innholdElementerPath="amoKategorisering.innholdElementer"

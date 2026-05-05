@@ -4,10 +4,11 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.withTransaction
@@ -26,7 +27,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 soknad_dato,
                 periode,
                 kostnadssted,
-                status
+                status,
+                kommentar_intern
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -34,14 +36,16 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 :soknad_dato,
                 :periode::daterange,
                 :kostnadssted,
-                :status
+                :status,
+                :kommentar_intern
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 soknad_journalpost_id = excluded.soknad_journalpost_id,
                 soknad_dato = excluded.soknad_dato,
                 periode = excluded.periode,
                 kostnadssted = excluded.kostnadssted,
-                status = excluded.status
+                status = excluded.status,
+                kommentar_intern = excluded.kommentar_intern
         """.trimIndent()
 
         val params = mapOf(
@@ -52,53 +56,66 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "periode" to dbo.periode.toDaterange(),
             "kostnadssted" to dbo.kostnadssted.value,
             "status" to dbo.status.name,
+            "kommentar_intern" to dbo.kommentarIntern,
         )
 
         execute(queryOf(query, params))
 
-        dbo.vedtak.forEach { upsertVedtak(dbo.id, it) }
+        dbo.tilskudd.forEach { upsertTilskudd(dbo.id, it) }
     }
 
-    private fun upsertVedtak(tilskuddsbehandlingId: UUID, vedtak: TilskuddVedtakDbo): Unit = withTransaction(session) {
+    private fun upsertTilskudd(tilskuddsbehandlingId: UUID, tilskudd: TilskuddDbo): Unit = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
-            insert into tilskudd_vedtak (
+            insert into tilskudd (
                 id,
                 tilskudd_behandling_id,
                 tilskudd_opplaering_id,
                 soknad_belop,
                 soknad_valuta,
+                valuta,
                 vedtak_resultat,
                 kommentar_vedtaksbrev,
-                utbetaling_mottaker
+                utbetaling_mottaker,
+                kid,
+                belop
             ) values (
                 :id::uuid,
                 :tilskudd_behandling_id::uuid,
                 (select id from tilskudd_opplaering where kode = :tilskudd_opplaering_kode),
                 :soknad_belop,
                 :soknad_valuta::currency,
+                :valuta::currency,
                 :vedtak_resultat,
                 :kommentar_vedtaksbrev,
-                :utbetaling_mottaker
+                :utbetaling_mottaker,
+                :kid,
+                :belop
             ) on conflict (id) do update set
                 tilskudd_behandling_id = excluded.tilskudd_behandling_id,
                 tilskudd_opplaering_id = excluded.tilskudd_opplaering_id,
                 soknad_belop = excluded.soknad_belop,
                 soknad_valuta = excluded.soknad_valuta,
+                valuta = excluded.valuta,
                 vedtak_resultat = excluded.vedtak_resultat,
                 kommentar_vedtaksbrev = excluded.kommentar_vedtaksbrev,
-                utbetaling_mottaker = excluded.utbetaling_mottaker
+                utbetaling_mottaker = excluded.utbetaling_mottaker,
+                kid = excluded.kid,
+                belop = excluded.belop
         """.trimIndent()
 
         val params = mapOf(
-            "id" to vedtak.id,
+            "id" to tilskudd.id,
             "tilskudd_behandling_id" to tilskuddsbehandlingId,
-            "tilskudd_opplaering_kode" to vedtak.tilskuddOpplaeringType.name,
-            "soknad_belop" to vedtak.soknadBelop,
-            "soknad_valuta" to vedtak.soknadValuta.name,
-            "vedtak_resultat" to vedtak.vedtakResultat.name,
-            "kommentar_vedtaksbrev" to vedtak.kommentarVedtaksbrev,
-            "utbetaling_mottaker" to vedtak.utbetalingMottaker,
+            "tilskudd_opplaering_kode" to tilskudd.tilskuddOpplaeringType.name,
+            "soknad_belop" to tilskudd.soknadBelop.belop,
+            "soknad_valuta" to tilskudd.soknadBelop.valuta.name,
+            "valuta" to tilskudd.utbetalingBelop?.valuta?.name,
+            "vedtak_resultat" to tilskudd.vedtakResultat.name,
+            "kommentar_vedtaksbrev" to tilskudd.kommentarVedtaksbrev,
+            "utbetaling_mottaker" to tilskudd.utbetalingMottaker,
+            "kid" to tilskudd.kid?.value,
+            "belop" to tilskudd.utbetalingBelop?.belop,
         )
 
         execute(queryOf(query, params))
@@ -146,7 +163,11 @@ private fun Row.toTilskuddBehandlingDto() = TilskuddBehandlingDto(
     soknadJournalpostId = string("soknad_journalpost_id"),
     soknadDato = localDate("soknad_dato"),
     periode = periode("periode"),
-    kostnadssted = NavEnhetNummer(string("kostnadssted")),
-    vedtak = Json.decodeFromString<List<TilskuddVedtakDto>>(string("vedtak_json")),
+    kostnadssted = KostnadsstedDto(
+        navn = string("kostnadssted_navn"),
+        enhetsnummer = NavEnhetNummer(string("kostnadssted_enhetsnummer")),
+    ),
+    tilskudd = Json.decodeFromString<List<TilskuddOpplaeringDto>>(string("vedtak_json")),
     status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(string("status"))),
+    kommentarIntern = stringOrNull("kommentar_intern"),
 )

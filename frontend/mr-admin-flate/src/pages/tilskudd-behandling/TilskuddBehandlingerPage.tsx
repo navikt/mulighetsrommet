@@ -6,6 +6,8 @@ import { DataElementStatusTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ActionMenu, Alert, Table } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
+import { formaterDato } from "@mr/frontend-common/utils/date";
+import { opplaeringTilskuddToString } from "@/utils/Utils";
 
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -30,26 +32,30 @@ export function TilskuddBehandlingerPage() {
         <Table>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell>Søknadsdato</Table.HeaderCell>
-              <Table.HeaderCell>Periode</Table.HeaderCell>
-              <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
-              <Table.HeaderCell>Status</Table.HeaderCell>
+              <Table.HeaderCell>Innsendt</Table.HeaderCell>
+              <Table.HeaderCell>JournalpostId</Table.HeaderCell>
+              <Table.HeaderCell>Periodestart</Table.HeaderCell>
+              <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
+              <Table.HeaderCell>Tilskuddstype</Table.HeaderCell>
+              <Table.HeaderCell>Behandlingsstatus</Table.HeaderCell>
               <Table.HeaderCell></Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {behandlinger.map((b) => (
               <Table.Row key={b.id}>
-                <Table.DataCell>{b.soknadDato}</Table.DataCell>
+                <Table.DataCell>{formaterDato(b.soknadDato)}</Table.DataCell>
+                <Table.DataCell>{b.journalpostId}</Table.DataCell>
+                <Table.DataCell>{formaterDato(b.periode.start)}</Table.DataCell>
+                <Table.DataCell>{formaterDato(b.periode.slutt)}</Table.DataCell>
                 <Table.DataCell>
-                  {b.periode.start} – {b.periode.slutt}
+                  {b.tilskuddtyper.map((t) => opplaeringTilskuddToString(t)).join(", ")}
                 </Table.DataCell>
-                <Table.DataCell>{b.kostnadssted}</Table.DataCell>
                 <Table.DataCell>
                   <DataElementStatusTag {...b.status.status} />
                 </Table.DataCell>
                 <Table.DataCell>
-                  <Lenke to={b.id}> Behandle </Lenke>
+                  <Lenke to={b.id}> Detaljer </Lenke>
                 </Table.DataCell>
               </Table.Row>
             ))}

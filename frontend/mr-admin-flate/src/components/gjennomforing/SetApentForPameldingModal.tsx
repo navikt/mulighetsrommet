@@ -1,7 +1,5 @@
 import { useSetApentForPamelding } from "@/api/gjennomforing/useSetApentForPamelding";
-import { QueryKeys } from "@/api/QueryKeys";
-import { Button, Modal, Switch } from "@navikt/ds-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { BodyShort, Button, List, Modal, Switch } from "@navikt/ds-react";
 import { RefObject } from "react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
@@ -12,42 +10,33 @@ interface Props {
 }
 
 export function SetApentForPameldingModal({ modalRef, gjennomforingId }: Props) {
-  const { mutate } = useSetApentForPamelding(gjennomforingId);
+  const setApentForPamelding = useSetApentForPamelding(gjennomforingId);
   const { gjennomforing } = useGjennomforing(gjennomforingId);
-  const queryClient = useQueryClient();
 
   if (!isGruppetiltak(gjennomforing)) {
     return null;
   }
 
-  const invalidateGjennomforing = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: QueryKeys.gjennomforing(gjennomforingId),
-      refetchType: "all",
-    });
-  };
-
   return (
     <Modal ref={modalRef} header={{ heading: "Åpent for påmelding" }} width={1000}>
       <Modal.Body className="prose">
         <div>
-          <p>Her kan du styre om tiltaket skal være åpent for påmelding i Modia.</p>
+          <BodyShort spacing>
+            Her kan du styre om tiltaket skal være åpent for påmelding i Modia.
+          </BodyShort>
 
-          <p>Påmelding stenges automatisk av systemet når:</p>
-          <ul>
-            <li>
+          <BodyShort>Påmelding stenges automatisk av systemet når:</BodyShort>
+
+          <List>
+            <List.Item>
               Tiltak med <b>felles oppstart</b> starter.
-            </li>
-            <li>Tiltaket avsluttes eller blir avbrutt.</li>
-          </ul>
+            </List.Item>
+            <List.Item>Tiltaket avsluttes eller blir avbrutt.</List.Item>
+          </List>
 
           <Switch
             checked={gjennomforing.apentForPamelding}
-            onChange={(e) =>
-              mutate(e.target.checked, {
-                onSuccess: invalidateGjennomforing,
-              })
-            }
+            onChange={(e) => setApentForPamelding.mutate(e.target.checked)}
           >
             Åpent for påmelding
           </Switch>

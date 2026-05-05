@@ -70,4 +70,7 @@ export const gjennomforingTekster = {
   ansvarligEnhet: {
     label: "Ansvarlig enhet",
   },
+  innholdAnnet: {
+    label: "Innhold",
+  },
 } as const;

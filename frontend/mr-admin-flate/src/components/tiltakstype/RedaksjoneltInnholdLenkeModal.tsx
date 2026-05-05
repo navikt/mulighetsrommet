@@ -1,9 +1,19 @@
-import { Button, Heading, HStack, Modal, Table, TextField, VStack } from "@navikt/ds-react";
+import {
+  Button,
+  Heading,
+  HStack,
+  List,
+  LocalAlert,
+  Modal,
+  Table,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
 import { useRedaksjoneltInnholdLenker } from "@/api/redaksjonelt-innhold/useRedaksjoneltInnholdLenker";
 import { useUpsertRedaksjoneltInnholdLenke } from "@/api/redaksjonelt-innhold/useUpsertRedaksjoneltInnholdLenke";
 import { useDeleteRedaksjoneltInnholdLenke } from "@/api/redaksjonelt-innhold/useDeleteRedaksjoneltInnholdLenke";
-import { RedaksjoneltInnholdLenke } from "@tiltaksadministrasjon/api-client";
+import { RedaksjoneltInnholdLenke, ValidationError } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   open: boolean;
@@ -24,6 +34,7 @@ export function RedaksjoneltInnholdLenkeModal({ open, onClose }: Props) {
 
   const [editing, setEditing] = useState<string | null>(null);
   const [values, setValues] = useState<RowValues>(emptyRow);
+  const [deleteError, setDeleteError] = useState<ValidationError | null>(null);
 
   const isNewRow = editing !== null && !lenker.some((l) => l.id === editing);
 
@@ -49,6 +60,21 @@ export function RedaksjoneltInnholdLenkeModal({ open, onClose }: Props) {
       </Modal.Header>
       <Modal.Body>
         <VStack gap="space-8">
+          {deleteError && (
+            <LocalAlert status="error">
+              <LocalAlert.Header>
+                <LocalAlert.Title as="h3">{deleteError.detail}</LocalAlert.Title>
+                <LocalAlert.CloseButton onClick={() => setDeleteError(null)} />
+              </LocalAlert.Header>
+              <LocalAlert.Content>
+                <List>
+                  {deleteError.errors.map((e, i) => (
+                    <List.Item key={i}>{e.detail}</List.Item>
+                  ))}
+                </List>
+              </LocalAlert.Content>
+            </LocalAlert>
+          )}
           <Table size="small">
             <Table.Header>
               <Table.Row>
@@ -87,7 +113,11 @@ export function RedaksjoneltInnholdLenkeModal({ open, onClose }: Props) {
                         <Button
                           size="xsmall"
                           variant="tertiary-neutral"
-                          onClick={() => deleteMutation.mutate(lenke.id)}
+                          onClick={() =>
+                            deleteMutation.mutate(lenke.id, {
+                              onValidationError: (error) => setDeleteError(error),
+                            })
+                          }
                           loading={deleteMutation.isPending}
                           disabled={editing !== null}
                         >

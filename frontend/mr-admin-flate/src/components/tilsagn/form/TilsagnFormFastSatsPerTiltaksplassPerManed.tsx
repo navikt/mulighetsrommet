@@ -11,6 +11,7 @@ import { tilsagnTekster } from "../TilsagnTekster";
 import { useFindAvtaltSats } from "@/api/avtaler/useFindAvtaltSats";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
+import { NumberInput } from "@/components/skjema/NumberInput";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -35,11 +36,7 @@ export function TilsagnFormFastSatsPerTiltaksplassPerManed(props: Props) {
 }
 
 function BeregningInputSkjema({ prismodell }: Pick<Props, "prismodell">) {
-  const {
-    register,
-    formState: { errors },
-    watch,
-  } = useFormContext<TilsagnRequest>();
+  const { watch } = useFormContext<TilsagnRequest>();
 
   const periodeStart = watch("periodeStart");
   const sats = useFindAvtaltSats(prismodell, periodeStart);
@@ -52,16 +49,10 @@ function BeregningInputSkjema({ prismodell }: Pick<Props, "prismodell">) {
           TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
         )}
       />
-      <HGrid columns={2}>
-        <TextField
-          size="small"
-          type="number"
+      <HGrid gap="space-16" align="start" columns={2}>
+        <NumberInput<TilsagnRequest>
+          name="beregning.antallPlasser"
           label={tilsagnTekster.antallPlasser.label}
-          style={{ width: "180px" }}
-          error={errors.beregning?.antallPlasser?.message}
-          {...register("beregning.antallPlasser", {
-            setValueAs: (v) => (v === "" ? null : Number(v)),
-          })}
         />
         <VStack gap="space-8">
           <TextField
@@ -70,7 +61,6 @@ function BeregningInputSkjema({ prismodell }: Pick<Props, "prismodell">) {
             label={tilsagnTekster.sats.label(
               TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
             )}
-            style={{ width: "180px" }}
             readOnly
             value={sats?.pris.belop ?? 0}
           />

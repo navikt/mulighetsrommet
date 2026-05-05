@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
@@ -57,6 +57,7 @@ data class UpsertGjennomforingEnkeltplass(
     val status: GjennomforingStatusType,
     val prisbetingelser: String?,
     val ansvarligEnhet: NavEnhetNummer,
+    // TODO: fjerne fra modell når feltene ikke lengre trengs for å deles med arena
     val startDato: LocalDate? = null,
     val sluttDato: LocalDate? = null,
     val navn: String? = null,
@@ -94,7 +95,7 @@ class GjennomforingEnkeltplassService(
 
                     is NavIdent -> {
                         createTotrinnskontroll(it.id, Totrinnskontroll.Type.OKONOMI, agent)
-                        logEndring("Søkt inn deltaker", it.id, agent)
+                        logEndring("Deltaker søkt inn", it.id, agent)
                     }
                 }
             }
@@ -137,7 +138,7 @@ class GjennomforingEnkeltplassService(
 
         val personalia = getDeltakerPersonalia(id, AccessType.M2M)
 
-        logEndring("Endret i Arena", id, Arena)
+        getAndAquireLock(id)
             .also { updateFreeTextSearch(it, personalia?.norskIdent()) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
     }
@@ -228,7 +229,7 @@ class GjennomforingEnkeltplassService(
         )
         queries.totrinnskontroll.upsert(paVentOpprettelse.toDbo())
 
-        logEndring("Økonomi ble satt på vent", id, navIdent).right()
+        logEndring("Godkjenning ble satt på vent", id, navIdent).right()
     }
 
     private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID, accessType: AccessType): Personalia? {
@@ -267,12 +268,6 @@ class GjennomforingEnkeltplassService(
             prismodellId = prismodellId,
             ansvarligEnhet = upsert.ansvarligEnhet,
             avtaleId = null,
-            oppmoteSted = null,
-            faneinnhold = null,
-            beskrivelse = null,
-            estimertVentetidVerdi = null,
-            estimertVentetidEnhet = null,
-            tilgjengeligForArrangorDato = null,
         )
         queries.gjennomforing.upsert(dbo)
         return queries.gjennomforing.getGjennomforingEnkeltplassOrError(dbo.id)
@@ -320,7 +315,7 @@ class GjennomforingEnkeltplassService(
     ): GjennomforingEnkeltplass {
         val gjennomforing = getAndAquireLock(gjennomforingId)
         queries.endringshistorikk.logEndring(
-            DocumentClass.GJENNOMFORING,
+            EndringshistorikkType.GJENNOMFORING,
             operation,
             endretAv,
             gjennomforingId,

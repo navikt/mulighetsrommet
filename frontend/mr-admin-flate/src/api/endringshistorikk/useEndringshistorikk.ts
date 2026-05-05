@@ -1,14 +1,14 @@
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { EndringshistorikkService, DocumentClass } from "@tiltaksadministrasjon/api-client";
+import { EndringshistorikkService, EndringshistorikkType } from "@tiltaksadministrasjon/api-client";
 
-export function useEndringshistorikk(id: string, documentClass: DocumentClass) {
+export function useEndringshistorikk(id: string, type: EndringshistorikkType) {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.historikk(id, documentClass),
+    queryKey: QueryKeys.historikk(id, type),
     queryFn() {
       return EndringshistorikkService.getEndringshistorikk({
         path: { id },
-        query: { documentClass },
+        query: { type },
       });
     },
   });

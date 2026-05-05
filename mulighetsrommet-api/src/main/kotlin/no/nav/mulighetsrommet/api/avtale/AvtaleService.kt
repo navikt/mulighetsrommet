@@ -35,7 +35,7 @@ import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -396,9 +396,10 @@ class AvtaleService(
     }
 
     fun getAll(pagination: Pagination, filter: AvtaleFilter): PaginatedResponse<AvtaleDto> = db.session {
+        val tiltakstyper = tiltakstypeService.getIdsByTiltakskoder(filter.tiltakskoder)
         val (totalCount, items) = queries.avtale.getAll(
             pagination = pagination,
-            tiltakstypeIder = filter.tiltakstypeIder,
+            tiltakstyper = tiltakstyper,
             search = filter.search,
             statuser = filter.statuser,
             avtaletyper = filter.avtaletyper,
@@ -514,7 +515,7 @@ class AvtaleService(
     ): Avtale {
         val dto = queries.avtale.getOrError(avtaleId)
         queries.endringshistorikk.logEndring(
-            DocumentClass.AVTALE,
+            EndringshistorikkType.AVTALE,
             operation,
             endretAv,
             avtaleId,

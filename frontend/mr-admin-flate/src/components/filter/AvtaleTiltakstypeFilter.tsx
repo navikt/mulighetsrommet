@@ -1,12 +1,13 @@
 import { useTiltakstyperForAvtaler } from "@/api/tiltakstyper/useTiltakstyperForAvtaler";
-import { TiltakstypeFilter } from "@/components/filter/TiltakstypeFilter";
+import { TiltakskodeFilter } from "@/components/filter/TiltakskodeFilter";
+import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  value: string[];
-  onChange: (tiltakstyper: string[]) => void;
+  value: Tiltakskode[];
+  onChange: (tiltakstyper: Tiltakskode[]) => void;
 }
 
 export function AvtaleTiltakstypeFilter({ value, onChange }: Props) {
   const tiltakstyper = useTiltakstyperForAvtaler();
-  return <TiltakstypeFilter tiltakstyper={tiltakstyper} value={value} onChange={onChange} />;
+  return <TiltakskodeFilter tiltakstyper={tiltakstyper} value={value} onChange={onChange} />;
 }

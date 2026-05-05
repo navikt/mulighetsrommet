@@ -1,6 +1,6 @@
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { VStack } from "@navikt/ds-react";
-import { GjennomforingKnapperad } from "./GjennomforingKnapperad";
+import { GjennomforingHandlinger } from "./GjennomforingHandlinger";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useGjennomforing, useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -25,7 +25,7 @@ export function GjennomforingPageLayout({ children }: { children: React.ReactNod
   return (
     <InlineErrorBoundary>
       <VStack className="pb-6">
-        <GjennomforingKnapperad
+        <GjennomforingHandlinger
           ansatt={ansatt}
           gjennomforing={gjennomforing}
           veilederinfo={veilederinfo}

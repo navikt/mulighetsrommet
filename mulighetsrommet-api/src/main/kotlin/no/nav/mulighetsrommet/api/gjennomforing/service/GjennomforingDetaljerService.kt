@@ -96,14 +96,14 @@ class GjennomforingDetaljerService(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
-        val tiltakstyper = filter.tiltakstypeIder.ifEmpty {
-            tiltakstypeService.getAllIdsByFeatures(setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON))
+        val tiltakstyper = tiltakstypeService.getIdsByTiltakskoder(filter.tiltakskoder).ifEmpty {
+            tiltakstypeService.getIdsByFeatures(setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON))
         }
         queries.gjennomforing.getAll(
             pagination,
             search = filter.search?.let { NorskIdentHasher.hashIfNorskIdent(it) },
             navEnheter = filter.navEnheter,
-            tiltakstypeIder = tiltakstyper,
+            tiltakstyper = tiltakstyper,
             statuser = filter.statuser,
             sortering = filter.sortering,
             avtaleId = filter.avtaleId,
@@ -174,6 +174,7 @@ class GjennomforingDetaljerService(
             GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
             GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
             GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
+            GjennomforingHandling.REGISTRER_ESTIMERT_VENTETID.takeIf { statusGjennomfores },
             GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
             GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
                 gjennomforing.tiltakstype.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER)
@@ -225,6 +226,7 @@ class GjennomforingDetaljerService(
 
                 GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING,
                 GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR,
+                GjennomforingHandling.REGISTRER_ESTIMERT_VENTETID,
                 -> skrivGjennomforing || oppfolgerGjennomforing
 
                 GjennomforingHandling.PUBLISER,

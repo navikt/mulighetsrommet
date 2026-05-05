@@ -3,7 +3,6 @@ import {
   AvtaleStatusType,
   Avtaletype,
   GjennomforingStatusType,
-  TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
 import { avtaletypeTilTekst } from "./Utils";
 
@@ -66,13 +65,6 @@ export const AVTALE_TYPE_OPTIONS: { label: string; value: Avtaletype }[] = [
     value: Avtaletype.RAMMEAVTALE,
   },
 ];
-
-export function tiltakstypeOptions(tiltakstyper: TiltakstypeDto[]) {
-  return tiltakstyper.sort().map((tiltakstype) => ({
-    label: tiltakstype.navn,
-    value: tiltakstype.id,
-  }));
-}
 
 export function arrangorOptions(arrangorer: ArrangorDto[]) {
   return arrangorer.sort().map((arrangor) => ({

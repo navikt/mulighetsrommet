@@ -1,0 +1,181 @@
+import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
+import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
+import { SetEstimertVentetidModal } from "@/components/gjennomforing/SetEstimertVentetidModal";
+import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
+import { KnapperadContainer } from "@/layouts/KnapperadContainer";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
+import { ExternalLinkIcon, LayersPlusIcon } from "@navikt/aksel-icons";
+import { ActionMenu, BodyShort, Button, Switch } from "@navikt/ds-react";
+import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router";
+import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
+import {
+  EndringshistorikkType,
+  GjennomforingAvtaleDto,
+  GjennomforingDetaljerDto,
+  GjennomforingDto,
+  GjennomforingHandling,
+  GjennomforingVeilederinfoDto,
+  NavAnsattDto,
+} from "@tiltaksadministrasjon/api-client";
+import { DeepPartial } from "react-hook-form";
+import { AvbrytGjennomforingModal } from "@/components/gjennomforing/AvbrytGjennomforingModal";
+import { isGruppetiltak } from "@/api/gjennomforing/utils";
+import { previewArbeidsmarkedstiltakUrl } from "@/constants";
+import { Handlinger } from "@/components/handlinger/Handlinger";
+import { AdministratorGuard } from "@/components/handlinger/AdministratorGuard";
+import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
+
+interface Props {
+  ansatt: NavAnsattDto;
+  gjennomforing: GjennomforingDto;
+  veilederinfo: GjennomforingVeilederinfoDto | null;
+  handlinger: GjennomforingHandling[];
+}
+
+export function GjennomforingHandlinger({
+  ansatt,
+  gjennomforing,
+  veilederinfo,
+  handlinger,
+}: Props) {
+  const navigate = useNavigate();
+  const advarselModal = useRef<HTMLDialogElement>(null);
+  const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
+  const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
+  const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
+  const [estimertVentetidModalOpen, setEstimertVentetidModalOpen] = useState(false);
+
+  const { mutate: setPublisert } = useSetPublisert(gjennomforing.id);
+
+  async function togglePublisert(e: React.MouseEvent<HTMLInputElement>) {
+    setPublisert({ publisert: e.currentTarget.checked });
+  }
+
+  function dupliserGjennomforing(gjennomforing: GjennomforingAvtaleDto) {
+    const duplisert: DeepPartial<GjennomforingDetaljerDto> = {
+      gjennomforing: {
+        avtaleId: gjennomforing.avtaleId,
+      },
+      veilederinfo: {
+        beskrivelse: veilederinfo?.beskrivelse,
+        faneinnhold: veilederinfo?.faneinnhold,
+      },
+    };
+
+    navigate(`/avtaler/${gjennomforing.avtaleId}/opprett-gjennomforing`, {
+      state: { dupliserGjennomforing: duplisert },
+    });
+  }
+  const administratorer = isGruppetiltak(gjennomforing)
+    ? gjennomforing.administratorer.map((a) => a.navIdent)
+    : [];
+
+  return (
+    <KnapperadContainer>
+      {veilederinfo && handlinger.includes(GjennomforingHandling.PUBLISER) && (
+        <Switch name="publiser" checked={veilederinfo.publisert} onClick={togglePublisert}>
+          Publiser
+        </Switch>
+      )}
+      <EndringshistorikkPopover>
+        <GjennomforingEndringshistorikk id={gjennomforing.id} />
+      </EndringshistorikkPopover>
+      <Handlinger>
+        {isGruppetiltak(gjennomforing) && handlinger.includes(GjennomforingHandling.REDIGER) && (
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => navigate("rediger")}>
+              Rediger gjennomføring
+            </ActionMenu.Item>
+          </AdministratorGuard>
+        )}
+        {isGruppetiltak(gjennomforing) &&
+          handlinger.includes(GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING) && (
+            <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+              <ActionMenu.Item onClick={() => apentForPameldingModalRef.current?.showModal()}>
+                {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
+              </ActionMenu.Item>
+            </AdministratorGuard>
+          )}
+        {handlinger.includes(GjennomforingHandling.REGISTRER_ESTIMERT_VENTETID) && (
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => setEstimertVentetidModalOpen(true)}>
+              Registrer estimert ventetid
+            </ActionMenu.Item>
+          </AdministratorGuard>
+        )}
+        {handlinger.includes(GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR) && (
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => registrerStengtModalRef.current?.showModal()}>
+              Registrer stengt hos arrangør
+            </ActionMenu.Item>
+          </AdministratorGuard>
+        )}
+        {handlinger.includes(GjennomforingHandling.AVBRYT) && (
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => setAvbrytModalOpen(true)}>
+              Avbryt gjennomføring
+            </ActionMenu.Item>
+          </AdministratorGuard>
+        )}
+        <ActionMenu.Divider />
+        {handlinger.includes(GjennomforingHandling.FORHANDSVIS_I_MODIA) && (
+          <ActionMenu.Item
+            as="a"
+            href={`${previewArbeidsmarkedstiltakUrl()}/tiltak/${gjennomforing.id}`}
+            target="_blank"
+            icon={<ExternalLinkIcon aria-hidden />}
+          >
+            Forhåndsvis i Modia
+          </ActionMenu.Item>
+        )}
+        {isGruppetiltak(gjennomforing) && handlinger.includes(GjennomforingHandling.DUPLISER) && (
+          <ActionMenu.Item
+            onClick={() => dupliserGjennomforing(gjennomforing)}
+            icon={<LayersPlusIcon aria-hidden />}
+          >
+            Dupliser
+          </ActionMenu.Item>
+        )}
+      </Handlinger>
+      <VarselModal
+        modalRef={advarselModal}
+        handleClose={() => advarselModal.current?.close()}
+        headingIconType="info"
+        headingText="Du er ikke eier av denne tiltaksgjennomføringen"
+        body={<BodyShort>Vil du fortsette til redigeringen?</BodyShort>}
+        secondaryButton
+        primaryButton={
+          <Button variant="primary" onClick={() => navigate("rediger")}>
+            Ja, jeg vil redigere
+          </Button>
+        }
+      />
+      <RegistrerStengtHosArrangorModal
+        modalRef={registrerStengtModalRef}
+        gjennomforingId={gjennomforing.id}
+      />
+      <SetApentForPameldingModal
+        modalRef={apentForPameldingModalRef}
+        gjennomforingId={gjennomforing.id}
+      />
+      <SetEstimertVentetidModal
+        open={estimertVentetidModalOpen}
+        setOpen={setEstimertVentetidModalOpen}
+        gjennomforingId={gjennomforing.id}
+      />
+      <AvbrytGjennomforingModal
+        open={avbrytModalOpen}
+        setOpen={setAvbrytModalOpen}
+        gjennomforingId={gjennomforing.id}
+      />
+    </KnapperadContainer>
+  );
+}
+
+function GjennomforingEndringshistorikk({ id }: { id: string }) {
+  const historikk = useEndringshistorikk(id, EndringshistorikkType.GJENNOMFORING);
+
+  return <ViewEndringshistorikk historikk={historikk.data} />;
+}

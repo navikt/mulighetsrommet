@@ -15,7 +15,7 @@ import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import {
   TiltakstypeRedaksjoneltInnholdFormValues,
   TiltakstypeRedaksjoneltInnholdSchema,
-} from "@/schemas/tiltakstypeRedaksjoneltInnhold";
+} from "@/pages/tiltakstyper/form/validation";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { RedaksjoneltInnholdLenkeModal } from "@/components/tiltakstype/RedaksjoneltInnholdLenkeModal";
 

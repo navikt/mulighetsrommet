@@ -22,6 +22,10 @@ import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 import kotlin.collections.List
 
+/*
+ * Confluence https://confluence.adeo.no/spaces/TM/pages/621546888/Tilgangsmaskin+API+og+regelsett
+ * Swagger https://tilgangsmaskin.ansatt.dev.nav.no/swagger-ui/index.html#/TilgangController/bulkOBOForRegelType
+ */
 class TilgangsmaskinClient(
     private val baseUrl: String,
     private val tokenProvider: TokenProvider,
@@ -41,7 +45,7 @@ class TilgangsmaskinClient(
         val response = client.post("$baseUrl/api/v1/bulk/obo") {
             bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(identer.map { TilgangsmaskinRequest(brukerId = it.value) })
+            setBody(identer.map { TilgangsmaskinRequest(brukerId = it.value, type = TilgangsmaskinRequest.Type.KJERNE_REGELTYPE) })
         }
 
         return when (response.status) {
@@ -72,8 +76,14 @@ class TilgangsmaskinClient(
 @Serializable
 data class TilgangsmaskinRequest(
     val brukerId: String,
-    val type: String = "KOMPLETT_REGELTYPE",
-)
+    val type: Type,
+) {
+    /* Komplett sjekk er med geografisk tilgangsjekk, kjerne er uten. */
+    enum class Type {
+        KOMPLETT_REGELTYPE,
+        KJERNE_REGELTYPE,
+    }
+}
 
 @Serializable
 data class TilgangsmaskinResponse(

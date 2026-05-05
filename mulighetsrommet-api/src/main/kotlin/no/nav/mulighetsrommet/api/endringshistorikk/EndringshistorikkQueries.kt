@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class EndringshistorikkQueries(private val session: Session) {
-    fun getEndringshistorikk(documentClass: DocumentClass, id: UUID): EndringshistorikkDto {
+    fun getEndringshistorikk(type: EndringshistorikkType, id: UUID): EndringshistorikkDto {
         @Language("PostgreSQL")
         val statement = """
             select
@@ -27,11 +27,11 @@ class EndringshistorikkQueries(private val session: Session) {
                 left join nav_ansatt na on user_id = na.nav_ident
             where
                 document_id = :document_id
-                and document_class = '$documentClass'::document_class
+                and document_class = :document_class
             order by edited_at desc;
         """.trimIndent()
 
-        val params = mapOf("document_id" to id)
+        val params = mapOf("document_id" to id, "document_class" to type.name)
 
         val entries = session.list(queryOf(statement, params)) {
             EndringshistorikkDto.Entry(
@@ -49,7 +49,7 @@ class EndringshistorikkQueries(private val session: Session) {
     }
 
     fun logEndring(
-        documentClass: DocumentClass,
+        type: EndringshistorikkType,
         operation: String,
         agent: Agent,
         documentId: UUID,
@@ -67,7 +67,7 @@ class EndringshistorikkQueries(private val session: Session) {
                 user_id
             ) values (
                 :document_id::uuid,
-                :document_class::document_class,
+                :document_class,
                 :value::jsonb,
                 :operation,
                 :edited_at,
@@ -78,7 +78,7 @@ class EndringshistorikkQueries(private val session: Session) {
         val params = mapOf(
             "operation" to operation,
             "document_id" to documentId,
-            "document_class" to documentClass.name,
+            "document_class" to type.name,
             "value" to valueProvider.invoke().toString(),
             "user_id" to agent.textRepr(),
             "edited_at" to timestamp,

@@ -51,6 +51,7 @@ fun kafkaTestConfig(kafkaConfig: KafkaConfig): KafkaConfig {
             sisteTiltakstyperTopic = testification(kafkaConfig.topics.sisteTiltakstyperTopic),
             arenaMigreringGjennomforingTopic = testification(kafkaConfig.topics.arenaMigreringGjennomforingTopic),
             datavarehusTiltakTopic = testification(kafkaConfig.topics.datavarehusTiltakTopic),
+            helvedUtbetalingTopic = testification(kafkaConfig.topics.helvedUtbetalingTopic),
         ),
     )
 }

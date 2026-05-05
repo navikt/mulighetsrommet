@@ -25,7 +25,6 @@ import {
   Tabs,
   VStack,
 } from "@navikt/ds-react";
-import ingenFunnImg from "public/ingen-funn.svg";
 import { ReactNode, Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Link, useLocation } from "react-router";
@@ -340,7 +339,7 @@ export function IngenFunnetBox(props: { title: string }) {
     <Box background="default" borderRadius="4" padding="space-20">
       <VStack align="center">
         <img
-          src={ingenFunnImg}
+          src="public/ingen-funn.svg"
           alt="Bilde av forstørrelsesglass som ser på et dokument"
           className="w-32.5 h-22.5"
         />

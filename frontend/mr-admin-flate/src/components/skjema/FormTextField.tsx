@@ -1,10 +1,10 @@
-import { TextField, VStack, type TextFieldProps } from "@navikt/ds-react";
+import { TextField, type TextFieldProps } from "@navikt/ds-react";
 import {
-  useController,
-  useFormContext,
   type FieldPath,
   type FieldValues,
   type RegisterOptions,
+  useController,
+  useFormContext,
 } from "react-hook-form";
 
 type FormTextFieldProps<TFieldValues extends FieldValues> = Omit<
@@ -25,14 +25,12 @@ export function FormTextField<TFieldValues extends FieldValues>({
   const { field, fieldState } = useController({ name, control, rules });
 
   return (
-    <VStack align="start">
-      <TextField
-        {...props}
-        {...field}
-        size={size}
-        value={field.value ?? ""}
-        error={fieldState.error?.message}
-      />
-    </VStack>
+    <TextField
+      {...props}
+      {...field}
+      size={size}
+      value={field.value ?? ""}
+      error={fieldState.error?.message}
+    />
   );
 }

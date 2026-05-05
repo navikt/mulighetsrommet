@@ -3,7 +3,7 @@ import { HelpText, HStack, Label } from "@navikt/ds-react";
 
 export interface LabelWithHelpTextProps {
   label: string;
-  helpTextTitle: string;
+  helpTextTitle?: string;
   placement?:
     | "top"
     | "bottom"

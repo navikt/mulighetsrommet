@@ -9,7 +9,7 @@ import { ControlledSokeSelect } from "@mr/frontend-common";
 import { SertifiseringerSkjema } from "./SertifiseringerSelect";
 import { ForerkortForm } from "./ForerkortForm";
 import { InnholdElementerForm } from "./InnholdElementerForm";
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 
 interface Props {
   tiltakskode: Tiltakskode;

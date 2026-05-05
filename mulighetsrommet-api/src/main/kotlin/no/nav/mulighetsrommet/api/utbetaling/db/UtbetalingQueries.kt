@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
-import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
@@ -30,7 +29,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningType
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
-import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -41,6 +39,7 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -618,14 +617,16 @@ class UtbetalingQueries(private val session: Session) {
     }
 
     fun getAll(
-        filter: AdminInnsendingerFilter,
+        tiltakskoder: List<Tiltakskode> = emptyList(),
+        navEnheter: List<NavEnhetNummer> = emptyList(),
+        sortering: String? = null,
     ): List<InnsendingKompaktDto> = with(session) {
         val parameters = mapOf(
-            "nav_enheter" to filter.navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
-            "tiltakstyper" to filter.tiltakstyper.ifEmpty { null }?.let { createUuidArray(it) },
+            "nav_enheter" to navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
+            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { createTextArray(it) },
         )
 
-        val order = when (filter.sortering) {
+        val order = when (sortering) {
             "arrangor-ascending" -> "arrangor_navn asc"
             "arrangor-descending" -> "arrangor_navn desc"
             "periode-ascending" -> "periode asc"
@@ -667,7 +668,7 @@ class UtbetalingQueries(private val session: Session) {
                                                  join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
                                         where utbetaling.gjennomforing_id = tilsagn.gjennomforing_id and utbetaling.periode && tilsagn.periode) on true
             where (utbetaling.status = 'GENERERT')
-              and (:tiltakstyper::uuid[] is null or gjennomforing.tiltakstype_id = any (:tiltakstyper))
+              and (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any (:tiltakskoder))
               and (:nav_enheter::text[] is null or (
                        exists(select true
                               from jsonb_array_elements(kostnadssteder_json) as nav_enhet

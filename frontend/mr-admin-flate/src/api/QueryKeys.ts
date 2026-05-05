@@ -1,5 +1,5 @@
 import {
-  DocumentClass,
+  EndringshistorikkType,
   GetArrangorerData,
   GetAvtalerData,
   GetGjennomforingerData,
@@ -34,8 +34,7 @@ export const QueryKeys = {
     ["avtale", avtaleId, "rammedetaljer", "defaults"] as const,
   avtalerHandlinger: () => ["avtaler-handlinger"] as const,
   avtaleHandlinger: (id?: string) => ["avtale-handlinger", id] as const,
-  historikk: (id?: string, documentClass?: DocumentClass) =>
-    [id, documentClass, "historikk"] as const,
+  historikk: (id?: string, type?: EndringshistorikkType) => [id, type, "historikk"] as const,
   navEnheter: () => ["nav-enheter"],
   kostnadssted: (regioner?: string[]) => ["kostnadssted", regioner],
   arrangorer: (filter?: Pick<GetArrangorerData, "query">) => ["arrangorer", filter] as const,

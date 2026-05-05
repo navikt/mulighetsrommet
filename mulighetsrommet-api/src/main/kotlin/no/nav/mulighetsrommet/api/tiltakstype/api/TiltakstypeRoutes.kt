@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKompaktDto
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -32,6 +33,9 @@ fun Route.tiltakstypeRoutes() {
             request {
                 queryParameter<TiltakstypeSortField>("sortField")
                 queryParameter<SortDirection>("sortDirection")
+                queryParameter<Set<TiltakstypeEgenskap>>("egenskaper") {
+                    explode = true
+                }
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -143,9 +147,10 @@ fun Route.tiltakstypeRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
+                val navIdent = getNavIdent()
                 val request = call.receive<TiltakstypeVeilederinfoRequest>()
 
-                val result = tiltakstypeDetaljerService.upsertVeilederinfo(id, request)
+                val result = tiltakstypeDetaljerService.upsertVeilederinfo(id, request, navIdent)
                     ?: return@post call.respondText(
                         "Det finnes ikke noe tiltakstype med id $id",
                         status = HttpStatusCode.NotFound,
@@ -153,7 +158,9 @@ fun Route.tiltakstypeRoutes() {
 
                 call.respond(result)
             }
+        }
 
+        authorize(Rolle.TILTAKSTYPER_REDIGER_DELTAKERINFO) {
             post("{id}/deltakerinfo", {
                 tags = setOf("Tiltakstype")
                 operationId = "updateDeltakerinfo"
@@ -176,9 +183,10 @@ fun Route.tiltakstypeRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
+                val navIdent = getNavIdent()
                 val request = call.receive<TiltakstypeDeltakerinfoRequest>()
 
-                val result = tiltakstypeDetaljerService.upsertDeltakerinfo(id, request)
+                val result = tiltakstypeDetaljerService.upsertDeltakerinfo(id, request, navIdent)
                     ?: return@post call.respondText(
                         "Det finnes ikke noe tiltakstype med id $id",
                         status = HttpStatusCode.NotFound,

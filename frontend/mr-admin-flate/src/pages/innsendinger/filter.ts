@@ -3,9 +3,10 @@ import { z } from "zod";
 import { createFilterStateAtom } from "@/filter/filter-state";
 import { createFilterValidator, createGracefulParser } from "@/filter/filter-validator";
 import { createSorteringProps } from "@/api/atoms";
+import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 export const InnsendingFilterSchema = z.object({
-  tiltakstyper: z.string().array(),
+  tiltakstyper: z.custom<Tiltakskode>().array(),
   kostnadssteder: z.string().array(),
   sortering: createSorteringProps(z.string()),
 });

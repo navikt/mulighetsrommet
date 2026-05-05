@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
@@ -144,6 +144,9 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
                         id = it.id,
                         soknadDato = it.soknadDato,
                         periode = it.periode,
+                        journalpostId = it.soknadJournalpostId,
+                        tilskuddtyper = it.tilskudd.map { tilskudd -> tilskudd.tilskuddOpplaeringType }
+                            .toSet(),
                         kostnadssted = it.kostnadssted,
                         status = it.status,
                     )
@@ -163,7 +166,7 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
                 tilgangTilHandling(
                     handling = it,
                     navIdent = navIdent,
-                    kostnadssted = behandling.kostnadssted,
+                    kostnadssted = behandling.kostnadssted.enhetsnummer,
                     opprettelse = opprettelse,
                 )
             }
@@ -202,7 +205,7 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
     ): TilskuddBehandlingDto {
         val behandling = queries.tilskuddBehandling.getOrError(id)
         queries.endringshistorikk.logEndring(
-            DocumentClass.TILSKUDD_BEHANDLING,
+            EndringshistorikkType.TILSKUDD_BEHANDLING,
             operation,
             endretAv,
             id,

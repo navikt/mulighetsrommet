@@ -6,7 +6,7 @@ import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { KontorstrukturFilterTag } from "@/components/filter/KontorstrukturFilterTag";
 import { Chips } from "@navikt/ds-react";
-import { TiltakstypeFilterTags } from "@/components/filter/TiltakstypeFilterTags";
+import { TiltakskodeFilterTags } from "@/components/filter/TiltakskodeFilterTags";
 
 interface Props {
   filter: GjennomforingFilterType;
@@ -46,9 +46,9 @@ export function GjennomforingFilterTags({
             onClick={() => updateFilter({ navEnheter: [], page: 1 })}
           />
         )}
-        <TiltakstypeFilterTags
-          ids={filter.tiltakstyper}
-          onRemove={(tiltakstype) => removeArrayItem("tiltakstyper", tiltakstype)}
+        <TiltakskodeFilterTags
+          tiltakskoder={filter.tiltakstyper}
+          onRemove={(tiltakskode) => removeArrayItem("tiltakstyper", tiltakskode)}
         />
         {filter.statuser.map((status) => (
           <Chips.Removable key={status} onClick={() => removeArrayItem("statuser", status)}>

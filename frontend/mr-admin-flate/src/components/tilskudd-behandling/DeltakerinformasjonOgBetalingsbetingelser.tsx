@@ -4,9 +4,10 @@ import { DeltakerDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   deltaker: DeltakerDto | null;
+  prisbetingelser: string | null;
 }
 
-export function DeltakerinformasjonOgBetalingsbetingelser({ deltaker }: Props) {
+export function DeltakerinformasjonOgBetalingsbetingelser({ deltaker, prisbetingelser }: Props) {
   if (!deltaker) {
     return <InlineMessage status="error">Fant ikke deltakerinformasjon</InlineMessage>;
   }
@@ -41,12 +42,9 @@ export function DeltakerinformasjonOgBetalingsbetingelser({ deltaker }: Props) {
         </Table>
       </section>
       <section>
-        <Heading size="small" level="3" spacing>
-          Innhold i tiltaket
-        </Heading>
         <Box background="neutral-soft" padding="space-16" borderRadius="8">
-          <BodyShort weight="semibold">Annet:</BodyShort>
-          <BodyShort>{deltaker.innholdAnnet}</BodyShort>
+          <BodyShort weight="semibold">Pris og betalingsbetingelser:</BodyShort>
+          <BodyShort>{prisbetingelser}</BodyShort>
         </Box>
       </section>
     </VStack>

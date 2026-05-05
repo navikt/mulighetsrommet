@@ -1,16 +1,17 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
-import { TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
+import { TextField, VStack } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
   AvtaleArrangorHovedenhet,
-  GjennomforingRequest,
 } from "@tiltaksadministrasjon/api-client";
 import { useRef } from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
+import { GjennomforingFormInput } from "@/pages/gjennomforing/form/validation";
+import { FormCombobox } from "@/components/skjema/FormCombobox";
 
 interface Props {
   arrangor: AvtaleArrangorHovedenhet;
@@ -20,12 +21,7 @@ interface Props {
 export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
-  const {
-    watch,
-    formState: { errors },
-    setValue,
-    control,
-  } = useFormContext<GjennomforingRequest>();
+  const { watch, setValue } = useFormContext<GjennomforingFormInput>();
 
   const { data: arrangorKontaktpersoner } = useArrangorKontaktpersoner(arrangor.id);
 
@@ -40,59 +36,20 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
           defaultValue={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
           readOnly
         />
-        <Controller
-          control={control}
-          name="arrangorId"
-          render={({ field }) => (
-            <UNSAFE_Combobox
-              size="small"
-              id="arrangorId"
-              label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
-              placeholder="Velg underenhet for tiltaksarrangør"
-              selectedOptions={arrangorOptions.filter((option) =>
-                field.value?.includes(option.value),
-              )}
-              name={field.name}
-              error={errors.arrangorId?.message}
-              options={arrangorOptions}
-              readOnly={readOnly}
-              onToggleSelected={(option, isSelected) => {
-                if (isSelected) {
-                  field.onChange(option);
-                } else {
-                  field.onChange(undefined);
-                }
-              }}
-            />
-          )}
+        <FormCombobox
+          label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
+          name={"arrangorId"}
+          readOnly={readOnly}
+          options={arrangorOptions}
         />
         <VStack>
-          <Controller
-            control={control}
-            name="arrangorKontaktpersoner"
-            render={({ field }) => (
-              <UNSAFE_Combobox
-                size="small"
-                id="arrangorKontaktpersoner"
-                label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
-                placeholder="Velg kontaktpersoner"
-                isMultiSelect
-                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                selectedOptions={kontaktpersonOptions.filter((v) => field.value?.includes(v.value))}
-                name={field.name}
-                error={errors.arrangorKontaktpersoner?.message}
-                options={kontaktpersonOptions}
-                readOnly={!arrangor}
-                onToggleSelected={(option, isSelected) => {
-                  const currentValues = field.value;
-                  if (isSelected) {
-                    field.onChange([...currentValues, option]);
-                  } else {
-                    field.onChange(currentValues.filter((v) => v !== option));
-                  }
-                }}
-              />
-            )}
+          <FormCombobox
+            isMultiSelect
+            label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
+            name={"arrangorKontaktpersoner"}
+            readOnly={!arrangor}
+            options={kontaktpersonOptions}
+            placeholder="Velg kontaktpersoner"
           />
           <KontaktpersonButton
             onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}

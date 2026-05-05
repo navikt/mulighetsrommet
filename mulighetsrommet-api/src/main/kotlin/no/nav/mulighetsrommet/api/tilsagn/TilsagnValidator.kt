@@ -60,10 +60,10 @@ object TilsagnValidator {
             FieldError.of("Tilsagn for tiltakstype $tiltakstypeNavn er ikke støttet enda", TilsagnRequest::periodeStart)
         }
         validate(!arrangorSlettet) {
-            FieldError.of("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg", TilsagnRequest::id)
+            FieldError.of("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg")
         }
         validate(previous == null || previous.status == TilsagnStatus.RETURNERT) {
-            FieldError.of("Tilsagnet kan ikke endres", TilsagnRequest::id)
+            FieldError.of("Tilsagnet kan ikke endres")
         }
         validate((next.kommentar?.length ?: 0) <= 500) {
             FieldError.of("Kommentar kan ikke inneholde mer enn 500 tegn", TilsagnRequest::kommentar)

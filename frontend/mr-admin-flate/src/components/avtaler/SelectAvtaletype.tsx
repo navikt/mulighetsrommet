@@ -1,4 +1,4 @@
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { Avtaletype, Tiltakskode } from "@tiltaksadministrasjon/api-client";
@@ -13,17 +13,13 @@ interface SelectAvtaletypeProps {
 }
 
 export function SelectAvtaletype({ tiltakskode, readOnly, onChange }: SelectAvtaletypeProps) {
-  const { data: avtaletyper } = useAvtaletyper(tiltakskode);
+  const avtaletyper = useAvtaletyper(tiltakskode);
 
   const { setValue, getValues } = useFormContext<AvtaleFormValues>();
 
   useEffect(() => {
     const current = getValues("detaljer.avtaletype");
-    if (
-      avtaletyper &&
-      avtaletyper.length > 0 &&
-      !avtaletyper.some((info) => info.type === current)
-    ) {
+    if (avtaletyper.length > 0 && !avtaletyper.some((info) => info.type === current)) {
       setValue("detaljer.avtaletype", avtaletyper[0].type);
       onChange(avtaletyper[0].type);
     }
@@ -36,7 +32,7 @@ export function SelectAvtaletype({ tiltakskode, readOnly, onChange }: SelectAvta
       label={avtaletekster.avtaletypeLabel}
       rules={{ onChange: (e) => onChange(e.target.value) }}
     >
-      {(avtaletyper ?? []).map((info) => (
+      {avtaletyper.map((info) => (
         <option key={info.type} value={info.type}>
           {info.tittel}
         </option>

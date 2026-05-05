@@ -1,7 +1,7 @@
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import {
-  DocumentClass,
+  EndringshistorikkType,
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingStatusDtoType,
@@ -33,7 +33,7 @@ import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistori
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
 
-  const { data: historikk } = useEndringshistorikk(utbetalingId, DocumentClass.UTBETALING);
+  const { data: historikk } = useEndringshistorikk(utbetalingId, EndringshistorikkType.UTBETALING);
   const { utbetaling, handlinger } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
 

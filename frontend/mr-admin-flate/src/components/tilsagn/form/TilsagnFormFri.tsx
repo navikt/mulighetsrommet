@@ -7,21 +7,14 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import {
-  Alert,
-  Button,
-  HStack,
-  Label,
-  Spacer,
-  Textarea,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
+import { Alert, Button, HStack, Label, Spacer, Textarea, VStack } from "@navikt/ds-react";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
+import { FormTextarea } from "@/components/skjema/FormTextarea";
+import { NumberInput } from "@/components/skjema/NumberInput";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -47,10 +40,9 @@ interface BeregningInputSkjemaProps {
 
 function BeregningInputSkjema({ valuta }: BeregningInputSkjemaProps) {
   const {
-    register,
     watch,
-    formState: { errors },
     control,
+    formState: { errors },
   } = useFormContext<TilsagnRequest>();
   const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
 
@@ -77,42 +69,23 @@ function BeregningInputSkjema({ valuta }: BeregningInputSkjemaProps) {
           padding="space-16"
           className="border-ax-border-neutral-subtle border-1 rounded-lg"
         >
-          <Textarea
-            size="small"
+          <FormTextarea<TilsagnRequest>
+            name={`beregning.linjer.${index}.beskrivelse`}
             label="Beskrivelse (vises kun internt i Nav)"
             className="flex-20"
             maxLength={100}
-            error={errors.beregning?.linjer?.[index]?.beskrivelse?.message}
-            {...register(`beregning.linjer.${index}.beskrivelse`)}
-            defaultValue={item.beskrivelse ?? ""}
           />
-          <TextField
-            size="small"
-            type="number"
+          <NumberInput<TilsagnRequest>
+            name={`beregning.linjer.${index}.pris.belop`}
             label="Beløp"
             className="w-26 flex-none"
-            error={errors.beregning?.linjer?.[index]?.pris?.belop?.message}
-            {...register(`beregning.linjer.${index}.pris.belop`, {
-              setValueAs: (v) => (v === "" ? null : Number(v)),
-            })}
-            defaultValue={item.pris?.belop ?? 0}
           />
-          <TextField
-            size="small"
-            type="number"
+          <NumberInput<TilsagnRequest>
+            name={`beregning.linjer.${index}.antall`}
             label="Antall"
             className="w-20 flex-none"
-            error={errors.beregning?.linjer?.[index]?.antall?.message}
-            {...register(`beregning.linjer.${index}.antall`, {
-              setValueAs: (v) => (v === "" ? null : Number(v)),
-            })}
-            defaultValue={item.antall ?? 0}
           />
-          <input
-            type="hidden"
-            {...register(`beregning.linjer.${index}.id`)}
-            defaultValue={item.id}
-          />
+          <input type="hidden" name={`beregning.linjer.${index}.id`} defaultValue={item.id} />
           <Spacer />
           <Button
             data-color="neutral"

@@ -377,7 +377,7 @@ class AvtaleQueries(private val session: Session) {
 
     fun getAll(
         pagination: Pagination = Pagination.all(),
-        tiltakstypeIder: List<UUID> = emptyList(),
+        tiltakstyper: List<UUID> = emptyList(),
         search: String? = null,
         statuser: List<AvtaleStatusType> = emptyList(),
         avtaletyper: List<Avtaletype> = emptyList(),
@@ -391,7 +391,7 @@ class AvtaleQueries(private val session: Session) {
             "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
-            "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { createUuidArray(it) },
+            "tiltakstype_ids" to tiltakstyper.ifEmpty { null }?.let { createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { createUuidArray(it) },
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
             "avtaletyper" to avtaletyper.ifEmpty { null }?.let { createArrayOfAvtaletype(it) },

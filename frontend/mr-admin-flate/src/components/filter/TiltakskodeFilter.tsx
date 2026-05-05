@@ -1,15 +1,14 @@
 import { CheckboxGroup } from "@mr/frontend-common";
 import { Tiltakskode, TiltakstypeKompaktDto } from "@tiltaksadministrasjon/api-client";
 import { useMemo } from "react";
-import { useTiltakstyperForGjennomforinger } from "@/api/tiltakstyper/useTiltakstyperForGjennomforinger";
 
 interface Props {
+  tiltakstyper: TiltakstypeKompaktDto[];
   value: string[];
-  onChange: (tiltakstyper: Tiltakskode[]) => void;
+  onChange: (tiltakskoder: Tiltakskode[]) => void;
 }
 
-export function TiltakskodeFilter({ value, onChange }: Props) {
-  const tiltakstyper = useTiltakstyperForGjennomforinger();
+export function TiltakskodeFilter({ tiltakstyper, value, onChange }: Props) {
   const groups = useTiltakskodeFilter(tiltakstyper);
   return (
     <CheckboxGroup

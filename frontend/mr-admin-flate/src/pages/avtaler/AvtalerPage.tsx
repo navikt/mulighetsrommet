@@ -20,7 +20,7 @@ import { useAvtalerSavedFilterState } from "@/filter/useSavedFiltersState";
 import { useAvtalerHandlinger } from "@/api/avtaler/useAvtaler";
 import { Button } from "@navikt/ds-react";
 import { Link } from "react-router";
-import { AvtaleHandling } from "node_modules/@tiltaksadministrasjon/api-client/build/types.gen";
+import { AvtaleHandling } from "@tiltaksadministrasjon/api-client";
 
 export function AvtalerPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -77,7 +77,7 @@ export function AvtalerPage() {
             }
             buttons={
               handlinger.includes(AvtaleHandling.OPPRETT) ? (
-                <Button as={Link} to="/avtaler/opprett-avtale" size="small" variant="primary">
+                <Button as={Link} to="/avtaler/opprett" size="small" variant="primary">
                   Opprett ny avtale
                 </Button>
               ) : null

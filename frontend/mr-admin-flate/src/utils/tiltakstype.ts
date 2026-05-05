@@ -9,17 +9,6 @@ export function erUtfaset(tiltakstype: TiltakstypeKompaktDto) {
   return harFeature(tiltakstype, TiltakstypeFeature.UTFASET);
 }
 
-export function erTilgjengligForAvtaler(tiltakstype: TiltakstypeKompaktDto) {
-  return harEgenskap(tiltakstype, TiltakstypeEgenskap.STOTTER_AVTALER);
-}
-
-export function erTilgjengeligForGjennomforinger(tiltakstype: TiltakstypeKompaktDto) {
-  return (
-    harEgenskap(tiltakstype, TiltakstypeEgenskap.STOTTER_AVTALER) ||
-    harEgenskap(tiltakstype, TiltakstypeEgenskap.STOTTER_ENKELTPLASSER)
-  );
-}
-
 export function kreverDirekteVedtak(tiltakstype: TiltakstypeKompaktDto) {
   return harEgenskap(tiltakstype, TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK);
 }

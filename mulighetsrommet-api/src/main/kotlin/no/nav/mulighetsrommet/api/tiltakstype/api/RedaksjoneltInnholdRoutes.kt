@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.tiltakstype.api
 
-import arrow.core.nel
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.put
@@ -13,7 +12,6 @@ import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.service.RedaksjoneltInnholdLenkeService
@@ -81,15 +79,14 @@ fun Route.redaksjoneltInnholdRoutes() {
             }) {
                 val id: UUID by call.parameters
 
-                if (!redaksjoneltInnholdLenkeService.delete(id)) {
-                    val error = ValidationError(
-                        detail = "Lenke kan ikke slettes",
-                        errors = FieldError.of("Lenke kan ikke slettes").nel(),
-                    )
-                    return@delete call.respondWithProblemDetail(error)
-                }
-
-                call.respond(HttpStatusCode.NoContent)
+                val result = redaksjoneltInnholdLenkeService.delete(id)
+                result.fold(
+                    { errors ->
+                        val error = ValidationError("Lenken er i bruk og kan ikke slettes", errors)
+                        call.respondWithProblemDetail(error)
+                    },
+                    { call.respond(HttpStatusCode.NoContent) },
+                )
             }
         }
     }

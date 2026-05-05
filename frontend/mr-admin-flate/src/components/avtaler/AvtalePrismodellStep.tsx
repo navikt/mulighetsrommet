@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { AvtaleFormValues } from "@/schemas/avtale";
+import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import AvtalePrismodellForm from "./AvtalePrismodellForm";
 import { safeParseDate } from "@mr/frontend-common/utils/date";

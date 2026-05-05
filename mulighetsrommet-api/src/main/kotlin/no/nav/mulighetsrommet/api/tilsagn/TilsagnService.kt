@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.findAvtaltSats
-import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
@@ -761,7 +761,7 @@ class TilsagnService(
     ): Tilsagn {
         val tilsagn = queries.tilsagn.getOrError(tilsagnId)
         queries.endringshistorikk.logEndring(
-            DocumentClass.TILSAGN,
+            EndringshistorikkType.TILSAGN,
             operation,
             endretAv,
             tilsagnId,

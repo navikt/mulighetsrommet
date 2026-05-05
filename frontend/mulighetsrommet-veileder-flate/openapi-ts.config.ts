@@ -13,8 +13,10 @@ export default defineConfig({
     { name: "@hey-api/client-fetch", exportFromIndex: true, throwOnError: true },
     {
       name: "@hey-api/sdk",
-      asClass: true,
-      classNameBuilder: (name: string) => `${name}Service`,
+      operations: {
+        strategy: "byTags",
+        containerName: (name) => `${name}Service`,
+      },
     },
     {
       name: "@hey-api/typescript",

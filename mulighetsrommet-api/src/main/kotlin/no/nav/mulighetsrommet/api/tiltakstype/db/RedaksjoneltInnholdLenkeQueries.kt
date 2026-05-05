@@ -53,6 +53,19 @@ class RedaksjoneltInnholdLenkeQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toRedaksjoneltInnholdLenke() }
     }
 
+    fun getReferencingTiltakstyper(id: UUID): List<String> {
+        @Language("PostgreSQL")
+        val query = """
+            select tiltakstype.navn
+            from tiltakstype
+            join tiltakstype_faglenke faglenke on faglenke.tiltakstype_id = tiltakstype.id
+            where faglenke.lenke_id = ?::uuid
+            order by tiltakstype.navn
+        """.trimIndent()
+
+        return session.list(queryOf(query, id)) { it.string("navn") }
+    }
+
     fun delete(id: UUID): Int {
         @Language("PostgreSQL")
         val query = """

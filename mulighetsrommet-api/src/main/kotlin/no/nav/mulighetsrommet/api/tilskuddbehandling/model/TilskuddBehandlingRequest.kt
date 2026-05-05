@@ -20,10 +20,11 @@ data class TilskuddBehandlingRequest(
     val periodeStart: String?,
     val periodeSlutt: String?,
     val kostnadssted: NavEnhetNummer?,
-    val vedtak: List<TilskuddVedtakRequest>,
+    val kommentarIntern: String?,
+    val tilskudd: List<TilskuddRequest>,
 ) {
     @Serializable
-    data class TilskuddVedtakRequest(
+    data class TilskuddRequest(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val tilskuddOpplaeringType: TilskuddOpplaeringType?,
@@ -31,5 +32,7 @@ data class TilskuddBehandlingRequest(
         val vedtakResultat: VedtakResultat?,
         val kommentarVedtaksbrev: String?,
         val utbetalingMottaker: String?,
+        val kidNummer: String?,
+        val belop: Int?,
     )
 }

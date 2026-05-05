@@ -1,10 +1,11 @@
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
-import { Button } from "@navikt/ds-react";
+import { BodyLong, Box, Button, Heading, HGrid, Link, List, VStack } from "@navikt/ds-react";
 import { useEffect, useRef } from "react";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { Melding } from "../melding/Melding";
 import { PortableText } from "@mr/frontend-common";
 import { Tiltakskode } from "@api-client";
+import { XMarkIcon } from "@navikt/aksel-icons";
 
 interface Props {
   oppskriftId: string;
@@ -49,47 +50,57 @@ export function Oppskrift({ oppskriftId, tiltakskode, setOppskriftId }: Props) {
   }
 
   return (
-    <>
-      <Button data-color="neutral" variant="tertiary" onClick={() => setOppskriftId(undefined)}>
-        Lukk oppskriften
-      </Button>
-      <div className="flex bg-ax-bg-default p-4">
-        <aside className="mx-4">
-          <nav>
-            <ol className="m-0 p-0">
-              {oppskrift.steg.map((s, index) => {
-                return (
-                  <li key={s.navn} className="my-4 mx-0">
-                    <button
-                      className="bg-none border-none underline text-left hover:cursor-pointer"
-                      title={`Naviger til steg: ${index + 1}`}
-                      aria-label={`Naviger til steg: ${index + 1}`}
-                      onClick={() => navigateViaShadowDomToElement(`#steg-${index + 1}`)}
-                    >
-                      {s.navn}
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
-          </nav>
-        </aside>
+    <Box
+      padding="space-16"
+      background="info-soft"
+      borderWidth="1"
+      borderColor="info"
+      marginBlock="space-16"
+    >
+      <VStack gap="space-16" align="start">
+        <Button icon={<XMarkIcon />} variant="tertiary" onClick={() => setOppskriftId(undefined)}>
+          Lukk oppskriften
+        </Button>
+        <Heading level="3" size="medium" spacing>
+          {oppskrift.navn}
+        </Heading>
+        <BodyLong spacing>{oppskrift.beskrivelse}</BodyLong>
+      </VStack>
+      <HGrid gap="space-16" columns="1fr 0.25fr">
         <section ref={ref} className="overflow-y-scroll max-h-200">
-          <h3>{oppskrift.navn}</h3>
-          <p>{oppskrift.beskrivelse}</p>
           {oppskrift.steg.map((st, index) => {
             return (
-              <div
-                key={st.navn}
-                className="bg-ax-bg-neutral-soft p-4 my-4 mx-0 rounded-[0.2rem] [&_img]:w-full"
-              >
-                <h4 id={`steg-${index + 1}`}>{`${index + 1}. ${st.navn}`}</h4>
+              <Box key={st.navn} background="default" padding="space-16" margin="space-16">
+                <Heading
+                  level="4"
+                  size="small"
+                  id={`steg-${index + 1}`}
+                >{`${index + 1}. ${st.navn}`}</Heading>
                 <PortableText value={st.innhold} />
-              </div>
+              </Box>
             );
           })}
         </section>
-      </div>
-    </>
+        <aside className="mx-4">
+          <nav>
+            <List>
+              {oppskrift.steg.map((s, index) => {
+                return (
+                  <List.Item key={s.navn}>
+                    <Link
+                      aria-label={`Naviger til steg: ${index + 1}`}
+                      href={`#steg-${index + 1}`}
+                      onClick={() => navigateViaShadowDomToElement(`#steg-${index + 1}`)}
+                    >
+                      {s.navn}
+                    </Link>
+                  </List.Item>
+                );
+              })}
+            </List>
+          </nav>
+        </aside>
+      </HGrid>
+    </Box>
   );
 }
