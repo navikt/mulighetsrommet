@@ -107,8 +107,12 @@ class ArenaEntityService(
             .left()
     }
 
-    fun getIgnoredDeltakereMappingsForGjennomforing(gjennomforingArenaId: String): List<ArenaEntityMapping> {
-        return mappings.getIgnoredDeltakereMappingsForGjennomforing(gjennomforingArenaId)
+    fun getMappings(
+        tables: List<ArenaTable>,
+        payloadField: String,
+        payloadValue: String,
+    ): List<ArenaEntityMapping> {
+        return mappings.getMappings(tables, payloadField, payloadValue)
     }
 
     fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> {
