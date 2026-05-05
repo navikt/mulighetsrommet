@@ -36,7 +36,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
             columns={{ xs: "1fr", sm: "1fr 0.5fr" }}
             id="gjennomforing_detaljer"
           >
-            <VStack gap="space-16">
+            <VStack>
               <TiltakHeader tiltak={tiltak} />
               <TiltakDetaljer tiltak={tiltak} setOppskriftId={setOppskriftId} />
               {oppskriftId && (

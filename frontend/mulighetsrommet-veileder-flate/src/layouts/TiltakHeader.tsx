@@ -40,39 +40,38 @@ export function TiltakHeader({ tiltak }: Props) {
         </>
       )}
 
-      {stengtPerioder && (
-        <>
+      {stengtPerioder && stengtPerioder.length > 0 && (
+        <Box
+          background="neutral-soft"
+          padding="space-8"
+          borderColor="neutral"
+          borderWidth="1"
+          borderRadius="8"
+          marginBlock="space-0 space-24"
+        >
           <Heading level="4" size="xsmall" spacing>
             Perioder hvor tiltakstilbudet er stengt hos arrangør
           </Heading>
-          <Box
-            background="neutral-soft"
-            padding="space-8"
-            borderColor="neutral"
-            borderWidth="1"
-            borderRadius="8"
-            marginBlock="space-0 space-16"
-          >
-            <Table>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell textSize="small">Periode</Table.HeaderCell>
-                  <Table.HeaderCell textSize="small">Beskrivelse</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {stengtPerioder.map((periode) => {
-                  return (
-                    <Table.Row key={periode.id}>
-                      <Table.DataCell textSize="small">{`${formaterDato(periode.start)} - ${formaterDato(periode.slutt)}`}</Table.DataCell>
-                      <Table.DataCell textSize="small">{periode.beskrivelse}</Table.DataCell>
-                    </Table.Row>
-                  );
-                })}
-              </Table.Body>
-            </Table>
-          </Box>
-        </>
+          <hr />
+          <Table>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell textSize="small">Periode</Table.HeaderCell>
+                <Table.HeaderCell textSize="small">Beskrivelse</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {stengtPerioder.map((periode) => {
+                return (
+                  <Table.Row key={periode.id}>
+                    <Table.DataCell textSize="small">{`${formaterDato(periode.start)} - ${formaterDato(periode.slutt)}`}</Table.DataCell>
+                    <Table.DataCell textSize="small">{periode.beskrivelse}</Table.DataCell>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
+          </Table>
+        </Box>
       )}
     </VStack>
   );
