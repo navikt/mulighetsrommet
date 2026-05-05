@@ -90,10 +90,16 @@ object TilskuddBehandlingValidator {
                 )
             }
         }
-        validate(req.soknadBelop?.belop != null && req.soknadBelop.belop > 0 && req.soknadBelop.valuta != null) {
+        validate(req.soknadBelop?.belop != null && req.soknadBelop.belop > 0) {
             FieldError(
                 "/tilskudd/$index/soknadBelop/belop",
                 "Søknadsbeløp må være positivt",
+            )
+        }
+        validateNotNull(req.soknadBelop?.valuta) {
+            FieldError(
+                "/tilskudd/$index/soknadBelop/valuta",
+                "Søknadsvaluta må være positivt",
             )
         }
         if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {

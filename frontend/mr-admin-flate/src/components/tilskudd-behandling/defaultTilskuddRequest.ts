@@ -1,4 +1,7 @@
-import { TilskuddBehandlingRequestTilskuddRequest } from "@tiltaksadministrasjon/api-client";
+import {
+  TilskuddBehandlingRequestTilskuddRequest,
+  Valuta,
+} from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
 export function defaultTilskuddRequest(): TilskuddBehandlingRequestTilskuddRequest {
@@ -6,7 +9,10 @@ export function defaultTilskuddRequest(): TilskuddBehandlingRequestTilskuddReque
     id: v4(),
     tilskuddOpplaeringType: null,
     belop: null,
-    soknadBelop: null,
+    soknadBelop: {
+      belop: null,
+      valuta: Valuta.NOK,
+    },
     kommentarVedtaksbrev: null,
     vedtakResultat: null,
     utbetalingMottaker: null,
