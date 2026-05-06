@@ -2,7 +2,7 @@ import { RegistrerOpsjonModal } from "@/components/avtaler/opsjoner/RegistrerOps
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { ActionMenu, BodyShort, Button } from "@navikt/ds-react";
+import { ActionMenu } from "@navikt/ds-react";
 import {
   AvbrytAvtaleAarsak,
   AvtaleDto,
@@ -12,7 +12,7 @@ import {
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
@@ -28,17 +28,10 @@ interface Props {
   avtale: AvtaleDto;
 }
 
-function skjemaPath(pathname: string): string {
-  if (pathname.includes("veilederinformasjon")) return "veilederinformasjon/rediger";
-  if (pathname.includes("personvern")) return "personvern/rediger";
-  return "rediger";
-}
-
 type AvtaleModal = "Prismodell" | "Avbryt" | "Rammedetaljer";
 
 export function AvtaleHandlinger({ avtale }: Props) {
   const navigate = useNavigate();
-  const location = useLocation();
   const { data: handlinger } = useAvtaleHandlinger(avtale.id);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
@@ -47,7 +40,6 @@ export function AvtaleHandlinger({ avtale }: Props) {
   const [avtaleModalOpen, setAvtaleModalOpen] = useState<AvtaleModal | null>(null);
   const { data: ansatt } = useHentAnsatt();
   const avbrytMutation = useAvbrytAvtale();
-  const path = `/avtaler/${avtale.id}/${skjemaPath(location.pathname)}`;
 
   function dupliserAvtale() {
     navigate(`/avtaler/opprett`, {
@@ -90,7 +82,25 @@ export function AvtaleHandlinger({ avtale }: Props) {
       <Handlinger>
         {handlinger.includes(AvtaleHandling.REDIGER) && (
           <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
-            <ActionMenu.Item onClick={() => navigate(path)}>Rediger avtale</ActionMenu.Item>
+            <ActionMenu.Item onClick={() => navigate(`/avtaler/${avtale.id}/rediger`)}>
+              Rediger avtale
+            </ActionMenu.Item>
+          </AdministratorGuard>
+        )}
+        {handlinger.includes(AvtaleHandling.REDIGER) && (
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item onClick={() => navigate(`/avtaler/${avtale.id}/personvern/rediger`)}>
+              Rediger personvern
+            </ActionMenu.Item>
+          </AdministratorGuard>
+        )}
+        {handlinger.includes(AvtaleHandling.REDIGER) && (
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item
+              onClick={() => navigate(`/avtaler/${avtale.id}/veilederinformasjon/rediger`)}
+            >
+              Rediger informasjon for veiledere
+            </ActionMenu.Item>
           </AdministratorGuard>
         )}
         {handlinger.includes(AvtaleHandling.REGISTRER_OPSJON) && (

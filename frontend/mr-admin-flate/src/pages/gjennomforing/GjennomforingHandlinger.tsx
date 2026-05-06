@@ -5,7 +5,7 @@ import { SetEstimertVentetidModal } from "@/components/gjennomforing/SetEstimert
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { ExternalLinkIcon, LayersPlusIcon } from "@navikt/aksel-icons";
-import { ActionMenu, BodyShort, Button, Switch } from "@navikt/ds-react";
+import { ActionMenu, Switch } from "@navikt/ds-react";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
@@ -83,8 +83,21 @@ export function GjennomforingHandlinger({
       <Handlinger>
         {isGruppetiltak(gjennomforing) && handlinger.includes(GjennomforingHandling.REDIGER) && (
           <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
-            <ActionMenu.Item onClick={() => navigate("rediger")}>
+            <ActionMenu.Item
+              onClick={() => navigate(`/gjennomforinger/${gjennomforing.id}/rediger`)}
+            >
               Rediger gjennomføring
+            </ActionMenu.Item>
+          </AdministratorGuard>
+        )}
+        {isGruppetiltak(gjennomforing) && handlinger.includes(GjennomforingHandling.REDIGER) && (
+          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
+            <ActionMenu.Item
+              onClick={() =>
+                navigate(`/gjennomforinger/${gjennomforing.id}/redaksjonelt-innhold/rediger`)
+              }
+            >
+              Rediger informasjon for veiledere
             </ActionMenu.Item>
           </AdministratorGuard>
         )}
