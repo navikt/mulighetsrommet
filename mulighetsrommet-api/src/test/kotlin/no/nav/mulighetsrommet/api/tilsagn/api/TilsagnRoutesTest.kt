@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.api
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
@@ -141,7 +142,7 @@ class TilsagnRoutesTest : FunSpec({
             body.tilsagn.deltakere.first { it.deltakerId == deltaker.id } should {
                 it.norskIdent.shouldBeNull()
                 it.navn.shouldBeNull()
-                it.innholdAnnet.shouldBeNull()
+                it.innholdAnnet.shouldNotBeNull()
             }
         }
     }

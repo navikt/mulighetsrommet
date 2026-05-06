@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -65,6 +66,7 @@ data class TilsagnDeltakerDto(
     val geografiskEnhet: NavEnhetDto?,
     val innholdAnnet: String?,
     val status: DataElement.Status,
+    val gradering: Gradering,
 ) {
     companion object {
         fun from(
@@ -76,8 +78,9 @@ data class TilsagnDeltakerDto(
             navn = personalia.navn(),
             oppfolgingEnhet = personalia.oppfolgingEnhet(),
             geografiskEnhet = personalia.geografiskEnhet(),
-            innholdAnnet = if (personalia.harTilgang()) deltaker.innholdAnnet else null,
+            innholdAnnet = deltaker.innholdAnnet,
             status = deltaker.status.toDataElement(),
+            gradering = personalia.gradering,
         )
 
         fun from(deltaker: Deltaker, personalia: Personalia) = TilsagnDeltakerDto(
@@ -86,8 +89,9 @@ data class TilsagnDeltakerDto(
             navn = personalia.navn(),
             oppfolgingEnhet = personalia.oppfolgingEnhet(),
             geografiskEnhet = personalia.geografiskEnhet(),
-            innholdAnnet = if (personalia.harTilgang()) deltaker.innholdAnnet else null,
+            innholdAnnet = deltaker.innholdAnnet,
             status = deltaker.status.type.toDataElement(),
+            gradering = personalia.gradering,
         )
     }
 }

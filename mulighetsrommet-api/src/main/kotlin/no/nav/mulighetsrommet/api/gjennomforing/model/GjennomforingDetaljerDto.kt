@@ -187,11 +187,7 @@ data class DeltakerDto(
         fun from(deltaker: Deltaker, personalia: Personalia) = DeltakerDto(
             id = deltaker.id,
             status = deltaker.status.type.toDataElement(),
-            innholdAnnet = if (personalia.harTilgang()) {
-                deltaker.innholdAnnet
-            } else {
-                null
-            },
+            innholdAnnet = deltaker.innholdAnnet,
             navn = personalia.navn(),
             norskIdent = personalia.norskIdent(),
             oppfolgingEnhet = personalia.oppfolgingEnhet(),
