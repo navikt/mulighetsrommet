@@ -16,13 +16,7 @@ interface Props {
 
 export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Props) {
   return (
-    <Box
-      padding="space-16"
-      borderColor="neutral-subtle"
-      borderWidth="1"
-      borderRadius="8"
-      maxWidth="max-content"
-    >
+    <Box padding="space-16" borderColor="neutral-subtle" borderWidth="1" borderRadius="8">
       <Heading size={headingLevel == "4" ? "small" : "medium"} spacing>
         {`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} ${tilsagn.bestillingsnummer}`}
       </Heading>

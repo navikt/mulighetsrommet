@@ -1,12 +1,11 @@
 import { Link as ReactRouterLink, MetaFunction } from "react-router";
-import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
-import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
+import { TilgjengeligeTilsagn } from "~/components/common/TilgjengeligeTilsagn";
 
 export const meta: MetaFunction = () => {
   return [
@@ -51,18 +50,7 @@ export default function TilsagnDetaljerPage() {
             },
           ]}
         />
-        <Heading level="3" size="medium">
-          Tilgjengelige tilsagn
-        </Heading>
-        <BodyShort>
-          Under vises informasjon om antatt forbruk.
-          <br />
-          Hva som blir utbetalt avhenger imidlertid av faktisk forbruk i perioden.
-        </BodyShort>
-        {!harTilsagn && <UtbetalingManglendeTilsagnAlert />}
-        {tilsagn.map((t) => (
-          <TilsagnDetaljer key={t.bestillingsnummer} tilsagn={t} headingLevel="4" minimal />
-        ))}
+        <TilgjengeligeTilsagn tilsagn={tilsagn} />
         {harTilsagn && (
           <HStack gap="space-16">
             <Button as={ReactRouterLink} type="button" variant="tertiary" to={pathTo.utbetalinger}>
