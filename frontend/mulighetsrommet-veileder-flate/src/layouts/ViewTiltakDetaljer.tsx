@@ -1,6 +1,6 @@
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
-import { Box, HGrid, HStack, Page, Tabs, VStack } from "@navikt/ds-react";
+import { Box, HGrid, HStack, List, Page, Tabs, VStack } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@api-client";
 import { ReactNode, Suspense, useState } from "react";
 import SidemenyInfo from "@/components/sidemeny/SidemenyInfo";
@@ -8,7 +8,6 @@ import { TiltakDetaljer } from "@/components/tabs/TiltakDetaljer";
 import { TiltakHeader } from "./TiltakHeader";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { EstimertVentetid } from "@/components/sidemeny/EstimertVentetid";
-import { SidemenyKanKombineresMed } from "@/components/sidemeny/SidemenyKanKombineresMed";
 import { DetaljerSkeleton } from "@mr/frontend-common";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { Melding } from "@/components/melding/Melding";
@@ -27,16 +26,27 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
   const harKombinasjon = tiltak.tiltakstype.kanKombineresMed.length > 0;
 
   return (
-    <Page.Block gutters>
+    <Page.Block gutters width="2xl">
       <HStack justify="space-between">{knapperad}</HStack>
       <Suspense fallback={<DetaljerSkeleton />}>
         <Box padding="space-24" background="default">
-          <HGrid gap="space-128" columns="1fr 0.5fr" id="gjennomforing_detaljer">
-            <VStack gap="space-16">
+          <HGrid
+            gap={{ xs: "space-0", sm: "space-64" }}
+            columns={{ xs: "1fr", sm: "1fr 0.5fr" }}
+            id="gjennomforing_detaljer"
+          >
+            <VStack>
               <TiltakHeader tiltak={tiltak} />
               <TiltakDetaljer tiltak={tiltak} setOppskriftId={setOppskriftId} />
+              {oppskriftId && (
+                <Oppskrift
+                  oppskriftId={oppskriftId}
+                  tiltakskode={tiltak.tiltakstype.tiltakskode}
+                  setOppskriftId={setOppskriftId}
+                />
+              )}
             </VStack>
-            <VStack gap="space-16">
+            <VStack gap="space-16" width="100%">
               {isTiltakGruppe(tiltak) && tiltak.apentForPamelding && (
                 <PadlockLockedFillIcon
                   title="Tiltaket er stengt for påmelding"
@@ -54,30 +64,36 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                     <Tabs.Tab value="kombineres" label="Kan kombineres med" />
                   ) : null}
                 </Tabs.List>
-                <Tabs.Panel value="info">
-                  <SidemenyInfo tiltak={tiltak} innsatsgrupper={innsatsgrupper} />
-                </Tabs.Panel>
-                {harKombinasjon ? (
-                  <Tabs.Panel value="kombineres">
-                    <SidemenyKanKombineresMed tiltak={tiltak} />
+                <Box
+                  padding="space-20"
+                  borderRadius="0 0 8 8"
+                  background="neutral-soft"
+                  id="sidemeny"
+                >
+                  <Tabs.Panel value="info">
+                    <SidemenyInfo tiltak={tiltak} innsatsgrupper={innsatsgrupper} />
                   </Tabs.Panel>
-                ) : null}
+                  {harKombinasjon ? (
+                    <Tabs.Panel value="kombineres">
+                      <List size="small">
+                        {tiltak.tiltakstype.kanKombineresMed
+                          .sort((a, b) => a.navn.localeCompare(b.navn))
+                          .map(({ id, navn }) => (
+                            <List.Item key={id}>{navn}</List.Item>
+                          ))}
+                      </List>
+                    </Tabs.Panel>
+                  ) : null}
+                </Box>
               </Tabs>
               {tiltak.oppmoteSted && (
                 <Melding header="Oppmøtested" variant="info">
                   {tiltak.oppmoteSted}
                 </Melding>
               )}
-              <VStack gap="space-16">{brukerActions}</VStack>
+              {brukerActions}
             </VStack>
           </HGrid>
-          {oppskriftId && (
-            <Oppskrift
-              oppskriftId={oppskriftId}
-              tiltakskode={tiltak.tiltakstype.tiltakskode}
-              setOppskriftId={setOppskriftId}
-            />
-          )}
         </Box>
       </Suspense>
     </Page.Block>

@@ -4,6 +4,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale.StengtPeriode
 import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKombinasjon
@@ -69,6 +70,7 @@ data class VeilederflateTiltakGruppe(
     val estimertVentetid: EstimertVentetid?,
     val personvernBekreftet: Boolean,
     val personopplysningerSomKanBehandles: List<Personopplysning>,
+    val stengtPerioder: List<StengtPeriode>,
 ) : VeilederflateTiltak()
 
 @Serializable
