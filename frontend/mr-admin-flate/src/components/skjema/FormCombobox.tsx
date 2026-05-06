@@ -7,14 +7,17 @@ import {
   useFormContext,
 } from "react-hook-form";
 
-type Option = { label: string; value: string };
+export interface ComboboxOption {
+  label: string;
+  value: string;
+}
 
 type FormComboboxProps<TFieldValues extends FieldValues> = Omit<
   ComboboxProps,
   "value" | "error" | "name" | "options" | "selectedOptions" | "isMultiSelect"
 > & {
   name: FieldPath<TFieldValues>;
-  options: Option[];
+  options: ComboboxOption[];
   rules?: RegisterOptions<TFieldValues>;
 };
 
@@ -51,7 +54,7 @@ export function FormCombobox<TFieldValues extends FieldValues>({
   );
 }
 
-function getResolvedOptions(options: Option[], value: string | undefined) {
+function getResolvedOptions(options: ComboboxOption[], value: string | undefined) {
   if (typeof value === "string" && value && !options.some((o) => o.value === value)) {
     return [...options, { value: value, label: value }];
   }

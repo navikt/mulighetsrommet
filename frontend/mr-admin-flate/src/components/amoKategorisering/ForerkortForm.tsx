@@ -21,6 +21,7 @@ export function ForerkortForm<T extends FieldValues>(props: ForerkortFormProps<T
     <FormComboboxMulti<T>
       name={path}
       label={gjennomforingTekster.forerkortLabel}
+      placeholder={"Velg førerkort"}
       options={labeledOptions}
     />
   );

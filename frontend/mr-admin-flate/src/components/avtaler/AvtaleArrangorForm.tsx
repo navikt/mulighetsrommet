@@ -18,8 +18,7 @@ import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonBut
 import { useSokBrregHovedenhet } from "@/api/virksomhet/useSokBrregHovedenhet";
 import { useBrregUnderenheter } from "@/api/virksomhet/useBrregUnderenheter";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
-import { FormCombobox } from "@/components/skjema/FormCombobox";
+import { ComboboxOption, FormCombobox } from "@/components/skjema/FormCombobox";
 import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 
 export function AvtaleArrangorForm() {
@@ -141,7 +140,7 @@ function getArrangorHovedenhetOptions(
 
 function isArrangorMissingFromOptions(
   arrangor: ArrangorDto | undefined,
-  options: SelectOption[],
+  options: ComboboxOption[],
 ): arrangor is ArrangorDto {
   return !!arrangor && !options.some((o) => o.value === arrangor.organisasjonsnummer);
 }
@@ -149,15 +148,15 @@ function isArrangorMissingFromOptions(
 function getArrangorUnderenhetOptions(
   underenheter: BrregUnderenhetDto[],
   valgteOrgnr: string[],
-): SelectOption[] {
+): ComboboxOption[] {
   const brregOrgnr = new Set(underenheter.map((u) => u.organisasjonsnummer));
 
-  const baseOptions: SelectOption[] = underenheter.map((virksomhet) => ({
+  const baseOptions: ComboboxOption[] = underenheter.map((virksomhet) => ({
     value: virksomhet.organisasjonsnummer,
     label: `${virksomhet.navn} - ${virksomhet.organisasjonsnummer}`,
   }));
 
-  const missingOptions: SelectOption[] = valgteOrgnr
+  const missingOptions: ComboboxOption[] = valgteOrgnr
     .filter((orgnr) => !brregOrgnr.has(orgnr))
     .map((orgnr) => ({
       value: orgnr,
@@ -167,7 +166,9 @@ function getArrangorUnderenhetOptions(
   return [...baseOptions, ...missingOptions];
 }
 
-function getArrangorKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]): SelectOption[] {
+function getArrangorKontaktpersonOptions(
+  kontaktpersoner: ArrangorKontaktperson[],
+): ComboboxOption[] {
   return kontaktpersoner
     .filter((person) => person.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.AVTALE))
     .map((person) => ({

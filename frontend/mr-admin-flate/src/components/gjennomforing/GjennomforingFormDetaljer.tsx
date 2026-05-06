@@ -16,7 +16,6 @@ import { ChangeEvent, useEffect, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModal";
-import { administratorOptions } from "@/components/skjema/administratorOptions";
 import { GjennomforingUtdanningslopForm } from "@/components/utdanning/GjennomforingUtdanningslopForm";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -24,7 +23,6 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
-import { ControlledSokeSelect } from "@mr/frontend-common";
 import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
 import { kreverDeltidsprosent, kreverDirekteVedtak } from "@/utils/tiltakstype";
 import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
@@ -33,7 +31,6 @@ import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { FormSelect } from "@/components/skjema/FormSelect";
-import { FormCombobox } from "@/components/skjema/FormCombobox";
 import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 import { NumberInput } from "@/components/skjema/NumberInput";
 
@@ -46,8 +43,6 @@ interface Props {
 
 export function GjennomforingFormDetaljer(props: Props) {
   const { tiltakstype, avtale, gjennomforing, deltakere } = props;
-
-  const { data: navAnsatte } = useNavAnsatte([Rolle.TILTAKSGJENNOMFORINGER_SKRIV]);
 
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
@@ -116,54 +111,42 @@ export function GjennomforingFormDetaljer(props: Props) {
           </FormGroup>
 
           <FormGroup>
-            <ControlledSokeSelect
-              size="small"
+            <FormSelect<GjennomforingFormValues>
               label="Oppstartstype"
-              placeholder="Velg oppstart"
               name="oppstart"
               readOnly={kreverDirekteVedtak(tiltakstype)}
-              onChange={(e) => {
-                if (e.target.value === GjennomforingOppstartstype.FELLES) {
-                  setValue("pameldingType", GjennomforingPameldingType.TRENGER_GODKJENNING);
-                } else {
-                  setValue("pameldingType", GjennomforingPameldingType.DIREKTE_VEDTAK);
-                }
+              rules={{
+                onChange: (e) => {
+                  const pamelding =
+                    e.target.value === GjennomforingOppstartstype.FELLES
+                      ? GjennomforingPameldingType.TRENGER_GODKJENNING
+                      : GjennomforingPameldingType.DIREKTE_VEDTAK;
+                  setValue("pameldingType", pamelding);
+                },
               }}
-              options={[
-                {
-                  label: "Felles oppstartsdato",
-                  value: GjennomforingOppstartstype.FELLES,
-                },
-                {
-                  label: "Løpende oppstart",
-                  value: GjennomforingOppstartstype.LOPENDE,
-                },
-              ]}
-            />
-            <ControlledSokeSelect
-              size="small"
+            >
+              <option value={GjennomforingOppstartstype.FELLES}>Felles oppstartsdato</option>
+              <option value={GjennomforingOppstartstype.LOPENDE}>Løpende oppstart</option>
+            </FormSelect>
+            <FormSelect<GjennomforingFormValues>
               label={gjennomforingTekster.pamelding.label}
-              placeholder="Velg påmeldingstype"
               name="pameldingType"
               readOnly={
                 kreverDirekteVedtak(tiltakstype) ||
                 watch("oppstart") === GjennomforingOppstartstype.FELLES
               }
-              options={[
-                {
-                  label: gjennomforingTekster.pamelding.beskrivelse(
-                    GjennomforingPameldingType.TRENGER_GODKJENNING,
-                  ),
-                  value: GjennomforingPameldingType.TRENGER_GODKJENNING,
-                },
-                {
-                  label: gjennomforingTekster.pamelding.beskrivelse(
-                    GjennomforingPameldingType.DIREKTE_VEDTAK,
-                  ),
-                  value: GjennomforingPameldingType.DIREKTE_VEDTAK,
-                },
-              ]}
-            />
+            >
+              <option value={GjennomforingPameldingType.TRENGER_GODKJENNING}>
+                {gjennomforingTekster.pamelding.beskrivelse(
+                  GjennomforingPameldingType.TRENGER_GODKJENNING,
+                )}
+              </option>
+              <option value={GjennomforingPameldingType.DIREKTE_VEDTAK}>
+                {gjennomforingTekster.pamelding.beskrivelse(
+                  GjennomforingPameldingType.DIREKTE_VEDTAK,
+                )}
+              </option>
+            </FormSelect>
             <HGrid align="start" gap="space-16" columns={2}>
               <DatePicker>
                 <DatePicker.Input
@@ -236,20 +219,7 @@ export function GjennomforingFormDetaljer(props: Props) {
         </SkjemaKolonne>
         <SkjemaKolonne>
           <FormGroup>
-            <FormComboboxMulti<GjennomforingFormValues>
-              name="administratorer"
-              id="administratorer"
-              label={
-                <LabelWithHelpText
-                  label={gjennomforingTekster.administratorerForGjennomforingenLabel}
-                >
-                  Bestemmer hvem som eier gjennomføringen. Notifikasjoner sendes til
-                  administratorene.
-                </LabelWithHelpText>
-              }
-              placeholder="Velg en"
-              options={administratorOptions(navAnsatte)}
-            />
+            <SelectGjennomforingAdministratorer />
           </FormGroup>
           {avtale.arrangor ? (
             <FormGroup>
@@ -279,5 +249,27 @@ export function GjennomforingFormDetaljer(props: Props) {
         />
       )}
     </>
+  );
+}
+
+export function SelectGjennomforingAdministratorer() {
+  const { data: administratorer } = useNavAnsatte([Rolle.TILTAKSGJENNOMFORINGER_SKRIV]);
+
+  const options = administratorer.map((a) => ({
+    value: a.navIdent,
+    label: `${a.fornavn} ${a.etternavn} - ${a.navIdent}`,
+  }));
+
+  return (
+    <FormComboboxMulti<GjennomforingFormValues>
+      name="administratorer"
+      label={
+        <LabelWithHelpText label={gjennomforingTekster.administratorerForGjennomforingenLabel}>
+          Bestemmer hvem som eier gjennomføringen. Notifikasjoner sendes til administratorene.
+        </LabelWithHelpText>
+      }
+      placeholder="Administratorer"
+      options={options}
+    />
   );
 }

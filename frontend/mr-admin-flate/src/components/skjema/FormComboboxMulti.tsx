@@ -14,15 +14,14 @@ import {
   useController,
   useFormContext,
 } from "react-hook-form";
-
-type Option = { label: string; value: string };
+import { ComboboxOption } from "@/components/skjema/FormCombobox";
 
 type FormComboboxMultiProps<TFieldValues extends FieldValues> = Omit<
   ComboboxProps,
   "value" | "error" | "name" | "options" | "selectedOptions" | "isMultiSelect"
 > & {
   name: FieldPath<TFieldValues>;
-  options: Option[];
+  options: ComboboxOption[];
   rules?: RegisterOptions<TFieldValues>;
   selectAll?: boolean;
 };
@@ -104,7 +103,7 @@ export function FormComboboxMulti<TFieldValues extends FieldValues>({
   );
 }
 
-function getResolvedOptions(options: Option[], values: string[]) {
+function getResolvedOptions(options: ComboboxOption[], values: string[]) {
   const missing = values.filter((value) => !options.some((o) => o.value === value));
   return missing.length > 0
     ? [...options, ...missing.map((value) => ({ value, label: value }))]
