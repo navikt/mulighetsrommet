@@ -1701,12 +1701,12 @@ paths:
     get:
       tags:
       - Kodeverk
-      description: Søk etter sertifiseringer
+      description: Søk etter JANZZ sertifiseringer
       operationId: sokSertifiseringer
       parameters:
       - name: q
         in: query
-        description: Søketekst for sertifisering
+        description: Søketekst for JANZZ sertifisering
         required: true
         deprecated: false
         explode: false
@@ -5989,14 +5989,14 @@ components:
     Container:
       anyOf:
       - $ref: "#/components/schemas/Gruppe"
-      - $ref: "#/components/schemas/VerdiSok"
       - $ref: "#/components/schemas/Verdigruppe"
+      - $ref: "#/components/schemas/VerdigruppeSok"
       discriminator:
         propertyName: type
         mapping:
           Gruppe: "#/components/schemas/Gruppe"
-          VerdiSok: "#/components/schemas/VerdiSok"
           Verdigruppe: "#/components/schemas/Verdigruppe"
+          VerdigruppeSok: "#/components/schemas/VerdigruppeSok"
     Gruppe:
       type: object
       properties:
@@ -6015,33 +6015,6 @@ components:
       - alternativer
       - id
       - visningsnavn
-    VerdiSok:
-      type: object
-      properties:
-        id:
-          type:
-          - "null"
-          - string
-          format: uuid
-        visningsnavn:
-          type: string
-        representerer:
-          type: string
-        seleksjonstype:
-          $ref: "#/components/schemas/OpplaringKategoriseringResponse.Seleksjonstype"
-        sokUrl:
-          type: string
-      required:
-      - id
-      - representerer
-      - seleksjonstype
-      - sokUrl
-      - visningsnavn
-    OpplaringKategoriseringResponse.Seleksjonstype:
-      type: string
-      enum:
-      - ENKELTVALG
-      - FLERVALG
     Verdigruppe:
       type: object
       properties:
@@ -6066,6 +6039,11 @@ components:
       - representerer
       - seleksjonstype
       - visningsnavn
+    OpplaringKategoriseringResponse.Seleksjonstype:
+      type: string
+      enum:
+      - ENKELTVALG
+      - FLERVALG
     Verdi:
       type: object
       properties:
@@ -6080,6 +6058,32 @@ components:
       - id
       - valgt
       - visningsnavn
+    VerdigruppeSok:
+      type: object
+      properties:
+        id:
+          type:
+          - "null"
+          - string
+          format: uuid
+        visningsnavn:
+          type: string
+        representerer:
+          type: string
+        seleksjonstype:
+          $ref: "#/components/schemas/OpplaringKategoriseringResponse.Seleksjonstype"
+        kilde:
+          $ref: "#/components/schemas/OpplaringKategoriseringResponse.Alternativ.VerdigruppeSok.Kilde"
+      required:
+      - id
+      - kilde
+      - representerer
+      - seleksjonstype
+      - visningsnavn
+    OpplaringKategoriseringResponse.Alternativ.VerdigruppeSok.Kilde:
+      type: string
+      enum:
+      - JANZZ_SERTIFISERING
     OpplaringKategoriseringResponse:
       type: object
       properties:
