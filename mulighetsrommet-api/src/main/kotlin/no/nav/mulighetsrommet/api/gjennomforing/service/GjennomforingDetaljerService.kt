@@ -76,7 +76,7 @@ class GjennomforingDetaljerService(
             is GjennomforingEnkeltplass -> db.session {
                 val okonomi = queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI)
                 val deltakerDto = getDeltaker(gjennomforing.id)?.let {
-                    DeltakerDto.from(it, personaliaService.getPersonalia(it.id, accessType))
+                    DeltakerDto.from(it, personaliaService.getPersonalia(it.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType)))
                 }
 
                 GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerDto)

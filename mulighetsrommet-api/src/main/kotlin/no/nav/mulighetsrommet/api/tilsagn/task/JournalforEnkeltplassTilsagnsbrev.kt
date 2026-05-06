@@ -90,7 +90,7 @@ class JournalforEnkeltplassTilsagnsbrev(
             0 -> return@transaction Either.Left("Fant ingen deltaker for enkeltplas ${enkeltplass.id}")
             else -> return@transaction Either.Left("Fant ${deltakere.size} deltakere for enkeltplass ${enkeltplass.id}")
         }
-        val personalia = personaliaService.getPersonalia(deltaker.id, AccessType.M2M)
+        val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
         val arrangor = queries.arrangor.get(tilsagn.arrangor.organisasjonsnummer)
             ?: return@transaction Either.Left("Fant ikke arrangør med organisasjonsnummer ${tilsagn.arrangor.organisasjonsnummer}")
 

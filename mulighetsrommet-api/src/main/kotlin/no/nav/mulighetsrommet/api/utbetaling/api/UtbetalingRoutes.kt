@@ -47,6 +47,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
@@ -304,7 +305,7 @@ fun Route.utbetalingRoutes() {
 
                     val personalia = personaliaService.getPersonalia(
                         deltakelser.keys.toList(),
-                        call.getAccessType(),
+                        PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
                     )
 
                     val enheter = personalia.flatMap {
@@ -356,6 +357,7 @@ fun Route.utbetalingRoutes() {
             }) {
                 val id: UUID by call.parameters
                 val navIdent = getNavIdent()
+                val onBehalfOf = PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd())
 
                 val utbetalingsLinjer = db.session {
                     val utbetaling = queries.utbetaling.getOrError(id)
@@ -370,7 +372,7 @@ fun Route.utbetalingRoutes() {
 
                         val personalia = personaliaService.getPersonalia(
                             tilsagn.deltakere.map { it.deltakerId },
-                            call.getAccessType(),
+                            onBehalfOf,
                         )
                         val deltakere = tilsagn.deltakere.map {
                             TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))
@@ -404,7 +406,7 @@ fun Route.utbetalingRoutes() {
                             val deltakerIds = tilsagn.deltakere.map { it.deltakerId }
                             val personalia = personaliaService.getPersonalia(
                                 deltakerIds,
-                                call.getAccessType(),
+                                onBehalfOf,
                             )
                             val deltakere = tilsagn.deltakere.map {
                                 TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))

@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -57,7 +58,7 @@ fun Route.tilsagnRoutesBehandling() {
                 .map {
                     val personalia = personaliaService.getPersonalia(
                         it.deltakere.map { it.deltakerId },
-                        call.getAccessType(),
+                        PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
                     )
                     val tilsagnDeltakere = it.deltakere.map {
                         TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))

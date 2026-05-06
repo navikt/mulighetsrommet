@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.LocalDate.now
@@ -164,7 +165,7 @@ fun Route.tilsagnRoutesBeregning() {
                 }
             val personalia = personaliaService.getPersonalia(
                 deltakelser.map { it.id },
-                call.getAccessType(),
+                PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
             )
             deltakelser.map {
                 TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.id }))

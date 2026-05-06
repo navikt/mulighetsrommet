@@ -121,8 +121,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
     suspend fun RoutingContext.getTilsagnOrRespondNotFound(): ArrangorflateTilsagnDto {
         val id: UUID by call.parameters
-        val accessType = call.getAccessType().requireTokenX()
-        return arrangorflateService.getTilsagn(id, accessType) ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
+        return arrangorflateService.getTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
     }
 
     fun RoutingContext.getUtbetalingOrRespondNotFound(): Utbetaling {
@@ -275,7 +274,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
             val accessType = call.getAccessType().requireTokenX()
-            val response = arrangorflateService.toArrangorflateUtbetaling(utbetaling, accessType)
+            val response = arrangorflateService.toArrangorflateUtbetaling(utbetaling)
             call.respond(response)
         }
 
@@ -493,8 +492,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             val utbetaling = getUtbetalingOrRespondNotFound()
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
-            val accessType = call.getAccessType().requireTokenX()
-            val tilsagn = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(utbetaling, accessType)
+            val tilsagn = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(utbetaling)
 
             call.respond(tilsagn)
         }

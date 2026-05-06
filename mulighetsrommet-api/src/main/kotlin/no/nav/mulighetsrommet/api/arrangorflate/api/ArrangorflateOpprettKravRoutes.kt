@@ -40,7 +40,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDeta
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonCells
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonColumns
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -72,7 +71,6 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tokenprovider.requireTokenX
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -184,7 +182,6 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
             val tiltak = requireArrangorflateTiltak()
 
             val stegListe = getVeiviserSteg(tiltak)
-            val accessType = call.getAccessType().requireTokenX()
 
             val tilsagnstyper = if (tiltak.prismodell.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                 listOf(TilsagnType.INVESTERING)
@@ -203,7 +200,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
                     .map {
                         ArrangorflateTilsagnDto.from(
                             it,
-                            arrangorflateService.getPersonalia(it.deltakere.map { it.deltakerId }, accessType),
+                            arrangorflateService.getPersonalia(it.deltakere.map { it.deltakerId }),
                         )
                     }
             }
@@ -263,10 +260,9 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
             val avtaltPrisPerTimeOppfolgingPerDeltaker = arrangorflateUtbetalingService
                 .getAvtaltPrisPerTimeOppfolgingData(tiltak.id, periode)
 
-            val obo = call.getAccessType().requireTokenX()
             val personalia = personaliaService.getPersonalia(
                 avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.map { it.deltakelseId },
-                obo,
+                PersonaliaService.OnBehalfOf.Arrangor,
             ).associateBy { it.deltakerId }
 
             call.respond(

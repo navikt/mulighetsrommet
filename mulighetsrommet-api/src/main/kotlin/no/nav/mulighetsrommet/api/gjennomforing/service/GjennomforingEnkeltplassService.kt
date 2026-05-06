@@ -45,7 +45,6 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -136,7 +135,7 @@ class GjennomforingEnkeltplassService(
         )
         queries.gjennomforing.setArenaData(arenadataDbo)
 
-        val personalia = getDeltakerPersonalia(id, AccessType.M2M)
+        val personalia = getDeltakerPersonalia(id, PersonaliaService.OnBehalfOf.System)
 
         getAndAquireLock(id)
             .also { updateFreeTextSearch(it, personalia?.norskIdent()) }
@@ -232,9 +231,9 @@ class GjennomforingEnkeltplassService(
         logEndring("Godkjenning ble satt på vent", id, navIdent).right()
     }
 
-    private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID, accessType: AccessType): Personalia? {
+    private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID, onBehalfOf: PersonaliaService.OnBehalfOf): Personalia? {
         return getDeltaker(gjennomforingId)?.let {
-            personaliaService.getPersonalia(it.id, accessType)
+            personaliaService.getPersonalia(it.id, onBehalfOf)
         }
     }
 

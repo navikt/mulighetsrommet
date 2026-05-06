@@ -141,7 +141,7 @@ class TilsagnRoutesTest : FunSpec({
             val body = response.body<TilsagnDetaljerDto>()
             body.tilsagn.deltakere.first { it.deltakerId == deltaker.id } should {
                 it.norskIdent.shouldBeNull()
-                it.navn.shouldBeNull()
+                it.navn shouldBe "Skjermet"
                 it.innholdAnnet.shouldNotBeNull()
             }
         }

@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHel
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
@@ -142,7 +141,6 @@ private fun getInnsendingsDetaljer(
 data class ArrangorflatePersonalia(
     val norskIdent: NorskIdent?,
     val navn: String?,
-    val grunn: AvvistGrunn?,
 )
 
 data class ArrangorflateBeregningDeltakelse(

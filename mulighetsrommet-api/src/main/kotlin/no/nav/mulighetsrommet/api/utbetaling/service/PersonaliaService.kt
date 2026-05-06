@@ -34,15 +34,21 @@ class PersonaliaService(
     private val tilgangsmaskinClient: TilgangsmaskinClient,
     private val navEnhetService: NavEnhetService,
 ) {
+    sealed class OnBehalfOf {
+        data object Arrangor : OnBehalfOf()
+        data class NavAnsatt(val token: AccessType.OBO.AzureAd) : OnBehalfOf()
+        data object System : OnBehalfOf()
+    }
+
     suspend fun getPersonalia(
         deltakerId: UUID,
-        accessType: AccessType,
-    ): Personalia = getPersonalia(listOf(deltakerId), accessType).find { it.deltakerId == deltakerId }
+        onBehalfOf: OnBehalfOf,
+    ): Personalia = getPersonalia(listOf(deltakerId), onBehalfOf).find { it.deltakerId == deltakerId }
         ?: throw IllegalArgumentException("Kunne ikke hente personalia fra amt-deltaker med id: $deltakerId")
 
     suspend fun getPersonalia(
         deltakerIds: List<UUID>,
-        accessType: AccessType,
+        onBehalfOf: OnBehalfOf,
     ): List<Personalia> {
         val amtPersonalia = amtDeltakerClient.hentPersonalia(deltakerIds)
             .getOrElse {
@@ -53,7 +59,7 @@ class PersonaliaService(
             }
         val pdlData = getPersonerMedGeografiskEnhet(amtPersonalia.map { it.norskIdent })
 
-        val tilgangerByDeltakerId = sjekkTilgangTilPerson(amtPersonalia, accessType)
+        val tilgangerByDeltakerId = tilgangTilPerson(amtPersonalia, onBehalfOf)
 
         return amtPersonalia.map { p ->
             val norskIdent = p.norskIdent
@@ -82,15 +88,15 @@ class PersonaliaService(
         }
     }
 
-    suspend fun sjekkTilgangTilPerson(amtPersonalia: Set<AmtDeltakerPersonalia>, accessType: AccessType): Map<UUID, AvvistGrunn?> {
-        return when (accessType) {
-            is AccessType.OBO.AzureAd -> {
+    private suspend fun tilgangTilPerson(amtPersonalia: Set<AmtDeltakerPersonalia>, onBehalfOf: OnBehalfOf): Map<UUID, AvvistGrunn?> {
+        return when (onBehalfOf) {
+            is OnBehalfOf.NavAnsatt -> {
                 when (NaisEnv.current()) {
                     NaisEnv.Local,
                     NaisEnv.DevGCP,
                     -> {
                         val identer = amtPersonalia.map { it.norskIdent }
-                        val tilgangsmaskinResult = tilgangsmaskinClient.bulk(identer, accessType)
+                        val tilgangsmaskinResult = tilgangsmaskinClient.bulk(identer, onBehalfOf.token)
 
                         amtPersonalia.associate { p ->
                             val resultat = requireNotNull(tilgangsmaskinResult.resultater.find { it.brukerId == p.norskIdent.value }) {
@@ -119,7 +125,7 @@ class PersonaliaService(
                 }
             }
 
-            is AccessType.OBO.TokenX -> amtPersonalia.associate {
+            is OnBehalfOf.Arrangor -> amtPersonalia.associate {
                 val grunn = when (it.adressebeskyttelse) {
                     PdlGradering.FORTROLIG -> AVVIST_FORTROLIG_ADRESSE
                     PdlGradering.STRENGT_FORTROLIG -> AVVIST_STRENGT_FORTROLIG_ADRESSE
@@ -129,7 +135,7 @@ class PersonaliaService(
                 it.deltakerId to grunn
             }
 
-            is AccessType.M2M -> amtPersonalia.associate {
+            is OnBehalfOf.System -> amtPersonalia.associate {
                 it.deltakerId to null
             }
         }
