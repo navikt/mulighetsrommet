@@ -55,7 +55,7 @@ data class OpplaringKategoriseringResponse(
     @Serializable
     @JsonClassDiscriminator("type")
     sealed interface Alternativ {
-        val id: UUID
+        val id: UUID?
         val visningsnavn: String
 
         /**
@@ -88,7 +88,7 @@ data class OpplaringKategoriseringResponse(
         @SerialName("Gruppe")
         data class Gruppe(
             @Serializable(with = UUIDSerializer::class)
-            override val id: UUID,
+            override val id: UUID?,
             override val visningsnavn: String,
             val alternativer: List<Container>,
         ) : Container
@@ -111,10 +111,22 @@ data class OpplaringKategoriseringResponse(
         @SerialName("Verdigruppe")
         data class Verdigruppe(
             @Serializable(with = UUIDSerializer::class)
-            override val id: UUID,
+            override val id: UUID?,
             override val visningsnavn: String,
+            val representerer: String,
             val seleksjonstype: Seleksjonstype,
             val alternativer: List<Verdi>,
+        ) : Container
+
+        @Serializable
+        @SerialName("VerdiSok")
+        data class VerdiSok(
+            @Serializable(with = UUIDSerializer::class)
+            override val id: UUID?,
+            override val visningsnavn: String,
+            val representerer: String,
+            val seleksjonstype: Seleksjonstype,
+            val sokUrl: String,
         ) : Container
 
         /**

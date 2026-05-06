@@ -16,30 +16,28 @@ class OpplaringKategoriseringTest : FunSpec({
         prettyPrint = true
         prettyPrintIndent = "  "
     }
+    var service: OpplaringKategoriseringMapper? = null
     beforeSpec {
         MulighetsrommetTestDomain {
             this.session.execute(queryOf(UTDANNINGSPROGRAM_SQL, emptyMap()))
             this.session.execute(queryOf(UTDANNING_SQL, emptyMap()))
         }.initialize(dbListener.db)
+
+        service = OpplaringKategoriseringMapper(dbListener.db)
     }
+
     test("STUDIESPESIALISERING") {
-        val service = OpplaringKategoriseringMapper(dbListener.db)
-        val json =
-            jsonPrettyPrint.encodeToString(service.from(Tiltakskode.STUDIESPESIALISERING))
-        json shouldBeEqual STUDIESPESIALISERING_JSON
+        jsonPrettyPrint.encodeToString(service!!.from(Tiltakskode.STUDIESPESIALISERING)) shouldBeEqual STUDIESPESIALISERING_JSON
     }
     test("NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV") {
-        val service = OpplaringKategoriseringMapper(dbListener.db)
-        val json =
-            jsonPrettyPrint.encodeToString(service.from(Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV))
-        json shouldBeEqual NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON
+        jsonPrettyPrint.encodeToString(service!!.from(Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV)) shouldBeEqual NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON
     }
 
     test("FAG_OG_YRKESOPPLAERING") {
-        val service = OpplaringKategoriseringMapper(dbListener.db)
-        val json =
-            jsonPrettyPrint.encodeToString(service.from(Tiltakskode.FAG_OG_YRKESOPPLAERING))
-        json shouldBeEqual FAG_OG_YRKESOPPLAERING
+        jsonPrettyPrint.encodeToString(service!!.from(Tiltakskode.FAG_OG_YRKESOPPLAERING)) shouldBeEqual FAG_OG_YRKESOPPLAERING
+    }
+    test("AMO") {
+        jsonPrettyPrint.encodeToString(service!!.from(Tiltakskode.ARBEIDSMARKEDSOPPLAERING)) shouldBeEqual ARBEIDSMARKEDSOPPLAERING
     }
 })
 
@@ -53,8 +51,9 @@ const val NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON = """{
   "alternativer": [
     {
       "type": "Verdigruppe",
-      "id": "00000000-0000-0000-0000-000000000000",
+      "id": null,
       "visningsnavn": "Kurstype",
+      "representerer": "kurstype",
       "seleksjonstype": "ENKELTVALG",
       "alternativer": [
         {
@@ -79,7 +78,7 @@ const val FAG_OG_YRKESOPPLAERING = """{
   "alternativer": [
     {
       "type": "Gruppe",
-      "id": "00000000-0000-0000-0000-000000000000",
+      "id": null,
       "visningsnavn": "Utdanningsprogram",
       "alternativer": [
         {
@@ -89,8 +88,9 @@ const val FAG_OG_YRKESOPPLAERING = """{
           "alternativer": [
             {
               "type": "Verdigruppe",
-              "id": "00000000-0000-0000-0000-000000000000",
+              "id": null,
               "visningsnavn": "Lærefag",
+              "representerer": "larefag",
               "seleksjonstype": "FLERVALG",
               "alternativer": [
                 {
@@ -124,8 +124,9 @@ const val FAG_OG_YRKESOPPLAERING = """{
           "alternativer": [
             {
               "type": "Verdigruppe",
-              "id": "00000000-0000-0000-0000-000000000000",
+              "id": null,
               "visningsnavn": "Lærefag",
+              "representerer": "larefag",
               "seleksjonstype": "FLERVALG",
               "alternativer": [
                 {
@@ -153,6 +154,151 @@ const val FAG_OG_YRKESOPPLAERING = """{
           ]
         }
       ]
+    }
+  ]
+}"""
+
+const val ARBEIDSMARKEDSOPPLAERING =
+    """{
+  "tiltakskode": "ARBEIDSMARKEDSOPPLAERING",
+  "alternativer": [
+    {
+      "type": "Verdigruppe",
+      "id": null,
+      "visningsnavn": "Bransje",
+      "representerer": "bransje",
+      "seleksjonstype": "ENKELTVALG",
+      "alternativer": [
+        {
+          "id": "d04dff0d-fdca-4839-9bdc-44c722af5d6f",
+          "visningsnavn": "INGENIOR_OG_IKT_FAG"
+        },
+        {
+          "id": "82bd7ce0-70f1-448b-8773-9015dea613e7",
+          "visningsnavn": "HELSE_PLEIE_OG_OMSORG"
+        },
+        {
+          "id": "14886bad-a495-420a-9bae-d33e2d88041a",
+          "visningsnavn": "BARNE_OG_UNGDOMSARBEID"
+        },
+        {
+          "id": "a86c1f7a-47c3-4f69-b138-89341107e0eb",
+          "visningsnavn": "KONTORARBEID"
+        },
+        {
+          "id": "e6749d6c-aacf-452d-baf2-d5fb5021912b",
+          "visningsnavn": "BUTIKK_OG_SALGSARBEID"
+        },
+        {
+          "id": "7cc9f791-2980-4c31-8050-e6c53afd5e8d",
+          "visningsnavn": "BYGG_OG_ANLEGG"
+        },
+        {
+          "id": "4733d7ef-d106-47a4-b335-bfd132c8ad31",
+          "visningsnavn": "INDUSTRIARBEID"
+        },
+        {
+          "id": "c8851a31-6362-4ee2-8989-e5da95726076",
+          "visningsnavn": "REISELIV_SERVERING_OG_TRANSPORT"
+        },
+        {
+          "id": "47c9d5f0-66ea-4e68-949d-86733346ee80",
+          "visningsnavn": "SERVICEYRKER_OG_ANNET_ARBEID"
+        },
+        {
+          "id": "54ccb278-92ea-4835-8566-659e98602905",
+          "visningsnavn": "ANDRE_BRANSJER"
+        }
+      ]
+    },
+    {
+      "type": "Verdigruppe",
+      "id": null,
+      "visningsnavn": "Førerkort",
+      "representerer": "forerkort",
+      "seleksjonstype": "FLERVALG",
+      "alternativer": [
+        {
+          "id": "810fe1c6-56b0-4e00-8ae6-00fb574299e5",
+          "visningsnavn": "A"
+        },
+        {
+          "id": "c67006e4-2629-4993-a047-92f31b0db557",
+          "visningsnavn": "A1"
+        },
+        {
+          "id": "ed44bd3a-aedb-4225-a3d8-c8f1b95fec5a",
+          "visningsnavn": "A2"
+        },
+        {
+          "id": "dee7d6b8-02dc-4b7e-bb3a-fa71cc9248e3",
+          "visningsnavn": "AM"
+        },
+        {
+          "id": "ee66eb0b-d4a8-4527-800a-135dd3c0d422",
+          "visningsnavn": "AM_147"
+        },
+        {
+          "id": "79d1a970-e8f0-4ecd-8d5e-e7c8d5f3394c",
+          "visningsnavn": "B"
+        },
+        {
+          "id": "84a40884-421c-406c-994d-4c4c15ef8bcc",
+          "visningsnavn": "B_78"
+        },
+        {
+          "id": "cdbebefc-2cec-48d0-9c8e-bd464e56cfaa",
+          "visningsnavn": "BE"
+        },
+        {
+          "id": "e3fcf1f7-1f20-4fca-bad5-422b7ee0418f",
+          "visningsnavn": "C"
+        },
+        {
+          "id": "c65936e4-479f-4c84-b106-6c9ec0cf9aee",
+          "visningsnavn": "C1"
+        },
+        {
+          "id": "69f88a08-e2de-461f-9258-4f8be546104a",
+          "visningsnavn": "C1E"
+        },
+        {
+          "id": "9a85cdeb-2f6d-44f6-bef2-2add850f7b27",
+          "visningsnavn": "CE"
+        },
+        {
+          "id": "e637320c-a5f0-4f7d-ad44-0a7c4654b4c2",
+          "visningsnavn": "D"
+        },
+        {
+          "id": "5d890e23-6800-4574-a05d-24ca81f35a2a",
+          "visningsnavn": "D1"
+        },
+        {
+          "id": "34d00562-f382-4027-953d-2b6f6bb7e0e5",
+          "visningsnavn": "D1E"
+        },
+        {
+          "id": "a7376d16-b0da-4140-8e67-c589be2c0ea2",
+          "visningsnavn": "DE"
+        },
+        {
+          "id": "5b1e1732-a5e8-45ca-955f-548c65d11065",
+          "visningsnavn": "S"
+        },
+        {
+          "id": "53896c05-7650-48ed-bf23-54ae78794eba",
+          "visningsnavn": "T"
+        }
+      ]
+    },
+    {
+      "type": "VerdiSok",
+      "id": null,
+      "visningsnavn": "Sertifiseringer",
+      "representerer": "sertifisering",
+      "seleksjonstype": "FLERVALG",
+      "sokUrl": "/api/sertifiseringer?sok={sok}"
     }
   ]
 }"""

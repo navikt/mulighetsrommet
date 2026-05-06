@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringMapper
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
@@ -54,6 +55,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomfo
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
+import no.nav.mulighetsrommet.api.janzz.PamOntologiService
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
 import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
 import no.nav.mulighetsrommet.api.lagretfilter.LagretFilterService
@@ -353,6 +355,8 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = azureAdTokenProvider.withScope(appConfig.pamOntologi.scope),
         )
     }
+    single { PamOntologiService(get()) }
+    single { OpplaringKategoriseringMapper(get()) }
     single { UtdanningClient(baseUrl = appConfig.utdanning.url) }
     single {
         AltinnClient(
