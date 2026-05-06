@@ -1,7 +1,6 @@
 import { RegistrerOpsjonModal } from "@/components/avtaler/opsjoner/RegistrerOpsjonModal";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { ActionMenu, BodyShort, Button } from "@navikt/ds-react";
 import {
@@ -41,7 +40,6 @@ export function AvtaleHandlinger({ avtale }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: handlinger } = useAvtaleHandlinger(avtale.id);
-  const advarselModal = useRef<HTMLDialogElement>(null);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
   const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
@@ -144,19 +142,6 @@ export function AvtaleHandlinger({ avtale }: Props) {
           </ActionMenu.Item>
         )}
       </Handlinger>
-      <VarselModal
-        modalRef={advarselModal}
-        handleClose={() => advarselModal.current?.close()}
-        headingIconType="info"
-        headingText="Du er ikke eier av denne avtalen"
-        body={<BodyShort>Vil du fortsette til redigeringen?</BodyShort>}
-        secondaryButton
-        primaryButton={
-          <Button variant="primary" onClick={() => navigate(path)}>
-            Ja, jeg vil redigere
-          </Button>
-        }
-      />
       <AarsakerOgForklaringModal<AvbrytAvtaleAarsak>
         header="Ønsker du avbryte avtalen?"
         open={avbrytModalOpen}

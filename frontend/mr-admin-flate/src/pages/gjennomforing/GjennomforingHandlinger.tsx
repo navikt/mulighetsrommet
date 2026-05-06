@@ -4,7 +4,6 @@ import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentFo
 import { SetEstimertVentetidModal } from "@/components/gjennomforing/SetEstimertVentetidModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { ExternalLinkIcon, LayersPlusIcon } from "@navikt/aksel-icons";
 import { ActionMenu, BodyShort, Button, Switch } from "@navikt/ds-react";
 import React, { useRef, useState } from "react";
@@ -41,7 +40,6 @@ export function GjennomforingHandlinger({
   handlinger,
 }: Props) {
   const navigate = useNavigate();
-  const advarselModal = useRef<HTMLDialogElement>(null);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
@@ -139,19 +137,6 @@ export function GjennomforingHandlinger({
           </ActionMenu.Item>
         )}
       </Handlinger>
-      <VarselModal
-        modalRef={advarselModal}
-        handleClose={() => advarselModal.current?.close()}
-        headingIconType="info"
-        headingText="Du er ikke eier av denne tiltaksgjennomføringen"
-        body={<BodyShort>Vil du fortsette til redigeringen?</BodyShort>}
-        secondaryButton
-        primaryButton={
-          <Button variant="primary" onClick={() => navigate("rediger")}>
-            Ja, jeg vil redigere
-          </Button>
-        }
-      />
       <RegistrerStengtHosArrangorModal
         modalRef={registrerStengtModalRef}
         gjennomforingId={gjennomforing.id}
