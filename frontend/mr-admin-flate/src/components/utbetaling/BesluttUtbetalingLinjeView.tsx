@@ -8,16 +8,7 @@ import {
   UtbetalingLinjeHandling,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import {
-  ActionMenu,
-  BodyShort,
-  Button,
-  Heading,
-  HStack,
-  Spacer,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
+import { BodyShort, Button, Heading, HStack, Spacer, TextField, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
@@ -88,16 +79,21 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
           {utbetalingTekster.linje.header}
         </Heading>
         <Spacer />
-        <Handlinger>
-          {handlinger.includes(UtbetalingHandling.OPPRETT_KORREKSJON) && (
-            <ActionMenu.Item
-              icon={<PlusCircleIcon />}
-              onSelect={() => setOpprettKorreksjonModalOpen(true)}
-            >
-              Opprett korreksjon
-            </ActionMenu.Item>
-          )}
-        </Handlinger>
+        <Handlinger
+          handlinger={handlinger}
+          grupper={[
+            {
+              items: [
+                {
+                  label: "Opprett korreksjon",
+                  onClick: () => setOpprettKorreksjonModalOpen(true),
+                  icon: <PlusCircleIcon />,
+                  handling: UtbetalingHandling.OPPRETT_KORREKSJON,
+                },
+              ],
+            },
+          ]}
+        />
       </HStack>
       <UtbetalingLinjeTable
         linjer={linjer.filter((l) => l.status !== null)}

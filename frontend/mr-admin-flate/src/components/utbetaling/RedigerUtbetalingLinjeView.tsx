@@ -9,7 +9,6 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PencilIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import {
-  ActionMenu,
   Alert,
   BodyShort,
   Button,
@@ -150,43 +149,47 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
               {utbetalingTekster.linje.header}
             </Heading>
             <Spacer />
-            <Handlinger>
-              {handlinger.includes(UtbetalingHandling.REDIGER) && (
-                <ActionMenu.Item
-                  icon={<PencilIcon />}
-                  onClick={() => navigate("rediger-utbetaling")}
-                >
-                  Rediger utbetaling
-                </ActionMenu.Item>
-              )}
-              <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
-                {utbetalingTekster.linje.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd)}
-              </ActionMenu.Item>
-              <ActionMenu.Item
-                icon={<FileCheckmarkIcon />}
-                onSelect={() =>
-                  setValue(
-                    "utbetalingLinjer",
-                    utbetalingLinjer.map((linje) => ({
-                      id: linje.id,
-                      pris: linje.pris,
-                      tilsagnId: linje.tilsagn.id,
-                      gjorOppTilsagn: linje.gjorOppTilsagn,
-                    })),
-                  )
-                }
-              >
-                {utbetalingTekster.linje.handlinger.hentGodkjenteTilsagn}
-              </ActionMenu.Item>
-              {handlinger.includes(UtbetalingHandling.SLETT) && (
-                <ActionMenu.Item
-                  icon={<TrashFillIcon />}
-                  onSelect={() => setSlettKorreksjonModalOpen(true)}
-                >
-                  Slett utbetaling
-                </ActionMenu.Item>
-              )}
-            </Handlinger>
+            <Handlinger
+              handlinger={handlinger}
+              grupper={[
+                {
+                  items: [
+                    {
+                      label: "Rediger utbetaling",
+                      href: "rediger-utbetaling",
+                      icon: <PencilIcon />,
+                      handling: UtbetalingHandling.REDIGER,
+                    },
+                    {
+                      label:
+                        utbetalingTekster.linje.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd),
+                      onClick: opprettEkstraTilsagn,
+                      icon: <PiggybankIcon />,
+                    },
+                    {
+                      label: utbetalingTekster.linje.handlinger.hentGodkjenteTilsagn,
+                      onClick: () =>
+                        setValue(
+                          "utbetalingLinjer",
+                          utbetalingLinjer.map((linje) => ({
+                            id: linje.id,
+                            pris: linje.pris,
+                            tilsagnId: linje.tilsagn.id,
+                            gjorOppTilsagn: linje.gjorOppTilsagn,
+                          })),
+                        ),
+                      icon: <FileCheckmarkIcon />,
+                    },
+                    {
+                      label: "Slett utbetaling",
+                      onClick: () => setSlettKorreksjonModalOpen(true),
+                      icon: <TrashFillIcon />,
+                      handling: UtbetalingHandling.SLETT,
+                    },
+                  ],
+                },
+              ]}
+            />
           </HStack>
 
           <UtbetalingLinjeTable

@@ -1,29 +1,63 @@
 import { ActionMenu, BodyShort, Button } from "@navikt/ds-react";
-import React, { ReactElement, ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 import { ChevronDownIcon } from "@navikt/aksel-icons";
+import { AdministratorGuard } from "./AdministratorGuard";
+import { Link as ReactRouterLink } from "react-router";
 
-interface Props {
-  handlingerLabel?: string;
-  ingenHandlingerTekst?: string;
-  children: ReactNode;
+export type HandlingItem<T> = HandlingItemButton<T> | HandlingItemLink<T>;
+
+type HandlingItemBase<T> = {
+  label: string;
+  icon?: ReactNode;
+  variant?: "danger";
+  /** Handlingen som kreves for at item skal vises. */
+  handling?: T;
+};
+
+export type HandlingItemButton<T> = HandlingItemBase<T> & {
+  onClick: () => void;
+  /** Hvis satt, wrappes item i AdministratorGuard. */
+  administratorer?: string[];
+  href?: never;
+};
+
+export type HandlingItemLink<T> = HandlingItemBase<T> & {
+  href: string;
+  /** Sett til true for å åpne lenken i ny fane (ekstern lenke), intern lenke ellers. */
+  isExternal?: boolean;
+  onClick?: never;
+  administratorer?: never;
+};
+
+export interface HandlingGruppe<T> {
+  label?: string;
+  items: HandlingItem<T>[];
 }
 
-export function Handlinger({
-  children,
+interface Props<T> {
+  handlingerLabel?: string;
+  ingenHandlingerTekst?: string;
+  grupper: HandlingGruppe<T>[];
+  /** Liste over tilgjengelige handlinger. Items med matching handling-felt vises, øvrige skjules. */
+  handlinger?: T[];
+  navIdent?: string;
+}
+
+export function Handlinger<T>({
+  grupper,
+  handlinger = [],
+  navIdent,
   handlingerLabel = "Handlinger",
   ingenHandlingerTekst = "Ingen handlinger",
-}: Props) {
-  const elements = React.Children.toArray(children).filter((child) => React.isValidElement(child));
+}: Props<T>) {
+  const synligeGrupper = grupper
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((i) => !i.handling || handlinger.includes(i.handling)),
+    }))
+    .filter((g) => g.items.length > 0);
 
-  const harIngenHandlinger = !hasActionItems(elements);
-
-  const content = harIngenHandlinger ? (
-    <BodyShort size="small" textColor="subtle">
-      {ingenHandlingerTekst}
-    </BodyShort>
-  ) : (
-    processChildren(elements)
-  );
+  const harIngenHandlinger = synligeGrupper.length === 0;
 
   return (
     <ActionMenu>
@@ -38,38 +72,68 @@ export function Handlinger({
           {handlingerLabel}
         </Button>
       </ActionMenu.Trigger>
-      <ActionMenu.Content>{content}</ActionMenu.Content>
+      <ActionMenu.Content>
+        {harIngenHandlinger ? (
+          <BodyShort size="small" textColor="subtle">
+            {ingenHandlingerTekst}
+          </BodyShort>
+        ) : (
+          synligeGrupper.map((gruppe, idx) => (
+            <Fragment key={gruppe.label ?? idx}>
+              {idx > 0 && <ActionMenu.Divider />}
+              {gruppe.label ? (
+                <ActionMenu.Group label={gruppe.label}>
+                  {gruppe.items.map((item, i) => renderItem(item, i, navIdent))}
+                </ActionMenu.Group>
+              ) : (
+                gruppe.items.map((item, i) => renderItem(item, i, navIdent))
+              )}
+            </Fragment>
+          ))
+        )}
+      </ActionMenu.Content>
     </ActionMenu>
   );
 }
 
-function hasActionItems(elements: ReactElement[]): boolean {
-  return elements.some((item) => !isDivider(item));
-}
+function renderItem<T>(item: HandlingItem<T>, index: number, navIdent?: string) {
+  const menuItem = item.href ? (
+    item.isExternal ? (
+      <ActionMenu.Item
+        key={index}
+        as="a"
+        href={item.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        icon={item.icon}
+        variant={item.variant}
+      >
+        {item.label}
+      </ActionMenu.Item>
+    ) : (
+      <ActionMenu.Item
+        key={index}
+        as={ReactRouterLink}
+        to={item.href}
+        icon={item.icon}
+        variant={item.variant}
+      >
+        {item.label}
+      </ActionMenu.Item>
+    )
+  ) : (
+    <ActionMenu.Item key={index} onClick={item.onClick} icon={item.icon} variant={item.variant}>
+      {item.label}
+    </ActionMenu.Item>
+  );
 
-function isDivider(child: ReactElement): boolean {
-  return child.type === ActionMenu.Divider;
-}
-
-function processChildren(elements: ReactElement[]): ReactNode {
-  const filtered: ReactElement[] = [];
-
-  for (let i = 0; i < elements.length; i++) {
-    const child = elements[i];
-    if (!isDivider(child)) {
-      filtered.push(child);
-    } else if (previousIsActionItem(filtered) && nextContainsActionItem(elements, i)) {
-      filtered.push(child);
-    }
+  if (item.administratorer !== undefined) {
+    return (
+      <AdministratorGuard key={index} administratorer={item.administratorer} navIdent={navIdent}>
+        {menuItem}
+      </AdministratorGuard>
+    );
   }
 
-  return filtered;
-}
-
-function previousIsActionItem(elements: ReactElement[]) {
-  return elements.length > 0 && !isDivider(elements[elements.length - 1]);
-}
-
-function nextContainsActionItem(elements: ReactElement[], i: number) {
-  return elements.slice(i + 1).some((c) => !isDivider(c));
+  return menuItem;
 }

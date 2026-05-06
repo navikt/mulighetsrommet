@@ -4,24 +4,29 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { ActionMenu, Alert, Table } from "@navikt/ds-react";
-import { useNavigate } from "react-router";
+import { Alert, Table } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: behandlinger } = useTilskuddBehandlinger(gjennomforingId);
-  const navigate = useNavigate();
 
   return (
     <>
       <KnapperadContainer>
-        <Handlinger>
-          <ActionMenu.Item onClick={() => navigate("opprett")}>
-            Opprett tilskuddsbehandling
-          </ActionMenu.Item>
-        </Handlinger>
+        <Handlinger
+          grupper={[
+            {
+              items: [
+                {
+                  label: "Opprett tilskuddsbehandling",
+                  href: "opprett",
+                },
+              ],
+            },
+          ]}
+        />
       </KnapperadContainer>
       {behandlinger.length === 0 && (
         <Alert variant="info" className="mt-4">

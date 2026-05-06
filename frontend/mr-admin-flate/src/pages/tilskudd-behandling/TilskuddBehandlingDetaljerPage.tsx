@@ -14,17 +14,7 @@ import {
   ValidationError,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
-import {
-  ActionMenu,
-  Alert,
-  BodyLong,
-  BodyShort,
-  Box,
-  Button,
-  Heading,
-  HStack,
-  VStack,
-} from "@navikt/ds-react";
+import { Alert, BodyLong, BodyShort, Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
@@ -105,11 +95,20 @@ export function TilskuddBehandlingDetaljerPage() {
             <EndringshistorikkPopover>
               <ViewEndringshistorikk historikk={historikk} />
             </EndringshistorikkPopover>
-            <Handlinger>
-              {handlinger.includes(TilskuddBehandlingHandling.REDIGER) && (
-                <ActionMenu.Item onSelect={() => navigate("rediger")}>Rediger</ActionMenu.Item>
-              )}
-            </Handlinger>
+            <Handlinger
+              handlinger={handlinger}
+              grupper={[
+                {
+                  items: [
+                    {
+                      label: "Rediger",
+                      href: "rediger",
+                      handling: TilskuddBehandlingHandling.REDIGER,
+                    },
+                  ],
+                },
+              ]}
+            />
           </HStack>
           <TwoColumnGrid separator>
             <>
