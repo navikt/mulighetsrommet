@@ -1,4 +1,12 @@
-import { type ComboboxProps, UNSAFE_Combobox } from "@navikt/ds-react";
+import { useId } from "react";
+import {
+  Button,
+  type ComboboxProps,
+  HStack,
+  Label,
+  UNSAFE_Combobox,
+  VStack,
+} from "@navikt/ds-react";
 import {
   type FieldPath,
   type FieldValues,
@@ -16,6 +24,7 @@ type FormComboboxMultiProps<TFieldValues extends FieldValues> = Omit<
   name: FieldPath<TFieldValues>;
   options: Option[];
   rules?: RegisterOptions<TFieldValues>;
+  selectAll?: boolean;
 };
 
 export function FormComboboxMulti<TFieldValues extends FieldValues>({
@@ -23,9 +32,15 @@ export function FormComboboxMulti<TFieldValues extends FieldValues>({
   options,
   rules,
   size = "small",
+  selectAll = false,
   onToggleSelected: onToggleSelectedProp,
+  label,
+  id: idProp,
   ...props
 }: FormComboboxMultiProps<TFieldValues>) {
+  const generatedId = useId();
+  const id = idProp ?? generatedId;
+
   const { control } = useFormContext<TFieldValues>();
   const { field, fieldState } = useController({ name, control, rules });
 
@@ -39,9 +54,45 @@ export function FormComboboxMulti<TFieldValues extends FieldValues>({
     onToggleSelectedProp?.(option, isSelected, isCustomOption);
   }
 
+  if (selectAll) {
+    const allSelected = options.length > 0 && options.every((o) => values.includes(o.value));
+    return (
+      <VStack gap="space-4">
+        <HStack justify="space-between" align="center">
+          <Label htmlFor={id} size={size}>
+            {label}
+          </Label>
+          <Button
+            size="xsmall"
+            variant="tertiary"
+            type="button"
+            onClick={() => field.onChange(allSelected ? [] : options.map((o) => o.value))}
+          >
+            {allSelected ? "Fjern alle" : "Velg alle"}
+          </Button>
+        </HStack>
+        <UNSAFE_Combobox
+          {...props}
+          id={id}
+          label={label}
+          hideLabel
+          size={size}
+          isMultiSelect
+          name={field.name}
+          options={resolvedOptions}
+          selectedOptions={selectedOptions}
+          error={fieldState.error?.message}
+          onToggleSelected={handleToggleSelected}
+        />
+      </VStack>
+    );
+  }
+
   return (
     <UNSAFE_Combobox
       {...props}
+      id={id}
+      label={label}
       size={size}
       isMultiSelect
       name={field.name}
