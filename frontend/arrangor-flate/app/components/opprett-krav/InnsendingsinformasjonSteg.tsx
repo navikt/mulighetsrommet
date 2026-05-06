@@ -15,15 +15,14 @@ import {
   HStack,
   Label,
   Link,
-  InfoCard,
   Select,
   useDatepicker,
   VStack,
+  Box,
 } from "@navikt/ds-react";
 import { SyntheticEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { OpprettKravFormState } from "~/routes/$orgnr.opprett-krav.$gjennomforingid";
 import { filtrerOverlappendePerioder } from "~/utils/periode-filtrering";
-import { TilsagnDetaljer } from "../tilsagn/TilsagnDetaljer";
 import { LabeledDataElementList } from "../common/Definisjonsliste";
 import { Link as ReactRouterLink } from "react-router";
 import { errorAt } from "~/utils/validering";
@@ -37,6 +36,7 @@ import {
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
 import { pathTo } from "~/utils/navigation";
+import { TilgjengeligeTilsagn } from "../common/TilgjengeligeTilsagn";
 
 interface InnsendingsinformasjonStepProps {
   data: OpprettKravInnsendingSteg;
@@ -103,15 +103,17 @@ export default function InnsendingsinformasjonSteg({
 
   return (
     <>
-      <Heading level="3" size="large">
+      <Heading level="3" size="large" spacing>
         Innsendingsinformasjon
       </Heading>
-      <GuidePanelInformation type={data.guidePanel} />
-      <VStack gap="space-16" className="max-w-2xl">
+      <VStack gap="space-16">
+        <GuidePanelInformation type={data.guidePanel} />
         <LabeledDataElementList entries={data.definisjonsListe} />
-        <VStack gap="space-4">
-          <Label size="small">Periode</Label>
-          <BodyShort textColor="subtle" size="small">
+        <Box>
+          <Label size="small" spacing>
+            Periode
+          </Label>
+          <BodyShort textColor="subtle" size="small" spacing>
             Hvilken periode gjelder kravet for?
           </BodyShort>
           <PeriodeVelgerVarianter
@@ -122,34 +124,8 @@ export default function InnsendingsinformasjonSteg({
             errors={fieldErrors}
             updateFormState={updateFormState}
           />
-        </VStack>
-        {valgtPeriode && (
-          <>
-            <Heading level="3" size="small">
-              Tilgjengelige tilsagn
-            </Heading>
-            <BodyShort size="small" textColor="subtle">
-              Under vises informasjon om antatt forbruk.
-              <br />
-              Hva som blir utbetalt avhenger imidlertid av faktisk forbruk i perioden.
-            </BodyShort>
-            {relevanteTilsagn.length < 1 ? (
-              <InfoCard data-color="warning" size="small">
-                <InfoCard.Header>
-                  <InfoCard.Title>
-                    Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
-                  </InfoCard.Title>
-                </InfoCard.Header>
-              </InfoCard>
-            ) : (
-              <>
-                {relevanteTilsagn.map((tilsagn) => (
-                  <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} minimal />
-                ))}
-              </>
-            )}
-          </>
-        )}
+        </Box>
+        {valgtPeriode && <TilgjengeligeTilsagn tilsagn={relevanteTilsagn} />}
       </VStack>
     </>
   );
@@ -323,7 +299,7 @@ function PeriodeVelger({
   }, [selectedStartDato, selectedSluttDato, onPeriodeSelected, maksSluttdato]);
 
   return (
-    <HStack wrap gap="space-4">
+    <HStack wrap gap="space-8">
       <DatePicker
         {...periodeStartPickerProps}
         showWeekNumber

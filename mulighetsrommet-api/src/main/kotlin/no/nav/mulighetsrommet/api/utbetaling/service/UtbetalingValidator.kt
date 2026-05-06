@@ -101,7 +101,7 @@ object UtbetalingValidator {
             requireValid(linje.request.pris?.belop != null && linje.request.pris.belop > 0 && linje.request.pris.valuta != null) {
                 FieldError(
                     "/utbetalingLinjer/$index/pris/belop",
-                    "Beløp må være positivt",
+                    "Beløp må være positivt eller linjen må fjernes",
                 )
             }
             val pris = ValutaBelop(linje.request.pris.belop, linje.request.pris.valuta)

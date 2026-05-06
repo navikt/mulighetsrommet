@@ -1901,6 +1901,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Personopplysning"
+        stengtPerioder:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingAvtale.StengtPeriode"
       required:
       - apentForPamelding
       - arrangor
@@ -1920,6 +1924,7 @@ components:
       - personvernBekreftet
       - sluttdato
       - status
+      - stengtPerioder
       - tiltaksnummer
       - tiltakstype
     VeilederflateTiltakGruppeStatus:
@@ -1997,6 +2002,25 @@ components:
       - ADRESSESPERRE
       - VERGEMAL
       - STEMME
+    GjennomforingAvtale.StengtPeriode:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        start:
+          type: string
+          format: date
+        slutt:
+          type: string
+          format: date
+        beskrivelse:
+          type: string
+      required:
+      - beskrivelse
+      - id
+      - slutt
+      - start
     SanityPerspective:
       type: string
       enum:

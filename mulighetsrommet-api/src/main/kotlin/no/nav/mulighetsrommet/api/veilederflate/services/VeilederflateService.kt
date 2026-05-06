@@ -227,6 +227,7 @@ class VeilederflateService(
             personvernBekreftet = gjennomforing.personvernBekreftet,
             personopplysningerSomKanBehandles = gjennomforing.personopplysningerSomKanBehandles,
             lopenummer = gjennomforing.lopenummer,
+            stengtPerioder = gjennomforing.stengt,
         )
     }
 
@@ -290,6 +291,7 @@ class VeilederflateService(
                 enheter = enheter,
                 arrangor = arrangor,
                 oppmoteSted = stedForGjennomforing,
+
             )
 
             else -> VeilederflateTiltakEnkeltplass(

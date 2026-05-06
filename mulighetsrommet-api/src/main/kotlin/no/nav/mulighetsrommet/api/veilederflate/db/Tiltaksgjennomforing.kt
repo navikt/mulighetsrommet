@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.veilederflate.db
 
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.veilederflate.models.EstimertVentetid
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfo
@@ -33,4 +34,5 @@ data class Tiltaksgjennomforing(
     val personvernBekreftet: Boolean,
     val personopplysningerSomKanBehandles: List<Personopplysning>,
     val lopenummer: String,
+    val stengt: List<GjennomforingAvtale.StengtPeriode>,
 )

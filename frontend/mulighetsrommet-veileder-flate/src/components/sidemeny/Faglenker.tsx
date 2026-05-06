@@ -9,10 +9,26 @@ export function Faglenker({ faglenker }: FaglenkerProps) {
   if (!faglenker) {
     return null;
   }
-
+  const generelleLenker = [
+    {
+      id: "avslag-og-klage",
+      navn: "Avslag og klage",
+      url: "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
+      beskrivelse: null,
+    },
+    {
+      id: "tiltak-hos-familie",
+      navn: "Tiltak hos familie/nærstående",
+      url: "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
+      beskrivelse: null,
+    },
+  ];
   return (
-    <VStack gap="space-1" align="end">
+    <VStack gap="space-4" align="end">
       {faglenker.map((lenke) => (
+        <Faglenke key={lenke.url} lenke={lenke} />
+      ))}
+      {generelleLenker.map((lenke) => (
         <Faglenke key={lenke.url} lenke={lenke} />
       ))}
     </VStack>
@@ -29,7 +45,7 @@ function Faglenke({ lenke }: RegelverklenkeProps) {
   }
 
   return (
-    <Link target="_blank" href={lenke.url} key={lenke.url}>
+    <Link target="_blank" href={lenke.url} key={lenke.url} className="text-right">
       {lenke.navn}{" "}
     </Link>
   );

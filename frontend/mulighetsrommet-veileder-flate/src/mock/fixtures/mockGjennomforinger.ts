@@ -31,6 +31,14 @@ export const tiltakAvklaring: VeilederflateTiltak & VeilederflateTiltakGruppe = 
   apentForPamelding: true,
   personvernBekreftet: false,
   personopplysningerSomKanBehandles: [],
+  stengtPerioder: [
+    {
+      id: 1,
+      start: "2024-12-23",
+      slutt: "2025-01-02",
+      beskrivelse: "Juleferie",
+    },
+  ],
   arrangor: {
     selskapsnavn: "JOBLEARN AS AVD 813201 ØST-VIKEN KURS",
     kontaktpersoner: [
@@ -159,6 +167,7 @@ export const tiltakAmoGruppe: VeilederflateTiltak & VeilederflateTiltakGruppe = 
   },
   personvernBekreftet: true,
   personopplysningerSomKanBehandles: [],
+  stengtPerioder: [],
   tiltaksnummer: "2024/123",
   navn: "Kurs i overlevelsesteknikk",
   oppmoteSted: "2050 JESSHEIM",
@@ -286,6 +295,7 @@ export const tiltakVta: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   sluttdato: "2023-11-30",
   personvernBekreftet: true,
   personopplysningerSomKanBehandles: [],
+  stengtPerioder: [],
   arrangor: {
     selskapsnavn: "FRETEX",
     kontaktpersoner: [
@@ -393,6 +403,7 @@ export const tiltakJobbklubb: VeilederflateTiltak & VeilederflateTiltakGruppe = 
   sluttdato: "2030-11-30",
   personvernBekreftet: true,
   personopplysningerSomKanBehandles: [],
+  stengtPerioder: [],
   arrangor: {
     selskapsnavn: "LARS MONSEN AS AVD FINNMARK",
     kontaktpersoner: [],
@@ -460,6 +471,7 @@ export const tiltakAft: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   sluttdato: "2030-11-30",
   personvernBekreftet: true,
   personopplysningerSomKanBehandles: [],
+  stengtPerioder: [],
   arrangor: {
     selskapsnavn: "AFT GRUPPEN NORWAY",
     kontaktpersoner: [
@@ -512,6 +524,7 @@ export const tiltakOppfolging: VeilederflateTiltak & VeilederflateTiltakGruppe =
   sluttdato: "2030-11-30",
   personvernBekreftet: true,
   personopplysningerSomKanBehandles: [],
+  stengtPerioder: [],
   arrangor: {
     selskapsnavn: "AFT GRUPPEN NORWAY",
     kontaktpersoner: [

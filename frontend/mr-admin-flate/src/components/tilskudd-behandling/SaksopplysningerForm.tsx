@@ -17,7 +17,6 @@ import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { BetalingsinformasjonFields } from "../utbetaling/form/BetalingsinformasjonFields";
-import { FormTextarea } from "../skjema/FormTextarea";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { defaultTilskuddRequest } from "./defaultTilskuddRequest";
 
@@ -50,11 +49,11 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
         Informasjon fra søknad
       </Heading>
       <VStack gap="space-20" align="start">
-        <FormTextField label="JournalpostID" name="soknadJournalpostId" />
-        <FormDateInput name="soknadDato" label="Søknadsdato" />
+        <FormTextField label="JournalpostID" name="soknadJournalpostId" required />
+        <FormDateInput name="soknadDato" label="Søknadsdato" required />
         <HStack gap="space-8">
-          <FormDateInput name="periodeStart" label="Periodestart" />
-          <FormDateInput name="periodeSlutt" label="Periodeslutt" />
+          <FormDateInput name="periodeStart" label="Periodestart" required />
+          <FormDateInput name="periodeSlutt" label="Periodeslutt" required />
         </HStack>
         <VelgKostnadssted
           kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
@@ -67,6 +66,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                   <FormSelect
                     label="Tilskuddstype"
                     name={`tilskudd.${index}.tilskuddOpplaeringType`}
+                    required
                   >
                     <option value="">-- Velg tilskuddstype --</option>
                     {(Object.keys(TilskuddOpplaeringType) as TilskuddOpplaeringType[]).map(
@@ -81,7 +81,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                     size="small"
                     type="text"
                     label="Beløp fra søknad"
-                    error={errors.tilskudd?.[index]?.soknadBelop?.message}
+                    error={errors.tilskudd?.[index]?.soknadBelop?.belop?.message}
                     {...register(`tilskudd.${index}.soknadBelop.belop`, {
                       setValueAs: (t: string) => (t === "" ? null : Number(t)),
                       validate: (value: number | null) => {
@@ -94,6 +94,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                     size="small"
                     label="Valuta"
                     name={`tilskudd.${index}.soknadBelop.valuta`}
+                    required
                   >
                     <option value={Valuta.NOK}>NOK</option>
                     <option value={Valuta.SEK}>SEK</option>
@@ -151,7 +152,6 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
             valuta: Valuta.NOK,
           })}
         />
-        <FormTextarea className="w-full" label="Kommentar (internt i Nav)" name="kommentarIntern" />
       </VStack>
     </>
   );

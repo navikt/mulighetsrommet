@@ -19,7 +19,7 @@ data class AppConfig(
     val services: ServiceConfig,
     val database: DatabaseConfig,
     val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(
-        strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
+        strategy = FlywayMigrationManager.InitializationStrategy.MigrateAsync,
     ),
     val kafka: KafkaConfig,
     val auth: AuthConfig,
