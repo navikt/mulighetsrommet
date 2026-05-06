@@ -1,4 +1,5 @@
 import test, { expect, Page } from "@playwright/test";
+import { selectFirstComboboxOption } from "./utils";
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1920 });
@@ -40,10 +41,7 @@ async function fyllInnNavRegioner(page: Page) {
     "Du må velge minst én region",
   );
 
-  await page.click("input#navRegioner");
-  await page.keyboard.press("Enter");
-
-  await page.click("input#navKontorer");
-  await page.keyboard.press("Enter");
+  await selectFirstComboboxOption(page, "input#navRegioner");
+  await selectFirstComboboxOption(page, "input#navKontorer");
   await page.locator("text=Opprett avtale").click();
 }

@@ -1,5 +1,5 @@
 import test, { Page } from "@playwright/test";
-import { locateAndFillInput } from "./utils";
+import { locateAndFillInput, selectFirstComboboxOption } from "./utils";
 
 const mockAvtaleId = "d1f163b7-1a41-4547-af16-03fd4492b7ba";
 
@@ -13,10 +13,7 @@ const fyllInnGjennomforing = async (page: Page) => {
   await page.getByRole("menuitem", { name: "Opprett ny gjennomføring" }).click();
 
   await locateAndFillInput(page, "antallPlasser", "20");
-
-  await page.locator('input[name="arrangorId"]').click();
-  await page.keyboard.press("ArrowDown");
-  await page.keyboard.press("Enter");
+  await selectFirstComboboxOption(page, page.locator('input[name="arrangorId"]'));
 
   await page.locator('button:has-text("Neste")').click();
 
@@ -25,15 +22,10 @@ const fyllInnGjennomforing = async (page: Page) => {
     'textarea[name="veilederinformasjon.faneinnhold.forHvemInfoboks"]',
     "Dette er en test",
   );
-
   await page.click('div[role="textbox"]');
   await page.keyboard.insertText("dette er en test");
-
-  await page.click("input#navRegioner");
-  await page.keyboard.press("Enter");
-
-  await page.click("input#navKontorer");
-  await page.keyboard.press("Enter");
+  await selectFirstComboboxOption(page, "input#navRegioner");
+  await selectFirstComboboxOption(page, "input#navKontorer");
 
   await page.click("button[type=submit]");
 
