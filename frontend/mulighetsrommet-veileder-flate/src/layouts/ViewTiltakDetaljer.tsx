@@ -47,7 +47,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
               )}
             </VStack>
             <VStack gap="space-16" width="100%">
-              {isTiltakGruppe(tiltak) && tiltak.apentForPamelding && (
+              {isTiltakGruppe(tiltak) && !tiltak.apentForPamelding && (
                 <PadlockLockedFillIcon
                   title="Tiltaket er stengt for påmelding"
                   width="2rem"
