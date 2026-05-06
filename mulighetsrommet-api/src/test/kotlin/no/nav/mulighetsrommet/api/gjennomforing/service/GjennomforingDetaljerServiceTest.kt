@@ -8,7 +8,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -19,6 +18,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -50,8 +50,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         oppfolgingEnhet = null,
         geografiskEnhet = null,
         region = null,
-        erSkjermet = false,
-        adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
+        gradering = Gradering.STRENGT_FORTROLIG_ADRESSE,
         avvistGrunn = AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
     )
 

@@ -6319,14 +6319,25 @@ components:
           - string
         status:
           $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+        gradering:
+          $ref: "#/components/schemas/Gradering"
       required:
       - deltakerId
       - geografiskEnhet
+      - gradering
       - innholdAnnet
       - navn
       - norskIdent
       - oppfolgingEnhet
       - status
+    Gradering:
+      type: string
+      enum:
+      - STRENGT_FORTROLIG_ADRESSE
+      - STRENGT_FORTROLIG_UTLAND
+      - FORTROLIG_ADRESSE
+      - SKJERMING
+      - UGRADERT
     TilsagnBeregningDto:
       type: object
       properties:

@@ -7,7 +7,6 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
-import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
@@ -22,6 +21,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDelt
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -288,10 +288,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             deltaker1Id,
             navn = "Ola Skjermet",
             norskIdent = NorskIdent("01010199999"),
-            erSkjermet = true,
             oppfolgingEnhet = null,
             geografiskEnhet = null,
-            adressebeskyttelse = PdlGradering.UGRADERT,
+            gradering = Gradering.SKJERMING,
             region = null,
             avvistGrunn = null,
         ),
@@ -299,9 +298,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             deltaker2Id,
             navn = "Ola Nordmann",
             norskIdent = NorskIdent("01010199999"),
-            erSkjermet = false,
             oppfolgingEnhet = null,
-            adressebeskyttelse = PdlGradering.UGRADERT,
+            gradering = Gradering.UGRADERT,
             geografiskEnhet = null,
             avvistGrunn = null,
             region = null,
@@ -310,9 +308,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             deltaker3Id,
             navn = "Kari Nordmann",
             norskIdent = NorskIdent("01010199998"),
-            erSkjermet = false,
             oppfolgingEnhet = null,
-            adressebeskyttelse = PdlGradering.FORTROLIG,
+            gradering = Gradering.FORTROLIG_ADRESSE,
             geografiskEnhet = null,
             region = null,
             avvistGrunn = null,
@@ -321,9 +318,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             deltaker4Id,
             navn = "Kari Nordmann",
             norskIdent = NorskIdent("01010199998"),
-            erSkjermet = false,
             oppfolgingEnhet = null,
-            adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
+            gradering = Gradering.STRENGT_FORTROLIG_ADRESSE,
             geografiskEnhet = null,
             region = null,
             avvistGrunn = null,
@@ -332,9 +328,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             deltaker5Id,
             navn = "Kari Nordmann",
             norskIdent = NorskIdent("01010199998"),
-            erSkjermet = false,
             oppfolgingEnhet = null,
-            adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND,
+            gradering = Gradering.STRENGT_FORTROLIG_UTLAND,
             geografiskEnhet = null,
             region = null,
             avvistGrunn = null,

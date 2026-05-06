@@ -4,7 +4,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsDetaljer
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningStengt
-import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.pdfgen.Format
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
@@ -24,6 +23,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
@@ -354,22 +354,24 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
 }
 
 private fun deltakerNavnOgIdent(personalia: Personalia?): Array<TableBlock.Table.Cell> {
-    val erAdressebeskyttet = personalia?.adressebeskyttelse != PdlGradering.UGRADERT
-    val erSkjermet = personalia?.erSkjermet ?: false
     return arrayOf(
         TableBlock.Table.Cell(
-            when {
-                erSkjermet -> "Skjermet"
-                erAdressebeskyttet -> "Adressebeskyttet"
-                else -> personalia.navn()
+            when (personalia?.gradering) {
+                Gradering.SKJERMING -> "Skjermet"
+
+                Gradering.STRENGT_FORTROLIG_UTLAND,
+                Gradering.STRENGT_FORTROLIG_ADRESSE,
+                Gradering.FORTROLIG_ADRESSE,
+                -> "Adressebeskyttet"
+
+                else -> personalia?.navn()
             },
 
         ),
         TableBlock.Table.Cell(
-            when {
-                erSkjermet -> null
-                erAdressebeskyttet -> null
-                else -> personalia.norskIdent()?.value
+            when (personalia?.gradering) {
+                Gradering.UGRADERT -> personalia.norskIdent()?.value
+                else -> null
             },
         ),
     )

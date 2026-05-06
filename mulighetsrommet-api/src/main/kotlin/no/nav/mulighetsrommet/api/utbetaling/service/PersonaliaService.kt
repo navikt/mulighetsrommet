@@ -58,21 +58,26 @@ class PersonaliaService(
         return amtPersonalia.map { p ->
             val norskIdent = p.norskIdent
 
-            val (_, geografiskEnhet) = norskIdent.let { pdlData[norskIdent] } ?: (null to null)
+            val geografiskEnhet = pdlData[norskIdent]?.second?.navEnhetNummer()?.let {
+                navEnhetService.hentEnhet(it)
+            }
             val oppfolgingEnhet = p.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) }
+            val region = oppfolgingEnhet?.overordnetEnhet?.let {
+                navEnhetService.hentEnhet(it)
+            }
+            val avvistGrunn = tilgangerByDeltakerId[p.deltakerId]
+
+            val erSkjermet = p.erSkjermet || (avvistGrunn?.erSkjermet() ?: false)
 
             Personalia(
                 deltakerId = p.deltakerId,
                 norskIdent = p.norskIdent,
                 navn = p.navn,
                 oppfolgingEnhet = oppfolgingEnhet,
-                erSkjermet = p.erSkjermet,
-                adressebeskyttelse = p.adressebeskyttelse,
-                geografiskEnhet = geografiskEnhet?.navEnhetNummer()?.let { navEnhetService.hentEnhet(it) },
-                region = oppfolgingEnhet?.overordnetEnhet?.let {
-                    navEnhetService.hentEnhet(it)
-                },
-                avvistGrunn = tilgangerByDeltakerId[p.deltakerId],
+                geografiskEnhet = geografiskEnhet,
+                region = region,
+                avvistGrunn = avvistGrunn,
+                gradering = Gradering.from(p.adressebeskyttelse, avvistGrunn, erSkjermet),
             )
         }
     }
@@ -183,8 +188,7 @@ data class Personalia(
     private val oppfolgingEnhet: NavEnhetDto?,
     private val geografiskEnhet: NavEnhetDto?,
     private val region: NavEnhetDto?,
-    val erSkjermet: Boolean,
-    val adressebeskyttelse: PdlGradering,
+    val gradering: Gradering,
     val avvistGrunn: AvvistGrunn?,
 ) {
     fun harTilgang(): Boolean = avvistGrunn == null
@@ -192,7 +196,16 @@ data class Personalia(
     fun navn(): String? = if (harTilgang()) {
         navn
     } else {
-        null
+        when (gradering) {
+            Gradering.STRENGT_FORTROLIG_ADRESSE,
+            Gradering.STRENGT_FORTROLIG_UTLAND,
+            Gradering.FORTROLIG_ADRESSE,
+            -> "Adressebeskyttet"
+
+            Gradering.SKJERMING -> "Skjermet"
+
+            Gradering.UGRADERT -> navn
+        }
     }
 
     fun norskIdent(): NorskIdent? = if (harTilgang()) {
@@ -201,11 +214,7 @@ data class Personalia(
         null
     }
 
-    fun oppfolgingEnhet(): NavEnhetDto? = if (harTilgang()) {
-        oppfolgingEnhet
-    } else {
-        null
-    }
+    fun oppfolgingEnhet(): NavEnhetDto? = oppfolgingEnhet
 
     fun geografiskEnhet(): NavEnhetDto? = if (harTilgang()) {
         geografiskEnhet
@@ -220,6 +229,35 @@ data class Personalia(
     }
 }
 
+enum class Gradering {
+    STRENGT_FORTROLIG_ADRESSE,
+    STRENGT_FORTROLIG_UTLAND,
+    FORTROLIG_ADRESSE,
+    SKJERMING,
+    UGRADERT,
+    ;
+
+    companion object {
+        fun from(pdlGradering: PdlGradering, avvistGrunn: AvvistGrunn?, erSkjermet: Boolean?): Gradering {
+            return when (pdlGradering) {
+                PdlGradering.FORTROLIG -> FORTROLIG_ADRESSE
+
+                PdlGradering.STRENGT_FORTROLIG -> STRENGT_FORTROLIG_ADRESSE
+
+                PdlGradering.STRENGT_FORTROLIG_UTLAND -> STRENGT_FORTROLIG_UTLAND
+
+                PdlGradering.UGRADERT -> {
+                    if (erSkjermet == true || avvistGrunn?.erSkjermet() == true) {
+                        SKJERMING
+                    } else {
+                        UGRADERT
+                    }
+                }
+            }
+        }
+    }
+}
+
 enum class AvvistGrunn {
     AVVIST_STRENGT_FORTROLIG_ADRESSE,
     AVVIST_STRENGT_FORTROLIG_UTLAND,
@@ -229,6 +267,19 @@ enum class AvvistGrunn {
     AVVIST_VERGE,
     AVVIST_GEOGRAFISK,
     ;
+
+    fun erSkjermet(): Boolean = when (this) {
+        AVVIST_SKJERMING,
+        AVVIST_HABILITET,
+        AVVIST_VERGE,
+        -> true
+
+        AVVIST_STRENGT_FORTROLIG_ADRESSE,
+        AVVIST_STRENGT_FORTROLIG_UTLAND,
+        AVVIST_FORTROLIG_ADRESSE,
+        AVVIST_GEOGRAFISK,
+        -> false
+    }
 
     companion object {
         fun fromTilgangsmaskinResultat(resultat: TilgangsmaskinResult.Resultat): AvvistGrunn? {

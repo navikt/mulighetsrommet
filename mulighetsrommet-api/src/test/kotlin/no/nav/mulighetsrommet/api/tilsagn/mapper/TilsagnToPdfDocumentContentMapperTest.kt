@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -15,6 +14,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -41,8 +41,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         deltakerId = UUID.randomUUID(),
         norskIdent = NorskIdent("01010199999"),
         navn = "Normann, Ola",
-        erSkjermet = false,
-        adressebeskyttelse = PdlGradering.UGRADERT,
+        gradering = Gradering.UGRADERT,
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
         geografiskEnhet = null,
         region = null,
@@ -53,8 +52,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         deltakerId = UUID.randomUUID(),
         norskIdent = NorskIdent("01010199998"),
         navn = "Normann, Olve",
-        erSkjermet = true,
-        adressebeskyttelse = PdlGradering.UGRADERT,
+        gradering = Gradering.SKJERMING,
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
         geografiskEnhet = null,
         region = null,
@@ -65,8 +63,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         deltakerId = UUID.randomUUID(),
         norskIdent = NorskIdent("01010199997"),
         navn = "Normann, Olivia",
-        erSkjermet = false,
-        adressebeskyttelse = PdlGradering.FORTROLIG,
+        gradering = Gradering.FORTROLIG_ADRESSE,
         oppfolgingEnhet = NavEnhetFixtures.Sel.toDto(),
         geografiskEnhet = null,
         region = null,

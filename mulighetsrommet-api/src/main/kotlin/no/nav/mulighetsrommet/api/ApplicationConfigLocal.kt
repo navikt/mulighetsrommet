@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinRequest
-import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResult
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -224,10 +224,11 @@ val ApplicationConfigLocal = AppConfig(
                 val requests = JsonIgnoreUnknownKeys.decodeFromString<List<TilgangsmaskinRequest>>(jsonString)
 
                 val payload =
-                    TilgangsmaskinResult(
+                    TilgangsmaskinResponse(
                         requests.map { req ->
-                            TilgangsmaskinResult.Resultat.Innvilget(
+                            TilgangsmaskinResponse.Resultat(
                                 req.brukerId,
+                                status = 204,
                             )
                         },
                     )
@@ -281,7 +282,7 @@ val ApplicationConfigLocal = AppConfig(
                             "mellomnavn": null,
                             "etternavn": "Nordmann",
                             "navEnhetsnummer": "1206",
-                            "erSkjermet": false,
+                            "erSkjermet": true,
                             "adressebeskyttelse": "UGRADERT"
                           }
                     """.trimIndent()
@@ -317,7 +318,7 @@ val ApplicationConfigLocal = AppConfig(
                                   "etternavn": "Nordmann"
                                 }
                               ],
-                              "adressebeskyttelse": []
+                              "adressebeskyttelse": [ { "gradering": "STRENGT_FORTROLIG" } ]
                             },
                             "code": "ok"
                           }

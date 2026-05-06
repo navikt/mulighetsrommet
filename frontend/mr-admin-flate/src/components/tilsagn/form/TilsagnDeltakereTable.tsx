@@ -1,3 +1,4 @@
+import { NavnOgGradering } from "@/components/personalia/NavnOgGradering";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { CheckmarkCircleIcon } from "@navikt/aksel-icons";
 import { BodyShort, Table, VStack } from "@navikt/ds-react";
@@ -31,7 +32,7 @@ export function TilsagnDeltakereTable({ deltakere, selected, onClick }: Props) {
             >
               <Table.HeaderCell scope="row">
                 <VStack>
-                  <BodyShort className="font-bold">{deltaker.navn}</BodyShort>
+                  <NavnOgGradering navn={deltaker.navn ?? "-"} gradering={deltaker.gradering} />
                   <BodyShort>{deltaker.norskIdent}</BodyShort>
                 </VStack>
               </Table.HeaderCell>
