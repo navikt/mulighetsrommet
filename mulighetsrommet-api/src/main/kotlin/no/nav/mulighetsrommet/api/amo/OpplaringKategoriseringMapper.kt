@@ -86,7 +86,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         Tiltakskode.STUDIESPESIALISERING,
         -> ingenValg(tiltakskode)
 
-        Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> db.session { arenaAmo() }
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> arenaAmo()
 
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> norskOpplaringGrunnleggendeFerdigheterFov()
 
@@ -160,7 +160,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         )
     }
 
-    private fun QueryContext.arenaAmo(): OpplaringKategoriseringResponse {
+    private fun arenaAmo(): OpplaringKategoriseringResponse {
         return OpplaringKategoriseringResponse(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             alternativer = listOf(
@@ -188,12 +188,12 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
                         )
                     },
                 ),
-                OpplaringKategoriseringResponse.Alternativ.VerdiSok(
+                OpplaringKategoriseringResponse.Alternativ.VerdigruppeSok(
                     id = null,
-                    representerer = "sertifisering",
+                    representerer = "sertifiseringer",
                     visningsnavn = "Sertifiseringer",
                     seleksjonstype = OpplaringKategoriseringResponse.Seleksjonstype.FLERVALG,
-                    sokUrl = "/api/sertifiseringer?sok={sok}",
+                    kilde = OpplaringKategoriseringResponse.Alternativ.VerdigruppeSok.Kilde.JANZZ_SERTIFISERING,
                 ),
             ),
         )

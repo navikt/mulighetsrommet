@@ -16,28 +16,30 @@ class OpplaringKategoriseringTest : FunSpec({
         prettyPrint = true
         prettyPrintIndent = "  "
     }
-    var service: OpplaringKategoriseringMapper? = null
     beforeSpec {
         MulighetsrommetTestDomain {
             this.session.execute(queryOf(UTDANNINGSPROGRAM_SQL, emptyMap()))
             this.session.execute(queryOf(UTDANNING_SQL, emptyMap()))
         }.initialize(dbListener.db)
-
-        service = OpplaringKategoriseringMapper(dbListener.db)
     }
 
     test("STUDIESPESIALISERING") {
-        jsonPrettyPrint.encodeToString(service!!.from(Tiltakskode.STUDIESPESIALISERING)) shouldBeEqual STUDIESPESIALISERING_JSON
+        val service = OpplaringKategoriseringMapper(dbListener.db)
+        jsonPrettyPrint.encodeToString(service.from(Tiltakskode.STUDIESPESIALISERING)) shouldBeEqual STUDIESPESIALISERING_JSON
     }
     test("NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV") {
-        jsonPrettyPrint.encodeToString(service!!.from(Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV)) shouldBeEqual NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON
+        val service = OpplaringKategoriseringMapper(dbListener.db)
+        jsonPrettyPrint.encodeToString(service.from(Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV)) shouldBeEqual NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON
     }
 
     test("FAG_OG_YRKESOPPLAERING") {
-        jsonPrettyPrint.encodeToString(service!!.from(Tiltakskode.FAG_OG_YRKESOPPLAERING)) shouldBeEqual FAG_OG_YRKESOPPLAERING
+        val service = OpplaringKategoriseringMapper(dbListener.db)
+        jsonPrettyPrint.encodeToString(service.from(Tiltakskode.FAG_OG_YRKESOPPLAERING)) shouldBeEqual FAG_OG_YRKESOPPLAERING
     }
-    test("AMO") {
-        jsonPrettyPrint.encodeToString(service!!.from(Tiltakskode.ARBEIDSMARKEDSOPPLAERING)) shouldBeEqual ARBEIDSMARKEDSOPPLAERING
+
+    test("ARBEIDSMARKEDSOPPLAERING") {
+        val service = OpplaringKategoriseringMapper(dbListener.db)
+        jsonPrettyPrint.encodeToString(service.from(Tiltakskode.ARBEIDSMARKEDSOPPLAERING)) shouldBeEqual ARBEIDSMARKEDSOPPLAERING
     }
 })
 
@@ -158,8 +160,7 @@ const val FAG_OG_YRKESOPPLAERING = """{
   ]
 }"""
 
-const val ARBEIDSMARKEDSOPPLAERING =
-    """{
+const val ARBEIDSMARKEDSOPPLAERING = """{
   "tiltakskode": "ARBEIDSMARKEDSOPPLAERING",
   "alternativer": [
     {
@@ -293,12 +294,12 @@ const val ARBEIDSMARKEDSOPPLAERING =
       ]
     },
     {
-      "type": "VerdiSok",
+      "type": "VerdigruppeSok",
       "id": null,
       "visningsnavn": "Sertifiseringer",
-      "representerer": "sertifisering",
+      "representerer": "sertifiseringer",
       "seleksjonstype": "FLERVALG",
-      "sokUrl": "/api/sertifiseringer?sok={sok}"
+      "kilde": "JANZZ_SERTIFISERING"
     }
   ]
 }"""

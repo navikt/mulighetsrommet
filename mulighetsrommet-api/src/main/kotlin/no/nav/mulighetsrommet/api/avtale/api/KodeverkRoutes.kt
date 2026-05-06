@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.avtale.api
 
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.http.content.default
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
@@ -18,7 +17,6 @@ import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.model.Avtaletyper
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
-import org.koin.java.KoinJavaComponent.inject
 import org.koin.ktor.ext.inject
 
 fun Route.kodeverkRoutes() {
@@ -99,12 +97,12 @@ fun Route.kodeverkRoutes() {
             }
 
             get("/sertifiseringer/sok", {
-                description = "Søk etter sertifiseringer"
+                description = "Søk etter JANZZ sertifiseringer"
                 tags = setOf("Kodeverk")
                 operationId = "sokSertifiseringer"
                 request {
                     queryParameter<String>("q") {
-                        description = "Søketekst for sertifisering"
+                        description = "Søketekst for JANZZ sertifisering"
                         required = true
                     }
                 }

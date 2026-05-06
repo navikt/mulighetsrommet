@@ -118,16 +118,32 @@ data class OpplaringKategoriseringResponse(
             val alternativer: List<Verdi>,
         ) : Container
 
+        /**
+         * Representerer en Verdigruppe, hvor verdiene må søkes etter i en gitt kilde
+         * Siden søk er mer omfattende, og har sin egen responsstruktur, dekkes ikke integrasjonsdetaljene her
+         * Eksempler på VerdigruppeSok:
+         *  - Janzz sertifisering
+         *
+         * @property id Unik identifikator for verdigruppen.
+         * @property visningsnavn Navnet som vises i UI (f.eks. "Sertifiseringer").
+         * @property seleksjonstype Hvordan brukeren kan velge blant verdiene
+         *   (ett enkelt valg eller flere samtidig).
+         * @property kilde opphavet til verdiene som kan velges
+         */
         @Serializable
-        @SerialName("VerdiSok")
-        data class VerdiSok(
+        @SerialName("VerdigruppeSok")
+        data class VerdigruppeSok(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID?,
             override val visningsnavn: String,
             val representerer: String,
             val seleksjonstype: Seleksjonstype,
-            val sokUrl: String,
-        ) : Container
+            val kilde: Kilde,
+        ) : Container {
+            enum class Kilde {
+                JANZZ_SERTIFISERING,
+            }
+        }
 
         /**
          * En konkret valgbar verdi i en [Verdigruppe].
