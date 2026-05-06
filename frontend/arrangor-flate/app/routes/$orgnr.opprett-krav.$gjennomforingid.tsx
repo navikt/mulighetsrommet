@@ -297,7 +297,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
   const isFirstStep = currentStepIndex === 0;
 
   return (
-    <VStack gap="space-4" justify="center">
+    <VStack gap="space-16" justify="center">
       <Link as={ReactRouterLink} to={pathTo.tiltaksoversikt} className="max-w-max">
         <ChevronLeftIcon /> Tilbake til tiltaksoversikt
       </Link>
@@ -310,8 +310,8 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
           ))}
         </Stepper>
       </Hide>
-      <Box background="default" borderRadius="8" padding="space-32">
-        <VStack gap="space-8">
+      <Box asChild background="default" borderRadius="8" padding="space-32">
+        <VStack gap="space-16">
           {renderCurrentStep()}
           {hasError && (
             <ErrorSummary ref={errorSummaryRef}>
@@ -326,7 +326,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
             </ErrorSummary>
           )}
           {!isLastStep && (
-            <HStack gap="space-8">
+            <HStack gap="space-16">
               {isFirstStep ? (
                 <Button
                   type="button"
