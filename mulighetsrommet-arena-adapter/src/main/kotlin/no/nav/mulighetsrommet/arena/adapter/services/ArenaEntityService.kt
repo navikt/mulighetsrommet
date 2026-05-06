@@ -107,6 +107,14 @@ class ArenaEntityService(
             .left()
     }
 
+    fun getMappings(
+        tables: List<ArenaTable>,
+        payloadField: String,
+        payloadValue: String,
+    ): List<ArenaEntityMapping> {
+        return mappings.getMappings(tables, payloadField, payloadValue)
+    }
+
     fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> {
         return getMapping(arenaTable, arenaId)
             .map { it.status == ArenaEntityMapping.Status.Ignored }

@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.arena.adapter.clients.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
@@ -122,6 +123,14 @@ class TiltakgjennomforingEventProcessor(
             .mapLeft { ProcessingError.fromResponseException(it) }
             .flatMap { entities.deleteTiltaksgjennomforing(mapping.entityId) }
             .bind()
+    }
+
+    override fun getDependentEntities(event: ArenaEvent): List<ArenaEntityMapping> {
+        return entities.getMappings(
+            tables = listOf(ArenaTable.Deltaker, ArenaTable.HistDeltaker),
+            payloadField = ArenaTiltakdeltaker::TILTAKGJENNOMFORING_ID.name,
+            payloadValue = event.arenaId,
+        )
     }
 
     private fun erTiltakRelevantForTiltaksadministrasjon(data: ArenaTiltaksgjennomforing): Boolean {

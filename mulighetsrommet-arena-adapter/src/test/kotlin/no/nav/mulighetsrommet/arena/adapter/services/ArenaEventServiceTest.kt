@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.spyk
 import kotlinx.serialization.json.JsonObject
@@ -188,6 +189,78 @@ class ArenaEventServiceTest : FunSpec({
                 .value("entity_id").isEqualTo(dependentEventMapping.entityId)
                 .value("status").isEqualTo(Handled.name)
                 .value("message").isNull
+        }
+
+        test("should replay dependent events when entity transitions from Ignored to Handled") {
+            val gjennomforingEvent = ArenaEvent(
+                status = ProcessingStatus.Pending,
+                arenaTable = table,
+                operation = ArenaEvent.Operation.Insert,
+                arenaId = "10",
+                payload = JsonObject(mapOf("after" to JsonObject(mapOf("name" to JsonPrimitive("Gjennomforing"))))),
+            )
+            val deltakerEvent = ArenaEvent(
+                status = ProcessingStatus.Pending,
+                arenaTable = ArenaTable.AvtaleInfo,
+                operation = ArenaEvent.Operation.Insert,
+                arenaId = "11",
+                payload = JsonObject(mapOf("after" to JsonObject(mapOf("name" to JsonPrimitive("Deltaker"))))),
+            )
+
+            val ignoredDeltakerMapping = entities.getOrCreateMapping(deltakerEvent)
+
+            // Simulerer at gjennomføring først er Ignored, deretter Handled
+            var gjennomforingHandleCount = 0
+            val gjennomforingProcessor = spyk(
+                ArenaEventTestProcessor(
+                    eventIsRelevant = { it.arenaId == gjennomforingEvent.arenaId && it.arenaTable == gjennomforingEvent.arenaTable },
+                    getDependentEntities = { listOf(ignoredDeltakerMapping) },
+                ) {
+                    gjennomforingHandleCount++
+                    if (gjennomforingHandleCount == 1) {
+                        ProcessingResult(Ignored, "Gjennomforing ignorert").right()
+                    } else {
+                        ProcessingResult(Handled).right()
+                    }
+                },
+            )
+
+            // Simulerer at deltaker er Ignored fordi gjennomføring er Ignored, og Handled ved replay
+            var deltakerHandleCount = 0
+            val deltakerProcessor = spyk(
+                ArenaEventTestProcessor(eventIsRelevant = { it.arenaId == deltakerEvent.arenaId && it.arenaTable == deltakerEvent.arenaTable }) {
+                    deltakerHandleCount++
+                    if (deltakerHandleCount == 1) {
+                        ProcessingResult(
+                            Ignored,
+                            "Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert",
+                        ).right()
+                    } else {
+                        ProcessingResult(Handled).right()
+                    }
+                },
+            )
+
+            val service = ArenaEventService(
+                events = events,
+                processors = listOf(gjennomforingProcessor, deltakerProcessor),
+                entities = entities,
+            )
+
+            // Prosesser gjennomforing første gang => Ignored
+            service.processEvent(gjennomforingEvent)
+            entitiesRepository.get(gjennomforingEvent.arenaTable, gjennomforingEvent.arenaId)?.status shouldBe Ignored
+
+            // Prosesser deltaker => Ignored fordi gjennomforing er Ignored
+            service.processEvent(deltakerEvent)
+            entitiesRepository.get(deltakerEvent.arenaTable, deltakerEvent.arenaId)?.status shouldBe Ignored
+            coVerify(exactly = 1) { deltakerProcessor.handleEvent(any()) }
+
+            // Prosesser gjennomforing andre gang => Handled (status endres fra Ignored til Handled) og at deltaker ble gjenspilt og er nå Handled
+            service.processEvent(gjennomforingEvent)
+            entitiesRepository.get(gjennomforingEvent.arenaTable, gjennomforingEvent.arenaId)?.status shouldBe Handled
+            entitiesRepository.get(deltakerEvent.arenaTable, deltakerEvent.arenaId)?.status shouldBe Handled
+            coVerify(exactly = 2) { deltakerProcessor.handleEvent(any()) }
         }
 
         test("should save the event with an error status when the processor fails to handle the event") {

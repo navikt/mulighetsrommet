@@ -24,6 +24,8 @@ import no.nav.mulighetsrommet.arena.adapter.clients.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.databaseConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaHistTiltakdeltakerEvent
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
@@ -37,6 +39,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatu
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
@@ -466,6 +469,72 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 entities.getTiltaksgjennomforingOrNull(mapping.entityId) shouldNotBe null
                 entities.getTiltaksgjennomforingOrNull(mapping.entityId)?.sanityId shouldBe sanityId
             }
+        }
+    }
+
+    context("getDependentEntities") {
+        val arenaEvents = ArenaEventRepository(database.db)
+        val entities = ArenaEntityService(
+            mappings = ArenaEntityMappingRepository(database.db),
+            tiltakstyper = TiltakstypeRepository(database.db),
+            saker = SakRepository(database.db),
+            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+        )
+
+        fun createProcessor() = TiltakgjennomforingEventProcessor(
+            config = TiltakgjennomforingEventProcessor.Config(),
+            entities = entities,
+            ords = ArenaOrdsProxyClientImpl(createMockEngine(), baseUrl = "") { "Bearer token" },
+            mulighetsrommetApiClient = MulighetsrommetApiClient(createMockEngine(), baseUri = "") { "Bearer token" },
+            tiltakshistorikkClient = TiltakshistorikkClient(createMockEngine(), baseUrl = "") { "Bearer token" },
+        )
+
+        fun persistEvent(
+            event: ArenaEvent,
+            status: ArenaEntityMapping.Status,
+        ): ArenaEntityMapping {
+            arenaEvents.upsert(event)
+            val mapping = entities.getOrCreateMapping(event)
+            return entities.upsertMapping(mapping.copy(status = status))
+        }
+
+        val gjennomforingEvent = createArenaTiltakgjennomforingEvent(Insert)
+        val gjennomforingArenaId = TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingGruppe.TILTAKGJENNOMFORING_ID
+
+        test("returnerer alle Deltaker- og HistDeltaker-events tilknyttet gjennomføringen") {
+            val deltakerEvent = createArenaTiltakdeltakerEvent(Insert) {
+                it.copy(TILTAKGJENNOMFORING_ID = gjennomforingArenaId)
+            }
+            val histDeltakerEvent = createArenaHistTiltakdeltakerEvent(Insert) {
+                it.copy(TILTAKGJENNOMFORING_ID = gjennomforingArenaId)
+            }
+
+            persistEvent(gjennomforingEvent, Handled)
+            persistEvent(deltakerEvent, Ignored)
+            persistEvent(histDeltakerEvent, Handled)
+
+            val processor = createProcessor()
+            val result = processor.getDependentEntities(gjennomforingEvent)
+
+            result.map { it.arenaId } shouldBe listOf(
+                deltakerEvent.arenaId,
+                histDeltakerEvent.arenaId,
+            )
+        }
+
+        test("returnerer ikke Deltaker-events tilknyttet en annen gjennomføring") {
+            val annenGjennomforingId = gjennomforingArenaId + 1
+            val deltakerEvent = createArenaTiltakdeltakerEvent(Insert) {
+                it.copy(TILTAKGJENNOMFORING_ID = annenGjennomforingId)
+            }
+
+            persistEvent(gjennomforingEvent, Handled)
+            persistEvent(deltakerEvent, Ignored)
+
+            val processor = createProcessor()
+            val result = processor.getDependentEntities(gjennomforingEvent)
+
+            result shouldBe emptyList()
         }
     }
 })
