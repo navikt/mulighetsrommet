@@ -1,6 +1,6 @@
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
-import { Box, HGrid, HStack, Page, Tabs, VStack } from "@navikt/ds-react";
+import { Box, HGrid, HStack, List, Page, Tabs, VStack } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@api-client";
 import { ReactNode, Suspense, useState } from "react";
 import SidemenyInfo from "@/components/sidemeny/SidemenyInfo";
@@ -8,7 +8,6 @@ import { TiltakDetaljer } from "@/components/tabs/TiltakDetaljer";
 import { TiltakHeader } from "./TiltakHeader";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { EstimertVentetid } from "@/components/sidemeny/EstimertVentetid";
-import { SidemenyKanKombineresMed } from "@/components/sidemeny/SidemenyKanKombineresMed";
 import { DetaljerSkeleton } from "@mr/frontend-common";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { Melding } from "@/components/melding/Melding";
@@ -65,14 +64,27 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                     <Tabs.Tab value="kombineres" label="Kan kombineres med" />
                   ) : null}
                 </Tabs.List>
-                <Tabs.Panel value="info">
-                  <SidemenyInfo tiltak={tiltak} innsatsgrupper={innsatsgrupper} />
-                </Tabs.Panel>
-                {harKombinasjon ? (
-                  <Tabs.Panel value="kombineres">
-                    <SidemenyKanKombineresMed tiltak={tiltak} />
+                <Box
+                  padding="space-20"
+                  borderRadius="0 0 8 8"
+                  background="neutral-soft"
+                  id="sidemeny"
+                >
+                  <Tabs.Panel value="info">
+                    <SidemenyInfo tiltak={tiltak} innsatsgrupper={innsatsgrupper} />
                   </Tabs.Panel>
-                ) : null}
+                  {harKombinasjon ? (
+                    <Tabs.Panel value="kombineres">
+                      <List size="small">
+                        {tiltak.tiltakstype.kanKombineresMed
+                          .sort((a, b) => a.navn.localeCompare(b.navn))
+                          .map(({ id, navn }) => (
+                            <List.Item key={id}>{navn}</List.Item>
+                          ))}
+                      </List>
+                    </Tabs.Panel>
+                  ) : null}
+                </Box>
               </Tabs>
               {tiltak.oppmoteSted && (
                 <Melding header="Oppmøtested" variant="info">

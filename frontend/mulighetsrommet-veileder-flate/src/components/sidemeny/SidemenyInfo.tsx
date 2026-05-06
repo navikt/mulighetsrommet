@@ -1,4 +1,4 @@
-import { BodyShort, Box, CopyButton, HStack, VStack } from "@navikt/ds-react";
+import { BodyShort, CopyButton, HStack, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import {
   GjennomforingOppstartstype,
@@ -26,46 +26,44 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
   const arrangor = "arrangor" in tiltak ? tiltak.arrangor : null;
 
   return (
-    <Box asChild padding="space-20" borderRadius="0 0 8 8" background="neutral-soft" id="sidemeny">
-      <VStack gap="space-24">
-        {lopenummer && (
-          <SidemenyInfoContainer
-            tittel="Løpenummer"
-            innhold={
-              <HStack gap="space-4" align="center" justify="space-between">
-                <BodyShort size="small">{lopenummer}</BodyShort>
-                <CopyButton data-color="accent" size="xsmall" copyText={lopenummer} />
-              </HStack>
-            }
-          />
-        )}
-        {tiltaksnummer && (
-          <SidemenyInfoContainer
-            tittel="Tiltaksnummer i Arena"
-            innhold={
-              <HStack gap="space-4" align="center" justify="space-between">
-                <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
-                <CopyButton
-                  data-color="accent"
-                  size="xsmall"
-                  copyText={utledLopenummerFraTiltaksnummer(tiltaksnummer)}
-                />
-              </HStack>
-            }
-          />
-        )}
-        <SidemenyInfoContainer tittel="Tiltakstype" innhold={tiltakstype.navn} />
-        {arrangor && <SidemenyInfoContainer tittel="Arrangør" innhold={arrangor.selskapsnavn} />}
-        <SidemenyInfoContainer tittel="Min. innsatsgruppe" innhold={minimumInnsatsgruppe.tittel} />
-        <TiltakVarighetInfo tiltak={tiltak} />
-        {tiltakstype.faglenker && (
-          <SidemenyInfoContainer
-            tittel="Regelverk og rutiner"
-            innhold={<Faglenker faglenker={[...tiltakstype.faglenker]} />}
-          />
-        )}
-      </VStack>
-    </Box>
+    <VStack gap="space-24">
+      {lopenummer && (
+        <SidemenyInfoContainer
+          tittel="Løpenummer"
+          innhold={
+            <HStack gap="space-4" align="center" justify="space-between">
+              <BodyShort size="small">{lopenummer}</BodyShort>
+              <CopyButton data-color="accent" size="xsmall" copyText={lopenummer} />
+            </HStack>
+          }
+        />
+      )}
+      {tiltaksnummer && (
+        <SidemenyInfoContainer
+          tittel="Tiltaksnummer i Arena"
+          innhold={
+            <HStack gap="space-4" align="center" justify="space-between">
+              <BodyShort size="small">{utledLopenummerFraTiltaksnummer(tiltaksnummer)}</BodyShort>
+              <CopyButton
+                data-color="accent"
+                size="xsmall"
+                copyText={utledLopenummerFraTiltaksnummer(tiltaksnummer)}
+              />
+            </HStack>
+          }
+        />
+      )}
+      <SidemenyInfoContainer tittel="Tiltakstype" innhold={tiltakstype.navn} />
+      {arrangor && <SidemenyInfoContainer tittel="Arrangør" innhold={arrangor.selskapsnavn} />}
+      <SidemenyInfoContainer tittel="Min. innsatsgruppe" innhold={minimumInnsatsgruppe.tittel} />
+      <TiltakVarighetInfo tiltak={tiltak} />
+      {tiltakstype.faglenker && (
+        <SidemenyInfoContainer
+          tittel="Regelverk og rutiner"
+          innhold={<Faglenker faglenker={[...tiltakstype.faglenker]} />}
+        />
+      )}
+    </VStack>
   );
 };
 
