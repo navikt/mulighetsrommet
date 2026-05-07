@@ -94,6 +94,9 @@ export function TilsagnForm(props: Props) {
                   value={avtaletekster.tilsagn.type(tilsagnstype)}
                 />
                 {tilsagnstype === TilsagnType.INVESTERING && <InfomeldingOmInvesteringsTilsagn />}
+                <Suspense fallback={<Loader size="small" />}>
+                  <VelgDeltakere gjennomforingId={gjennomforing.id} />
+                </Suspense>
                 <HGrid gap="space-16" align="start" columns={2}>
                   <FormDateInput<TilsagnRequest>
                     name="periodeStart"
@@ -110,9 +113,6 @@ export function TilsagnForm(props: Props) {
                 </HGrid>
                 <VelgKostnadssted kostnadssteder={kostnadssteder} />
                 {props.beregningInput}
-                <Suspense fallback={<Loader size="small" />}>
-                  <VelgDeltakere gjennomforingId={gjennomforing.id} />
-                </Suspense>
                 <FormTextarea<TilsagnRequest>
                   name="kommentar"
                   label={tilsagnTekster.kommentar.label}

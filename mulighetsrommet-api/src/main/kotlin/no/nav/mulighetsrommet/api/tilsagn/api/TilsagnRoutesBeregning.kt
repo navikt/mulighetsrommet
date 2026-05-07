@@ -36,13 +36,13 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
-import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 import java.util.UUID
@@ -153,15 +153,18 @@ fun Route.tilsagnRoutesBeregning() {
 
         val tilsagnPerDeltaker = gjennomforing.prismodell.tilsagnPerDeltaker
 
-        val start = request.periodeStart?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
-        val slutt = request.periodeSlutt?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
-        val deltakere = if (start != null && slutt != null && tilsagnPerDeltaker) {
-            val periode = Periode.fromInclusiveDates(start, slutt)
-
+        val deltakere = if (tilsagnPerDeltaker) {
             val deltakelser = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
                 .filter {
-                    it.startDato == null || it.sluttDato == null ||
-                        periode.intersects(Periode.fromInclusiveDates(it.startDato, it.sluttDato))
+                    when (it.status.type) {
+                        DeltakerStatusType.AVBRUTT_UTKAST,
+                        DeltakerStatusType.FEILREGISTRERT,
+                        DeltakerStatusType.UTKAST_TIL_PAMELDING,
+                        DeltakerStatusType.KLADD,
+                        -> false
+
+                        else -> true
+                    }
                 }
             val personalia = personaliaService.getPersonalia(
                 deltakelser.map { it.id },
@@ -407,8 +410,6 @@ private fun resolveBeregningTypeAndPrisbetingelser(
 data class TilsagnDeltakereRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    val periodeStart: String? = null,
-    val periodeSlutt: String? = null,
 )
 
 @Serializable

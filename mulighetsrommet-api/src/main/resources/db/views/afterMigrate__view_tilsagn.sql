@@ -45,6 +45,8 @@ from tilsagn
                  jsonb_agg(
                      jsonb_build_object(
                          'deltakerId', td.deltaker_id,
+                         'startDato', d.start_dato,
+                         'sluttDato', d.slutt_dato,
                          'innholdAnnet', td.innhold_annet,
                          'status', d.status_type
                      )

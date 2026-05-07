@@ -23,7 +23,7 @@ export function VelgDeltakereModal({
 
   return (
     <Modal
-      width={900}
+      width={1100}
       closeOnBackdropClick
       onClose={onClose}
       open={open}

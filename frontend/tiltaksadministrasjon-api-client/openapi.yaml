@@ -6301,6 +6301,16 @@ components:
           type:
           - "null"
           - string
+        startDato:
+          type:
+          - "null"
+          - string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
         navn:
           type: string
         oppfolgingEnhet:
@@ -6327,6 +6337,8 @@ components:
       - navn
       - norskIdent
       - oppfolgingEnhet
+      - sluttDato
+      - startDato
       - status
     Gradering:
       type: string
@@ -6606,18 +6618,8 @@ components:
         gjennomforingId:
           type: string
           format: uuid
-        periodeStart:
-          type:
-          - "null"
-          - string
-        periodeSlutt:
-          type:
-          - "null"
-          - string
       required:
       - gjennomforingId
-      - periodeSlutt
-      - periodeStart
     TilsagnDeltakereResponse:
       type: object
       properties:

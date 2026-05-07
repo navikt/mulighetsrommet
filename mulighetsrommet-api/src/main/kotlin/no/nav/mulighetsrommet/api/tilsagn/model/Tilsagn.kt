@@ -9,8 +9,10 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.BestillingStatusType
+import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
@@ -74,6 +76,10 @@ data class Tilsagn(
         val deltakerId: UUID,
         val innholdAnnet: String?,
         val status: DeltakerStatusType,
+        @Serializable(with = LocalDateSerializer::class)
+        val startDato: LocalDate?,
+        @Serializable(with = LocalDateSerializer::class)
+        val sluttDato: LocalDate?,
     )
 
     fun gjenstaendeBelop(): ValutaBelop = if (status in listOf(TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT)) {

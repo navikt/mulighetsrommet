@@ -12,7 +12,9 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
@@ -61,6 +63,10 @@ data class TilsagnDeltakerDto(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
     val norskIdent: NorskIdent?,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
     val navn: String,
     val oppfolgingEnhet: NavEnhetDto?,
     val geografiskEnhet: NavEnhetDto?,
@@ -81,6 +87,8 @@ data class TilsagnDeltakerDto(
             innholdAnnet = deltaker.innholdAnnet,
             status = deltaker.status.toDataElement(),
             gradering = personalia.gradering,
+            startDato = deltaker.startDato,
+            sluttDato = deltaker.sluttDato,
         )
 
         fun from(deltaker: Deltaker, personalia: Personalia) = TilsagnDeltakerDto(
@@ -92,6 +100,8 @@ data class TilsagnDeltakerDto(
             innholdAnnet = deltaker.innholdAnnet,
             status = deltaker.status.type.toDataElement(),
             gradering = personalia.gradering,
+            startDato = deltaker.startDato,
+            sluttDato = deltaker.sluttDato,
         )
     }
 }
