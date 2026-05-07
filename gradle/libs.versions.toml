@@ -5,6 +5,7 @@ koin-bom = "4.2.1"
 kotest = "6.1.11"
 kotlin = "2.3.21"
 ktor = "3.4.3"
+netty = "4.2.13.Final"
 logback = "1.5.32"
 metrics = "4.2.38"
 arrow = "2.2.2.1"
@@ -30,6 +31,19 @@ ktor-openapi = [
     "schema-kenerator-reflection",
     "schema-kenerator-serialization",
     "schema-kenerator-swagger",
+]
+
+netty = [
+    "netty-codec-http2",
+    "netty-common",
+    "netty-handler",
+    "netty-resolver",
+    "netty-transport-classes-epoll",
+    "netty-transport-classes-kqueue",
+    "netty-transport-native-epoll",
+    "netty-transport-native-kqueue",
+    "netty-transport-native-unix-common",
+    "netty-transport",
 ]
 
 [libraries]
@@ -116,6 +130,17 @@ nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "commo
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:3.0.1"
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.11.03_13.40-18456d0598be"
+
+netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty" }
+netty-common = { module = "io.netty:netty-common", version.ref = "netty" }
+netty-handler = { module = "io.netty:netty-handler", version.ref = "netty" }
+netty-resolver = { module = "io.netty:netty-resolver", version.ref = "netty" }
+netty-transport-classes-epoll = { module = "io.netty:netty-transport-classes-epoll", version.ref = "netty" }
+netty-transport-classes-kqueue = { module = "io.netty:netty-transport-classes-kqueue", version.ref = "netty" }
+netty-transport-native-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty" }
+netty-transport-native-kqueue = { module = "io.netty:netty-transport-native-kqueue", version.ref = "netty" }
+netty-transport-native-unix-common = { module = "io.netty:netty-transport-native-unix-common", version.ref = "netty" }
+netty-transport = { module = "io.netty:netty-transport", version.ref = "netty" }
 
 opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.61.0"
 

@@ -87,6 +87,7 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.sessions)
     testImplementation(libs.ktor.server.testHost)
+    implementation(libs.bundles.netty)
 
     implementation(libs.bundles.ktor.openapi)
 

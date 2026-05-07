@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.resources)
     testImplementation(libs.ktor.server.testHost)
+    implementation(libs.bundles.netty)
 
     // Test
     testImplementation(libs.kotest.junit)
