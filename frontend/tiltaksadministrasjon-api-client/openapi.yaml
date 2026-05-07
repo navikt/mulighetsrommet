@@ -6302,9 +6302,7 @@ components:
           - "null"
           - string
         navn:
-          type:
-          - "null"
-          - string
+          type: string
         oppfolgingEnhet:
           oneOf:
           - type: "null"

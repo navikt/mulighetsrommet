@@ -12,7 +12,6 @@ import {
   AmoKategoriseringDto,
   AmoKurstype,
   Tiltakskode,
-  TilsagnDeltakerDto,
   TilskuddOpplaeringType,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
@@ -300,13 +299,6 @@ export function avbrytGjennomforingAarsakTilTekst(aarsak: AvbrytGjennomforingAar
     case AvbrytGjennomforingAarsak.ANNET:
       return "Annet";
   }
-}
-
-export function formatTilsagnDeltaker(deltaker: TilsagnDeltakerDto): string {
-  const enhet = deltaker.oppfolgingEnhet
-    ? deltaker.oppfolgingEnhet.navn
-    : deltaker.geografiskEnhet?.navn;
-  return `${deltaker.navn} · ${deltaker.norskIdent} · ${enhet}`;
 }
 
 export type ValidationMessage = {

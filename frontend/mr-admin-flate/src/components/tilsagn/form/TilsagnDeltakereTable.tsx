@@ -32,7 +32,7 @@ export function TilsagnDeltakereTable({ deltakere, selected, onClick }: Props) {
             >
               <Table.HeaderCell scope="row">
                 <VStack>
-                  <NavnOgGradering navn={deltaker.navn ?? "-"} gradering={deltaker.gradering} />
+                  <NavnOgGradering navn={deltaker.navn} gradering={deltaker.gradering} />
                   <BodyShort>{deltaker.norskIdent}</BodyShort>
                 </VStack>
               </Table.HeaderCell>

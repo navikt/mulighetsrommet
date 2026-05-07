@@ -1,5 +1,5 @@
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { formatTilsagnDeltaker, tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
   FieldError,
@@ -31,6 +31,7 @@ import {
 import { getDataElement } from "@mr/frontend-common";
 import { useGodkjennTilsagn, useReturnerTilsagn } from "@/api/tilsagn/mutations";
 import { TilsagnHandlinger } from "./TilsagnHandlinger";
+import { TilsagnDeltakerCompact } from "@/components/personalia/TilsagnDeltakerCompact";
 
 export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
@@ -180,7 +181,11 @@ export function TilsagnDetaljer() {
                 value={
                   <ul>
                     {deltakere.map((d) => {
-                      return <li key={d.deltakerId}>{formatTilsagnDeltaker(d)}</li>;
+                      return (
+                        <li key={d.deltakerId}>
+                          <TilsagnDeltakerCompact deltaker={d} />
+                        </li>
+                      );
                     })}
                   </ul>
                 }

@@ -3,7 +3,7 @@ import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { TilsagnDto } from "@tiltaksadministrasjon/api-client";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { tilsagnTekster } from "../tilsagn/TilsagnTekster";
-import { formatTilsagnDeltaker } from "@/utils/Utils";
+import { TilsagnDeltakerCompact } from "../personalia/TilsagnDeltakerCompact";
 
 interface TilsagnInformasjonProps {
   tilsagn: TilsagnDto;
@@ -19,7 +19,11 @@ export function TilsagnInformasjon({ tilsagn }: TilsagnInformasjonProps) {
           value={
             <ul>
               {tilsagn.deltakere.map((d) => {
-                return <li key={d.deltakerId}>{formatTilsagnDeltaker(d)}</li>;
+                return (
+                  <li key={d.deltakerId}>
+                    <TilsagnDeltakerCompact deltaker={d} />
+                  </li>
+                );
               })}
             </ul>
           }

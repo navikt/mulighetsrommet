@@ -61,7 +61,7 @@ data class TilsagnDeltakerDto(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
     val norskIdent: NorskIdent?,
-    val navn: String?,
+    val navn: String,
     val oppfolgingEnhet: NavEnhetDto?,
     val geografiskEnhet: NavEnhetDto?,
     val innholdAnnet: String?,
