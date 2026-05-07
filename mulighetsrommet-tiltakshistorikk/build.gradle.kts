@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.ktor.server.metricsMicrometer)
     implementation(libs.ktor.server.netty)
     testImplementation(libs.ktor.server.testHost)
+    implementation(libs.bundles.netty)
 
     // Test
     testImplementation(libs.kotest.junit)
