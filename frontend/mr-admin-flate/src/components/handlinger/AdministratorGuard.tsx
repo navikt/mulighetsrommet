@@ -1,13 +1,13 @@
 import { ConfirmModal } from "./ConfirmModal";
 
 interface Props {
-  administratorer: Array<string>;
-  navIdent: string;
+  administratorer: string[];
+  navIdent?: string;
   children: React.ReactElement<{ onClick?: (e: React.MouseEvent) => void }>;
 }
 
 export function AdministratorGuard({ administratorer, navIdent, children }: Props) {
-  if (administratorer.length === 0 || administratorer.includes(navIdent)) {
+  if (administratorer.length === 0 || (navIdent && administratorer.includes(navIdent))) {
     return <>{children}</>;
   } else {
     return (

@@ -1,6 +1,5 @@
 import { GjennomforingHandling } from "@tiltaksadministrasjon/api-client";
-import { ActionMenu, Alert } from "@navikt/ds-react";
-import { useNavigate } from "react-router";
+import { Alert } from "@navikt/ds-react";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { useUtbetalingerByGjennomforing } from "@/api/utbetaling/useUtbetalingerByGjennomforing";
 import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
@@ -13,22 +12,23 @@ export function UtbetalingerForGjennomforingContainer() {
   const handlinger = useGjennomforingHandlinger(gjennomforingId);
   const { data: utbetalinger } = useUtbetalingerByGjennomforing(gjennomforingId);
 
-  const navigate = useNavigate();
-
   return (
     <>
       <KnapperadContainer>
-        <Handlinger>
-          {handlinger.includes(GjennomforingHandling.OPPRETT_UTBETALING) && (
-            <ActionMenu.Item
-              onClick={() => {
-                navigate("opprett-utbetaling");
-              }}
-            >
-              Opprett utbetaling for anskaffelse
-            </ActionMenu.Item>
-          )}
-        </Handlinger>
+        <Handlinger
+          handlinger={handlinger}
+          grupper={[
+            {
+              items: [
+                {
+                  label: "Opprett utbetaling for anskaffelse",
+                  href: "opprett-utbetaling",
+                  handling: GjennomforingHandling.OPPRETT_UTBETALING,
+                },
+              ],
+            },
+          ]}
+        />
       </KnapperadContainer>
       {utbetalinger.length > 0 ? (
         <UtbetalingTable gjennomforingId={gjennomforingId} utbetalinger={utbetalinger} />
