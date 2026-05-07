@@ -16,14 +16,14 @@ export function UtbetalingBeregningModal({ utbetalingId, modalOpen, onClose }: P
   const [navEnheter, setNavEnheter] = useState<string[]>([]);
   const [regioner, setRegioner] = useState<Kontorstruktur[]>([]);
   return (
-    <Modal open={modalOpen} onClose={onClose} aria-label="modal" width="80rem" className="h-240">
+    <Modal open={modalOpen} onClose={onClose} aria-label="modal" width="70rem" className="h-240">
       <Modal.Header closeButton>
         <Heading size="medium" level="2">
           Beregning
         </Heading>
       </Modal.Header>
       <Modal.Body>
-        <HStack gap="space-16" justify="space-between">
+        <HStack gap="space-16" justify="start">
           <VStack>
             <Heading size="xsmall" level="3" spacing>
               Oppfølgingsenhet

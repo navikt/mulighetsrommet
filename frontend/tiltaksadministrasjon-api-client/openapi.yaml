@@ -6947,6 +6947,61 @@ components:
       required:
       - handlinger
       - utbetaling
+    UtbetalingBeregningType:
+      type: string
+      enum:
+      - FRI
+      - FAST_SATS_PER_TILTAKSPLASS_PER_MANED
+      - PRIS_PER_MANEDSVERK
+      - PRIS_PER_UKESVERK
+      - PRIS_PER_HELE_UKESVERK
+      - PRIS_PER_TIME_OPPFOLGING
+    BeregningDeltakerDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        norskIdent:
+          type:
+          - "null"
+          - string
+        gradering:
+          $ref: "#/components/schemas/Gradering"
+        faktor:
+          type:
+          - "null"
+          - number
+          format: double
+        belop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
+        geografiskEnhet:
+          type:
+          - "null"
+          - string
+        oppfolgingEnhet:
+          type:
+          - "null"
+          - string
+        region:
+          type:
+          - "null"
+          - string
+        content:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TimelineDto"
+      required:
+      - belop
+      - content
+      - faktor
+      - geografiskEnhet
+      - gradering
+      - navn
+      - norskIdent
+      - oppfolgingEnhet
+      - region
     DeltakerAdvarselDto:
       type: object
       properties:
@@ -6969,16 +7024,18 @@ components:
     UtbetalingBeregningDto:
       type: object
       properties:
+        type:
+          $ref: "#/components/schemas/UtbetalingBeregningType"
         heading:
           type: string
         deltakerRegioner:
           type: array
           items:
             $ref: "#/components/schemas/Kontorstruktur"
-        deltakerTableData:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DataDrivenTableDto"
+        deltakere:
+          type: array
+          items:
+            $ref: "#/components/schemas/BeregningDeltakerDto"
         pris:
           $ref: "#/components/schemas/ValutaBelop"
         satsDetaljer:
@@ -6992,10 +7049,11 @@ components:
       required:
       - advarsler
       - deltakerRegioner
-      - deltakerTableData
+      - deltakere
       - heading
       - pris
       - satsDetaljer
+      - type
     UtbetalingLinje:
       type: object
       properties:

@@ -1232,24 +1232,9 @@ components:
           type:
           - "null"
           - string
-        grunn:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/AvvistGrunn"
       required:
-      - grunn
       - navn
       - norskIdent
-    AvvistGrunn:
-      type: string
-      enum:
-      - AVVIST_STRENGT_FORTROLIG_ADRESSE
-      - AVVIST_STRENGT_FORTROLIG_UTLAND
-      - AVVIST_FORTROLIG_ADRESSE
-      - AVVIST_SKJERMING
-      - AVVIST_HABILITET
-      - AVVIST_VERGE
-      - AVVIST_GEOGRAFISK
     DatoVelger:
       anyOf:
       - $ref: "#/components/schemas/DatoVelgerRange"

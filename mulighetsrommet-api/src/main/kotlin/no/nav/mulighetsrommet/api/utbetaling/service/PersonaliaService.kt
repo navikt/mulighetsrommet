@@ -199,7 +199,7 @@ data class Personalia(
 ) {
     fun harTilgang(): Boolean = avvistGrunn == null
 
-    fun navn(): String? = if (harTilgang()) {
+    fun navn(): String = if (harTilgang()) {
         navn
     } else {
         when (gradering) {

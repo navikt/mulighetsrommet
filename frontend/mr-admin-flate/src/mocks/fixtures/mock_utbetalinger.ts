@@ -14,6 +14,7 @@ import {
   UtbetalingStatusDtoType,
   UtbetalingTypeDto,
   Valuta,
+  UtbetalingBeregningType,
 } from "@tiltaksadministrasjon/api-client";
 import { mockEnheter } from "./mock_enheter";
 
@@ -487,10 +488,8 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
 export const mockBeregning: UtbetalingBeregningDto = {
   heading: "Annen avtalt pris",
   deltakerRegioner: [],
-  deltakerTableData: {
-    columns: [],
-    rows: [],
-  },
+  type: UtbetalingBeregningType.FRI,
+  deltakere: [],
   pris: { belop: 24000, valuta: Valuta.NOK },
   satsDetaljer: [
     {
