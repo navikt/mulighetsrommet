@@ -1,4 +1,4 @@
-import { EyeSlashIcon, ShieldLockIcon } from "@navikt/aksel-icons";
+import { EarthIcon, EyeSlashIcon, ShieldLockIcon } from "@navikt/aksel-icons";
 import { BodyShort, Tooltip } from "@navikt/ds-react";
 import { Gradering } from "@tiltaksadministrasjon/api-client";
 
@@ -41,6 +41,12 @@ export function NavnOgGradering({ navn, gradering }: Props) {
         return (
           <Tooltip content="Skjermet">
             <EyeSlashIcon style={{ color: "var(--ax-text-info-decoration)" }} fontSize="1.25rem" />
+          </Tooltip>
+        );
+      case Gradering.GEOGRAFISK:
+        return (
+          <Tooltip content="Du har ikke tilgang til brukerens geografiske område">
+            <EarthIcon style={{ color: "var(--ax-text-info-decoration)" }} fontSize="1.25rem" />
           </Tooltip>
         );
       case Gradering.UGRADERT:

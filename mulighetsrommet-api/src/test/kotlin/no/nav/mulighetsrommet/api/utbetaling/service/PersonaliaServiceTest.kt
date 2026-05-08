@@ -308,5 +308,200 @@ class PersonaliaServiceTest : FunSpec({
                 it.navn() shouldBe personalia.navn
             }
         }
+
+        test("geografisk avvisning fra tilgangsmaskin gir Gradering.GEOGRAFISK") {
+            val service = PersonaliaService(
+                hentPersonOgGeografiskTilknytningQuery,
+                norg2Client,
+                amtDeltakerClient,
+                tilgansmaskinClient,
+                navEnhetService,
+            )
+            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(personalia).right()
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResult(
+                resultater = listOf(
+                    TilgangsmaskinResult.Resultat.Avvist(
+                        brukerId = personalia.norskIdent.value,
+                        grunn = TilgangsmaskinResult.AvvistGrunn.AVVIST_GEOGRAFISK,
+                    ),
+                ),
+            )
+            coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
+                enhetId = 1,
+                navn = "navn",
+                enhetNr = oppfolgingEnhet.enhetsnummer,
+                status = Norg2EnhetStatus.AKTIV,
+                type = Norg2Type.LOKAL,
+            ).right()
+            coEvery {
+                hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
+            } returns mapOf(
+                PdlIdent(personalia.norskIdent.value) to Pair(
+                    PdlPerson(navn = "Normann, Ola", gradering = PdlGradering.UGRADERT),
+                    GeografiskTilknytning.GtKommune("0301"),
+                ),
+            ).right()
+
+            // NavAnsatt uten geografisk tilgang: avvist, gradering GEOGRAFISK, data skjult
+            service.getPersonalia(deltakerId, PersonaliaService.OnBehalfOf.NavAnsatt(AccessType.OBO.AzureAd("token"))) should {
+                it.avvistGrunn shouldBe AvvistGrunn.AVVIST_GEOGRAFISK
+                it.gradering shouldBe Gradering.GEOGRAFISK
+                it.navn() shouldBe "Skjermet"
+                it.norskIdent() shouldBe null
+                it.geografiskEnhet() shouldBe null
+                it.region() shouldBe null
+                // oppfolgingEnhet vises selv uten tilgang
+                it.oppfolgingEnhet() shouldBe oppfolgingEnhet.toDto()
+            }
+
+            // Arrangor: UGRADERT person → ikke avvist for arrangør
+            service.getPersonalia(deltakerId, PersonaliaService.OnBehalfOf.Arrangor) should {
+                it.avvistGrunn shouldBe null
+                it.gradering shouldBe Gradering.UGRADERT
+                it.navn() shouldBe personalia.navn
+                it.norskIdent() shouldBe personalia.norskIdent
+                it.geografiskEnhet() shouldBe oppfolgingEnhet.toDto()
+            }
+
+            // System: alltid full tilgang
+            service.getPersonalia(deltakerId, PersonaliaService.OnBehalfOf.System) should {
+                it.avvistGrunn shouldBe null
+                it.gradering shouldBe Gradering.UGRADERT
+                it.navn() shouldBe personalia.navn
+                it.norskIdent() shouldBe personalia.norskIdent
+            }
+        }
+
+        test("AVVIST_VERGE fra tilgangsmaskin gir Gradering.SKJERMING og skjermet navn") {
+            val service = PersonaliaService(
+                hentPersonOgGeografiskTilknytningQuery,
+                norg2Client,
+                amtDeltakerClient,
+                tilgansmaskinClient,
+                navEnhetService,
+            )
+            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(personalia).right()
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResult(
+                resultater = listOf(
+                    TilgangsmaskinResult.Resultat.Avvist(
+                        brukerId = personalia.norskIdent.value,
+                        grunn = TilgangsmaskinResult.AvvistGrunn.AVVIST_VERGE,
+                    ),
+                ),
+            )
+            coEvery {
+                hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
+            } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
+
+            service.getPersonalia(deltakerId, PersonaliaService.OnBehalfOf.NavAnsatt(AccessType.OBO.AzureAd("token"))) should {
+                it.avvistGrunn shouldBe AvvistGrunn.AVVIST_VERGE
+                it.gradering shouldBe Gradering.SKJERMING
+                it.navn() shouldBe "Skjermet"
+                it.norskIdent() shouldBe null
+            }
+        }
+
+        test("AVVIST_HABILITET fra tilgangsmaskin gir Gradering.SKJERMING og skjermet navn") {
+            val service = PersonaliaService(
+                hentPersonOgGeografiskTilknytningQuery,
+                norg2Client,
+                amtDeltakerClient,
+                tilgansmaskinClient,
+                navEnhetService,
+            )
+            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(personalia).right()
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResult(
+                resultater = listOf(
+                    TilgangsmaskinResult.Resultat.Avvist(
+                        brukerId = personalia.norskIdent.value,
+                        grunn = TilgangsmaskinResult.AvvistGrunn.AVVIST_HABILITET,
+                    ),
+                ),
+            )
+            coEvery {
+                hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
+            } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
+
+            service.getPersonalia(deltakerId, PersonaliaService.OnBehalfOf.NavAnsatt(AccessType.OBO.AzureAd("token"))) should {
+                it.avvistGrunn shouldBe AvvistGrunn.AVVIST_HABILITET
+                it.gradering shouldBe Gradering.SKJERMING
+                it.navn() shouldBe "Skjermet"
+                it.norskIdent() shouldBe null
+            }
+        }
+
+        test("FORTROLIG adressebeskyttelse avvises for arrangør") {
+            val service = PersonaliaService(
+                hentPersonOgGeografiskTilknytningQuery,
+                norg2Client,
+                amtDeltakerClient,
+                tilgansmaskinClient,
+                navEnhetService,
+            )
+            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(
+                personalia.copy(adressebeskyttelse = PdlGradering.FORTROLIG),
+            ).right()
+            coEvery {
+                hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
+            } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
+
+            service.getPersonalia(deltakerId, PersonaliaService.OnBehalfOf.Arrangor) should {
+                it.avvistGrunn shouldBe AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
+                it.gradering shouldBe Gradering.FORTROLIG_ADRESSE
+                it.navn() shouldBe "Adressebeskyttet"
+                it.norskIdent() shouldBe null
+            }
+            service.getPersonalia(deltakerId, PersonaliaService.OnBehalfOf.System) should {
+                it.avvistGrunn shouldBe null
+                it.navn() shouldBe personalia.navn
+                it.norskIdent() shouldBe personalia.norskIdent
+            }
+        }
+
+        test("ugradert og uskjermet person får full tilgang for alle") {
+            val service = PersonaliaService(
+                hentPersonOgGeografiskTilknytningQuery,
+                norg2Client,
+                amtDeltakerClient,
+                tilgansmaskinClient,
+                navEnhetService,
+            )
+            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(personalia).right()
+            coEvery { tilgansmaskinClient.bulk(listOf(personalia.norskIdent), any()) } returns TilgangsmaskinResult(
+                resultater = listOf(
+                    TilgangsmaskinResult.Resultat.Innvilget(brukerId = personalia.norskIdent.value),
+                ),
+            )
+            coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
+                enhetId = 1,
+                navn = "navn",
+                enhetNr = oppfolgingEnhet.enhetsnummer,
+                status = Norg2EnhetStatus.AKTIV,
+                type = Norg2Type.LOKAL,
+            ).right()
+            coEvery {
+                hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
+            } returns mapOf(
+                PdlIdent(personalia.norskIdent.value) to Pair(
+                    PdlPerson(navn = personalia.navn, gradering = PdlGradering.UGRADERT),
+                    GeografiskTilknytning.GtKommune("0301"),
+                ),
+            ).right()
+
+            listOf(
+                PersonaliaService.OnBehalfOf.Arrangor,
+                PersonaliaService.OnBehalfOf.NavAnsatt(AccessType.OBO.AzureAd("token")),
+                PersonaliaService.OnBehalfOf.System,
+            ).forEach { onBehalfOf ->
+                service.getPersonalia(deltakerId, onBehalfOf) should {
+                    it.avvistGrunn shouldBe null
+                    it.gradering shouldBe Gradering.UGRADERT
+                    it.navn() shouldBe personalia.navn
+                    it.norskIdent() shouldBe personalia.norskIdent
+                    it.geografiskEnhet() shouldBe oppfolgingEnhet.toDto()
+                    it.region() shouldBe oppfolgingEnhet.toDto()
+                }
+            }
+        }
     }
 })

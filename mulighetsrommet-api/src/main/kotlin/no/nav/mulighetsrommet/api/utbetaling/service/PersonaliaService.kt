@@ -208,7 +208,9 @@ data class Personalia(
             Gradering.FORTROLIG_ADRESSE,
             -> "Adressebeskyttet"
 
-            Gradering.SKJERMING -> "Skjermet"
+            Gradering.GEOGRAFISK,
+            Gradering.SKJERMING,
+            -> "Skjermet"
 
             Gradering.UGRADERT -> navn
         }
@@ -241,6 +243,7 @@ enum class Gradering {
     FORTROLIG_ADRESSE,
     SKJERMING,
     UGRADERT,
+    GEOGRAFISK,
     ;
 
     companion object {
@@ -255,6 +258,8 @@ enum class Gradering {
                 PdlGradering.UGRADERT -> {
                     if (erSkjermet == true || avvistGrunn?.erSkjermet() == true) {
                         SKJERMING
+                    } else if (avvistGrunn == AvvistGrunn.AVVIST_GEOGRAFISK) {
+                        GEOGRAFISK
                     } else {
                         UGRADERT
                     }
