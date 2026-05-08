@@ -15,8 +15,7 @@ export function NavnOgGradering({ navn, gradering }: Props) {
           <Tooltip content="Strengt fortrolig adresse">
             <ShieldLockIcon
               style={{ color: "var(--ax-text-warning-decoration)" }}
-              title="a11y-title"
-              fontSize="5rem"
+              fontSize="1.25rem"
             />
           </Tooltip>
         );
@@ -25,29 +24,23 @@ export function NavnOgGradering({ navn, gradering }: Props) {
           <Tooltip content="Strengt fortrolig utland">
             <ShieldLockIcon
               style={{ color: "var(--ax-text-warning-decoration)" }}
-              title="a11y-title"
-              fontSize="5rem"
+              fontSize="1.25rem"
             />
           </Tooltip>
         );
       case Gradering.FORTROLIG_ADRESSE:
         return (
-          <Tooltip content="Fortrolig utland">
+          <Tooltip content="Fortrolig adresse">
             <ShieldLockIcon
               style={{ color: "var(--ax-text-warning-decoration)" }}
-              title="a11y-title"
-              fontSize="5rem"
+              fontSize="1.25rem"
             />
           </Tooltip>
         );
       case Gradering.SKJERMING:
         return (
           <Tooltip content="Skjermet">
-            <EyeSlashIcon
-              style={{ color: "var(--ax-text-info-decoration)" }}
-              title="a11y-title"
-              fontSize="1.25rem"
-            />
+            <EyeSlashIcon style={{ color: "var(--ax-text-info-decoration)" }} fontSize="1.25rem" />
           </Tooltip>
         );
       case Gradering.UGRADERT:
