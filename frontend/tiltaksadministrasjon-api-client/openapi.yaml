@@ -1667,6 +1667,69 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/kodeverk/opplaring/kategorisering:
+    get:
+      tags:
+      - Kodeverk
+      description: Struktur for kategorisering av arbeidsmarkedsopplæring
+      operationId: getOpplaringKategorisering
+      parameters:
+      - name: tiltakskode
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/Tiltakskode"
+      responses:
+        "200":
+          description: Kategorisering av kategorisering
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpplaringKategoriseringResponse"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/kodeverk/opplaring/sertifiseringer/sok:
+    get:
+      tags:
+      - Kodeverk
+      description: Søk etter JANZZ sertifiseringer
+      operationId: sokSertifiseringer
+      parameters:
+      - name: q
+        in: query
+        description: Søketekst for JANZZ sertifisering
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Liste over sertifiseringer som matcher søket
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Sertifisering"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/kodeverk/kontorstruktur:
     get:
       tags:
@@ -5938,6 +6001,127 @@ components:
       - beskrivelse
       - navn
       - type
+    Container:
+      anyOf:
+      - $ref: "#/components/schemas/Gruppe"
+      - $ref: "#/components/schemas/Verdigruppe"
+      - $ref: "#/components/schemas/VerdigruppeSok"
+      discriminator:
+        propertyName: type
+        mapping:
+          Gruppe: "#/components/schemas/Gruppe"
+          Verdigruppe: "#/components/schemas/Verdigruppe"
+          VerdigruppeSok: "#/components/schemas/VerdigruppeSok"
+    Gruppe:
+      type: object
+      properties:
+        id:
+          type:
+          - "null"
+          - string
+          format: uuid
+        visningsnavn:
+          type: string
+        alternativer:
+          type: array
+          items:
+            $ref: "#/components/schemas/Container"
+      required:
+      - alternativer
+      - id
+      - visningsnavn
+    Verdigruppe:
+      type: object
+      properties:
+        id:
+          type:
+          - "null"
+          - string
+          format: uuid
+        visningsnavn:
+          type: string
+        representerer:
+          type: string
+        seleksjonstype:
+          $ref: "#/components/schemas/OpplaringKategoriseringResponse.Seleksjonstype"
+        alternativer:
+          type: array
+          items:
+            $ref: "#/components/schemas/Verdi"
+      required:
+      - alternativer
+      - id
+      - representerer
+      - seleksjonstype
+      - visningsnavn
+    OpplaringKategoriseringResponse.Seleksjonstype:
+      type: string
+      enum:
+      - ENKELTVALG
+      - FLERVALG
+    Verdi:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        visningsnavn:
+          type: string
+        valgt:
+          type: boolean
+      required:
+      - id
+      - valgt
+      - visningsnavn
+    VerdigruppeSok:
+      type: object
+      properties:
+        id:
+          type:
+          - "null"
+          - string
+          format: uuid
+        visningsnavn:
+          type: string
+        representerer:
+          type: string
+        seleksjonstype:
+          $ref: "#/components/schemas/OpplaringKategoriseringResponse.Seleksjonstype"
+        kilde:
+          $ref: "#/components/schemas/OpplaringKategoriseringResponse.Alternativ.VerdigruppeSok.Kilde"
+      required:
+      - id
+      - kilde
+      - representerer
+      - seleksjonstype
+      - visningsnavn
+    OpplaringKategoriseringResponse.Alternativ.VerdigruppeSok.Kilde:
+      type: string
+      enum:
+      - JANZZ_SERTIFISERING
+    OpplaringKategoriseringResponse:
+      type: object
+      properties:
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        alternativer:
+          type: array
+          items:
+            $ref: "#/components/schemas/Container"
+      required:
+      - alternativer
+      - tiltakskode
+    Sertifisering:
+      type: object
+      properties:
+        konseptId:
+          type: integer
+          format: int64
+        label:
+          type: string
+      required:
+      - konseptId
+      - label
     RegionKostnadssteder:
       type: object
       properties:

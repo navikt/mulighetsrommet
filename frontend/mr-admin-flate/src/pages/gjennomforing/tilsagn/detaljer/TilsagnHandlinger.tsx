@@ -2,7 +2,7 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
-import { ActionMenu, BodyShort, Button, HStack } from "@navikt/ds-react";
+import { BodyShort, Button, HStack } from "@navikt/ds-react";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
   EndringshistorikkType,
@@ -11,7 +11,7 @@ import {
   TilsagnStatusAarsak,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useTilsagn } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useState } from "react";
@@ -79,42 +79,42 @@ export function TilsagnHandlinger() {
       <EndringshistorikkPopover>
         <ViewEndringshistorikk historikk={historikk} />
       </EndringshistorikkPopover>
-      <Handlinger>
-        {tilsagn.handlinger.includes(TilsagnHandling.REDIGER) && (
-          <ActionMenu.Item icon={<PencilFillIcon />}>
-            <Link className="no-underline" to="./rediger-tilsagn">
-              Rediger tilsagn
-            </Link>
-          </ActionMenu.Item>
-        )}
-        {tilsagn.handlinger.includes(TilsagnHandling.SLETT) && (
-          <ActionMenu.Item
-            variant="danger"
-            onSelect={() => setSlettTilsagnModalOpen(true)}
-            icon={<TrashIcon />}
-          >
-            Slett tilsagn
-          </ActionMenu.Item>
-        )}
-        {tilsagn.handlinger.includes(TilsagnHandling.ANNULLER) && (
-          <ActionMenu.Item
-            variant="danger"
-            onSelect={() => setTilAnnulleringModalOpen(true)}
-            icon={<EraserIcon />}
-          >
-            Annuller tilsagn
-          </ActionMenu.Item>
-        )}
-        {tilsagn.handlinger.includes(TilsagnHandling.GJOR_OPP) && (
-          <ActionMenu.Item
-            variant="danger"
-            onSelect={() => setTilOppgjorModalOpen(true)}
-            icon={<EraserIcon />}
-          >
-            Gjør opp tilsagn
-          </ActionMenu.Item>
-        )}
-      </Handlinger>
+      <Handlinger
+        handlinger={tilsagn.handlinger}
+        grupper={[
+          {
+            items: [
+              {
+                label: "Rediger tilsagn",
+                href: "rediger-tilsagn",
+                icon: <PencilFillIcon />,
+                handling: TilsagnHandling.REDIGER,
+              },
+              {
+                label: "Slett tilsagn",
+                onClick: () => setSlettTilsagnModalOpen(true),
+                icon: <TrashIcon />,
+                variant: "danger",
+                handling: TilsagnHandling.SLETT,
+              },
+              {
+                label: "Annuller tilsagn",
+                onClick: () => setTilAnnulleringModalOpen(true),
+                icon: <EraserIcon />,
+                variant: "danger",
+                handling: TilsagnHandling.ANNULLER,
+              },
+              {
+                label: "Gjør opp tilsagn",
+                onClick: () => setTilOppgjorModalOpen(true),
+                icon: <EraserIcon />,
+                variant: "danger",
+                handling: TilsagnHandling.GJOR_OPP,
+              },
+            ],
+          },
+        ]}
+      />
       <VarselModal
         headingIconType="warning"
         headingText="Slette tilsagnet?"

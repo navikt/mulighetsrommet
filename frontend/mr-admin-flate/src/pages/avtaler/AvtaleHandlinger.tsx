@@ -1,9 +1,7 @@
 import { RegistrerOpsjonModal } from "@/components/avtaler/opsjoner/RegistrerOpsjonModal";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { ActionMenu, BodyShort, Button } from "@navikt/ds-react";
 import {
   AvbrytAvtaleAarsak,
   AvtaleDto,
@@ -13,7 +11,7 @@ import {
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
@@ -22,26 +20,17 @@ import { OppdaterPrisModal } from "@/components/avtaler/OppdaterPrisModal";
 import { useAvtaleHandlinger } from "@/api/avtaler/useAvtale";
 import { OppdaterRammedetaljerModal } from "@/components/avtaler/OppdaterRammedetaljerModal";
 import { Handlinger } from "@/components/handlinger/Handlinger";
-import { AdministratorGuard } from "@/components/handlinger/AdministratorGuard";
 import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 interface Props {
   avtale: AvtaleDto;
 }
 
-function skjemaPath(pathname: string): string {
-  if (pathname.includes("veilederinformasjon")) return "veilederinformasjon/rediger";
-  if (pathname.includes("personvern")) return "personvern/rediger";
-  return "rediger";
-}
-
 type AvtaleModal = "Prismodell" | "Avbryt" | "Rammedetaljer";
 
 export function AvtaleHandlinger({ avtale }: Props) {
   const navigate = useNavigate();
-  const location = useLocation();
   const { data: handlinger } = useAvtaleHandlinger(avtale.id);
-  const advarselModal = useRef<HTMLDialogElement>(null);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
   const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
@@ -49,7 +38,7 @@ export function AvtaleHandlinger({ avtale }: Props) {
   const [avtaleModalOpen, setAvtaleModalOpen] = useState<AvtaleModal | null>(null);
   const { data: ansatt } = useHentAnsatt();
   const avbrytMutation = useAvbrytAvtale();
-  const path = `/avtaler/${avtale.id}/${skjemaPath(location.pathname)}`;
+  const administratorer = avtale.administratorer.map((a) => a.navIdent);
 
   function dupliserAvtale() {
     navigate(`/avtaler/opprett`, {
@@ -82,80 +71,85 @@ export function AvtaleHandlinger({ avtale }: Props) {
       },
     );
   }
-  const administratorer = avtale.administratorer.map((a) => a.navIdent);
 
   return (
     <KnapperadContainer>
       <EndringshistorikkPopover>
         <AvtaleEndringshistorikk id={avtale.id} />
       </EndringshistorikkPopover>
-      <Handlinger>
-        {handlinger.includes(AvtaleHandling.REDIGER) && (
-          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
-            <ActionMenu.Item onClick={() => navigate(path)}>Rediger avtale</ActionMenu.Item>
-          </AdministratorGuard>
-        )}
-        {handlinger.includes(AvtaleHandling.REGISTRER_OPSJON) && (
-          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
-            <ActionMenu.Item
-              onClick={() => {
-                registrerOpsjonModalRef.current?.showModal();
-              }}
-            >
-              Registrer opsjon
-            </ActionMenu.Item>
-          </AdministratorGuard>
-        )}
-        {handlinger.includes(AvtaleHandling.OPPDATER_PRIS) && (
-          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
-            <ActionMenu.Item onClick={() => setOppdaterPrisModalOpen(true)}>
-              Oppdater pris
-            </ActionMenu.Item>
-          </AdministratorGuard>
-        )}
-        {handlinger.includes(AvtaleHandling.OPPDATER_RAMMEDETALJER) && (
-          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
-            <ActionMenu.Item onClick={() => setAvtaleModalOpen("Rammedetaljer")}>
-              Oppdater rammedetaljer
-            </ActionMenu.Item>
-          </AdministratorGuard>
-        )}
-        {handlinger.includes(AvtaleHandling.AVBRYT) && (
-          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
-            <ActionMenu.Item onClick={() => setAvbrytModalOpen(true)}>
-              Avbryt avtale
-            </ActionMenu.Item>
-          </AdministratorGuard>
-        )}
-        {handlinger.includes(AvtaleHandling.OPPRETT_GJENNOMFORING) && (
-          <AdministratorGuard administratorer={administratorer} navIdent={ansatt.navIdent}>
-            <ActionMenu.Item
-              onClick={() => navigate(`/avtaler/${avtale.id}/opprett-gjennomforing`)}
-            >
-              Opprett ny gjennomføring
-            </ActionMenu.Item>
-          </AdministratorGuard>
-        )}
-        <ActionMenu.Divider />
-        {handlinger.includes(AvtaleHandling.DUPLISER) && (
-          <ActionMenu.Item onClick={dupliserAvtale}>
-            <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
-            Dupliser
-          </ActionMenu.Item>
-        )}
-      </Handlinger>
-      <VarselModal
-        modalRef={advarselModal}
-        handleClose={() => advarselModal.current?.close()}
-        headingIconType="info"
-        headingText="Du er ikke eier av denne avtalen"
-        body={<BodyShort>Vil du fortsette til redigeringen?</BodyShort>}
-        secondaryButton
-        primaryButton={
-          <Button variant="primary" onClick={() => navigate(path)}>
-            Ja, jeg vil redigere
-          </Button>
-        }
+      <Handlinger
+        handlinger={handlinger}
+        navIdent={ansatt.navIdent}
+        grupper={[
+          {
+            label: "Avtale",
+            items: [
+              {
+                label: "Rediger avtale",
+                onClick: () => navigate(`/avtaler/${avtale.id}/rediger`),
+                handling: AvtaleHandling.REDIGER,
+                administratorer,
+              },
+              {
+                label: "Rediger personvern",
+                onClick: () => navigate(`/avtaler/${avtale.id}/personvern/rediger`),
+                handling: AvtaleHandling.REDIGER,
+                administratorer,
+              },
+              {
+                label: "Rediger informasjon for veiledere",
+                onClick: () => navigate(`/avtaler/${avtale.id}/veilederinformasjon/rediger`),
+                handling: AvtaleHandling.REDIGER,
+                administratorer,
+              },
+              {
+                label: "Registrer opsjon",
+                onClick: () => registrerOpsjonModalRef.current?.showModal(),
+                handling: AvtaleHandling.REGISTRER_OPSJON,
+                administratorer,
+              },
+              {
+                label: "Avbryt avtale",
+                onClick: () => setAvbrytModalOpen(true),
+                handling: AvtaleHandling.AVBRYT,
+                administratorer,
+              },
+              {
+                label: "Dupliser",
+                onClick: dupliserAvtale,
+                icon: <LayersPlusIcon aria-hidden />,
+                handling: AvtaleHandling.DUPLISER,
+              },
+            ],
+          },
+          {
+            label: "Drift",
+            items: [
+              {
+                label: "Oppdater pris",
+                onClick: () => setOppdaterPrisModalOpen(true),
+                handling: AvtaleHandling.OPPDATER_PRIS,
+                administratorer,
+              },
+              {
+                label: "Oppdater rammedetaljer",
+                onClick: () => setAvtaleModalOpen("Rammedetaljer"),
+                handling: AvtaleHandling.OPPDATER_RAMMEDETALJER,
+                administratorer,
+              },
+            ],
+          },
+          {
+            label: "Gjennomføringer",
+            items: [
+              {
+                label: "Opprett ny gjennomføring",
+                href: `/avtaler/${avtale.id}/opprett-gjennomforing`,
+                handling: AvtaleHandling.OPPRETT_GJENNOMFORING,
+              },
+            ],
+          },
+        ]}
       />
       <AarsakerOgForklaringModal<AvbrytAvtaleAarsak>
         header="Ønsker du avbryte avtalen?"
